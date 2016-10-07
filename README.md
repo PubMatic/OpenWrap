@@ -135,8 +135,8 @@ Here are the details on what partners are supported by Wrapper Tag Solution and 
 | Key Name | <span style="color: rgb(84,84,84);">sk</span> | Y | PubMatic server key flag indicating that slot mapping is at Ad Server side.<br>Slot name would be generated based on KGP macro and sent as is to PubMatic. | <span>Hardcoded to '**true**'</span> |
 
 Response Mapping:
+
 | Wrapper Key | Partner response key | Conversion | Explanation |
-| --- | --- | --- | --- |
 | --- | --- | --- | --- |
 | pwtecp | bidDetailsMap[MD5(slotName)].ecpm | No | Bid value (USD) |
 
