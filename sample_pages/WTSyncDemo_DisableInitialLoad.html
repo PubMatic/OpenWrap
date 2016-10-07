@@ -1,0 +1,286 @@
+<!DOCTYPE HTML>
+
+
+<html lang="en-us">
+
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Wrapper Tag GPT Sync Demo</title>
+    <h3>Following Wrapper Tag is being executed :</h3>
+    <h6>
+        <p>&lt;script type=&quot;text/javascript&quot; src=&quot;owt.js&quot;&gt;</p>
+        <p> &lt;/script&gt;</p>
+    </h6>
+
+    <h4>GPT implementation is SYNC SRA and Disable Initial Load <a href="https://support.google.com/dfp_premium/answer/1638622?hl=en">(Refer this for types of GPT Tags)</a></h4>
+    <h4>Refreshing all slots after 15 seconds </h4>
+
+    <!-- Wrapper configurations -->
+    <script type="text/javascript">
+        /*custom params can be declared here*/
+        var pm_config = {
+            global: {
+                pwt: {
+                    t: 2000
+                },
+                adapters: {
+                    'pubmatic': {
+                        pub_id: 9999,
+                        kgp: "_AU_@_W_x_H_:_AUI_",
+                        sk: true
+                    },
+
+                    'appnexus': {
+                        kgp: "_DIV_",
+                        klm: {
+                            "Div1": {
+                                placementId: "12345",
+                                memberId: "",
+                                invCode: "",
+                                query: ""
+                            },
+                            "Div2": {
+                                placementId: "67890",
+                                memberId: "",
+                                invCode: "",
+                                query: ""
+                            },
+                            "Div3": {
+                                placementId: "34567",
+                                memberId: "",
+                                invCode: "",
+                                query: ""
+                            }
+                        }
+                    },
+
+                    'openx': {
+                        jstag_url: "http://your-domain/w/1.0/jstag?your-client-identifier=432321-ER",
+                        kgp: "_DIV_",
+                        klm: {
+                            "Div1": {
+                                unit: "12345"
+                            },
+                            "Div2": {
+                                unit: "67890"
+                            },
+                            "Div3": {
+                                unit: "34567"
+                            }
+                        }
+                    },
+
+                    'rubicon': {
+                        rp_account: '1234',
+                        kgp: '_DIV_',
+                        klm: {
+                            'Div1': { // 728x90
+                                rp_site: '12345',
+                                rp_zonesize: '12345-2',
+                            },
+
+                            'Div2': {
+                                rp_site: '67890',
+                                rp_zonesize: '67890-9',
+                            }
+                        }
+
+                    },
+
+                    'adform': {
+                        adxDomain: "adx.adform.net",
+                        kgp: '_DIV_',
+                        klm: {
+                            'Div1': {
+                                mid: "12345",
+                                minp: "0.1"
+                            },
+                            'Div2': {
+                                mid: "67890",
+                                minp: "0.1"
+                            }
+                        }
+                    },
+
+                    'indexExchange': {
+                        kgp: '_DIV_',
+                        klm: {
+                            'Div1': {
+                                siteID: '12345',
+                                tier2SiteID: ''
+                            },
+                            'Div2': {
+                                siteID: '67890',
+                                tier2SiteID: ''
+                            }
+                        }
+                    },
+
+                    'yieldbot': {
+                        psn: "R2E4T5",
+                        kgp: '_DIV_',
+                        klm: {
+                            'Div1': {
+                                slot: 'slot1',
+                            },
+                            'Div2': {
+                                slot: 'slot2',
+                            }
+                        }
+                    },
+                    'districtM': {
+                        kgp: "_DIV_",
+                        klm: {
+                            "Div1": {
+                                placementId: "12345",
+                                memberId: "",
+                                invCode: "",
+                                query: ""
+                            },
+                            "Div2": {
+                                placementId: "67890",
+                                memberId: "",
+                                invCode: "",
+                                query: ""
+                            },
+                            "Div3": {
+                                placementId: "34567",
+                                memberId: "",
+                                invCode: "",
+                                query: ""
+                            }
+                        }
+                    },
+
+                    'bRealTime': {
+                        kgp: "_DIV_",
+                        klm: {
+                            "Div1": {
+                                placementId: "12345",
+                                memberId: "",
+                                invCode: "",
+                                query: ""
+                            },
+                            "Div2": {
+                                placementId: "67890",
+                                memberId: "",
+                                invCode: "",
+                                query: ""
+                            },
+                            "Div3": {
+                                placementId: "34567",
+                                memberId: "",
+                                invCode: "",
+                                query: ""
+                            }
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!--Wrapper Tag begins here -->
+    <script type="text/javascript" src="owt.js">
+    </script>
+    <!--Wrapper Tag ends here -->
+
+    <!--GPT Tag starts here -->
+    <script type='text/javascript'>
+        (function() {
+            var useSSL = 'https:' == document.location.protocol;
+            var src = (useSSL ? 'https:' : 'http:') +
+                '//www.googletagservices.com/tag/js/gpt.js';
+            document.write('<scr' + 'ipt src="' + src + '"></scr' + 'ipt>');
+        })();
+    </script>
+    <!--GPT Tag ends here -->
+
+    <script type="text/javascript">
+        googletag.cmd.push(function() {
+
+            // common targetings
+            googletag.pubads().setTargeting('v', 'classifieds');
+            googletag.pubads().setTargeting('cpage', 'browseads');
+            googletag.pubads().setTargeting('article-id', '65207');
+            googletag.pubads().enableSingleRequest();
+
+            // Disable initial load, we will use refresh() to fetch ads.
+            // Calling this function means that display() calls just
+            // register the slot as ready, but do not fetch ads for it.
+
+            googletag.pubads().disableInitialLoad();
+            googletag.enableServices();
+        });
+       
+	 setTimeout(function() {
+            console.clear();
+            console.log('refreshing all slots');
+            googletag.pubads().refresh();
+        }, 55000);
+    </script>
+</head>
+
+<body style='background-color:whitesmoke;'>
+
+    <br><br>
+    <!-- DMDemo -->
+    Adslot : /15671365/DMDemo
+    <br>
+    <script type="text/javascript">
+        googletag.cmd.push(function() {
+            var slot = googletag.defineSlot('/15671365/DMDemo', [
+                [728, 90]
+            ], 'Div1').
+            addService(googletag.pubads());
+            // Display has to be called before
+            // refresh and after the slot div is in the page.
+            googletag.display('Div1');
+            googletag.pubads().refresh([slot]);
+        });
+    </script>
+    <div id='Div1'>
+    </div>
+
+    <br><br>
+    <!-- DMDemo1 -->
+    Adslot : /15671365/DMDemo1
+    <br>
+
+    <script type="text/javascript">
+        googletag.cmd.push(function() {
+            var slot = googletag.defineSlot('/15671365/DMDemo1', [
+                [300, 250],
+                [300, 300]
+            ], 'Div2').
+            addService(googletag.pubads());
+            // Display has to be called before
+            // refresh and after the slot div is in the page.
+            googletag.display('Div2');
+            googletag.pubads().refresh([slot]);
+        });
+    </script>
+
+    <div id='Div2'>
+    </div>
+
+    <br><br>
+    <!-- DMDemo2 -->
+    Adslot : /15671365/DMDemo2
+    <br>
+    <script type="text/javascript">
+        googletag.cmd.push(function() {
+            var slot = googletag.defineSlot('/15671365/DMDemo2', [728, 90], 'Div3').
+            addService(googletag.pubads());
+            // Display has to be called before
+            // refresh and after the slot div is in the page.
+            googletag.display('Div3');
+            googletag.pubads().refresh([slot]);
+        });
+    </script>
+
+    <div id='Div3'>
+    </div>
+</body>
+
+</html>
