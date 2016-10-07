@@ -17,7 +17,8 @@ To solve for all the issues we came up with a simple to use wrapper tag which so
 *   No coding required to get and push bids to GPT (not even setting targeting)
 *   Works with standard as well as advanced GPT implementations.
 
-In short what publisher has to do is push the wrapper script and partner configuration on page and you are all done REALLY!! . The script takes care of detecting what ad-units, divs and sizes are on page, fire up calls to desired partners and attach bids to DFP calls as key-values.
+In short what publisher has to do is push the wrapper script and partner configuration on page and you are all done REALLY!!.
+The script takes care of detecting what ad-units, divs and sizes are on page, fire up calls to desired partners and attach bids to DFP calls as key-values.
 
 # Design and Execution Flow
 
@@ -26,16 +27,15 @@ In short what publisher has to do is push the wrapper script and partner configu
 *   Wrapper script interacts with GPT tags by overriding basic GPT functions like display(), refresh() ... 
 *   The original display calls to DFP are put in queue till all the Wrapper partners are called for bid or desired timeout is reached.
 *   Final auction between the bids takes place and highest bid is pushed as key-value to DFP
-
 *   Here is the flow diagram for someone who wants to have a look at the code and understand what is happening inside the hood.
-  ![alt text](https://inside.pubmatic.com:8443/confluence/download/attachments/60790030/OpenWrap-GPT%20%281%29.png "OpenWrap-GPT")
+  ![alt text](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/OpenWrap-GPT.png "OpenWrap-GPT")
 
 
 # Getting Started
 
 ## Check Out
 
-PubMatic Open wrapper is available to check out from git repository <LINK>. The source files include adapters for all our integrated partners listed in below section. Developer has to include only the required partners while building and generating a tag using options explained in build section.
+The source files include adapters for all our integrated partners listed in below section. Developer has to include only the required partners while building and generating a tag using options explained in build section.
 
 ## Build
 
@@ -65,16 +65,53 @@ To load minified js synchronously, you can use below tag in header section of yo
     <script type="text/javascript" src="/js/owt.combine.min.js"></script>
 
 
-And to load minified js asynchronously, you can use below tag-
+And to load minified wrapper js script asynchronously before GPT using callback, you can use below tag-
 
-    <script type="text/javascript" src="/js/owt.combine.min.js" async></script>
+    <!--GPT Tag with Callback begins here -->
+    <script type="text/javascript">
+        var PWT = {}; //Initialize Namespace
+        var googletag = googletag || {};
+        googletag.cmd = googletag.cmd || [];
+        PWT.jsLoaded = function() { // Wrapper tag on load callback is used to load GPT
+            (function() {
+                var gads = document.createElement('script');
+                var useSSL = 'https:' == document.location.protocol;
+                gads.src = (useSSL ? 'https:' : 'http:') + '//www.googletagservices.com/tag/js/gpt.js';
+                var node = document.getElementsByTagName('script')[0];
+                node.parentNode.insertBefore(gads, node);
+            })();
+        }
+    </script>
+    <!--GPT Tag ends here -->
+    <!--Wrapper Tag starts here -->
+    <script type="text/javascript">
+        (function() {
+            var wtads = document.createElement('script');
+            wtads.async = true;
+            wtads.type = 'text/javascript';
+            wtads.src = 'owt.js';
+            var node = document.getElementsByTagName('script')[0];
+            node.parentNode.insertBefore(wtads, node);
+        })();
+    </script>
+    <!--Wrapper Tag ends here -->
 
 
 ## Test
 
-You can either test the generated open wrapper tag in your local dev/test environment or if you just want to see how it works, you ocan refer below links to demo pages that we have hosted.
+You can either test the generated open wrapper tag in your local dev/test environment or if you just want to see how it works, you can refer below links to demo pages section that are checked in.
 
-<Links to demo environment>
+
+# Global Parameters And Configuration
+
+Therse are the parameters which will be part of the standard wrapper configuration and should be defined outside the partner level configurations.
+
+| Config | Value| Mandatory| Explanation| Input Source|
+| --- | --- | --- | --- | --- |
+| Key Name | <span style="color: rgb(84,84,84);">pub_id</span> | Y | <span>This ID is used as a global identifier for logging analytics data.Value for this parameter should be ID of publisher account on the platform used for logging. </span> | <span>Publisher Provided</span> |
+| Key Name | t | Y | Timeout for all partners for responding with a bid. This value should be in milliseconds. | Publisher Provided |
+| Key Name | winURL | N | <span>This URL will be executed when any of the partner in wrapper displays creative.This would be a tracker endpoint. This URL should be without a protocol prefix.e.g. a.analytics.com/tracker<br>Query parameters to be passed over this URL:<br>1.  pubid: Identifier of publisher account in logging platform.<br>2.  purl: Page URL<br>3.  tst: Timestamp<br>4.  iid: Impression ID<br>5.  pid: Profile ID<br>6.  pdvid: Profile Version ID<br>7.  slot: Slot Name<br>8.  pn: Partner Name<br>9.  en: ECPM Net<br>10.  eg: ECPM Gross<br>11.  kgpv: Slot name generated using KGP Patterns.</span>|
+| Key Name | dataURL | N | <span>This URL will capture all the bid and latency data from all partners in wrapper tag.<br>This URL should be without a protocol prefix e.g a.analytics.com/logger.<br>It takes only one query parameter named 'json' whose value should be URL encoded JSON string.<br>Below are the details of every key in the JSON data.<br>1.  s: Slot array<br>2.  sn: Slot name<br>3.  sz: size array<br>4.  ps: partner bid response array<br>5.  pn: Partner name<br>6.  kgpv: Key generation pattern's value<br>7.  psz: Partner size<br>8.  eg: Gross ECPM<br>9.  en: Net ECPM<br>10.  l1: Partner latency<br>11.  l2: Not used<br>12.  t: Timeout flag (whether partner has timed out or not)<br>13.  wb: Winning bid flag. 1 if partner bid is won.<br>14.  pubId: Identifier of publisher Id on logging/tracking platform.<br>15.  to: Timeout value<br>16.  purl: Page URL<br>17.  tst: Timestamp<br>18.  iid: Impression ID<br>19.  pid: Profile ID<br>20.  pdvid: Profile Version ID <br>21.  json_data</span> |
 
 # Partner Adapters and Auction Logic
 
@@ -82,28 +119,31 @@ You can either test the generated open wrapper tag in your local dev/test enviro
 
 Here are the details on what partners are supported by Wrapper Tag Solution and various optional/mandatory partner parameters required to make a bid request:
 
+### Common Parameters
+
+|Config | Value | Mandatory | Explanation | Input Source
+------ | ------|-----------|-------------|-------------
+| Key Name | <span style="color: rgb(84,84,84);">rev_share</span> | Y | <span>Bid Adjustment. This can be used to adjust net to gross, and currency.Example: If partner is charging 15% revenue share then the value for this parameter should be 15\.If incoming bid from partner is $1, actual value considered in auction would be $0.85\.</span> | Publisher Provided |
+| Key Name | throttle | Y | Value of this parameter would be the percentage of impressions allocated to a partner\.Recommended value is 100 i.e. send all bid requests to a partner\.| <span> </span>Publisher Provided |
+| Key Name | kgp | Y |<span> Key Generation Pattern macro. The combination of these macros would be used to decide the key for picking up partner parameters from KLM json.Supported patterns are- <br>\_DIV_ (div ID from page)<br>\_W_ (width)<br>\_H_ (height)_AU_ (DFP/GPT ad unit)<br>\_AUI_ (DFP/GPT ad unit index) Used in case if there are multiple slots with same ad unit.<br>_I_ (index) Used in case if we have multiple ad units with same size<br>Example: <br>For **size level** mapping, the macro may look like _W_x_H_@_W_x_H_:_I_ <br>e.g. 720x90@720x90:1<br>For **div size** mapping, the macro may look like _DIV_@_W_x_H_<br>e.g. div ID can be div-atf-leaderboard, and size supported by this div can be 720x90, then a key to find parameters from KLM json would bediv-atf-leaderboard@720x90 </span>| Publisher Provided |
+
 ### PubMatic
 
-
-Config | Value | Mandatory | Explanation | Input Source
------- | ------|-----------|-------------|-------------
-
+| Config | Value | Mandatory | Explanation | Input Source |
+|------ | ------|-----------|-------------|-------------|
 | Key Name | <span style="color: rgb(84,84,84);">pub_id</span> | Y | <span>PubMatic publisher ID</span> | Publisher Provided |
-| Key Name | <span style="color: rgb(84,84,84);">sk</span> | Y | PubMatic server key flag indicating that slot mapping is at Ad Server side.
-Slot name would be generated based on KGP macro and sent as is to PubMatic. | <span>Hardcoded as true</span> |
+| Key Name | <span style="color: rgb(84,84,84);">sk</span> | Y | PubMatic server key flag indicating that slot mapping is at Ad Server side.<br>Slot name would be generated based on KGP macro and sent as is to PubMatic. | <span>Hardcoded to '**true**'</span> |
 
 Response Mapping:
-
 | Wrapper Key | Partner response key | Conversion | Explanation |
+| --- | --- | --- | --- |
 | --- | --- | --- | --- |
 | pwtecp | bidDetailsMap[MD5(slotName)].ecpm | No | Bid value (USD) |
 
 
-
 ### Rubicon Legacy
 
-
-Config | Value | Mandatory | Explanation | Input Source
+|Config | Value | Mandatory | Explanation | Input Source
 ------ | ------|-----------|-------------|-------------
 Partner JS Library | [https://ads.rubiconproject.com/ad/](https://ads.rubiconproject.com/ad/)</span> [<span style="color: rgb(48,57,66);"><account_id>.js</span>](https://ads.rubiconproject.com/ad/) | Y | account_id is Rubicon publisher ID | Generated from account_id Provided by Publisher |
 | Key Name | <span style="color: rgb(84,84,84);">account_id</span> | Y | <span>Rubicon publisher ID</span> | Publisher Provided |
@@ -166,10 +206,10 @@ Response Mapping:
 
 |Config | Value | Mandatory | Explanation | Input Source |
 | --- | --- | --- | --- | --- |
-| End-point |   <span style="color: rgb(48,57,66);">[://as-sec.casalemedia.com/headertag?v=9&x3=1&fn=cygnus_index_parse_res](https://inside.pubmatic.com//as-sec.casalemedia.com/headertag?v=9&x3=1&fn=cygnus_index_parse_res)</span> | NA | OpenRTB end-point | This is fixed |
+| End-point |   <span style="color: rgb(48,57,66);">[://as-sec.casalemedia.com/headertag](//as-sec.casalemedia.com/headertag)</span> | NA | OpenRTB end-point | This is hardcoded |
 | Key Name | <span>siteID</span> | Y | Site ID STRING | Publisher Provided |
-| Key Name | <span>tier2SiteID</span> | N | <span>tier-2 Site ID <span>STRING</span></span> | Publisher Provided |
-| Key Name | <span>tier3SiteID</span> | N | <span>tier-3 Site ID <span>STRING</span></span> | <span>Publisher Provided</span> |
+| Key Name | <span>tier2SiteID</span> | N | <span>Tier-2 Site ID </span> | Publisher Provided |
+| Key Name | <span>tier3SiteID</span> | N | <span>Tier-3 Site ID </span> | <span>Publisher Provided</span> |
 
 Response Mapping:
 
@@ -209,15 +249,15 @@ Response Mapping:
 | pwtecp | result.cpm | result.cpm/10000 | Bid value (USD) |
 | pwtdid | result.deal_id | N/A | Deal ID |
 
-### **Brealtime**
+### **bRealTime**
 
 | Config | Value | Mandatory | Explanation | Input Source |
 | --- | --- | --- | --- | --- |
-| Partner JS Library | The code is from PreBid | N/A | <span>JS library URL is not required as the code for calling <span>Brealtime</span> Endpoint (</span> <span style="color: rgb(0,0,0);">[http://ib.adnxs.com/jpt](http://ib.adnxs.com/jpt))</span> | Prebid Code |
+| Partner JS Library | The code is from PreBid | N/A | <span>JS library URL is not required as the code for calling <span>bRealTime</span> Endpoint (</span> <span style="color: rgb(0,0,0);">[http://ib.adnxs.com/jpt](http://ib.adnxs.com/jpt))</span> | Prebid Code |
 | Key Name | placementId | Y | <span>Brealtime</span> adunit Identifier | Publisher Provided |
-| Key Name | member | N | Member ID for <span>Brealtime</span>, to be used in conjunction with invCode | Publisher Provided |
-| Key Name | invCode | N | Inventory code from <span>Brealtime</span> to be used in conjunction with member | Publisher Provided |
-| Key Name | query | N | Optional query parameter. **Note:** This is not supported right now as it will be deprecated soon by <span>Brealtime</span>(as mentioned in PreBid code). | Publisher Provided |
+| Key Name | member | N | Member ID for <span>bRealTime</span>, to be used in conjunction with invCode | Publisher Provided |
+| Key Name | invCode | N | Inventory code from <span>bRealTime</span> to be used in conjunction with member | Publisher Provided |
+| Key Name | query | N | Optional query parameter. **Note:** This is not supported right now as it will be deprecated soon by <span>bRealTime</span>(as mentioned in PreBid code). | Publisher Provided |
 
 Response Mapping:
 
@@ -228,7 +268,7 @@ Response Mapping:
 
 ## Auction and Timeout
 
-  ![Auction Logic](https://inside.pubmatic.com:8443/confluence/download/attachments/60790030/Auction%20Logic%202%284%29.png)
+  ![Auction Logic](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/Auction%20Logic.png)
 
 **NOTE**: In case you want to edit this diagram, import <ac:link><ri:attachment ri:filename="Auction Logic 2(7)"><ac:plain-text-link-body></ac:plain-text-link-body></ri:attachment></ac:link>XML on site [draw.io](https://www.draw.io/)
 
@@ -240,24 +280,21 @@ Response Mapping:
 
 This step is required so the ad server, based on actual bid price, can allocate impressions to the winning partner. These bids are passed using key-value pairs added to the ad server tags dynamically, as explained in the previous sections.
 
-**Note: The preferred option is for the PubMatic solution engineering team to support the order creation in DFP. You must provide trafficker-level access. PubMatic's order insertion tool can be used to insert the relevant order into DFP and create granular line items.**
 
 **Step 1:** Create a new order in DFP for a Wrapper as OpenWrap as the advertiser and add the relevant details.
 
 
-    TODO: add Advertiser as OpenWrap in image
-    
-![New Order](https://inside.pubmatic.com:8443/confluence/download/attachments/60790030/New%20Order.jpg?version=1&modificationDate=1475264075068&api=v2)
+![New Order](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/New%20Order.jpg)
   
   
 **Step 2:** Set the price and priority of the line items.  
 
-![Step 2](https://inside.pubmatic.com:8443/confluence/download/attachments/60790030/Step%202.jpg?version=1&modificationDate=1475264442924&api=v2)
+![Step 2](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/LineItem.jpg)
   
 
 **Step 3: **Set targeting on the “pwtbst” value as 1 from the. In addition to  “pwtbst”,  you will also need to set targeting on “pwtecp”.  For more information, please refer to the [Best Practices to Create Line Items]
 
-![Step 3](https://inside.pubmatic.com:8443/confluence/download/attachments/60790030/Step%203.jpg?version=1&modificationDate=1475264503634&api=v2)
+![Step 3](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/Targeting.jpg)
 
 
 **Step 4: **Add the Wrapper creative provided by PubMatic to the line item you created. 
@@ -270,7 +307,6 @@ This step is required so the ad server, based on actual bid price, can allocate 
     try{ w.PWT.displayCreative(document, '%%PATTERN:pwtsid%%'); } catch(e){}
     </script></script></pre>
 
- |
 
 ## Best Practices for Creating Granular Line Items
 
@@ -338,7 +374,7 @@ Line Item 58 (Covers $20 and above) Targeting : pwtecp=20*,pwtecp=21*,pwtecp=22*
 
 <span class="s1">E.g This is how your line item should look like if you are targeting PubMatic deals</span>
 
-![PMP Deals](https://inside.pubmatic.com:8443/confluence/download/attachments/60790030/image2016-9-26%2016%3A23%3A56.png?version=1&modificationDate=1474887237067&api=v2)
+![PMP Deals](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/PMP.png)
 
 The creative size can be as desired and the creative code will be same as other OpenWrap generic creative. 
 
@@ -354,7 +390,7 @@ The creative size can be as desired and the creative code will be same as other 
 
 <span class="s1">Also if you are targeting multiple deals to that line item, you will then need to do one more modification. You will need to add second deal as</span> <span class="s4">**pwtbst**=1</span> <span class="s5">AND</span> <span class="s1">**pwtdid**=DealID1</span> <span class="s6">OR</span> <span class="s1">DealID2 and your order would look like this:</span>
 
-![PMP Use Cases](https://inside.pubmatic.com:8443/confluence/download/attachments/60790030/image2016-9-26%2016%3A24%3A37.png?version=1&modificationDate=1474887277744&api=v2)
+![PMP Use Cases](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/PMP1.png)
 
 <span class="s1">If there is some convention in naming PMP deals, then instead of including all exact deal names , you can use pwtdid starts with PM-DEAL* , will reduce setup efforts while adding new PMP deals.</span>
 
@@ -369,10 +405,29 @@ The creative size can be as desired and the creative code will be same as other 
 
 # Demo Setup and Examples
 
+Following are the demo pages for Open Wrapper. You can use these pages to test your setup and to check how the Open Wrapper works.
+
+1.  [Wrapper Tag Sync Demo Page](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/sample_pages/WTSyncDemo.html)
+2.  [Wrapper Tag Async Demo Page](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/sample_pages/WTAsyncDemo.html)
+3.  [Wrapper Tag Sync Demo Page with GPT SRA functionality](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/sample_pages/WTSyncDemo_SRA.html)
+4.  [Wrapper Tag Sync Demo Page with GPT DisableInitialLoad functionality](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/sample_pages/WTSyncDemo_DisableInitialLoad.html)
+5.  [Wrapper Tag Sync Demo Page with GPT Refresh functionality](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/sample_pages/WTSyncDemo_Refresh.html)
+
+Sample Open Wrapper Java Script: [Open Wrapper JS Script](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/sample_pages/owt.js) (owt.js). This script needs to be hosted at the same location as the demo page. 
+
+For the demo pages have all the adapter related custom configurations in page itself which can be changed/edited according to the requirement. 
+
+To change configuration and check bid responses use following JSFiddles :
+
+[https://jsfiddle.net/OpenWrap/rd1u9s4e/](https://jsfiddle.net/OpenWrap/rd1u9s4e/)
+
+[https://jsfiddle.net/OpenWrap/g9u42n02/](https://jsfiddle.net/OpenWrap/g9u42n02/)
+
 # Development Documents
 
 ## Partner Adapter Template
 
-## Testing with partner endpoint
+To add a partner adapter, one should follow a template from this repository at src/adapters/sampleAdapter.js
+
 
 </a>
