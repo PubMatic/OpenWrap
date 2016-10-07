@@ -94,9 +94,9 @@ Slot name would be generated based on KGP macro and sent as is to PubMatic. | <s
 
 Response Mapping:
 
-| OpenWra Wrapper | Partner response key | Conversion | Explanation |
+| Wrapper Key | Partner response key | Conversion | Explanation |
 | --- | --- | --- | --- |
-| pwtecp | ads[0].cpm | No | Bid value (USD) |
+| pwtecp | bidDetailsMap[MD5(slotName)].ecpm | No | Bid value (USD) |
 
 
 
