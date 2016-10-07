@@ -44,13 +44,12 @@ The checked out source contains adapters for below partners.
 1.  AdForm
 2.  AppNexus
 3.  bRealTime
-4.  Criteo
-5.  DistrictM
-6.  IndexExchange
-7.  OpenX
-8.  PubMatic
-9.  Rubicon
-10.  Yieldbot
+4.  DistrictM
+5.  IndexExchange
+6.  OpenX
+7.  PubMatic
+8.  Rubicon
+9.  Yieldbot
 
 We have a python build script which would help you build the wrapper tag with only partner adapters that you need and give you a minified tag which you can directly use.
 
@@ -83,6 +82,24 @@ You can either test the generated open wrapper tag in your local dev/test enviro
 
 Here are the details on what partners are supported by Wrapper Tag Solution and various optional/mandatory partner parameters required to make a bid request:
 
+### PubMatic
+
+
+Config | Value | Mandatory | Explanation | Input Source
+------ | ------|-----------|-------------|-------------
+
+| Key Name | <span style="color: rgb(84,84,84);">pub_id</span> | Y | <span>PubMatic publisher ID</span> | Publisher Provided |
+| Key Name | <span style="color: rgb(84,84,84);">sk</span> | Y | PubMatic server key flag indicating that slot mapping is at Ad Server side.
+Slot name would be generated based on KGP macro and sent as is to PubMatic. | <span>Hardcoded as true</span> |
+
+Response Mapping:
+
+| OpenWra Wrapper | Partner response key | Conversion | Explanation |
+| --- | --- | --- | --- |
+| pwtecp | ads[0].cpm | No | Bid value (USD) |
+
+
+
 ### Rubicon Legacy
 
 
@@ -97,7 +114,7 @@ Partner JS Library | [https://ads.rubiconproject.com/ad/](https://ads.rubiconpro
 
 Response Mapping:
 
-| PubMatic Wrapper | Partner response key | Conversion | Explanation |
+| Wrapper Key | Partner response key | Conversion | Explanation |
 | --- | --- | --- | --- |
 | pwtecp | ads[0].cpm | No | Bid value (USD) |
 
@@ -110,7 +127,7 @@ Response Mapping:
 
 Response Mapping:
 
-| PubMatic Wrapper | Partner response key | Conversion | Explanation |
+| Wrapper Key | Partner response key | Conversion | Explanation |
 | --- | --- | --- | --- |
 | pwtecp | pub_rev | Cent to Dollar | Bid value (USD) |
 
@@ -126,7 +143,7 @@ Response Mapping:
 
 Response Mapping:
 
-| PubMatic Wrapper | Partner response key | Conversion | Explanation |
+| Wrapper Key | Partner response key | Conversion | Explanation |
 | --- | --- | --- | --- |
 | pwtecp | result.cpm | result.cpm/10000 | Bid value (USD) |
 | pwtdid | result.deal_id | N/A | Deal ID |
@@ -141,7 +158,7 @@ Response Mapping:
 
 Response Mapping:
 
-| PubMatic Wrapper | Partner response key | Conversion | Explanation | 
+| Wrapper Key | Partner response key | Conversion | Explanation | 
 | --- | --- | --- | --- |
 | pwtecp | ybot_cpm | cent to Dollar | Bid value (USD) |
 
@@ -156,7 +173,7 @@ Response Mapping:
 
 Response Mapping:
 
-| PubMatic Wrapper | Partner response key | Conversion | Explanation |
+| Wrapper Key | Partner response key | Conversion | Explanation |
 | --- | --- | --- | --- |
 | pwtecp | seatbid.bid[N].ext.pricelevel | cent to Dollar | Bid value (USD) **Note:** <span>the response can be in different currency which needs to be adjusted in Bid Adjustment</span> |
 
@@ -171,7 +188,7 @@ Response Mapping:
 
 Response Mapping:
 
-| PubMatic Wrapper | Partner response key | Conversion | Explanation |
+| Wrapper Key | Partner response key | Conversion | Explanation |
 | --- | --- | --- | --- |
 | pwtecp | winbid | N/A | Bid value (USD), **Note:** the response can be in different currency which needs to be adjusted in Bid Adjustment |
 
@@ -187,7 +204,7 @@ Response Mapping:
 
 Response Mapping:
 
-| PubMatic Wrapper | Partner Response Key | Conversion | Explanation |
+| Wrapper Key | Partner Response Key | Conversion | Explanation |
 | --- | --- | --- | --- | --- |
 | pwtecp | result.cpm | result.cpm/10000 | Bid value (USD) |
 | pwtdid | result.deal_id | N/A | Deal ID |
@@ -204,7 +221,7 @@ Response Mapping:
 
 Response Mapping:
 
-| PubMatic Wrapper | Partner Response Key | Conversion | Explanation |
+| Wrapper Key | Partner Response Key | Conversion | Explanation |
 | --- | --- | --- | --- | --- |
 | pwtecp | result.cpm | result.cpm/10000 | Bid value (USD) |
 | pwtdid | result.deal_id | N/A | Deal ID |
