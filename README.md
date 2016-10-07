@@ -1,1 +1,1 @@
-PubMatic Open Source Wrapper Solution
+Open Source Wrapper Solution
