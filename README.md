@@ -270,8 +270,6 @@ Response Mapping:
 
   ![Auction Logic](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/Auction%20Logic.png)
 
-**NOTE**: In case you want to edit this diagram, import <ac:link><ri:attachment ri:filename="Auction Logic 2(7)"><ac:plain-text-link-body></ac:plain-text-link-body></ri:attachment></ac:link>XML on site [draw.io](https://www.draw.io/)
-
 # DFP Setup and Line Item creation
 
 # Ad Server Configuration
