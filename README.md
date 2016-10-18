@@ -1,24 +1,25 @@
 
 # Introduction
 
-The problem of running multiple header tags from different providers is something which publisher has always struggled with.
+As publishers have embraced header bidding, running multiple header tags from different providers has become a top priority with many considerations.
 
-There are issues like
+The main areas of concern are:
 
-*   Code conflict, 
+*   Code conflict
 *   Inability to control timeouts efficiently
 *   Development time required per integration
-*   Scattered analytics
+*   Lack of holistic insights and analytics
 *   Changing the page and tag structure to accommodate for header tag.
 
-To solve for all the issues we came up with a simple to use wrapper tag which solves for all the issues above and most important, it is specially developed to be a throw on page and play model for GPT tags. What this means for publishers:
+We came up with a simple way to use wrapper tags which solves for all the issues above and most importantly, was specifically designed to be plug-and-play with the GPT tags. 
 
-*   No changes to GPT structure 
+What this means for publishers:
+
+*   No changes to GPT structure
 *   No coding required to get and push bids to GPT (not even setting targeting)
 *   Works with standard as well as advanced GPT implementations.
 
-In short what publisher has to do is push the wrapper script and partner configuration on page and you are all done REALLY!!.
-The script takes care of detecting what ad-units, divs and sizes are on page, fire up calls to desired partners and attach bids to DFP calls as key-values.
+All the publisher has to do is push the wrapper script and partner configuration live on the page and you are done. It’s that simple. The script takes care of detecting what ad units, divs and sizes are on page, fire up calls to desired partners and attach bids to DFP calls as key-values.
 
 # Design and Execution Flow
 
@@ -35,11 +36,11 @@ The script takes care of detecting what ad-units, divs and sizes are on page, fi
 
 ## Check Out
 
-The source files include adapters for all our integrated partners listed in below section. Developer has to include only the required partners while building and generating a tag using options explained in build section.
+The source files include adapters for all of the current header tag integrations. The developer only has to include the required adapters while building and generating a tag using the instructions below.
 
 ## Build
 
-The checked out source contains adapters for below partners.
+The checked out source contains adapters for following header tags:
 
 1.  AdForm
 2.  AppNexus
@@ -48,24 +49,24 @@ The checked out source contains adapters for below partners.
 5.  IndexExchange
 6.  OpenX
 7.  PubMatic
-8.  Rubicon
+8.  Rubicon Project
 9.  Yieldbot
 
-We have a python build script which would help you build the wrapper tag with only partner adapters that you need and give you a minified tag which you can directly use.
+We have a python build script which helps you build the wrapper tag with only the adapters you need and give you a minimize tag which you can directly use.
 
-From the repository you have checked out, run combine.py. Once this file is executed, you will get owt.combine.js and owt.combine.min.js generated in directory named 'dist'.
-Combine.py contains adapterFiles array which holds all the partner adapters to be included in generated open wrapper js file. You may want to add or remove partner adapters to keep only required partners included in your tag.
+From the repository you have checked out, run combine.py. Once this file is executed, you will get owt.combine.js and owt.combine.min.js generated in directory named 'dist'. 
+Combine.py contains adapterFiles array which holds all the adapters to be included in generated open wrapper js file. You may want to add or remove partner adapters to keep only your required partners in your tag.
 
 ## Deploy
 
-The generate script should be deployed on a test page before trying it on production.
-You can load the generated minified js either synchronously or asynchronously in your pages.
-To load minified js synchronously, you can use below tag in header section of your test page-
+The generated script should be deployed on a test page before trying it on production.
+You can load the generated minimized js either synchronously or asynchronously on your pages.
+To load minimized js synchronously, you can use below tag in the header section of your test page-
 
     <script type="text/javascript" src="/js/owt.combine.min.js"></script>
 
 
-And to load minified wrapper js script asynchronously before GPT using callback, you can use below tag-
+And to load minimized wrapper js script asynchronously before GPT using callback, you can use below tag-
 
     <!--GPT Tag with Callback begins here -->
     <script type="text/javascript">
@@ -104,7 +105,7 @@ You can either test the generated open wrapper tag in your local dev/test enviro
 
 # Global Parameters And Configuration
 
-Therse are the parameters which will be part of the standard wrapper configuration and should be defined outside the partner level configurations.
+These are the parameters which will be part of the standard wrapper configuration and should be defined outside the partner level configurations.
 
 | Config | Value| Mandatory| Explanation| Input Source|
 | --- | --- | --- | --- | --- |
@@ -131,8 +132,8 @@ Here are the details on what partners are supported by Wrapper Tag Solution and 
 
 | Config | Value | Mandatory | Explanation | Input Source |
 |------ | ------|-----------|-------------|-------------|
-| Key Name | <span style="color: rgb(84,84,84);">pub_id</span> | Y | <span>PubMatic publisher ID</span> | Publisher Provided |
-| Key Name | <span style="color: rgb(84,84,84);">sk</span> | Y | PubMatic server key flag indicating that slot mapping is at Ad Server side.<br>Slot name would be generated based on KGP macro and sent as is to PubMatic. | <span>Hardcoded to '**true**'</span> |
+| Key Name | <span style="color: rgb(84,84,84);">pub_id</span> | Y | <span>PubMatic publisher ID</span> | Publisher Provided|
+| Key Name | <span style="color: rgb(84,84,84);">sk</span> | Y | PubMatic server key flag indicating that slot mapping is at Ad Server side.<br>Slot name would be generated based on KGP macro and sent as is to PubMatic. |<span>Hardcoded to '**true**'</span>|
 
 Response Mapping:
 
@@ -268,7 +269,8 @@ Response Mapping:
 
 ## Auction and Timeout
 
-  ![Auction Logic](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/Auction%20Logic.png)
+  ![Auction Logic](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/AuctionLogic.png)
+
 
 # DFP Setup and Line Item creation
 
@@ -308,10 +310,10 @@ This step is required so the ad server, based on actual bid price, can allocate 
 
 ## Best Practices for Creating Granular Line Items
 
-**Note: If DFP is the ad server,</span>** <span> </span> **<span>ensure the line items do NOT have Google safe frame setting enabled.</span>** >
+**Note: If DFP is the ad server,</span>** <span> </span> **<span>ensure the line items do NOT have the Google safe frame setting enabled.</span>** >
 After June 27th, 2016, line items are automatically created in DFP with safe frame enabled by default. This setting will cause the creative to appear as blank. This requires that users manually uncheck "safe frame," regardless of whether it was manually or automatically enabled.
 
-To control monetization through Wrapper Solution at a granular level, you may:
+To control monetization through OpenWrap at a granular level, you may:
 
 *   Create multiple line items in the ad server for each ad unit/ad size/CPM range/geo.
 *   Use “**pwtecp**” as the targeting attribute.
@@ -366,7 +368,7 @@ Line Item 58 (Covers $20 and above) Targeting : pwtecp=20*,pwtecp=21*,pwtecp=22*
 
 <a>
 
-<span class="s1">If you are looking forward to prioritize this deal in your stack, or you want deals to report it separately in your DFP ad server. here are the next steps.</span>
+<span class="s1">If you are looking forward to prioritize this deal in your stack, or you want deals to show up separately in your DFP ad server. here are the next steps.</span>
 
 <span class="s1">You will have to create a line item, and then you will have to target it like this. **pwtbst**=1</span> <span class="s2">AND</span> <span class="s3">**pwtdid**=Deal ID from Partner.</span>
 
@@ -390,7 +392,7 @@ The creative size can be as desired and the creative code will be same as other 
 
 ![PMP Use Cases](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/PMP1.png)
 
-<span class="s1">If there is some convention in naming PMP deals, then instead of including all exact deal names , you can use pwtdid starts with PM-DEAL* , will reduce setup efforts while adding new PMP deals.</span>
+<span class="s1">If there is some convention in naming PMP deals, then instead of including all exact deal names, you can use pwtdid starts with PM-DEAL* , will reduce setup efforts while adding new PMP deals.</span>
 
 <span class="s1">
 </span>
@@ -399,11 +401,11 @@ The creative size can be as desired and the creative code will be same as other 
 </span>
 
 <span class="s1">
-</span>
+</span>tar
 
 # Demo Setup and Examples
 
-Following are the demo pages for Open Wrapper. You can use these pages to test your setup and to check how the Open Wrapper works.
+Following are the demo pages for OpenWrap You can use these pages to test your setup and to check how OpenWrap works.
 
 1.  [Wrapper Tag Sync Demo Page](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/sample_pages/WTSyncDemo.html)
 2.  [Wrapper Tag Async Demo Page](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/sample_pages/WTAsyncDemo.html)
@@ -429,28 +431,3 @@ To add a partner adapter, one should follow a template from this repository at s
 
 
 </a>
-
-
-<br>
-<br>
-<br>
-<br>
-<br>
-##Copyright
-
-####Copyright 2016 PubMatic, Inc. All rights reserved.
- 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
- 
-[http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
- 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
- 
-Portions of OpenWrap contain code from Prebid.js licensed under the
-Apache License, Version 2.0.
