@@ -26,9 +26,9 @@ All the publisher has to do is push the wrapper script and partner configuration
 # <span style="font-size: 20.0px;line-height: 1.5;">Interaction with GPT tag</span>
 
 *   Wrapper script interacts with GPT tags by overriding basic GPT functions like display(), refresh() ... 
-*   The original display calls to DFP are put in queue till all the Wrapper partners are called for bid or desired timeout is reached.
-*   Final auction between the bids takes place and highest bid is pushed as key-value to DFP
-*   Here is the flow diagram for someone who wants to have a look at the code and understand what is happening inside the hood.
+*   The original display calls to DFP are put in queue until all the Wrapper partners are called for bid or desired timeout is reached.
+*   Final auction between the bids takes place and the highest bid is pushed as key-value to DFP
+*   Here is the flow diagram for someone who wants to have a look at the code and understands what is happening inside the hood.
   ![alt text](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/OpenWrap-GPT.png "OpenWrap-GPT")
 
 
@@ -52,10 +52,10 @@ The checked out source contains adapters for following header tags:
 8.  Rubicon Project
 9.  Yieldbot
 
-We have a python build script which helps you build the wrapper tag with only the adapters you need and give you a minimize tag which you can directly use.
+We have a python build script which helps you build the wrapper tag with only the adapters you need and gives you a minimize tag which you can directly use.
 
-From the repository you have checked out, run combine.py. Once this file is executed, you will get owt.combine.js and owt.combine.min.js generated in directory named 'dist'. 
-Combine.py contains adapterFiles array which holds all the adapters to be included in generated open wrapper js file. You may want to add or remove partner adapters to keep only your required partners in your tag.
+From the repository you have checked out, run combine.py. Once this file is executed, you will get owt.combine.js and owt.combine.min.js generated in a directory named 'dist.' 
+Combine.py contains adapterFiles array, which holds all the adapters to be included in generated open wrapper js file. You may want to add or remove partner adapters to keep only your required partners in your tag.
 
 ## Deploy
 
@@ -100,7 +100,7 @@ And to load minimized wrapper js script asynchronously before GPT using callback
 
 ## Test
 
-You can either test the generated open wrapper tag in your local dev/test environment or if you just want to see how it works, you can refer below links to demo pages section that are checked in.
+You can either test the generated open wrapper tag in your local dev/test environment or if you just want to see how it works, you can refer to the below links to demo pages section that are checked in.
 
 
 # Global Parameters And Configuration
@@ -109,7 +109,7 @@ These are the parameters which will be part of the standard wrapper configuratio
 
 | Config | Value| Mandatory| Explanation| Input Source|
 | --- | --- | --- | --- | --- |
-| Key Name | <span style="color: rgb(84,84,84);">pub_id</span> | Y | <span>This ID is used as a global identifier for logging analytics data.Value for this parameter should be ID of publisher account on the platform used for logging. </span> | <span>Publisher Provided</span> |
+| Key Name | <span style="color: rgb(84,84,84);">pub_id</span> | Y | <span>This ID is used as a global identifier for logging analytics data. Value for this parameter should be the ID of the publisher account on the platform used for logging. </span> | <span>Publisher Provided</span> |
 | Key Name | t | Y | Timeout for all partners for responding with a bid. This value should be in milliseconds. | Publisher Provided |
 | Key Name | winURL | N | <span>This URL will be executed when any of the partner in wrapper displays creative.This would be a tracker endpoint. This URL should be without a protocol prefix.e.g. a.analytics.com/tracker<br>Query parameters to be passed over this URL:<br>1.  pubid: Identifier of publisher account in logging platform.<br>2.  purl: Page URL<br>3.  tst: Timestamp<br>4.  iid: Impression ID<br>5.  pid: Profile ID<br>6.  pdvid: Profile Version ID<br>7.  slot: Slot Name<br>8.  pn: Partner Name<br>9.  en: ECPM Net<br>10.  eg: ECPM Gross<br>11.  kgpv: Slot name generated using KGP Patterns.</span>|
 | Key Name | dataURL | N | <span>This URL will capture all the bid and latency data from all partners in wrapper tag.<br>This URL should be without a protocol prefix e.g a.analytics.com/logger.<br>It takes only one query parameter named 'json' whose value should be URL encoded JSON string.<br>Below are the details of every key in the JSON data.<br>1.  s: Slot array<br>2.  sn: Slot name<br>3.  sz: size array<br>4.  ps: partner bid response array<br>5.  pn: Partner name<br>6.  kgpv: Key generation pattern's value<br>7.  psz: Partner size<br>8.  eg: Gross ECPM<br>9.  en: Net ECPM<br>10.  l1: Partner latency<br>11.  l2: Not used<br>12.  t: Timeout flag (whether partner has timed out or not)<br>13.  wb: Winning bid flag. 1 if partner bid is won.<br>14.  pubId: Identifier of publisher Id on logging/tracking platform.<br>15.  to: Timeout value<br>16.  purl: Page URL<br>17.  tst: Timestamp<br>18.  iid: Impression ID<br>19.  pid: Profile ID<br>20.  pdvid: Profile Version ID <br>21.  json_data</span> |
@@ -124,9 +124,9 @@ Here are the details on what partners are supported by Wrapper Tag Solution and 
 
 |Config | Value | Mandatory | Explanation | Input Source
 ------ | ------|-----------|-------------|-------------
-| Key Name | <span style="color: rgb(84,84,84);">rev_share</span> | Y | <span>Bid Adjustment. This can be used to adjust net to gross, and currency.Example: If partner is charging 15% revenue share then the value for this parameter should be 15\.If incoming bid from partner is $1, actual value considered in auction would be $0.85\.</span> | Publisher Provided |
+| Key Name | <span style="color: rgb(84,84,84);">rev_share</span> | Y | <span>Bid Adjustment. This can be used to adjust net to gross, and currency. Example: If partner is charging 15% revenue share then the value for this parameter should be 15\.If incoming bid from partner is $1, actual value considered in auction would be $0.85\.</span> | Publisher Provided |
 | Key Name | throttle | Y | Value of this parameter would be the percentage of impressions allocated to a partner\.Recommended value is 100 i.e. send all bid requests to a partner\.| <span> </span>Publisher Provided |
-| Key Name | kgp | Y |<span> Key Generation Pattern macro. The combination of these macros would be used to decide the key for picking up partner parameters from KLM json.Supported patterns are- <br>\_DIV_ (div ID from page)<br>\_W_ (width)<br>\_H_ (height)_AU_ (DFP/GPT ad unit)<br>\_AUI_ (DFP/GPT ad unit index) Used in case if there are multiple slots with same ad unit.<br>_I_ (index) Used in case if we have multiple ad units with same size<br>Example: <br>For **size level** mapping, the macro may look like _W_x_H_@_W_x_H_:_I_ <br>e.g. 720x90@720x90:1<br>For **div size** mapping, the macro may look like _DIV_@_W_x_H_<br>e.g. div ID can be div-atf-leaderboard, and size supported by this div can be 720x90, then a key to find parameters from KLM json would bediv-atf-leaderboard@720x90 </span>| Publisher Provided |
+| Key Name | kgp | Y |<span> Key Generation Pattern macro. The combination of these macros would be used to decide the key for picking up partner parameters from KLM json. Supported patterns are- <br>\_DIV_ (div ID from page)<br>\_W_ (width)<br>\_H_ (height)_AU_ (DFP/GPT ad unit)<br>\_AUI_ (DFP/GPT ad unit index) Used in case if there are multiple slots with same ad unit.<br>_I_ (index) Used in case if we have multiple ad units with same size<br>Example: <br>For **size level** mapping, the macro may look like _W_x_H_@_W_x_H_:_I_ <br>e.g. 720x90@720x90:1<br>For **div size** mapping, the macro may look like _DIV_@_W_x_H_<br>e.g. div ID can be div-atf-leaderboard, and size supported by this div can be 720x90, then a key to find parameters from KLM json would bediv-atf-leaderboard@720x90 </span>| Publisher Provided |
 
 ### PubMatic
 
@@ -180,7 +180,7 @@ Response Mapping:
 | Key Name | placementId | Y | Appnexus adunit Identifier | Publisher Provided |
 | <span>Key Name</span> | member | N | Member ID for Appnexus, to be used in conjunction with invCode | <span>Publisher Provided</span> |
 | <span>Key Name</span> | invCode | N | Inventory code from Appnexus <span>to be used in conjunction with member</span> | <span>Publisher Provided</span> |
-| <span>Key Name</span> | query | N | Optional query parameter. **Note:** This is not supported right now <span>as it will be deprecated soon by Appnexus(as mentioned in PreBid code).</span> | Publisher Provided |
+| <span>Key Name</span> | query | N | Optional query parameter. **Note:** This is not supported right now <span>as it will be deprecated soon by Appnexus (as mentioned in PreBid code).</span> | Publisher Provided |
 
 Response Mapping:
 
@@ -310,7 +310,7 @@ This step is required so the ad server, based on actual bid price, can allocate 
 
 ## Best Practices for Creating Granular Line Items
 
-**Note: If DFP is the ad server,</span>** <span> </span> **<span>ensure the line items do NOT have the Google safe frame setting enabled.</span>** >
+**Note: If DFP is the ad server,</span>** **<span>ensure the line items do NOT have the Google safe frame setting enabled.</span>** >
 After June 27th, 2016, line items are automatically created in DFP with safe frame enabled by default. This setting will cause the creative to appear as blank. This requires that users manually uncheck "safe frame," regardless of whether it was manually or automatically enabled.
 
 To control monetization through OpenWrap at a granular level, you may:
@@ -368,7 +368,7 @@ Line Item 58 (Covers $20 and above) Targeting : pwtecp=20*,pwtecp=21*,pwtecp=22*
 
 <a>
 
-<span class="s1">If you are looking forward to prioritize this deal in your stack, or you want deals to show up separately in your DFP ad server. here are the next steps.</span>
+<span class="s1">If you are looking forward to prioritizing this deal in your stack, or you want deals to show up separately in your DFP ad server, here are next steps to follow.</span>
 
 <span class="s1">You will have to create a line item, and then you will have to target it like this. **pwtbst**=1</span> <span class="s2">AND</span> <span class="s3">**pwtdid**=Deal ID from Partner.</span>
 
@@ -380,15 +380,15 @@ The creative size can be as desired and the creative code will be same as other 
 
 ### <span class="s1">Popular use cases for Trafficking PMP as different line items in DFP</span>
 
-<span class="s1">Case 1: if you want to prioritize the bids from deal to be delivered above standard  and don’t want PMP bid beaten certain standard line items you will then need to traffic it with priority above the standard line items.</span>
+<span class="s1">Case 1: If you want to prioritize the bids from deal to be delivered above standard  and don’t want PMP bid beaten certain standard line items you will then need to traffic it with priority above the standard line items.</span>
 
 <span class="s1">Case 2: In case you want PMP to deliver unless open market/ other demand pays more than $X then enter the rate of this PMP Price Priority line item as $X.</span>
 
-<span class="s1">Case 3 :If you just want to see its report separately from regular line items, the you will have to keep the true eCPM of that PMP deal, and additionally you will need to target  </span> <span class="s4">**pwtbst**=1</span> <span class="s5">AND</span> <span class="s1">**pwtdid**=Deal_ID </span>
+<span class="s1">Case 3: If you just want to see its report separately from regular line items, the you will have to keep the true eCPM of that PMP deal, and additionally you will need to target  </span> <span class="s4">**pwtbst**=1</span> <span class="s5">AND</span> <span class="s1">**pwtdid**=Deal_ID </span>
 
-<span class="s1">Note for reporting on specific key-value, both the key and value needs to be predefined in DFP.</span>
+<span class="s1">Note for reporting on specific key-value, both the key and value need to be predefined in DFP.</span>
 
-<span class="s1">Also if you are targeting multiple deals to that line item, you will then need to do one more modification. You will need to add second deal as</span> <span class="s4">**pwtbst**=1</span> <span class="s5">AND</span> <span class="s1">**pwtdid**=DealID1</span> <span class="s6">OR</span> <span class="s1">DealID2 and your order would look like this:</span>
+<span class="s1">Also if you are targeting multiple deals to that line item, you will then need to do one more modification. You will need to add a second deal as</span> <span class="s4">**pwtbst**=1</span> <span class="s5">AND</span> <span class="s1">**pwtdid**=DealID1</span> <span class="s6">OR</span> <span class="s1">DealID2 and your order would look like this:</span>
 
 ![PMP Use Cases](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/PMP1.png)
 
@@ -401,11 +401,11 @@ The creative size can be as desired and the creative code will be same as other 
 </span>
 
 <span class="s1">
-</span>tar
+</span>
 
 # Demo Setup and Examples
 
-Following are the demo pages for OpenWrap You can use these pages to test your setup and to check how OpenWrap works.
+The following are the demo pages for OpenWrap You can use these pages to test your setup and to check how OpenWrap works.
 
 1.  [Wrapper Tag Sync Demo Page](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/sample_pages/WTSyncDemo.html)
 2.  [Wrapper Tag Async Demo Page](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/sample_pages/WTAsyncDemo.html)
@@ -415,9 +415,9 @@ Following are the demo pages for OpenWrap You can use these pages to test your s
 
 Sample Open Wrapper Java Script: [Open Wrapper JS Script](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/sample_pages/owt.js) (owt.js). This script needs to be hosted at the same location as the demo page. 
 
-For the demo pages have all the adapter related custom configurations in page itself which can be changed/edited according to the requirement. 
+The demo pages have all the adapter-related custom configurations in the page itself, which can be changed/edited according to the requirement. 
 
-To change configuration and check bid responses use following JSFiddles :
+To change the configuration and check bid responses use following JSFiddles :
 
 [https://jsfiddle.net/OpenWrap/rd1u9s4e/](https://jsfiddle.net/OpenWrap/rd1u9s4e/)
 
@@ -429,5 +429,21 @@ To change configuration and check bid responses use following JSFiddles :
 
 To add a partner adapter, one should follow a template from this repository at src/adapters/sampleAdapter.js
 
+#Copyright
+Copyright 2016 PubMatic, Inc. All rights reserved.
+ 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ 
+Portions of OpenWrap contain code from Prebid.js licensed under the
+Apache License, Version 2.0.
 </a>
