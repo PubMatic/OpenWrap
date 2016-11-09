@@ -31,6 +31,7 @@ var displayHookAdded = false,
 	original_disableInitialLoad,
 	original_setTargeting,
 	original_enableSingleRequest,
+	original_destroySlots,
 
 	isSRA = false,
 
@@ -459,6 +460,16 @@ var displayHookAdded = false,
 		}	
 	},
 
+	addHookOnGoogletagDestroySlots = function(){
+		localGoogletag.destroySlots = function(arrayOfSlots){
+			for(var i = 0, l = arrayOfSlots.length; i < l; i++){
+				var divID = arrayOfSlots[i].getSlotId().getDomId();
+				delete slotsMap[divID];
+			}
+			original_destroySlots.apply(win.googletag, arguments);
+		};
+	},
+
 	addHookOnGooglePubAdsRefresh = function(){
 		/*
 			there are many ways of calling refresh
@@ -557,7 +568,8 @@ var displayHookAdded = false,
 		localGoogletag = win.googletag;
 		localPubAdsObj = localGoogletag.pubads();
 					
-		original_display = (localGoogletag && localGoogletag.display);			
+		original_display = (localGoogletag && localGoogletag.display);
+		original_destroySlots = (localGoogletag && localGoogletag.destroySlots);
 
 		addHookOnGooglePubAdsDisableInitialLoad();
 		addHookOnGooglePubAdsEnableSingleRequest();		
@@ -570,7 +582,8 @@ var displayHookAdded = false,
 		//			we do not care about it
 		//		slot.setTargeting(key, value);
 		//			we do not care, as it has a get method
-		addHookOnGooglePubAdsSetTargeting();	
+		addHookOnGooglePubAdsSetTargeting();
+		addHookOnGoogletagDestroySlots();
 	}	
 ;
 
