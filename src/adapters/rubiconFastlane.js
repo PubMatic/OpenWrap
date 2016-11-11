@@ -24,12 +24,18 @@ adapterManagerRegisterAdapter((function() {
 			'970x90': 55,
 			'970x250': 57,
 			'1000x90': 58,
+			'320x80': 59,
+			'640x480': 65,
 			'320x480': 67,
 			'1800x1000': 68,
+			'320x320': 72,
+			'320x160': 73,
 			'480x320': 101,
 			'768x1024': 102,
 			'1000x300': 113,
-			'320x100': 117
+			'320x100': 117,
+			'800x250': 125,
+			'200x600': 126
 		},
 		RUBICON_INITIALIZED = 0,
 		// the fastlane creative code
@@ -211,15 +217,27 @@ adapterManagerRegisterAdapter((function() {
 					keyGenerationPattern, 
 					keyLookupMap, 
 					function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
+						
 						if(!keyConfig){
 							utilLog(adapterID+': '+generatedKey+constCommonMessage08);
 							return;
 						}
 
-						if(!utilCheckMandatoryParams(keyConfig, [constConfigRpSite, constConfigRpZoneSize], adapterID)){
+						if(!utilCheckMandatoryParams(keyConfig, ['siteId', 'zoneId'], adapterID)){
 							utilLog(adapterID+': '+generatedKey+constCommonMessage09);
 							return;
+						}						
+
+						var sizes = [];
+
+						if(kgpConsistsWidthAndHeight){
+							sizes.push([currentWidth, currentHeight]);
+						}else{
+							sizes = currentSlot[constAdSlotSizes];
 						}
+
+						var rbSlot = createRbSlot(keyConfig, sizes, currentSlot[constCommonDivID], generatedKey);
+						rbSlot && rbSlots.push(rbSlot);
 					}
 				);
 
@@ -229,55 +247,7 @@ adapterManagerRegisterAdapter((function() {
     					_bidsReady(rbSlots);
     				}, {slots: rbSlots});
 				}
-
 			});
-
-			//old code
-
-			if(globalConfig ){								
-
-				_initSDK();
-
-				window.rubicontag.cmd.push(function(){
-					
-					var AdapterSlotNames,
-						AdapterSlotNamesLength,
-						activeSlotsLength = activeSlots.length,
-						rbSlots = []
-					;
-
-					if(activeSlotsLength > 0){
-						for(var i = 0; i < activeSlotsLength; i++){
-							AdapterSlotNames = utilGenerateSlotNamesFromPattern( activeSlots[i], keyGenerationPattern );
-							AdapterSlotNamesLength = AdapterSlotNames.length;
-							for(var j = 0; j < AdapterSlotNamesLength; j++){
-								var key = AdapterSlotNames[j];
-								if(utilHasOwnProperty(keyLookupMap, key)){
-
-									var slotConfig = keyLookupMap[key];
-									var sizes = [];
-
-									if(kgpConsistsDimension){
-										sizes.push(activeSlots[i][constAdSlotSizes][j]);
-									}else{
-										sizes = activeSlots[i][constAdSlotSizes];
-									}
-
-									var rbSlot = createRbSlot(slotConfig, sizes, activeSlots[i][constCommonDivID], key);
-									rbSlot && rbSlots.push(rbSlot);
-								}
-							}
-						}
-
-						if(rbSlots.length){
-							window.rubicontag.setIntegration('pub');
-            				window.rubicontag.run(function(){
-            					_bidsReady(rbSlots);
-            				}, {slots: rbSlots});
-						}
-					}
-				});						
-			}
 		}
 	;
 
