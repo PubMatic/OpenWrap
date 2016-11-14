@@ -10,7 +10,8 @@ adapterManagerRegisterAdapter((function(){
 		constPubMaticResponseCreative = 'creative_tag',
 		constPubMaticResponseTrackingURL = 'tracking_url',
 
-		pubID = 0,		
+		pubID = 0,
+		wrapperImpressionID = '',
 		pmSlotToDivIDMap = {},
 
 		isPixelingDone = false,
@@ -62,6 +63,7 @@ adapterManagerRegisterAdapter((function(){
 
 			if(slots.length > 0){
 				conf[constPubId] = pubID;
+				conf['wiid'] = wrapperImpressionID;
 				conf.pm_cb = 'window.PWT.PubmaticAdapterCallback';
 				conf.grs = 3; // Grouped Response parameter, 0: default, 1: variables are split, 2: 1+rid passed to cback func, 3: 1+ md5 of bidid
 				conf.a = 1;// async == true
@@ -106,6 +108,8 @@ adapterManagerRegisterAdapter((function(){
 			}
 
 			pubID = adapterConfig[constConfigPubID];
+			wrapperImpressionID = configObject.global.pwt.wiid;
+
 			if(pubID == 0){
 				utilLog(adapterID+': '+constConfigPubID+' should be non-zero.'+constCommonMessage07)
 				return;
