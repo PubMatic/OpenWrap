@@ -85,6 +85,8 @@ var bidMap = {},
 			return;
 		}
 
+		//todo: add validation, html / url should be present and should be a string
+
 		// updaate bid ecpm according to revShare
 		bidDetails[constTargetingEcpm] = parseFloat(bidDetails[constTargetingEcpm]);
 		bidDetails[constTargetingActualEcpm] = parseFloat(bidDetails[constTargetingEcpm]);

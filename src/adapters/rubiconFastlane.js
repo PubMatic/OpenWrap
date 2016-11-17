@@ -128,6 +128,8 @@ adapterManagerRegisterAdapter((function() {
     	_bidsReady = function(rbSlots){
 	        utilLog('rubiconFastlane bidding complete: ' + ((new Date).getTime() - _bidStart));
 	        utilEach(rbSlots, function (rbSlot) {
+	        	utilLog(adapterID+': '+rbSlot.getElementId()+': getRawResponses: ');
+	        	utilLog(rbSlot.getRawResponses());
 	            _makeBids(rbSlot, rbSlot.getRawResponses());
 	        });
 		},
