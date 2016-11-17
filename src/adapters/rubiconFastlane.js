@@ -4,10 +4,8 @@ adapterManagerRegisterAdapter((function() {
     window.rubicontag.cmd = window.rubicontag.cmd || [];
 
 	var adapterID = 'rubiconFastlane',
-
 		rubiconAccountID = '',
 		_bidStart = null,
-
 		RUBICONTAG_URL = (window.location.protocol) + '//ads.rubiconproject.com/header/',
 		RUBICON_OK_STATUS = 'ok',
 		RUBICON_SIZE_MAP = {
@@ -38,9 +36,14 @@ adapterManagerRegisterAdapter((function() {
 			'200x600': 126
 		},
 		RUBICON_INITIALIZED = 0,
-		// the fastlane creative code
 		RUBICON_CREATIVE_START = '<script type="text/javascript">;(function (rt, fe) { rt.renderCreative(fe, "',
 		RUBICON_CREATIVE_END = '"); }((parent.window.rubicontag || window.top.rubicontag), (document.body || document.documentElement)));</script>',
+
+		_bidStart = null,		   
+
+		_rready = function(callback) {
+			window.rubicontag.cmd.push(callback);
+		},
 
 		_initSDK = function(){
 			if (RUBICON_INITIALIZED) {
@@ -49,8 +52,8 @@ adapterManagerRegisterAdapter((function() {
 			RUBICON_INITIALIZED = 1;
 			utilLoadScript(RUBICONTAG_URL + rubiconAccountID + '.js');
 		},
-
-		createRbSlot = function(slotConfig, sizes, divID, kgpv){
+	
+		_defineSlot = function(slotConfig, sizes, divID, kgpv){
 
 			if(!(slotConfig.siteId && slotConfig.zoneId)){
 				return false;
@@ -112,86 +115,109 @@ adapterManagerRegisterAdapter((function() {
 	        return slot;
 		},
 
-		_bidsReady = function(rbSlots){
+		_eventListenerFunction = function(params){
+    		var slot = slots.find(function(slot){return slot.getElementId() === params.elementId});
+            var ad = slot.getRawResponseBySizeId && slot.getRawResponseBySizeId(params.sizeId);
+            if(ad){
+            	var time = ((new Date).getTime() - _bidStart);
+	            utilLog("Rubicon Project bid back for "+params.elementId+" size "+params.sizeId+" at: "+time);
+	            _makeBid(slot, ad);	
+            }
+    	},
+
+    	_bidsReady = function(rbSlots){
 	        utilLog('rubiconFastlane bidding complete: ' + ((new Date).getTime() - _bidStart));
 	        utilEach(rbSlots, function (rbSlot) {
-	            _addBids(rbSlot, rbSlot.getRawResponses());
+	            _makeBids(rbSlot, rbSlot.getRawResponses());
 	        });
 		},
 
-		_addBids = function(rbSlot, ads) {
-	        // get the bid for the placement code
-	        var bids;
-	        if (!ads || ads.length === 0) {
-	            bids = [_errorBid(rbSlot, ads)];
-	        } else {
-	            bids = _makeBids(rbSlot, ads);
-	        }
+		_makeBids = function(rbSlot, ads){
+			if(!ads || ads.length === 0){
+				bidManagerSetBidFromBidder(rbSlot.getElementId(), adapterID, _errorBid(rbSlot));
+			}else{
+			    // if there are multiple ads, sort by CPM
+			    // no need to sort as bidManager will take care of it
+			    //ads = ads.sort(_adCpmSort);
 
-	        bids.forEach(function (bid) {
-	            //bidmanager.addBidResponse(rbSlot.getElementId(), bid);
-	            bidManagerSetBidFromBidder(rbSlot.getElementId(), adapterID, bid);
-	        });
-	    },
-
-	    _errorBid = function(rbSlot, ads) {
-	    	var bidResponse = {};
-			bidResponse[constTargetingBidStatus] = 0;
-			bidResponse[constTargetingEcpm] = 0;
-			bidResponse[constTargetingAdHTML] = "";
-			bidResponse[constTargetingAdUrl] = "";
-			bidResponse[constTargetingDealID] = "";
-			bidResponse[constTargetingCreativeID] = "";
-			bidResponse[constTargetingWidth] = 0;
-			bidResponse[constTargetingHeight] = 0;
-			bidResponse[constCommonKeyGenerationPatternValue] = rbSlot.kgpv;
-			return bidResponse;
+			    ads.forEach(function(ad){
+			        _makeBid(rbSlot, ad);
+			    });
+			}
 		},
 
-		_makeBids = function(rbSlot, ads) {
-	        // if there are multiple ads, sort by CPM
-	        //ads = ads.sort(_adCpmSort);
-	        var bidResponses = [];
-	        ads.forEach(function(ad){
+		_makeBid = function(rbSlot, ad){
 
-	            var bidResponse, size = ad.dimensions;
+			var bidResponse, 
+				size = ad.dimensions
+			;
 
-	            if (!size) {
-	                // this really shouldn't happen
-	                utilLog('no dimensions given', adapterID, ad);
-	                bidResponse = _errorBid(rbSlot, ads);
-	            } else {
+			if (!size) {
+			    utilLog(adapterID+': no dimensions given');
+			    bidResponse = _errorBid(rbSlot);
+			} else {
+			    //bidResponse.rubiconTargeting = _setTargeting(rbSlot, slot.bid.params.accountId);			  
+			    bidResponse = bidManagerCreateBidObject(
+					ad.cpm,
+					ad.deal || "",
+					"",
+					_creative(rbSlot.getElementId(), size),
+					"",
+					size[0],
+					size[1],
+					rbSlot.kgpv
+				);
+			}
 
-	            	var bidResponse = {};
-					bidResponse[constTargetingBidStatus] = 1;
-					bidResponse[constTargetingEcpm] = ad.cpm;
-					bidResponse[constTargetingAdHTML] = _creative(rbSlot.getElementId(), size);
-					bidResponse[constTargetingAdUrl] = "";
-					bidResponse[constTargetingDealID] = ad.deal || "";
-					bidResponse[constTargetingCreativeID] = "";
-					bidResponse[constTargetingWidth] = size[0];
-					bidResponse[constTargetingHeight] = size[1];
-					bidResponse[constCommonKeyGenerationPatternValue] = rbSlot.kgpv;	                
-	            }
+			bidManagerSetBidFromBidder(rbSlot.getElementId(), adapterID, bidResponse);
+		},
 
-	            bidResponses.push(bidResponse);
-	        });
+		_errorBid = function(rbSlot) {
+			return bidManagerCreateBidObject(
+				0,
+				"",
+				"",
+				"",
+				"",
+				0,
+				0,
+				rbSlot.kgpv
+			);
+		},
 
-	        return bidResponses;
-	    },
-
-	    _creative = function(elemId, size) {
+    	_creative = function(elemId, size) {
 	        // convert the size to a rubicon sizeId
 	        var sizeId = RUBICON_SIZE_MAP[size.join('x')];
 	        if (!sizeId) {
-	            utilLog('fastlane: missing sizeId for size: ' + size.join('x') + ' could not render creative', adapterID, RUBICON_SIZE_MAP);
+	            utilLog(adapterID + ': missing sizeId for size: ' + size.join('x') + ' could not render creative');
 	            return '';
 	        }
 	        return RUBICON_CREATIVE_START + elemId + '", "' + sizeId + RUBICON_CREATIVE_END;
 	    },
 
+		_eventAvailable,
+		
+		_handleBidEvent = function(cb){
+			if(_eventAvailable){
+			    return true;
+			}
+
+			if(_eventAvailable === false){
+			    return false;
+			}
+
+			return _eventAvailable = window.rubicontag.addEventListener(
+				'FL_TIER_MAPPED',
+				function(params){
+					cb(params);
+				}
+			);
+		},
+
 	    fetchBids = function(configObject, activeSlots){
 			utilLog(adapterID+constCommonMessage01);
+
+			_bidStart = (new Date).getTime();
 
 			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID),
 				constConfigRpAccount = 'accountId'
@@ -208,8 +234,10 @@ adapterManagerRegisterAdapter((function() {
 
 			_initSDK();
 
-			window.rubicontag.cmd.push(function(){
-				var rbSlots = []
+			_rready(function(){
+
+				var rbConfig = window.rubicontag.setIntegration('pub'),
+					rbSlots = []
 				;
 
 				utilForEachGeneratedKey(
@@ -226,27 +254,36 @@ adapterManagerRegisterAdapter((function() {
 						if(!utilCheckMandatoryParams(keyConfig, ['siteId', 'zoneId'], adapterID)){
 							utilLog(adapterID+': '+generatedKey+constCommonMessage09);
 							return;
-						}						
+						}
 
 						var sizes = [];
-
 						if(kgpConsistsWidthAndHeight){
 							sizes.push([currentWidth, currentHeight]);
 						}else{
 							sizes = currentSlot[constAdSlotSizes];
 						}
 
-						var rbSlot = createRbSlot(keyConfig, sizes, currentSlot[constCommonDivID], generatedKey);
+						var rbSlot = _defineSlot(keyConfig, sizes, currentSlot[constCommonDivID], generatedKey);
 						rbSlot && rbSlots.push(rbSlot);
 					}
 				);
 
 				if(rbSlots.length){
-					window.rubicontag.setIntegration('pub');
-    				window.rubicontag.run(function(){
-    					_bidsReady(rbSlots);
-    				}, {slots: rbSlots});
-				}
+
+					var parameters = {
+							slots: rbSlots
+						},
+	            		callback = function(){}
+	            	;
+
+					if(!_handleBidEvent(_eventListenerFunction)){
+						callback = function(){
+    						_bidsReady(rbSlots);
+    					};
+					}
+
+	            	window.rubicontag.run(callback, parameters);
+				}				
 			});
 		}
 	;
