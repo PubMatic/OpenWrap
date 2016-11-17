@@ -286,15 +286,24 @@ var displayHookAdded = false,
 
 	findWinningBidAndApplyTargeting = function(divID){
 		var winningBid = bidManagerGetBid(divID);
+		var googleDefinedSlot = slotsMap[ divID ][pmSlots_key_adSlot];
+
 		utilLog('DIV: '+divID+' winningBid: ');
 		utilLog(winningBid);
+		
 		if(winningBid[constTargetingEcpm] > 0){
-			slotsMap[ divID ][pmSlots_key_status] = status_DM_Display_TargetingsAdded;
-			var googleDefinedSlot = slotsMap[ divID ][pmSlots_key_adSlot];
+			slotsMap[ divID ][pmSlots_key_status] = status_DM_Display_TargetingsAdded;			
 			googleDefinedSlot.setTargeting(constTargetingBidID, divID);
 			googleDefinedSlot.setTargeting(constTargetingBidStatus, winningBid[constTargetingBidStatus]);
 			googleDefinedSlot.setTargeting(constTargetingEcpm, (winningBid[constTargetingEcpm]).toFixed(bidPrecision));
-			googleDefinedSlot.setTargeting(constTargetingDealID, winningBid[constTargetingDealID]);
+			googleDefinedSlot.setTargeting(constTargetingDealID, winningBid[constTargetingDealID]);			
+		}
+
+		// attaching keyValuePairs from adapters
+		for(var key in winningBid[constTargetingKvp]){
+			if(utilHasOwnProperty(winningBid[constTargetingKvp], key)){
+				googleDefinedSlot.setTargeting(key, winningBid[constTargetingKvp][key]);
+			}
 		}
 	},
 	

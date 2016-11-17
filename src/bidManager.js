@@ -9,7 +9,7 @@ var bidMap = {},
 	callInitiatedTime = 'callInitiatedTime',
 	bidReceivedTime = 'bidReceivedTime',
 
-	bidManagerCreateBidObject = function(ecpm, dealID, creativeID, creativeHTML, creativeURL, width, height, kgpv){
+	bidManagerCreateBidObject = function(ecpm, dealID, creativeID, creativeHTML, creativeURL, width, height, kgpv, keyValuePairs){
 		var bidObject = {};
 		bidObject[constTargetingEcpm] = ecpm;
 		bidObject[constTargetingDealID] = dealID;		
@@ -18,7 +18,8 @@ var bidMap = {},
 		bidObject[constTargetingCreativeID] = creativeID;
 		bidObject[constTargetingHeight] = height;
 		bidObject[constTargetingWidth] = width;
-		bidObject[constCommonKeyGenerationPatternValue] = kgpv;
+		bidObject[constCommonKeyGenerationPatternValue] = kgpv;		
+		bidObject[constTargetingKvp] = keyValuePairs || false;
 		return bidObject;
 	},
 	
@@ -145,22 +146,30 @@ var bidMap = {},
 	},
 
 	bidManagerAuctionBids = function(bids){
-		var winningBid = {};
+		var winningBid = {},
+			keyValuePairs = {}
+		;
 		winningBid[constTargetingEcpm] = 0;
 
 		for(var adapter in bids){
 			if(bids[adapter] 
 				&& bids[adapter].bid 
-				&& bids[adapter].bid[constTargetingEcpm]
+				// commenting this condition as we need to pass kvp for all bids and bids which should not be part of auction will have zero ecpm
+				//&& bids[adapter].bid[constTargetingEcpm]
 				&& bids[adapter][postTimeout] == false){
+
+				if(bids[adapter].bid[constTargetingKvp]){
+					utilCopyKeyValueObject(keyValuePairs, bids[adapter].bid[constTargetingKvp]);
+				}
 
 				if(winningBid[constTargetingEcpm] < bids[adapter].bid[constTargetingEcpm]){
 					winningBid = bids[adapter].bid;
 					winningBid[constTargetingAdapterID] = adapter;					
 				}
 			}
-		}		
+		}
 
+		winningBid[constTargetingKvp] = keyValuePairs;
 		return winningBid;
 	},
 

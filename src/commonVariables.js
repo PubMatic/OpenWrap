@@ -23,6 +23,7 @@ var win = window,
 	constTargetingCreativeID	= 'pwtcid',
 	constTargetingHeight		= 'pwth',
 	constTargetingWidth			= 'pwtw',
+	constTargetingKvp			= 'kvp',
 
 	// ones used in PWT config
 	constConfigKeyGeneratigPattern = 'kgp',	
