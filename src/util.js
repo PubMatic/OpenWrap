@@ -553,11 +553,14 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 
 	utilCopyKeyValueObject = function(copyTo, copyFrom){
 		for(var key in copyFrom){
+			
+			copyFrom[key] = utilIsArray(copyFrom[key]) ? copyFrom[key] : [copyFrom[key]];
+
 			if(utilHasOwnProperty(copyFrom, key)){
 				if(utilHasOwnProperty(copyTo, key)){
 					copyTo[key].push.apply(copyTo[key], copyFrom[key])	;
-				}else{					
-					copyTo[key] = utilIsArray(copyFrom[key]) ? copyFrom[key] : [copyFrom[key]];
+				}else{
+					copyTo[key] = copyFrom[key];
 				}
 			}
 		}

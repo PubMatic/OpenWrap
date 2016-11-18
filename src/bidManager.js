@@ -18,8 +18,7 @@ var bidMap = {},
 		bidObject[constTargetingCreativeID] = creativeID;
 		bidObject[constTargetingHeight] = height;
 		bidObject[constTargetingWidth] = width;
-		bidObject[constCommonKeyGenerationPatternValue] = kgpv;		
-		bidObject[constTargetingKvp] = keyValuePairs || false;
+		bidObject[constTargetingKvp] = keyValuePairs || false;		
 		return bidObject;
 	},
 	
