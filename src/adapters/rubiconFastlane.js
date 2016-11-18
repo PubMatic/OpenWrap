@@ -167,7 +167,8 @@ adapterManagerRegisterAdapter((function() {
 					"",
 					size[0],
 					size[1],
-					rbSlot.kgpv
+					rbSlot.kgpv,
+					ad.targeting
 				);
 			}
 
