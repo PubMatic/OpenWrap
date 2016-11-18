@@ -131,7 +131,7 @@ var bidMap = {},
 
 			utilVLogInfo(divID, {
 				type: bid,
-				bidder: bidderID,
+				bidder: bidderID + (adapterBidPassThrough[bidderID] ? '(PT)' : ''),
 				bidDetails: bidDetails,
 				startTime: bidMap[divID][creationTime],
 				endTime: bidMap[divID][bids][bidderID][bidReceivedTime],
@@ -155,6 +155,7 @@ var bidMap = {},
 		for(var adapter in bids){
 			if(bids[adapter] 
 				&& bids[adapter].bid 
+				&& !adapterBidPassThrough[adapter]//BidPassThrough: Do not participate in auction
 				// commenting this condition as we need to pass kvp for all bids and bids which should not be part of auction will have zero ecpm
 				//&& bids[adapter].bid[constTargetingEcpm]
 				&& bids[adapter][postTimeout] == false){
@@ -165,7 +166,7 @@ var bidMap = {},
 
 				if(winningBid[constTargetingEcpm] < bids[adapter].bid[constTargetingEcpm]){
 					winningBid = bids[adapter].bid;
-					winningBid[constTargetingAdapterID] = adapter;					
+					winningBid[constTargetingAdapterID] = adapter;
 				}
 			}
 		}
