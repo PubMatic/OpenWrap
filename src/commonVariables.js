@@ -37,6 +37,7 @@ var win = window,
 
 	constConfigAdapterRevenueShare = 'rev_share',
 	constConfigAdapterThrottle = 'throttle',
+	constConfigAdapterBidPassThrough = 'pt',
 
 	// very commonly used
 	constCommonConfig = 'config',

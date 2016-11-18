@@ -2,6 +2,7 @@ var bidMap = {},
 	bidManagerPwtConf = {},
 	adapterRevShareMap = {},
 	adapterThrottleMap = {},
+	adapterBidPassThrough = {},
 	bid = 'bid',
 	bids = 'bidsFromBidders',
 	postTimeout = 'post_timeout',
@@ -276,6 +277,10 @@ var bidMap = {},
 					if(utilHasOwnProperty(adapterConfig[adapter], constConfigAdapterThrottle)){
 						adapterThrottleMap[adapter] = 100 - parseFloat(adapterConfig[adapter][constConfigAdapterThrottle]);	
 					}
+
+					if(utilHasOwnProperty(adapterConfig[adapter], constConfigAdapterBidPassThrough)){
+						adapterBidPassThrough[adapter] = parseInt(adapterConfig[adapter][constConfigAdapterBidPassThrough]);
+					}
 				}
 			}
 		}		
@@ -333,6 +338,11 @@ var bidMap = {},
 				impressionID = bidMap[key][constImpressionID];
 
 				for(var adapter in bidsArray){
+
+					//if bid-pass-thru is set then do not log the bids
+					if(adapterBidPassThrough[adapter]){
+						continue;
+					}
 
 					if(bidsArray[adapter] && bidsArray[adapter].bid ){
 
