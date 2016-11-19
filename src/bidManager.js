@@ -154,14 +154,18 @@ var bidMap = {},
 
 		for(var adapter in bids){
 			if(bids[adapter] 
-				&& bids[adapter].bid 
-				&& !adapterBidPassThrough[adapter]//BidPassThrough: Do not participate in auction
+				&& bids[adapter].bid 				
 				// commenting this condition as we need to pass kvp for all bids and bids which should not be part of auction will have zero ecpm
 				//&& bids[adapter].bid[constTargetingEcpm]
 				&& bids[adapter][postTimeout] == false){
 
 				if(bids[adapter].bid[constTargetingKvp]){
 					utilCopyKeyValueObject(keyValuePairs, bids[adapter].bid[constTargetingKvp]);
+				}
+
+				//BidPassThrough: Do not participate in auction)
+				if(adapterBidPassThrough[adapter]){
+					continue;
 				}
 
 				if(winningBid[constTargetingEcpm] < bids[adapter].bid[constTargetingEcpm]){
