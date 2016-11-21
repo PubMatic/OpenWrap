@@ -82,7 +82,7 @@ adapterManagerRegisterAdapter((function() {
 	            siteId: slotConfig.siteId,
 	            zoneId: slotConfig.zoneId,
 	            sizes: rbSizes,
-	            id: divID
+	            id: divID + Math.random()
 	        });
 
 	        slot.clearTargeting();
@@ -111,6 +111,7 @@ adapterManagerRegisterAdapter((function() {
 
 	        //slot.bid = bid;
 	        slot.kgpv = kgpv;
+	        slot.divID = divID;
 
 	        return slot;
 		},
@@ -136,7 +137,8 @@ adapterManagerRegisterAdapter((function() {
 
 		_makeBids = function(rbSlot, ads){
 			if(!ads || ads.length === 0){
-				bidManagerSetBidFromBidder(rbSlot.getElementId(), adapterID, _errorBid(rbSlot));
+				//bidManagerSetBidFromBidder(rbSlot.getElementId(), adapterID, _errorBid(rbSlot));
+				bidManagerSetBidFromBidder(rbSlot.divID, adapterID, _errorBid(rbSlot));
 			}else{
 			    // if there are multiple ads, sort by CPM
 			    // no need to sort as bidManager will take care of it
@@ -172,7 +174,8 @@ adapterManagerRegisterAdapter((function() {
 				);
 			}
 
-			bidManagerSetBidFromBidder(rbSlot.getElementId(), adapterID, bidResponse);
+			//bidManagerSetBidFromBidder(rbSlot.getElementId(), adapterID, bidResponse);
+			bidManagerSetBidFromBidder(rbSlot.divID, adapterID, bidResponse);
 		},
 
 		_errorBid = function(rbSlot) {
