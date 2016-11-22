@@ -66,7 +66,7 @@ var bidMap = {},
 			bidMap[divID][bids][bidderID] = {};
 		}
 
-		utilLog('BdManagerSetBid: divID: '+divID+', bidderID: '+bidderID+', ecpm: '+bidDetails[constTargetingEcpm]);
+		utilLog('BdManagerSetBid: divID: '+divID+', bidderID: '+bidderID+', ecpm: '+bidDetails[constTargetingEcpm] + ', size: ' + bidDetails[constTargetingWidth]+'x'+bidDetails[constTargetingHeight]);
 		utilLog(constCommonMessage06+ utilHasOwnProperty(bidMap[divID][bids][bidderID], bid));
 
 		if(bidDetails[constTargetingEcpm] == null){
