@@ -83,20 +83,19 @@ adapterManagerRegisterAdapter((function() {
 					}
 
 					var adSlotSizes = kgpConsistsWidthAndHeight ? [[currentWidth, currentHeight]] : currentSlot[constAdSlotSizes];
-						var bidWidth = adSlotSizes[n][0];
-						var bidHeight = adSlotSizes[n][1];
-						var bidRequest = {
-							cf: bidWidth + 'x' + bidHeight,
-							cp: pubID,
-							ct: keyConfig[constConfigAdTagID],
-							aui: currentSlot[constCommonDivID] + '@' + bidWidth + 'x' + bidHeight,
-							div: currentSlot[constCommonDivID],
-							bw: bidWidth,
-							bh: bidHeight,
-							kgpv: generatedKey
-						};
-						makeBidRequest(bidRequest);	
-					}
+					var bidWidth = adSlotSizes[n][0];
+					var bidHeight = adSlotSizes[n][1];
+					var bidRequest = {
+						cf: bidWidth + 'x' + bidHeight,
+						cp: pubID,
+						ct: keyConfig[constConfigAdTagID],
+						aui: currentSlot[constCommonDivID] + '@' + bidWidth + 'x' + bidHeight,
+						div: currentSlot[constCommonDivID],
+						bw: bidWidth,
+						bh: bidHeight,
+						kgpv: generatedKey
+					};
+					makeBidRequest(bidRequest);
 				}
 			);	
 		}	
