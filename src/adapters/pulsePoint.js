@@ -66,38 +66,42 @@ adapterManagerRegisterAdapter((function() {
 			var keyGenerationPattern = adapterConfig[constConfigKeyGeneratigPattern];
 			var keyLookupMap = adapterConfig[constConfigKeyLookupMap];
 
-			utilForEachGeneratedKey(
-				activeSlots, 
-				keyGenerationPattern, 
-				keyLookupMap, 
-				function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
+			utilLoadScript(jsLibURL, function(){						
+				utilForEachGeneratedKey(
+					activeSlots, 
+					keyGenerationPattern, 
+					keyLookupMap, 
+					function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
 
-					if(!keyConfig){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-						return;
+						if(!keyConfig){
+							utilLog(adapterID+': '+generatedKey+constCommonMessage08);
+							return;
+						}
+
+						if(!utilCheckMandatoryParams(keyConfig, [constConfigAdTagID], adapterID)){
+							utilLog(adapterID+': '+generatedKey+constCommonMessage09);
+							return;
+						}
+
+						var adSlotSizes = kgpConsistsWidthAndHeight ? [[currentWidth, currentHeight]] : currentSlot[constAdSlotSizes];
+						for(var n=0, l=adSlotSizes.length; n<l; n++){
+							var bidWidth = adSlotSizes[n][0];
+							var bidHeight = adSlotSizes[n][1];
+							var bidRequest = {
+								cf: bidWidth + 'x' + bidHeight,
+								cp: pubID,
+								ct: keyConfig[constConfigAdTagID],
+								aui: currentSlot[constCommonDivID] + '@' + bidWidth + 'x' + bidHeight,
+								div: currentSlot[constCommonDivID],
+								bw: bidWidth,
+								bh: bidHeight,
+								kgpv: generatedKey
+							};
+							makeBidRequest(bidRequest);
+						}
 					}
-
-					if(!utilCheckMandatoryParams(keyConfig, [constConfigAdTagID], adapterID)){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-						return;
-					}
-
-					var adSlotSizes = kgpConsistsWidthAndHeight ? [[currentWidth, currentHeight]] : currentSlot[constAdSlotSizes];
-					var bidWidth = adSlotSizes[n][0];
-					var bidHeight = adSlotSizes[n][1];
-					var bidRequest = {
-						cf: bidWidth + 'x' + bidHeight,
-						cp: pubID,
-						ct: keyConfig[constConfigAdTagID],
-						aui: currentSlot[constCommonDivID] + '@' + bidWidth + 'x' + bidHeight,
-						div: currentSlot[constCommonDivID],
-						bw: bidWidth,
-						bh: bidHeight,
-						kgpv: generatedKey
-					};
-					makeBidRequest(bidRequest);
-				}
-			);	
+				);
+			});
 		}	
 	;
 
