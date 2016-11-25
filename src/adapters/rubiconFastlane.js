@@ -270,10 +270,22 @@ adapterManagerRegisterAdapter((function() {
 						}
 
 						var rbSlot = _defineSlot(keyConfig, sizes, currentSlot[constCommonDivID], generatedKey);
-						rbSlot && rbSlots.push(rbSlot);
+						//rbSlot && rbSlots.push(rbSlot);
+						if(rbSlot){
+							var rbSlots = [rbSlot];
+							window.rubicontag.run(
+								function(){
+    								_bidsReady(rbSlots);
+    							}, 
+    							{
+    								slots: rbSlots
+    							}
+    						);
+						}
 					}
 				);
 
+				/*
 				if(rbSlots.length){
 
 					var parameters = {
@@ -289,7 +301,8 @@ adapterManagerRegisterAdapter((function() {
 					}
 
 	            	window.rubicontag.run(callback, parameters);
-				}				
+				}
+				*/				
 			});
 		}
 	;
