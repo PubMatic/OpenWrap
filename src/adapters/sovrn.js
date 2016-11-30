@@ -53,7 +53,6 @@ adapterManagerRegisterAdapter((function() {
 			            sovrnImps.push(imp);
 
 			            sovrnImpsInternal[imp.id] = {
-			            	id: imp.id,
 			            	divID: currentSlot[constCommonDivID],
 			            	kgpv: generatedKey
 			            };
@@ -81,12 +80,55 @@ adapterManagerRegisterAdapter((function() {
 
 		bidResponseHandler = function(requestImpressions){
 			return function(sovrnResponseObj){
+				if(sovrnResponseObj && sovrnResponseObj.id){
+					if(sovrnResponseObj.seatbid && sovrnResponseObj.seatbid.length !== 0 && sovrnResponseObj.seatbid[0].bid && sovrnResponseObj.seatbid[0].bid.length !== 0){
+						sovrnResponseObj.seatbid[0].bid.forEach(function(sovrnBid){
 
-				utilLog('requestImpressions');
-				utilLog(requestImpressions);
-				utilLog('sovrnResponseObj');
-				utilLog(sovrnResponseObj);
-				// to be decided
+							if(!utilHasOwnProperty(requestImpressions,sovrnBid.impid)){
+								return;
+							}
+
+							var requestBid = requestImpressions[sovrnBid.impid];
+							bidManagerSetBidFromBidder(
+						    	requestBid.divID, 
+						    	adapterID, 
+						    	bidManagerCreateBidObject(
+									parseFloat(sovrnBid.price),
+									"",
+									"",
+									decodeURIComponent(sovrnBid.adm + '<img src="' + sovrnBid.nurl + '">'),
+									"",
+									sovrnBid.w,
+									sovrnBid.h,
+									requestBid.kgpv
+								)
+							);
+
+							delete requestImpressions[sovrnBid.impid];
+						});
+					}
+				}
+
+				// set zero ecpm bid for slots 
+				for(var key in requestImpressions){
+					if(utilHasOwnProperty(requestImpressions, key)){
+						var requestBid = requestImpressions[key];
+						bidManagerSetBidFromBidder(
+					    	requestBid.divID, 
+					    	adapterID, 
+					    	bidManagerCreateBidObject(
+								0,
+								"",
+								"",
+								"",
+								"",
+								0,
+								0,
+								requestBid.kgpv
+							)
+						);
+					}
+				}
 
 			}
 		}		
