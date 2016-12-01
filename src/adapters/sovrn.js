@@ -1,3 +1,8 @@
+
+/*
+	Note: we are not accepting size from config, so we shall not be able to call Sovrn to fetch add of size 728x50 for adslot of 728x90
+*/
+
 adapterManagerRegisterAdapter((function() {
 
 	var adapterID = 'sovrn',
@@ -129,7 +134,6 @@ adapterManagerRegisterAdapter((function() {
 						);
 					}
 				}
-
 			}
 		}		
 	;
