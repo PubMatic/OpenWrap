@@ -617,9 +617,9 @@ var controllerInit = function(config){
 		if(utilIsUndefined(win.google_onload_fired) && win.googletag.cmd.unshift){
 			utilLog('Succeeded to load before GPT');
 			win.googletag.cmd.unshift( function(){ 
-				utilLog('PubMatic initialization started');
+				utilLog('OpenWrap initialization started');
 				addHooks();
-				utilLog('PubMatic initialization completed');
+				utilLog('OpenWrap initialization completed');
 			} );
 		}else{
 			utilLog('Failed to load before GPT');
