@@ -598,32 +598,39 @@ var displayHookAdded = false,
 
 var controllerInit = function(config){
 
-	configObject = config;
-	bidManagerSetGlobalConfig(configObject);
+	try{
 
-	TIMEOUT = parseInt(configObject[constCommonGlobal].pwt.t || 1000);
-	
-	DM_targetingKeys[constTargetingBidID] = '';
-	DM_targetingKeys[constTargetingBidStatus] = '';
-	DM_targetingKeys[constTargetingEcpm] = '';
-	DM_targetingKeys[constTargetingDealID] = '';
-	
-	// define the command array if not already defined
-	win.googletag = win.googletag || {};
-	win.googletag.cmd = win.googletag.cmd || [];
+		configObject = config;
+		bidManagerSetGlobalConfig(configObject);
 
-	if(utilIsUndefined(win.google_onload_fired) && win.googletag.cmd.unshift){
-		utilLog('Succeeded to load before GPT');
-		win.googletag.cmd.unshift( function(){ 
-			utilLog('PubMatic initialization started');
-			addHooks();
-			utilLog('PubMatic initialization completed');
-		} );
-	}else{
-		utilLog('Failed to load before GPT');
-	}
-	
-	if(utilIsFn(win.PWT.jsLoaded)){
-		win.PWT.jsLoaded();
+		TIMEOUT = parseInt(configObject[constCommonGlobal].pwt.t || 1000);
+		
+		DM_targetingKeys[constTargetingBidID] = '';
+		DM_targetingKeys[constTargetingBidStatus] = '';
+		DM_targetingKeys[constTargetingEcpm] = '';
+		DM_targetingKeys[constTargetingDealID] = '';
+		
+		// define the command array if not already defined
+		win.googletag = win.googletag || {};
+		win.googletag.cmd = win.googletag.cmd || [];
+
+		if(utilIsUndefined(win.google_onload_fired) && win.googletag.cmd.unshift){
+			utilLog('Succeeded to load before GPT');
+			win.googletag.cmd.unshift( function(){ 
+				utilLog('PubMatic initialization started');
+				addHooks();
+				utilLog('PubMatic initialization completed');
+			} );
+		}else{
+			utilLog('Failed to load before GPT');
+		}
+		
+		if(utilIsFn(win.PWT.jsLoaded)){
+			win.PWT.jsLoaded();
+		}
+
+	}catch(e){
+		console.log('OpenWrap: Something went wrong.');
+		console.log(e);
 	}
 };

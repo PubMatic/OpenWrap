@@ -8,17 +8,22 @@ adapterManagerRegisterAdapter((function() {
 		constConfigAdTagID = 'ct',
 
 		makeBidRequest = function(bidRequest){
-			var ppBidRequest = new window.pp.Ad({
-			    cf: bidRequest.cf,
-			    cp: bidRequest.cp,
-			    ct: bidRequest.ct,
-			    cn: 1,
-			    ca: window.pp.requestActions.BID,
-			    cu: endPoint,
-			    adUnitId: bidRequest.aui,
-			    callback: bidResponseCallback(bidRequest)
-			});
-			ppBidRequest.display();	
+			try{
+				var ppBidRequest = new window.pp.Ad({
+				    cf: bidRequest.cf,
+				    cp: bidRequest.cp,
+				    ct: bidRequest.ct,
+				    cn: 1,
+				    ca: window.pp.requestActions.BID,
+				    cu: endPoint,
+				    adUnitId: bidRequest.aui,
+				    callback: bidResponseCallback(bidRequest)
+				});
+				ppBidRequest.display();
+			}catch(e){
+				utilLog(adapterID+constCommonMessage07);
+	        	utilLog(e);
+			}
 		},
 
 		bidResponseCallback = function(bidRequest) {
@@ -32,25 +37,30 @@ adapterManagerRegisterAdapter((function() {
 				creativeHTML = ""
 			;
 
-		    if (bidResponse) {
-		    	ecpm = bidResponse.bidCpm;
-		    	creativeHTML = bidResponse.html;
-		    }
+			try{
+			    if (bidResponse) {
+			    	ecpm = bidResponse.bidCpm;
+			    	creativeHTML = bidResponse.html;
+			    }
 
-		    bidManagerSetBidFromBidder(
-		    	bidRequest.div, 
-		    	adapterID, 
-		    	bidManagerCreateBidObject(
-					ecpm,
-					"",
-					"",
-					creativeHTML,
-					"",
-					bidRequest.bw,
-					bidRequest.bh,
-					bidRequest.kgpv
-				)
-			);
+			    bidManagerSetBidFromBidder(
+			    	bidRequest.div, 
+			    	adapterID, 
+			    	bidManagerCreateBidObject(
+						ecpm,
+						"",
+						"",
+						creativeHTML,
+						"",
+						bidRequest.bw,
+						bidRequest.bh,
+						bidRequest.kgpv
+					)
+				);
+			}catch(e){
+				utilLog(adapterID+constCommonMessage21);
+	        	utilLog(e);
+			}
 		},
 
 		fetchBids = function(configObject, activeSlots){

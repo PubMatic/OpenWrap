@@ -65,6 +65,12 @@ adapterManagerRegisterAdapter((function() {
 				}
 			);
 
+			if(sovrnImps.length == 0){
+				utilLog(adapterID+': sovrnImps array is empty');
+				utilLog(adapterID+constCommonMessage07);
+				return;
+			}
+
 			// build bid request with impressions
 			var randomID = utilGetUniqueIdentifierStr();
 	        var sovrnBidReq = {
@@ -85,57 +91,63 @@ adapterManagerRegisterAdapter((function() {
 
 		bidResponseHandler = function(requestImpressions){
 			return function(sovrnResponseObj){
-				if(sovrnResponseObj && sovrnResponseObj.id){
-					if(sovrnResponseObj.seatbid && sovrnResponseObj.seatbid.length !== 0 && sovrnResponseObj.seatbid[0].bid && sovrnResponseObj.seatbid[0].bid.length !== 0){
-						sovrnResponseObj.seatbid[0].bid.forEach(function(sovrnBid){
+				try{
+					if(sovrnResponseObj && sovrnResponseObj.id){
+						if(sovrnResponseObj.seatbid && sovrnResponseObj.seatbid.length !== 0 && sovrnResponseObj.seatbid[0].bid && sovrnResponseObj.seatbid[0].bid.length !== 0){
+							sovrnResponseObj.seatbid[0].bid.forEach(function(sovrnBid){
 
-							if(!utilHasOwnProperty(requestImpressions,sovrnBid.impid)){
-								return;
-							}
+								if(!utilHasOwnProperty(requestImpressions,sovrnBid.impid)){
+									return;
+								}
 
-							var requestBid = requestImpressions[sovrnBid.impid];
+								var requestBid = requestImpressions[sovrnBid.impid];
+								bidManagerSetBidFromBidder(
+							    	requestBid.divID, 
+							    	adapterID, 
+							    	bidManagerCreateBidObject(
+										parseFloat(sovrnBid.price),
+										"",
+										"",
+										decodeURIComponent(sovrnBid.adm + '<img src="' + sovrnBid.nurl + '">'),
+										"",
+										sovrnBid.w,
+										sovrnBid.h,
+										requestBid.kgpv
+									)
+								);
+
+								delete requestImpressions[sovrnBid.impid];
+							});
+						}
+					}
+
+					// set zero ecpm bid for slots 
+					for(var key in requestImpressions){
+						if(utilHasOwnProperty(requestImpressions, key)){
+							var requestBid = requestImpressions[key];
 							bidManagerSetBidFromBidder(
 						    	requestBid.divID, 
 						    	adapterID, 
 						    	bidManagerCreateBidObject(
-									parseFloat(sovrnBid.price),
+									0,
 									"",
 									"",
-									decodeURIComponent(sovrnBid.adm + '<img src="' + sovrnBid.nurl + '">'),
 									"",
-									sovrnBid.w,
-									sovrnBid.h,
+									"",
+									0,
+									0,
 									requestBid.kgpv
 								)
 							);
-
-							delete requestImpressions[sovrnBid.impid];
-						});
+						}
 					}
-				}
 
-				// set zero ecpm bid for slots 
-				for(var key in requestImpressions){
-					if(utilHasOwnProperty(requestImpressions, key)){
-						var requestBid = requestImpressions[key];
-						bidManagerSetBidFromBidder(
-					    	requestBid.divID, 
-					    	adapterID, 
-					    	bidManagerCreateBidObject(
-								0,
-								"",
-								"",
-								"",
-								"",
-								0,
-								0,
-								requestBid.kgpv
-							)
-						);
-					}
+				}catch(e){
+					utilLog(adapterID+constCommonMessage21);
+					utilLog(e);
 				}
 			}
-		}		
+		}
 	;
 
 	win.PWT.SovrnAdapterCallbacks = {};

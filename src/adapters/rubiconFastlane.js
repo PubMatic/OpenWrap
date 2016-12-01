@@ -129,9 +129,14 @@ adapterManagerRegisterAdapter((function() {
     	_bidsReady = function(rbSlots){
 	        utilLog('rubiconFastlane bidding complete: ' + ((new Date).getTime() - _bidStart));
 	        utilEach(rbSlots, function (rbSlot) {
-	        	utilLog(adapterID+': '+rbSlot.getElementId()+': getRawResponses: ');
-	        	utilLog(rbSlot.getRawResponses());
-	            _makeBids(rbSlot, rbSlot.getRawResponses());
+	        	try{
+		        	utilLog(adapterID+': '+rbSlot.getElementId()+': getRawResponses: ');
+		        	utilLog(rbSlot.getRawResponses());
+		            _makeBids(rbSlot, rbSlot.getRawResponses());
+	        	}catch(e){
+	        		utilLog(adapterID+constCommonMessage21);
+	        		utilLog(e);
+	        	}
 	        });
 		},
 
@@ -160,21 +165,25 @@ adapterManagerRegisterAdapter((function() {
 			    utilLog(adapterID+': no dimensions given');
 			    bidResponse = _errorBid(rbSlot);
 			} else {
-			    //bidResponse.rubiconTargeting = _setTargeting(rbSlot, slot.bid.params.accountId);			  
-			    bidResponse = bidManagerCreateBidObject(
-					ad.cpm,
-					ad.deal || "",
-					"",
-					_creative(rbSlot.getElementId(), size),
-					"",
-					size[0],
-					size[1],
-					rbSlot.kgpv,
-					ad.targeting
-				);
+
+				try{
+				    bidResponse = bidManagerCreateBidObject(
+						ad.cpm,
+						ad.deal || "",
+						"",
+						_creative(rbSlot.getElementId(), size),
+						"",
+						size[0],
+						size[1],
+						rbSlot.kgpv,
+						ad.targeting
+					);
+				}catch(e){
+					utilLog(adapterID+constCommonMessage21);
+	        		utilLog(e);
+				}
 			}
 
-			//bidManagerSetBidFromBidder(rbSlot.getElementId(), adapterID, bidResponse);
 			bidManagerSetBidFromBidder(rbSlot.divID, adapterID, bidResponse);
 		},
 
