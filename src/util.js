@@ -496,7 +496,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 		return success;
 	},
 
-	utilForEachGeneratedKey = function(activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction){
+	utilForEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction){
 		var activeSlotsLength = activeSlots.length,
 			i,
 			j,
@@ -511,10 +511,24 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 				generatedKeys = utilGenerateSlotNamesFromPattern( activeSlots[i], keyGenerationPattern );
 				generatedKeysLength = generatedKeys.length				
 				for(j = 0; j < generatedKeysLength; j++){
-					var generatedKey = generatedKeys[j];
-					// handlerFunction(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
-					//todo: send all the arguments in an object, this change will require changes in all adapters					
-					handlerFunction(
+					var generatedKey = generatedKeys[j],
+						keyConfig = keyLookupMap[generatedKey],
+						callHandlerFunction = false
+					;
+
+					if(keyLookupMap == false){
+						callHandlerFunction = true;
+					}else{
+						if(!keyConfig){
+							utilLog(adapterID+': '+generatedKey+constCommonMessage08);
+						}else if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
+							utilLog(adapterID+': '+generatedKey+constCommonMessage09);
+						}else{
+							callHandlerFunction = true;
+						}
+					}
+
+					callHandlerFunction && handlerFunction(
 						generatedKey, 
 						kgpConsistsWidthAndHeight, 
 						activeSlots[i], 
