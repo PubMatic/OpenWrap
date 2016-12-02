@@ -10,6 +10,9 @@ adapterManagerRegisterAdapter((function() {
 		constConfigRpFloor		= 'rp_floor',
 		constConfigRpVisitor	= 'rp_visitor',
 
+		adapterConfigMandatoryParams = [constConfigRpAccount, constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+		slotConfigMandatoryParams = [constConfigRpSite, constConfigRpZoneSize],
+
 		rubiconAccountID = '',
 
 		// Map size dimensions to size 'ID'
@@ -20,7 +23,7 @@ adapterManagerRegisterAdapter((function() {
 			utilLog(adapterID+constCommonMessage01);
 
 			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID);
-			if(!utilCheckMandatoryParams(adapterConfig, [constConfigRpAccount, constConfigKeyGeneratigPattern, constConfigKeyLookupMap], adapterID)){
+			if(!utilCheckMandatoryParams(adapterConfig, adapterConfigMandatoryParams, adapterID)){
 				utilLog(adapterID+constCommonMessage07);
 				return;
 			}
@@ -40,7 +43,7 @@ adapterManagerRegisterAdapter((function() {
 						return;
 					}
 
-					if(!utilCheckMandatoryParams(keyConfig, [constConfigRpSite, constConfigRpZoneSize], adapterID)){
+					if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
 						utilLog(adapterID+': '+generatedKey+constCommonMessage09);
 						return;
 					}

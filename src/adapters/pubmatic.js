@@ -9,6 +9,8 @@ adapterManagerRegisterAdapter((function(){
 		constPubId = 'pubId',
 		constPubMaticResponseCreative = 'creative_tag',
 		constPubMaticResponseTrackingURL = 'tracking_url',
+		adapterConfigMandatoryParams = [constConfigPubID, constConfigKeyGeneratigPattern, constConfigServerSideKey],
+		slotConfigMandatoryParams = [],
 
 		pubID = 0,
 		wrapperImpressionID = '',
@@ -96,7 +98,7 @@ adapterManagerRegisterAdapter((function(){
 			utilLog(adapterID+constCommonMessage01);
 
 			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID);
-			if(!utilCheckMandatoryParams(adapterConfig, [constConfigPubID, constConfigKeyGeneratigPattern, constConfigServerSideKey], adapterID)){
+			if(!utilCheckMandatoryParams(adapterConfig, adapterConfigMandatoryParams, adapterID)){
 				utilLog(adapterID+constCommonMessage07);
 				return;
 			}

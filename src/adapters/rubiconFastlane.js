@@ -4,6 +4,11 @@ adapterManagerRegisterAdapter((function() {
     window.rubicontag.cmd = window.rubicontag.cmd || [];
 
 	var adapterID = 'rubiconFastlane',
+		constConfigRpAccount = 'accountId',
+		constConfigRpSite = 'siteId',
+		constConfigRpZone = 'zoneId',
+		adapterConfigMandatoryParams = [constConfigRpAccount, constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+		slotConfigMandatoryParams = [constConfigRpSite, constConfigRpZone],
 		rubiconAccountID = '',
 		_bidStart = null,
 		RUBICONTAG_URL = (window.location.protocol) + '//ads.rubiconproject.com/header/',
@@ -55,7 +60,7 @@ adapterManagerRegisterAdapter((function() {
 	
 		_defineSlot = function(slotConfig, sizes, divID, kgpv){
 
-			if(!(slotConfig.siteId && slotConfig.zoneId)){
+			if(!(slotConfig[constConfigRpSite] && slotConfig[constConfigRpZone])){
 				return false;
 			}
 
@@ -79,8 +84,8 @@ adapterManagerRegisterAdapter((function() {
 	        var inventory = slotConfig.inventory || [];
 
 	        var slot = window.rubicontag.defineSlot({
-	            siteId: slotConfig.siteId,
-	            zoneId: slotConfig.zoneId,
+	            siteId: slotConfig[constConfigRpSite],
+	            zoneId: slotConfig[constConfigRpZone],
 	            sizes: rbSizes,
 	            id: divID + Math.random()
 	        });
@@ -234,11 +239,10 @@ adapterManagerRegisterAdapter((function() {
 
 			_bidStart = (new Date).getTime();
 
-			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID),
-				constConfigRpAccount = 'accountId'
+			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID)				
 			;
 
-			if(!utilCheckMandatoryParams(adapterConfig, [constConfigRpAccount, constConfigKeyGeneratigPattern, constConfigKeyLookupMap], adapterID)){
+			if(!utilCheckMandatoryParams(adapterConfig, adapterConfigMandatoryParams, adapterID)){
 				utilLog(adapterID+constCommonMessage07);
 				return;
 			}
@@ -266,7 +270,7 @@ adapterManagerRegisterAdapter((function() {
 							return;
 						}
 
-						if(!utilCheckMandatoryParams(keyConfig, ['siteId', 'zoneId'], adapterID)){
+						if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
 							utilLog(adapterID+': '+generatedKey+constCommonMessage09);
 							return;
 						}

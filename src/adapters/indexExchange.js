@@ -340,10 +340,10 @@ adapterManagerRegisterAdapter((function() {
 	var adapterID = 'indexExchange',
 	    slotIdMap = {},
 	    incrID = 0,
-
-	    adapterConfigMandatoryParams = [constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+	    
 	    slotConfigId = 'id',
 	    slotConfigSiteId = 'siteID',
+	    adapterConfigMandatoryParams = [constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
 	    slotConfigMandatoryParams = [slotConfigId, slotConfigSiteId],
 
 	    pushIndexSlots = function(currentWidth, currentHeight, key, params, activeSlot, incrID){

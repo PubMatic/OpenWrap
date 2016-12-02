@@ -4,6 +4,9 @@ adapterManagerRegisterAdapter((function() {
 
 		constConfigJsTagUrl = 'jstag_url',
 		constConfigPageID = 'pgid',
+		constConfigUnit = 'unit',
+		adapterConfigMandatoryParams = [constConfigJsTagUrl, constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+		slotConfigMandatoryParams = [constConfigUnit],
 
 		// metaInfo
 		opts = {
@@ -18,7 +21,7 @@ adapterManagerRegisterAdapter((function() {
 			utilLog(adapterID+constCommonMessage01);
 
 			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID);
-			if(!utilCheckMandatoryParams(adapterConfig, [constConfigJsTagUrl, constConfigKeyGeneratigPattern, constConfigKeyLookupMap], adapterID)){
+			if(!utilCheckMandatoryParams(adapterConfig, adapterConfigMandatoryParams, adapterID)){
 				utilLog(adapterID+constCommonMessage07);
 				return;
 			}
@@ -42,7 +45,7 @@ adapterManagerRegisterAdapter((function() {
 						return;
 					}
 
-					if(!utilCheckMandatoryParams(keyConfig, ['unit'], adapterID)){
+					if(!utilCheckMandatoryParams(keyConfig, , adapterID)){
 						utilLog(adapterID+': '+generatedKey+constCommonMessage09);
 						return;
 					}
@@ -77,7 +80,7 @@ adapterManagerRegisterAdapter((function() {
 						
 						for(i in internalMap){
 							if(utilHasOwnProperty(internalMap, i)){
-								POX.addAdUnit(internalMap[i][constCommonConfig][constCommonParams].unit);	
+								POX.addAdUnit(internalMap[i][constCommonConfig][constCommonParams][constConfigUnit]);	
 							}						
 						}
 
@@ -101,7 +104,7 @@ adapterManagerRegisterAdapter((function() {
 									if( utilHasOwnProperty(internalMap, id) && internalMap[id]['exp'] != true ){
 
 										bid = internalMap[id];
-										adUnit = response.getOrCreateAdUnit(bid.config[constCommonParams].unit);
+										adUnit = response.getOrCreateAdUnit(bid.config[constCommonParams][constConfigUnit]);
 
 										if (adUnit.get(constPubRev)) {
 

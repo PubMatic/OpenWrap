@@ -9,12 +9,14 @@ adapterManagerRegisterAdapter((function() {
 		sovrnUrl = 'ap.lijit.com/rtb/bid',
 		constConfigAdTagID = 'tagid',
 		constConfigBidFloor = 'bidfloor',
+		adapterConfigMandatoryParams = [constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+		slotConfigMandatoryParams = [constConfigAdTagID],
 
 		fetchBids = function(configObject, activeSlots){
 			utilLog(adapterID+constCommonMessage01);
 
 			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID);
-			if(!utilCheckMandatoryParams(adapterConfig, [constConfigKeyGeneratigPattern, constConfigKeyLookupMap], adapterID)){
+			if(!utilCheckMandatoryParams(adapterConfig, adapterConfigMandatoryParams, adapterID)){
 				utilLog(adapterID+constCommonMessage07);
 				return;
 			}
@@ -35,7 +37,7 @@ adapterManagerRegisterAdapter((function() {
 						return;
 					}
 
-					if(!utilCheckMandatoryParams(keyConfig, [constConfigAdTagID], adapterID)){
+					if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
 						utilLog(adapterID+': '+generatedKey+constCommonMessage09);
 						return;
 					}

@@ -3,6 +3,8 @@ adapterManagerRegisterAdapter((function(){
 		adxDomain = 'adx.adform.net',
 		constConfigAdxDomain = 'adxDomain',
 		constConfigMid = 'mid',
+		adapterConfigMandatoryParams = [constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+	    slotConfigMandatoryParams = [constConfigMid],
 
 		fetchBids = function(configObject, activeSlots){
 			utilLog(adapterID+constCommonMessage01);
@@ -10,7 +12,7 @@ adapterManagerRegisterAdapter((function(){
 			try{
 
 				var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID);
-				if(!utilCheckMandatoryParams(adapterConfig, [constConfigKeyGeneratigPattern, constConfigKeyLookupMap], adapterID)){
+				if(!utilCheckMandatoryParams(adapterConfig, adapterConfigMandatoryParams, adapterID)){
 					utilLog(adapterID+constCommonMessage07);
 					return;
 				}
@@ -49,7 +51,7 @@ adapterManagerRegisterAdapter((function(){
 						}
 
 						//check for mandatory params
-						if(!utilCheckMandatoryParams(keyConfig, [constConfigMid], adapterID)){
+						if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
 							utilLog(adapterID+': '+generatedKey+constCommonMessage09);
 							return;
 						}					

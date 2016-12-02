@@ -3,7 +3,7 @@ adapterManagerRegisterAdapter((function(){
 	var adapterID = 'sample',
 		endPointURL = 'bid.sampleAdapter.com/server?',
 		constConfigPubID = 'pubID',
-		constSlotConfigAdID = 'adID'
+		constSlotConfigAdID = 'adID',
 
 		// mention all mandatory parameters expected in adapter config
 		adapterConfigMandatoryParams = [constConfigKeyGeneratigPattern, constConfigKeyLookupMap, constConfigPubID],
@@ -11,7 +11,7 @@ adapterManagerRegisterAdapter((function(){
 		// mention all mandatory parameters expected in slot config
 		slotConfigMandatoryParams = [constSlotConfigAdID],
 
-		internalMap = {}
+		internalMap = {},
 
 		// this function will be called by AdapterManager
 		fetchBids = function(configObject, activeSlots){
