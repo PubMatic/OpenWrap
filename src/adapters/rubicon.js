@@ -32,20 +32,12 @@ adapterManagerRegisterAdapter((function() {
 			var keyLookupMap = adapterConfig[constConfigKeyLookupMap];
 
 			utilForEachGeneratedKey(
+				adapterID,
+				slotConfigMandatoryParams,
 				activeSlots, 
 				keyGenerationPattern, 
 				keyLookupMap, 
 				function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
-
-					if(!keyConfig){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-						return;
-					}
-
-					if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-						return;
-					}
 
 					var randomID = utilGetUniqueIdentifierStr();
 					win.PWT.RubiconAdapterCallbacks[randomID] = new (function(){
