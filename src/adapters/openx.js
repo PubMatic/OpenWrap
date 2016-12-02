@@ -34,21 +34,13 @@ adapterManagerRegisterAdapter((function() {
 			}
 
 			utilForEachGeneratedKey(
+				adapterID,
+				slotConfigMandatoryParams,
 				activeSlots, 
 				keyGenerationPattern, 
 				keyLookupMap, 
 				function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
 					
-					if(!keyConfig){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-						return;
-					}
-
-					if(!utilCheckMandatoryParams(keyConfig, , adapterID)){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-						return;
-					}
-				
 					var callbackId = utilGetUniqueIdentifierStr();
 					internalMap[callbackId] = {};								
 					internalMap[callbackId][constCommonConfig] = {
