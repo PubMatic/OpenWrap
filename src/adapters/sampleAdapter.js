@@ -30,6 +30,8 @@ adapterManagerRegisterAdapter((function(){
 
 				// generate all possible keys for each adSlot from keyGenerationPattern
 				utilForEachGeneratedKey(
+					adapterID,
+					slotConfigMandatoryParams,
 					activeSlots, 
 					keyGenerationPattern, 
 					keyLookupMap, 
@@ -37,18 +39,6 @@ adapterManagerRegisterAdapter((function(){
 					// this function will be executed for each generated key
 					function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
 						
-						// check whether config is valid
-						if(!keyConfig){
-							utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-							return;
-						}
-
-						// check for slotLevel mandatory params
-						if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-							utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-							return;
-						}
-
 						var randomID = utilGetUniqueIdentifierStr();
 						win.PWT.SampleAdapterCallbacks[randomID] = new (function(){
 							var theRandomID = randomID;
