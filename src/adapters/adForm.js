@@ -39,45 +39,24 @@ adapterManagerRegisterAdapter((function(){
 				;
 
 				utilForEachGeneratedKey(
+					adapterID,
+					slotConfigMandatoryParams,
 					activeSlots, 
 					keyGenerationPattern, 
 					keyLookupMap, 
-					function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
-						
-						if(!keyConfig){
-							utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-							return;
-						}
-
-						//check for mandatory params
-						if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-							utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-							return;
-						}					
-
-						if(kgpConsistsWidthAndHeight){
+					function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){						
+						var adSlotSizes = kgpConsistsWidthAndHeight ? [[currentWidth, currentHeight]] : currentSlot[constAdSlotSizes];
+						var adSlotSizesLength = adSlotSizes.length;
+						for(var n=0; n<adSlotSizesLength; n++){
 							pushDataInSlots(
 								keyConfig, 
 								currentSlot[constCommonDivID], 
 								currentSlot[constAdSlotSizes],
 								generatedKey,
-								currentWidth,
-								currentHeight
-							);						
-						}else{
-							var adSlotSizes = currentSlot[constAdSlotSizes];
-							var adSlotSizesLength = adSlotSizes.length;
-							for(var n=0; n<adSlotSizesLength; n++){
-								pushDataInSlots(
-									keyConfig, 
-									currentSlot[constCommonDivID], 
-									currentSlot[constAdSlotSizes],
-									generatedKey,
-									adSlotSizes[n][0],
-									adSlotSizes[n][1]
-								);
-							}
-						}
+								adSlotSizes[n][0],
+								adSlotSizes[n][1]
+							);
+						}						
 					}
 				);
 
