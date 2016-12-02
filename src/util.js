@@ -301,12 +301,20 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 		}		
 	},	
 
-	utilLoadGlobalConfigForAdapter = function(configObject, adapter){		
+	utilLoadGlobalConfigForAdapter = function(configObject, adapterID, mandatoryParams){		
 		if(	utilHasOwnProperty(configObject, constCommonGlobal) 
 			&& utilHasOwnProperty(configObject[constCommonGlobal], constCommonAdapters)
-			&& utilHasOwnProperty(configObject[constCommonGlobal][constCommonAdapters], adapter)){
+			&& utilHasOwnProperty(configObject[constCommonGlobal][constCommonAdapters], adapterID)){
 
-			return configObject[constCommonGlobal][constCommonAdapters][adapter];
+			var adapterConfig = configObject[constCommonGlobal][constCommonAdapters][adapterID];
+
+			// if mandatory params are not present then return false
+			if(!utilCheckMandatoryParams(adapterConfig, mandatoryParams, adapterID)){
+				utilLog(adapterID+constCommonMessage07);
+				return false;
+			}
+
+			return configObject[constCommonGlobal][constCommonAdapters][adapterID];
 		}
 		return false;
 	},
