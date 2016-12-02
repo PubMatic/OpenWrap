@@ -26,20 +26,12 @@ adapterManagerRegisterAdapter((function() {
             var definedSlots = [];
 
             utilForEachGeneratedKey(
+                adapterID,
+                slotConfigMandatoryParams,
                 activeSlots, 
                 keyGenerationPattern, 
                 keyLookupMap, 
                 function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
-
-                    if(!keyConfig){
-                        utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-                        return;
-                    }
-
-                    if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-                        utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-                        return;
-                    }
 
                     if(psn && keyConfig[constConfigSlot]){
                         var callbackId = utilGetUniqueIdentifierStr();
