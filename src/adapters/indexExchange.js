@@ -413,33 +413,20 @@ adapterManagerRegisterAdapter((function() {
 			var keyLookupMap = adapterConfig[constConfigKeyLookupMap];
 
 			utilForEachGeneratedKey(
+				adapterID,
+				slotConfigMandatoryParams,
 				activeSlots, 
 				keyGenerationPattern, 
 				keyLookupMap, 
 				function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
-					
-					if(!keyConfig){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-						return;
-					}
-
-					if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-						return;
-					}					
-					
-					if(kgpConsistsWidthAndHeight){
+										
+					var sizes = kgpConsistsWidthAndHeight ? [[currentWidth, currentHeight]] : currentSlot[constAdSlotSizes],
+						sizesLength = sizes.length
+					;
+					for (var j = 0; j < sizesLength; j++) {
 						incrID++;
-						pushIndexSlots(currentWidth, currentHeight, generatedKey, keyConfig, currentSlot, incrID);
-					}else{
-						var sizes = currentSlot[constAdSlotSizes],
-							sizesLength = sizes.length
-						;
-						for (var j = 0; j < sizesLength; j++) {
-							incrID++;
-							pushIndexSlots(sizes[j][0], sizes[j][1], generatedKey, keyConfig, currentSlot, incrID);
-						}	
-					}
+						pushIndexSlots(sizes[j][0], sizes[j][1], generatedKey, keyConfig, currentSlot, incrID);
+					}					
 				}
 			);
 
