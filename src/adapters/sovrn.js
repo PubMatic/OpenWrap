@@ -26,21 +26,13 @@ adapterManagerRegisterAdapter((function() {
 			var sovrnImpsInternal = {};
 
 			utilForEachGeneratedKey(
+				adapterID,
+				slotConfigMandatoryParams,
 				activeSlots,
 				keyGenerationPattern,
 				keyLookupMap, 
 				function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
-
-					if(!keyConfig){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-						return;
-					}
-
-					if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-						return;
-					}
-
+					
 					var adSlotSizes = kgpConsistsWidthAndHeight ? [[currentWidth, currentHeight]] : currentSlot[constAdSlotSizes];
 
 					for(var n=0, l=adSlotSizes.length; n<l; n++){
