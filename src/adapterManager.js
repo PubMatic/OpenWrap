@@ -5,6 +5,8 @@ var adapterManagerRegisteredAdapters = {},
 		var randomNumberBelow100 = Math.floor(Math.random()*100);
 		
 		var impressionID = utilGenerateUUID();
+		
+		configObject.global.pwt.wiid = impressionID;
 
 		for(var i in activeSlots){
 			if(utilHasOwnProperty(activeSlots, i) && activeSlots[i]){

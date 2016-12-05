@@ -2,6 +2,7 @@ var bidMap = {},
 	bidManagerPwtConf = {},
 	adapterRevShareMap = {},
 	adapterThrottleMap = {},
+	adapterBidPassThrough = {},
 	bid = 'bid',
 	bids = 'bidsFromBidders',
 	postTimeout = 'post_timeout',
@@ -9,7 +10,7 @@ var bidMap = {},
 	callInitiatedTime = 'callInitiatedTime',
 	bidReceivedTime = 'bidReceivedTime',
 
-	bidManagerCreateBidObject = function(ecpm, dealID, creativeID, creativeHTML, creativeURL, width, height, kgpv){
+	bidManagerCreateBidObject = function(ecpm, dealID, creativeID, creativeHTML, creativeURL, width, height, kgpv, keyValuePairs){
 		var bidObject = {};
 		bidObject[constTargetingEcpm] = ecpm;
 		bidObject[constTargetingDealID] = dealID;		
@@ -19,6 +20,7 @@ var bidMap = {},
 		bidObject[constTargetingHeight] = height;
 		bidObject[constTargetingWidth] = width;
 		bidObject[constCommonKeyGenerationPatternValue] = kgpv;
+		bidObject[constTargetingKvp] = keyValuePairs || false;		
 		return bidObject;
 	},
 	
@@ -64,7 +66,7 @@ var bidMap = {},
 			bidMap[divID][bids][bidderID] = {};
 		}
 
-		utilLog('BdManagerSetBid: divID: '+divID+', bidderID: '+bidderID+', ecpm: '+bidDetails[constTargetingEcpm]);
+		utilLog('BdManagerSetBid: divID: '+divID+', bidderID: '+bidderID+', ecpm: '+bidDetails[constTargetingEcpm] + ', size: ' + bidDetails[constTargetingWidth]+'x'+bidDetails[constTargetingHeight]);
 		utilLog(constCommonMessage06+ utilHasOwnProperty(bidMap[divID][bids][bidderID], bid));
 
 		if(bidDetails[constTargetingEcpm] == null){
@@ -84,6 +86,8 @@ var bidMap = {},
 			utilLog(constCommonMessage11+bidDetails[constTargetingEcpm]);
 			return;
 		}
+
+		//todo: add validation, html / url should be present and should be a string
 
 		// updaate bid ecpm according to revShare
 		bidDetails[constTargetingEcpm] = parseFloat(bidDetails[constTargetingEcpm]);
@@ -127,7 +131,7 @@ var bidMap = {},
 
 			utilVLogInfo(divID, {
 				type: bid,
-				bidder: bidderID,
+				bidder: bidderID + (adapterBidPassThrough[bidderID] ? '(PT)' : ''),
 				bidDetails: bidDetails,
 				startTime: bidMap[divID][creationTime],
 				endTime: bidMap[divID][bids][bidderID][bidReceivedTime],
@@ -143,22 +147,35 @@ var bidMap = {},
 	},
 
 	bidManagerAuctionBids = function(bids){
-		var winningBid = {};
+		var winningBid = {},
+			keyValuePairs = {}
+		;
 		winningBid[constTargetingEcpm] = 0;
 
 		for(var adapter in bids){
 			if(bids[adapter] 
-				&& bids[adapter].bid 
-				&& bids[adapter].bid[constTargetingEcpm]
+				&& bids[adapter].bid 				
+				// commenting this condition as we need to pass kvp for all bids and bids which should not be part of auction will have zero ecpm
+				//&& bids[adapter].bid[constTargetingEcpm]
 				&& bids[adapter][postTimeout] == false){
+
+				if(bids[adapter].bid[constTargetingKvp]){
+					utilCopyKeyValueObject(keyValuePairs, bids[adapter].bid[constTargetingKvp]);
+				}
+
+				//BidPassThrough: Do not participate in auction)
+				if(adapterBidPassThrough[adapter]){
+					continue;
+				}
 
 				if(winningBid[constTargetingEcpm] < bids[adapter].bid[constTargetingEcpm]){
 					winningBid = bids[adapter].bid;
-					winningBid[constTargetingAdapterID] = adapter;					
+					winningBid[constTargetingAdapterID] = adapter;
 				}
 			}
-		}		
+		}
 
+		winningBid[constTargetingKvp] = keyValuePairs;
 		return winningBid;
 	},
 
@@ -265,6 +282,10 @@ var bidMap = {},
 					if(utilHasOwnProperty(adapterConfig[adapter], constConfigAdapterThrottle)){
 						adapterThrottleMap[adapter] = 100 - parseFloat(adapterConfig[adapter][constConfigAdapterThrottle]);	
 					}
+
+					if(utilHasOwnProperty(adapterConfig[adapter], constConfigAdapterBidPassThrough)){
+						adapterBidPassThrough[adapter] = parseInt(adapterConfig[adapter][constConfigAdapterBidPassThrough]);
+					}
 				}
 			}
 		}		
@@ -322,6 +343,11 @@ var bidMap = {},
 				impressionID = bidMap[key][constImpressionID];
 
 				for(var adapter in bidsArray){
+
+					//if bid-pass-thru is set then do not log the bids
+					if(adapterBidPassThrough[adapter]){
+						continue;
+					}
 
 					if(bidsArray[adapter] && bidsArray[adapter].bid ){
 

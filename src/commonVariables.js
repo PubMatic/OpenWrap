@@ -23,6 +23,7 @@ var win = window,
 	constTargetingCreativeID	= 'pwtcid',
 	constTargetingHeight		= 'pwth',
 	constTargetingWidth			= 'pwtw',
+	constTargetingKvp			= 'kvp',
 
 	// ones used in PWT config
 	constConfigKeyGeneratigPattern = 'kgp',	
@@ -36,6 +37,7 @@ var win = window,
 
 	constConfigAdapterRevenueShare = 'rev_share',
 	constConfigAdapterThrottle = 'throttle',
+	constConfigAdapterBidPassThrough = 'pt',
 
 	// very commonly used
 	constCommonConfig = 'config',
@@ -69,6 +71,7 @@ var win = window,
 	constCommonMessage18 = 'Bid is selected.',
 	constCommonMessage19 = ': Found winning adapterID: ',
 	constCommonMessage20 = 'Bid is rejected as ecpm is empty string.',
+	constCommonMessage21 = ': error in respose handler.',
 
 	constCommonMacroForWidth = '_W_',
 	constCommonMacroForHeight = '_H_',

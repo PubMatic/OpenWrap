@@ -341,6 +341,11 @@ adapterManagerRegisterAdapter((function() {
 	    slotIdMap = {},
 	    incrID = 0,
 
+	    adapterConfigMandatoryParams = [constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+	    slotConfigId = 'id',
+	    slotConfigSiteId = 'siteID',
+	    slotConfigMandatoryParams = [slotConfigId, slotConfigSiteId],
+
 	    pushIndexSlots = function(currentWidth, currentHeight, key, params, activeSlot, incrID){
 	    	var cygnus_index_adunits = {
 	    		'728x90': 1,
@@ -371,24 +376,25 @@ adapterManagerRegisterAdapter((function() {
                 cygnus_index_args.timeout = TIMEOUT;
             }
 
-            var siteID = Number(params.siteID);
+            var siteID = Number(params[slotConfigSiteId]);
             if(!siteID){
                 return;
             }
 
-            if(siteID && utilIsUndefined(cygnus_index_args.siteID)){
-                cygnus_index_args.siteID = siteID;
+            if(siteID && utilIsUndefined(cygnus_index_args[slotConfigSiteId])){
+                cygnus_index_args[slotConfigSiteId] = siteID;
             }            
 
             slotIdMap[incrID] = {};
+            slotIdMap[incrID][slotConfigId] = params[slotConfigId];
             slotIdMap[incrID][constCommonDivID] = activeSlot[constCommonDivID];
             slotIdMap[incrID][constCommonKeyGenerationPatternValue] = key;
 
             cygnus_index_args[constCommonSlots] = mergeSlotInto({
-                id: incrID,
+                id: params[slotConfigId],
                 width: currentWidth,
                 height: currentHeight,
-                siteID: siteID || cygnus_index_args.siteID
+                siteID: siteID || cygnus_index_args[slotConfigSiteId]
             }, cygnus_index_args[constCommonSlots]);
             
 
@@ -399,7 +405,7 @@ adapterManagerRegisterAdapter((function() {
 	    	utilLog(adapterID+constCommonMessage01);
 
 			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID);
-			if(!utilCheckMandatoryParams(adapterConfig, [constConfigKeyGeneratigPattern, constConfigKeyLookupMap], adapterID)){
+			if(!utilCheckMandatoryParams(adapterConfig, adapterConfigMandatoryParams, adapterID)){
 				utilLog(adapterID+constCommonMessage07);
 				return;
 			}
@@ -418,7 +424,7 @@ adapterManagerRegisterAdapter((function() {
 						return;
 					}
 
-					if(!utilCheckMandatoryParams(keyConfig, ['siteID'], adapterID)){
+					if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
 						utilLog(adapterID+': '+generatedKey+constCommonMessage09);
 						return;
 					}					
@@ -446,11 +452,13 @@ adapterManagerRegisterAdapter((function() {
 	    },
 
 		mergeSlotInto = function(slot,slotList){
+			/*
 			for(var i = 0; i < slotList.length; i++){
 			  if(slot.id === slotList[i].id){
 			    return slotList;
 			  }
 			}
+			*/
 			slotList.push(slot);
 			return slotList;
 		},
@@ -459,7 +467,7 @@ adapterManagerRegisterAdapter((function() {
 			var arr = obj[constCommonSlots];
 		    var returnObj = {};
 		    utilEach(arr, function (value) {
-				if (value.id === id) {
+				if (value[slotConfigId] === id) {
 					returnObj = value;
 				}
 		    });
@@ -497,7 +505,7 @@ adapterManagerRegisterAdapter((function() {
                     var slotObj = getSlotObj(cygnus_index_args, slotID);
 
                     // Bid is for the current slot
-                    if (slotID === adSlotId && slotObj.width && slotObj.height && slotObj.siteID){
+                    if (slotID === slotIdMap[adSlotId][slotConfigId] && slotObj.width && slotObj.height && slotObj.siteID){
 
                     	bidObject = bidManagerCreateBidObject(
                     		currentCPM / 100,
@@ -509,9 +517,12 @@ adapterManagerRegisterAdapter((function() {
                     		slotObj.height,
                     		bidObj[constCommonKeyGenerationPatternValue]
                     	);
-						bidManagerSetBidFromBidder(bidObj[constCommonDivID], adapterID, bidObject);                        
+						bidManagerSetBidFromBidder(bidObj[constCommonDivID], adapterID, bidObject);
+
+						// Removing the used bid, else we will face issue with adslots using same configs
+						delete indexObj[cpmAndSlotId];
                     }else{
-                    	utilLog(adapterID+ ": slotObj details not found.")
+                    	//utilLog(adapterID+ ": slotObj details not found.")
                     }
                 }                
             }
