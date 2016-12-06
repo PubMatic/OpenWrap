@@ -38,6 +38,8 @@ var win = window,
 	constConfigAdapterRevenueShare = 'rev_share',
 	constConfigAdapterThrottle = 'throttle',
 	constConfigAdapterBidPassThrough = 'pt',
+	constConfigGlobalKeyValue = 'gkv',
+	constCommonSlotKeyValue = 'skv',
 
 	// very commonly used
 	constCommonConfig = 'config',

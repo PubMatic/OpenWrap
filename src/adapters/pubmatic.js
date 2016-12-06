@@ -14,9 +14,12 @@ adapterManagerRegisterAdapter((function(){
 
 		pubID = 0,
 		wrapperImpressionID = '',
+		conf = {},
 		pmSlotToDivIDMap = {},
 
 		isPixelingDone = false,
+
+		ortbEnabledPublishers = {5890:''},
 
 		setTimeStampAndZone = function(conf) {
 			var currTime = new Date();
@@ -40,6 +43,41 @@ adapterManagerRegisterAdapter((function(){
 					isPixelingDone = true;
 				}, 2000);				
 			}
+		},
+
+		initConf = function(){
+			conf[constPubId] = pubID;
+			conf['wiid'] = wrapperImpressionID;
+			//conf.pm_cb = 'DM.callBack';
+			conf.pm_cb = 'window.PWT.PubmaticAdapterCallback';
+			conf.grs = 3; // Grouped Response parameter, 0: default, 1: variables are split, 2: 1+rid passed to cback func, 3: 1+ md5 of bidid
+			conf.a = 1;// async == true
+			conf.pageURL  = utilMetaInfo.u;				
+			conf.refurl   = utilMetaInfo.r;			
+			conf.inIframe = win != top ? '1' : '0';
+			conf.screenResolution =  win.screen.width + 'x' + win.screen.height;
+			conf.ranreq = Math.random();
+
+			conf.profId = bidManagerGetProfileID();
+			if(utilUsingDifferentProfileVersionID){
+				conf.verId = bidManagerGetProfileDisplayVersionID();
+			}
+			
+			if(navigator.cookieEnabled === false ){
+				conf.fpcd = '1';
+			}
+			setTimeStampAndZone( conf );
+		},
+
+		makeOrtbCall = function(slots, keyGenerationPattern){
+			var request_url = utilMetaInfo.protocol + 'hb.pubmatic.com/openrtb/24/?',
+				json = createOrtbJson(conf, slots, keyGenerationPattern)
+			;
+			if(json == undefined){
+				return;
+			}
+			request_url += 'json='+encodeURIComponent(JSON.stringify(json));
+			utilLoadScript(request_url);
 		},
 		
 		createCall = function(activeSlots, keyGenerationPattern){
@@ -65,29 +103,7 @@ adapterManagerRegisterAdapter((function(){
 				}
 			);
 
-			if(slots.length > 0){
-				conf[constPubId] = pubID;
-				conf['wiid'] = wrapperImpressionID;
-				conf.pm_cb = 'window.PWT.PubmaticAdapterCallback';
-				conf.grs = 3; // Grouped Response parameter, 0: default, 1: variables are split, 2: 1+rid passed to cback func, 3: 1+ md5 of bidid
-				conf.a = 1;// async == true
-				conf.sec = utilMetaInfo.secure;
-				conf.pageURL  = utilMetaInfo.u;
-				conf.refurl   = utilMetaInfo.r;
-				conf.inIframe = win != top ? '1' : '0';
-				conf.screenResolution =  win.screen.width + 'x' + win.screen.height;
-				conf.ranreq = Math.random();
-
-				conf.profId = bidManagerGetProfileID();
-				if(utilUsingDifferentProfileVersionID){
-					conf.verId = bidManagerGetProfileDisplayVersionID();
-				}
-				
-				if(navigator.cookieEnabled === false ){
-					conf.fpcd = '1';
-				}
-				setTimeStampAndZone( conf );
-
+			if(slots.length > 0){				
 				tempURL = (win.pm_dm_enabled != true && ! utilHasOwnProperty(lessOneHopPubList, conf[constPubId])) ? 'gads.pubmatic.com/AdServer/AdCallAggregator' : (adserver_url +  conf[constPubId] + '/GRPBID/index.html');
 				request_url = protocol + tempURL + '?' + utilToUrlParams(conf);
 				request_url += '&adslots=' + encodeURIComponent('[' + slots.join(',') +']');
@@ -118,7 +134,15 @@ adapterManagerRegisterAdapter((function(){
 				return;
 			}
 
-			utilLoadScript(createCall(activeSlots, adapterConfig[constConfigKeyGeneratigPattern]));
+			initConf();
+			conf['kval_param'] = JSON.stringify(configObject[constConfigGlobalKeyValue]);
+
+			if(utilHasOwnProperty(ortbEnabledPublishers, pubID)){
+				makeOrtbCall(activeSlots, adapterConfig[constConfigKeyGeneratigPattern]));
+			}else{
+				utilLoadScript(createCall(activeSlots, adapterConfig[constConfigKeyGeneratigPattern])));
+			}
+
 			initiateUserSyncup();
 		},
 

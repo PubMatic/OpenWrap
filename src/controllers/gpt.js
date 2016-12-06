@@ -91,6 +91,16 @@ var displayHookAdded = false,
 			slotsMap[dmSlotName][pmSlots_key_arguments]					= [];
 			slotsMap[dmSlotName]['position']							= utilFindPosition(dmSlotName);
 
+			if(SEND_TARGETING_INFO && JSON && typeof JSON.stringify == "function"){
+				var targetKeys = currentGoogleSlot.getTargetingKeys();
+				var targetKeysLength = targetKeys.length;				
+				slotsMap[dmSlotName][constCommonSlotKeyValue] = {};
+				for(var k=0; k<targetKeysLength; k++ ){
+					var targetKey = targetKeys[k];
+					slotsMap[dmSlotName][constCommonSlotKeyValue][targetKey] = currentGoogleSlot.getTargeting( targetKey );
+				}
+			}
+
 			utilCreateVLogInfoPanel(dmSlotName, slotsMap[dmSlotName][pmSlots_key_adSlotSizes]);
 		}
 	},
@@ -123,24 +133,7 @@ var displayHookAdded = false,
 			
 				currentGoogleSlot = googleSlotsArray[ i ];				
 				dmSlotName = currentGoogleSlot.getSlotId().getDomId();// here divID will be the key
-				storeInSlotsMap(dmSlotName, currentGoogleSlot);
-
-				// moving this block out of the above condition so that if some more targetings are added before refresh, DM will get it
-				// generating data for pm_custom_slots
-				if(SEND_TARGETING_INFO && JSON && utilIsFn(JSON.stringify)){
-													
-					targetKeys = currentGoogleSlot.getTargetingKeys();
-					targetKeysLength = targetKeys.length;
-					
-					for(k=0; k<targetKeysLength; k++ ){														
-						if(utilIsUndefined(pmCustomSlots[dmSlotName])){
-							pmCustomSlots[dmSlotName] = {};
-						}
-					
-						targetKey = targetKeys[k];							
-						pmCustomSlots[dmSlotName][targetKey] = currentGoogleSlot.getTargeting( targetKey );
-					}																					
-				}
+				storeInSlotsMap(dmSlotName, currentGoogleSlot);				
 				
 				if( isDisplayFlow && utilHasOwnProperty(slotsMap, dmSlotName) ){				
 					divIdFromDisplayFunction = argumentsFromCallingFunction[0];
