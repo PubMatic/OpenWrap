@@ -67,6 +67,100 @@ adapterManagerRegisterAdapter((function(){
 				conf.fpcd = '1';
 			}
 			setTimeStampAndZone( conf );
+		},		
+
+		createOrtbJson = function(conf, slots, keyGenerationPattern){
+			var json = {},
+				loc = win.location,
+				nav = win.navigator,
+				passTheseConfParamsIntoDmExtension = ['a', 'pm_cb', 'pubId', 'ctype', 'kval_param', 'lmk', 'profId', 'verId'],
+				copyFromConfAndDeleteFromConf = function(conf, key, dmExtension){
+					if(conf[key]){
+						dmExtension[key] = decodeURIComponent(conf[key]);
+						delete conf[key];
+					}
+				}
+			;
+
+			delete conf.grs;
+
+			// setting up the schema
+			json = {
+				id : ''+utilGetCurrentTimestampInMs(),
+				at: 2,
+				cur: ["USD"],
+				imp: [],
+				site: {
+					domain: loc.hostname,
+					page: loc.href,
+					publisher: {
+						id: ''+pubID
+					}
+				},
+				device: {
+					ua: nav.userAgent
+				},
+				ext: {
+					extension: {}
+				}
+			};
+
+			// adding slots info
+			for(var i= 0, l = slots.length; i < l; i++){
+				var slot = slots[i];							
+
+				var format = [];
+				for(var k=0, kl = slot[constAdSlotSizes].length; k<kl; k++){
+					var width = slot[constAdSlotSizes][k][0];
+					var height = slot[constAdSlotSizes][k][1];
+					format.push({
+						w: width,
+						h: height
+					});
+
+					// note: this part is hard-coded
+					// expects that key will always be _AU_@_W_x_H_:_AUI_
+					pmSlotToDivIDMap[ slot['adUnitID'] + '@' + width + 'x' + height + ':' + slot['adUnitIndex']] = slot[constCommonDivID];
+				}
+
+				var anImp = {
+					id: json.id + '_' + i,
+					banner: {
+						pos: 0,
+						format: format
+					},
+					ext: {
+						extension: {
+							div: slot[constCommonDivID],
+							adunit: slot['adUnitID'],
+							slotIndex: slot['adUnitIndex'],
+							"keyValue": slot[constCommonSlotKeyValue]
+						}
+					}
+				};
+
+				json.imp.push(anImp);
+			}
+
+			//if there are no json.imp then return undefined
+			if(json.imp.length == 0){
+				return undefined;
+			}
+
+			// DM specific params
+			var dmExtension = {
+				rs: 1//todo confirm
+			};
+			
+			for(var i=0, l = passTheseConfParamsIntoDmExtension.length; i < l; i++){
+				copyFromConfAndDeleteFromConf(conf, passTheseConfParamsIntoDmExtension[i], dmExtension);
+			}			
+			json.ext.extension['dm'] = dmExtension;
+
+			// AdServer specific params to be passed, as it is
+			json.ext.extension['as'] = conf;
+
+			return json;
 		},
 
 		makeOrtbCall = function(slots, keyGenerationPattern){
@@ -80,7 +174,7 @@ adapterManagerRegisterAdapter((function(){
 			utilLoadScript(request_url);
 		},
 		
-		createCall = function(activeSlots, keyGenerationPattern){
+		createLegacyCall = function(activeSlots, keyGenerationPattern){
 		
 			var request_url = "",
 				tempURL,
@@ -130,7 +224,7 @@ adapterManagerRegisterAdapter((function(){
 			wrapperImpressionID = configObject.global.pwt.wiid;
 
 			if(pubID == 0){
-				utilLog(adapterID+': '+constConfigPubID+' should be non-zero.'+constCommonMessage07)
+				utilLog(adapterID+': '+constConfigPubID+' should be non-zero.'+constCommonMessage07);
 				return;
 			}
 
@@ -138,9 +232,9 @@ adapterManagerRegisterAdapter((function(){
 			conf['kval_param'] = JSON.stringify(configObject[constConfigGlobalKeyValue]);
 
 			if(utilHasOwnProperty(ortbEnabledPublishers, pubID)){
-				makeOrtbCall(activeSlots, adapterConfig[constConfigKeyGeneratigPattern]));
+				makeOrtbCall(activeSlots, adapterConfig[constConfigKeyGeneratigPattern]);
 			}else{
-				utilLoadScript(createCall(activeSlots, adapterConfig[constConfigKeyGeneratigPattern])));
+				utilLoadScript(createLegacyCall(activeSlots, adapterConfig[constConfigKeyGeneratigPattern]));
 			}
 
 			initiateUserSyncup();
@@ -187,7 +281,7 @@ adapterManagerRegisterAdapter((function(){
 						bidDetailsMap[ progKeyValueMapDetails[5] ][constCommonWidth],
 						bidDetailsMap[ progKeyValueMapDetails[5] ][constCommonHeight],						
 						key
-					);					
+					);
 					bidManagerSetBidFromBidder(pmSlotToDivIDMap[key], adapterID, bidObject);
 				}
 			}
@@ -201,4 +295,5 @@ adapterManagerRegisterAdapter((function(){
 			return adapterID;
 		}
 	};
+	
 })());
