@@ -58,9 +58,9 @@ adapterManagerRegisterAdapter((function(){
 			conf.screenResolution =  win.screen.width + 'x' + win.screen.height;
 			conf.ranreq = Math.random();
 
-			conf.profId = bidManagerGetProfileID();
+			conf.profileid = bidManagerGetProfileID();
 			if(utilUsingDifferentProfileVersionID){
-				conf.verId = bidManagerGetProfileDisplayVersionID();
+				conf.versionid = bidManagerGetProfileDisplayVersionID();
 			}
 			
 			if(navigator.cookieEnabled === false ){
@@ -73,11 +73,18 @@ adapterManagerRegisterAdapter((function(){
 			var json = {},
 				loc = win.location,
 				nav = win.navigator,
-				passTheseConfParamsIntoDmExtension = ['a', 'pm_cb', 'pubId', 'ctype', 'kval_param', 'lmk', 'profId', 'verId'],
+				passTheseConfParamsIntoDmExtension = ['a', 'pm_cb', 'pubId', 'ctype', 'kval_param', 'lmk', 'profileid', 'versionid'],
 				copyFromConfAndDeleteFromConf = function(conf, key, dmExtension){
 					if(conf[key]){
 						dmExtension[key] = decodeURIComponent(conf[key]);
 						delete conf[key];
+					}
+				},
+				convertAllValuesToString = function(obj){
+					for(var key in obj){
+						if(obj.hasOwnProperty(key)){
+							obj[key] = String(obj[key]);
+						}
 					}
 				}
 			;
@@ -114,17 +121,13 @@ adapterManagerRegisterAdapter((function(){
 					var width = slot[constAdSlotSizes][k][0];
 					var height = slot[constAdSlotSizes][k][1];
 					format.push({
-						w: width,
-						h: height
+						w: parseInt(width),
+						h: parseInt(height)
 					});
-
-					// note: this part is hard-coded
-					// expects that key will always be _AU_@_W_x_H_:_AUI_
-					pmSlotToDivIDMap[ slot['adUnitID'] + '@' + width + 'x' + height + ':' + slot['adUnitIndex']] = slot[constCommonDivID];
 				}
 
 				var anImp = {
-					id: json.id + '_' + i,
+					id: slot[constCommonDivID],
 					banner: {
 						pos: 0,
 						format: format
@@ -158,7 +161,7 @@ adapterManagerRegisterAdapter((function(){
 			json.ext.extension['dm'] = dmExtension;
 
 			// AdServer specific params to be passed, as it is
-			json.ext.extension['as'] = conf;
+			json.ext.extension['as'] = convertAllValuesToString(conf);
 
 			return json;
 		},
@@ -170,8 +173,65 @@ adapterManagerRegisterAdapter((function(){
 			if(json == undefined){
 				return;
 			}
-			request_url += 'json='+encodeURIComponent(JSON.stringify(json));
-			utilLoadScript(request_url);
+			//request_url += 'json='+encodeURIComponent(JSON.stringify(json));
+			//utilLoadScript(request_url);
+
+			utilAjaxCall(
+				request_url,
+				function(response){
+					console.log('Buzzzzzzz');
+					console.log(response);
+					try{
+						response = JSON.parse(response);
+					}catch(e){
+						utilLog(adapterID+constCommonMessage21);
+						utilLog(e);
+					}
+
+					if(response.seatbid && response.seatbid[0]){
+						var seatbid = response.seatbid[0];
+						if(seatbid.bid && seatbid.bid.length > 0){
+							var bids = seatbid.bid;
+							for(var i=0, l=bids.length; i<l; i++){
+
+								var responseBid = bids[i];
+
+								if(responseBid.impid && responseBid.h && responseBid.w 
+									&& responseBid.ext && responseBid.ext.extension
+									&& responseBid.ext.extension.slotname){
+
+									bidManagerSetBidFromBidder(
+										responseBid.impid,
+										adapterID,
+										bidManagerCreateBidObject(
+											parseFloat(responseBid.price), 
+											"",//todo: dealid
+											"", 
+											generateCreative(
+												responseBid.adm,
+												responseBid.ext.extension.trackingUrl,
+												pubID
+											),
+											"",
+											responseBid.w,
+											responseBid.h,
+											responseBid.ext.extension.slotname
+										)
+									);
+								}else{
+									utilLog(adapterID+constCommonMessage21);
+								}
+							}
+						}else{
+							utilLog(adapterID+constCommonMessage21);
+						}
+					}else{
+						utilLog(adapterID+constCommonMessage21);
+					}
+				},
+				json,
+				{withCredentials: true}
+			);
 		},
 		
 		createLegacyCall = function(activeSlots, keyGenerationPattern){
@@ -295,5 +355,5 @@ adapterManagerRegisterAdapter((function(){
 			return adapterID;
 		}
 	};
-	
+
 })());
