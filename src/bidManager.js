@@ -382,13 +382,19 @@ var bidMap = {},
 			outputObj[constConfigProfileID] = bidManagerGetProfileID();
 			outputObj[constConfigProfileDisplayVersionID] = bidManagerGetProfileDisplayVersionID();
 
-			pixelURL += 'json=' + encodeURIComponent(JSON.stringify(outputObj));
+			//pixelURL += 'json=' + encodeURIComponent(JSON.stringify(outputObj));
 		}
 
 		//setTimeout(function(){
 			if(firePixel){
-				(new Image()).src = utilMetaInfo.protocol + pixelURL;
-			}
+				//(new Image()).src = utilMetaInfo.protocol + pixelURL;
+				utilAjaxCall(
+					pixelURL,
+					function(){},
+					JSON.stringify(outputObj),
+					{} // todo later
+				);
+			}			
 		//}, TIMEOUT+5000);//todo: decide the timeout value
 	},
 
