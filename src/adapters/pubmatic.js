@@ -167,20 +167,15 @@ adapterManagerRegisterAdapter((function(){
 		},
 
 		makeOrtbCall = function(slots, keyGenerationPattern){
-			var request_url = utilMetaInfo.protocol + 'hb.pubmatic.com/openrtb/24/?',
+			var request_url = utilMetaInfo.protocol + 'hb.pubmatic.com/openrtb/24/',
 				json = createOrtbJson(conf, slots, keyGenerationPattern)
 			;
 			if(json == undefined){
 				return;
 			}
-			//request_url += 'json='+encodeURIComponent(JSON.stringify(json));
-			//utilLoadScript(request_url);
-
 			utilAjaxCall(
 				request_url,
 				function(response){
-					console.log('Buzzzzzzz');
-					console.log(response);
 					try{
 						response = JSON.parse(response);
 					}catch(e){
@@ -205,7 +200,7 @@ adapterManagerRegisterAdapter((function(){
 										adapterID,
 										bidManagerCreateBidObject(
 											parseFloat(responseBid.price), 
-											"",//todo: dealid
+											responseBid.dealid,
 											"", 
 											generateCreative(
 												responseBid.adm,
@@ -229,8 +224,8 @@ adapterManagerRegisterAdapter((function(){
 						utilLog(adapterID+constCommonMessage21);
 					}
 				},
-				json,
-				{withCredentials: true}
+				JSON.stringify(json),
+				{} // todo later
 			);
 		},
 		
