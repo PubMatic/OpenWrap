@@ -81,11 +81,13 @@ adapterManagerRegisterAdapter((function(){
 					}
 				},
 				convertAllValuesToString = function(obj){
+					var newObj = {};
 					for(var key in obj){
 						if(obj.hasOwnProperty(key)){
-							obj[key] = String(obj[key]);
+							newObj[key] = String(obj[key]);
 						}
 					}
+					return newObj;
 				}
 			;
 
