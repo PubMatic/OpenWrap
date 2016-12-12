@@ -125,8 +125,8 @@ adapterManagerRegisterAdapter((function(){
 					return utilHasOwnProperty(config, pubId);
 				},				
 				tracker = '<iframe frameborder="0" allowtransparency="true" marginheight="0" marginwidth="0" scrolling="no" width="0" hspace="0" vspace="0" height="0"'
-				+ ' style="height:0p;width:0p;display:none;" src="' + decodeURIComponent(tracker) + '"></iframe>',
-				output = (isTrackerFirstEnabled(pubID) ? tracker : '') + decodeURIComponent(creative) + (!isTrackerFirstEnabled(pubID) ? '' : tracker)
+				+ ' style="height:0p;width:0p;display:none;" src="' + decodeURIComponent(tracker) + '"></iframe>',				
+				output = (isTrackerFirstEnabled(pubID) ? tracker : '') + decodeURIComponent(creative) + (isTrackerFirstEnabled(pubID) ? '' : tracker)
 			;
 
 			if(win.PubMaticAI!=null){
