@@ -357,15 +357,15 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 	},
 
 	utilDisplayCreative = function(theDocument, bidDetails){
-		utilResizeWindow(theDocument, bidDetails.bid[constTargetingHeight], bidDetails.bid[constTargetingWidth]);			
+		utilResizeWindow(theDocument, bidDetails[constTargetingHeight], bidDetails[constTargetingWidth]);
 
-		if(bidDetails.bid[constTargetingAdHTML]){
-			theDocument.write(bidDetails.bid[constTargetingAdHTML]);
-		}else if(bidDetails.bid[constTargetingAdUrl]){
+		if(bidDetails[constTargetingAdHTML]){
+			theDocument.write(bidDetails[constTargetingAdHTML]);
+		}else if(bidDetails[constTargetingAdUrl]){
 			utilCreateAndInsertFrame(
 				theDocument,
-				bidDetails.bid[constTargetingAdUrl], 
-				bidDetails.bid[constTargetingHeight] , bidDetails.bid[constTargetingWidth] , 
+				bidDetails[constTargetingAdUrl], 
+				bidDetails[constTargetingHeight] , bidDetails[constTargetingWidth] , 
 				""
 			);
 		}else{

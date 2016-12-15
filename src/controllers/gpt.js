@@ -293,7 +293,8 @@ var displayHookAdded = false,
 		
 		if(winningBid[constTargetingEcpm] > 0){
 			slotsMap[ divID ][pmSlots_key_status] = status_DM_Display_TargetingsAdded;			
-			googleDefinedSlot.setTargeting(constTargetingBidID, divID);
+			//googleDefinedSlot.setTargeting(constTargetingBidID, divID);
+			googleDefinedSlot.setTargeting(constTargetingBidID, winningBid[constTargetingBidID]);
 			googleDefinedSlot.setTargeting(constTargetingBidStatus, winningBid[constTargetingBidStatus]);
 			googleDefinedSlot.setTargeting(constTargetingEcpm, (winningBid[constTargetingEcpm]).toFixed(bidPrecision));
 			googleDefinedSlot.setTargeting(constTargetingDealID, winningBid[constTargetingDealID]);			

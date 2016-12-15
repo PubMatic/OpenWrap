@@ -1,4 +1,5 @@
 var bidMap = {},
+	bidIdMap = {}, // bidID => {slotID, adapterID}
 	bidManagerPwtConf = {},
 	adapterRevShareMap = {},
 	adapterThrottleMap = {},
@@ -105,6 +106,7 @@ var bidMap = {},
 		bidDetails[bidReceivedTime] = currentTime;
 		bidDetails[postTimeout] = isPostTimeout;
 		bidMap[divID][bids][bidderID][bid][bidID] = bidDetails;
+
 		utilVLogInfo(divID, {
 			type: bid,
 			bidder: bidderID,
@@ -112,6 +114,11 @@ var bidMap = {},
 			startTime: bidMap[divID][creationTime],
 			endTime: currentTime,
 		});
+
+		bidIdMap[bidID] = {
+			s: divID,
+			a: bidderID
+		};
 
 		/*
 		if(utilHasOwnProperty(bidMap[divID][bids][bidderID], bid)){
@@ -178,6 +185,10 @@ var bidMap = {},
 
 				for(var bidID in bids[adapter].bid){
 
+					if(! utilHasOwnProperty(bids[adapter].bid, bidID)){
+						continue;
+					}
+
 					var theBid = bids[adapter].bid[bidID];
 					
 					if(theBid[constTargetingKvp]){
@@ -203,7 +214,7 @@ var bidMap = {},
 		if(winningBidID && winningBidAdapter){
 			winningBid = bids[winningBidAdapter][bid][winningBidID];
 			winningBid[constTargetingAdapterID] = winningBidAdapter;
-			winningBid['winningBidID'] = winningBidID;
+			winningBid[constTargetingBidID] = winningBidID;
 		}
 
 		winningBid[constTargetingKvp] = keyValuePairs;
@@ -227,7 +238,7 @@ var bidMap = {},
 			bidMap[divID]['ae'] = true; // Analytics Enabled		
 
 			if(winningBid[constTargetingEcpm] > 0){
-				bidMap[divID][bids][ winningBid[constTargetingAdapterID] ][bid][winningBid['winningBidID']].win = true;
+				bidMap[divID][bids][ winningBid[constTargetingAdapterID] ][bid][winningBid[constTargetingBidID]].win = true;
 				utilVLogInfo(divID, {
 					type: "win-bid",
 					bidDetails: winningBid
@@ -242,32 +253,43 @@ var bidMap = {},
 		return winningBid;
 	},
 
-	bidManagerDisplayCreative = function(theDocument, divID){	
+	bidManagerDisplayCreative = function(theDocument, bidID){
+
+		if(!utilHasOwnProperty(bidIdMap, bidID)){
+			utilLog('Bid details not found for bidID: ' + bidID);
+			return;
+		}
+
+		var divID = bidIdMap[bidID]['s'];
+		var adapterID = bidIdMap[bidID]['a'];
 
 		if( utilHasOwnProperty(bidMap, divID) ){
-			var adapterID = '';
+			//var adapterID = '';
 			// find the winning adapter
+			/*
 			for(var adapter in bidMap[divID][bids]){
 				if( utilHasOwnProperty(bidMap[divID][bids], adapter) && bidMap[divID][bids][adapter].win ){
 					adapterID = adapter;
 					break;		
 				}
 			}
+			*/
 			
 			utilLog(divID+constCommonMessage19+ adapterID);
+			var theBid = bidMap[divID][bids][adapterID][bid][bidID];
 
 			if( utilHasOwnProperty(bidMap[divID][bids], adapterID) ){
 				adapterManagerDisplayCreative(
-					theDocument, adapterID, bidMap[divID][bids][adapterID]
+					theDocument, adapterID, theBid
 				);
 				utilVLogInfo(divID, {type: 'disp', adapter: adapterID});
 				bidManagerExecuteMonetizationPixel({
 					'slt': divID,
 					'adp': adapterID,
-					'en': bidMap[divID][bids][adapterID][bid][constTargetingEcpm],
-					'eg': bidMap[divID][bids][adapterID][bid][constTargetingActualEcpm],
+					'en': theBid[constTargetingEcpm],
+					'eg': theBid[constTargetingActualEcpm],
 					'iid': bidMap[divID][constImpressionID],
-					'kgpv': bidMap[divID][bids][adapterID][bid][constCommonKeyGenerationPatternValue]
+					'kgpv': theBid[constCommonKeyGenerationPatternValue]
 				});
 			}
 		}		
@@ -382,21 +404,26 @@ var bidMap = {},
 
 					if(bidsArray[adapter] && bidsArray[adapter].bid ){
 
-						var endTime = bidsArray[adapter][bidReceivedTime];
-
-						slotObject['ps'].push({
-							'pn': adapter,
-							'kgpv': bidsArray[adapter].bid[constCommonKeyGenerationPatternValue],
-							'psz': bidsArray[adapter].bid[constTargetingWidth] + 'x' + bidsArray[adapter].bid[constTargetingHeight],
-							'eg': bidsArray[adapter].bid[constTargetingActualEcpm],
-							'en': bidsArray[adapter].bid[constTargetingEcpm],
-							'l1': endTime - startTime,
-							'l2': 0,
-							't': bidsArray[adapter][postTimeout] == false ? 0 : 1,
-							'wb': bidsArray[adapter]['win'] == true ? 1 : 0
-						});
-
-						firePixel = true;
+						for(var bidID in bidsArray[adapter].bid){
+							if(! utilHasOwnProperty(bidsArray[adapter].bid, bidID)){
+								continue;
+							}
+							var theBid = bidsArray[adapter].bid[bidID];
+							var endTime = theBid[bidReceivedTime];
+							slotObject['ps'].push({
+								'pn': adapter,
+								'kgpv': theBid[constCommonKeyGenerationPatternValue],
+								'psz': theBid[constTargetingWidth] + 'x' + theBid[constTargetingHeight],
+								'eg': theBid[constTargetingActualEcpm],
+								'en': theBid[constTargetingEcpm],
+								'l1': endTime - startTime,
+								'l2': 0,
+								't': theBid[postTimeout] == false ? 0 : 1,
+								'wb': theBid['win'] == true ? 1 : 0
+							});
+							firePixel = true;
+						}
+						
 					}
 				}
 
