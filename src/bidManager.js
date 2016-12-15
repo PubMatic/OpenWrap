@@ -389,7 +389,7 @@ var bidMap = {},
 			if(firePixel){
 				//(new Image()).src = utilMetaInfo.protocol + pixelURL;
 				utilAjaxCall(
-					pixelURL,
+					utilMetaInfo.protocol + pixelURL,
 					function(){},
 					JSON.stringify(outputObj),
 					{} // todo later
