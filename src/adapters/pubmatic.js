@@ -197,6 +197,17 @@ adapterManagerRegisterAdapter((function(){
 									&& responseBid.ext && responseBid.ext.extension
 									&& responseBid.ext.extension.slotname){
 
+									var keyValuePairs = false,
+										dealPriority = parseInt(0 || responseBid.ext.extension.dealPriority),
+										bidID = utilGetUniqueIdentifierStr()
+									;
+
+									if(responseBid.dealid && dealPriority > 4){
+										keyValuePairs = {
+											'pwtdeal_pubmatic': '1^^'+responseBid.dealid+'^^'+bidID
+										};
+									}								
+
 									bidManagerSetBidFromBidder(
 										responseBid.impid,
 										adapterID,
@@ -212,8 +223,10 @@ adapterManagerRegisterAdapter((function(){
 											"",
 											responseBid.w,
 											responseBid.h,
-											responseBid.ext.extension.slotname
-										)
+											responseBid.ext.extension.slotname,
+											keyValuePairs
+										),
+										bidID
 									);
 								}else{
 									utilLog(adapterID+constCommonMessage21);
@@ -238,7 +251,6 @@ adapterManagerRegisterAdapter((function(){
 				protocol = utilMetaInfo.protocol,
 				adserver_url = 'haso.pubmatic.com/ads/',
 				slots = [],
-				conf = {},
 				lessOneHopPubList = {46076:'', 60530:'', 9999:'', 7777:''}
 			;
 

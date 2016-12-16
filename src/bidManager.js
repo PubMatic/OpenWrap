@@ -59,12 +59,13 @@ var bidMap = {},
 		utilLog(constCommonMessage04+divID + ' '+bidderID+' '+bidMap[divID][bids][bidderID][callInitiatedTime]);
 	},
 
-	bidManagerSetBidFromBidder = function(divID, bidderID, bidDetails){
+	bidManagerSetBidFromBidder = function(divID, bidderID, bidDetails, bidID){
 
-		var bidID = utilGetUniqueIdentifierStr(),
-			currentTime = utilGetCurrentTimestampInMs(),
+		var currentTime = utilGetCurrentTimestampInMs(),
 			isPostTimeout = (bidMap[divID][creationTime]+TIMEOUT) < currentTime ? true : false
 		;
+
+		bidID = bidID || utilGetUniqueIdentifierStr();
 
 		bidManagerCreateBidEntry(divID);
 
@@ -136,13 +137,17 @@ var bidMap = {},
 					delete bidMap[divID][bids][bidderID][bid][lastBidID];
 					bidMap[divID][bids][bidderID]['lastbidid'] = bidID;
 					bidMap[divID][bids][bidderID][bid][bidID] = bidDetails;
+					bidIdMap[bidID] = {
+						s: divID,
+						a: bidderID
+					};
 					utilVLogInfo(divID, {
 						type: bid,
 						bidder: bidderID + (adapterBidPassThrough[bidderID] ? '(PT)' : ''),
 						bidDetails: bidDetails,
 						startTime: bidMap[divID][creationTime],
 						endTime: currentTime
-					});
+					});					
 				}else{
 					utilLog(constCommonMessage12+bidMap[divID][bids][bidderID][bid][lastBidID][constTargetingEcpm]+constCommonMessage15+bidDetails[constTargetingEcpm]+constCommonMessage16);
 				}				
@@ -155,6 +160,10 @@ var bidMap = {},
 			bidMap[divID][bids][bidderID]['lastbidid'] = bidID;
 			bidMap[divID][bids][bidderID][bid] = {};			
 			bidMap[divID][bids][bidderID][bid][bidID] = bidDetails;
+			bidIdMap[bidID] = {
+				s: divID,
+				a: bidderID
+			};
 			utilVLogInfo(divID, {
 				type: bid,
 				bidder: bidderID + (adapterBidPassThrough[bidderID] ? '(PT)' : ''),
