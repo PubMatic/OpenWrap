@@ -289,7 +289,8 @@ var bidMap = {},
 					'en': theBid[constTargetingEcpm],
 					'eg': theBid[constTargetingActualEcpm],
 					'iid': bidMap[divID][constImpressionID],
-					'kgpv': theBid[constCommonKeyGenerationPatternValue]
+					'kgpv': theBid[constCommonKeyGenerationPatternValue],
+					'bidid': theBid[constTargetingBidID]
 				});
 			}
 		}		
@@ -412,6 +413,7 @@ var bidMap = {},
 							var endTime = theBid[bidReceivedTime];
 							slotObject['ps'].push({
 								'pn': adapter,
+								'bidid': theBid[constTargetingBidID],
 								'kgpv': theBid[constCommonKeyGenerationPatternValue],
 								'psz': theBid[constTargetingWidth] + 'x' + theBid[constTargetingHeight],
 								'eg': theBid[constTargetingActualEcpm],
@@ -462,6 +464,7 @@ var bidMap = {},
 		pixelURL += '&purl=' + utilMetaInfo.u;
 		pixelURL += '&tst=' + utilGetCurrentTimestamp();
 		pixelURL += '&iid=' + encodeURIComponent(bidInfo[constImpressionID]);
+		pixelURL += '&bidid=' + encodeURIComponent(bidInfo['bidid']);
 		pixelURL += '&pid=' + encodeURIComponent(bidManagerGetProfileID());
 		pixelURL += '&pdvid=' + encodeURIComponent(bidManagerGetProfileDisplayVersionID());
 		pixelURL += '&slot=' + encodeURIComponent(bidInfo[constBidInfoSlot]);
