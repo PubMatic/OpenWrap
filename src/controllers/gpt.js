@@ -286,7 +286,8 @@ var displayHookAdded = false,
 		
 		if(winningBid[constTargetingEcpm] > 0){
 			slotsMap[ divID ][pmSlots_key_status] = status_DM_Display_TargetingsAdded;			
-			googleDefinedSlot.setTargeting(constTargetingBidID, divID);
+			//googleDefinedSlot.setTargeting(constTargetingBidID, divID);
+			googleDefinedSlot.setTargeting(constTargetingBidID, winningBid[constTargetingBidID]);
 			googleDefinedSlot.setTargeting(constTargetingBidStatus, winningBid[constTargetingBidStatus]);
 			googleDefinedSlot.setTargeting(constTargetingEcpm, (winningBid[constTargetingEcpm]).toFixed(bidPrecision));
 			googleDefinedSlot.setTargeting(constTargetingDealID, winningBid[constTargetingDealID]);			
@@ -296,6 +297,8 @@ var displayHookAdded = false,
 		for(var key in winningBid[constTargetingKvp]){
 			if(utilHasOwnProperty(winningBid[constTargetingKvp], key)){
 				googleDefinedSlot.setTargeting(key, winningBid[constTargetingKvp][key]);
+				// adding key in DM_targetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
+				DM_targetingKeys[key] = '';
 			}
 		}
 	},
