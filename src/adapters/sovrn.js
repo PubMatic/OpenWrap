@@ -77,8 +77,7 @@ adapterManagerRegisterAdapter((function() {
 
 	        win.PWT.SovrnAdapterCallbacks[randomID] = bidResponseHandler(sovrnImpsInternal);
 
-	        //todo: what will be value of src parameter 
-	        var scriptUrl = '//' + sovrnUrl + '?callback=window.PWT.SovrnAdapterCallbacks["'+randomID+'"]' + '&src=' + 'CONSTANTS.REPO_AND_VERSION' + '&br=' + encodeURIComponent(JSON.stringify(sovrnBidReq));
+	        var scriptUrl = '//' + sovrnUrl + '?callback=window.PWT.SovrnAdapterCallbacks["'+randomID+'"]' + '&src=pwt&br=' + encodeURIComponent(JSON.stringify(sovrnBidReq));
 	        utilLoadScript(scriptUrl);			
 		},
 
