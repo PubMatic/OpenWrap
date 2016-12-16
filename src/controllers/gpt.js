@@ -304,6 +304,8 @@ var displayHookAdded = false,
 		for(var key in winningBid[constTargetingKvp]){
 			if(utilHasOwnProperty(winningBid[constTargetingKvp], key)){
 				googleDefinedSlot.setTargeting(key, winningBid[constTargetingKvp][key]);
+				// adding key in DM_targetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
+				DM_targetingKeys[key] = '';
 			}
 		}
 	},
