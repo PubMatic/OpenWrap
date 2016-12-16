@@ -70,14 +70,10 @@ var bidMap = {},
 
 		if(! utilHasOwnProperty(bidMap[divID][bids], bidderID) ){
 			bidMap[divID][bids][bidderID] = {};
-		}
-
-		if(! utilHasOwnProperty(bidMap[divID][bids][bidderID], bid) ){
-			bidMap[divID][bids][bidderID][bid] = {};	
-		}
+		}		
 
 		utilLog('BdManagerSetBid: divID: '+divID+', bidderID: '+bidderID+', ecpm: '+bidDetails[constTargetingEcpm] + ', size: ' + bidDetails[constTargetingWidth]+'x'+bidDetails[constTargetingHeight] + ', postTimeout: '+isPostTimeout);
-		utilLog(constCommonMessage06+ utilHasOwnProperty(bidMap[divID][bids][bidderID], bid));
+		//utilLog(constCommonMessage06+ utilHasOwnProperty(bidMap[divID][bids][bidderID], bid));
 
 		if(bidDetails[constTargetingEcpm] == null){
 			utilLog(constCommonMessage10);
@@ -105,6 +101,13 @@ var bidMap = {},
 		bidDetails[constTargetingEcpm] = parseFloat((bidDetails[constTargetingEcpm] * bidManagerGetAdapterRevShare(bidderID)).toFixed(bidPrecision));
 		bidDetails[bidReceivedTime] = currentTime;
 		bidDetails[postTimeout] = isPostTimeout;
+
+		// un-comment following block when we can pass multiple bids from a partner for a slot
+		/*
+		if(! utilHasOwnProperty(bidMap[divID][bids][bidderID], bid) ){
+			bidMap[divID][bids][bidderID][bid] = {};	
+		}
+
 		bidMap[divID][bids][bidderID][bid][bidID] = bidDetails;
 
 		utilVLogInfo(divID, {
@@ -119,25 +122,29 @@ var bidMap = {},
 			s: divID,
 			a: bidderID
 		};
+		*/		
 
-		/*
+		// comment following block when we can pass multiple bids from a partner for a slot
 		if(utilHasOwnProperty(bidMap[divID][bids][bidderID], bid)){
 			if(! isPostTimeout){
+
+				var lastBidID = bidMap[divID][bids][bidderID]['lastbidid'];
 				
-				if(bidMap[divID][bids][bidderID][bid][constTargetingEcpm] < bidDetails[constTargetingEcpm]){
-					utilLog(constCommonMessage12+bidMap[divID][bids][bidderID][bid][constTargetingEcpm]+constCommonMessage13+bidDetails[constTargetingEcpm]+constCommonMessage14);
-					bidMap[divID][bids][bidderID][bid] = bidDetails;
-					bidMap[divID][bids][bidderID][bidReceivedTime] = currentTime;
-					bidMap[divID][bids][bidderID][postTimeout] = isPostTimeout;
+				if(bidMap[divID][bids][bidderID][bid][lastBidID][constTargetingEcpm] < bidDetails[constTargetingEcpm]){
+
+					utilLog(constCommonMessage12+bidMap[divID][bids][bidderID][bid][lastBidID][constTargetingEcpm]+constCommonMessage13+bidDetails[constTargetingEcpm]+constCommonMessage14);
+					delete bidMap[divID][bids][bidderID][bid][lastBidID];
+					bidMap[divID][bids][bidderID]['lastbidid'] = bidID;
+					bidMap[divID][bids][bidderID][bid][bidID] = bidDetails;
 					utilVLogInfo(divID, {
 						type: bid,
-						bidder: bidderID,
+						bidder: bidderID + (adapterBidPassThrough[bidderID] ? '(PT)' : ''),
 						bidDetails: bidDetails,
 						startTime: bidMap[divID][creationTime],
-						endTime: bidMap[divID][bids][bidderID][bidReceivedTime],
+						endTime: currentTime
 					});
 				}else{
-					utilLog(constCommonMessage12+bidMap[divID][bids][bidderID][bid][constTargetingEcpm]+constCommonMessage15+bidDetails[constTargetingEcpm]+constCommonMessage16);
+					utilLog(constCommonMessage12+bidMap[divID][bids][bidderID][bid][lastBidID][constTargetingEcpm]+constCommonMessage15+bidDetails[constTargetingEcpm]+constCommonMessage16);
 				}				
 			}else{
 				utilLog(constCommonMessage17);
@@ -145,18 +152,17 @@ var bidMap = {},
 		}else{
 
 			utilLog(constCommonMessage18);
-			bidMap[divID][bids][bidderID][bid] = bidDetails;
-			bidMap[divID][bids][bidderID][bidReceivedTime] = currentTime;
-			bidMap[divID][bids][bidderID][postTimeout] = isPostTimeout;
+			bidMap[divID][bids][bidderID]['lastbidid'] = bidID;
+			bidMap[divID][bids][bidderID][bid] = {};			
+			bidMap[divID][bids][bidderID][bid][bidID] = bidDetails;
 			utilVLogInfo(divID, {
 				type: bid,
 				bidder: bidderID + (adapterBidPassThrough[bidderID] ? '(PT)' : ''),
 				bidDetails: bidDetails,
 				startTime: bidMap[divID][creationTime],
-				endTime: bidMap[divID][bids][bidderID][bidReceivedTime],
+				endTime: currentTime
 			});
-		}
-		*/
+		}		
 	},
 
 	bidManagerResetBid = function(divID, impressionID){
@@ -190,6 +196,11 @@ var bidMap = {},
 					}
 
 					var theBid = bids[adapter].bid[bidID];
+
+					// do not consider post-timeout bids
+					if(theBid[postTimeout]){
+						continue;
+					}
 					
 					if(theBid[constTargetingKvp]){
 						utilCopyKeyValueObject(keyValuePairs, theBid[constTargetingKvp]);
@@ -201,8 +212,6 @@ var bidMap = {},
 					}
 
 					if(winningBid[constTargetingEcpm] < theBid[constTargetingEcpm]){
-						//winningBid = bids[adapter].bid;
-						//winningBid[constTargetingAdapterID] = adapter;
 						winningBid[constTargetingEcpm] = theBid[constTargetingEcpm];
 						winningBidID = bidID;
 						winningBidAdapter = adapter;
