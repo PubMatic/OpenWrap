@@ -198,13 +198,14 @@ adapterManagerRegisterAdapter((function(){
 									&& responseBid.ext.extension.slotname){
 
 									var keyValuePairs = false,
-										dealPriority = parseInt(0 || responseBid.ext.extension.dealPriority),
-										bidID = utilGetUniqueIdentifierStr()
+										dealChannel = parseInt(0 || responseBid.ext.extension.dealChannel),
+										bidID = utilGetUniqueIdentifierStr(),
+										dealID = responseBid.dealid || ""
 									;
 
-									if(responseBid.dealid && dealPriority > 4){
+									if(dealID && dealChannel >= 0){
 										keyValuePairs = {
-											'pwtdeal_pubmatic': '1^^'+responseBid.dealid+'^^'+bidID
+											'pwtdeal_pubmatic': dealChannel+'^^'+dealID+'^^'+bidID
 										};
 									}								
 
@@ -213,7 +214,7 @@ adapterManagerRegisterAdapter((function(){
 										adapterID,
 										bidManagerCreateBidObject(
 											parseFloat(responseBid.price), 
-											responseBid.dealid,
+											dealID,
 											"", 
 											generateCreative(
 												responseBid.adm,
