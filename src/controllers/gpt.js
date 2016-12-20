@@ -37,9 +37,7 @@ var displayHookAdded = false,
 
 	slotsMap = {},			// stores the mapping of divID ==> googletag.slot
 	GPT_targetingMap = {},	// stores the targetings applied using, googletag.pubads().setTargeting('article-id','65207');
-	DM_targetingKeys = {},	// stores all targeting keys that DM has added, 'key': ''
-	
-	pmCustomSlots = {},		// DM needs to be passed all targeting info applied to google-slot mapped to respective DM-slot	
+	DM_targetingKeys = {},	// stores all targeting keys that DM has added, 'key': ''	
 	
 	
 	getAdUnitIndex = function(currentGoogleSlot){
@@ -114,12 +112,7 @@ var displayHookAdded = false,
 			
 			dmSlotName,
 			
-			targetKeys,
-			targetKey,
-			targetKeysLength,
-			
 			i,
-			k,
 			
 			divIdFromDisplayFunction
 		;
@@ -245,13 +238,7 @@ var displayHookAdded = false,
 			for(index=0; index < slotNamesLength; index++){
 
 				key = slotNames[ index ];
-				slotsMap[ key ][pmSlots_key_status] = status_DM_Display_CallMade;
-				
-				//TODO: need to pass targeting info to adapters, how to maintain it always updated
-				// actually we should send slot based targetings only for respective slots, otherwise it could be overhead in case of refresh for single slot
-				//if( SEND_TARGETING_INFO ){
-				//	selectedPmCustomSlots[ key ] = pmCustomSlots[ key ];
-				//}
+				slotsMap[ key ][pmSlots_key_status] = status_DM_Display_CallMade;								
 				
 				if( isRefreshCall ){
 					removeDMTargetingFromSlot( key );
