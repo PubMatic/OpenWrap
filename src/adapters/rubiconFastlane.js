@@ -12,7 +12,6 @@ adapterManagerRegisterAdapter((function() {
 		rubiconAccountID = '',
 		_bidStart = null,
 		RUBICONTAG_URL = (window.location.protocol) + '//ads.rubiconproject.com/header/',
-		RUBICON_OK_STATUS = 'ok',
 		RUBICON_SIZE_MAP = {
 			'468x60': 1,
 			'728x90': 2,
