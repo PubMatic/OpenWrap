@@ -52,6 +52,15 @@ adapterManagerRegisterAdapter((function() {
 			    ad += response.ext.pixels;
 			}
 
+			var keyValuePairs = false,
+				bidID = utilGetUniqueIdentifierStr()
+			;
+			if(bidData.dealid){
+				keyValuePairs = {
+					'pwtdeal_aol': 'PMP^^'+bidData.dealid+'^^'+bidID
+				};
+			}
+
 			bidManagerSetBidFromBidder(
 		    	divID, 
 		    	adapterID, 
@@ -63,8 +72,10 @@ adapterManagerRegisterAdapter((function() {
 					bidData.crid,
 					bidData.w,
 					bidData.h,
-					kgpv
-				)
+					kgpv,
+					keyValuePairs
+				),
+				bidID
 			);
 		},
 
