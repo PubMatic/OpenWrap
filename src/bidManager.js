@@ -11,16 +11,18 @@ var bidMap = {},
 	callInitiatedTime = 'callInitiatedTime',
 	bidReceivedTime = 'bidReceivedTime',
 
-	bidManagerCreateBidObject = function(ecpm, dealDetails, creativeID, creativeHTML, creativeURL, width, height, kgpv, keyValuePairs){
-		var bidObject = {},
-			defaultDealDetailsObj = {}
-		;
+	bidManagerCreateDealObject = function(dealID, dealChannel){
+		var dealDetailsObj = {};
+		dealDetailsObj[constCommonID] = dealID || '';
+		dealDetailsObj[constDealChannel] = dealChannel || '';
+		return dealDetailsObj;
+	},
 
-		defaultDealDetailsObj[constCommonID] = '';
-		defaultDealDetailsObj[constDealChannel] = '';
+	bidManagerCreateBidObject = function(ecpm, dealDetails, creativeID, creativeHTML, creativeURL, width, height, kgpv, keyValuePairs){
+		var bidObject = {};		
 
 		bidObject[constTargetingEcpm] = ecpm;
-		bidObject[constTargetingDeal] = dealDetails || defaultDealDetailsObj;
+		bidObject[constTargetingDeal] = dealDetails;
 		bidObject[constTargetingAdHTML] = creativeHTML;
 		bidObject[constTargetingAdUrl] = creativeURL;
 		bidObject[constTargetingCreativeID] = creativeID;
