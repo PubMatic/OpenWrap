@@ -343,17 +343,35 @@ adapterManagerRegisterAdapter((function(){
 				var progKeyValueMapDetailsLength = progKeyValueMapDetails.length;
 				if(progKeyValueMapDetailsLength == 8){
 					
-					var bidObject = bidManagerCreateBidObject(
-						parseFloat(progKeyValueMapDetails[3]), 
-						progKeyValueMapDetails[7], 
-						"", 
-						generateCreative(bidDetailsMap[ progKeyValueMapDetails[5] ][constPubMaticResponseCreative], bidDetailsMap[ progKeyValueMapDetails[5] ][constPubMaticResponseTrackingURL], pubID), 
-						"",
-						bidDetailsMap[ progKeyValueMapDetails[5] ][constCommonWidth],
-						bidDetailsMap[ progKeyValueMapDetails[5] ][constCommonHeight],						
-						key
+					var bid = bidDetailsMap[ progKeyValueMapDetails[5] ],
+						bidID = utilGetUniqueIdentifierStr(),
+						dealID = progKeyValueMapDetails[7] || "",
+						keyValuePairs = false,
+						dealChannel = parseInt(0 || bid.dealChannel)
+					;
+
+					if(dealID && dealChannel >= 0){
+						keyValuePairs = {
+							'pwtdeal_pubmatic': dealChannel+'^^'+dealID+'^^'+bidID
+						};
+					}
+
+					bidManagerSetBidFromBidder(
+						pmSlotToDivIDMap[key], 
+						adapterID, 
+						bidManagerCreateBidObject(
+							parseFloat(progKeyValueMapDetails[3]), 
+							dealID, 
+							"", 
+							generateCreative(bid[constPubMaticResponseCreative], bid[constPubMaticResponseTrackingURL], pubID), 
+							"",
+							bid[constCommonWidth],
+							bid[constCommonHeight],
+							key,
+							keyValuePairs
+						), 
+						bidID
 					);
-					bidManagerSetBidFromBidder(pmSlotToDivIDMap[key], adapterID, bidObject);
 				}
 			}
 		}
