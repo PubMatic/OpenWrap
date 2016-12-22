@@ -277,7 +277,7 @@ var displayHookAdded = false,
 			googleDefinedSlot.setTargeting(constTargetingBidID, winningBid[constTargetingBidID]);
 			googleDefinedSlot.setTargeting(constTargetingBidStatus, winningBid[constTargetingBidStatus]);
 			googleDefinedSlot.setTargeting(constTargetingEcpm, (winningBid[constTargetingEcpm]).toFixed(bidPrecision));
-			googleDefinedSlot.setTargeting(constTargetingDealID, winningBid[constTargetingDealID]);			
+			googleDefinedSlot.setTargeting(constTargetingDealID, winningBid[constTargetingDeal][constDealID]);
 		}
 
 		// attaching keyValuePairs from adapters

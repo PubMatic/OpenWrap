@@ -17,6 +17,7 @@ var win = window,
 	constTargetingAdapterID 	= 'pwtaid',
 	constTargetingEcpm			= 'pwtecp',
 	constTargetingActualEcpm	= 'pwtaecp',
+	constTargetingDeal			= 'pwtdeal'
 	constTargetingDealID		= 'pwtdid',
 	constTargetingAdUrl			= 'pwtau',
 	constTargetingAdHTML		= 'pwta',
@@ -52,6 +53,9 @@ var win = window,
 	constCommonAdapters = 'adapters',
 	constCommonSlots = 'slots',
 	constCommonKeyGenerationPatternValue = 'kgpv',
+	
+	constDealID = 'id',
+	constDealChannel = 'channel',
 
 	constCommonMessage01 = ': In fetchbids.',
 	constCommonMessage02 = ': Throttled.',
