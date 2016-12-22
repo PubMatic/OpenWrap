@@ -12,6 +12,12 @@ adapterManagerRegisterAdapter((function(){
 		adapterConfigMandatoryParams = [constConfigPubID, constConfigKeyGeneratigPattern, constConfigServerSideKey],
 		slotConfigMandatoryParams = [],
 
+		dealChannelValues = {
+			1: 'PMP',
+			5: 'Preferred',
+			6: 'PMPG'
+		},
+
 		pubID = 0,
 		wrapperImpressionID = '',
 		conf = {},
@@ -205,9 +211,9 @@ adapterManagerRegisterAdapter((function(){
 
 									if(dealID && dealChannel >= 0){
 										keyValuePairs = {
-											'pwtdeal_pubmatic': dealChannel+'^^'+dealID+'^^'+bidID
+											'pwtdeal_pubmatic': (dealChannelValues[dealChannel] || 'NA')+'^^'+dealID+'^^'+bidID
 										};
-									}								
+									}
 
 									bidManagerSetBidFromBidder(
 										responseBid.impid,
@@ -352,7 +358,7 @@ adapterManagerRegisterAdapter((function(){
 
 					if(dealID && dealChannel >= 0){
 						keyValuePairs = {
-							'pwtdeal_pubmatic': dealChannel+'^^'+dealID+'^^'+bidID
+							'pwtdeal_pubmatic': (dealChannelValues[dealChannel] || 'NA')+'^^'+dealID+'^^'+bidID
 						};
 					}
 
