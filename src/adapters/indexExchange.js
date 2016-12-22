@@ -495,7 +495,7 @@ adapterManagerRegisterAdapter((function() {
 
                     	bidObject = bidManagerCreateBidObject(
                     		currentCPM / 100,
-                    		"",
+                    		bidManagerCreateDealObject(),
                     		"",
                     		indexObj[cpmAndSlotId][0],
                     		"",

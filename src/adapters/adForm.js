@@ -107,7 +107,7 @@ adapterManagerRegisterAdapter((function(){
 			        
 			    	bidObject = bidManagerCreateBidObject(
 			    		adItem.win_bid,
-			    		"",
+			    		bidManagerCreateDealObject(),
 			    		"", 
 			    		adItem.banner,
 			    		"",

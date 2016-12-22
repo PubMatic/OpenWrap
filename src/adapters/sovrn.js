@@ -98,7 +98,7 @@ adapterManagerRegisterAdapter((function() {
 							    	adapterID, 
 							    	bidManagerCreateBidObject(
 										parseFloat(sovrnBid.price),
-										"",
+										bidManagerCreateDealObject(),
 										"",
 										decodeURIComponent(sovrnBid.adm + '<img src="' + sovrnBid.nurl + '">'),
 										"",
@@ -122,7 +122,7 @@ adapterManagerRegisterAdapter((function() {
 						    	adapterID, 
 						    	bidManagerCreateBidObject(
 									0,
-									"",
+									bidManagerCreateDealObject(),
 									"",
 									"",
 									"",

@@ -80,7 +80,7 @@ adapterManagerRegisterAdapter((function(){
 						// creating bid object from the response
 						bidObject = bidManagerCreateBidObject(
 							response.cpm,
-							response.deal_id,
+							bidManagerCreateDealObject(response.deal_id),
 							response.ad_id,
 							'<script>' + response.ad_script + '</script>',
 							response.ad_url,

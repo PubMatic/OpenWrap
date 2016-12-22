@@ -101,7 +101,7 @@ adapterManagerRegisterAdapter((function() {
 
 											bidObject = bidManagerCreateBidObject(
 												Number(adUnit.get(constPubRev)) / 1000,
-												"",
+												bidManagerCreateDealObject(),
 												adUnit.get(constAdID),
 												adUnit.get(constAdHTML),
 												adUnit.get(constAdURL),
@@ -116,7 +116,7 @@ adapterManagerRegisterAdapter((function() {
 
 											bidObject = bidManagerCreateBidObject(
 												0,
-												"",
+												bidManagerCreateDealObject(),
 												"",
 												"",
 												"",

@@ -23,7 +23,7 @@ adapterManagerRegisterAdapter((function() {
 		    	adapterID, 
 		    	bidManagerCreateBidObject(
 					0,
-					"",
+					bidManagerCreateDealObject(),
 					"",
 					"",
 					"",
@@ -50,14 +50,14 @@ adapterManagerRegisterAdapter((function() {
 			var ad = bidData.adm;
 			if(response.ext && response.ext.pixels){
 			    ad += response.ext.pixels;
-			}	
+			}
 
 			bidManagerSetBidFromBidder(
 		    	divID, 
 		    	adapterID, 
 		    	bidManagerCreateBidObject(
 					cpm,
-					bidData.dealid || "",
+					bidManagerCreateDealObject(bidData.dealid),
 					ad,
 					"",
 					bidData.crid,

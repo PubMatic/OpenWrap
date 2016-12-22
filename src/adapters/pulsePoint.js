@@ -50,7 +50,7 @@ adapterManagerRegisterAdapter((function() {
 			    	adapterID, 
 			    	bidManagerCreateBidObject(
 						ecpm,
-						"",
+						bidManagerCreateDealObject(),
 						"",
 						creativeHTML,
 						"",

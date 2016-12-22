@@ -214,7 +214,7 @@ adapterManagerRegisterAdapter((function(){
 										adapterID,
 										bidManagerCreateBidObject(
 											parseFloat(responseBid.price), 
-											dealID,
+											bidManagerCreateDealObject(dealID),
 											"", 
 											generateCreative(
 												responseBid.adm,
@@ -361,7 +361,7 @@ adapterManagerRegisterAdapter((function(){
 						adapterID, 
 						bidManagerCreateBidObject(
 							parseFloat(progKeyValueMapDetails[3]), 
-							dealID, 
+							bidManagerCreateDealObject(dealID), 
 							"", 
 							generateCreative(bid[constPubMaticResponseCreative], bid[constPubMaticResponseTrackingURL], pubID), 
 							"",

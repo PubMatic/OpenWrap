@@ -168,7 +168,7 @@ adapterManagerRegisterAdapter((function() {
 
 							bidObject = bidManagerCreateBidObject(
 								rubiconAd.cpm,
-								"",
+								bidManagerCreateDealObject(),
 								rubiconAd.ad_id,
 								'<script>' + rubiconAd.script + '</script>',
 								"",
@@ -181,7 +181,7 @@ adapterManagerRegisterAdapter((function() {
 
 							bidObject = bidManagerCreateBidObject(
 								0,
-								"",
+								bidManagerCreateDealObject(),
 								"",
 								"",
 								"",

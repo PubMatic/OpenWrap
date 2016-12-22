@@ -99,7 +99,7 @@ adapterManagerRegisterAdapter((function() {
 
                 bidObject = bidManagerCreateBidObject(
                     parseInt(slotCriteria.ybot_cpm) / 100.0 || 0,
-                    "",
+                    bidManagerCreateDealObject(),
                     "",
                     buildCreative(slot, sizeStr),
                     "",
@@ -112,7 +112,7 @@ adapterManagerRegisterAdapter((function() {
 
                 bidObject = bidManagerCreateBidObject(
                     0,
-                    "",
+                    bidManagerCreateDealObject(),
                     "",
                     "",
                     "",

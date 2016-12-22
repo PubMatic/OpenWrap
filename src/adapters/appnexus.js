@@ -141,9 +141,10 @@ adapterManagerRegisterAdapter((function(){
 					//in order to avoid using floats
 					//switch CPM to "dollar/cent"
 					responseCPM = responseCPM / 10000;
+
 					bidObject = bidManagerCreateBidObject(
 						responseCPM,
-						jptResponseObj.result.deal_id,
+						bidManagerCreateDealObject(jptResponseObj.result.deal_id),
 						jptResponseObj.result.creative_id,
 						"",
 						jptResponseObj.result.ad,
@@ -154,7 +155,7 @@ adapterManagerRegisterAdapter((function(){
 				}else {
 					bidObject = bidManagerCreateBidObject(
 						0,
-						"",
+						bidManagerCreateDealObject(),
 						"",
 						"",
 						"",

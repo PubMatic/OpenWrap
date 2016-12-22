@@ -173,7 +173,7 @@ adapterManagerRegisterAdapter((function() {
 				try{
 				    bidResponse = bidManagerCreateBidObject(
 						ad.cpm,
-						ad.deal || "",
+						bidManagerCreateDealObject(ad.deal),
 						"",
 						_creative(rbSlot.getElementId(), size),
 						"",
@@ -194,7 +194,7 @@ adapterManagerRegisterAdapter((function() {
 		_errorBid = function(rbSlot) {
 			return bidManagerCreateBidObject(
 				0,
-				"",
+				bidManagerCreateDealObject(),
 				"",
 				"",
 				"",
