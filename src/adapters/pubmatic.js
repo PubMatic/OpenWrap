@@ -14,7 +14,7 @@ adapterManagerRegisterAdapter((function(){
 
 		dealChannelValues = {
 			1: 'PMP',
-			5: 'Preferred',
+			5: 'PREF',
 			6: 'PMPG'
 		},
 
