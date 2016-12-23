@@ -66,7 +66,7 @@ adapterManagerRegisterAdapter((function() {
 		    	adapterID, 
 		    	bidManagerCreateBidObject(
 					cpm,
-					bidManagerCreateDealObject(bidData.dealid),
+					bidManagerCreateDealObject(bidData.dealid, 'PMP'),
 					ad,
 					"",
 					bidData.crid,
