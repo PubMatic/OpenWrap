@@ -204,14 +204,14 @@ adapterManagerRegisterAdapter((function(){
 									&& responseBid.ext.extension.slotname){
 
 									var keyValuePairs = false,
-										dealChannel = parseInt(0 || responseBid.ext.extension.dealChannel),
 										bidID = utilGetUniqueIdentifierStr(),
-										dealID = responseBid.dealid || ""
+										dealID = responseBid.dealid || "",
+										dealChannel = (dealChannelValues[parseInt(0 || responseBid.ext.extension.dealChannel)] || 'NA')
 									;
 
 									if(dealID && dealChannel >= 0){
 										keyValuePairs = {
-											'pwtdeal_pubmatic': (dealChannelValues[dealChannel] || 'NA')+'^^'+dealID+'^^'+bidID
+											'pwtdeal_pubmatic': dealChannel+'^^'+dealID+'^^'+bidID
 										};
 									}
 
@@ -220,7 +220,7 @@ adapterManagerRegisterAdapter((function(){
 										adapterID,
 										bidManagerCreateBidObject(
 											parseFloat(responseBid.price), 
-											bidManagerCreateDealObject(dealID),
+											bidManagerCreateDealObject(dealID, dealChannel),
 											"", 
 											generateCreative(
 												responseBid.adm,
@@ -353,12 +353,12 @@ adapterManagerRegisterAdapter((function(){
 						bidID = utilGetUniqueIdentifierStr(),
 						dealID = progKeyValueMapDetails[7] || "",
 						keyValuePairs = false,
-						dealChannel = parseInt(0 || bid.dealChannel)
+						dealChannel = (dealChannelValues[parseInt(0 || bid.dealChannel)] || 'NA')
 					;
 
 					if(dealID && dealChannel >= 0){
 						keyValuePairs = {
-							'pwtdeal_pubmatic': (dealChannelValues[dealChannel] || 'NA')+'^^'+dealID+'^^'+bidID
+							'pwtdeal_pubmatic': dealChannel+'^^'+dealID+'^^'+bidID
 						};
 					}
 
@@ -367,7 +367,7 @@ adapterManagerRegisterAdapter((function(){
 						adapterID, 
 						bidManagerCreateBidObject(
 							parseFloat(progKeyValueMapDetails[3]), 
-							bidManagerCreateDealObject(dealID), 
+							bidManagerCreateDealObject(dealID, dealChannel), 
 							"", 
 							generateCreative(bid[constPubMaticResponseCreative], bid[constPubMaticResponseTrackingURL], pubID), 
 							"",
