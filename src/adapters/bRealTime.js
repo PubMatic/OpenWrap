@@ -124,7 +124,9 @@ adapterManagerRegisterAdapter((function(){
 					bidObject,
 					id = jptResponseObj.callback_uid,
 					divID = '',
-					bidObj = internalMap[id] && internalMap[id][constCommonConfig] ? internalMap[id][constCommonConfig] : false
+					bidObj = internalMap[id] && internalMap[id][constCommonConfig] ? internalMap[id][constCommonConfig] : false,
+					keyValuePairs = false,
+					bidID = utilGetUniqueIdentifierStr()
 				;
 
 				if(!bidObj){
@@ -141,16 +143,23 @@ adapterManagerRegisterAdapter((function(){
 					//in order to avoid using floats
 					//switch CPM to "dollar/cent"
 					responseCPM = responseCPM / 10000;
+					var dealID = jptResponseObj.result.deal_id;
+					if(dealID){
+						keyValuePairs = {
+							'pwtdeal_brealtime': 'PMP^^'+dealID+'^^'+bidID
+						};
+					}
 
 					bidObject = bidManagerCreateBidObject(
 						responseCPM,
-						bidManagerCreateDealObject(jptResponseObj.result.deal_id),
+						bidManagerCreateDealObject(dealID, 'PMP'),
 						jptResponseObj.result.creative_id,
 						"",
 						jptResponseObj.result.ad,
 						jptResponseObj.result.width,
 						jptResponseObj.result.height,
-						internalMap[id][constCommonKeyGenerationPatternValue]
+						internalMap[id][constCommonKeyGenerationPatternValue],
+						keyValuePairs
 					);
 				}else {
 					bidObject = bidManagerCreateBidObject(
@@ -164,7 +173,7 @@ adapterManagerRegisterAdapter((function(){
 						internalMap[id][constCommonKeyGenerationPatternValue]
 					);
 				}
-				bidManagerSetBidFromBidder(divID, adapterID, bidObject);
+				bidManagerSetBidFromBidder(divID, adapterID, bidObject, bidID);
 			}
 
 		}catch(ex){
