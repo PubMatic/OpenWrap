@@ -77,20 +77,33 @@ adapterManagerRegisterAdapter((function(){
 					var bidDetails = internalMap[getBidId(response, theRandomID)];
 					if(bidDetails){
 
+						var keyValuePairs = false,
+							bidID = utilGetUniqueIdentifierStr(),
+							dealID = response.deal_id || "",
+							dealChannel = 'PMP'
+						;
+
+						if(dealID){
+							keyValuePairs = {
+								'pwtdeal_sampleadapter': dealChannel+'^^'+dealID+'^^'+bidID
+							};
+						}
+
 						// creating bid object from the response
 						bidObject = bidManagerCreateBidObject(
 							response.cpm,
-							bidManagerCreateDealObject(response.deal_id),
+							bidManagerCreateDealObject(dealID, dealChannel),
 							response.ad_id,
 							'<script>' + response.ad_script + '</script>',
 							response.ad_url,
 							response.width,
 							response.height,
-							bidDetails[constCommonKeyGenerationPatternValue]
+							bidDetails[constCommonKeyGenerationPatternValue],
+							keyValuePairs
 						);
 
 						// passing bid to the bid manager
-						bidManagerSetBidFromBidder(bidDetails[constCommonConfig][constCommonDivID], adapterID, bidObject);
+						bidManagerSetBidFromBidder(bidDetails[constCommonConfig][constCommonDivID], adapterID, bidObject, bidID);
 					}
 				}catch(e){}
 			}	
