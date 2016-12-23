@@ -13,8 +13,8 @@ var bidMap = {},
 
 	bidManagerCreateDealObject = function(dealID, dealChannel){
 		var dealDetailsObj = {};
-		dealDetailsObj[constCommonID] = dealID || '';
-		dealDetailsObj[constDealChannel] = dealChannel || '';
+		dealDetailsObj[constCommonID] = dealID ? (''+dealID) : '';
+		dealDetailsObj[constDealChannel] = dealChannel ? (''+dealChannel) : '';
 		return dealDetailsObj;
 	},
 
