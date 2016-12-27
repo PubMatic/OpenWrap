@@ -151,7 +151,10 @@ adapterManagerRegisterAdapter((function(){
 		        if (enc4 !== 64) out.push(_keyStr.charAt(enc4));
 		    }
 
-			}catch(e){}
+			}catch(e){
+				utilLog(adapterID+ ': erron in encoding');
+				utilLog(e);
+			}
 
 		    return out.join('');
 		},
