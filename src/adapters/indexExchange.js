@@ -325,14 +325,14 @@ var cygnus_index_start = function () {
 	    return req.buildRequest();
 	} catch (e) {
 	    utilLog('Error calling index adapter');
-	}
-	finally {
+	}	
+	/*finally {
 		if (utilIsUndefined(window._IndexRequestData)) {
 	        window._IndexRequestData = {};
 		}
         // ensure that previous targeting mapping is cleared
         _IndexRequestData.targetIDToBid = {};
-    }
+    }*/
 };
 
 adapterManagerRegisterAdapter((function() {
