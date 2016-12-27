@@ -67,9 +67,9 @@ adapterManagerRegisterAdapter((function() {
 		    	bidManagerCreateBidObject(
 					cpm,
 					bidManagerCreateDealObject(bidData.dealid, 'PMP'),
-					ad,
-					"",
 					bidData.crid,
+					ad,
+					"",					
 					bidData.w,
 					bidData.h,
 					kgpv,
@@ -109,40 +109,38 @@ adapterManagerRegisterAdapter((function() {
 			networkID = adapterConfig[constConfigNetwork];
 			server = adapterConfig[constConfigServer];
 
-			utilLoadScript(jsLibURL, function(){
-				utilForEachGeneratedKey(
-					adapterID,
-					slotConfigMandatoryParams,
-					activeSlots, 
-					keyGenerationPattern, 
-					keyLookupMap, 
-					function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
-						utilAjaxCall(
-							buildCall(keyConfig),
-							function(response){
+			utilForEachGeneratedKey(
+				adapterID,
+				slotConfigMandatoryParams,
+				activeSlots, 
+				keyGenerationPattern, 
+				keyLookupMap, 
+				function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
+					utilAjaxCall(
+						buildCall(keyConfig),
+						function(response){
 
-								if(!response && response.length <= 0){
-									utilLog(adapterID+': Empty bid response');
-									_addErrorBidResponse(currentSlot[constCommonDivID], generatedKey);
-									return;
-								}
+							if(!response && response.length <= 0){
+								utilLog(adapterID+': Empty bid response');
+								_addErrorBidResponse(currentSlot[constCommonDivID], generatedKey);
+								return;
+							}
 
-								try{
-									response = JSON.parse(response);
-								}catch(e){
-									utilLog(adapterID+': Invalid JSON in bid response');
-									_addErrorBidResponse(currentSlot[constCommonDivID], generatedKey);
-									return;
-								}
+							try{
+								response = JSON.parse(response);
+							}catch(e){
+								utilLog(adapterID+': Invalid JSON in bid response');
+								_addErrorBidResponse(currentSlot[constCommonDivID], generatedKey);
+								return;
+							}
 
-								_addBidResponse(currentSlot[constCommonDivID], generatedKey, response);
-							},
-							null,
-							{withCredentials: true}							
-						);
-					}
-				);
-			});
+							_addBidResponse(currentSlot[constCommonDivID], generatedKey, response);
+						},
+						null,
+						{withCredentials: true}							
+					);
+				}
+			);
 		}
 	;
 
