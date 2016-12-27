@@ -296,8 +296,16 @@ var cygnus_index_start = function () {
 	        req.setPageOverride(cygnus_index_args.url);
 	    }
 
+	    if(utilIsUndefined(_IndexRequestData.impIDToSlotID)){
+	    	_IndexRequestData.impIDToSlotID = {};
+	    }
 	    _IndexRequestData.impIDToSlotID[req.requestID] = {};
+
+	    if(utilIsUndefined(_IndexRequestData.reqOptions)){
+	    	_IndexRequestData.reqOptions = {};
+	    }
 	    _IndexRequestData.reqOptions[req.requestID] = {};
+	    
 	    var slotDef, impID;
 
 	    for (var i = 0; i < cygnus_index_args[constCommonSlots].length; i++) {
