@@ -522,6 +522,7 @@ adapterManagerRegisterAdapter((function() {
 						// Removing the used bid, else we will face issue with adslots using same configs
 						delete indexObj[cpmAndSlotId];
 						delete slotIdMap[adSlotId];
+						break;
                     }else{
                     	//utilLog(adapterID+ ": slotObj details not found.")
                     }
