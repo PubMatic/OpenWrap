@@ -63,9 +63,11 @@ var displayHookAdded = false,
 		*/
 
 		var sizeMapping,
-			screenWidth = win.screen.width || -1,
-			screenHeight = win.screen.height || -1
+			screenWidth = -1,
+			screenHeight = -1
 		;
+
+		win.innerHeight ? (screenWidth = win.innerWidth, screenHeight = win.innerHeight) : win.document.documentElement && win.document.documentElement.clientHeight ? (screenWidth = win.document.documentElement.clientWidth, screenHeight = win.document.documentElement.clientHeight) : win.document.body && (screenWidth = win.document.body.clientWidth, screenHeight = win.document.body.clientHeight);
 
 		if(!utilHasOwnProperty(slotSizeMapping, divID)){
 			return false;
@@ -82,7 +84,7 @@ var displayHookAdded = false,
 				;
 
 				if(screenWidth >= currentWidth && screenHeight >= currentHeight){
-					if(!utilIsArray(sizeMapping[i][1][0]) ){
+					if(sizeMapping[i][1].length != 0 && !utilIsArray(sizeMapping[i][1][0]) ){
 						if(sizeMapping[i][1].length == 2 && utilIsNumber(sizeMapping[i][1][0]) && utilIsNumber(sizeMapping[i][1][1]) ){
 							return [sizeMapping[i][1]];	
 						}else{
@@ -107,7 +109,7 @@ var displayHookAdded = false,
 			sizeMapping = getSizeFromSizeMapping(divID)
 		;
 
-		if(sizeMapping != false){
+		if(sizeMapping !== false){
 			utilLog(divID + ': responsiveSizeMapping applied: ');
 			utilLog(sizeMapping);
 			return sizeMapping;
