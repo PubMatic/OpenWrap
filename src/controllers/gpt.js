@@ -79,6 +79,9 @@ var displayHookAdded = false,
 				;
 
 				if(screenWidth >= currentWidth && screenHeight >= currentHeight){
+					if(!utilIsArray(sizeMapping[i][1][0])){
+						return [sizeMapping[i][1]];
+					}
 					return sizeMapping[i][1];
 				}
 			}
@@ -619,9 +622,6 @@ var displayHookAdded = false,
 		var s1 = localGoogletag.defineSlot('/15671365/DM*De*m-o', [[728, 90]], 'OpenWapInternalTest');
 		var originalDefineSizeMapping = s1.__proto__.defineSizeMapping;
 		s1.__proto__.defineSizeMapping = function(){
-			// slotSizeMapping
-			//console.log('DivID: ' + this.getSlotId().getDomId());
-			//console.log(arguments[0]);
 			slotSizeMapping[ this.getSlotId().getDomId() ] = arguments[0];
 			originalDefineSizeMapping.apply(this, arguments);
 		};
