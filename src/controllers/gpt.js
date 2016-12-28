@@ -72,6 +72,9 @@ var displayHookAdded = false,
 		}
 
 		sizeMapping = slotSizeMapping[divID];
+		utilLog(divID+': responsiveSizeMapping found: screenWidth: '+ screenWidth + ', screenHeight: '+ screenHeight);
+		utilLog(sizeMapping);
+
 		for(var i=0, l=sizeMapping.length; i < l; i++){
 			if(sizeMapping[i].length == 2 && sizeMapping[i][0].length == 2){
 				var currentWidth = sizeMapping[i][0][0],
@@ -79,8 +82,13 @@ var displayHookAdded = false,
 				;
 
 				if(screenWidth >= currentWidth && screenHeight >= currentHeight){
-					if(!utilIsArray(sizeMapping[i][1][0])){
-						return [sizeMapping[i][1]];
+					if(!utilIsArray(sizeMapping[i][1][0]) ){
+						if(sizeMapping[i][1].length == 2 && utilIsNumber(sizeMapping[i][1][0]) && utilIsNumber(sizeMapping[i][1][1]) ){
+							return [sizeMapping[i][1]];	
+						}else{
+							utilLog(divID + ': Unsupported mapping template.');
+							utilLog(sizeMapping)
+						}						
 					}
 					return sizeMapping[i][1];
 				}
@@ -100,6 +108,8 @@ var displayHookAdded = false,
 		;
 
 		if(sizeMapping != false){
+			utilLog(divID + ': responsiveSizeMapping applied: ');
+			utilLog(sizeMapping);
 			return sizeMapping;
 		}
 
@@ -619,7 +629,7 @@ var displayHookAdded = false,
 		localGoogletag = win.googletag;
 		localPubAdsObj = localGoogletag.pubads();
 
-		var s1 = localGoogletag.defineSlot('/15671365/DM*De*m-o', [[728, 90]], 'OpenWapInternalTest');
+		var s1 = localGoogletag.defineSlot('/Harshad', [[728, 90]], 'Harshad-02051986');
 		var originalDefineSizeMapping = s1.__proto__.defineSizeMapping;
 		s1.__proto__.defineSizeMapping = function(){
 			slotSizeMapping[ this.getSlotId().getDomId() ] = arguments[0];
