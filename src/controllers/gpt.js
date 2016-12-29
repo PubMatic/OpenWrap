@@ -635,7 +635,7 @@ var displayHookAdded = false,
 		var originalDefineSizeMapping = s1.__proto__.defineSizeMapping;
 		s1.__proto__.defineSizeMapping = function(){
 			slotSizeMapping[ this.getSlotId().getDomId() ] = arguments[0];
-			originalDefineSizeMapping.apply(this, arguments);
+			return originalDefineSizeMapping.apply(this, arguments);
 		};
 		localGoogletag.destroySlots([s1]);
 
