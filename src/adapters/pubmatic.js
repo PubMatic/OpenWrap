@@ -209,7 +209,7 @@ adapterManagerRegisterAdapter((function(){
 										dealChannel = (dealChannelValues[parseInt(0 || responseBid.ext.extension.dealChannel)] || 'NA')
 									;
 
-									if(dealID && dealChannel >= 0){
+									if(dealID){
 										keyValuePairs = {
 											'pwtdeal_pubmatic': dealChannel+'^^'+dealID+'^^'+bidID
 										};
@@ -356,7 +356,7 @@ adapterManagerRegisterAdapter((function(){
 						dealChannel = (dealChannelValues[parseInt(0 || bid.dealChannel)] || 'NA')
 					;
 
-					if(dealID && dealChannel >= 0){
+					if(dealID){
 						keyValuePairs = {
 							'pwtdeal_pubmatic': dealChannel+'^^'+dealID+'^^'+bidID
 						};
