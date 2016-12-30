@@ -162,33 +162,47 @@ adapterManagerRegisterAdapter((function() {
 		_makeBid = function(rbSlot, ad){
 
 			var bidResponse, 
-				size = ad.dimensions
+				size = ad.dimensions,
+				bidID = utilGetUniqueIdentifierStr()
 			;
 
 			if (!size) {
 			    utilLog(adapterID+': no dimensions given');
 			    bidResponse = _errorBid(rbSlot);
+			    bidManagerSetBidFromBidder(rbSlot.divID, adapterID, bidResponse, bidID);
 			} else {
 
 				try{
+
+					var dealID = ad.deal || "";
+					var keyValuePairs = ad.targeting || false;
+
+						if(keyValuePairs !== false){
+							keyValuePairs['pwtdeal_rubiconfastlane'] = 'PMP^^'+dealID+'^^'+bidID;
+						}else{
+							keyValuePairs = {
+								'pwtdeal_rubiconfastlane': 'PMP^^'+dealID+'^^'+bidID
+							};
+						}						
+					}
+
 				    bidResponse = bidManagerCreateBidObject(
 						ad.cpm,
-						bidManagerCreateDealObject(ad.deal),
+						bidManagerCreateDealObject(dealID, 'PMP'),
 						"",
 						_creative(rbSlot.getElementId(), size),
 						"",
 						size[0],
 						size[1],
 						rbSlot.kgpv,
-						ad.targeting
+						keyValuePairs
 					);
+					bidManagerSetBidFromBidder(rbSlot.divID, adapterID, bidResponse, bidID);
 				}catch(e){
 					utilLog(adapterID+constCommonMessage21);
 	        		utilLog(e);
 				}
 			}
-
-			bidManagerSetBidFromBidder(rbSlot.divID, adapterID, bidResponse);
 		},
 
 		_errorBid = function(rbSlot) {
