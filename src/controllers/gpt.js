@@ -632,11 +632,13 @@ var displayHookAdded = false,
 		localPubAdsObj = localGoogletag.pubads();
 
 		var s1 = localGoogletag.defineSlot('/Harshad', [[728, 90]], 'Harshad-02051986');
-		var originalDefineSizeMapping = s1.__proto__.defineSizeMapping;
-		s1.__proto__.defineSizeMapping = function(){
-			slotSizeMapping[ this.getSlotId().getDomId() ] = arguments[0];
-			return originalDefineSizeMapping.apply(this, arguments);
-		};
+		if(s1 && s1.__proto__ && s1.__proto__.defineSizeMapping){
+			var originalDefineSizeMapping = s1.__proto__.defineSizeMapping;
+			s1.__proto__.defineSizeMapping = function(){
+				slotSizeMapping[ this.getSlotId().getDomId() ] = arguments[0];
+				return originalDefineSizeMapping.apply(this, arguments);
+			};
+		}
 		localGoogletag.destroySlots([s1]);
 
 		original_display = (localGoogletag && localGoogletag.display);
