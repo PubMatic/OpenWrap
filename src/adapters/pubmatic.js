@@ -211,7 +211,7 @@ adapterManagerRegisterAdapter((function(){
 
 									if(dealID){
 										keyValuePairs = {
-											'pwtdeal_pubmatic': dealChannel+'^^'+dealID+'^^'+bidID
+											'pwtdeal_pubmatic': dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID
 										};
 									}
 
@@ -358,7 +358,7 @@ adapterManagerRegisterAdapter((function(){
 
 					if(dealID){
 						keyValuePairs = {
-							'pwtdeal_pubmatic': dealChannel+'^^'+dealID+'^^'+bidID
+							'pwtdeal_pubmatic': dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID
 						};
 					}
 

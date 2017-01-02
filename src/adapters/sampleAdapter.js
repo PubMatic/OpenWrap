@@ -85,7 +85,7 @@ adapterManagerRegisterAdapter((function(){
 
 						if(dealID){
 							keyValuePairs = {
-								'pwtdeal_sampleadapter': dealChannel+'^^'+dealID+'^^'+bidID
+								'pwtdeal_sampleadapter': dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID
 							};
 						}
 

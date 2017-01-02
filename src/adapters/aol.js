@@ -57,7 +57,7 @@ adapterManagerRegisterAdapter((function() {
 			;
 			if(bidData.dealid){
 				keyValuePairs = {
-					'pwtdeal_aol': 'PMP^^'+bidData.dealid+'^^'+bidID
+					'pwtdeal_aol': 'PMP'+constDealKeyValueSeparator+bidData.dealid+constDealKeyValueSeparator+bidID
 				};
 			}
 

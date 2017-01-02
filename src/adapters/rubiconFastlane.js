@@ -179,10 +179,10 @@ adapterManagerRegisterAdapter((function() {
 
 					if(dealID && adapterBidPassThrough[adapterID] != 1){
 						if(keyValuePairs !== false){
-							keyValuePairs['pwtdeal_rubiconfastlane'] = 'PMP^^'+dealID+'^^'+bidID;
+							keyValuePairs['pwtdeal_rubiconfastlane'] = 'PMP'+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID;
 						}else{
 							keyValuePairs = {
-								'pwtdeal_rubiconfastlane': 'PMP^^'+dealID+'^^'+bidID
+								'pwtdeal_rubiconfastlane': 'PMP'+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID
 							};
 						}						
 					}

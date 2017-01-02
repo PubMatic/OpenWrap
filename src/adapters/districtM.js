@@ -146,7 +146,7 @@ adapterManagerRegisterAdapter((function(){
 					var dealID = jptResponseObj.result.deal_id;
 					if(dealID){
 						keyValuePairs = {
-							'pwtdeal_districtm': 'PMP^^'+dealID+'^^'+bidID
+							'pwtdeal_districtm': 'PMP'+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID
 						};
 					}
 

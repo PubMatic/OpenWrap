@@ -56,6 +56,7 @@ var win = window,
 	
 	constDealID = 'id',
 	constDealChannel = 'channel',
+	constDealKeyValueSeparator = '^^',
 
 	constCommonMessage01 = ': In fetchbids.',
 	constCommonMessage02 = ': Throttled.',
