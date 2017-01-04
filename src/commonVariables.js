@@ -14,7 +14,7 @@ var win = window,
 	// Ones passed by PWT to DFP OR present in bidDetails
 	constTargetingBidID 		= 'pwtsid', //DivID will be passed
 	constTargetingBidStatus 	= 'pwtbst',
-	constTargetingAdapterID 	= 'pwtaid',
+	constTargetingAdapterID 	= 'pwtpid',
 	constTargetingEcpm			= 'pwtecp',
 	constTargetingActualEcpm	= 'pwtaecp',
 	constTargetingDealID		= 'pwtdid',
