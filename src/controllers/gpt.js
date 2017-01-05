@@ -133,7 +133,7 @@ var displayHookAdded = false,
 		return adslotSizesArray;
 	},
 	
-	storeInSlotsMap = function(dmSlotName, currentGoogleSlot){
+	storeInSlotsMap = function(dmSlotName, currentGoogleSlot, isDisplayFlow){
 		// note: here dmSlotName is actually the DivID
 		//todo: also pass targeting info, common + slotLevel
 		if( ! utilHasOwnProperty(slotsMap, dmSlotName) ){
@@ -150,6 +150,10 @@ var displayHookAdded = false,
 			slotsMap[dmSlotName]['position']							= utilFindPosition(dmSlotName);
 
 			utilCreateVLogInfoPanel(dmSlotName, slotsMap[dmSlotName][pmSlots_key_adSlotSizes]);
+		}else{
+			if(!isDisplayFlow){
+				slotsMap[dmSlotName][pmSlots_key_adSlotSizes] = getAdSlotSizesArray(dmSlotName, currentGoogleSlot);
+			}
 		}
 	},
 	
@@ -181,7 +185,7 @@ var displayHookAdded = false,
 			
 				currentGoogleSlot = googleSlotsArray[ i ];				
 				dmSlotName = currentGoogleSlot.getSlotId().getDomId();// here divID will be the key
-				storeInSlotsMap(dmSlotName, currentGoogleSlot);
+				storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow);
 
 				// moving this block out of the above condition so that if some more targetings are added before refresh, DM will get it
 				// generating data for pm_custom_slots
