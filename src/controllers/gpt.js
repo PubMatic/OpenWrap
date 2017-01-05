@@ -66,11 +66,11 @@ var displayHookAdded = false,
 			screenWidth = -1,
 			screenHeight = -1
 		;
-
-		//win.innerHeight ? (screenWidth = win.innerWidth, screenHeight = win.innerHeight) : win.document.documentElement && win.document.documentElement.clientHeight ? (screenWidth = win.document.documentElement.clientWidth, screenHeight = win.document.documentElement.clientHeight) : win.document.body && (screenWidth = win.document.body.clientWidth, screenHeight = win.document.body.clientHeight);
+		
 		try{
-			screenWidth = window.document.body.scrollWidth;
-			screenHeight = window.document.body.scrollHeight;
+			//screenWidth = window.document.body.scrollWidth;
+			//screenHeight = window.document.body.scrollHeight;
+			win.innerHeight ? (screenWidth = win.innerWidth, screenHeight = win.innerHeight) : win.document.documentElement && win.document.documentElement.clientHeight ? (screenWidth = win.document.documentElement.clientWidth, screenHeight = win.document.documentElement.clientHeight) : win.document.body && (screenWidth = win.document.body.clientWidth, screenHeight = win.document.body.clientHeight);
 		}catch(e){}
 
 		if(!utilHasOwnProperty(slotSizeMapping, divID)){
