@@ -77,6 +77,10 @@ var displayHookAdded = false,
 		utilLog(divID+': responsiveSizeMapping found: screenWidth: '+ screenWidth + ', screenHeight: '+ screenHeight);
 		utilLog(sizeMapping);
 
+		if(!utilIsArray(sizeMapping)){
+			return false;
+		}
+
 		for(var i=0, l=sizeMapping.length; i < l; i++){
 			if(sizeMapping[i].length == 2 && sizeMapping[i][0].length == 2){
 				var currentWidth = sizeMapping[i][0][0],
