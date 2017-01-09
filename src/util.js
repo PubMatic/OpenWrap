@@ -39,7 +39,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 
 		if(utilEnableVLog){
 			element = doc.getElementById(divID);
-			if(element){
+			if(element && dimensionArray.length && dimensionArray[0][0] && dimensionArray[0][1]){
 				infoPanelElementID = divID + '-pwtc-info';
 				if(!utilIsUndefined(doc.getElementById(infoPanelElementID))){
 					var pos = utilGetElementLocation(element);
