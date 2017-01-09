@@ -37,9 +37,11 @@ var displayHookAdded = false,
 
 	slotsMap = {},			// stores the mapping of divID ==> googletag.slot
 	GPT_targetingMap = {},	// stores the targetings applied using, googletag.pubads().setTargeting('article-id','65207');
-	DM_targetingKeys = {},	// stores all targeting keys that DM has added, 'key': ''	
-	
-	
+
+	DM_targetingKeys = {},	// stores all targeting keys that DM has added, 'key': ''
+
+	slotSizeMapping = {},
+
 	getAdUnitIndex = function(currentGoogleSlot){
 		var adUnitIndex = 0;
 		try{
@@ -48,20 +50,81 @@ var displayHookAdded = false,
 		}catch(ex){}
 		return adUnitIndex;
 	},
+
+	getSizeFromSizeMapping = function(divID){
+		/*
+			Ref: https://support.google.com/dfp_premium/answer/3423562?hl=en
+			The adslot.defineSizeMapping() method will receive an array of mappings in the following form: 
+				[ [ [ 1024, 768 ], [ [ 970, 250 ] ] ], [ [ 980, 600 ], [ [ 728, 90 ], [ 640, 480 ] ] ], ...],  
+				which should be ordered from highest to lowest priority. 
+			The builder syntax is a more readable way of defining the mappings that orders them automatically. 
+			However, you have the option of using different priority ordering by bypassing the builder and constructing the array of mappings manually.
+		*/
+
+		var sizeMapping,
+			screenWidth = -1,
+			screenHeight = -1
+		;
+		
+		try{
+			//screenWidth = window.document.body.scrollWidth;
+			//screenHeight = window.document.body.scrollHeight;
+			win.innerHeight ? (screenWidth = win.innerWidth, screenHeight = win.innerHeight) : win.document.documentElement && win.document.documentElement.clientHeight ? (screenWidth = win.document.documentElement.clientWidth, screenHeight = win.document.documentElement.clientHeight) : win.document.body && (screenWidth = win.document.body.clientWidth, screenHeight = win.document.body.clientHeight);
+		}catch(e){}
+
+		if(!utilHasOwnProperty(slotSizeMapping, divID)){
+			return false;
+		}
+
+		sizeMapping = slotSizeMapping[divID];
+		utilLog(divID+': responsiveSizeMapping found: screenWidth: '+ screenWidth + ', screenHeight: '+ screenHeight);
+		utilLog(sizeMapping);
+
+		if(!utilIsArray(sizeMapping)){
+			return false;
+		}
+
+		for(var i=0, l=sizeMapping.length; i < l; i++){
+			if(sizeMapping[i].length == 2 && sizeMapping[i][0].length == 2){
+				var currentWidth = sizeMapping[i][0][0],
+					currentHeight = sizeMapping[i][0][1]
+				;
+
+				if(screenWidth >= currentWidth && screenHeight >= currentHeight){
+					if(sizeMapping[i][1].length != 0 && !utilIsArray(sizeMapping[i][1][0]) ){
+						if(sizeMapping[i][1].length == 2 && utilIsNumber(sizeMapping[i][1][0]) && utilIsNumber(sizeMapping[i][1][1]) ){
+							return [sizeMapping[i][1]];	
+						}else{
+							utilLog(divID + ': Unsupported mapping template.');
+							utilLog(sizeMapping)
+						}						
+					}
+					return sizeMapping[i][1];
+				}
+			}
+		}
+
+		return false;
+	},
 	
-	getAdSlotSizesArray = function(currentGoogleSlot){
+	getAdSlotSizesArray = function(divID, currentGoogleSlot){
 		var sizeArray,
 			sizeArrayLength,
 			index,
 			sizeObj,
-			adslotSizesArray = [];
-	
+			adslotSizesArray = [],
+			sizeMapping = getSizeFromSizeMapping(divID)
+		;
+
+		if(sizeMapping !== false){
+			utilLog(divID + ': responsiveSizeMapping applied: ');
+			utilLog(sizeMapping);
+			return sizeMapping;
+		}
+
 		if( utilIsFn(currentGoogleSlot.getSizes)){
-				
-			sizeArray = currentGoogleSlot.getSizes();
-					
-			sizeArrayLength = sizeArray.length;
-			
+			sizeArray = currentGoogleSlot.getSizes();					
+			sizeArrayLength = sizeArray.length;			
 			for(index = 0; index < sizeArrayLength; index++){
 				sizeObj = sizeArray[ index ];				
 				//if(sizeObj.getWidth() != 1 && sizeObj.getHeight() != 1){
@@ -73,7 +136,7 @@ var displayHookAdded = false,
 		return adslotSizesArray;
 	},
 	
-	storeInSlotsMap = function(dmSlotName, currentGoogleSlot){
+	storeInSlotsMap = function(dmSlotName, currentGoogleSlot, isDisplayFlow){
 		// note: here dmSlotName is actually the DivID
 		//todo: also pass targeting info, common + slotLevel
 		if( ! utilHasOwnProperty(slotsMap, dmSlotName) ){
@@ -82,7 +145,7 @@ var displayHookAdded = false,
 			slotsMap[dmSlotName][pmSlots_key_adSlot] 					= currentGoogleSlot;
 			slotsMap[dmSlotName][pmSlots_key_adUnitID] 					= currentGoogleSlot.getAdUnitPath();
 			slotsMap[dmSlotName][pmSlots_key_adUnitIndex] 				= getAdUnitIndex(currentGoogleSlot);
-			slotsMap[dmSlotName][pmSlots_key_adSlotSizes] 				= getAdSlotSizesArray(currentGoogleSlot);
+			slotsMap[dmSlotName][pmSlots_key_adSlotSizes] 				= getAdSlotSizesArray(dmSlotName, currentGoogleSlot);
 			slotsMap[dmSlotName][pmSlots_key_status] 					= status_slotCreated;
 			slotsMap[dmSlotName][pmSlots_key_isDisplayFunctionCalled] 	= false;
 			slotsMap[dmSlotName][pmSlots_key_isRefreshFunctionCalled] 	= false;
@@ -100,6 +163,10 @@ var displayHookAdded = false,
 			}
 
 			utilCreateVLogInfoPanel(dmSlotName, slotsMap[dmSlotName][pmSlots_key_adSlotSizes]);
+		}else{
+			if(!isDisplayFlow){
+				slotsMap[dmSlotName][pmSlots_key_adSlotSizes] = getAdSlotSizesArray(dmSlotName, currentGoogleSlot);
+			}
 		}
 	},
 	
@@ -126,7 +193,8 @@ var displayHookAdded = false,
 			
 				currentGoogleSlot = googleSlotsArray[ i ];				
 				dmSlotName = currentGoogleSlot.getSlotId().getDomId();// here divID will be the key
-				storeInSlotsMap(dmSlotName, currentGoogleSlot);				
+
+				storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow);
 				
 				if( isDisplayFlow && utilHasOwnProperty(slotsMap, dmSlotName) ){				
 					divIdFromDisplayFunction = argumentsFromCallingFunction[0];
@@ -559,7 +627,17 @@ var displayHookAdded = false,
 
 		localGoogletag = win.googletag;
 		localPubAdsObj = localGoogletag.pubads();
-					
+
+		var s1 = localGoogletag.defineSlot('/Harshad', [[728, 90]], 'Harshad-02051986');
+		if(s1 && s1.__proto__ && s1.__proto__.defineSizeMapping){
+			var originalDefineSizeMapping = s1.__proto__.defineSizeMapping;
+			s1.__proto__.defineSizeMapping = function(){
+				slotSizeMapping[ this.getSlotId().getDomId() ] = arguments[0];
+				return originalDefineSizeMapping.apply(this, arguments);
+			};
+		}
+		localGoogletag.destroySlots([s1]);
+
 		original_display = (localGoogletag && localGoogletag.display);
 		original_destroySlots = (localGoogletag && localGoogletag.destroySlots);
 
