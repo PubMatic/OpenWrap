@@ -206,7 +206,7 @@ adapterManagerRegisterAdapter((function(){
 									var keyValuePairs = false,
 										bidID = utilGetUniqueIdentifierStr(),
 										dealID = responseBid.dealid || "",
-										dealChannel = (dealChannelValues[parseInt(0 || responseBid.ext.extension.dealChannel)] || 'NA')
+										dealChannel = (dealChannelValues[parseInt(0 || responseBid.ext.extension.dealchannel)] || 'NA')
 									;
 
 									if(dealID){
@@ -353,7 +353,7 @@ adapterManagerRegisterAdapter((function(){
 						bidID = utilGetUniqueIdentifierStr(),
 						dealID = progKeyValueMapDetails[7] || "",
 						keyValuePairs = false,
-						dealChannel = (dealChannelValues[parseInt(0 || bid.dealChannel)] || 'NA')
+						dealChannel = (dealChannelValues[parseInt(0 || bid.deal_channel)] || 'NA')
 					;
 
 					if(dealID){
