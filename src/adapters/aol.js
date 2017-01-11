@@ -93,7 +93,7 @@ adapterManagerRegisterAdapter((function() {
 				(bid[constConfigBidFloor] ? ';bidfloor=' + bid[constConfigBidFloor].toString() : '') + 
 				';misc=' + new Date().getTime()
 			;
-		}
+		},
 
 		fetchBids = function(configObject, activeSlots){
 			utilLog(adapterID+constCommonMessage01);
