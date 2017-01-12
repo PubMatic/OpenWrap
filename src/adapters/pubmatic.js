@@ -76,7 +76,7 @@ adapterManagerRegisterAdapter((function(){
 		},		
 
 		createOrtbJson = function(conf, slots, keyGenerationPattern){
-			var json = {},
+			var json = null,
 				loc = win.location,
 				nav = win.navigator,
 				passTheseConfParamsIntoDmExtension = ['a', 'pm_cb', 'pubId', 'ctype', 'kval_param', 'lmk', 'profileid', 'versionid'],
@@ -97,7 +97,7 @@ adapterManagerRegisterAdapter((function(){
 				}
 			;
 
-			delete conf.grs;
+			delete conf.grs; // as it is not required in ORTB call
 
 			// setting up the schema
 			json = {
@@ -153,9 +153,9 @@ adapterManagerRegisterAdapter((function(){
 				json.imp.push(anImp);
 			}
 
-			//if there are no json.imp then return undefined
+			//if there are no json.imp then return null
 			if(json.imp.length == 0){
-				return undefined;
+				return null;
 			}
 
 			// DM specific params
@@ -178,7 +178,8 @@ adapterManagerRegisterAdapter((function(){
 			var request_url = utilMetaInfo.protocol + 'hb.pubmatic.com/openrtb/24/',
 				json = createOrtbJson(conf, slots, keyGenerationPattern)
 			;
-			if(json == undefined){
+			if(json == null){
+				utilLog(adapterID+': Error in generating ORTB json.')
 				return;
 			}
 			utilAjaxCall(
