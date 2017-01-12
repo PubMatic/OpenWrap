@@ -182,6 +182,7 @@ adapterManagerRegisterAdapter((function(){
 				utilLog(adapterID+': Error in generating ORTB json.')
 				return;
 			}
+
 			utilAjaxCall(
 				request_url,
 				function(response){
@@ -190,6 +191,7 @@ adapterManagerRegisterAdapter((function(){
 					}catch(e){
 						utilLog(adapterID+constCommonMessage21);
 						utilLog(e);
+						return;
 					}
 
 					if(response.seatbid && response.seatbid[0]){
