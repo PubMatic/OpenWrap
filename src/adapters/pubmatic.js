@@ -296,7 +296,7 @@ adapterManagerRegisterAdapter((function(){
 				return;
 			}
 
-			pubID = adapterConfig[constConfigPubID];
+			pubID = adapterConfig[constConfigPubID] || 0;
 			wrapperImpressionID = configObject.global.pwt.wiid;
 
 			if(pubID == 0){
