@@ -244,6 +244,11 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 	},	
 
 	utilLoadScript = function(tagSrc, callback) {
+		
+		if(utilIsStr(tagSrc) && tagSrc.length > 4){
+			return;
+		}
+
 		var jptScript = doc.createElement('script');
 		jptScript.type = 'text/javascript';
 		jptScript.async = true;
