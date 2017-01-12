@@ -144,8 +144,8 @@ adapterManagerRegisterAdapter((function(){
 						extension: {
 							div: slot[constCommonDivID],
 							adunit: slot['adUnitID'],
-							slotIndex: slot['adUnitIndex'],
-							"keyValue": slot[constCommonSlotKeyValue]
+							slotIndex: slot['adUnitIndex']/*,
+							"keyValue": slot[constCommonSlotKeyValue]*/ // do not pass kval_param for now
 						}
 					}
 				};
@@ -270,6 +270,7 @@ adapterManagerRegisterAdapter((function(){
 				function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
 					slots.push( generatedKey );
 					pmSlotToDivIDMap[ generatedKey ] = currentSlot[constCommonDivID];
+					//todo: do pass kval_param_slots
 				}
 			);
 
@@ -305,7 +306,8 @@ adapterManagerRegisterAdapter((function(){
 			}
 
 			initConf();
-			conf['kval_param'] = JSON.stringify(configObject[constConfigGlobalKeyValue]);
+			// do not pass kval_param for now
+			//conf['kval_param'] = JSON.stringify(configObject[constConfigGlobalKeyValue]);
 
 			if(utilHasOwnProperty(ortbEnabledPublishers, pubID)){
 				makeOrtbCall(activeSlots, adapterConfig[constConfigKeyGeneratigPattern]);
