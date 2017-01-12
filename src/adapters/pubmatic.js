@@ -269,7 +269,7 @@ adapterManagerRegisterAdapter((function(){
 				slotConfigMandatoryParams,
 				activeSlots, 
 				keyGenerationPattern, 
-				false, 
+				null, 
 				function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
 					slots.push( generatedKey );
 					pmSlotToDivIDMap[ generatedKey ] = currentSlot[constCommonDivID];

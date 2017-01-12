@@ -517,13 +517,14 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 				generatedKeysLength = generatedKeys.length				
 				for(j = 0; j < generatedKeysLength; j++){
 					var generatedKey = generatedKeys[j],
-						keyConfig = keyLookupMap[generatedKey],
+						keyConfig = null,
 						callHandlerFunction = false
 					;
 
-					if(keyLookupMap == false){
+					if(keyLookupMap == null){
 						callHandlerFunction = true;
 					}else{
+						keyConfig = keyLookupMap[generatedKey];
 						if(!keyConfig){
 							utilLog(adapterID+': '+generatedKey+constCommonMessage08);
 						}else if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
