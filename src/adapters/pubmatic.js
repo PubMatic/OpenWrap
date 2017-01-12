@@ -261,7 +261,7 @@ adapterManagerRegisterAdapter((function(){
 				protocol = utilMetaInfo.protocol,
 				adserver_url = 'haso.pubmatic.com/ads/',
 				slots = [],
-				lessOneHopPubList = {46076:'', 60530:'', 9999:'', 7777:''}
+				dmPremiumPubList = {46076:'', 60530:'', 9999:'', 7777:''}
 			;
 
 			utilForEachGeneratedKey(
@@ -278,7 +278,7 @@ adapterManagerRegisterAdapter((function(){
 			);
 
 			if(slots.length > 0){				
-				tempURL = (win.pm_dm_enabled != true && ! utilHasOwnProperty(lessOneHopPubList, conf[constPubId])) ? 'gads.pubmatic.com/AdServer/AdCallAggregator' : (adserver_url +  conf[constPubId] + '/GRPBID/index.html');
+				tempURL = (win.pm_dm_enabled != true && ! utilHasOwnProperty(dmPremiumPubList, conf[constPubId])) ? 'gads.pubmatic.com/AdServer/AdCallAggregator' : (adserver_url +  conf[constPubId] + '/GRPBID/index.html');
 				request_url = protocol + tempURL + '?' + utilToUrlParams(conf);
 				request_url += '&adslots=' + encodeURIComponent('[' + slots.join(',') +']');
 			}
