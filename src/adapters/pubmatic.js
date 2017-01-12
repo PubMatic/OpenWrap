@@ -291,9 +291,9 @@ adapterManagerRegisterAdapter((function(){
 			}
 						
 			var isServerSideKey = adapterConfig[constConfigServerSideKey];
-			if(isServerSideKey == false){
-				utilLog(adapterID+': '+constConfigServerSideKey+' should be true.'+constCommonMessage07)
-				return;
+			if(isServerSideKey !== 'true'){				
+				utilLog(adapterID+': '+constConfigServerSideKey+' should be set to true, setting it to true.')
+				isServerSideKey = true;
 			}
 
 			pubID = adapterConfig[constConfigPubID] || 0;
