@@ -77,7 +77,7 @@ adapterManagerRegisterAdapter((function(){
 					var bidDetails = internalMap[getBidId(response, theRandomID)];
 					if(bidDetails){
 
-						var keyValuePairs = false,
+						var keyValuePairs = null,
 							bidID = utilGetUniqueIdentifierStr(),
 							dealID = response.deal_id || "",
 							dealChannel = 'PMP'
