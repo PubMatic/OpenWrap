@@ -79,6 +79,7 @@ var win = window,
 	constCommonMessage19 = ': Found winning adapterID: ',
 	constCommonMessage20 = 'Bid is rejected as ecpm is empty string.',
 	constCommonMessage21 = ': error in respose handler.',
+	constCommonMessage22 = 'Bid is rejected as ecpm is <= 0.',
 
 	constCommonMacroForWidth = '_W_',
 	constCommonMacroForHeight = '_H_',

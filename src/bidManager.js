@@ -106,6 +106,11 @@ var bidMap = {},
 
 		// updaate bid ecpm according to revShare
 		bidDetails[constTargetingEcpm] = parseFloat(bidDetails[constTargetingEcpm]);
+		// if adapter is not a BidPassThrough and ecpm is <= 0 then reject the bid
+		if(!adapterBidPassThrough[bidderID] && 0 >= bidDetails[constTargetingEcpm]){
+			utilLog(constCommonMessage22+bidDetails[constTargetingEcpm]);
+			return;
+		}
 		bidDetails[constTargetingActualEcpm] = parseFloat(bidDetails[constTargetingEcpm]);
 		bidDetails[constTargetingEcpm] = parseFloat((bidDetails[constTargetingEcpm] * bidManagerGetAdapterRevShare(bidderID)).toFixed(bidPrecision));
 		bidDetails[bidReceivedTime] = currentTime;
