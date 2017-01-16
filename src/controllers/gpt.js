@@ -362,7 +362,8 @@ var displayHookAdded = false,
 			googleDefinedSlot.setTargeting(constTargetingBidID, divID);
 			googleDefinedSlot.setTargeting(constTargetingBidStatus, winningBid[constTargetingBidStatus]);
 			googleDefinedSlot.setTargeting(constTargetingEcpm, (winningBid[constTargetingEcpm]).toFixed(bidPrecision));
-			googleDefinedSlot.setTargeting(constTargetingDealID, winningBid[constTargetingDealID]);			
+			googleDefinedSlot.setTargeting(constTargetingDealID, winningBid[constTargetingDealID]);
+			googleDefinedSlot.setTargeting(constTargetingAdapterID, winningBid[constTargetingAdapterID]);
 		}
 
 		// attaching keyValuePairs from adapters
@@ -685,6 +686,7 @@ var controllerInit = function(config){
 		DM_targetingKeys[constTargetingBidStatus] = '';
 		DM_targetingKeys[constTargetingEcpm] = '';
 		DM_targetingKeys[constTargetingDealID] = '';
+		DM_targetingKeys[constTargetingAdapterID] = '';
 		
 		// define the command array if not already defined
 		win.googletag = win.googletag || {};
