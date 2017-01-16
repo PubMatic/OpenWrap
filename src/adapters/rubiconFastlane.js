@@ -175,10 +175,10 @@ adapterManagerRegisterAdapter((function() {
 				try{
 
 					var dealID = ad.deal || "";
-					var keyValuePairs = ad.targeting || false;
+					var keyValuePairs = ad.targeting || null;
 
 					if(dealID && adapterBidPassThrough[adapterID] != 1){
-						if(keyValuePairs !== false){
+						if(keyValuePairs !== null){
 							keyValuePairs['pwtdeal_rubiconfastlane'] = 'PMP'+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID;
 						}else{
 							keyValuePairs = {

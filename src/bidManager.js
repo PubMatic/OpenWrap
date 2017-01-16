@@ -29,7 +29,7 @@ var bidMap = {},
 		bidObject[constTargetingHeight] = height;
 		bidObject[constTargetingWidth] = width;
 		bidObject[constCommonKeyGenerationPatternValue] = kgpv;
-		bidObject[constTargetingKvp] = keyValuePairs || false;		
+		bidObject[constTargetingKvp] = keyValuePairs || null;
 		return bidObject;
 	},
 	

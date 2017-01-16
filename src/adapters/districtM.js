@@ -125,7 +125,7 @@ adapterManagerRegisterAdapter((function(){
 					id = jptResponseObj.callback_uid,
 					divID = '',
 					bidObj = internalMap[id] && internalMap[id][constCommonConfig] ? internalMap[id][constCommonConfig] : false,
-					keyValuePairs = false,
+					keyValuePairs = null,
 					bidID = utilGetUniqueIdentifierStr()
 				;
 

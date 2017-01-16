@@ -206,7 +206,7 @@ adapterManagerRegisterAdapter((function(){
 									&& responseBid.ext && responseBid.ext.extension
 									&& responseBid.ext.extension.slotname){
 
-									var keyValuePairs = false,
+									var keyValuePairs = null,
 										bidID = utilGetUniqueIdentifierStr(),
 										dealID = responseBid.dealid || "",
 										dealChannel = (dealChannelValues[parseInt(0 || responseBid.ext.extension.dealchannel)] || 'NA')
@@ -357,7 +357,7 @@ adapterManagerRegisterAdapter((function(){
 					var bid = bidDetailsMap[ progKeyValueMapDetails[5] ],
 						bidID = utilGetUniqueIdentifierStr(),
 						dealID = progKeyValueMapDetails[7] || "",
-						keyValuePairs = false,
+						keyValuePairs = null,
 						dealChannel = (dealChannelValues[parseInt(0 || bid.deal_channel)] || 'NA')
 					;
 

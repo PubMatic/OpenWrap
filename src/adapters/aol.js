@@ -52,7 +52,7 @@ adapterManagerRegisterAdapter((function() {
 			    ad += response.ext.pixels;
 			}
 
-			var keyValuePairs = false,
+			var keyValuePairs = null,
 				bidID = utilGetUniqueIdentifierStr()
 			;
 			if(bidData.dealid){
