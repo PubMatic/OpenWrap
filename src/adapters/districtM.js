@@ -7,6 +7,8 @@ adapterManagerRegisterAdapter((function(){
 		strCallbackFunction = 'DistrictMAdapterCallback',
 		strCallbackFunction2 = 'window.PWT.' + strCallbackFunction,
 		internalMap = {},
+		dealKey = constDealKeyFirstPart + adapterID,
+		dealChannelValues = {},
 
 		buildJPTCall = function(bid, callbackId, currentWidth, currentHeight) {
 
@@ -125,7 +127,7 @@ adapterManagerRegisterAdapter((function(){
 					id = jptResponseObj.callback_uid,
 					divID = '',
 					bidObj = internalMap[id] && internalMap[id][constCommonConfig] ? internalMap[id][constCommonConfig] : false,
-					keyValuePairs = null,
+					keyValuePairs = {},
 					bidID = utilGetUniqueIdentifierStr()
 				;
 
@@ -144,15 +146,14 @@ adapterManagerRegisterAdapter((function(){
 					//switch CPM to "dollar/cent"
 					responseCPM = responseCPM / 10000;
 					var dealID = jptResponseObj.result.deal_id;
+					var dealChannel = utilGetDealChannelValue(dealChannelValues, '');
 					if(dealID){
-						keyValuePairs = {
-							'pwtdeal_districtm': 'PMP'+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID
-						};
+						keyValuePairs[dealKey] = dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID;
 					}
 
 					bidObject = bidManagerCreateBidObject(
 						responseCPM,
-						bidManagerCreateDealObject(dealID, 'PMP'),
+						bidManagerCreateDealObject(dealID, dealChannel),
 						jptResponseObj.result.creative_id,
 						"",
 						jptResponseObj.result.ad,
