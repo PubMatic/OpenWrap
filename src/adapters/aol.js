@@ -14,6 +14,9 @@ adapterManagerRegisterAdapter((function() {
 		adapterConfigMandatoryParams = [constConfigNetwork, constConfigServer, constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
 		slotConfigMandatoryParams = [constConfigPlacement],
 
+		dealKey = constDealKeyFirstPart + adapterID,
+		dealChannelValues = {},
+
 		networkID = "",
 		server = "",
 
@@ -52,13 +55,12 @@ adapterManagerRegisterAdapter((function() {
 			    ad += response.ext.pixels;
 			}
 
-			var keyValuePairs = null,
-				bidID = utilGetUniqueIdentifierStr()
+			var keyValuePairs = {},
+				bidID = utilGetUniqueIdentifierStr(),
+				dealChannel = utilGetDealChannelValue(dealChannelValues, '')
 			;
 			if(bidData.dealid){
-				keyValuePairs = {
-					'pwtdeal_aol': 'PMP'+constDealKeyValueSeparator+bidData.dealid+constDealKeyValueSeparator+bidID
-				};
+				keyValuePairs[dealKey] = dealChannel+constDealKeyValueSeparator+bidData.dealid+constDealKeyValueSeparator+bidID;
 			}
 
 			bidManagerSetBidFromBidder(
@@ -66,7 +68,7 @@ adapterManagerRegisterAdapter((function() {
 		    	adapterID, 
 		    	bidManagerCreateBidObject(
 					cpm,
-					bidManagerCreateDealObject(bidData.dealid, 'PMP'),
+					bidManagerCreateDealObject(bidData.dealid, dealChannel),
 					bidData.crid,
 					ad,
 					"",					
