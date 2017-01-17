@@ -9,6 +9,8 @@ adapterManagerRegisterAdapter((function() {
 		constConfigRpZone = 'zoneId',
 		adapterConfigMandatoryParams = [constConfigRpAccount, constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
 		slotConfigMandatoryParams = [constConfigRpSite, constConfigRpZone],
+		dealKey = constDealKeyFirstPart + 'rubiconfastlane',
+		dealChannelValues = {},
 		rubiconAccountID = '',
 		_bidStart = null,
 		RUBICONTAG_URL = (window.location.protocol) + '//ads.rubiconproject.com/header/',
@@ -41,9 +43,7 @@ adapterManagerRegisterAdapter((function() {
 		},
 		RUBICON_INITIALIZED = 0,
 		RUBICON_CREATIVE_START = '<script type="text/javascript">;(function (rt, fe) { rt.renderCreative(fe, "',
-		RUBICON_CREATIVE_END = '"); }((parent.window.rubicontag || window.top.rubicontag), (document.body || document.documentElement)));</script>',
-
-		_bidStart = null,		   
+		RUBICON_CREATIVE_END = '"); }((parent.window.rubicontag || window.top.rubicontag), (document.body || document.documentElement)));</script>',		   
 
 		_rready = function(callback) {
 			window.rubicontag.cmd.push(callback);
@@ -174,22 +174,18 @@ adapterManagerRegisterAdapter((function() {
 
 				try{
 
-					var dealID = ad.deal || "";
-					var keyValuePairs = ad.targeting || null;
+					var dealID = ad.deal || "",
+						keyValuePairs = ad.targeting || {},
+						dealChannel = utilGetDealChannelValue(dealChannelValues, '')
+					;
 
 					if(dealID && adapterBidPassThrough[adapterID] != 1){
-						if(keyValuePairs !== null){
-							keyValuePairs['pwtdeal_rubiconfastlane'] = 'PMP'+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID;
-						}else{
-							keyValuePairs = {
-								'pwtdeal_rubiconfastlane': 'PMP'+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID
-							};
-						}						
+						keyValuePairs[dealKey] = dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID;												
 					}
 
 				    bidResponse = bidManagerCreateBidObject(
 						ad.cpm,
-						bidManagerCreateDealObject(dealID, 'PMP'),
+						bidManagerCreateDealObject(dealID, dealChannel),
 						"",
 						_creative(rbSlot.getElementId(), size),
 						"",
