@@ -12,10 +12,11 @@ adapterManagerRegisterAdapter((function(){
 		adapterConfigMandatoryParams = [constConfigPubID, constConfigKeyGeneratigPattern, constConfigServerSideKey],
 		slotConfigMandatoryParams = [],
 
+		dealKey = constDealKeyFirstPart + adapterID,
 		dealChannelValues = {
-			1: 'PMP',
-			5: 'PREF',
-			6: 'PMPG'
+			1: constDealChannelPMP,
+			5: constDealChannelPreffered,
+			6: constDealChannelPMPG
 		},
 
 		pubID = 0,
@@ -143,8 +144,8 @@ adapterManagerRegisterAdapter((function(){
 					ext: {
 						extension: {
 							div: slot[constCommonDivID],
-							adunit: slot['adUnitID'],
-							slotIndex: slot['adUnitIndex']/*,
+							adunit: slot[constAdUnitID],
+							slotIndex: slot[constAdUnitIndex]/*,
 							"keyValue": slot[constCommonSlotKeyValue]*/ // do not pass kval_param for now
 						}
 					}
@@ -206,16 +207,14 @@ adapterManagerRegisterAdapter((function(){
 									&& responseBid.ext && responseBid.ext.extension
 									&& responseBid.ext.extension.slotname){
 
-									var keyValuePairs = null,
+									var keyValuePairs = {},
 										bidID = utilGetUniqueIdentifierStr(),
 										dealID = responseBid.dealid || "",
-										dealChannel = (dealChannelValues[parseInt(0 || responseBid.ext.extension.dealchannel)] || 'NA')
+										dealChannel = utilGetDealChannelValue(dealChannelValues, responseBid.ext.extension.dealchannel)
 									;
 
 									if(dealID){
-										keyValuePairs = {
-											'pwtdeal_pubmatic': dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID
-										};
+										keyValuePairs[dealKey] = dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID;
 									}
 
 									bidManagerSetBidFromBidder(
@@ -357,14 +356,12 @@ adapterManagerRegisterAdapter((function(){
 					var bid = bidDetailsMap[ progKeyValueMapDetails[5] ],
 						bidID = utilGetUniqueIdentifierStr(),
 						dealID = progKeyValueMapDetails[7] || "",
-						keyValuePairs = null,
-						dealChannel = (dealChannelValues[parseInt(0 || bid.deal_channel)] || 'NA')
+						keyValuePairs = {},
+						dealChannel = utilGetDealChannelValue(dealChannelValues, bid.deal_channel)
 					;
 
 					if(dealID){
-						keyValuePairs = {
-							'pwtdeal_pubmatic': dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID
-						};
+						keyValuePairs[dealKey] = dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID;
 					}
 
 					bidManagerSetBidFromBidder(

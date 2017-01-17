@@ -56,7 +56,11 @@ var win = window,
 	
 	constDealID = 'id',
 	constDealChannel = 'channel',
+	constDealKeyFirstPart = 'pwtdeal_'
 	constDealKeyValueSeparator = '^^',
+	constDealChannelPMP = 'PMP',
+	constDealChannelPMPG = 'PMPG',
+	constDealChannelPreffered = 'PREF',
 
 	constCommonMessage01 = ': In fetchbids.',
 	constCommonMessage02 = ': Throttled.',

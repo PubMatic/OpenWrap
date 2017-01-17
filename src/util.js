@@ -642,5 +642,12 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 			utilLog('Failed in Ajax');
 			utilLog(error);
 		}
+	},
+
+	utilGetDealChannelValue = function(map, key){
+		if(!utilIsObject(map)){
+			return constDealChannelPMP;
+		}
+		return utilHasOwnProperty(map, key) ? map[key] : constDealChannelPMP;
 	}
 ;
