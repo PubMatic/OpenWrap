@@ -11,6 +11,9 @@ adapterManagerRegisterAdapter((function(){
 		// mention all mandatory parameters expected in slot config
 		slotConfigMandatoryParams = [constSlotConfigAdID],
 
+		dealKey = constDealKeyFirstPart + adapterID,
+		dealChannelValues = {},
+
 		internalMap = {},
 
 		// this function will be called by AdapterManager
@@ -80,13 +83,11 @@ adapterManagerRegisterAdapter((function(){
 						var keyValuePairs = null,
 							bidID = utilGetUniqueIdentifierStr(),
 							dealID = response.deal_id || "",
-							dealChannel = 'PMP'
+							dealChannel = utilGetDealChannelValue(dealChannelValues, '')
 						;
 
 						if(dealID){
-							keyValuePairs = {
-								'pwtdeal_sampleadapter': dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID
-							};
+							keyValuePairs[dealKey] = dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID;
 						}
 
 						// creating bid object from the response
