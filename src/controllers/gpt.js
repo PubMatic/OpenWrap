@@ -537,7 +537,17 @@ var displayHookAdded = false,
 	},
 
 	addHookOnGoogletagDestroySlots = function(){
-		localGoogletag.destroySlots = function(arrayOfSlots){
+		localGoogletag.destroySlots = function(){
+
+			var arrayOfSlots = arguments[0];
+
+			if(!utilIsArray(arrayOfSlots)){
+				arrayOfSlots = win.googletag.pubads().getSlots() || [];
+				if(arrayOfSlots.length == 0){
+					utilLog('destroySlots: No slots found to destroy.');
+				}
+			}
+
 			for(var i = 0, l = arrayOfSlots.length; i < l; i++){
 				var divID = arrayOfSlots[i].getSlotId().getDomId();
 				delete slotsMap[divID];
