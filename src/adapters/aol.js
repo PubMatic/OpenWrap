@@ -90,8 +90,8 @@ adapterManagerRegisterAdapter((function() {
 				bid[constConfigPlacement] + '/' + 
 				(bid[constConfigPageId] || 0) + '/' + 
 				(bid[constConfigSizeId] || 0) + 
-				'/ADTECH;v=2;cmd=bid;cors=yes;alias=' + 
-				(bid[constConfigAlias] || utilGetUniqueIdentifierStr()) + 
+				'/ADTECH;v=2;cmd=bid;cors=yes' + 
+				(bid[constConfigAlias] ? ';alias='+bid[constConfigAlias] : '' ) + 
 				(bid[constConfigBidFloor] ? ';bidfloor=' + bid[constConfigBidFloor].toString() : '') + 
 				';misc=' + new Date().getTime()
 			;
