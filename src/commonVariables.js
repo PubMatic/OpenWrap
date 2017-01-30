@@ -115,11 +115,14 @@ var win = window,
 win.PWT = win.PWT || {};
 
 win.PWT.displayCreative = function(theDocument, divID){
-	bidManagerDisplayCreative(theDocument, divID);	
+	utilLog('In displayCreative for: ' + divID);
+	bidManagerDisplayCreative(theDocument, divID);
 };
 
 win.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 
+	utilLog('In displayPMPCreative for: ' + values);
+	
 	values = values.split(',');
 
 	var valuesLength = values.length,
