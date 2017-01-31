@@ -245,7 +245,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 
 	utilLoadScript = function(tagSrc, callback) {
 		
-		if(utilIsStr(tagSrc) && tagSrc.length > 4){
+		if(!utilIsStr(tagSrc)){
 			return;
 		}
 
