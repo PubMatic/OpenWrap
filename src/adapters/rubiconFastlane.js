@@ -9,7 +9,7 @@ adapterManagerRegisterAdapter((function() {
 		constConfigRpZone = 'zoneId',
 		adapterConfigMandatoryParams = [constConfigRpAccount, constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
 		slotConfigMandatoryParams = [constConfigRpSite, constConfigRpZone],
-		dealKey = constDealKeyFirstPart + 'rubiconfastlane',
+		dealKey = constDealKeyFirstPart + 'rubiconfast',
 		dealChannelValues = {},
 		rubiconAccountID = '',
 		_bidStart = null,
