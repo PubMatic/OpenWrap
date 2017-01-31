@@ -538,7 +538,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 						generatedKey, 
 						kgpConsistsWidthAndHeight, 
 						activeSlots[i], 
-						keyLookupMap[generatedKey], 
+						keyLookupMap ? keyLookupMap[generatedKey] : null, 
 						activeSlots[i][constAdSlotSizes][j][0], 
 						activeSlots[i][constAdSlotSizes][j][1]
 					);
