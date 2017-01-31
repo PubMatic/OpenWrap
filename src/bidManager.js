@@ -321,7 +321,7 @@ var bidMap = {},
 					'eg': theBid[constTargetingActualEcpm],
 					'iid': bidMap[divID][constImpressionID],
 					'kgpv': theBid[constCommonKeyGenerationPatternValue],
-					'bidid': theBid[constTargetingBidID]
+					'bidid': bidID
 				});
 			}
 		}		
@@ -444,7 +444,7 @@ var bidMap = {},
 							var endTime = theBid[bidReceivedTime];
 							slotObject['ps'].push({
 								'pn': adapter,
-								'bidid': theBid[constTargetingBidID],
+								'bidid': bidID,
 								'kgpv': theBid[constCommonKeyGenerationPatternValue],
 								'psz': theBid[constTargetingWidth] + 'x' + theBid[constTargetingHeight],
 								'eg': theBid[constTargetingActualEcpm],
