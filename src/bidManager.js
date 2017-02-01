@@ -118,6 +118,10 @@ var bidMap = {},
 		}
 		bidDetails[constTargetingActualEcpm] = parseFloat(bidDetails[constTargetingEcpm]);
 		bidDetails[constTargetingEcpm] = parseFloat((bidDetails[constTargetingEcpm] * bidManagerGetAdapterRevShare(bidderID)).toFixed(bidPrecision));
+		if(!adapterBidPassThrough[bidderID] && 0 >= bidDetails[constTargetingEcpm]){
+			utilLog(constCommonMessage22+bidDetails[constTargetingEcpm]);
+			return;
+		}
 		bidDetails[bidReceivedTime] = currentTime;
 		bidDetails[postTimeout] = isPostTimeout;
 
