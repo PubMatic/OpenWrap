@@ -145,7 +145,7 @@ adapterManagerRegisterAdapter((function(){
 					//in order to avoid using floats
 					//switch CPM to "dollar/cent"
 					responseCPM = responseCPM / 10000;
-					var dealID = jptResponseObj.result.deal_id;
+					var dealID = utilTrim(jptResponseObj.result.deal_id);
 					var dealChannel = utilGetDealChannelValue(dealChannelValues, '');
 					if(dealID){
 						keyValuePairs[dealKey] = dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID;
