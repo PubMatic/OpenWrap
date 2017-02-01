@@ -57,10 +57,11 @@ adapterManagerRegisterAdapter((function() {
 
 			var keyValuePairs = {},
 				bidID = utilGetUniqueIdentifierStr(),
+				dealID = utilTrim(bidData.dealid),
 				dealChannel = utilGetDealChannelValue(dealChannelValues, '')
 			;
 			if(bidData.dealid){
-				keyValuePairs[dealKey] = dealChannel+constDealKeyValueSeparator+bidData.dealid+constDealKeyValueSeparator+bidID;
+				keyValuePairs[dealKey] = dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID;
 			}
 
 			bidManagerSetBidFromBidder(
@@ -68,7 +69,7 @@ adapterManagerRegisterAdapter((function() {
 		    	adapterID, 
 		    	bidManagerCreateBidObject(
 					cpm,
-					bidManagerCreateDealObject(bidData.dealid, dealChannel),
+					bidManagerCreateDealObject(dealID, dealChannel),
 					bidData.crid,
 					ad,
 					"",					
