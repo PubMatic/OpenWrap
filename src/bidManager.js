@@ -69,6 +69,11 @@ var bidMap = {},
 
 	bidManagerSetBidFromBidder = function(divID, bidderID, bidDetails, bidID){
 
+		if(!utilHasOwnProperty(bidMap, divID)){
+			utilLog('BidManager is not expecting bid for '+ divID);
+			return;
+		}
+
 		var currentTime = utilGetCurrentTimestampInMs(),
 			isPostTimeout = (bidMap[divID][creationTime]+TIMEOUT) < currentTime ? true : false
 		;
