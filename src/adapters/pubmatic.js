@@ -209,8 +209,8 @@ adapterManagerRegisterAdapter((function(){
 
 									var keyValuePairs = {},
 										bidID = utilGetUniqueIdentifierStr(),
-										dealID = responseBid.dealid || "",
-										dealChannel = utilGetDealChannelValue(dealChannelValues, responseBid.ext.extension.dealchannel)
+										dealID = utilTrim(responseBid.dealid),
+										dealChannel = utilGetDealChannelValue(dealChannelValues, utilTrim(responseBid.ext.extension.dealchannel))
 									;
 
 									if(dealID){
@@ -355,9 +355,9 @@ adapterManagerRegisterAdapter((function(){
 					
 					var bid = bidDetailsMap[ progKeyValueMapDetails[5] ],
 						bidID = utilGetUniqueIdentifierStr(),
-						dealID = progKeyValueMapDetails[7] || "",
+						dealID = utilTrim(progKeyValueMapDetails[7]),
 						keyValuePairs = {},
-						dealChannel = utilGetDealChannelValue(dealChannelValues, bid.deal_channel)
+						dealChannel = utilGetDealChannelValue(dealChannelValues, utilTrim(bid.deal_channel))
 					;
 
 					if(dealID){
