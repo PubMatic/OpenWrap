@@ -649,5 +649,13 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 			return constDealChannelPMP;
 		}
 		return utilHasOwnProperty(map, key) ? map[key] : constDealChannelPMP;
+	},
+
+	utilTrim = function(s){
+		if(!utilIsStr(s)){
+			return "";
+		}else{
+			return s.replace(/^\s+/g,'').replace(/\s+$/g,'');
+		}
 	}
 ;
