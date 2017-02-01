@@ -174,7 +174,7 @@ adapterManagerRegisterAdapter((function() {
 
 				try{
 
-					var dealID = ad.deal || "",
+					var dealID = utilTrim(ad.deal),
 						keyValuePairs = ad.targeting || {},
 						dealChannel = utilGetDealChannelValue(dealChannelValues, '')
 					;
