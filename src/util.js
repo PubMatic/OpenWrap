@@ -653,7 +653,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 
 	utilTrim = function(s){
 		if(!utilIsStr(s)){
-			return "";
+			return s;
 		}else{
 			return s.replace(/^\s+/g,'').replace(/\s+$/g,'');
 		}
