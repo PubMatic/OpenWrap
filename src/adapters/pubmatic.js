@@ -9,7 +9,7 @@ adapterManagerRegisterAdapter((function(){
 		constPubId = 'pubId',
 		constPubMaticResponseCreative = 'creative_tag',
 		constPubMaticResponseTrackingURL = 'tracking_url',
-		adapterConfigMandatoryParams = [constConfigPubID, constConfigKeyGeneratigPattern, constConfigServerSideKey],
+		adapterConfigMandatoryParams = [constConfigPubID, constConfigKeyGeneratigPattern],
 		slotConfigMandatoryParams = [],
 
 		dealKey = constDealKeyFirstPart + adapterID,
