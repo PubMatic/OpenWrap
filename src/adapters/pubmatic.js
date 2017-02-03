@@ -65,7 +65,7 @@ adapterManagerRegisterAdapter((function(){
 			conf.screenResolution =  win.screen.width + 'x' + win.screen.height;
 			conf.ranreq = Math.random();
 
-			conf.profileid = bidManagerGetProfileID();
+			conf.profId = bidManagerGetProfileID();
 			if(utilUsingDifferentProfileVersionID){
 				conf.versionid = bidManagerGetProfileDisplayVersionID();
 			}
@@ -97,6 +97,9 @@ adapterManagerRegisterAdapter((function(){
 					return newObj;
 				}
 			;
+
+			conf.profileid = conf.profId;
+			delete conf.profId;
 
 			delete conf.grs; // as it is not required in ORTB call
 
