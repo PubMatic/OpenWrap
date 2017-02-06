@@ -25,6 +25,9 @@ var win = window,
 	constTargetingHeight		= 'pwth',
 	constTargetingWidth			= 'pwtw',
 	constTargetingKvp			= 'kvp',
+	constTargetingPubID			= 'pwtpubid',
+	constTargetingProfileID		= 'pwtprofid',
+	constTargetingProfileVersionID	= 'pwtverid',
 
 	// ones used in PWT config
 	constConfigKeyGeneratigPattern = 'kgp',	

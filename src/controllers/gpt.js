@@ -341,12 +341,14 @@ var displayHookAdded = false,
 		
 		if(winningBid[constTargetingEcpm] > 0){
 			slotsMap[ divID ][pmSlots_key_status] = status_DM_Display_TargetingsAdded;			
-			//googleDefinedSlot.setTargeting(constTargetingBidID, divID);
 			googleDefinedSlot.setTargeting(constTargetingBidID, winningBid[constTargetingBidID]);
 			googleDefinedSlot.setTargeting(constTargetingBidStatus, winningBid[constTargetingBidStatus]);
 			googleDefinedSlot.setTargeting(constTargetingEcpm, (winningBid[constTargetingEcpm]).toFixed(bidPrecision));
 			winningBid[constTargetingDeal][constDealID] && googleDefinedSlot.setTargeting(constTargetingDealID, winningBid[constTargetingDeal][constDealID]);
 			googleDefinedSlot.setTargeting(constTargetingAdapterID, winningBid[constTargetingAdapterID]);
+			googleDefinedSlot.setTargeting(constTargetingPubID, bidManagerGetPublisherID());
+			googleDefinedSlot.setTargeting(constTargetingProfileID, bidManagerGetProfileID());
+			googleDefinedSlot.setTargeting(constTargetingProfileVersionID, bidManagerGetProfileDisplayVersionID());
 		}
 
 		// attaching keyValuePairs from adapters
@@ -672,6 +674,9 @@ var controllerInit = function(config){
 		DM_targetingKeys[constTargetingEcpm] = '';
 		DM_targetingKeys[constTargetingDealID] = '';
 		DM_targetingKeys[constTargetingAdapterID] = '';
+		DM_targetingKeys[constTargetingPubID] = '';
+		DM_targetingKeys[constTargetingProfileID] = '';
+		DM_targetingKeys[constTargetingProfileVersionID] = '';
 		
 		// define the command array if not already defined
 		win.googletag = win.googletag || {};
