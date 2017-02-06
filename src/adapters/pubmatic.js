@@ -59,6 +59,7 @@ adapterManagerRegisterAdapter((function(){
 			conf.pm_cb = 'window.PWT.PubmaticAdapterCallback';
 			conf.grs = 3; // Grouped Response parameter, 0: default, 1: variables are split, 2: 1+rid passed to cback func, 3: 1+ md5 of bidid
 			conf.a = 1;// async == true
+			conf.js = 1;
 			conf.pageURL  = utilMetaInfo.u;				
 			conf.refurl   = utilMetaInfo.r;			
 			conf.inIframe = win != top ? '1' : '0';
