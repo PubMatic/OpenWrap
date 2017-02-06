@@ -346,6 +346,10 @@ var bidMap = {},
 		bidManagerSetAdapterConfig(config);
 	},
 
+	bidManagerGetPublisherID = function(){
+		return bidManagerPwtConf[constConfigPublisherID] || "0";
+	},
+
 	bidManagerGetProfileID = function(){
 		return bidManagerPwtConf[constConfigProfileID] || "0";
 	},
@@ -477,7 +481,7 @@ var bidMap = {},
 		}
 
 		if(firePixel){			
-			outputObj[constConfigPublisherID] = bidManagerPwtConf[constConfigPublisherID];
+			outputObj[constConfigPublisherID] = bidManagerGetPublisherID();
 			outputObj['to'] = bidManagerPwtConf['t'];
 			outputObj['purl'] = decodeURIComponent(utilMetaInfo.u);
 			outputObj[constBidInfoTimestamp] = utilGetCurrentTimestamp();
@@ -492,7 +496,7 @@ var bidMap = {},
 			if(firePixel){
 				//(new Image()).src = utilMetaInfo.protocol + pixelURL;
 				utilAjaxCall(
-					utilMetaInfo.protocol + pixelURL + 'pubid=' + bidManagerPwtConf[constConfigPublisherID],
+					utilMetaInfo.protocol + pixelURL + 'pubid=' + bidManagerGetPublisherID(),
 					function(){},
 					JSON.stringify(outputObj),
 					{} // todo later
@@ -509,7 +513,7 @@ var bidMap = {},
 			return;
 		}
 
-		pixelURL += 'pubid=' + bidManagerPwtConf[constConfigPublisherID];
+		pixelURL += 'pubid=' + bidManagerGetPublisherID();
 		pixelURL += '&purl=' + utilMetaInfo.u;
 		pixelURL += '&tst=' + utilGetCurrentTimestamp();
 		pixelURL += '&iid=' + encodeURIComponent(bidInfo[constImpressionID]);
