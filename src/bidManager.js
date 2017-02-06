@@ -294,6 +294,35 @@ var bidMap = {},
 		return winningBid;
 	},
 
+	bidManagerGetBidbyBidid = function(bidID){
+		
+		if(!utilHasOwnProperty(bidIdMap, bidID)){
+			utilLog('Bid details not found for bidID: ' + bidID);
+			return;
+		}
+
+		var divID = bidIdMap[bidID]['s'];
+		var adapterID = bidIdMap[bidID]['a'];
+
+		if( utilHasOwnProperty(bidMap, divID) ){
+			//var adapterID = '';
+			// find the winning adapter
+			/*
+			for(var adapter in bidMap[divID][bids]){
+				if( utilHasOwnProperty(bidMap[divID][bids], adapter) && bidMap[divID][bids][adapter].win ){
+					adapterID = adapter;
+					break;		
+				}
+			}
+			*/
+			
+			utilLog(divID+constCommonMessage19+ adapterID);
+			return bidMap[divID][bids][adapterID][bid][bidID];
+		}
+
+		return null;
+	}
+
 	bidManagerDisplayCreative = function(theDocument, bidID){
 
 		if(!utilHasOwnProperty(bidIdMap, bidID)){
