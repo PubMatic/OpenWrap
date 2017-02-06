@@ -16,7 +16,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 		try{
 			if(getIndexInPageURL( constDebugInOverlay ) >= 0){
 				utilEnableDebugLog = true;
-				return true;	
+				return true;
 			}					
 		}catch(ex){}				
 		return false;
@@ -657,5 +657,21 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 		}else{
 			return s.replace(/^\s+/g,'').replace(/\s+$/g,'');
 		}
+	},
+
+	utilAddMessageEventListener = function(eventHandler){
+
+		if(typeof eventHandler !== "function"){
+			utilLog("EventHandler should be a function");
+			return false;
+		}
+
+		if(window.addEventListener){
+			window.addEventListener("message", eventHandler, false);
+		}else{
+			window.attachEvent("onmessage", eventHandler);
+		}
+
+		return true;
 	}
 ;
