@@ -295,7 +295,7 @@ var bidMap = {},
 	},
 
 	bidManagerGetBidbyBidid = function(bidID){
-		
+
 		if(!utilHasOwnProperty(bidIdMap, bidID)){
 			utilLog('Bid details not found for bidID: ' + bidID);
 			return;
@@ -304,65 +304,47 @@ var bidMap = {},
 		var divID = bidIdMap[bidID]['s'];
 		var adapterID = bidIdMap[bidID]['a'];
 
-		if( utilHasOwnProperty(bidMap, divID) ){
-			//var adapterID = '';
-			// find the winning adapter
-			/*
-			for(var adapter in bidMap[divID][bids]){
-				if( utilHasOwnProperty(bidMap[divID][bids], adapter) && bidMap[divID][bids][adapter].win ){
-					adapterID = adapter;
-					break;		
-				}
+		if( utilHasOwnProperty(bidMap, divID) ){	
+			if( utilHasOwnProperty(bidMap[divID][bids], adapterID) ){
+				utilLog(divID+constCommonMessage19+ adapterID);
+				var theBid = bidMap[divID][bids][adapterID][bid][bidID];
+				return {
+					bid: theBid,
+					slotid: divID,
+					adapter, adapterID	
+				};
 			}
-			*/
-			
-			utilLog(divID+constCommonMessage19+ adapterID);
-			return bidMap[divID][bids][adapterID][bid][bidID];
 		}
 
+		utilLog('Bid details not found for bidID: ' + bidID);
 		return null;
 	}
 
 	bidManagerDisplayCreative = function(theDocument, bidID){
 
-		if(!utilHasOwnProperty(bidIdMap, bidID)){
-			utilLog('Bid details not found for bidID: ' + bidID);
-			return;
-		}
+		var bidDetails = bidManagerGetBidbyBidid(bidID);
 
-		var divID = bidIdMap[bidID]['s'];
-		var adapterID = bidIdMap[bidID]['a'];
+		if(bidDetails){
+			var theBid = bidDetails.bid,
+				adapterID = bidDetails.adapter,
+				divID = bidDetails.slotid
+			;
 
-		if( utilHasOwnProperty(bidMap, divID) ){
-			//var adapterID = '';
-			// find the winning adapter
-			/*
-			for(var adapter in bidMap[divID][bids]){
-				if( utilHasOwnProperty(bidMap[divID][bids], adapter) && bidMap[divID][bids][adapter].win ){
-					adapterID = adapter;
-					break;		
-				}
-			}
-			*/
+			adapterManagerDisplayCreative(
+				theDocument, adapterID, theBid
+			);
+
+			utilVLogInfo(divID, {type: 'disp', adapter: adapterID});
 			
-			utilLog(divID+constCommonMessage19+ adapterID);
-			var theBid = bidMap[divID][bids][adapterID][bid][bidID];
-
-			if( utilHasOwnProperty(bidMap[divID][bids], adapterID) ){
-				adapterManagerDisplayCreative(
-					theDocument, adapterID, theBid
-				);
-				utilVLogInfo(divID, {type: 'disp', adapter: adapterID});
-				bidManagerExecuteMonetizationPixel({
-					'slt': divID,
-					'adp': adapterID,
-					'en': theBid[constTargetingEcpm],
-					'eg': theBid[constTargetingActualEcpm],
-					'iid': bidMap[divID][constImpressionID],
-					'kgpv': theBid[constCommonKeyGenerationPatternValue],
-					'bidid': bidID
-				});
-			}
+			bidManagerExecuteMonetizationPixel({
+				'slt': divID,
+				'adp': adapterID,
+				'en': theBid[constTargetingEcpm],
+				'eg': theBid[constTargetingActualEcpm],
+				'iid': bidMap[divID][constImpressionID],
+				'kgpv': theBid[constCommonKeyGenerationPatternValue],
+				'bidid': bidID
+			});
 		}		
 	},
 
