@@ -10,6 +10,9 @@ adapterManagerRegisterAdapter((function() {
 		constConfigRpFloor		= 'rp_floor',
 		constConfigRpVisitor	= 'rp_visitor',
 
+		adapterConfigMandatoryParams = [constConfigRpAccount, constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+		slotConfigMandatoryParams = [constConfigRpSite, constConfigRpZoneSize],
+
 		rubiconAccountID = '',
 
 		// Map size dimensions to size 'ID'
@@ -19,9 +22,8 @@ adapterManagerRegisterAdapter((function() {
 		fetchBids = function(configObject, activeSlots){
 			utilLog(adapterID+constCommonMessage01);
 
-			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID);
-			if(!utilCheckMandatoryParams(adapterConfig, [constConfigRpAccount, constConfigKeyGeneratigPattern, constConfigKeyLookupMap], adapterID)){
-				utilLog(adapterID+constCommonMessage07);
+			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID, adapterConfigMandatoryParams);
+			if(!adapterConfig){
 				return;
 			}
 
@@ -30,20 +32,12 @@ adapterManagerRegisterAdapter((function() {
 			var keyLookupMap = adapterConfig[constConfigKeyLookupMap];
 
 			utilForEachGeneratedKey(
+				adapterID,
+				slotConfigMandatoryParams,
 				activeSlots, 
 				keyGenerationPattern, 
 				keyLookupMap, 
 				function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
-
-					if(!keyConfig){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-						return;
-					}
-
-					if(!utilCheckMandatoryParams(keyConfig, [constConfigRpSite, constConfigRpZoneSize], adapterID)){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-						return;
-					}
 
 					var randomID = utilGetUniqueIdentifierStr();
 					win.PWT.RubiconAdapterCallbacks[randomID] = new (function(){
@@ -174,7 +168,7 @@ adapterManagerRegisterAdapter((function() {
 
 							bidObject = bidManagerCreateBidObject(
 								rubiconAd.cpm,
-								"",
+								bidManagerCreateDealObject(),
 								rubiconAd.ad_id,
 								'<script>' + rubiconAd.script + '</script>',
 								"",
@@ -187,7 +181,7 @@ adapterManagerRegisterAdapter((function() {
 
 							bidObject = bidManagerCreateBidObject(
 								0,
-								"",
+								bidManagerCreateDealObject(),
 								"",
 								"",
 								"",

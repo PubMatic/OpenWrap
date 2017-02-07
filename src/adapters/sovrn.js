@@ -9,13 +9,14 @@ adapterManagerRegisterAdapter((function() {
 		sovrnUrl = 'ap.lijit.com/rtb/bid',
 		constConfigAdTagID = 'tagid',
 		constConfigBidFloor = 'bidfloor',
+		adapterConfigMandatoryParams = [constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+		slotConfigMandatoryParams = [constConfigAdTagID],
 
 		fetchBids = function(configObject, activeSlots){
 			utilLog(adapterID+constCommonMessage01);
 
-			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID);
-			if(!utilCheckMandatoryParams(adapterConfig, [constConfigKeyGeneratigPattern, constConfigKeyLookupMap], adapterID)){
-				utilLog(adapterID+constCommonMessage07);
+			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID, adapterConfigMandatoryParams);
+			if(!adapterConfig){
 				return;
 			}
 
@@ -25,21 +26,13 @@ adapterManagerRegisterAdapter((function() {
 			var sovrnImpsInternal = {};
 
 			utilForEachGeneratedKey(
+				adapterID,
+				slotConfigMandatoryParams,
 				activeSlots,
 				keyGenerationPattern,
 				keyLookupMap, 
 				function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
-
-					if(!keyConfig){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-						return;
-					}
-
-					if(!utilCheckMandatoryParams(keyConfig, [constConfigAdTagID], adapterID)){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-						return;
-					}
-
+					
 					var adSlotSizes = kgpConsistsWidthAndHeight ? [[currentWidth, currentHeight]] : currentSlot[constAdSlotSizes];
 
 					for(var n=0, l=adSlotSizes.length; n<l; n++){
@@ -105,7 +98,7 @@ adapterManagerRegisterAdapter((function() {
 							    	adapterID, 
 							    	bidManagerCreateBidObject(
 										parseFloat(sovrnBid.price),
-										"",
+										bidManagerCreateDealObject(),
 										"",
 										decodeURIComponent(sovrnBid.adm + '<img src="' + sovrnBid.nurl + '">'),
 										"",
@@ -129,7 +122,7 @@ adapterManagerRegisterAdapter((function() {
 						    	adapterID, 
 						    	bidManagerCreateBidObject(
 									0,
-									"",
+									bidManagerCreateDealObject(),
 									"",
 									"",
 									"",

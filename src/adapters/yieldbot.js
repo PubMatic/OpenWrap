@@ -5,6 +5,8 @@ adapterManagerRegisterAdapter((function() {
     var adapterID = 'yieldbot',
         constConfigPSN = 'psn',
         constConfigSlot = 'slot',
+        adapterConfigMandatoryParams = [constConfigPSN, constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+        slotConfigMandatoryParams = [constConfigSlot],
         psn = '',
         internalMap = {},
 
@@ -13,9 +15,8 @@ adapterManagerRegisterAdapter((function() {
         fetchBids = function(configObject, activeSlots){
             utilLog(adapterID+constCommonMessage01);
 
-            var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID);
-            if(!utilCheckMandatoryParams(adapterConfig, [constConfigPSN, constConfigKeyGeneratigPattern, constConfigKeyLookupMap], adapterID)){
-                utilLog(adapterID+constCommonMessage07);
+            var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID, adapterConfigMandatoryParams);
+            if(!adapterConfig){
                 return;
             }
 
@@ -25,20 +26,12 @@ adapterManagerRegisterAdapter((function() {
             var definedSlots = [];
 
             utilForEachGeneratedKey(
+                adapterID,
+                slotConfigMandatoryParams,
                 activeSlots, 
                 keyGenerationPattern, 
                 keyLookupMap, 
                 function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
-
-                    if(!keyConfig){
-                        utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-                        return;
-                    }
-
-                    if(!utilCheckMandatoryParams(keyConfig, [constConfigSlot], adapterID)){
-                        utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-                        return;
-                    }
 
                     if(psn && keyConfig[constConfigSlot]){
                         var callbackId = utilGetUniqueIdentifierStr();
@@ -106,7 +99,7 @@ adapterManagerRegisterAdapter((function() {
 
                 bidObject = bidManagerCreateBidObject(
                     parseInt(slotCriteria.ybot_cpm) / 100.0 || 0,
-                    "",
+                    bidManagerCreateDealObject(),
                     "",
                     buildCreative(slot, sizeStr),
                     "",
@@ -119,7 +112,7 @@ adapterManagerRegisterAdapter((function() {
 
                 bidObject = bidManagerCreateBidObject(
                     0,
-                    "",
+                    bidManagerCreateDealObject(),
                     "",
                     "",
                     "",

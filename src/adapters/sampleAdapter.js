@@ -3,7 +3,7 @@ adapterManagerRegisterAdapter((function(){
 	var adapterID = 'sample',
 		endPointURL = 'bid.sampleAdapter.com/server?',
 		constConfigPubID = 'pubID',
-		constSlotConfigAdID = 'adID'
+		constSlotConfigAdID = 'adID',
 
 		// mention all mandatory parameters expected in adapter config
 		adapterConfigMandatoryParams = [constConfigKeyGeneratigPattern, constConfigKeyLookupMap, constConfigPubID],
@@ -11,7 +11,10 @@ adapterManagerRegisterAdapter((function(){
 		// mention all mandatory parameters expected in slot config
 		slotConfigMandatoryParams = [constSlotConfigAdID],
 
-		internalMap = {}
+		dealKey = constDealKeyFirstPart + adapterID,
+		dealChannelValues = {},
+
+		internalMap = {},
 
 		// this function will be called by AdapterManager
 		fetchBids = function(configObject, activeSlots){
@@ -19,9 +22,8 @@ adapterManagerRegisterAdapter((function(){
 
 			try{
 
-				var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID);
-				if(!utilCheckMandatoryParams(adapterConfig, adapterConfigMandatoryParams, adapterID)){
-					utilLog(adapterID+constCommonMessage07);
+				var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID, adapterConfigMandatoryParams);
+				if(!adapterConfig){
 					return;
 				}
 
@@ -31,6 +33,8 @@ adapterManagerRegisterAdapter((function(){
 
 				// generate all possible keys for each adSlot from keyGenerationPattern
 				utilForEachGeneratedKey(
+					adapterID,
+					slotConfigMandatoryParams,
 					activeSlots, 
 					keyGenerationPattern, 
 					keyLookupMap, 
@@ -38,18 +42,6 @@ adapterManagerRegisterAdapter((function(){
 					// this function will be executed for each generated key
 					function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
 						
-						// check whether config is valid
-						if(!keyConfig){
-							utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-							return;
-						}
-
-						// check for slotLevel mandatory params
-						if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-							utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-							return;
-						}
-
 						var randomID = utilGetUniqueIdentifierStr();
 						win.PWT.SampleAdapterCallbacks[randomID] = new (function(){
 							var theRandomID = randomID;
@@ -88,20 +80,31 @@ adapterManagerRegisterAdapter((function(){
 					var bidDetails = internalMap[getBidId(response, theRandomID)];
 					if(bidDetails){
 
+						var keyValuePairs = null,
+							bidID = utilGetUniqueIdentifierStr(),
+							dealID = response.deal_id || "",
+							dealChannel = utilGetDealChannelValue(dealChannelValues, '')
+						;
+
+						if(dealID){
+							keyValuePairs[dealKey] = dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID;
+						}
+
 						// creating bid object from the response
 						bidObject = bidManagerCreateBidObject(
 							response.cpm,
-							response.deal_id,
+							bidManagerCreateDealObject(dealID, dealChannel),
 							response.ad_id,
 							'<script>' + response.ad_script + '</script>',
 							response.ad_url,
 							response.width,
 							response.height,
-							bidDetails[constCommonKeyGenerationPatternValue]
+							bidDetails[constCommonKeyGenerationPatternValue],
+							keyValuePairs
 						);
 
 						// passing bid to the bid manager
-						bidManagerSetBidFromBidder(bidDetails[constCommonConfig][constCommonDivID], adapterID, bidObject);
+						bidManagerSetBidFromBidder(bidDetails[constCommonConfig][constCommonDivID], adapterID, bidObject, bidID);
 					}
 				}catch(e){}
 			}	

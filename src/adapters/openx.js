@@ -4,6 +4,9 @@ adapterManagerRegisterAdapter((function() {
 
 		constConfigJsTagUrl = 'jstag_url',
 		constConfigPageID = 'pgid',
+		constConfigUnit = 'unit',
+		adapterConfigMandatoryParams = [constConfigJsTagUrl, constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+		slotConfigMandatoryParams = [constConfigUnit],
 
 		// metaInfo
 		opts = {
@@ -17,9 +20,8 @@ adapterManagerRegisterAdapter((function() {
 		fetchBids = function(configObject, activeSlots){
 			utilLog(adapterID+constCommonMessage01);
 
-			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID);
-			if(!utilCheckMandatoryParams(adapterConfig, [constConfigJsTagUrl, constConfigKeyGeneratigPattern, constConfigKeyLookupMap], adapterID)){
-				utilLog(adapterID+constCommonMessage07);
+			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID, adapterConfigMandatoryParams);
+			if(!adapterConfig){
 				return;
 			}
 
@@ -32,21 +34,13 @@ adapterManagerRegisterAdapter((function() {
 			}
 
 			utilForEachGeneratedKey(
+				adapterID,
+				slotConfigMandatoryParams,
 				activeSlots, 
 				keyGenerationPattern, 
 				keyLookupMap, 
 				function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
 					
-					if(!keyConfig){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-						return;
-					}
-
-					if(!utilCheckMandatoryParams(keyConfig, ['unit'], adapterID)){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-						return;
-					}
-				
 					var callbackId = utilGetUniqueIdentifierStr();
 					internalMap[callbackId] = {};								
 					internalMap[callbackId][constCommonConfig] = {
@@ -77,7 +71,7 @@ adapterManagerRegisterAdapter((function() {
 						
 						for(i in internalMap){
 							if(utilHasOwnProperty(internalMap, i)){
-								POX.addAdUnit(internalMap[i][constCommonConfig][constCommonParams].unit);	
+								POX.addAdUnit(internalMap[i][constCommonConfig][constCommonParams][constConfigUnit]);	
 							}						
 						}
 
@@ -101,13 +95,13 @@ adapterManagerRegisterAdapter((function() {
 									if( utilHasOwnProperty(internalMap, id) && internalMap[id]['exp'] != true ){
 
 										bid = internalMap[id];
-										adUnit = response.getOrCreateAdUnit(bid.config[constCommonParams].unit);
+										adUnit = response.getOrCreateAdUnit(bid.config[constCommonParams][constConfigUnit]);
 
 										if (adUnit.get(constPubRev)) {
 
 											bidObject = bidManagerCreateBidObject(
 												Number(adUnit.get(constPubRev)) / 1000,
-												"",
+												bidManagerCreateDealObject(),
 												adUnit.get(constAdID),
 												adUnit.get(constAdHTML),
 												adUnit.get(constAdURL),
@@ -122,7 +116,7 @@ adapterManagerRegisterAdapter((function() {
 
 											bidObject = bidManagerCreateBidObject(
 												0,
-												"",
+												bidManagerCreateDealObject(),
 												"",
 												"",
 												"",

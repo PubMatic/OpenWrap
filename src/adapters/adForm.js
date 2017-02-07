@@ -3,15 +3,16 @@ adapterManagerRegisterAdapter((function(){
 		adxDomain = 'adx.adform.net',
 		constConfigAdxDomain = 'adxDomain',
 		constConfigMid = 'mid',
+		adapterConfigMandatoryParams = [constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+	    slotConfigMandatoryParams = [constConfigMid],
 
 		fetchBids = function(configObject, activeSlots){
 			utilLog(adapterID+constCommonMessage01);
 
 			try{
 
-				var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID);
-				if(!utilCheckMandatoryParams(adapterConfig, [constConfigKeyGeneratigPattern, constConfigKeyLookupMap], adapterID)){
-					utilLog(adapterID+constCommonMessage07);
+				var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID, adapterConfigMandatoryParams);
+				if(!adapterConfig){
 					return;
 				}
 
@@ -38,45 +39,24 @@ adapterManagerRegisterAdapter((function(){
 				;
 
 				utilForEachGeneratedKey(
+					adapterID,
+					slotConfigMandatoryParams,
 					activeSlots, 
 					keyGenerationPattern, 
 					keyLookupMap, 
-					function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
-						
-						if(!keyConfig){
-							utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-							return;
-						}
-
-						//check for mandatory params
-						if(!utilCheckMandatoryParams(keyConfig, [constConfigMid], adapterID)){
-							utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-							return;
-						}					
-
-						if(kgpConsistsWidthAndHeight){
+					function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){						
+						var adSlotSizes = kgpConsistsWidthAndHeight ? [[currentWidth, currentHeight]] : currentSlot[constAdSlotSizes];
+						var adSlotSizesLength = adSlotSizes.length;
+						for(var n=0; n<adSlotSizesLength; n++){
 							pushDataInSlots(
 								keyConfig, 
 								currentSlot[constCommonDivID], 
 								currentSlot[constAdSlotSizes],
 								generatedKey,
-								currentWidth,
-								currentHeight
-							);						
-						}else{
-							var adSlotSizes = currentSlot[constAdSlotSizes];
-							var adSlotSizesLength = adSlotSizes.length;
-							for(var n=0; n<adSlotSizesLength; n++){
-								pushDataInSlots(
-									keyConfig, 
-									currentSlot[constCommonDivID], 
-									currentSlot[constAdSlotSizes],
-									generatedKey,
-									adSlotSizes[n][0],
-									adSlotSizes[n][1]
-								);
-							}
-						}
+								adSlotSizes[n][0],
+								adSlotSizes[n][1]
+							);
+						}						
 					}
 				);
 
@@ -199,7 +179,7 @@ adapterManagerRegisterAdapter((function(){
 			        
 			    	bidObject = bidManagerCreateBidObject(
 			    		adItem.win_bid,
-			    		"",
+			    		bidManagerCreateDealObject(),
 			    		"", 
 			    		adItem.banner,
 			    		"",

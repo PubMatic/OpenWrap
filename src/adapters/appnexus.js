@@ -2,9 +2,13 @@ adapterManagerRegisterAdapter((function(){
 
 	var adapterID = 'appnexus',
 		constPlacementID = 'placementId',
+		adapterConfigMandatoryParams = [constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+	    slotConfigMandatoryParams = [constPlacementID],
 		strCallbackFunction = 'AppNexusAdapterCallback',
 		strCallbackFunction2 = 'window.PWT.' + strCallbackFunction,
 		internalMap = {},
+		dealKey = constDealKeyFirstPart + adapterID,
+		dealChannelValues = {},
 
 		buildJPTCall = function(bid, callbackId, currentWidth, currentHeight) {
 
@@ -75,9 +79,8 @@ adapterManagerRegisterAdapter((function(){
 		fetchBids = function(configObject, activeSlots){
 			utilLog(adapterID+constCommonMessage01);
 
-			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID);
-			if(!utilCheckMandatoryParams(adapterConfig, [constConfigKeyGeneratigPattern, constConfigKeyLookupMap], adapterID)){
-				utilLog(adapterID+constCommonMessage07);
+			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID, adapterConfigMandatoryParams);
+			if(!adapterConfig){
 				return;
 			}
 
@@ -85,21 +88,13 @@ adapterManagerRegisterAdapter((function(){
 			var keyLookupMap = adapterConfig[constConfigKeyLookupMap];
 
 			utilForEachGeneratedKey(
+				adapterID,
+				slotConfigMandatoryParams,
 				activeSlots, 
 				keyGenerationPattern, 
 				keyLookupMap, 
 				function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
 
-					if(!keyConfig){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-						return;
-					}
-
-					if(!utilCheckMandatoryParams(keyConfig, [constPlacementID], adapterID)){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-						return;
-					}
-				
 					var callbackId = utilGetUniqueIdentifierStr();
 					internalMap[callbackId] = {};
 					internalMap[callbackId][constCommonConfig] = {
@@ -131,7 +126,9 @@ adapterManagerRegisterAdapter((function(){
 					bidObject,
 					id = jptResponseObj.callback_uid,
 					divID = '',
-					bidObj = internalMap[id] && internalMap[id][constCommonConfig] ? internalMap[id][constCommonConfig] : false
+					bidObj = internalMap[id] && internalMap[id][constCommonConfig] ? internalMap[id][constCommonConfig] : false,
+					keyValuePairs = {},
+					bidID = utilGetUniqueIdentifierStr()
 				;
 
 				if(!bidObj){
@@ -148,20 +145,27 @@ adapterManagerRegisterAdapter((function(){
 					//in order to avoid using floats
 					//switch CPM to "dollar/cent"
 					responseCPM = responseCPM / 10000;
+					var dealID = utilTrim(jptResponseObj.result.deal_id);
+					var dealChannel = utilGetDealChannelValue(dealChannelValues, '');
+					if(dealID){
+						keyValuePairs[dealKey] = dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID;
+					}
+
 					bidObject = bidManagerCreateBidObject(
 						responseCPM,
-						jptResponseObj.result.deal_id,
+						bidManagerCreateDealObject(dealID, dealChannel),
 						jptResponseObj.result.creative_id,
 						"",
 						jptResponseObj.result.ad,
 						jptResponseObj.result.width,
 						jptResponseObj.result.height,
-						internalMap[id][constCommonKeyGenerationPatternValue]
+						internalMap[id][constCommonKeyGenerationPatternValue],
+						keyValuePairs
 					);
 				}else {
 					bidObject = bidManagerCreateBidObject(
 						0,
-						"",
+						bidManagerCreateDealObject(),
 						"",
 						"",
 						"",
@@ -170,7 +174,7 @@ adapterManagerRegisterAdapter((function(){
 						internalMap[id][constCommonKeyGenerationPatternValue]
 					);
 				}
-				bidManagerSetBidFromBidder(divID, adapterID, bidObject);
+				bidManagerSetBidFromBidder(divID, adapterID, bidObject, bidID);
 			}
 
 		}catch(ex){

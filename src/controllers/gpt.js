@@ -37,11 +37,10 @@ var displayHookAdded = false,
 
 	slotsMap = {},			// stores the mapping of divID ==> googletag.slot
 	GPT_targetingMap = {},	// stores the targetings applied using, googletag.pubads().setTargeting('article-id','65207');
+
 	DM_targetingKeys = {},	// stores all targeting keys that DM has added, 'key': ''
 
 	slotSizeMapping = {},
-	
-	pmCustomSlots = {},		// DM needs to be passed all targeting info applied to google-slot mapped to respective DM-slot		
 
 	getAdUnitIndex = function(currentGoogleSlot){
 		var adUnitIndex = 0;
@@ -153,6 +152,16 @@ var displayHookAdded = false,
 			slotsMap[dmSlotName][pmSlots_key_arguments]					= [];
 			slotsMap[dmSlotName]['position']							= utilFindPosition(dmSlotName);
 
+			if(SEND_TARGETING_INFO && JSON && typeof JSON.stringify == "function"){
+				var targetKeys = currentGoogleSlot.getTargetingKeys();
+				var targetKeysLength = targetKeys.length;				
+				slotsMap[dmSlotName][constCommonSlotKeyValue] = {};
+				for(var k=0; k<targetKeysLength; k++ ){
+					var targetKey = targetKeys[k];
+					slotsMap[dmSlotName][constCommonSlotKeyValue][targetKey] = currentGoogleSlot.getTargeting( targetKey );
+				}
+			}
+
 			utilCreateVLogInfoPanel(dmSlotName, slotsMap[dmSlotName][pmSlots_key_adSlotSizes]);
 		}else{
 			if(!isDisplayFlow){
@@ -170,12 +179,7 @@ var displayHookAdded = false,
 			
 			dmSlotName,
 			
-			targetKeys,
-			targetKey,
-			targetKeysLength,
-			
 			i,
-			k,
 			
 			divIdFromDisplayFunction
 		;
@@ -189,24 +193,8 @@ var displayHookAdded = false,
 			
 				currentGoogleSlot = googleSlotsArray[ i ];				
 				dmSlotName = currentGoogleSlot.getSlotId().getDomId();// here divID will be the key
-				storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow);
 
-				// moving this block out of the above condition so that if some more targetings are added before refresh, DM will get it
-				// generating data for pm_custom_slots
-				if(SEND_TARGETING_INFO && JSON && utilIsFn(JSON.stringify)){
-													
-					targetKeys = currentGoogleSlot.getTargetingKeys();
-					targetKeysLength = targetKeys.length;
-					
-					for(k=0; k<targetKeysLength; k++ ){														
-						if(utilIsUndefined(pmCustomSlots[dmSlotName])){
-							pmCustomSlots[dmSlotName] = {};
-						}
-					
-						targetKey = targetKeys[k];							
-						pmCustomSlots[dmSlotName][targetKey] = currentGoogleSlot.getTargeting( targetKey );
-					}																					
-				}
+				storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow);
 				
 				if( isDisplayFlow && utilHasOwnProperty(slotsMap, dmSlotName) ){				
 					divIdFromDisplayFunction = argumentsFromCallingFunction[0];
@@ -318,13 +306,7 @@ var displayHookAdded = false,
 			for(index=0; index < slotNamesLength; index++){
 
 				key = slotNames[ index ];
-				slotsMap[ key ][pmSlots_key_status] = status_DM_Display_CallMade;
-				
-				//TODO: need to pass targeting info to adapters, how to maintain it always updated
-				// actually we should send slot based targetings only for respective slots, otherwise it could be overhead in case of refresh for single slot
-				//if( SEND_TARGETING_INFO ){
-				//	selectedPmCustomSlots[ key ] = pmCustomSlots[ key ];
-				//}
+				slotsMap[ key ][pmSlots_key_status] = status_DM_Display_CallMade;								
 				
 				if( isRefreshCall ){
 					removeDMTargetingFromSlot( key );
@@ -359,10 +341,11 @@ var displayHookAdded = false,
 		
 		if(winningBid[constTargetingEcpm] > 0){
 			slotsMap[ divID ][pmSlots_key_status] = status_DM_Display_TargetingsAdded;			
-			googleDefinedSlot.setTargeting(constTargetingBidID, divID);
+			//googleDefinedSlot.setTargeting(constTargetingBidID, divID);
+			googleDefinedSlot.setTargeting(constTargetingBidID, winningBid[constTargetingBidID]);
 			googleDefinedSlot.setTargeting(constTargetingBidStatus, winningBid[constTargetingBidStatus]);
 			googleDefinedSlot.setTargeting(constTargetingEcpm, (winningBid[constTargetingEcpm]).toFixed(bidPrecision));
-			googleDefinedSlot.setTargeting(constTargetingDealID, winningBid[constTargetingDealID]);
+			winningBid[constTargetingDeal][constDealID] && googleDefinedSlot.setTargeting(constTargetingDealID, winningBid[constTargetingDeal][constDealID]);
 			googleDefinedSlot.setTargeting(constTargetingAdapterID, winningBid[constTargetingAdapterID]);
 		}
 
@@ -370,6 +353,8 @@ var displayHookAdded = false,
 		for(var key in winningBid[constTargetingKvp]){
 			if(utilHasOwnProperty(winningBid[constTargetingKvp], key)){
 				googleDefinedSlot.setTargeting(key, winningBid[constTargetingKvp][key]);
+				// adding key in DM_targetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
+				DM_targetingKeys[key] = '';
 			}
 		}
 	},

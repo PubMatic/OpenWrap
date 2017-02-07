@@ -244,6 +244,11 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 	},	
 
 	utilLoadScript = function(tagSrc, callback) {
+		
+		if(!utilIsStr(tagSrc)){
+			return;
+		}
+
 		var jptScript = doc.createElement('script');
 		jptScript.type = 'text/javascript';
 		jptScript.async = true;
@@ -301,12 +306,20 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 		}		
 	},	
 
-	utilLoadGlobalConfigForAdapter = function(configObject, adapter){		
+	utilLoadGlobalConfigForAdapter = function(configObject, adapterID, mandatoryParams){		
 		if(	utilHasOwnProperty(configObject, constCommonGlobal) 
 			&& utilHasOwnProperty(configObject[constCommonGlobal], constCommonAdapters)
-			&& utilHasOwnProperty(configObject[constCommonGlobal][constCommonAdapters], adapter)){
+			&& utilHasOwnProperty(configObject[constCommonGlobal][constCommonAdapters], adapterID)){
 
-			return configObject[constCommonGlobal][constCommonAdapters][adapter];
+			var adapterConfig = configObject[constCommonGlobal][constCommonAdapters][adapterID];
+
+			// if mandatory params are not present then return false
+			if(!utilCheckMandatoryParams(adapterConfig, mandatoryParams, adapterID)){
+				utilLog(adapterID+constCommonMessage07);
+				return false;
+			}
+
+			return configObject[constCommonGlobal][constCommonAdapters][adapterID];
 		}
 		return false;
 	},
@@ -357,15 +370,15 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 	},
 
 	utilDisplayCreative = function(theDocument, bidDetails){
-		utilResizeWindow(theDocument, bidDetails.bid[constTargetingHeight], bidDetails.bid[constTargetingWidth]);			
+		utilResizeWindow(theDocument, bidDetails[constTargetingHeight], bidDetails[constTargetingWidth]);
 
-		if(bidDetails.bid[constTargetingAdHTML]){
-			theDocument.write(bidDetails.bid[constTargetingAdHTML]);
-		}else if(bidDetails.bid[constTargetingAdUrl]){
+		if(bidDetails[constTargetingAdHTML]){
+			theDocument.write(bidDetails[constTargetingAdHTML]);
+		}else if(bidDetails[constTargetingAdUrl]){
 			utilCreateAndInsertFrame(
 				theDocument,
-				bidDetails.bid[constTargetingAdUrl], 
-				bidDetails.bid[constTargetingHeight] , bidDetails.bid[constTargetingWidth] , 
+				bidDetails[constTargetingAdUrl], 
+				bidDetails[constTargetingHeight] , bidDetails[constTargetingWidth] , 
 				""
 			);
 		}else{
@@ -488,7 +501,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 		return success;
 	},
 
-	utilForEachGeneratedKey = function(activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction){
+	utilForEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction){
 		var activeSlotsLength = activeSlots.length,
 			i,
 			j,
@@ -503,14 +516,29 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 				generatedKeys = utilGenerateSlotNamesFromPattern( activeSlots[i], keyGenerationPattern );
 				generatedKeysLength = generatedKeys.length				
 				for(j = 0; j < generatedKeysLength; j++){
-					var generatedKey = generatedKeys[j];
-					// handlerFunction(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
-					//todo: send all the arguments in an object, this change will require changes in all adapters					
-					handlerFunction(
+					var generatedKey = generatedKeys[j],
+						keyConfig = null,
+						callHandlerFunction = false
+					;
+
+					if(keyLookupMap == null){
+						callHandlerFunction = true;
+					}else{
+						keyConfig = keyLookupMap[generatedKey];
+						if(!keyConfig){
+							utilLog(adapterID+': '+generatedKey+constCommonMessage08);
+						}else if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
+							utilLog(adapterID+': '+generatedKey+constCommonMessage09);
+						}else{
+							callHandlerFunction = true;
+						}
+					}
+
+					callHandlerFunction && handlerFunction(
 						generatedKey, 
 						kgpConsistsWidthAndHeight, 
 						activeSlots[i], 
-						keyLookupMap[generatedKey], 
+						keyLookupMap ? keyLookupMap[generatedKey] : null, 
 						activeSlots[i][constAdSlotSizes][j][0], 
 						activeSlots[i][constAdSlotSizes][j][1]
 					);
@@ -563,6 +591,71 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 					copyTo[key] = copyFrom[key];
 				}
 			}
+		}
+	},
+
+	utilAjaxCall = function(url, callback, data, options) {
+		try {
+
+			options = options || {};
+
+			var x,
+				XHR_DONE = 4,				
+				ajaxSupport = true,
+				method = options.method || (data ? 'POST' : 'GET')
+			;
+
+			if(!window.XMLHttpRequest){
+				ajaxSupport = false;
+			}else{
+				x = new window.XMLHttpRequest();
+				if(utilIsUndefined(x.responseType)){
+					ajaxSupport = false;
+				}
+			}
+
+			if(!ajaxSupport){
+				utilLog('Ajax is not supported');
+				return;
+			}
+
+			x.onreadystatechange = function (){
+				if(x.readyState === XHR_DONE && callback){
+					callback(x.responseText, x);
+				}
+			};
+
+			x.open(method, url);
+			
+			if(options.withCredentials){
+				x.withCredentials = true;
+			}
+
+			if(options.preflight){
+				x.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+			}
+
+			x.setRequestHeader('Content-Type', options.contentType || 'text/plain');		
+			x.send(method === 'POST' && data);
+
+		}catch(error){
+			utilLog('Failed in Ajax');
+			utilLog(error);
+		}
+	},
+
+	utilGetDealChannelValue = function(map, key){
+		if(!utilIsObject(map)){
+			return constDealChannelPMP;
+		}
+		return utilHasOwnProperty(map, key) ? map[key] : constDealChannelPMP;
+	},
+
+	utilTrim = function(s){
+		if(!utilIsStr(s)){
+			return s;
+		}else{
+			return s.replace(/^\s+/g,'').replace(/\s+$/g,'');
 		}
 	}
 ;

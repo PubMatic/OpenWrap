@@ -4,10 +4,16 @@ adapterManagerRegisterAdapter((function() {
     window.rubicontag.cmd = window.rubicontag.cmd || [];
 
 	var adapterID = 'rubiconFastlane',
+		constConfigRpAccount = 'accountId',
+		constConfigRpSite = 'siteId',
+		constConfigRpZone = 'zoneId',
+		adapterConfigMandatoryParams = [constConfigRpAccount, constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+		slotConfigMandatoryParams = [constConfigRpSite, constConfigRpZone],
+		dealKey = constDealKeyFirstPart + 'rubiconfast',
+		dealChannelValues = {},
 		rubiconAccountID = '',
 		_bidStart = null,
 		RUBICONTAG_URL = (window.location.protocol) + '//ads.rubiconproject.com/header/',
-		RUBICON_OK_STATUS = 'ok',
 		RUBICON_SIZE_MAP = {
 			'468x60': 1,
 			'728x90': 2,
@@ -37,9 +43,7 @@ adapterManagerRegisterAdapter((function() {
 		},
 		RUBICON_INITIALIZED = 0,
 		RUBICON_CREATIVE_START = '<script type="text/javascript">;(function (rt, fe) { rt.renderCreative(fe, "',
-		RUBICON_CREATIVE_END = '"); }((parent.window.rubicontag || window.top.rubicontag), (document.body || document.documentElement)));</script>',
-
-		_bidStart = null,		   
+		RUBICON_CREATIVE_END = '"); }((parent.window.rubicontag || window.top.rubicontag), (document.body || document.documentElement)));</script>',		   
 
 		_rready = function(callback) {
 			window.rubicontag.cmd.push(callback);
@@ -55,7 +59,7 @@ adapterManagerRegisterAdapter((function() {
 	
 		_defineSlot = function(slotConfig, sizes, divID, kgpv){
 
-			if(!(slotConfig.siteId && slotConfig.zoneId)){
+			if(!(slotConfig[constConfigRpSite] && slotConfig[constConfigRpZone])){
 				return false;
 			}
 
@@ -79,8 +83,8 @@ adapterManagerRegisterAdapter((function() {
 	        var inventory = slotConfig.inventory || [];
 
 	        var slot = window.rubicontag.defineSlot({
-	            siteId: slotConfig.siteId,
-	            zoneId: slotConfig.zoneId,
+	            siteId: slotConfig[constConfigRpSite],
+	            zoneId: slotConfig[constConfigRpZone],
 	            sizes: rbSizes,
 	            id: divID + Math.random()
 	        });
@@ -158,39 +162,50 @@ adapterManagerRegisterAdapter((function() {
 		_makeBid = function(rbSlot, ad){
 
 			var bidResponse, 
-				size = ad.dimensions
+				size = ad.dimensions,
+				bidID = utilGetUniqueIdentifierStr()
 			;
 
 			if (!size) {
 			    utilLog(adapterID+': no dimensions given');
 			    bidResponse = _errorBid(rbSlot);
+			    bidManagerSetBidFromBidder(rbSlot.divID, adapterID, bidResponse, bidID);
 			} else {
 
 				try{
+
+					var dealID = utilTrim(ad.deal),
+						keyValuePairs = ad.targeting || {},
+						dealChannel = utilGetDealChannelValue(dealChannelValues, '')
+					;
+
+					if(dealID && adapterBidPassThrough[adapterID] != 1){
+						keyValuePairs[dealKey] = dealChannel+constDealKeyValueSeparator+dealID+constDealKeyValueSeparator+bidID;												
+					}
+
 				    bidResponse = bidManagerCreateBidObject(
 						ad.cpm,
-						ad.deal || "",
+						bidManagerCreateDealObject(dealID, dealChannel),
 						"",
 						_creative(rbSlot.getElementId(), size),
 						"",
 						size[0],
 						size[1],
 						rbSlot.kgpv,
-						ad.targeting
+						keyValuePairs
 					);
+					bidManagerSetBidFromBidder(rbSlot.divID, adapterID, bidResponse, bidID);
 				}catch(e){
 					utilLog(adapterID+constCommonMessage21);
 	        		utilLog(e);
 				}
 			}
-
-			bidManagerSetBidFromBidder(rbSlot.divID, adapterID, bidResponse);
 		},
 
 		_errorBid = function(rbSlot) {
 			return bidManagerCreateBidObject(
 				0,
-				"",
+				bidManagerCreateDealObject(),
 				"",
 				"",
 				"",
@@ -234,12 +249,8 @@ adapterManagerRegisterAdapter((function() {
 
 			_bidStart = (new Date).getTime();
 
-			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID),
-				constConfigRpAccount = 'accountId'
-			;
-
-			if(!utilCheckMandatoryParams(adapterConfig, [constConfigRpAccount, constConfigKeyGeneratigPattern, constConfigKeyLookupMap], adapterID)){
-				utilLog(adapterID+constCommonMessage07);
+			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID, adapterConfigMandatoryParams);
+			if(!adapterConfig){
 				return;
 			}
 
@@ -256,28 +267,14 @@ adapterManagerRegisterAdapter((function() {
 				;
 
 				utilForEachGeneratedKey(
+					adapterID,
+					slotConfigMandatoryParams,
 					activeSlots, 
 					keyGenerationPattern, 
 					keyLookupMap, 
 					function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
 						
-						if(!keyConfig){
-							utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-							return;
-						}
-
-						if(!utilCheckMandatoryParams(keyConfig, ['siteId', 'zoneId'], adapterID)){
-							utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-							return;
-						}
-
-						var sizes = [];
-						if(kgpConsistsWidthAndHeight){
-							sizes.push([currentWidth, currentHeight]);
-						}else{
-							sizes = currentSlot[constAdSlotSizes];
-						}
-
+						var sizes = kgpConsistsWidthAndHeight ? [[currentWidth, currentHeight]] : currentSlot[constAdSlotSizes];
 						var rbSlot = _defineSlot(keyConfig, sizes, currentSlot[constCommonDivID], generatedKey);
 						//rbSlot && rbSlots.push(rbSlot);
 						if(rbSlot){

@@ -4,6 +4,6 @@
 		while(w!== window.top && !(w.PWT && w.PWT.displayCreative) && i<10){
 			w = window.self.parent; i++;
 		}
-		try{ w.PWT.displayCreative(document, '%%PATTERN:pwtsid%%'); } catch(e){}
+		try{ w.PWT.displayPMPCreative(document, '%%PATTERN:pwtdeal_pubmatic%%', []); } catch(e){}
 	})();
 </script>

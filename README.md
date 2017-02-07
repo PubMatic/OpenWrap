@@ -159,6 +159,22 @@ Response Mapping:
 | --- | --- | --- | --- |
 | pwtecp | ads[0].cpm | No | Bid value (USD) |
 
+### Rubicon Fastlane
+
+|Config | Value | Mandatory | Explanation | Input Source
+------ | ------|-----------|-------------|-------------
+Partner JS Library |  https://ads.rubiconproject.com/header/accountId.js</span> | Y | account_id is Rubicon publisher ID | Generated from account_id Provided by Publisher |
+| Variable | <span style="color: rgb(84,84,84);">account_id</span> | Y | <span>Rubicon publisher ID</span> | Publisher Provided |
+|Variable | <span style="color: rgb(84,84,84);">site_id</span> | Y | Rubicon Identifier for Site | <span>Publisher Provided</span> |
+| <span>Variable</span> | <span style="color: rgb(84,84,84);">zone_id</span> | Y | <span>Rubicon Identifier for Zone</span> | <span>Publisher Provided</span> |
+
+
+Response Mapping:
+
+| Wrapper Key | Partner response key | Conversion | Explanation |
+| --- | --- | --- | --- |
+| pwtecp | ads[0].cpm | No | Bid value (USD) |
+
 ### OpenX
 
 | Config | Value | Mandatory | Explanation | 
@@ -266,6 +282,58 @@ Response Mapping:
 | --- | --- | --- | --- | --- |
 | pwtecp | result.cpm | result.cpm/10000 | Bid value (USD) |
 | pwtdid | result.deal_id | N/A | Deal ID |
+
+### Sovrn
+
+|Config | Value | Mandatory | Explanation | Input Source
+------ | ------|-----------|-------------|-------------
+Partner JS Library | [//ap.lijit.com/rtb/bid	](//ap.lijit.com/rtb/bid	)</span> [<span style="color: rgb(48,57,66);"><account_id></span>](//ap.lijit.com/rtb/bid) | N/A | This is hardcoded in the code | N/A |
+| Variable | <span style="color: rgb(84,84,84);">tagid</span> | Y | <span>Sovrn Ad Tag Id</span> | Publisher Provided |
+| Variable | <span style="color: rgb(84,84,84);">bidfloor</span> | N | <span>Floor to be passed for the slot/ad-unit</span> | <span>Publisher Provided</span> |
+
+
+Response Mapping:
+
+| Wrapper Key | Partner response key | Conversion | Explanation |
+| --- | --- | --- | --- |
+| pwtecp | searbid.bid[i].price | N/A | Bid value (USD) |
+
+### PulsePoint
+
+|Config | Value | Mandatory | Explanation | Input Source
+------ | ------|-----------|-------------|-------------
+Partner Endpoint | [http://bid.contextweb.com/header/tag	](http://bid.contextweb.com/header/tag	)</span> [<span style="color: rgb(48,57,66);"><account_id></span>](http://bid.contextweb.com/header/tag) | Y | This is hardcoded in the code | N/A |
+| Variable | <span style="color: rgb(84,84,84);">cp</span> | Y | <span>PulsePoint Publisher ID</span> | Publisher Provided |
+|Variable | <span style="color: rgb(84,84,84);">ct</span> | Y | PulsePoint Identifier Ad Tag | <span>Publisher Provided</span> |
+
+
+Response Mapping:
+
+| Wrapper Key | Partner response key | Conversion | Explanation |
+| --- | --- | --- | --- |
+| pwtecp | bidCpm | No | Bid value (USD) |
+
+### AOL
+
+|Config | Value | Mandatory | Explanation | Input Source
+------ | ------|-----------|-------------|-------------
+Partner Endpoint | [${'protocol'}://${'server'}/pubapi/3.0/$<br>{'network'}/${'placement'}/${'pageid'}/<br>${'sizeid'}/ADTECH;v=2;cmd=bid;cors=yes;alias=${'alias'}<br>${'bidfloor'};misc=${'misc'}]</span> [<span style="color: rgb(48,57,66);"><account_id></span>](http://bid.contextweb.com/header/tag) | N/A | This is hardcoded in the code | N/A |
+|Variable | <span style="color: rgb(84,84,84);">network</span> | Y | <span>AOL Publisher ID</span> | Publisher Provided |
+|Variable | <span style="color: rgb(84,84,84);">server</span> | Y | AOL server for endpoint | <span>Publisher Provided</span> |
+|Variable | <span style="color: rgb(84,84,84);">placement</span> | Y | AOL Identifier Ad Tag | <span>Publisher Provided</span> |
+|Variable | <span style="color: rgb(84,84,84);">alias</span> | N |   | <span>Publisher Provided</span> |
+|Variable | <span style="color: rgb(84,84,84);">sizeId</span> | N |   | <span>Publisher Provided</span> |
+|Variable | <span style="color: rgb(84,84,84);">bidFloor</span> | N |   | <span>Publisher Provided</span> |
+|Variable | <span style="color: rgb(84,84,84);">pageId</span> | N |  | <span>Publisher Provided</span> |
+
+
+Response Mapping:
+
+| Wrapper Key | Partner response key | Conversion | Explanation |
+| --- | --- | --- | --- |
+| pwtecp | response.seatbid[0].bid[0].ext.encp <br>OR <br>response.seatbid[0].bid[0].price | No | Bid value (USD) |
+| pwtdeal | response.seatbid[0].bid[0].dealid |   |   |
+
 
 ## Auction and Timeout
 

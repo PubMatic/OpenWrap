@@ -340,10 +340,10 @@ adapterManagerRegisterAdapter((function() {
 	var adapterID = 'indexExchange',
 	    slotIdMap = {},
 	    incrID = 0,
-
-	    adapterConfigMandatoryParams = [constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+	    
 	    slotConfigId = 'id',
 	    slotConfigSiteId = 'siteID',
+	    adapterConfigMandatoryParams = [constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
 	    slotConfigMandatoryParams = [slotConfigId, slotConfigSiteId],
 
 	    pushIndexSlots = function(currentWidth, currentHeight, key, params, activeSlot, incrID){
@@ -404,9 +404,8 @@ adapterManagerRegisterAdapter((function() {
 	    fetchBids = function(configObject, activeSlots){
 	    	utilLog(adapterID+constCommonMessage01);
 
-			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID);
-			if(!utilCheckMandatoryParams(adapterConfig, adapterConfigMandatoryParams, adapterID)){
-				utilLog(adapterID+constCommonMessage07);
+			var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, adapterID, adapterConfigMandatoryParams);
+			if(!adapterConfig){
 				return;
 			}
 
@@ -414,33 +413,20 @@ adapterManagerRegisterAdapter((function() {
 			var keyLookupMap = adapterConfig[constConfigKeyLookupMap];
 
 			utilForEachGeneratedKey(
+				adapterID,
+				slotConfigMandatoryParams,
 				activeSlots, 
 				keyGenerationPattern, 
 				keyLookupMap, 
 				function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
-					
-					if(!keyConfig){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage08);
-						return;
-					}
-
-					if(!utilCheckMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-						utilLog(adapterID+': '+generatedKey+constCommonMessage09);
-						return;
-					}					
-					
-					if(kgpConsistsWidthAndHeight){
+										
+					var sizes = kgpConsistsWidthAndHeight ? [[currentWidth, currentHeight]] : currentSlot[constAdSlotSizes],
+						sizesLength = sizes.length
+					;
+					for (var j = 0; j < sizesLength; j++) {
 						incrID++;
-						pushIndexSlots(currentWidth, currentHeight, generatedKey, keyConfig, currentSlot, incrID);
-					}else{
-						var sizes = currentSlot[constAdSlotSizes],
-							sizesLength = sizes.length
-						;
-						for (var j = 0; j < sizesLength; j++) {
-							incrID++;
-							pushIndexSlots(sizes[j][0], sizes[j][1], generatedKey, keyConfig, currentSlot, incrID);
-						}	
-					}
+						pushIndexSlots(sizes[j][0], sizes[j][1], generatedKey, keyConfig, currentSlot, incrID);
+					}					
 				}
 			);
 
@@ -509,7 +495,7 @@ adapterManagerRegisterAdapter((function() {
 
                     	bidObject = bidManagerCreateBidObject(
                     		currentCPM / 100,
-                    		"",
+                    		bidManagerCreateDealObject(),
                     		"",
                     		indexObj[cpmAndSlotId][0],
                     		"",
