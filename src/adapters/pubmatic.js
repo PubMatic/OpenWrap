@@ -9,7 +9,7 @@ adapterManagerRegisterAdapter((function(){
 		constPubId = 'pubId',
 		constPubMaticResponseCreative = 'creative_tag',
 		constPubMaticResponseTrackingURL = 'tracking_url',
-		adapterConfigMandatoryParams = [constConfigPubID, constConfigKeyGeneratigPattern, constConfigServerSideKey],
+		adapterConfigMandatoryParams = [constConfigPubID, constConfigKeyGeneratigPattern],
 		slotConfigMandatoryParams = [],
 
 		dealKey = constDealKeyFirstPart + adapterID,
@@ -59,13 +59,14 @@ adapterManagerRegisterAdapter((function(){
 			conf.pm_cb = 'window.PWT.PubmaticAdapterCallback';
 			conf.grs = 3; // Grouped Response parameter, 0: default, 1: variables are split, 2: 1+rid passed to cback func, 3: 1+ md5 of bidid
 			conf.a = 1;// async == true
+			conf.js = 1;
 			conf.pageURL  = utilMetaInfo.u;				
 			conf.refurl   = utilMetaInfo.r;			
 			conf.inIframe = win != top ? '1' : '0';
 			conf.screenResolution =  win.screen.width + 'x' + win.screen.height;
 			conf.ranreq = Math.random();
 
-			conf.profileid = bidManagerGetProfileID();
+			conf.profId = bidManagerGetProfileID();
 			if(utilUsingDifferentProfileVersionID){
 				conf.versionid = bidManagerGetProfileDisplayVersionID();
 			}
@@ -97,6 +98,9 @@ adapterManagerRegisterAdapter((function(){
 					return newObj;
 				}
 			;
+
+			conf.profileid = conf.profId;
+			delete conf.profId;
 
 			delete conf.grs; // as it is not required in ORTB call
 

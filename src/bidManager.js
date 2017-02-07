@@ -111,18 +111,21 @@ var bidMap = {},
 
 		// updaate bid ecpm according to revShare
 		bidDetails[constTargetingEcpm] = parseFloat(bidDetails[constTargetingEcpm]);
+		
 		// if adapter is not a BidPassThrough and ecpm is <= 0 then reject the bid
-		if(!adapterBidPassThrough[bidderID] && 0 >= bidDetails[constTargetingEcpm]){
-			utilLog(constCommonMessage22+bidDetails[constTargetingEcpm]);
-			return;
-		}
+		//if(!adapterBidPassThrough[bidderID] && 0 >= bidDetails[constTargetingEcpm]){
+		//	utilLog(constCommonMessage22+bidDetails[constTargetingEcpm]);
+		//	return;
+		//}
+
 		bidDetails[constTargetingActualEcpm] = parseFloat(bidDetails[constTargetingEcpm]);
 		bidDetails[constTargetingEcpm] = parseFloat((bidDetails[constTargetingEcpm] * bidManagerGetAdapterRevShare(bidderID)).toFixed(bidPrecision));
 
-		if(!adapterBidPassThrough[bidderID] && 0 >= bidDetails[constTargetingEcpm]){
-			utilLog(constCommonMessage22+' Post revshare and bidPrecision. '+bidDetails[constTargetingEcpm]);
-			return;
-		}
+		//if(!adapterBidPassThrough[bidderID] && 0 >= bidDetails[constTargetingEcpm]){
+		//	utilLog(constCommonMessage22+' Post revshare and bidPrecision. '+bidDetails[constTargetingEcpm]);
+		//	return;
+		//}
+
 		bidDetails[bidReceivedTime] = currentTime;
 		bidDetails[postTimeout] = isPostTimeout;
 
@@ -234,12 +237,19 @@ var bidMap = {},
 						continue;
 					}
 					
-					if(theBid[constTargetingKvp]){
-						utilCopyKeyValueObject(keyValuePairs, theBid[constTargetingKvp]);
-					}
+					/*
+						if bidPassThrough is not enabled and ecpm > 0
+							then only append the key value pairs from partner bid
+					*/
+					if(!adapterBidPassThrough[adapter] && theBid[constTargetingEcpm] > 0){
+						if(theBid[constTargetingKvp]){
+							utilCopyKeyValueObject(keyValuePairs, theBid[constTargetingKvp]);
+						}
+					}					
 
 					//BidPassThrough: Do not participate in auction)
 					if(adapterBidPassThrough[adapter]){
+						utilCopyKeyValueObject(keyValuePairs, theBid[constTargetingKvp]);
 						continue;
 					}
 
