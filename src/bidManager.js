@@ -304,7 +304,7 @@ var bidMap = {},
 		return winningBid;
 	},
 
-	bidManagerGetBidbyBidid = function(bidID){
+	bidManagerGetBidById = function(bidID){
 
 		if(!utilHasOwnProperty(bidIdMap, bidID)){
 			utilLog('Bid details not found for bidID: ' + bidID);
@@ -332,7 +332,7 @@ var bidMap = {},
 
 	bidManagerDisplayCreative = function(theDocument, bidID){
 
-		var bidDetails = bidManagerGetBidbyBidid(bidID);
+		var bidDetails = bidManagerGetBidById(bidID);
 
 		if(bidDetails){
 			var theBid = bidDetails.bid,
@@ -346,6 +346,7 @@ var bidMap = {},
 
 			utilVLogInfo(divID, {type: 'disp', adapter: adapterID});
 			
+			// move to a function with simpler arguments
 			bidManagerExecuteMonetizationPixel({
 				'slt': divID,
 				'adp': adapterID,

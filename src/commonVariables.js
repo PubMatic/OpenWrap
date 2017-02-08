@@ -126,6 +126,8 @@ win.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 
 	utilLog('In displayPMPCreative for: ' + values);
 	
+	//todo: move following logic to a function
+
 	values = values.split(',');
 
 	var valuesLength = values.length,
