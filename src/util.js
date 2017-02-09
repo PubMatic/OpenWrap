@@ -676,7 +676,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 	},
 
 	utilGetBididForPMP = function(values, priorityArray){
-		
+
 		values = values.split(',');
 
 		var valuesLength = values.length,
@@ -720,5 +720,40 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 			utilLog('Error: bidID not found in PMP-Deal: '+ selectedPMPDeal);
 			return;
 		}
+	},
+
+	// todo add safeFrameMessageListenerAdded check here
+	utilSafeFrameCommunicationProtocol = function(msg){
+		//console.log(msg);
+		try{
+			msg = JSON.parse(msg.data);
+			
+			if(!msg.type){
+				return;
+			}
+
+			switch(msg.type == 2){
+
+				case 1:
+					console.log('received message of type 1');
+					console.log(msgNew);
+					var msgData = {
+						type: "2",
+						bid: "bidManagerGetBidById()"
+					};
+					msg.source.postMessage(JSON.stringify(msgData), "http://tpc.googlesyndication.com");
+
+				case 2:
+					console.log('received message of type 2');
+					console.log(msg);
+					//window.parent.postMessage(JSON.stringify(msg), "*");
+					// remove after actual usage
+					break;
+			}
+		}catch(e){
+			//console.log('c r a s h e d');
+			//console.log(e);
+		}
+
 	}
 ;
