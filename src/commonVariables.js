@@ -112,14 +112,16 @@ var win = window,
 	constBidInfoAdapter = 'adp',
 	constBidInfoNetEcpm = 'en',
 	constBidInfoGrossEcpm = 'eg',
-	constBidInfoTimestamp = 'tst'
+	constBidInfoTimestamp = 'tst',
+
+	safeFrameMessageListenerAdded = false
 ;
 
 win.PWT = win.PWT || {};
 
-win.PWT.displayCreative = function(theDocument, divID){
-	utilLog('In displayCreative for: ' + divID);
-	bidManagerDisplayCreative(theDocument, divID);
+win.PWT.displayCreative = function(theDocument, bidID){
+	utilLog('In displayCreative for: ' + bidID);
+	bidManagerDisplayCreative(theDocument, bidID);
 };
 
 win.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
@@ -127,3 +129,28 @@ win.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 	var bidID = utilGetBididForPMP(values, priorityArray);
 	bidID && bidManagerDisplayCreative(theDocument, bidID);
 };
+
+win.PWT.sfDisplayCreative = function(theDocument, bidID){
+	utilLog('In displayCreative for: ' + bidID);
+
+	if(!safeFrameMessageListenerAdded){
+		utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
+		safeFrameMessageListenerAdded = true;
+	}
+
+	var msg = {
+		type: "1",
+		bidID: bidID
+	};
+	window.parent.postMessage(JSON.stringify(msg), "*");
+};
+
+win.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
+	utilLog('In displayPMPCreative for: ' + values);
+	var bidID = utilGetBididForPMP(values, priorityArray);
+
+	if(!safeFrameMessageListenerAdded){
+		utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
+		safeFrameMessageListenerAdded = true;
+	}	
+}

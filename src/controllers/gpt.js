@@ -697,6 +697,11 @@ var controllerInit = function(config){
 			win.PWT.jsLoaded();
 		}
 
+		if(!safeFrameMessageListenerAdded){
+			utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
+			safeFrameMessageListenerAdded = true;
+		}
+
 	}catch(e){
 		console.log('OpenWrap: Something went wrong.');
 		console.log(e);
