@@ -514,7 +514,6 @@ var bidMap = {},
 		//}, TIMEOUT+5000);//todo: decide the timeout value
 	},
 
-	//bidManagerExecuteMonetizationPixel = function(bidInfo){
 	bidManagerExecuteMonetizationPixel = function(slotID, adapterID, theBid, bidID){
 
 		var pixelURL = bidManagerGetMonetizationPixelURL(),
