@@ -340,23 +340,10 @@ var bidMap = {},
 				divID = bidDetails.slotid
 			;
 
-			adapterManagerDisplayCreative(
-				theDocument, adapterID, theBid
-			);
-
+			adapterManagerDisplayCreative(theDocument, adapterID, theBid);
 			utilVLogInfo(divID, {type: 'disp', adapter: adapterID});
-			
-			// move to a function with simpler arguments
-			bidManagerExecuteMonetizationPixel({
-				'slt': divID,
-				'adp': adapterID,
-				'en': theBid[constTargetingEcpm],
-				'eg': theBid[constTargetingActualEcpm],
-				'iid': bidMap[divID][constImpressionID],
-				'kgpv': theBid[constCommonKeyGenerationPatternValue],
-				'bidid': bidID
-			});
-		}		
+			bidManagerExecuteMonetizationPixel(divID, adapterID, theBid, bidID);
+		}
 	},
 
 	bidManagerSetGlobalConfig = function(config){
@@ -527,9 +514,20 @@ var bidMap = {},
 		//}, TIMEOUT+5000);//todo: decide the timeout value
 	},
 
-	bidManagerExecuteMonetizationPixel = function(bidInfo){
+	//bidManagerExecuteMonetizationPixel = function(bidInfo){
+	bidManagerExecuteMonetizationPixel = function(slotID, adapterID, theBid, bidID){
 
-		var pixelURL = bidManagerGetMonetizationPixelURL();
+		var pixelURL = bidManagerGetMonetizationPixelURL(),
+			bidInfo = {
+				'slt': slotID,
+				'adp': adapterID,
+				'en': theBid[constTargetingEcpm],
+				'eg': theBid[constTargetingActualEcpm],
+				'iid': bidMap[slotID][constImpressionID],
+				'kgpv': theBid[constCommonKeyGenerationPatternValue],
+				'bidid': bidID
+			}
+		;
 
 		if(!pixelURL){
 			return;
