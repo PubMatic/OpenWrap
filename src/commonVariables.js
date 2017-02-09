@@ -114,7 +114,8 @@ var win = window,
 	constBidInfoGrossEcpm = 'eg',
 	constBidInfoTimestamp = 'tst',
 
-	safeFrameMessageListenerAdded = false
+	safeFrameMessageListenerAdded = false,
+	inSafeFrame = false
 ;
 
 win.PWT = win.PWT || {};
@@ -133,6 +134,7 @@ win.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 win.PWT.sfDisplayCreative = function(theDocument, bidID){
 	utilLog('In displayCreative for: ' + bidID);
 
+	inSafeFrame = true;
 	if(!safeFrameMessageListenerAdded){
 		utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
 		safeFrameMessageListenerAdded = true;
@@ -149,6 +151,7 @@ win.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	utilLog('In displayPMPCreative for: ' + values);
 	var bidID = utilGetBididForPMP(values, priorityArray);
 
+	inSafeFrame = true;
 	if(!safeFrameMessageListenerAdded){
 		utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
 		safeFrameMessageListenerAdded = true;

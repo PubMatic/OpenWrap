@@ -664,6 +664,15 @@ var controllerInit = function(config){
 
 	try{
 
+		if(!safeFrameMessageListenerAdded){
+			utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
+			safeFrameMessageListenerAdded = true;
+		}
+
+		if(utilIsUndefined(config)){
+			return;
+		}
+
 		configObject = config;
 		bidManagerSetGlobalConfig(configObject);
 
@@ -695,12 +704,7 @@ var controllerInit = function(config){
 		
 		if(utilIsFn(win.PWT.jsLoaded)){
 			win.PWT.jsLoaded();
-		}
-
-		if(!safeFrameMessageListenerAdded){
-			utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
-			safeFrameMessageListenerAdded = true;
-		}
+		}		
 
 	}catch(e){
 		console.log('OpenWrap: Something went wrong.');

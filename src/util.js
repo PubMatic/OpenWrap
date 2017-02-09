@@ -726,26 +726,46 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 	utilSafeFrameCommunicationProtocol = function(msg){
 		//console.log(msg);
 		try{
-			msg = JSON.parse(msg.data);
+			msgData = JSON.parse(msg.data);
 			
-			if(!msg.type){
+			if(!msgData.type){
 				return;
 			}
 
-			switch(msg.type == 2){
+			switch(parseInt(msgData.type)){
 
 				case 1:
+					if(inSafeFrame){
+						return;
+					}
 					console.log('received message of type 1');
-					console.log(msgNew);
-					var msgData = {
-						type: "2",
-						bid: "bidManagerGetBidById()"
-					};
-					msg.source.postMessage(JSON.stringify(msgData), "http://tpc.googlesyndication.com");
+					console.log(msg);
+
+					var bidDetails = bidManagerGetBidById(msgData.bidID);
+					if(bidDetails){
+						var theBid = bidDetails.bid,
+							adapterID = bidDetails.adapter,
+							divID = bidDetails.slotid,
+							newMsgData = {
+								type: 2,
+								bid: theBid
+							}
+						;
+						utilVLogInfo(divID, {type: 'disp', adapter: adapterID});
+						bidManagerExecuteMonetizationPixel(divID, adapterID, theBid, msgData.bidID);
+						msg.source.postMessage(JSON.stringify(newMsgData), "http://tpc.googlesyndication.com");
+					}					
 
 				case 2:
+					if(!inSafeFrame){
+						return;
+					}
 					console.log('received message of type 2');
 					console.log(msg);
+
+					if(msgData.bid){
+						utilDisplayCreative(window.document, msgData.bid);
+					}					
 					//window.parent.postMessage(JSON.stringify(msg), "*");
 					// remove after actual usage
 					break;

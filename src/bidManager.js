@@ -321,7 +321,7 @@ var bidMap = {},
 				return {
 					bid: theBid,
 					slotid: divID,
-					adapter, adapterID	
+					adapter: adapterID	
 				};
 			}
 		}
