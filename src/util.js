@@ -673,5 +673,52 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 		}
 
 		return true;
+	},
+
+	utilGetBididForPMP = function(values, priorityArray){
+		
+		values = values.split(',');
+
+		var valuesLength = values.length,
+			priorityArrayLength = priorityArray.length,
+			selectedPMPDeal = '',
+			bidID = ''
+		;
+
+		if(valuesLength == 0){
+			utilLog('Error: Unable to find bidID as values array is empty.');
+			return;
+		}
+		
+		for(var i = 0; i < priorityArrayLength; i++){
+
+			for(var j = 0; j < valuesLength; j++){
+				if(values[j].indexOf(priorityArray[i]) >= 0){
+					selectedPMPDeal = values[j];
+					break;
+				}
+			}
+
+			if(selectedPMPDeal != ''){
+				break;
+			}
+		}
+		
+		if(selectedPMPDeal == ''){
+			selectedPMPDeal = values[0];
+			utilLog('No PMP-Deal was found matching PriorityArray, So Selecting first PMP-Deal: '+ selectedPMPDeal);		
+		}else{
+			utilLog('Selecting PMP-Deal: '+ selectedPMPDeal);	
+		}
+
+		var temp = selectedPMPDeal.split(constDealKeyValueSeparator);
+		if(temp.length == 3){
+			bidID = temp[2];
+		}
+
+		if(bidID == ''){
+			utilLog('Error: bidID not found in PMP-Deal: '+ selectedPMPDeal);
+			return;
+		}
 	}
 ;
