@@ -495,18 +495,18 @@ var bidMap = {},
 			outputObj[constConfigProfileID] = bidManagerGetProfileID();
 			outputObj[constConfigProfileDisplayVersionID] = bidManagerGetProfileDisplayVersionID();
 
-			//pixelURL += 'json=' + encodeURIComponent(JSON.stringify(outputObj));
+			pixelURL += 'pubid=' + bidManagerPwtConf[constConfigPublisherID]+'&json=' + encodeURIComponent(JSON.stringify(outputObj));
 		}
 
 		//setTimeout(function(){
 			if(firePixel){
-				//(new Image()).src = utilMetaInfo.protocol + pixelURL;
-				utilAjaxCall(
-					utilMetaInfo.protocol + pixelURL + 'pubid=' + bidManagerPwtConf[constConfigPublisherID],
-					function(){},
-					JSON.stringify(outputObj),
-					{} // todo later
-				);
+				(new Image()).src = utilMetaInfo.protocol + pixelURL;
+				//utilAjaxCall(
+				//	utilMetaInfo.protocol + pixelURL + 'pubid=' + bidManagerPwtConf[constConfigPublisherID],
+				//	function(){},
+				//	JSON.stringify(outputObj),
+				//	{} // todo later
+				//);
 			}			
 		//}, TIMEOUT+5000);//todo: decide the timeout value
 	},
