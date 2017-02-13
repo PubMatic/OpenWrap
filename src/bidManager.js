@@ -308,7 +308,7 @@ var bidMap = {},
 
 		if(!utilHasOwnProperty(bidIdMap, bidID)){
 			utilLog('Bid details not found for bidID: ' + bidID);
-			return;
+			return null;
 		}
 
 		var divID = bidIdMap[bidID]['s'];
