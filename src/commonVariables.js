@@ -133,27 +133,24 @@ win.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 
 win.PWT.sfDisplayCreative = function(theDocument, bidID){
 	utilLog('In sfDisplayCreative for: ' + bidID);
-
-	inSafeFrame = true;
-	if(!safeFrameMessageListenerAdded){
-		utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
-		safeFrameMessageListenerAdded = true;
-	}
-
-	var msg = {
-		type: "1",
-		bidID: bidID
-	};
-	window.parent.postMessage(JSON.stringify(msg), "*");
+	utilAddMessageEventListenerForSafeFrame(true);	
+	window.parent.postMessage(
+		JSON.stringify({
+			type: "1",
+			bidID: bidID
+		}), 
+		"*"
+	);
 };
 
 win.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	utilLog('In sfDisplayPMPCreative for: ' + values);
-	var bidID = utilGetBididForPMP(values, priorityArray);
-
-	inSafeFrame = true;
-	if(!safeFrameMessageListenerAdded){
-		utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
-		safeFrameMessageListenerAdded = true;
-	}	
+	utilAddMessageEventListenerForSafeFrame(true);
+	window.parent.postMessage(
+		JSON.stringify({
+			type: "1",
+			bidID: utilGetBididForPMP(values, priorityArray)
+		}), 
+		"*"
+	);
 };

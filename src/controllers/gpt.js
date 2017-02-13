@@ -664,10 +664,7 @@ var controllerInit = function(config){
 
 	try{
 
-		if(!safeFrameMessageListenerAdded){
-			utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
-			safeFrameMessageListenerAdded = true;
-		}
+		utilAddMessageEventListenerForSafeFrame(false);		
 
 		if(utilIsUndefined(config)){
 			return;
