@@ -731,29 +731,29 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 		try{
 			msgData = JSON.parse(msg.data);
 			
-			if(!msgData.type){
+			if(!msgData.pwt_type){
 				return;
 			}
 
-			switch(parseInt(msgData.type)){
+			switch(parseInt(msgData.pwt_type)){
 
 				case 1:
 					if(inSafeFrame){
 						return;
 					}
 					
-					var bidDetails = bidManagerGetBidById(msgData.bidID);
+					var bidDetails = bidManagerGetBidById(msgData.pwt_bidID);
 					if(bidDetails){
 						var theBid = bidDetails.bid,
 							adapterID = bidDetails.adapter,
 							divID = bidDetails.slotid,
 							newMsgData = {
-								type: 2,
-								bid: theBid
+								pwt_type: 2,
+								pwt_bid: theBid
 							}
 						;
 						utilVLogInfo(divID, {type: 'disp', adapter: adapterID});
-						bidManagerExecuteMonetizationPixel(divID, adapterID, theBid, msgData.bidID);
+						bidManagerExecuteMonetizationPixel(divID, adapterID, theBid, msgData.pwt_bidID);
 						msg.source.postMessage(JSON.stringify(newMsgData), "http://tpc.googlesyndication.com");
 					}
 
@@ -764,8 +764,8 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 						return;
 					}
 					
-					if(msgData.bid){
-						utilDisplayCreative(window.document, msgData.bid);
+					if(msgData.pwt_bid){
+						utilDisplayCreative(window.document, msgData.pwt_bid);
 					}					
 
 					break;

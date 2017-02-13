@@ -136,8 +136,8 @@ win.PWT.sfDisplayCreative = function(theDocument, bidID){
 	utilAddMessageEventListenerForSafeFrame(true);	
 	window.parent.postMessage(
 		JSON.stringify({
-			type: "1",
-			bidID: bidID
+			pwt_type: "1",
+			pwt_bidID: bidID
 		}), 
 		"*"
 	);
@@ -148,8 +148,8 @@ win.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	utilAddMessageEventListenerForSafeFrame(true);
 	window.parent.postMessage(
 		JSON.stringify({
-			type: "1",
-			bidID: utilGetBididForPMP(values, priorityArray)
+			pwt_type: "1",
+			pwt_bidID: utilGetBididForPMP(values, priorityArray)
 		}), 
 		"*"
 	);
