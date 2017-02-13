@@ -724,7 +724,6 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 
 	// todo add safeFrameMessageListenerAdded check here
 	utilSafeFrameCommunicationProtocol = function(msg){
-		//console.log(msg);
 		try{
 			msgData = JSON.parse(msg.data);
 			
@@ -738,9 +737,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 					if(inSafeFrame){
 						return;
 					}
-					console.log('received message of type 1');
-					console.log(msg);
-
+					
 					var bidDetails = bidManagerGetBidById(msgData.bidID);
 					if(bidDetails){
 						var theBid = bidDetails.bid,
@@ -754,26 +751,21 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 						utilVLogInfo(divID, {type: 'disp', adapter: adapterID});
 						bidManagerExecuteMonetizationPixel(divID, adapterID, theBid, msgData.bidID);
 						msg.source.postMessage(JSON.stringify(newMsgData), "http://tpc.googlesyndication.com");
-					}					
+					}
+
+					break;					
 
 				case 2:
 					if(!inSafeFrame){
 						return;
 					}
-					console.log('received message of type 2');
-					console.log(msg);
-
+					
 					if(msgData.bid){
 						utilDisplayCreative(window.document, msgData.bid);
 					}					
-					//window.parent.postMessage(JSON.stringify(msg), "*");
-					// remove after actual usage
+
 					break;
 			}
-		}catch(e){
-			//console.log('c r a s h e d');
-			//console.log(e);
-		}
-
+		}catch(e){}
 	}
 ;

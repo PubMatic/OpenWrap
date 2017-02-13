@@ -156,4 +156,4 @@ win.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 		utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
 		safeFrameMessageListenerAdded = true;
 	}	
-}
+};
