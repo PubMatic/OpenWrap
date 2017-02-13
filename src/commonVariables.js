@@ -137,7 +137,8 @@ win.PWT.sfDisplayCreative = function(theDocument, bidID){
 	window.parent.postMessage(
 		JSON.stringify({
 			pwt_type: "1",
-			pwt_bidID: bidID
+			pwt_bidID: bidID,
+			pwt_origin: win.location.protocol+'//'+win.location.hostname
 		}), 
 		"*"
 	);
@@ -149,7 +150,8 @@ win.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	window.parent.postMessage(
 		JSON.stringify({
 			pwt_type: "1",
-			pwt_bidID: utilGetBididForPMP(values, priorityArray)
+			pwt_bidID: utilGetBididForPMP(values, priorityArray),
+			pwt_origin: win.location.protocol+'//'+win.location.hostname
 		}), 
 		"*"
 	);

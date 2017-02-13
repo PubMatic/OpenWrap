@@ -762,7 +762,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 						;
 						utilVLogInfo(divID, {type: 'disp', adapter: adapterID});
 						bidManagerExecuteMonetizationPixel(divID, adapterID, theBid, msgData.pwt_bidID);
-						msg.source.postMessage(JSON.stringify(newMsgData), "http://tpc.googlesyndication.com");
+						msg.source.postMessage(JSON.stringify(newMsgData), msgData.pwt_origin);
 					}
 
 					break;					
