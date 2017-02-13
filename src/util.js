@@ -2,7 +2,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 
 	getIndexInPageURL = function(findString){
 
-		if(win != top){
+		if(utilIsIframe()){
 			return win.document.referrer.indexOf( findString );
 		}
 
@@ -779,5 +779,14 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 			utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
 			safeFrameMessageListenerAdded = true;
 		}
+	},
+
+	utilIsIframe = function(){
+	    try{
+	        return window.self !== window.top;
+	    }catch(e){
+	        return false;
+	    }
 	}
+
 ;
