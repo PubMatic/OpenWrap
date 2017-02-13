@@ -727,7 +727,6 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 		}
 	},
 
-	// todo add safeFrameMessageListenerAdded check here
 	utilSafeFrameCommunicationProtocol = function(msg){
 		try{
 			msgData = JSON.parse(msg.data);
@@ -772,5 +771,13 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 					break;
 			}
 		}catch(e){}
+	},
+
+	utilAddMessageEventListenerForSafeFrame = function(isInSafeFrame){
+		inSafeFrame = isInSafeFrame;
+		if(!safeFrameMessageListenerAdded){
+			utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
+			safeFrameMessageListenerAdded = true;
+		}
 	}
 ;
