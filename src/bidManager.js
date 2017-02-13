@@ -356,15 +356,15 @@ var bidMap = {},
 	},
 
 	bidManagerGetPublisherID = function(){
-		return bidManagerPwtConf[constConfigPublisherID] || "0";
+		return utilTrim(bidManagerPwtConf[constConfigPublisherID]) || "0";
 	},
 
 	bidManagerGetProfileID = function(){
-		return bidManagerPwtConf[constConfigProfileID] || "0";
+		return utilTrim(bidManagerPwtConf[constConfigProfileID]) || "0";
 	},
 
 	bidManagerGetProfileDisplayVersionID = function(){
-		return bidManagerPwtConf[constConfigProfileDisplayVersionID] || "0";
+		return utilTrim(bidManagerPwtConf[constConfigProfileDisplayVersionID]) || "0";
 	},
 
 	bidManagerGetAnalyticsPixelURL = function(){
