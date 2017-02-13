@@ -132,7 +132,7 @@ win.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 };
 
 win.PWT.sfDisplayCreative = function(theDocument, bidID){
-	utilLog('In displayCreative for: ' + bidID);
+	utilLog('In sfDisplayCreative for: ' + bidID);
 
 	inSafeFrame = true;
 	if(!safeFrameMessageListenerAdded){
@@ -148,7 +148,7 @@ win.PWT.sfDisplayCreative = function(theDocument, bidID){
 };
 
 win.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
-	utilLog('In displayPMPCreative for: ' + values);
+	utilLog('In sfDisplayPMPCreative for: ' + values);
 	var bidID = utilGetBididForPMP(values, priorityArray);
 
 	inSafeFrame = true;
