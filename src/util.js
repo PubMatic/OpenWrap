@@ -1,5 +1,13 @@
 var hasOwnProperty = Object.prototype.hasOwnProperty,
 
+	utilIsIframe = function(){
+	    try{
+	        return window.self !== window.top;
+	    }catch(e){
+	        return false;
+	    }
+	},
+
 	getIndexInPageURL = function(findString){
 
 		if(utilIsIframe()){
@@ -779,14 +787,5 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 			utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
 			safeFrameMessageListenerAdded = true;
 		}
-	},
-
-	utilIsIframe = function(){
-	    try{
-	        return window.self !== window.top;
-	    }catch(e){
-	        return false;
-	    }
 	}
-
 ;
