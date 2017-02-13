@@ -1,6 +1,11 @@
 var hasOwnProperty = Object.prototype.hasOwnProperty,
 
 	getIndexInPageURL = function(findString){
+
+		if(win != top){
+			return win.document.referrer.indexOf( findString );
+		}
+
 		return win.location.href.indexOf( findString );
 	},
 
