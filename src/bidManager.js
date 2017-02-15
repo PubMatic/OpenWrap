@@ -18,7 +18,7 @@ var bidMap = {},
 		return dealDetailsObj;
 	},
 
-	bidManagerCreateBidObject = function(ecpm, dealDetails, creativeID, creativeHTML, creativeURL, width, height, kgpv, keyValuePairs){
+	bidManagerCreateBidObject = function(ecpm, dealDetails, creativeID, creativeHTML, creativeURL, width, height, kgpv, keyValuePairs, defaultBid){
 		var bidObject = {};		
 
 		bidObject[constTargetingEcpm] = ecpm;
@@ -30,7 +30,7 @@ var bidMap = {},
 		bidObject[constTargetingWidth] = width;
 		bidObject[constCommonKeyGenerationPatternValue] = kgpv;
 		bidObject[constTargetingKvp] = keyValuePairs || null;
-		bidObject['db'] = 1;
+		bidObject['db'] = defaultBid || 0;
 		return bidObject;
 	},
 	
