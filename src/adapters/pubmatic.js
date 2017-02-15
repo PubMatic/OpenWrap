@@ -267,6 +267,11 @@ adapterManagerRegisterAdapter((function(){
 				dmPremiumPubList = {46076:'', 60530:'', 9999:'', 7777:''}
 			;
 
+			if(conf.versionid){
+				conf.verId = conf.versionid;
+				delete conf.versionid;
+			}	
+
 			utilForEachGeneratedKey(
 				adapterID,
 				slotConfigMandatoryParams,
