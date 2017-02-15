@@ -548,7 +548,9 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 									"",
 									0,
 									0,
-									generatedKey
+									generatedKey,
+									null,
+									1
 								), 
 								utilGetUniqueIdentifierStr()
 							);

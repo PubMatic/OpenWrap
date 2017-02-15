@@ -158,6 +158,7 @@ var bidMap = {},
 
 				var lastBidID = bidMap[divID][bids][bidderID]['lastbidid'];
 				
+				//todo check for default bid || existing condition
 				if(bidMap[divID][bids][bidderID][bid][lastBidID][constTargetingEcpm] < bidDetails[constTargetingEcpm]){
 
 					utilLog(constCommonMessage12+bidMap[divID][bids][bidderID][bid][lastBidID][constTargetingEcpm]+constCommonMessage13+bidDetails[constTargetingEcpm]+constCommonMessage14);
