@@ -501,7 +501,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 		return success;
 	},
 
-	utilForEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction){
+	utilForEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids){
 		var activeSlotsLength = activeSlots.length,
 			i,
 			j,
@@ -534,14 +534,35 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 						}
 					}
 
-					callHandlerFunction && handlerFunction(
-						generatedKey, 
-						kgpConsistsWidthAndHeight, 
-						activeSlots[i], 
-						keyLookupMap ? keyLookupMap[generatedKey] : null, 
-						activeSlots[i][constAdSlotSizes][j][0], 
-						activeSlots[i][constAdSlotSizes][j][1]
-					);
+					if(callHandlerFunction){
+
+						if(addZeroBids == true){
+							bidManagerSetBidFromBidder(
+								activeSlots[i][constCommonDivID], 
+								adapterID, 
+								bidManagerCreateBidObject(
+									0,
+									bidManagerCreateDealObject(),
+									"",
+									"",
+									"",
+									0,
+									0,
+									generatedKey
+								), 
+								utilGetUniqueIdentifierStr()
+							);
+						}
+
+						handlerFunction(
+							generatedKey, 
+							kgpConsistsWidthAndHeight, 
+							activeSlots[i], 
+							keyLookupMap ? keyLookupMap[generatedKey] : null, 
+							activeSlots[i][constAdSlotSizes][j][0], 
+							activeSlots[i][constAdSlotSizes][j][1]
+						);
+					}	
 				}
 			}
 		}
