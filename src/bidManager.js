@@ -160,6 +160,10 @@ var bidMap = {},
 			;
 
 			if( lastBidWasDefaultBid || !isPostTimeout){				
+
+				if(lastBidWasDefaultBid){
+					utilLog(constCommonMessage23);
+				}				
 								
 				if( lastBidWasDefaultBid || bidMap[divID][bids][bidderID][bid][lastBidID][constTargetingEcpm] < bidDetails[constTargetingEcpm]){
 

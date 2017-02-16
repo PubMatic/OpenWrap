@@ -86,6 +86,7 @@ var win = window,
 	constCommonMessage20 = 'Bid is rejected as ecpm is empty string.',
 	constCommonMessage21 = ': error in respose handler.',
 	constCommonMessage22 = 'Bid is rejected as ecpm is <= 0.',
+	constCommonMessage23 = 'Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner.',
 
 	constCommonMacroForWidth = '_W_',
 	constCommonMacroForHeight = '_H_',
