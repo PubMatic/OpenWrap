@@ -66,7 +66,7 @@ adapterManagerRegisterAdapter((function(){
 			conf.screenResolution =  win.screen.width + 'x' + win.screen.height;
 			conf.ranreq = Math.random();
 
-			conf.profId = bidManagerGetProfileID();
+			conf.profileid = bidManagerGetProfileID();
 			if(utilUsingDifferentProfileVersionID){
 				conf.versionid = bidManagerGetProfileDisplayVersionID();
 			}
@@ -97,10 +97,7 @@ adapterManagerRegisterAdapter((function(){
 					}
 					return newObj;
 				}
-			;
-
-			conf.profileid = conf.profId;
-			delete conf.profId;
+			;			
 
 			delete conf.grs; // as it is not required in ORTB call
 
@@ -266,6 +263,9 @@ adapterManagerRegisterAdapter((function(){
 				slots = [],
 				dmPremiumPubList = {46076:'', 60530:'', 9999:'', 7777:''}
 			;
+
+			conf.profId = conf.profileid;
+			delete conf.profileid;
 
 			if(conf.versionid){
 				conf.verId = conf.versionid;
