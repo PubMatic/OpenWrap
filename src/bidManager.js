@@ -30,7 +30,7 @@ var bidMap = {},
 		bidObject[constTargetingWidth] = width;
 		bidObject[constCommonKeyGenerationPatternValue] = kgpv;
 		bidObject[constTargetingKvp] = keyValuePairs || null;
-		bidObject['db'] = defaultBid || 0;
+		bidObject[constCommonDefaultBid] = defaultBid || 0;
 		return bidObject;
 	},
 	
@@ -154,28 +154,32 @@ var bidMap = {},
 
 		// comment following block when we can pass multiple bids from a partner for a slot
 		if(utilHasOwnProperty(bidMap[divID][bids][bidderID], bid)){
-			if(! isPostTimeout){
 
-				var lastBidID = bidMap[divID][bids][bidderID]['lastbidid'];
-				
-				//todo check for default bid || existing condition
-				if(bidMap[divID][bids][bidderID][bid][lastBidID][constTargetingEcpm] < bidDetails[constTargetingEcpm]){
+			var lastBidID = bidMap[divID][bids][bidderID][constCommonLastBidID],
+				lastBidWasDefaultBid = bidMap[divID][bids][bidderID][bid][lastBidID][constCommonDefaultBid] == 1
+			;
+
+			if( lastBidWasDefaultBid || !isPostTimeout){				
+								
+				if( lastBidWasDefaultBid || bidMap[divID][bids][bidderID][bid][lastBidID][constTargetingEcpm] < bidDetails[constTargetingEcpm]){
 
 					utilLog(constCommonMessage12+bidMap[divID][bids][bidderID][bid][lastBidID][constTargetingEcpm]+constCommonMessage13+bidDetails[constTargetingEcpm]+constCommonMessage14);
 					delete bidMap[divID][bids][bidderID][bid][lastBidID];
-					bidMap[divID][bids][bidderID]['lastbidid'] = bidID;
+					bidMap[divID][bids][bidderID][constCommonLastBidID] = bidID;
 					bidMap[divID][bids][bidderID][bid][bidID] = bidDetails;
 					bidIdMap[bidID] = {
 						s: divID,
 						a: bidderID
 					};
-					utilVLogInfo(divID, {
+
+					bidDetails[constCommonDefaultBid] == 0 && utilVLogInfo(divID, {
 						type: bid,
 						bidder: bidderID + (adapterBidPassThrough[bidderID] ? '(PT)' : ''),
 						bidDetails: bidDetails,
 						startTime: bidMap[divID][creationTime],
 						endTime: currentTime
-					});					
+					});
+
 				}else{
 					utilLog(constCommonMessage12+bidMap[divID][bids][bidderID][bid][lastBidID][constTargetingEcpm]+constCommonMessage15+bidDetails[constTargetingEcpm]+constCommonMessage16);
 				}				
@@ -185,14 +189,15 @@ var bidMap = {},
 		}else{
 
 			utilLog(constCommonMessage18);
-			bidMap[divID][bids][bidderID]['lastbidid'] = bidID;
-			bidMap[divID][bids][bidderID][bid] = {};			
+			bidMap[divID][bids][bidderID][constCommonLastBidID] = bidID;
+			bidMap[divID][bids][bidderID][bid] = {};
 			bidMap[divID][bids][bidderID][bid][bidID] = bidDetails;
 			bidIdMap[bidID] = {
 				s: divID,
 				a: bidderID
 			};
-			utilVLogInfo(divID, {
+
+			bidDetails[constCommonDefaultBid] == 0 && utilVLogInfo(divID, {
 				type: bid,
 				bidder: bidderID + (adapterBidPassThrough[bidderID] ? '(PT)' : ''),
 				bidDetails: bidDetails,
