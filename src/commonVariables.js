@@ -53,6 +53,8 @@ var win = window,
 	constCommonAdapters = 'adapters',
 	constCommonSlots = 'slots',
 	constCommonKeyGenerationPatternValue = 'kgpv',
+	constCommonDefaultBid = 'db',
+	constCommonLastBidID = 'lastbidid',
 	
 	constDealID = 'id',
 	constDealChannel = 'channel',
