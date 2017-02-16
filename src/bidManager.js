@@ -472,6 +472,7 @@ var bidMap = {},
 							slotObject['ps'].push({
 								'pn': adapter,
 								'bidid': bidID,
+								'db': theBid[constCommonDefaultBid],
 								'kgpv': theBid[constCommonKeyGenerationPatternValue],
 								'psz': theBid[constTargetingWidth] + 'x' + theBid[constTargetingHeight],
 								'eg': theBid[constTargetingActualEcpm],
