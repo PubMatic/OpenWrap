@@ -43,14 +43,18 @@ The source files include adapters for all of the current header tag integrations
 The checked out source contains adapters for following header tags:
 
 1.  AdForm
-2.  AppNexus
-3.  bRealTime
-4.  DistrictM
-5.  IndexExchange
-6.  OpenX
-7.  PubMatic
-8.  Rubicon Project
-9.  Yieldbot
+2.  AOL
+3.  AppNexus
+4.  bRealTime
+5.  District M
+6.  Index Exchange
+7.  OpenX
+8.  PubMatic
+9.  Pulsepoint
+10.  Rubicon Project
+11.  Rubicon Fastlane
+12. Sovrn
+13.  Yieldbot
 
 We have a python build script which helps you build the wrapper tag with only the adapters you need and gives you a minimize tag which you can directly use.
 
@@ -107,12 +111,25 @@ You can either test the generated open wrapper tag in your local dev/test enviro
 
 These are the parameters which will be part of the standard wrapper configuration and should be defined outside the partner level configurations.
 
+**Analytics endpoint should be CORS compliant, as we will send data in POST : OPenWrap Github**
+
 | Config | Value| Mandatory| Explanation| Input Source|
 | --- | --- | --- | --- | --- |
 | Key Name | <span style="color: rgb(84,84,84);">pub_id</span> | Y | <span>This ID is used as a global identifier for logging analytics data. Value for this parameter should be the ID of the publisher account on the platform used for logging. </span> | <span>Publisher Provided</span> |
 | Key Name | t | Y | Timeout for all partners for responding with a bid. This value should be in milliseconds. | Publisher Provided |
 | Key Name | winURL | N | <span>This URL will be executed when any of the partner in wrapper displays creative.This would be a tracker endpoint. This URL should be without a protocol prefix.e.g. a.analytics.com/tracker<br>Query parameters to be passed over this URL:<br>1.  pubid: Identifier of publisher account in logging platform.<br>2.  purl: Page URL<br>3.  tst: Timestamp<br>4.  iid: Impression ID<br>5.  pid: Profile ID<br>6.  pdvid: Profile Version ID<br>7.  slot: Slot Name<br>8.  pn: Partner Name<br>9.  en: ECPM Net<br>10.  eg: ECPM Gross<br>11.  kgpv: Slot name generated using KGP Patterns.</span>|
 | Key Name | dataURL | N | <span>This URL will capture all the bid and latency data from all partners in wrapper tag.<br>This URL should be without a protocol prefix e.g a.analytics.com/logger.<br>It takes only one query parameter named 'json' whose value should be URL encoded JSON string.<br>Below are the details of every key in the JSON data.<br>1.  s: Slot array<br>2.  sn: Slot name<br>3.  sz: size array<br>4.  ps: partner bid response array<br>5.  pn: Partner name<br>6.  kgpv: Key generation pattern's value<br>7.  psz: Partner size<br>8.  eg: Gross ECPM<br>9.  en: Net ECPM<br>10.  l1: Partner latency<br>11.  l2: Not used<br>12.  t: Timeout flag (whether partner has timed out or not)<br>13.  wb: Winning bid flag. 1 if partner bid is won.<br>14.  pubId: Identifier of publisher Id on logging/tracking platform.<br>15.  to: Timeout value<br>16.  purl: Page URL<br>17.  tst: Timestamp<br>18.  iid: Impression ID<br>19.  pid: Profile ID<br>20.  pdvid: Profile Version ID <br>21.  json_data</span> |
+
+### Wrapper Keys Sent to DFP
+
+|Key Name| Explanation | Sample Value 
+------ | ------|-----------
+|pwtecp | The eCPM of bid in USD up to 4 decimal places | 1.4356 |
+|pwtbst | Bid Status Flag, will be 1 in case of positive bid | 1 |
+|pwtdid | Deal Id, in case the bid has a deal associated | XYZ-DEAL 123 |
+|pwtsid |<span> The slot/bid id of the highest or winning bid | e7424477d70315b8a4bae5cff1887edf |
+|pwtpid | All partner data organized by partner name.<br>A filter can be added to retrieve data for a specific partner.<br><br>Examples:<br> pwtpid - to retrieve all partner data by partner name<br>pwtpid=pubmatic - to retrieve data only for PubMatic<br><br>The following partner names may be used to filter:<br><br>adform<br>aol<br>appnexus<br>bRealTime<br>districtM<br>indexExchange<br>openx<br>pubmatic<br>pulsePoint<br>rubicon<br>rubiconFastlane<br>sovrn<br>yieldbot</span>| pubmatic |
+
 
 # Partner Adapters and Auction Logic
 
