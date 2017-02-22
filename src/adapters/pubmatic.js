@@ -59,6 +59,7 @@ adapterManagerRegisterAdapter((function(){
 			conf.pm_cb = 'window.PWT.PubmaticAdapterCallback';
 			conf.grs = 3; // Grouped Response parameter, 0: default, 1: variables are split, 2: 1+rid passed to cback func, 3: 1+ md5 of bidid
 			conf.a = 1;// async == true
+			conf.sec = utilMetaInfo.secure;
 			conf.js = 1;
 			conf.pageURL  = utilMetaInfo.u;				
 			conf.refurl   = utilMetaInfo.r;			
@@ -75,7 +76,7 @@ adapterManagerRegisterAdapter((function(){
 				conf.fpcd = '1';
 			}
 			setTimeStampAndZone( conf );
-		},		
+		},
 
 		createOrtbJson = function(conf, slots, keyGenerationPattern){
 			var json = null,
