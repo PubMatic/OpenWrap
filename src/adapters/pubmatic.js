@@ -59,6 +59,7 @@ adapterManagerRegisterAdapter((function(){
 			conf.pm_cb = 'window.PWT.PubmaticAdapterCallback';
 			conf.grs = 3; // Grouped Response parameter, 0: default, 1: variables are split, 2: 1+rid passed to cback func, 3: 1+ md5 of bidid
 			conf.a = 1;// async == true
+			conf.sec = utilMetaInfo.secure;
 			conf.js = 1;
 			conf.pageURL  = utilMetaInfo.u;				
 			conf.refurl   = utilMetaInfo.r;			
@@ -66,7 +67,7 @@ adapterManagerRegisterAdapter((function(){
 			conf.screenResolution =  win.screen.width + 'x' + win.screen.height;
 			conf.ranreq = Math.random();
 
-			conf.profId = bidManagerGetProfileID();
+			conf.profileid = bidManagerGetProfileID();
 			if(utilUsingDifferentProfileVersionID){
 				conf.versionid = bidManagerGetProfileDisplayVersionID();
 			}
@@ -75,7 +76,7 @@ adapterManagerRegisterAdapter((function(){
 				conf.fpcd = '1';
 			}
 			setTimeStampAndZone( conf );
-		},		
+		},
 
 		createOrtbJson = function(conf, slots, keyGenerationPattern){
 			var json = null,
@@ -97,10 +98,7 @@ adapterManagerRegisterAdapter((function(){
 					}
 					return newObj;
 				}
-			;
-
-			conf.profileid = conf.profId;
-			delete conf.profId;
+			;			
 
 			delete conf.grs; // as it is not required in ORTB call
 
@@ -266,6 +264,14 @@ adapterManagerRegisterAdapter((function(){
 				slots = [],
 				dmPremiumPubList = {46076:'', 60530:'', 9999:'', 7777:''}
 			;
+
+			conf.profId = conf.profileid;
+			delete conf.profileid;
+
+			if(conf.versionid){
+				conf.verId = conf.versionid;
+				delete conf.versionid;
+			}	
 
 			utilForEachGeneratedKey(
 				adapterID,
