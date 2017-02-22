@@ -57,7 +57,8 @@ adapterManagerRegisterAdapter((function(){
 								adSlotSizes[n][1]
 							);
 						}						
-					}
+					},
+					true
 				);
 
 				if(slots.length > 0){
