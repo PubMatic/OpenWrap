@@ -1,0 +1,28 @@
+{
+  "name": "openwrap",
+  "version": "1.0.0",
+  "description": "As publishers have embraced header bidding, running multiple header tags from different providers has become a top priority with many considerations.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PubMatic/OpenWrap.git"
+  },
+  "author": "PubMatic",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/PubMatic/OpenWrap/issues"
+  },
+  "homepage": "https://github.com/PubMatic/OpenWrap#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-jscs": "^4.0.0",
+    "gulp-jshint": "^2.0.4",
+    "jshint": "^2.9.4",
+    "jshint-stylish": "^2.2.1"
+  }
+}
