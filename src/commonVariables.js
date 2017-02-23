@@ -171,4 +171,4 @@ win.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 	}
 
 	bidManagerDisplayCreative(theDocument, bidID);
-}
+};
