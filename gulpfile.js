@@ -14,15 +14,15 @@ gulp.task('clean', function(){
 });
 
 gulp.task('prodcode', function(){
-	var files = ['src/commonVariables.js'/*, 'src/util.js', 'src/adapterManager.js', 'src/bidManager.js'*/];
+	var files = ['src/commonVariables.js', 'src/util.js', 'src/adapterManager.js', 'src/bidManager.js'];
 	var adapters = ['src/adapters/pubmatic.js'];
 	files = files.concat(adapters);
-	files = files.concat('src/controllers/gpt.js');
+	files = files.concat(['src/controllers/gpt.js', 'src/owt.js']);
 	
 	return gulp.src(files)
+	.pipe(concat('owt.combine.js'))
 	.pipe(insert.prepend('(function(){\n'))
 	.pipe(insert.append('\n})();'))
-	.pipe(concat('owt.combine.js'))
-	//.pipe(uglify())
+	.pipe(uglify())
 	.pipe(gulp.dest('dist/'));
 });
