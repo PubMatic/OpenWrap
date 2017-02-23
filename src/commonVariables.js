@@ -58,7 +58,7 @@ var win = window,
 	
 	constDealID = 'id',
 	constDealChannel = 'channel',
-	constDealKeyFirstPart = 'pwtdeal_'
+	constDealKeyFirstPart = 'pwtdeal_',
 	constDealKeyValueSeparator = '_-_',
 	constDealChannelPMP = 'PMP',
 	constDealChannelPMPG = 'PMPG',
