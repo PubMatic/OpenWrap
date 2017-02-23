@@ -17,7 +17,7 @@ var win = window,
 	constTargetingAdapterID 	= 'pwtpid',
 	constTargetingEcpm			= 'pwtecp',
 	constTargetingActualEcpm	= 'pwtaecp',
-	constTargetingDeal			= 'pwtdeal'
+	constTargetingDeal			= 'pwtdeal',
 	constTargetingDealID		= 'pwtdid',
 	constTargetingAdUrl			= 'pwtau',
 	constTargetingAdHTML		= 'pwta',
@@ -58,7 +58,7 @@ var win = window,
 	
 	constDealID = 'id',
 	constDealChannel = 'channel',
-	constDealKeyFirstPart = 'pwtdeal_'
+	constDealKeyFirstPart = 'pwtdeal_',
 	constDealKeyValueSeparator = '_-_',
 	constDealChannelPMP = 'PMP',
 	constDealChannelPMPG = 'PMPG',
