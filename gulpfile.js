@@ -1,5 +1,6 @@
 'use strict';
 
+var argv = require('yargs').argv;
 var gulp = require('gulp');
 var clean = require('gulp-clean');
 var concat = require('gulp-concat');
@@ -8,6 +9,12 @@ var uglify = require('gulp-uglify');
 var jshint = require('gulp-jshint');
 var jscs = require('gulp-jscs');
 var karma = require('gulp-karma');
+var mocha = require('gulp-mocha');
+var gutil = require('gulp-util');
+var connect = require('gulp-connect');
+var opens = require('open');
+var webserver = require('gulp-webserver');
+
 
 gulp.task('clean', function(){
 	return gulp.src(['dist/**/*.js'], {
@@ -56,4 +63,36 @@ gulp.task('test', function () {
 			configFile: 'karma.conf.js',
 			action: 'run'
 		}));
+});
+
+gulp.task('mocha', function() {
+    return gulp.src(['dist/*.js'], { read: false })
+        .pipe(mocha({
+          reporter: 'spec',
+          globals: {
+            expect: require('chai').expect,
+            window: {}
+          }
+        }))
+        .on('error', gutil.log);
+});
+
+gulp.task('coverage', function (done) {
+  /*var coveragePort = 1999;
+  connect.server({
+    port: coveragePort,
+    root: 'dist/coverage/',
+    base: 'http://localhost',
+    livereload: true
+  });
+  opens('http://localhost:' + coveragePort + '/coverage/');
+  done();*/
+
+  gulp.src(['dist/coverage'])
+	.pipe(webserver({
+	  livereload: true,
+	  directoryListing: true,
+	  open: true
+	}));
+
 });

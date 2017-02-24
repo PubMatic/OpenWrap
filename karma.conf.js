@@ -29,13 +29,7 @@ module.exports = function(config) {
     preprocessors: {
         'dist/*.js': [ 'browserify' ]
     },
-
-
-    // test results reporter to use
-    // possible values: 'dots', 'progress'
-    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
-
+    
 
     // web server port
     port: 9876,
@@ -65,6 +59,43 @@ module.exports = function(config) {
 
     // Concurrency level
     // how many browser should be started simultaneous
-    concurrency: Infinity
+    concurrency: Infinity,
+
+
+    // test results reporter to use
+    // possible values: 'dots', 'progress'
+    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
+    reporters: ['junit', 'progress', 'html', 'coverage'],
+
+    // junit reporter config
+    junitReporter: {
+      outputDir: 'dist/coverage/'
+    },
+
+    // optionally, configure the reporter
+    coverageReporter: {
+      reporters: [
+        { type: 'html', dir: './dist/coverage/' },
+        { type: 'text', dir: './dist/coverage/' },
+        { type: 'lcov', dir: './dist/coverage/lcov', subdir: '.' }
+      ]
+    },
+
+    htmlReporter: {
+      outputDir: 'dist/coverage/karma_html', // where to put the reports
+      urlFriendlyName: true, // simply replaces spaces with _ for files/dirs
+      reportName: 'report' // report summary filename; browser info by default
+    },
+
+    plugins: [
+        'karma-browserify',
+      'karma-coverage',
+      'karma-mocha',      
+      'karma-junit-reporter',
+      'karma-html-reporter',
+      'karma-chrome-launcher',      
+      'karma-requirejs'
+    ]
+
   })
 }
