@@ -58,7 +58,7 @@ adapterManagerRegisterAdapter((function(){
 							);
 						}						
 					},
-					true
+					false
 				);
 
 				if(slots.length > 0){
