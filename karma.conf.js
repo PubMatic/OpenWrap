@@ -69,7 +69,9 @@ module.exports = function(config) {
 
     // junit reporter config
     junitReporter: {
-      outputDir: 'dist/coverage/'
+      outputDir: 'dist/coverage/',
+      outputFile: 'abcd.xml',
+      useBrowserName: false
     },
 
     // optionally, configure the reporter
