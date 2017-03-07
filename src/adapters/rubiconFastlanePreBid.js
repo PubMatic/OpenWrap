@@ -14,9 +14,34 @@ adapterManagerRegisterAdapter((function() {
 		rubiconAccountID = '',
 
 		handleBidResponses = function(bidResponses){
-			console.log(bidResponses);
-			//todo many things
-			// push to bidManager, needs kgpv and other details
+			for(var divID in bidResponses){
+				if(utilHasOwnProperty(bidResponses, divID)){
+					var bidObject = bidResponses[divID];
+					var bids = bidObject.bids || [];
+
+					for(var i = 0; i<bids.length; i++){
+						var bid = bids[i];
+						if(bid.bidderCode == "rubicon"){
+							bidManagerSetBidFromBidder(
+								divID, 
+								adapterID, 
+								bidManagerCreateBidObject(
+									bid.cpm,
+									bidManagerCreateDealObject(bid.dealId, "NA"),
+									"",
+									bid.ad,
+									"",
+									bid.width,
+									bid.height,
+									divID,
+									null
+								), 
+								utilGetUniqueIdentifierStr()
+							);
+						}
+					}
+				}
+			}			
 		},
 		
 	    fetchBids = function(configObject, activeSlots){
