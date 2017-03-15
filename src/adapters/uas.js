@@ -11,7 +11,7 @@ adapterManagerRegisterAdapter((function(){
 
 // UAS library
 
-var combineSlotsData  = function(dataAttribute, arrayOfSlots){
+var combineSlotsData  = function(dataAttribute, arrayOfSlots, keyLookupMap){
 	var theSlot,
 		output = '',
 		index,
@@ -20,13 +20,13 @@ var combineSlotsData  = function(dataAttribute, arrayOfSlots){
 	
 	for(index in arrayOfSlots){
 		aSlot = arrayOfSlots[ index ];
-		output += combineSlotSpecificData(dataAttribute, aSlot) + '|';
+		output += combineSlotSpecificData(dataAttribute, aSlot, keyLookupMap) + '|';
 	}
 	output = output.substr(0, output.length -1 );	
 	return output;
 };
 
-var combineSlotSpecificData = function(dataAttribute, theSlot){
+var combineSlotSpecificData = function(dataAttribute, theSlot, keyLookupMap){
 	var temp,
 		i,
 		len,
@@ -43,6 +43,7 @@ var combineSlotSpecificData = function(dataAttribute, theSlot){
 		case 'adUnit':
 			if( dataAttributeFunctionMap.hasOwnProperty( dataAttribute ) ){// todo: this if bracket can be taken above switch
 				output = theSlot[ dataAttributeFunctionMap[ dataAttribute ] ]();
+				output = keyLookupMap[output].auid; // todo: checks needed
 			}
 			break;
 
@@ -84,18 +85,27 @@ var combineSlotSpecificData = function(dataAttribute, theSlot){
 	return output;
 }
 
-var uasGenerateCall = function(arrayOfSlots){
+var uasGenerateCall = function(arrayOfSlots, configObject){
 	var serevr_path = 'ae.pubmatic.com/ad?',
 		encodeURIC = encodeURIComponent,
 		queryString = [],
-		currTime = new Date()
+		currTime = new Date(),
+		adapterConfigMandatoryParams = [constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
+		keyLookupMap = {}
 	;
+
+	var adapterConfig = utilLoadGlobalConfigForAdapter(configObject, 'uas', adapterConfigMandatoryParams);
+	if(!adapterConfig){
+		return;
+	}
+
+	keyLookupMap = adapterConfig[constConfigKeyLookupMap];
 
 	/*
 		Assume that DFP_AU --> UAS_AU config is always present
 		todo :
 			map of AU
-			percentage config			
+			percentage config
 	*/
 
 	queryString.push(
@@ -110,7 +120,7 @@ var uasGenerateCall = function(arrayOfSlots){
 		'scrn='			+ encodeURIC( screen.width + 'x' + screen.height ),
 		'tz='			+ encodeURIC( currTime.getTimezoneOffset()/60  * -1 ),					
 		'kltstamp='		+ encodeURIC( currTime.getFullYear() + "-" + (currTime.getMonth() + 1) + "-" + currTime.getDate() + " " + currTime.getHours() + ":" + currTime.getMinutes() + ":" + currTime.getSeconds() ),
-		'au='			+ encodeURIC( combineSlotsData('adUnit', arrayOfSlots) ),
+		'au='			+ encodeURIC( combineSlotsData('adUnit', arrayOfSlots, keyLookupMap) ),
 		'iid='			+ encodeURIC( combineSlotsData('adDiv', arrayOfSlots) ),
 		'asz='			+ encodeURIC( combineSlotsData('adSizes', arrayOfSlots) ),
 		'slt_kv='		+ encodeURIC( combineSlotsData('targetings', arrayOfSlots) )//,

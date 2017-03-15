@@ -445,7 +445,7 @@ var displayHookAdded = false,
 								utilLog('calling original display function after timeout with arguments, ');
 								utilLog(arg);
 								updateStatusAfterRendering(arg[0], false);
-								uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]]);
+								uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]], configObject);
 								original_display.apply(win.googletag, arg);
 							}else{
 								utilLog('AdSlot already rendered');
@@ -459,13 +459,13 @@ var displayHookAdded = false,
 						utilLog('As DM processing is already done, Calling original display function with arguments');
 						utilLog(arg);						
 						updateStatusAfterRendering(arg[0], false);
-						uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]]);
+						uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]], configObject);
 						original_display.apply(win.googletag, arg);
 						break;
 					
 					case status_DM_Display_Displayed:
 						updateStatusAfterRendering(arg[0], false);
-						uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]]);
+						uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]], configObject);
 						original_display.apply(win.googletag, arg);					
 						break;
 				}
