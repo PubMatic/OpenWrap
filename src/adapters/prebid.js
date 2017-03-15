@@ -142,3 +142,32 @@ adapterManagerRegisterAdapter((function() {
 	};
 
 })());
+
+// register the partners to execute with PB
+/*
+	todo: actually we should remove dependency of following code
+*/
+(function(){
+
+	var pbPartners = [
+		'PB_appnexus',
+		'PB_rubicon',
+		'PB_admixer',
+		'PB_indexExchange',
+		'PB_sekindoUM'
+	];
+
+	for(var i=0, l = pbPartners.length; i<l; i++ ){
+		adapterManagerRegisterAdapter((function(){
+			var adapterID = pbPartners[i];
+			return {		
+				fB: function(){},	
+				dC: utilDisplayCreative,
+				ID: function(){
+					return adapterID;
+				}
+			};
+		})());
+	}
+
+})();
