@@ -4,15 +4,6 @@ adapterManagerRegisterAdapter((function() {
 		pbPrefix = 'PB_',
 		kgpvMap = {},
 		
-		/*
-			ToDo
-				cerebro pt flag 2 ?
-				do not add key value pairs of following keys [controller]
-					hb_bidder
-					hb_adid
-					hb_pb
-		*/
-
 		adapterConfigMandatoryParams = [constConfigKeyGeneratigPattern, constConfigKeyLookupMap],
 
 		handleBidResponses = function(bidResponses){
