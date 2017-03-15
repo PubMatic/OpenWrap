@@ -1,13 +1,4 @@
-adapterManagerRegisterAdapter((function(){
-	var adapterID = 'uas';
-	return {		
-		fB: function(){},	
-		dC: utilDisplayCreative,
-		ID: function(){
-			return adapterID;
-		}
-	};
-})());
+adapterManagerRegisterEmptyAdapter('uas');
 
 // UAS library
 
