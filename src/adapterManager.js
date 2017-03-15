@@ -46,6 +46,19 @@ var adapterManagerRegisteredAdapters = {},
 		}
 	},
 
+	adapterManagerRegisterEmptyAdapter = function(adapterName){
+		adapterManagerRegisterAdapter((function(){
+			var adapterID = adapterName;
+			return {
+				fB: function(){},	
+				dC: utilDisplayCreative,
+				ID: function(){
+					return adapterID;
+				}
+			};
+		})());
+	},
+
 	adapterManagerDisplayCreative = function(theDocument, adapterID, bidDetails){
 		if( utilHasOwnProperty(adapterManagerRegisteredAdapters, adapterID) ){
 			adapterManagerRegisteredAdapters[adapterID].dC(theDocument, bidDetails);

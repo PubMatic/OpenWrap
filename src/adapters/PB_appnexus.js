@@ -1,0 +1,1 @@
+adapterManagerRegisterEmptyAdapter('PB_appnexus');
