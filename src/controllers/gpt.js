@@ -335,6 +335,12 @@ var displayHookAdded = false,
 	findWinningBidAndApplyTargeting = function(divID){
 		var winningBid = bidManagerGetBid(divID);
 		var googleDefinedSlot = slotsMap[ divID ][pmSlots_key_adSlot];
+		var ignoreTheseKeys = {
+			'hb_bidder': 1,
+			'hb_adid': 1,
+			'hb_pb': 1,
+			'hb_size': 1
+		};
 
 		utilLog('DIV: '+divID+' winningBid: ');
 		utilLog(winningBid);
@@ -351,7 +357,7 @@ var displayHookAdded = false,
 
 		// attaching keyValuePairs from adapters
 		for(var key in winningBid[constTargetingKvp]){
-			if(utilHasOwnProperty(winningBid[constTargetingKvp], key)){
+			if(utilHasOwnProperty(winningBid[constTargetingKvp], key)  && !utilHasOwnProperty(ignoreTheseKeys, key) ){
 				googleDefinedSlot.setTargeting(key, winningBid[constTargetingKvp][key]);
 				// adding key in DM_targetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
 				DM_targetingKeys[key] = '';
@@ -439,6 +445,7 @@ var displayHookAdded = false,
 								utilLog('calling original display function after timeout with arguments, ');
 								utilLog(arg);
 								updateStatusAfterRendering(arg[0], false);
+								uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]]);
 								original_display.apply(win.googletag, arg);
 							}else{
 								utilLog('AdSlot already rendered');
@@ -452,11 +459,13 @@ var displayHookAdded = false,
 						utilLog('As DM processing is already done, Calling original display function with arguments');
 						utilLog(arg);						
 						updateStatusAfterRendering(arg[0], false);
+						uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]]);
 						original_display.apply(win.googletag, arg);
 						break;
 					
 					case status_DM_Display_Displayed:
 						updateStatusAfterRendering(arg[0], false);
+						uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]]);
 						original_display.apply(win.googletag, arg);					
 						break;
 				}
