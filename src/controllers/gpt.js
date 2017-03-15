@@ -1,5 +1,7 @@
 var displayHookAdded = false,
 
+	callUAS = false,
+
 	configObject = {},
 
 	SEND_TARGETING_INFO	= true,	
@@ -445,8 +447,8 @@ var displayHookAdded = false,
 								utilLog('calling original display function after timeout with arguments, ');
 								utilLog(arg);
 								updateStatusAfterRendering(arg[0], false);
-								uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]], configObject);
-								original_display.apply(win.googletag, arg);
+								callUAS && uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]], configObject);
+								!callUAS && original_display.apply(win.googletag, arg);
 							}else{
 								utilLog('AdSlot already rendered');
 							}
@@ -459,14 +461,14 @@ var displayHookAdded = false,
 						utilLog('As DM processing is already done, Calling original display function with arguments');
 						utilLog(arg);						
 						updateStatusAfterRendering(arg[0], false);
-						uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]], configObject);
-						original_display.apply(win.googletag, arg);
+						callUAS && uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]], configObject);
+						!callUAS && original_display.apply(win.googletag, arg);
 						break;
 					
 					case status_DM_Display_Displayed:
 						updateStatusAfterRendering(arg[0], false);
-						uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]], configObject);
-						original_display.apply(win.googletag, arg);					
+						callUAS && uasGenerateCall([slotsMap[arg[0]][pmSlots_key_adSlot]], configObject);
+						!callUAS && original_display.apply(win.googletag, arg);					
 						break;
 				}
 				
@@ -699,6 +701,9 @@ var controllerInit = function(config){
 		
 		if(utilIsFn(win.PWT.jsLoaded)){
 			win.PWT.jsLoaded();
+		}
+
+		if(configObject['global']['adapters']['uas']){
 		}
 
 	}catch(e){
