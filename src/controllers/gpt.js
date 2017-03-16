@@ -704,7 +704,7 @@ var controllerInit = function(config){
 		}
 
 		if(configObject['global']['adapters']['uas']){
-			callUAS = (Math.floor(Math.random()*100) <= (configObject['global']['adapters']['uas']['uas_percent'] || 0));
+			callUAS = (Math.floor(Math.random()*100) <= (configObject['global']['adapters']['uas']['throttle'] || 0));
 		}
 
 	}catch(e){
