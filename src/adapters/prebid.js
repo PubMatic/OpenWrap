@@ -1,3 +1,9 @@
+/*
+	TODO:
+		latency should be calculated ccording to mentioned in PB reponse
+		on refresh or in some cases PB is not returning bids asap, using full timeout
+*/
+
 adapterManagerRegisterAdapter((function() {
 
 	var adapterID = 'prebid',
