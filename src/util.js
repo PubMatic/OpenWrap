@@ -752,10 +752,12 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 			bidID = temp[2];
 		}
 
-		if(bidID == ''){
+		if(!bidID){
 			utilLog('Error: bidID not found in PMP-Deal: '+ selectedPMPDeal);
 			return;
 		}
+
+		return bidID;
 	},
 
 	utilSafeFrameCommunicationProtocol = function(msg){
