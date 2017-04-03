@@ -798,8 +798,36 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 					}
 					
 					if(msgData.pwt_bid){
-						utilDisplayCreative(window.document, msgData.pwt_bid);
-					}					
+						//utilDisplayCreative(window.document, msgData.pwt_bid);
+
+						//new code
+						var theBid = msgData.pwt_bid;
+						utilResizeWindow(window.document, theBid[constTargetingHeight], theBid[constTargetingWidth]);
+
+						if(theBid[constTargetingAdHTML]){
+							var iframe = utilCreateInvisibleIframe();
+							iframe.setAttribute('width', theBid[constTargetingWidth]);
+	        				iframe.setAttribute('height', theBid[constTargetingHeight]);
+	        				iframe.style = '';
+	        				window.document.body.appendChild(iframe);
+							iframe.contentDocument.open();
+							var creative = "<script>var $sf = window.parent.$sf;<\/script>" + 
+								"<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>" + 
+								theBid[constTargetingAdHTML];
+							iframe.contentDocument.write(creative);
+							iframe.contentDocument.close();
+						}else if(theBid[constTargetingAdUrl]){
+							utilCreateAndInsertFrame(
+								window.document,
+								theBid[constTargetingAdUrl], 
+								theBid[constTargetingHeight] , theBid[constTargetingWidth] , 
+								""
+							);
+						}else{
+							utilLog("creative details are not found");
+							utilLog(theBid);
+						}											
+					}
 
 					break;
 			}
