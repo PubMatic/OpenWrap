@@ -126,10 +126,10 @@ var displayHookAdded = false,
 			sizeArray = currentGoogleSlot.getSizes();					
 			sizeArrayLength = sizeArray.length;			
 			for(index = 0; index < sizeArrayLength; index++){
-				sizeObj = sizeArray[ index ];				
-				//if(sizeObj.getWidth() != 1 && sizeObj.getHeight() != 1){
-				adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
-				//}
+				sizeObj = sizeArray[ index ];
+				if(sizeObj.getWidth && sizeObj.getHeight){
+					adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
+				}
 			}
 		}
 		
