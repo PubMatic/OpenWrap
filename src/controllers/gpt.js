@@ -129,6 +129,9 @@ var displayHookAdded = false,
 				sizeObj = sizeArray[ index ];
 				if(sizeObj.getWidth && sizeObj.getHeight){
 					adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
+				}else{
+					utilLog(divID + ', size object does not have getWidth and getHeight method.');
+					utilLog(sizeObj);
 				}
 			}
 		}
