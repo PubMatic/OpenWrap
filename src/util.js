@@ -805,7 +805,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 						utilResizeWindow(window.document, theBid[constTargetingHeight], theBid[constTargetingWidth]);
 
 						if(theBid[constTargetingAdHTML]){
-							var iframe = utilCreateInvisibleIframe();
+							/*var iframe = utilCreateInvisibleIframe();
 							iframe.setAttribute('width', theBid[constTargetingWidth]);
 	        				iframe.setAttribute('height', theBid[constTargetingHeight]);
 	        				iframe.style = '';
@@ -815,7 +815,46 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 								"<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>" + 
 								theBid[constTargetingAdHTML];
 							iframe.contentDocument.write(creative);
-							iframe.contentDocument.close();
+							iframe.contentDocument.close();*/
+
+							try{
+								var iframe = utilCreateInvisibleIframe();
+								if(!iframe){
+									throw {message: 'Failed to create invisible frame.', name:""};
+								}
+
+								iframe.setAttribute('width', theBid[constTargetingWidth]);
+	        					iframe.setAttribute('height', theBid[constTargetingHeight]);
+	        					iframe.style = '';
+
+								window.document.body.appendChild(iframe);
+
+								if(!iframe.contentWindow){
+									throw {message: 'Unable to access frame window.', name:""};
+								}
+
+								var iframeDoc = iframe.contentWindow.document;
+								if(!iframeDoc){
+									throw {message: 'Unable to access frame window document.', name:""};
+								}
+
+								var content = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><base target="_top" /><scr' + 'ipt>inDapIF=true;</scr' + 'ipt></head>';
+									content += '<body>';
+									content += "<script>var $sf = window.parent.$sf;<\/script>";
+									content += "<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>";
+									content += theBid[constTargetingAdHTML];
+									content += '</body></html>';
+
+								iframeDoc.write(content);
+								iframeDoc.close();
+								
+							}catch(e){
+								utilLog('Error in rendering creative in safe frame.');
+								//utilLog(e);
+								utilLog('Rendering synchronously.');
+								utilDisplayCreative(window.document, msgData.pwt_bid);
+							}
+
 						}else if(theBid[constTargetingAdUrl]){
 							utilCreateAndInsertFrame(
 								window.document,
