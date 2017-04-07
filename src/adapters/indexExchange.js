@@ -428,7 +428,7 @@ adapterManagerRegisterAdapter((function() {
 						pushIndexSlots(sizes[j][0], sizes[j][1], generatedKey, keyConfig, currentSlot, incrID);
 					}					
 				},
-				false
+				true
 			);
 
 			cygnus_index_primary_request = false;

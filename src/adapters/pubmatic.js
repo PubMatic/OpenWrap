@@ -284,7 +284,7 @@ adapterManagerRegisterAdapter((function(){
 					pmSlotToDivIDMap[ generatedKey ] = currentSlot[constCommonDivID];
 					//todo: do pass kval_param_slots
 				},
-				false
+				true
 			);
 
 			if(slots.length > 0){				
