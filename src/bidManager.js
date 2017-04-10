@@ -327,7 +327,7 @@ var bidMap = {},
 
 		if( utilHasOwnProperty(bidMap, divID) ){	
 			if( utilHasOwnProperty(bidMap[divID][bids], adapterID) ){
-				utilLog(divID+constCommonMessage19+ adapterID);
+				utilLog(bidID+': '+divID+constCommonMessage19+ adapterID);
 				var theBid = bidMap[divID][bids][adapterID][bid][bidID];
 				return {
 					bid: theBid,
