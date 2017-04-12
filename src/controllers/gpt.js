@@ -564,7 +564,12 @@ var displayHookAdded = false,
 						
 				slotsToConsiderLength = slotsToConsider.length;				
 				for(index = 0; index < slotsToConsiderLength; index++){
-					qualifyingSlotNames = qualifyingSlotNames.concat( slotsToConsider[ index ].getSlotId().getDomId() );
+					if(slotsToConsider[ index ] && utilIsFn(slotsToConsider[ index ].getSlotId)){
+						var theSlotID = slotsToConsider[ index ].getSlotId();
+						if(theSlotID && utilIsFn(theSlotID.getDomId)){
+							qualifyingSlotNames = qualifyingSlotNames.concat( theSlotID.getDomId() );	
+						}						
+					}
 				}
 
 				if(qualifyingSlotNames.length > 0){
