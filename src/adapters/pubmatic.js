@@ -322,7 +322,8 @@ adapterManagerRegisterAdapter((function(){
 			// do not pass kval_param for now
 			//conf['kval_param'] = JSON.stringify(configObject[constConfigGlobalKeyValue]);
 
-			if(utilHasOwnProperty(ortbEnabledPublishers, pubID)){
+			//todo: change key serverSideEnabled
+			if(utilHasOwnProperty(ortbEnabledPublishers, pubID) || configObject.global.pwt.sse == 1){
 				makeOrtbCall(activeSlots, adapterConfig[constConfigKeyGeneratigPattern]);
 			}else{
 				utilLoadScript(createLegacyCall(activeSlots, adapterConfig[constConfigKeyGeneratigPattern]));
