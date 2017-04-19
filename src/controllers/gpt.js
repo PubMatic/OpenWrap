@@ -443,6 +443,8 @@ var displayHookAdded = false,
 							}else{
 								utilLog('AdSlot already rendered');
 							}
+
+							bidManagerExecuteAnalyticsPixel();
 								
 						}, TIMEOUT);
 						break;
@@ -471,10 +473,6 @@ var displayHookAdded = false,
 				setTimeout(function(){
 					utilRealignVLogInfoPanel(arg[0]);
 				},2000+TIMEOUT);
-
-				setTimeout(function(){
-					bidManagerExecuteAnalyticsPixel();
-				},TIMEOUT);					
 			}					
 		};					
 	},
