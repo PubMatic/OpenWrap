@@ -469,9 +469,10 @@ var displayHookAdded = false,
 				}				
 
 				setTimeout(function(){
-					utilRealignVLogInfoPanel(arg[0]);
-					bidManagerExecuteAnalyticsPixel();
-				},2000+TIMEOUT);				
+					utilRealignVLogInfoPanel(arg[0]);					
+				},2000+TIMEOUT);
+
+				bidManagerExecuteAnalyticsPixel();
 			}					
 		};					
 	},
