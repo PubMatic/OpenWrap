@@ -1,2 +1,2 @@
 //pwt.js
-controllerInit(win.pm_config || {});
+controllerInit(win.pm_config);

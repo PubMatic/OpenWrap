@@ -1,6 +1,19 @@
 var hasOwnProperty = Object.prototype.hasOwnProperty,
 
+	utilIsIframe = function(){
+	    try{
+	        return window.self !== window.top;
+	    }catch(e){
+	        return false;
+	    }
+	},
+
 	getIndexInPageURL = function(findString){
+
+		if(utilIsIframe()){
+			return win.document.referrer.indexOf( findString );
+		}
+
 		return win.location.href.indexOf( findString );
 	},
 
@@ -16,7 +29,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 		try{
 			if(getIndexInPageURL( constDebugInOverlay ) >= 0){
 				utilEnableDebugLog = true;
-				return true;	
+				return true;
 			}					
 		}catch(ex){}				
 		return false;
@@ -679,6 +692,192 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 			return s;
 		}else{
 			return s.replace(/^\s+/g,'').replace(/\s+$/g,'');
+		}
+	},
+
+	utilAddMessageEventListener = function(eventHandler){
+
+		if(typeof eventHandler !== "function"){
+			utilLog("EventHandler should be a function");
+			return false;
+		}
+
+		if(window.addEventListener){
+			window.addEventListener("message", eventHandler, false);
+		}else{
+			window.attachEvent("onmessage", eventHandler);
+		}
+
+		return true;
+	},
+
+	utilGetBididForPMP = function(values, priorityArray){
+
+		values = values.split(',');
+
+		var valuesLength = values.length,
+			priorityArrayLength = priorityArray.length,
+			selectedPMPDeal = '',
+			bidID = ''
+		;
+
+		if(valuesLength == 0){
+			utilLog('Error: Unable to find bidID as values array is empty.');
+			return;
+		}
+		
+		for(var i = 0; i < priorityArrayLength; i++){
+
+			for(var j = 0; j < valuesLength; j++){
+				if(values[j].indexOf(priorityArray[i]) >= 0){
+					selectedPMPDeal = values[j];
+					break;
+				}
+			}
+
+			if(selectedPMPDeal != ''){
+				break;
+			}
+		}
+		
+		if(selectedPMPDeal == ''){
+			selectedPMPDeal = values[0];
+			utilLog('No PMP-Deal was found matching PriorityArray, So Selecting first PMP-Deal: '+ selectedPMPDeal);		
+		}else{
+			utilLog('Selecting PMP-Deal: '+ selectedPMPDeal);	
+		}
+
+		var temp = selectedPMPDeal.split(constDealKeyValueSeparator);
+		if(temp.length == 3){
+			bidID = temp[2];
+		}
+
+		if(!bidID){
+			utilLog('Error: bidID not found in PMP-Deal: '+ selectedPMPDeal);
+			return;
+		}
+
+		return bidID;
+	},
+
+	utilSafeFrameCommunicationProtocol = function(msg){
+		try{
+			msgData = JSON.parse(msg.data);
+			
+			if(!msgData.pwt_type){
+				return;
+			}
+
+			switch(parseInt(msgData.pwt_type)){
+
+				case 1:
+					if(inSafeFrame){
+						return;
+					}
+					
+					var bidDetails = bidManagerGetBidById(msgData.pwt_bidID);
+					if(bidDetails){
+						var theBid = bidDetails.bid,
+							adapterID = bidDetails.adapter,
+							divID = bidDetails.slotid,
+							newMsgData = {
+								pwt_type: 2,
+								pwt_bid: theBid
+							}
+						;
+						utilVLogInfo(divID, {type: 'disp', adapter: adapterID});
+						bidManagerExecuteMonetizationPixel(divID, adapterID, theBid, msgData.pwt_bidID);
+						msg.source.postMessage(JSON.stringify(newMsgData), msgData.pwt_origin);
+					}
+
+					break;					
+
+				case 2:
+					if(!inSafeFrame){
+						return;
+					}
+					
+					if(msgData.pwt_bid){
+						//utilDisplayCreative(window.document, msgData.pwt_bid);
+
+						//new code
+						var theBid = msgData.pwt_bid;
+						utilResizeWindow(window.document, theBid[constTargetingHeight], theBid[constTargetingWidth]);
+
+						if(theBid[constTargetingAdHTML]){
+							/*var iframe = utilCreateInvisibleIframe();
+							iframe.setAttribute('width', theBid[constTargetingWidth]);
+	        				iframe.setAttribute('height', theBid[constTargetingHeight]);
+	        				iframe.style = '';
+	        				window.document.body.appendChild(iframe);
+							iframe.contentDocument.open();
+							var creative = "<script>var $sf = window.parent.$sf;<\/script>" + 
+								"<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>" + 
+								theBid[constTargetingAdHTML];
+							iframe.contentDocument.write(creative);
+							iframe.contentDocument.close();*/
+
+							try{
+								var iframe = utilCreateInvisibleIframe();
+								if(!iframe){
+									throw {message: 'Failed to create invisible frame.', name:""};
+								}
+
+								iframe.setAttribute('width', theBid[constTargetingWidth]);
+	        					iframe.setAttribute('height', theBid[constTargetingHeight]);
+	        					iframe.style = '';
+
+								window.document.body.appendChild(iframe);
+
+								if(!iframe.contentWindow){
+									throw {message: 'Unable to access frame window.', name:""};
+								}
+
+								var iframeDoc = iframe.contentWindow.document;
+								if(!iframeDoc){
+									throw {message: 'Unable to access frame window document.', name:""};
+								}
+
+								var content = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><base target="_top" /><scr' + 'ipt>inDapIF=true;</scr' + 'ipt></head>';
+									content += '<body>';
+									content += "<script>var $sf = window.parent.$sf;<\/script>";
+									content += "<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>";
+									content += theBid[constTargetingAdHTML];
+									content += '</body></html>';
+
+								iframeDoc.write(content);
+								iframeDoc.close();
+								
+							}catch(e){
+								utilLog('Error in rendering creative in safe frame.');
+								//utilLog(e);
+								utilLog('Rendering synchronously.');
+								utilDisplayCreative(window.document, msgData.pwt_bid);
+							}
+
+						}else if(theBid[constTargetingAdUrl]){
+							utilCreateAndInsertFrame(
+								window.document,
+								theBid[constTargetingAdUrl], 
+								theBid[constTargetingHeight] , theBid[constTargetingWidth] , 
+								""
+							);
+						}else{
+							utilLog("creative details are not found");
+							utilLog(theBid);
+						}											
+					}
+
+					break;
+			}
+		}catch(e){}
+	},
+
+	utilAddMessageEventListenerForSafeFrame = function(isInSafeFrame){
+		inSafeFrame = isInSafeFrame;
+		if(!safeFrameMessageListenerAdded){
+			utilAddMessageEventListener(utilSafeFrameCommunicationProtocol);
+			safeFrameMessageListenerAdded = true;
 		}
 	}
 ;
