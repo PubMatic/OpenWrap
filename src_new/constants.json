@@ -1,3 +1,35 @@
 {
-	"a": "A"
+	"CONFIG": {
+		"GLOBAL": "global",
+		"COMMON": "pwt",
+		"TIMEOUT": "t"			
+	},
+
+	"SLOT_STATUS": {
+		"CREATED": 0,
+		"PARTNERS_CALLED": 1,
+		"TARGETING_ADDED": 2,
+		"DISPLAYED": 3
+	},
+
+	"SLOT_ATTRIBUTES": {
+		"SLOT_OBJECT": "adSlot",
+		"SIZES": "adSlotSizes",
+		"AD_UNIT_ID": "adUnitID",
+		"AD_UNIT_INDEX": "adUnitIndex",
+		"DIV_ID": "divID",
+		"STATUS": "status",
+		"DISPLAY_FUNCTION_CALLED": "displayFunctionCalled",
+		"REFRESH_FUNCTION_CALLED": "refreshFunctionCalled",
+		"ARGUMENTS": "arguments"
+	},
+
+	"WRAPPER_TARGETING_KEYS": {
+		"BID_ID": "pwtsid",
+		"BID_STATUS": "pwtbst",
+		"BID_ECPM": "pwtecp",
+		"BID_DEAL_ID": "pwtdid",
+		"BID_ADAPTER_ID": "pwtpid"
+	}
+
 }
