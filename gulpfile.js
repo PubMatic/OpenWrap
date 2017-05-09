@@ -56,7 +56,7 @@ gulp.task('webpack', function () {
   return gulp.src([].concat('src_new/owt.js'))
     .pipe(webpack(webpackConfig))
     .pipe(replace('$prebid.version$', '11'))
-    .pipe(uglify())
+    //.pipe(uglify())
     //.pipe(header(banner, { prebid: prebid }))
     .pipe(optimizejs())
     .pipe(gulp.dest('build/dist'))

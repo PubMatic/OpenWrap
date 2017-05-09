@@ -1,14 +1,321 @@
-var CONSTANTS = require('../constants.json');
+var CONSTANTS = require('../constants.js');
 var util = require('../util.js');
 
-var displayHookIsAdded = false,	
-	disableInitialLoadIsSet = false,
-	sendTargetingInfoIsSet = true
-	sraIsSet = false,
-	configObject = {},
-	configTimeout = 0,
-	wrapperTargetingKeys = {}
-;
+var SEND_TARGETING_INFO = true;
+var displayHookIsAdded = false;
+var disableInitialLoadIsSet = false;
+var sendTargetingInfoIsSet = true;
+var sraIsSet = false;
+var configObject = {};// todo: save config in a json file
+var configTimeout = 0;// refer dirctly from Config
+
+//todo: combine these maps
+var wrapperTargetingKeys = {}; // key is div id
+var slotSizeMapping = {}; // key is div id
+var slotsMap = {};			// key is div id,  stores the mapping of divID ==> googletag.slot
+
+var GPT_targetingMap = {};
+
+var localGoogletag;
+var localPubAdsObj;
+var original_display;
+var original_refresh;
+var original_disableInitialLoad;
+var original_setTargeting;
+var original_enableSingleRequest;
+var original_destroySlots;
+
+function getAdUnitIndex(currentGoogleSlot){
+	var index = 0;
+	try{
+		adUnitIndexString = currentGoogleSlot.getSlotId().getId().split('_');
+		index = adUnitIndexString[ adUnitIndex.length - 1 ];
+	}catch(ex){}
+	return index;
+}
+
+//todo: move to util
+function getScreenWidth(win){
+	var screenWidth = -1;
+	win.innerHeight ? (screenWidth = win.innerWidth) : win.document && win.document.documentElement && win.document.documentElement.clientWidth ? (screenWidth = win.document.documentElement.clientWidth) : win.document.body && (screenWidth = win.document.body.clientWidth);
+	return screenWidth;
+}
+
+//todo: move to util
+function getScreenHeight(win){
+	var screenHeight = -1;
+	win.innerHeight ? (screenHeight = win.innerHeight) : win.document && win.document.documentElement && win.document.documentElement.clientHeight ? (screenHeight = win.document.documentElement.clientHeight) : win.document.body && (screenHeight = win.document.body.clientHeight);
+	return screenHeight;
+}
+
+function getSizeFromSizeMapping(divID, slotSizeMapping, win){
+	/*
+		Ref: https://support.google.com/dfp_premium/answer/3423562?hl=en
+		The adslot.defineSizeMapping() method will receive an array of mappings in the following form: 
+			[ [ [ 1024, 768 ], [ [ 970, 250 ] ] ], [ [ 980, 600 ], [ [ 728, 90 ], [ 640, 480 ] ] ], ...],  
+			which should be ordered from highest to lowest priority. 
+		The builder syntax is a more readable way of defining the mappings that orders them automatically. 
+		However, you have the option of using different priority ordering by bypassing the builder and constructing the array of mappings manually.
+	*/
+
+	if(!util.isOwnProperty(slotSizeMapping, divID)){
+		return false;
+	}
+
+	var sizeMapping = slotSizeMapping[divID];
+	var screenWidth = getScreenWidth(win);
+	var screenHeight = getScreenHeight(win);	
+
+	util.log(divID+': responsiveSizeMapping found: screenWidth: '+ screenWidth + ', screenHeight: '+ screenHeight);
+	util.log(sizeMapping);
+
+	if(!util.isArray(sizeMapping)){
+		return false;
+	}
+
+	for(var i=0, l=sizeMapping.length; i < l; i++){
+		if(sizeMapping[i].length == 2 && sizeMapping[i][0].length == 2){
+			var currentWidth = sizeMapping[i][0][0],
+				currentHeight = sizeMapping[i][0][1]
+			;
+
+			if(screenWidth >= currentWidth && screenHeight >= currentHeight){
+				if(sizeMapping[i][1].length != 0 && !util.isArray(sizeMapping[i][1][0]) ){
+					if(sizeMapping[i][1].length == 2 && util.isNumber(sizeMapping[i][1][0]) && util.isNumber(sizeMapping[i][1][1]) ){
+						return [sizeMapping[i][1]];	
+					}else{
+						util.log(divID + ': Unsupported mapping template.');
+						util.log(sizeMapping);
+					}
+				}
+				return sizeMapping[i][1];
+			}
+		}
+	}
+
+	return false;
+}
+
+function getAdSlotSizesArray(divID, currentGoogleSlot, win){	
+	var sizeMapping = getSizeFromSizeMapping(divID, slotSizeMapping, win);
+
+	if(sizeMapping !== false){
+		util.log(divID + ': responsiveSizeMapping applied: ');
+		util.log(sizeMapping);
+		return sizeMapping;
+	}
+
+	var adslotSizesArray = [];
+
+	if( util.isFunction(currentGoogleSlot.getSizes)){
+		var sizeArray = currentGoogleSlot.getSizes();
+		var sizeArrayLength = sizeArray.length;			
+		for(var index = 0; index < sizeArrayLength; index++){
+			var sizeObj = sizeArray[ index ];
+			//todo: check on methods
+			adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
+		}
+	}
+	
+	return adslotSizesArray;
+}
+
+function storeInSlotsMap (dmSlotName, currentGoogleSlot, isDisplayFlow, win){
+	// note: here dmSlotName is actually the DivID
+	if( ! util.isOwnProperty(slotsMap, dmSlotName) ){
+		slotsMap[dmSlotName] = {};
+		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID] 						= dmSlotName;
+		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.SLOT_OBJECT] 				= currentGoogleSlot;
+		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.AD_UNIT_ID] 					= currentGoogleSlot.getAdUnitPath();
+		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.AD_UNIT_INDEX] 				= getAdUnitIndex(currentGoogleSlot);
+		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.SIZES] 						= getAdSlotSizesArray(dmSlotName, currentGoogleSlot, win);
+		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.STATUS] 						= CONSTANTS.SLOT_STATUS.CREATED;
+		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.DISPLAY_FUNCTION_CALLED] 	= false;
+		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED] 	= false;
+		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS]					= [];
+		//slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.POSITION]					= utilFindPosition(dmSlotName);//todo
+
+		if(SEND_TARGETING_INFO && JSON && typeof JSON.stringify == "function"){
+			var targetKeys = currentGoogleSlot.getTargetingKeys();
+			var targetKeysLength = targetKeys.length;				
+			slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.KEY_VALUE] = {};
+			for(var k=0; k<targetKeysLength; k++ ){
+				var targetKey = targetKeys[k];
+				slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.KEY_VALUE][targetKey] = currentGoogleSlot.getTargeting( targetKey );
+			}
+		}
+
+		//todo
+		//utilCreateVLogInfoPanel(dmSlotName, slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.SIZES]);
+	}else{
+		if(!isDisplayFlow){
+			slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.SIZES] = getAdSlotSizesArray(dmSlotName, currentGoogleSlot, win);
+		}
+	}
+}
+
+function updateSlotsMapFromGoogleSlots(win, googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow){
+
+	var googleSlotsArrayLength,
+		currentGoogleSlot,				
+		dmSlotName,
+		divIdFromDisplayFunction
+	;
+
+	googleSlotsArray = win.googletag.pubads().getSlots();
+	googleSlotsArrayLength = googleSlotsArray.length;
+
+	for(var i=0; i<googleSlotsArrayLength; i++){
+		currentGoogleSlot = googleSlotsArray[ i ];
+		dmSlotName = currentGoogleSlot.getSlotId().getDomId();// here divID will be the key
+		storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow, win);			
+		if( isDisplayFlow && util.isOwnProperty(slotsMap, dmSlotName) ){
+			divIdFromDisplayFunction = argumentsFromCallingFunction[0];
+			// if display function is called for this slot only
+			if( divIdFromDisplayFunction && divIdFromDisplayFunction == slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID] ){					
+				// mark that display function for this slot has been called
+				slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.DISPLAY_FUNCTION_CALLED] = true;
+				slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = argumentsFromCallingFunction;
+			}
+		}
+	}
+}
+
+//todo: pass slotsMap in every function that uses it
+function getStatusOfSlotForDivId(divID){
+	if( util.isOwnProperty(slotsMap, divID) ){
+		return slotsMap[divID][CONSTANTS.SLOT_ATTRIBUTES.STATUS];
+	}
+	return CONSTANTS.SLOT_STATUS.DISPLAYED;
+}
+
+function updateStatusAfterRendering(divID, isRefreshCall){
+	var settings = {};
+	settings[ CONSTANTS.SLOT_ATTRIBUTES.STATUS ] = CONSTANTS.SLOT_STATUS.DISPLAYED;
+	settings[CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = [];
+	settings[ isRefreshCall ? CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED : CONSTANTS.SLOT_ATTRIBUTES.DISPLAY_FUNCTION_CALLED ] = false;		
+	setKeyValueOfSlotForDivId(divID, settings);
+}
+
+//todo: this function can be made generic
+function setKeyValueOfSlotForDivId(divID, keyValueObject){
+	var kv;
+
+	if( util.isOwnProperty(slotsMap, divID) ){
+		for(kv in keyValueObject){
+			if(util.isOwnProperty(keyValueObject, kv)){
+				slotsMap[divID][kv] = keyValueObject[kv];
+			}
+		}
+	}
+}
+
+function getSlotNamesByStatus(statusObject){
+	var key;
+	var slots = [];
+	for(key in slotsMap){	
+		if( util.isOwnProperty(statusObject, slotsMap[key][CONSTANTS.SLOT_ATTRIBUTES.STATUS]) ){
+			slots.push( key );
+		}
+	}	
+	return slots;
+}
+
+// i am here....
+function removeDMTargetingFromSlot(key){
+	var currenGoogleSlot;
+	var targetingKeys;
+	var targetingKey;
+	var targetingMap;
+	var len;
+	var i;
+		
+	if(util.isOwnProperty(slotsMap, key)){
+		
+		targetingKeys = [];
+		targetingMap = {};
+		currenGoogleSlot = slotsMap[ key ][CONSTANTS.SLOT_ATTRIBUTES.SLOT_OBJECT];							
+		targetingKeys = currenGoogleSlot.getTargetingKeys();			
+		len = targetingKeys.length;
+		
+		// take backup of all targetings, except those set by DM
+		for(i = 0; i < len; i++){				
+			targetingKey = targetingKeys[ i ];				
+			if( ! util.isOwnProperty(wrapperTargetingKeys, targetingKey) ){				
+				targetingMap[ targetingKey ] = currenGoogleSlot.getTargeting( targetingKey );					
+			}
+		}
+		
+		// now clear all targetings
+		currenGoogleSlot.clearTargeting();
+
+		// now set all settings from backup
+		for( targetingKey in targetingMap){		
+			if( util.isOwnProperty(targetingMap, targetingKey) ){								
+				currenGoogleSlot.setTargeting( targetingKey, targetingMap[targetingKey] );						
+			}
+		}
+	}
+}
+
+function updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, argumentsFromCallingFunction, isRefreshCall){
+		
+	var slotNamesLength = slotNames.length;
+	var index;
+	var key;		
+
+	if( slotNamesLength > 0 ){
+		for(index=0; index < slotNamesLength; index++){
+			key = slotNames[ index ];
+			slotsMap[ key ][CONSTANTS.SLOT_ATTRIBUTES.STATUS] = CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
+			if( isRefreshCall ){
+				removeDMTargetingFromSlot( key );
+				slotsMap[ key ][CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED] = true;					
+				slotsMap[ key ][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = argumentsFromCallingFunction;
+			}
+		}
+	}	
+}
+
+function arrayOfSelectedSlots(slotNames){		
+	var slotNamesLength = slotNames.length;
+	var	index;
+	var output = [];		
+
+	if( slotNamesLength > 0 ){
+		for(index=0; index < slotNamesLength; index++){
+			output.push(slotsMap[ slotNames[index] ]);
+		}
+	}
+	
+	return output;
+}
+
+function findWinningBidAndApplyTargeting(divID){
+	var winningBid = bidManagerGetBid(divID);
+	var googleDefinedSlot = slotsMap[ divID ][CONSTANTS.SLOT_ATTRIBUTES.SLOT_OBJECT];
+
+	util.log('DIV: '+divID+' winningBid: ');
+	util.log(winningBid);
+	
+	if(winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] > 0){
+		slotsMap[ divID ][CONSTANTS.SLOT_ATTRIBUTES.STATUS] = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;			
+		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID, winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID]);
+		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS, winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS]);
+		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, (winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]).toFixed(bidPrecision));
+		winningBid[constTargetingDeal][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID] && googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID, winningBid[constTargetingDeal][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID]);
+		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID, winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID]);
+	}
+
+	// attaching keyValuePairs from adapters
+	for(var key in winningBid[constTargetingKvp]){
+		if(util.isOwnProperty(winningBid[constTargetingKvp], key)){
+			googleDefinedSlot.setTargeting(key, winningBid[constTargetingKvp][key]);
+			// adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
+			wrapperTargetingKeys[key] = '';
+		}
+	}
+}
 
 function defineWrapperTargetingKeys(object){
 	var output = {};
@@ -26,6 +333,305 @@ function defineWrapperTargetingKey(key){
 	wrapperTargetingKeys[key] = '';
 }
 
+// Hooks related functions
+
+//todo: can  we localise these variables
+function addHookOnGooglePubAdsDisableInitialLoad(){
+	if( original_disableInitialLoad = (localPubAdsObj && localPubAdsObj.disableInitialLoad) ){	
+		localPubAdsObj.disableInitialLoad = function(){
+			disableInitialLoadIsSet = true;
+			util.log('Disable Initial Load is called');
+			var arg = arguments;
+			return original_disableInitialLoad.apply(this, arg);
+		};
+	}
+}
+
+function addHookOnGooglePubAdsEnableSingleRequest(){
+	if( original_enableSingleRequest = (localPubAdsObj && localPubAdsObj.enableSingleRequest) ){		
+		localPubAdsObj.enableSingleRequest = function(){					
+			util.log('enableSingleRequest is called');
+			var arg = arguments;
+			sraIsSet = true;
+			addHookOnGoogletagDisplay();
+			return original_enableSingleRequest.apply(this, arg);
+		};			
+	}
+}
+
+function addHookOnGooglePubAdsSetTargeting(){
+	if( original_setTargeting = (localPubAdsObj && localPubAdsObj.setTargeting) ){	
+		localPubAdsObj.setTargeting = function(){
+			var arg = arguments,
+				key = arg[0] ? arg[0] : null
+			;
+			addHookOnGoogletagDisplay();			
+			if(key != null){				
+				if( ! util.isOwnProperty(GPT_targetingMap, key) ){
+					GPT_targetingMap[ key ] = [];
+				}
+				GPT_targetingMap[ key ] = GPT_targetingMap[ key ].concat( arg[1] );
+			}
+			return original_setTargeting.apply(localPubAdsObj, arg);
+		};	
+	}	
+}
+
+function addHookOnGoogletagDestroySlots(win){
+	localGoogletag.destroySlots = function(arrayOfSlots){
+		for(var i = 0, l = arrayOfSlots.length; i < l; i++){
+			var divID = arrayOfSlots[i].getSlotId().getDomId();
+			delete slotsMap[divID];
+		}
+		original_destroySlots.apply(win.googletag, arguments);
+	};
+}
+
+// display
+function  addHookOnGoogletagDisplay(win){
+	if(displayHookIsAdded){
+		return;
+	}
+
+	/*
+		there are many types of display methods
+			1. googletag.display('div-1');
+				this one is only covered
+				
+			// following approach can be re-written as 1st					
+			2. googletag.pubads().display('/1234567/sports', [728, 90], 'div-1');						
+				we can not support this as, above methode will generate adslot object internally and then displays, 
+				btw it does not supports single reqest approach
+				also slot level targeting can not be set on it
+				https://developers.google.com/doubleclick-gpt/reference#googletag.PubAdsService_display
+									
+			3. googletag.pubads().definePassback('/1234567/sports', [468, 60]).display();
+				we are not going to support this one as well as third-party partners use this and they wont have setup required to render our bids
+	*/			
+	
+	displayHookIsAdded = true;
+
+	util.log('Adding hook on googletag.display');
+	
+	localGoogletag.display = function(){
+	
+		util.log('In display function, with arguments: ');
+		util.log(arguments);
+			
+		var arg = arguments,
+			oldStatus,
+			qualifyingSlotNames,
+			qualifyingSlots = []
+		;
+	
+		// If AdVanced GPT mode is enabled, no need to do anything in display function
+		if( disableInitialLoadIsSet ){
+			util.log('DisableInitialLoad was called, Nothing to do');
+			return original_display.apply(this, arg);
+			
+		}else{
+			
+			util.log('Generating slotsMap');
+			updateSlotsMapFromGoogleSlots( win, win.googletag.pubads().getSlots(), arg, true );
+			util.log(slotsMap);
+
+			oldStatus = getStatusOfSlotForDivId( arg[0] );
+			switch( oldStatus ){
+			
+				// display method was called for this slot
+				case CONSTANTS.SLOT_STATUS.CREATED:
+				// dm flow is already intiated for this slot
+				// just intitate the configTimeout now
+				case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
+					setTimeout(function(){
+
+						util.log('PostTimeout.. back in display function');
+
+						//todo: move this function out of here
+						var tempFunc = function(key){
+							if( util.isOwnProperty(slotsMap, key) 
+								&& slotsMap[key][CONSTANTS.SLOT_ATTRIBUTES.STATUS] != CONSTANTS.SLOT_STATUS.DISPLAYED 
+								&& slotsMap[key][CONSTANTS.SLOT_ATTRIBUTES.STATUS] != CONSTANTS.SLOT_STATUS.TARGETING_ADDED){
+
+								findWinningBidAndApplyTargeting(key);									
+							}	
+						};
+
+						for(var key in slotsMap){
+							tempFunc(key);								
+						}
+						
+						var status = getStatusOfSlotForDivId( arg[0] );
+						// check status of the slot, if not displayed/
+						if(status != CONSTANTS.SLOT_STATUS.DISPLAYED){
+																
+							util.log('calling original display function after configTimeout with arguments, ');
+							util.log(arg);
+							updateStatusAfterRendering(arg[0], false);
+							original_display.apply(win.googletag, arg);
+						}else{
+							util.log('AdSlot already rendered');
+						}
+							
+					}, configTimeout);
+					break;
+
+				// call the original function now
+				case CONSTANTS.SLOT_STATUS.TARGETING_ADDED:
+					util.log('As DM processing is already done, Calling original display function with arguments');
+					util.log(arg);						
+					updateStatusAfterRendering(arg[0], false);
+					original_display.apply(win.googletag, arg);
+					break;
+				
+				case CONSTANTS.SLOT_STATUS.DISPLAYED:
+					updateStatusAfterRendering(arg[0], false);
+					original_display.apply(win.googletag, arg);					
+					break;
+			}
+			
+			qualifyingSlotNames = getSlotNamesByStatus({0:''});
+			if(qualifyingSlotNames.length > 0){
+				updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, false);
+				qualifyingSlots = arrayOfSelectedSlots(qualifyingSlotNames);
+				//adapterManagerCallAdapters(configObject, qualifyingSlots);
+			}				
+
+			setTimeout(function(){
+				//utilRealignVLogInfoPanel(arg[0]);
+				//bidManagerExecuteAnalyticsPixel();
+			},2000+configTimeout);				
+		}
+						
+	};					
+}
+
+// refresh
+function addHookOnGooglePubAdsRefresh(win){
+	/*
+		there are many ways of calling refresh
+			1. googletag.pubads().refresh([slot1]);
+			2. googletag.pubads().refresh([slot1, slot2]);
+			3. googletag.pubads().refresh();					
+			4. googletag.pubads().refresh(null, {changeCorrelator: false});		
+	*/		
+	if( original_refresh = (localPubAdsObj && localPubAdsObj.refresh) ){
+	
+		localPubAdsObj.refresh = function(){
+		
+			var arg = arguments,
+				slotsToConsider = win.googletag.pubads().getSlots(),
+				slotsToConsiderLength,
+				qualifyingSlotNames = [],
+				qualifyingSlots,
+				index
+			;
+			
+			util.log('In Refresh function');
+
+			updateSlotsMapFromGoogleSlots(win, slotsToConsider, arg, false);
+			
+			if( arg.length != 0){								
+				// handeling case googletag.pubads().refresh(null, {changeCorrelator: false});
+				slotsToConsider = arg[0] == null ? win.googletag.pubads().getSlots() : arg[0];
+			}
+					
+			slotsToConsiderLength = slotsToConsider.length;				
+			for(index = 0; index < slotsToConsiderLength; index++){
+				qualifyingSlotNames = qualifyingSlotNames.concat( slotsToConsider[ index ].getSlotId().getDomId() );
+			}
+
+			if(qualifyingSlotNames.length > 0){
+				updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, true);
+				qualifyingSlots = arrayOfSelectedSlots(qualifyingSlotNames);
+				adapterManagerCallAdapters(configObject, qualifyingSlots);
+			}
+			
+			util.log('Intiating Call to original refresh function with configTimeout: ' + configTimeout+' ms');
+			setTimeout(function(){
+				
+				util.log('Executing post configTimeout events, arguments: ');
+				util.log(arg);
+				
+				var index,	
+					dmSlot,
+					divID,
+					yesCallRefreshFunction = false,
+					qualifyingSlotNamesLength
+				;
+
+				qualifyingSlotNamesLength = qualifyingSlotNames.length;					
+				for(index=0; index<qualifyingSlotNamesLength; index++){						
+					
+					dmSlot = qualifyingSlotNames[ index ];
+					divID = slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID];
+
+					if( util.isOwnProperty(slotsMap, dmSlot) 
+						&& slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED] == true 
+						&& slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.STATUS] != CONSTANTS.SLOT_STATUS.DISPLAYED ){
+					
+						findWinningBidAndApplyTargeting(divID);
+						updateStatusAfterRendering(divID, true);
+						yesCallRefreshFunction = true;
+					}
+				}
+
+				setTimeout(function(){
+					for(index=0; index<qualifyingSlotNamesLength; index++){
+						var dmSlot = qualifyingSlotNames[ index ];
+						//utilCreateVLogInfoPanel(slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.SIZES]);						
+						//utilRealignVLogInfoPanel(slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID]);	
+					}						
+				}, 2000+configTimeout);
+
+				//bidManagerExecuteAnalyticsPixel();
+				
+				if(yesCallRefreshFunction){						
+					util.log('Calling original refresh function from configTimeout');
+					original_refresh.apply(win.googletag.pubads(), arg );						
+				}else{
+					util.log('AdSlot already rendered');
+				}
+					
+			}, configTimeout);
+		};
+	}
+}
+
+function addHooks(win){
+
+	localGoogletag = win.googletag;
+	localPubAdsObj = localGoogletag.pubads();
+
+	//todo: move to a function
+	var s1 = localGoogletag.defineSlot('/Harshad', [[728, 90]], 'Harshad-02051986');
+	if(s1 && s1.__proto__ && s1.__proto__.defineSizeMapping){
+		var originalDefineSizeMapping = s1.__proto__.defineSizeMapping;
+		s1.__proto__.defineSizeMapping = function(){
+			slotSizeMapping[ this.getSlotId().getDomId() ] = arguments[0];
+			return originalDefineSizeMapping.apply(this, arguments);
+		};
+	}
+	localGoogletag.destroySlots([s1]);
+
+	original_display = (localGoogletag && localGoogletag.display);
+	original_destroySlots = (localGoogletag && localGoogletag.destroySlots);
+
+	addHookOnGooglePubAdsDisableInitialLoad();
+	addHookOnGooglePubAdsEnableSingleRequest();		
+	addHookOnGoogletagDisplay(win);
+	addHookOnGooglePubAdsRefresh(win);
+	//	setTargeting is implemented by
+	//		googletag.pubads().setTargeting(key, value);
+	//			we are only intresetd in this one
+	//		googletag.PassbackSlot.setTargeting(key, value);
+	//			we do not care about it
+	//		slot.setTargeting(key, value);
+	//			we do not care, as it has a get method
+	addHookOnGooglePubAdsSetTargeting();
+	addHookOnGoogletagDestroySlots(win);
+}
+
 function defineGPTVariables(win){
 	// define the command array if not already defined
 	win.googletag = win.googletag || {};
@@ -37,4 +643,22 @@ exports.init = function(config, win){
 	configTimeout = util.getTimeout(configObject);
 	wrapperTargetingKeys = defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
 	defineGPTVariables(win);	
+
+	if(util.isUndefined(win.google_onload_fired) && win.googletag.cmd.unshift){
+		util.log('Succeeded to load before GPT');
+		win.googletag.cmd.unshift( function(){ 
+			util.log('OpenWrap initialization started');
+			addHooks(win);
+			util.log('OpenWrap initialization completed');
+		} );
+	}else{
+		util.log('Failed to load before GPT');
+	}
+	
+	if(util.isFunction(win.PWT.jsLoaded)){
+		win.PWT.jsLoaded();
+	}
 };
+
+// todo: export all functions in test scenario for unit testing
+// todo: create a slot class
