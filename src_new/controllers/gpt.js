@@ -1,5 +1,6 @@
 var CONSTANTS = require('../constants.js');
 var util = require('../util.js');
+var bidManager = require('../bidManager.js');
 
 var SEND_TARGETING_INFO = true;
 var displayHookIsAdded = false;
@@ -292,7 +293,7 @@ function arrayOfSelectedSlots(slotNames){
 }
 
 function findWinningBidAndApplyTargeting(divID){
-	var winningBid = bidManagerGetBid(divID);
+	var winningBid = bidManager.getBid(divID);
 	var googleDefinedSlot = slotsMap[ divID ][CONSTANTS.SLOT_ATTRIBUTES.SLOT_OBJECT];
 
 	util.log('DIV: '+divID+' winningBid: ');
@@ -499,7 +500,7 @@ function  addHookOnGoogletagDisplay(win){
 
 			setTimeout(function(){
 				//utilRealignVLogInfoPanel(arg[0]);
-				//bidManagerExecuteAnalyticsPixel();
+				bidManager.executeAnalyticsPixel();
 			},2000+configTimeout);				
 		}
 						
@@ -584,7 +585,7 @@ function addHookOnGooglePubAdsRefresh(win){
 					}						
 				}, 2000+configTimeout);
 
-				//bidManagerExecuteAnalyticsPixel();
+				bidManager.executeAnalyticsPixel();
 				
 				if(yesCallRefreshFunction){						
 					util.log('Calling original refresh function from configTimeout');

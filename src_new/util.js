@@ -36,7 +36,7 @@ exports.isOwnProperty = function(theObject, proertyName){
 
 exports.isUndefined = function(object){
   return typeof object === "undefined";
-}
+};
 
 exports.getTimeout = function(config){
 
@@ -61,6 +61,47 @@ var constDebugInConsolePrependWith = '-------------------------';
 
 exports.log = function(data){
   if( debugLogIsEnabled && console && this.isFunction(console.log) ){
-    this.isString(data) ? console.log( constDebugInConsolePrependWith + data ) : console.log(data);
+    if(this.isString(data)){
+      console.log( constDebugInConsolePrependWith + data );
+    }else{
+      console.log(data);
+    }
   }
 };
+
+exports.getCurrentTimestampInMs = function(){
+  var date = new Date();
+  return date.getTime();
+};
+
+exports.getCurrentTimestamp = function(){
+  var date = new Date();
+  return Math.round( date.getTime()/1000 );
+};
+
+var utilGetIncrementalInteger = (function() {
+  var count = 0;
+  return function() {
+    count++;
+    return count;
+  };
+})();
+
+exports.getUniqueIdentifierStr = function() {
+  return utilGetIncrementalInteger() + Math.random().toString(16).substr(2);
+};
+
+exports.copyKeyValueObject = function(copyTo, copyFrom){
+  for(var key in copyFrom){    
+    copyFrom[key] = this.isArray(copyFrom[key]) ? copyFrom[key] : [copyFrom[key]];
+    if(this.isOwnProperty(copyFrom, key)){
+      if(this.isOwnProperty(copyTo, key)){
+        copyTo[key].push.apply(copyTo[key], copyFrom[key])  ;
+      }else{
+        copyTo[key] = copyFrom[key];
+      }
+    }
+  }
+};
+
+exports.protocol = "https://"; //todo need a set method
