@@ -1,5 +1,19 @@
+exports.COMMON = {
+	"BID_PRECISION": 4,
+	"CONFIG": "config",
+	"DIV_ID": "divID",
+	"PARAMS": "params",
+	"SIZES": "sizes",
+	"HEIGHT": "height",
+	"WIDTH": "width",
+	"SLOTS": "slots",
+	"KEY_GENERATION_PATTERN_VALUE": "kgpv",
+	"KEY_VALUE_PAIRS": "kvp"
+};
+
 exports.CONFIG = {
 	"GLOBAL": "global",
+	"ADAPTERS": "adapters",
 	"COMMON": "pwt",
 	"TIMEOUT": "t",
 	"KEY_GENERATION_PATTERN": "kgp",
@@ -35,6 +49,16 @@ exports.SLOT_ATTRIBUTES = {
 	"ARGUMENTS": "arguments",
 	"POSITION": "position",
 	"KEY_VALUE": "skv"
+};
+
+exports.DEAL = {
+	"ID": "id",
+	"CHANNEL": "channel",
+	"KEY_FIRST_PART": "pwtdeal_",
+	"KEY_VALUE_SEPARATOR": "_-_",
+	"CHANNEL_PMP": "PMP",
+	"CHANNEL_PMPG": "PMPG",
+	"CHANNEL_PREF": "PREF"
 };
 
 exports.WRAPPER_TARGETING_KEYS = {

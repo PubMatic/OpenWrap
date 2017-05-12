@@ -8,7 +8,7 @@ var disableInitialLoadIsSet = false;
 var sendTargetingInfoIsSet = true;
 var sraIsSet = false;
 var configObject = {};// todo: save config in a json file
-var configTimeout = 0;// refer dirctly from Config
+var configTimeout = 1000;// refer dirctly from Config
 
 //todo: combine these maps
 var wrapperTargetingKeys = {}; // key is div id
@@ -309,9 +309,9 @@ function findWinningBidAndApplyTargeting(divID){
 	}
 
 	// attaching keyValuePairs from adapters
-	for(var key in winningBid[constTargetingKvp]){
-		if(util.isOwnProperty(winningBid[constTargetingKvp], key)){
-			googleDefinedSlot.setTargeting(key, winningBid[constTargetingKvp][key]);
+	for(var key in winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS]){
+		if(util.isOwnProperty(winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS], key)){
+			googleDefinedSlot.setTargeting(key, winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS][key]);
 			// adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
 			wrapperTargetingKeys[key] = '';
 		}
