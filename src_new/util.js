@@ -105,3 +105,88 @@ exports.copyKeyValueObject = function(copyTo, copyFrom){
 };
 
 exports.protocol = "https://"; //todo need a set method
+exports.pageURL = "http://abc.com/ljljl/abc";
+
+exports.getIncrementalInteger = (function() {
+  var count = 0;
+  return function() {
+    count++;
+    return count;
+  };
+})();
+
+exports.generateUUID = function(){
+    var d = new Date().getTime(),
+      // todo: this.pageURL ???
+      url = decodeURIComponent(this.pageURL).toLowerCase().replace(/[^a-z,A-Z,0-9]/gi, ''),
+      urlLength = url.length
+    ;
+
+    //todo: uncomment it,  what abt performance
+    //if(win.performance && this.isFunction(win.performance.now)){
+    //    d += performance.now();
+    //}
+
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx-zzzzz'.replace(/[xyz]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        var op;
+        switch(c){
+          case 'x':
+            op = r;
+            break;
+          case 'z':
+            op = url[Math.floor(Math.random()*urlLength)];
+            break;
+          default:
+            op = (r&0x3|0x8);
+        }
+
+        return op.toString(16);
+    });
+
+    return uuid;
+};
+
+var macroRegexFlag = macroRegexFlag;
+var constCommonMacroForWidthRegExp = new RegExp(CONSTANTS.MACROS.WIDTH, macroRegexFlag);
+var constCommonMacroForHeightRegExp = new RegExp(CONSTANTS.MACROS.HEIGHT, macroRegexFlag);
+var constCommonMacroForAdUnitIDRegExp = new RegExp(CONSTANTS.MACROS.AD_UNIT_ID, macroRegexFlag);
+var constCommonMacroForAdUnitIndexRegExp = new RegExp(CONSTANTS.MACROS.AD_UNIT_INDEX, macroRegexFlag);
+var constCommonMacroForIntegerRegExp = new RegExp(CONSTANTS.MACROS.INTEGER, macroRegexFlag);
+var constCommonMacroForDivRegExp = new RegExp(CONSTANTS.MACROS.DIV, macroRegexFlag);
+
+exports.generateSlotNamesFromPattern = function(activeSlot, pattern){  
+  var slotNames = [],
+    slotName,
+    slotNamesObj = {},
+    sizeArrayLength,
+    i
+  ;
+  
+  if(activeSlot && activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES]){
+    sizeArrayLength = activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES].length;
+    if( sizeArrayLength > 0){
+      for(i = 0; i < sizeArrayLength; i++){
+        if(activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES][i][0] && activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES][i][1]){
+
+          slotName = pattern;
+          slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, activeSlot[CONSTANTS.SLOT_ATTRIBUTES.AD_UNIT_ID])
+                    .replace(constCommonMacroForWidthRegExp, activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES][i][0])
+                    .replace(constCommonMacroForHeightRegExp, activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES][i][1])
+                    .replace(constCommonMacroForAdUnitIndexRegExp, activeSlot[CONSTANTS.SLOT_ATTRIBUTES.AD_UNIT_INDEX])
+                    .replace(constCommonMacroForIntegerRegExp, this.getIncrementalInteger())
+                    .replace(constCommonMacroForDivRegExp, activeSlot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID]);
+
+          if(! this.isOwnProperty(slotNamesObj, slotName)){
+            slotNamesObj[slotName] = '';
+            slotNames.push(slotName);
+          }
+        }
+      }
+    }
+  }
+
+  return slotNames;
+};
+

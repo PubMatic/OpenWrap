@@ -8,7 +8,8 @@ exports.COMMON = {
 	"WIDTH": "width",
 	"SLOTS": "slots",
 	"KEY_GENERATION_PATTERN_VALUE": "kgpv",
-	"KEY_VALUE_PAIRS": "kvp"
+	"KEY_VALUE_PAIRS": "kvp",
+	"IMPRESSION_ID": "iid"
 };
 
 exports.CONFIG = {
@@ -28,6 +29,15 @@ exports.CONFIG = {
 	"THROTTLE": "throttle",
 	"BID_PASS_THROUGH": "pt",
 	"GLOBAL_KEY_VALUE": "gkv"
+};
+
+exports.MACROS = {
+	"WIDTH": "_W_",
+	"HEIGHT": "_H_",
+	"AD_UNIT_ID": "_AU_",
+	"AD_UNIT_INDEX": "_AUI_",
+	"INTEGER": "_I_",
+	"DIV": "_DIV_"
 };
 
 exports.SLOT_STATUS = {
@@ -70,4 +80,5 @@ exports.WRAPPER_TARGETING_KEYS = {
 };
 
 exports.BID_ATTRIBUTES = {
+	"CREATION_TIME": "creationTime"
 };

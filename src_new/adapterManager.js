@@ -1,19 +1,20 @@
+var CONSTANTS = require('./constants.js');
 var util = require('./util.js');
-var bidManager = require('../bidManager.js');
+var bidManager = require('./bidManager.js');
 
 var registeredAdapters = {};
 
 exports.callAdapters = function(configObject, activeSlots){
 
 	var randomNumberBelow100 = Math.floor(Math.random()*100);	
-	var impressionID = utilGenerateUUID();	
-	configObject.global.pwt.wiid = impressionID;// todo
+	var impressionID = util.generateUUID();	
+	//configObject.global.pwt.wiid = impressionID;// todo use constants
 
 	for(var i in activeSlots){
 		if(util.isOwnProperty(activeSlots, i) && activeSlots[i]){
-			bidManager.resetBid(activeSlots[i][pmSlots_key_divId], impressionID);
-			bidManager.setConfig(activeSlots[i][pmSlots_key_divId], configObject);
-			bidManager.setSizes(activeSlots[i][pmSlots_key_divId], utilGenerateSlotNamesFromPattern(activeSlots[i], '_W_x_H_'));
+			bidManager.resetBid(activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], impressionID);
+			bidManager.setConfig(activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], configObject);
+			bidManager.setSizes(activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], util.generateSlotNamesFromPattern(activeSlots[i], '_W_x_H_'));
 		}
 	}
 
@@ -22,7 +23,7 @@ exports.callAdapters = function(configObject, activeSlots){
 			if(randomNumberBelow100 >= bidManager.getAdapterThrottle(anAdapter)){
 				for(var j in activeSlots){
 					if(util.isOwnProperty(activeSlots, j) && activeSlots[j]){
-						bidManager.setCallInitTime(activeSlots[j][pmSlots_key_divId], anAdapter);
+						bidManager.setCallInitTime(activeSlots[j][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], anAdapter);
 					}
 				}
 				registeredAdapters[anAdapter].fB(configObject, activeSlots);

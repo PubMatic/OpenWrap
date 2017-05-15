@@ -46,7 +46,7 @@ function createBidEntry(divID){
 		temp = {};
 		temp[bids] = {};
 		temp[CONSTANTS.COMMON.CONFIG] = {};
-		temp[constCommonSizes] = [];
+		temp[CONSTANTS.SLOT_ATTRIBUTES.SIZES] = [];
 		temp[creationTime] = util.getCurrentTimestampInMs();
 		bidMap[divID] = temp;
 	}
@@ -59,7 +59,7 @@ exports.setConfig = function(divID, config){
 
 exports.setSizes = function(divID, slotSizes){
 	createBidEntry(divID);
-	bidMap[divID][constCommonSizes] = slotSizes;
+	bidMap[divID][CONSTANTS.SLOT_ATTRIBUTES.SIZES] = slotSizes;
 };
 
 exports.setCallInitTime = function(divID, bidderID){
@@ -223,7 +223,7 @@ exports.resetBid = function(divID, impressionID){
 	//utilVLogInfo(divID, {type: "hr"});//todo
 	delete bidMap[divID];
 	createBidEntry(divID);	
-	bidMap[divID][constImpressionID] = impressionID;
+	bidMap[divID][CONSTANTS.COMMON.IMPRESSION_ID] = impressionID;
 };
 
 function auctionBids(bids){
@@ -284,7 +284,7 @@ function auctionBids(bids){
 	if(winningBidID && winningBidAdapter){
 		winningBid = bids[winningBidAdapter][bid][winningBidID];
 		winningBid[constTargetingAdapterID] = winningBidAdapter;
-		winningBid[constTargetingBidID] = winningBidID;
+		winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID] = winningBidID;
 	}
 
 	winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS] = keyValuePairs;
@@ -304,11 +304,11 @@ exports.getBid = function(divID, auctionFunction){
 		}
 		
 		winningBid = auctionBids(bidMap[divID][bids]);
-		winningBid[constTargetingBidStatus] = 1;
+		winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS] = 1;
 		bidMap[divID]['ae'] = true; // Analytics Enabled
 
 		if(winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] > 0){
-			bidMap[divID][bids][ winningBid[constTargetingAdapterID] ][bid][winningBid[constTargetingBidID]].win = true;
+			bidMap[divID][bids][ winningBid[constTargetingAdapterID] ][bid][winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID]].win = true;
 			
 			//todo
 			/*utilVLogInfo(divID, {
@@ -363,7 +363,7 @@ exports.displayCreative = function(theDocument, bidID){
 				'adp': adapterID,
 				'en': theBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM],
 				'eg': theBid[constTargetingActualEcpm],
-				'iid': bidMap[divID][constImpressionID],
+				'iid': bidMap[divID][CONSTANTS.COMMON.IMPRESSION_ID],
 				'kgpv': theBid[constCommonKeyGenerationPatternValue],
 				'bidid': bidID
 			});
@@ -460,14 +460,14 @@ exports.executeAnalyticsPixel = function(){
 
 			var slotObject = {
 				'sn': key,
-				'sz': bidMap[key][constCommonSizes],
+				'sz': bidMap[key][CONSTANTS.SLOT_ATTRIBUTES.SIZES],
 				'ps': []
 			};
 
 			selectedInfo[key] = {};
 
 			var bidsArray = bidMap[key][bids];
-			impressionID = bidMap[key][constImpressionID];
+			impressionID = bidMap[key][CONSTANTS.COMMON.IMPRESSION_ID];
 
 			for(var adapter in bidsArray){
 
@@ -514,7 +514,7 @@ exports.executeAnalyticsPixel = function(){
 		outputObj['to'] = bidManagerPwtConf['t'];
 		outputObj['purl'] = decodeURIComponent(utilMetaInfo.u);
 		outputObj[constBidInfoTimestamp] = util.getCurrentTimestamp();
-		outputObj[constImpressionID] = encodeURIComponent(impressionID);
+		outputObj[CONSTANTS.COMMON.IMPRESSION_ID] = encodeURIComponent(impressionID);
 		outputObj[CONSTANTS.CONFIG.PROFILE_ID] = bidManagerGetProfileID();
 		outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = bidManagerGetProfileDisplayVersionID();
 
@@ -543,7 +543,7 @@ exports.executeMonetizationPixel = function(bidInfo){
 	pixelURL += 'pubid=' + bidManagerPwtConf[constConfigPublisherID];
 	pixelURL += '&purl=' + utilMetaInfo.u;
 	pixelURL += '&tst=' + util.getCurrentTimestamp();
-	pixelURL += '&iid=' + encodeURIComponent(bidInfo[constImpressionID]);
+	pixelURL += '&iid=' + encodeURIComponent(bidInfo[CONSTANTS.COMMON.IMPRESSION_ID]);
 	pixelURL += '&bidid=' + encodeURIComponent(bidInfo['bidid']);
 	pixelURL += '&pid=' + encodeURIComponent(bidManagerGetProfileID());
 	pixelURL += '&pdvid=' + encodeURIComponent(bidManagerGetProfileDisplayVersionID());

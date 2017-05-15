@@ -1,6 +1,7 @@
 var CONSTANTS = require('../constants.js');
 var util = require('../util.js');
 var bidManager = require('../bidManager.js');
+var adapterManager = require('../adapterManager.js');
 
 var SEND_TARGETING_INFO = true;
 var displayHookIsAdded = false;
@@ -495,7 +496,7 @@ function  addHookOnGoogletagDisplay(win){
 			if(qualifyingSlotNames.length > 0){
 				updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, false);
 				qualifyingSlots = arrayOfSelectedSlots(qualifyingSlotNames);
-				//adapterManagerCallAdapters(configObject, qualifyingSlots);
+				adapterManager.callAdapters(configObject, qualifyingSlots);
 			}				
 
 			setTimeout(function(){
@@ -545,7 +546,7 @@ function addHookOnGooglePubAdsRefresh(win){
 			if(qualifyingSlotNames.length > 0){
 				updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, true);
 				qualifyingSlots = arrayOfSelectedSlots(qualifyingSlotNames);
-				adapterManagerCallAdapters(configObject, qualifyingSlots);
+				adapterManager.callAdapters(configObject, qualifyingSlots);
 			}
 			
 			util.log('Intiating Call to original refresh function with configTimeout: ' + configTimeout+' ms');
@@ -640,6 +641,9 @@ function defineGPTVariables(win){
 }
 
 exports.init = function(config, win){
+
+	console.log(config);
+
 	configObject = config;
 	configTimeout = util.getTimeout(configObject);
 	wrapperTargetingKeys = defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
