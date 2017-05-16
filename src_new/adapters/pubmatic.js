@@ -7,3 +7,4 @@ var adapterID = 'pubmatic';
 var adapterConfigMandatoryParams = [];
 var slotConfigMandatoryParams = [];
 
+// todo later

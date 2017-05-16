@@ -296,6 +296,13 @@ function arrayOfSelectedSlots(slotNames){
 function findWinningBidAndApplyTargeting(divID){
 	var winningBid = bidManager.getBid(divID);
 	var googleDefinedSlot = slotsMap[ divID ][CONSTANTS.SLOT_ATTRIBUTES.SLOT_OBJECT];
+	var ignoreTheseKeys = {
+		'hb_bidder': 1,
+		'hb_adid': 1,
+		'hb_pb': 1,
+		'hb_size': 1
+	};
+
 
 	util.log('DIV: '+divID+' winningBid: ');
 	util.log(winningBid);
@@ -311,7 +318,7 @@ function findWinningBidAndApplyTargeting(divID){
 
 	// attaching keyValuePairs from adapters
 	for(var key in winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS]){
-		if(util.isOwnProperty(winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS], key)){
+		if(util.isOwnProperty(winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS], key) && !util.isOwnProperty(ignoreTheseKeys, key)){
 			googleDefinedSlot.setTargeting(key, winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS][key]);
 			// adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
 			wrapperTargetingKeys[key] = '';
@@ -647,7 +654,9 @@ exports.init = function(config, win){
 	configObject = config;
 	configTimeout = util.getTimeout(configObject);
 	wrapperTargetingKeys = defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
-	defineGPTVariables(win);	
+	defineGPTVariables(win);
+
+	adapterManager.registerAdapters();
 
 	if(util.isUndefined(win.google_onload_fired) && win.googletag.cmd.unshift){
 		util.log('Succeeded to load before GPT');

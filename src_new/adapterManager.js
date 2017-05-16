@@ -2,6 +2,8 @@ var CONSTANTS = require('./constants.js');
 var util = require('./util.js');
 var bidManager = require('./bidManager.js');
 
+var prebid = require('./adapters/prebid.js');
+
 var registeredAdapters = {};
 
 exports.callAdapters = function(configObject, activeSlots){
@@ -50,4 +52,8 @@ exports.displayCreative = function(theDocument, adapterID, bidDetails){
 	if( util.isOwnProperty(registeredAdapters, adapterID) ){
 		registeredAdapters[adapterID].dC(theDocument, bidDetails);
 	}
+};
+
+exports.registerAdapters = function(){
+	this.registerAdapter(prebid.register());
 };

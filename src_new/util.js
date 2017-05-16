@@ -190,3 +190,142 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
   return slotNames;
 };
 
+exports.loadGlobalConfigForAdapter = function(configObject, adapterID, mandatoryParams){
+  //todo: move this method to CONFIG
+  if( this.isOwnProperty(configObject, CONSTANTS.CONFIG.GLOBAL) 
+    && this.isOwnProperty(configObject[CONSTANTS.CONFIG.GLOBAL], CONSTANTS.CONFIG.ADAPTERS)
+    && this.isOwnProperty(configObject[CONSTANTS.CONFIG.GLOBAL][CONSTANTS.CONFIG.ADAPTERS], adapterID)){
+
+    var adapterConfig = configObject[CONSTANTS.CONFIG.GLOBAL][CONSTANTS.CONFIG.ADAPTERS][adapterID];
+
+    // if mandatory params are not present then return false
+    if(!this.checkMandatoryParams(adapterConfig, mandatoryParams, adapterID)){
+      this.log(adapterID+constCommonMessage07);
+      return false;
+    }
+
+    return adapterConfig;
+  }
+  return false;
+};
+
+exports.checkMandatoryParams = function(object, keys, adapterID){
+  var error = false,
+    success = true
+  ;
+
+  if(!object || !this.isObject(object) || this.isArray(object)){
+    this.log(adapterID + 'provided object is invalid.');
+    return error;
+  }
+
+  if(!this.isArray(keys)){
+    this.log(adapterID + 'provided keys must be in an array.');
+    return error;
+  }
+
+  var arrayLength = keys.length;
+  if(arrayLength == 0){
+    return success;
+  }
+
+  for(var i=0; i<arrayLength; i++){
+    if(!this.isOwnProperty(object, keys[i])){
+      this.log(adapterID + ': '+keys[i]+', mandatory parameter not present.');
+      return error;
+    }
+  }
+
+  return success;
+};
+
+exports.forEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids){
+  var activeSlotsLength = activeSlots.length,
+    i,
+    j,
+    generatedKeys,
+    generatedKeysLength,
+    kgpConsistsWidthAndHeight
+  ;
+
+  if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
+    kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
+    for(i = 0; i < activeSlotsLength; i++){
+      generatedKeys = this.generateSlotNamesFromPattern( activeSlots[i], keyGenerationPattern );
+      generatedKeysLength = generatedKeys.length;
+      for(j = 0; j < generatedKeysLength; j++){
+        var generatedKey = generatedKeys[j],
+          keyConfig = null,
+          callHandlerFunction = false
+        ;
+
+        if(keyLookupMap == null){
+          callHandlerFunction = true;
+        }else{
+          keyConfig = keyLookupMap[generatedKey];
+          if(!keyConfig){
+            this.log(adapterID+': '+generatedKey+constCommonMessage08);
+          }else if(!this.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
+            this.log(adapterID+': '+generatedKey+constCommonMessage09);
+          }else{
+            callHandlerFunction = true;
+          }
+        }
+
+        if(callHandlerFunction){
+
+          if(addZeroBids == true){
+            bidManager.setBidFromBidder(
+              activeSlots[i][constCommonDivID], 
+              adapterID, 
+              bidManager.createBidObject(
+                0,
+                bidManager.createDealObject(),
+                "",
+                "",
+                "",
+                0,
+                0,
+                generatedKey,
+                null,
+                1
+              ), 
+              this.getUniqueIdentifierStr()
+            );
+          }
+
+          handlerFunction(
+            generatedKey, 
+            kgpConsistsWidthAndHeight, 
+            activeSlots[i], 
+            keyLookupMap ? keyLookupMap[generatedKey] : null, 
+            activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.SIZES][j][0], 
+            activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.SIZES][j][1]
+          );
+        } 
+      }
+    }
+  }
+};
+
+exports.displayCreative = function(theDocument, bidDetails){
+  //todo
+  //utilResizeWindow(theDocument, bidDetails[constTargetingHeight], bidDetails[constTargetingWidth]);
+  /*
+  if(bidDetails[constTargetingAdHTML]){
+    theDocument.write(bidDetails[constTargetingAdHTML]);
+  }else if(bidDetails[constTargetingAdUrl]){
+    utilCreateAndInsertFrame(
+      theDocument,
+      bidDetails[constTargetingAdUrl], 
+      bidDetails[constTargetingHeight] , bidDetails[constTargetingWidth] , 
+      ""
+    );
+  }else{
+    this.log("creative details are not found");
+    this.log(bidDetails);
+  }
+  
+  theDocument.close();
+  */
+};

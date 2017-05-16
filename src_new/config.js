@@ -44,7 +44,7 @@ exports.config = {
 	}
 };
 
-// step 1: copy paste config here as it is now and pass to owt.js
+// TODO
 
 // step 2: all methods over config should stay here only
 //			remove them from other code parts

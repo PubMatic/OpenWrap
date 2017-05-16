@@ -425,7 +425,8 @@ function getAdapterRevShare(adapterID){
 	return 1;
 }
 
-function getAdapterThrottle(adapterID){
+//todo: move to CONFIG
+exports.getAdapterThrottle = function(adapterID){
 	if(util.isOwnProperty(adapterThrottleMap, adapterID)){
 		return adapterThrottleMap[adapterID];
 	}
@@ -472,7 +473,9 @@ exports.executeAnalyticsPixel = function(){
 			for(var adapter in bidsArray){
 
 				//if bid-pass-thru is set then do not log the bids
-				if(adapterBidPassThrough[adapter]){
+				// 1: do NOT log, do NOT auction
+				// 2: do log, do NOT auction
+				if(adapterBidPassThrough[adapter] === 1){
 					continue;
 				}
 
