@@ -1,3 +1,6 @@
+var CONSTANTS = require('./constants.js');
+var util = require('./util.js');
+
 exports.config = {
 	global: {
 		pwt: {
@@ -49,7 +52,50 @@ exports.config = {
 // step 2: all methods over config should stay here only
 //			remove them from other code parts
 
+exports.getPublisherId = function(){
+	return this.config.global.pwt.t || 0;
+}
+
 exports.getTimeout = function(){
 	return parseInt(this.config.global.t) || 1000;
 };
 
+exports.getAdapterRevShare = function(adapterID){
+	var adapterConfig = this.config.global.adapters;
+	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.REV_SHARE)){
+		return (1 - parseFloat(adapterConfig[adapterID][CONSTANTS.CONFIG.REV_SHARE])/100)
+	}
+	return 1;
+};
+
+exports.getAdapterThrottle = function(adapterID){
+	var adapterConfig = this.config.global.adapters;
+	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.THROTTLE)){
+		return 100 - parseFloat(adapterConfig[adapterID][CONSTANTS.CONFIG.THROTTLE])
+	}
+	return 0;
+};
+
+exports.getBidPassThroughStatus = function(adapterID){
+	var adapterConfig = this.config.global.adapters;
+	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.BID_PASS_THROUGH)){
+		return parseInt(adapterConfig[adapter][CONSTANTS.CONFIG.BID_PASS_THROUGH]);
+	}
+	return 0;
+};
+
+exports.getProfileID = function(){
+	return this.config.global.pwt[CONSTANTS.CONFIG.PROFILE_ID] || "0";
+};
+
+exports.getProfileDisplayVersionID = function(){
+	return this.config.global.pwt[CONSTANTS.CONFIG.PROFILE_VERSION_ID] || "0";
+};
+
+exports.getAnalyticsPixelURL = function(){
+	return this.config.global.pwt[CONSTANTS.CONFIG.LOGGER_URL] || false;
+};
+
+exports.getMonetizationPixelURL = function(){
+	return this.config.global.pwt[CONSTANTS.CONFIG.TRACKER_URL] || false;
+};

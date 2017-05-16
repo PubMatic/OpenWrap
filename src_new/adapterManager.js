@@ -1,3 +1,4 @@
+var CONFIG = require('./config.js');
 var CONSTANTS = require('./constants.js');
 var util = require('./util.js');
 var bidManager = require('./bidManager.js');
@@ -15,14 +16,13 @@ exports.callAdapters = function(configObject, activeSlots){
 	for(var i in activeSlots){
 		if(util.isOwnProperty(activeSlots, i) && activeSlots[i]){
 			bidManager.resetBid(activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], impressionID);
-			bidManager.setConfig(activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], configObject);
 			bidManager.setSizes(activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], util.generateSlotNamesFromPattern(activeSlots[i], '_W_x_H_'));
 		}
 	}
 
 	for(var anAdapter in registeredAdapters){
 		if( util.isOwnProperty(registeredAdapters, anAdapter) ){			
-			if(randomNumberBelow100 >= bidManager.getAdapterThrottle(anAdapter)){
+			if(randomNumberBelow100 >= CONFIG.getAdapterThrottle(anAdapter)){
 				for(var j in activeSlots){
 					if(util.isOwnProperty(activeSlots, j) && activeSlots[j]){
 						bidManager.setCallInitTime(activeSlots[j][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], anAdapter);
