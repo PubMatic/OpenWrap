@@ -80,7 +80,16 @@ exports.WRAPPER_TARGETING_KEYS = {
 };
 
 exports.BID_ATTRIBUTES = {
-	"CREATION_TIME": "creationTime"
+	"CREATION_TIME": "creationTime",
+	"CALL_INITIATED_TIME": "callInitiatedTime",
+	"BID_RECEIVED_TIME": "bidReceivedTime",
+	"POST_TIMEOUT": "postTimeout",
+	"DEAL": "deal",
+	"AD_HTML": "ad_html",
+	"AD_URL": "ad_url",
+	"CREATIVE_ID": "creative_id",
+	"DEFAULT_BID": "db",
+	"ACTUAL_ECPM": "aecpm"
 };
 
 exports.MESSAGES = {

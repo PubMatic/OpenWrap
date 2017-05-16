@@ -32,10 +32,10 @@ exports.config = {
 				throttle: "100",
 				kgp: "_DIV_",
 				klm: {
-					"div-gpt-ad-12345678-1": {
+					"Div_1": {
 						spaceId: 14071
 					},
-					"div-gpt-ad-12345678-2": {
+					"Div-2": {
 						spaceId: 14071
 					}
 				}
@@ -48,3 +48,8 @@ exports.config = {
 
 // step 2: all methods over config should stay here only
 //			remove them from other code parts
+
+exports.getTimeout = function(){
+	return parseInt(this.config.global.t) || 1000;
+};
+

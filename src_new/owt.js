@@ -5,7 +5,10 @@ var controller = require('./controllers/gpt.js');
 
 util.enableDebugLog();
 
-window.PWT = window.PWT || {};
+window.PWT = window.PWT || {
+	bidMap: {},
+	bidIdMap: {}
+};
 controller.init(CONFIG.config, window);
 
 /*

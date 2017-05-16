@@ -1,4 +1,5 @@
 var CONSTANTS = require('./constants.js');
+var bidManager = require('./bidManager.js');
 
 var debugLogIsEnabled = false;
 var typeArray = 'Array';
@@ -26,6 +27,10 @@ exports.isArray = function (object) {
 exports.isNumber = function(object) {
   return isA(object, typeNumber);
 };
+
+exports.isObject = function(object){
+  return typeof object === "object";
+}
 
 exports.isOwnProperty = function(theObject, proertyName){
   if(theObject.hasOwnProperty){
@@ -276,7 +281,7 @@ exports.forEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, act
 
           if(addZeroBids == true){
             bidManager.setBidFromBidder(
-              activeSlots[i][constCommonDivID], 
+              activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], 
               adapterID, 
               bidManager.createBidObject(
                 0,

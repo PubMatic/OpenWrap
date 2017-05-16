@@ -49,7 +49,7 @@ function generatePbConf(pbAdapterID, configObject, activeSlots, adUnits){
 
 	var adapterIdInPreBid = pbAdapterID.replace(pbPrefix, ''); // todo move to a function
 
-	util.log(pbAdapterID+constCommonMessage01);
+	util.log(pbAdapterID+CONSTANTS.MESSAGES.M1);
 
 	var adapterConfig = util.loadGlobalConfigForAdapter(configObject, pbAdapterID, adapterConfigMandatoryParams);
 	if(!adapterConfig){
@@ -97,7 +97,8 @@ function generatePbConf(pbAdapterID, configObject, activeSlots, adUnits){
 				}
 			;
 			adUnit.bids.push(bid);					
-		}
+		},
+		true
 	);
 };
 
@@ -119,6 +120,8 @@ function fetchBids(configObject, activeSlots){
 		}
 	}
 
+	console.log('prebid adUnits:', adUnits);
+
 	// adUnits is object create array from it
 	var adUnitsArray = [];
 	for(var code in adUnits){
@@ -134,7 +137,7 @@ function fetchBids(configObject, activeSlots){
                 bidsBackHandler: function(bidResponses) {
 					handleBidResponses(bidResponses);							
                 },
-                timeout: (TIMEOUT - 150)
+                timeout: (2500)// T-150
 			});
 		}
 	}
@@ -147,5 +150,5 @@ exports.register = function(){
 		ID: function(){
 			return adapterID;
 		}
-	};
+		};
 };
