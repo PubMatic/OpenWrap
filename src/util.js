@@ -333,16 +333,16 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 			i
 			;
 		
-		if(activeSlot && activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES]){
-			sizeArrayLength = activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES].length;
+		if(activeSlot && activeSlot[constAdSlotSizes]){
+			sizeArrayLength = activeSlot[constAdSlotSizes].length;
 			if( sizeArrayLength > 0){
 				for(i = 0; i < sizeArrayLength; i++){
-					if(activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES][i][0] && activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES][i][1]){
+					if(activeSlot[constAdSlotSizes][i][0] && activeSlot[constAdSlotSizes][i][1]){
 
 						slotName = pattern;
 						slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, activeSlot[constAdUnitID])
-											.replace(constCommonMacroForWidthRegExp, activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES][i][0])
-											.replace(constCommonMacroForHeightRegExp, activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES][i][1])
+											.replace(constCommonMacroForWidthRegExp, activeSlot[constAdSlotSizes][i][0])
+											.replace(constCommonMacroForHeightRegExp, activeSlot[constAdSlotSizes][i][1])
 											.replace(constCommonMacroForAdUnitIndexRegExp, activeSlot[constAdUnitIndex])
 											.replace(constCommonMacroForIntegerRegExp, utilGetIncrementalInteger())
 											.replace(constCommonMacroForDivRegExp, activeSlot[constCommonDivID]);
@@ -561,8 +561,8 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 							kgpConsistsWidthAndHeight, 
 							activeSlots[i], 
 							keyLookupMap ? keyLookupMap[generatedKey] : null, 
-							activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.SIZES][j][0], 
-							activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.SIZES][j][1]
+							activeSlots[i][constAdSlotSizes][j][0], 
+							activeSlots[i][constAdSlotSizes][j][1]
 						);
 					}	
 				}
