@@ -437,10 +437,10 @@ exports.executeAnalyticsPixel = function(){
 	}
 
 	if(firePixel){			
-		outputObj[constConfigPublisherID] = CONFIG.getPublisherId();
-		outputObj['to'] = CONFIG.getTimeout();
-		outputObj['purl'] = decodeURIComponent(utilMetaInfo.u);
-		outputObj[constBidInfoTimestamp] = util.getCurrentTimestamp();
+		outputObj[CONSTANTS.CONFIG.PUBLISHER_ID] = CONFIG.getPublisherId();
+		outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMEOUT] = CONFIG.getTimeout();
+		outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.PAGE_URL] = decodeURIComponent(util.pageURL);//todo change it 
+		outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 		outputObj[CONSTANTS.COMMON.IMPRESSION_ID] = encodeURIComponent(impressionID);
 		outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 		outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();

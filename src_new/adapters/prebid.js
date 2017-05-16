@@ -3,7 +3,7 @@
 		latency should be calculated ccording to mentioned in PB reponse
 		on refresh or in some cases PB is not returning bids asap, using full timeout
 */
-
+var CONFIG = require('../config.js');
 var CONSTANTS = require('../constants.js');
 var util = require('../util.js');
 var bidManager = require('../bidManager.js');
@@ -137,7 +137,7 @@ function fetchBids(configObject, activeSlots){
                 bidsBackHandler: function(bidResponses) {
 					handleBidResponses(bidResponses);							
                 },
-                timeout: (2500)// T-150
+                timeout: CONFIG.getTimeout()-150
 			});
 		}
 	}

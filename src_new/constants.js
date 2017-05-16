@@ -92,6 +92,13 @@ exports.BID_ATTRIBUTES = {
 	"ACTUAL_ECPM": "aecpm"
 };
 
+//todo: mention all params here and use accordigly
+exports.LOGGER_PIXEL_PARAMS = {
+	"TIMESTAMP": "tst",
+	"PAGE_URL": "purl",
+	"TIMEOUT": "to"
+}
+
 exports.MESSAGES = {
 	"M1": ": In fetchbids.",
 	"M2": ": Throttled.",
