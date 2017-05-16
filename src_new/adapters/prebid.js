@@ -120,8 +120,6 @@ function fetchBids(configObject, activeSlots){
 		}
 	}
 
-	console.log('prebid adUnits:', adUnits);
-
 	// adUnits is object create array from it
 	var adUnitsArray = [];
 	for(var code in adUnits){
@@ -150,5 +148,5 @@ exports.register = function(){
 		ID: function(){
 			return adapterID;
 		}
-		};
+	};
 };

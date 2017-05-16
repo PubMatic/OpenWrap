@@ -36,7 +36,7 @@ exports.callAdapters = function(configObject, activeSlots){
 	}
 };
 
-exports.registerAdapter = function(bidAdaptor) {
+function registerAdapter(bidAdaptor) {
 	if (bidAdaptor) {
 		var adapterID = bidAdaptor.ID();
 		if (util.isFunction(bidAdaptor.fB)) {
@@ -55,5 +55,5 @@ exports.displayCreative = function(theDocument, adapterID, bidDetails){
 };
 
 exports.registerAdapters = function(){
-	this.registerAdapter(prebid.register());
+	registerAdapter(prebid.register());
 };
