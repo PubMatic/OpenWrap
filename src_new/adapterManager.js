@@ -30,7 +30,7 @@ exports.callAdapters = function(configObject, activeSlots){
 				}
 				registeredAdapters[anAdapter].fB(configObject, activeSlots);
 			}else{
-				util.log(anAdapter+CONSTANTS.MESSAGES.2);
+				util.log(anAdapter+CONSTANTS.MESSAGES.M2);
 			}				
 		}
 	}
@@ -42,7 +42,7 @@ exports.registerAdapter = function(bidAdaptor) {
 		if (util.isFunction(bidAdaptor.fB)) {
 			registeredAdapters[adapterID] = bidAdaptor;
 		} else {
-			util.log(adapterID + CONSTANTS.MESSAGES.3);
+			util.log(adapterID + CONSTANTS.MESSAGES.M3);
 		}
 	}
 };

@@ -69,7 +69,7 @@ exports.setCallInitTime = function(divID, bidderID){
 	}
 	bidMap[divID][bids][bidderID][callInitiatedTime] = util.getCurrentTimestampInMs();	
 
-	util.log(CONSTANTS.MESSAGES.4+divID + ' '+bidderID+' '+bidMap[divID][bids][bidderID][callInitiatedTime]);
+	util.log(CONSTANTS.MESSAGES.M4+divID + ' '+bidderID+' '+bidMap[divID][bids][bidderID][callInitiatedTime]);
 };
 
 exports.setBidFromBidder = function(divID, bidderID, bidDetails, bidID){
@@ -92,23 +92,23 @@ exports.setBidFromBidder = function(divID, bidderID, bidDetails, bidID){
 	}		
 
 	util.log('BdManagerSetBid: divID: '+divID+', bidderID: '+bidderID+', ecpm: '+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] + ', size: ' + bidDetails[constTargetingWidth]+'x'+bidDetails[constTargetingHeight] + ', postTimeout: '+isPostTimeout);
-	//util.log(CONSTANTS.MESSAGES.6+ util.isOwnProperty(bidMap[divID][bids][bidderID], bid));
+	//util.log(CONSTANTS.MESSAGES.M6+ util.isOwnProperty(bidMap[divID][bids][bidderID], bid));
 
 	if(bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] === null){
-		util.log(CONSTANTS.MESSAGES.10);
+		util.log(CONSTANTS.MESSAGES.M10);
 		return;
 	}
 
 	if(utilIsStr(bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM])){
 		bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] = bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM].replace(/\s/g, '');
 		if(bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM].length === 0){
-			util.log(CONSTANTS.MESSAGES.20);
+			util.log(CONSTANTS.MESSAGES.M20);
 			return;
 		}
 	}
 	
 	if(isNaN(bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM])){
-		util.log(CONSTANTS.MESSAGES.11+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]);
+		util.log(CONSTANTS.MESSAGES.M11+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]);
 		return;
 	}
 
@@ -119,7 +119,7 @@ exports.setBidFromBidder = function(divID, bidderID, bidDetails, bidID){
 	
 	// if adapter is not a BidPassThrough and ecpm is <= 0 then reject the bid
 	//if(!adapterBidPassThrough[bidderID] && 0 >= bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]){
-	//	util.log(CONSTANTS.MESSAGES.22+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]);
+	//	util.log(CONSTANTS.MESSAGES.M22+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]);
 	//	return;
 	//}
 
@@ -127,7 +127,7 @@ exports.setBidFromBidder = function(divID, bidderID, bidDetails, bidID){
 	bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] = parseFloat((bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] * bidManagerGetAdapterRevShare(bidderID)).toFixed(bidPrecision));
 
 	//if(!adapterBidPassThrough[bidderID] && 0 >= bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]){
-	//	util.log(CONSTANTS.MESSAGES.22+' Post revshare and bidPrecision. '+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]);
+	//	util.log(CONSTANTS.MESSAGES.M22+' Post revshare and bidPrecision. '+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]);
 	//	return;
 	//}
 
@@ -166,12 +166,12 @@ exports.setBidFromBidder = function(divID, bidderID, bidDetails, bidID){
 		if( lastBidWasDefaultBid || !isPostTimeout){				
 
 			if(lastBidWasDefaultBid){
-				util.log(CONSTANTS.MESSAGES.23);
+				util.log(CONSTANTS.MESSAGES.M23);
 			}				
 							
 			if( lastBidWasDefaultBid || bidMap[divID][bids][bidderID][bid][lastBidID][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] < bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]){
 
-				util.log(CONSTANTS.MESSAGES.12+bidMap[divID][bids][bidderID][bid][lastBidID][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]+CONSTANTS.MESSAGES.13+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]+CONSTANTS.MESSAGES.14);
+				util.log(CONSTANTS.MESSAGES.M12+bidMap[divID][bids][bidderID][bid][lastBidID][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]+CONSTANTS.MESSAGES.M13+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]+CONSTANTS.MESSAGES.M14);
 				delete bidMap[divID][bids][bidderID][bid][lastBidID];
 				bidMap[divID][bids][bidderID][constCommonLastBidID] = bidID;
 				bidMap[divID][bids][bidderID][bid][bidID] = bidDetails;
@@ -191,14 +191,14 @@ exports.setBidFromBidder = function(divID, bidderID, bidDetails, bidID){
 				}
 
 			}else{
-				util.log(CONSTANTS.MESSAGES.12+bidMap[divID][bids][bidderID][bid][lastBidID][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]+CONSTANTS.MESSAGES.15+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]+CONSTANTS.MESSAGES.16);
+				util.log(CONSTANTS.MESSAGES.M12+bidMap[divID][bids][bidderID][bid][lastBidID][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]+CONSTANTS.MESSAGES.M15+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]+CONSTANTS.MESSAGES.M16);
 			}				
 		}else{
-			util.log(CONSTANTS.MESSAGES.17);
+			util.log(CONSTANTS.MESSAGES.M17);
 		}
 	}else{
 
-		util.log(CONSTANTS.MESSAGES.18);
+		util.log(CONSTANTS.MESSAGES.M18);
 		bidMap[divID][bids][bidderID][constCommonLastBidID] = bidID;
 		bidMap[divID][bids][bidderID][bid] = {};
 		bidMap[divID][bids][bidderID][bid][bidID] = bidDetails;
@@ -349,7 +349,7 @@ exports.displayCreative = function(theDocument, bidID){
 		}
 		*/
 		
-		util.log(divID+CONSTANTS.MESSAGES.19+ adapterID);
+		util.log(divID+CONSTANTS.MESSAGES.M19+ adapterID);
 		var theBid = bidMap[divID][bids][adapterID][bid][bidID];
 
 		if( util.isOwnProperty(bidMap[divID][bids], adapterID) ){

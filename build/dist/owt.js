@@ -123,7 +123,7 @@
 		}
 	};
 
-	// step 1: copy paste config here as it is now and pass to owt.js
+	// TODO
 
 	// step 2: all methods over config should stay here only
 	//			remove them from other code parts
@@ -217,6 +217,32 @@
 
 	exports.BID_ATTRIBUTES = {
 		"CREATION_TIME": "creationTime"
+	};
+
+	exports.MESSAGES = {
+		"M1": ": In fetchbids.",
+		"M2": ": Throttled.",
+		"M3": ": adapter must implement the fetchBids() function.",
+		"M4": "BidManager: entry ",
+		"M5": ": Callback.",
+		"M6": "bidAlreadExists : ",
+		"M7": ": Exiting from fetchBids.",
+		"M8": ". Config not found, ignored.",
+		"M9": ". Config ignored.",
+		"M10": "Bid is rejected as ecpm is NULL.",
+		"M11": "Bid is rejected as ecpm is NaN: ",
+		"M12": "Existing bid ecpm: ",
+		"M13": ", is lower than new bid ecpm ",
+		"M14": ", so we are replacing bid.",
+		"M15": ", is greater than new bid ecpm ",
+		"M16": ", so we are not replacing bid.",
+		"M17": "Post timeout bid, ignored.",
+		"M18": "Bid is selected.",
+		"M19": ": Found winning adapterID: ",
+		"M20": "Bid is rejected as ecpm is empty string.",
+		"M21": ": error in respose handler.",
+		"M22": "Bid is rejected as ecpm is <= 0.",
+		"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner."
 	};
 
 /***/ }),
@@ -407,6 +433,118 @@
 	  }
 
 	  return slotNames;
+	};
+
+	exports.loadGlobalConfigForAdapter = function (configObject, adapterID, mandatoryParams) {
+	  //todo: move this method to CONFIG
+	  if (this.isOwnProperty(configObject, CONSTANTS.CONFIG.GLOBAL) && this.isOwnProperty(configObject[CONSTANTS.CONFIG.GLOBAL], CONSTANTS.CONFIG.ADAPTERS) && this.isOwnProperty(configObject[CONSTANTS.CONFIG.GLOBAL][CONSTANTS.CONFIG.ADAPTERS], adapterID)) {
+
+	    var adapterConfig = configObject[CONSTANTS.CONFIG.GLOBAL][CONSTANTS.CONFIG.ADAPTERS][adapterID];
+
+	    // if mandatory params are not present then return false
+	    if (!this.checkMandatoryParams(adapterConfig, mandatoryParams, adapterID)) {
+	      this.log(adapterID + CONSTANTS.MESSAGES.M7);
+	      return false;
+	    }
+
+	    return adapterConfig;
+	  }
+	  return false;
+	};
+
+	exports.checkMandatoryParams = function (object, keys, adapterID) {
+	  var error = false,
+	      success = true;
+
+	  if (!object || !this.isObject(object) || this.isArray(object)) {
+	    this.log(adapterID + 'provided object is invalid.');
+	    return error;
+	  }
+
+	  if (!this.isArray(keys)) {
+	    this.log(adapterID + 'provided keys must be in an array.');
+	    return error;
+	  }
+
+	  var arrayLength = keys.length;
+	  if (arrayLength == 0) {
+	    return success;
+	  }
+
+	  for (var i = 0; i < arrayLength; i++) {
+	    if (!this.isOwnProperty(object, keys[i])) {
+	      this.log(adapterID + ': ' + keys[i] + ', mandatory parameter not present.');
+	      return error;
+	    }
+	  }
+
+	  return success;
+	};
+
+	exports.forEachGeneratedKey = function (adapterID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids) {
+	  var activeSlotsLength = activeSlots.length,
+	      i,
+	      j,
+	      generatedKeys,
+	      generatedKeysLength,
+	      kgpConsistsWidthAndHeight;
+
+	  if (activeSlotsLength > 0 && keyGenerationPattern.length > 3) {
+	    kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
+	    for (i = 0; i < activeSlotsLength; i++) {
+	      generatedKeys = this.generateSlotNamesFromPattern(activeSlots[i], keyGenerationPattern);
+	      generatedKeysLength = generatedKeys.length;
+	      for (j = 0; j < generatedKeysLength; j++) {
+	        var generatedKey = generatedKeys[j],
+	            keyConfig = null,
+	            callHandlerFunction = false;
+
+	        if (keyLookupMap == null) {
+	          callHandlerFunction = true;
+	        } else {
+	          keyConfig = keyLookupMap[generatedKey];
+	          if (!keyConfig) {
+	            this.log(adapterID + ': ' + generatedKey + CONSTANTS.MESSAGES.M8);
+	          } else if (!this.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)) {
+	            this.log(adapterID + ': ' + generatedKey + CONSTANTS.MESSAGES.M9);
+	          } else {
+	            callHandlerFunction = true;
+	          }
+	        }
+
+	        if (callHandlerFunction) {
+
+	          if (addZeroBids == true) {
+	            bidManager.setBidFromBidder(activeSlots[i][constCommonDivID], adapterID, bidManager.createBidObject(0, bidManager.createDealObject(), "", "", "", 0, 0, generatedKey, null, 1), this.getUniqueIdentifierStr());
+	          }
+
+	          handlerFunction(generatedKey, kgpConsistsWidthAndHeight, activeSlots[i], keyLookupMap ? keyLookupMap[generatedKey] : null, activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.SIZES][j][0], activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.SIZES][j][1]);
+	        }
+	      }
+	    }
+	  }
+	};
+
+	exports.displayCreative = function (theDocument, bidDetails) {
+	  //todo
+	  //utilResizeWindow(theDocument, bidDetails[constTargetingHeight], bidDetails[constTargetingWidth]);
+	  /*
+	  if(bidDetails[constTargetingAdHTML]){
+	    theDocument.write(bidDetails[constTargetingAdHTML]);
+	  }else if(bidDetails[constTargetingAdUrl]){
+	    utilCreateAndInsertFrame(
+	      theDocument,
+	      bidDetails[constTargetingAdUrl], 
+	      bidDetails[constTargetingHeight] , bidDetails[constTargetingWidth] , 
+	      ""
+	    );
+	  }else{
+	    this.log("creative details are not found");
+	    this.log(bidDetails);
+	  }
+	  
+	  theDocument.close();
+	  */
 	};
 
 /***/ }),
@@ -708,6 +846,12 @@
 	function findWinningBidAndApplyTargeting(divID) {
 		var winningBid = bidManager.getBid(divID);
 		var googleDefinedSlot = slotsMap[divID][CONSTANTS.SLOT_ATTRIBUTES.SLOT_OBJECT];
+		var ignoreTheseKeys = {
+			'hb_bidder': 1,
+			'hb_adid': 1,
+			'hb_pb': 1,
+			'hb_size': 1
+		};
 
 		util.log('DIV: ' + divID + ' winningBid: ');
 		util.log(winningBid);
@@ -723,7 +867,7 @@
 
 		// attaching keyValuePairs from adapters
 		for (var key in winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS]) {
-			if (util.isOwnProperty(winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS], key)) {
+			if (util.isOwnProperty(winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS], key) && !util.isOwnProperty(ignoreTheseKeys, key)) {
 				googleDefinedSlot.setTargeting(key, winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS][key]);
 				// adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
 				wrapperTargetingKeys[key] = '';
@@ -1049,6 +1193,8 @@
 		wrapperTargetingKeys = defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
 		defineGPTVariables(win);
 
+		adapterManager.registerAdapters();
+
 		if (util.isUndefined(win.google_onload_fired) && win.googletag.cmd.unshift) {
 			util.log('Succeeded to load before GPT');
 			win.googletag.cmd.unshift((function () {
@@ -1145,7 +1291,7 @@
 		}
 		bidMap[divID][bids][bidderID][callInitiatedTime] = util.getCurrentTimestampInMs();
 
-		util.log(constCommonMessage04 + divID + ' ' + bidderID + ' ' + bidMap[divID][bids][bidderID][callInitiatedTime]);
+		util.log(CONSTANTS.MESSAGES.M4 + divID + ' ' + bidderID + ' ' + bidMap[divID][bids][bidderID][callInitiatedTime]);
 	};
 
 	exports.setBidFromBidder = function (divID, bidderID, bidDetails, bidID) {
@@ -1167,23 +1313,23 @@
 		}
 
 		util.log('BdManagerSetBid: divID: ' + divID + ', bidderID: ' + bidderID + ', ecpm: ' + bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] + ', size: ' + bidDetails[constTargetingWidth] + 'x' + bidDetails[constTargetingHeight] + ', postTimeout: ' + isPostTimeout);
-		//util.log(constCommonMessage06+ util.isOwnProperty(bidMap[divID][bids][bidderID], bid));
+		//util.log(CONSTANTS.MESSAGES.M6+ util.isOwnProperty(bidMap[divID][bids][bidderID], bid));
 
 		if (bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] === null) {
-			util.log(constCommonMessage10);
+			util.log(CONSTANTS.MESSAGES.M10);
 			return;
 		}
 
 		if (utilIsStr(bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM])) {
 			bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] = bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM].replace(/\s/g, '');
 			if (bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM].length === 0) {
-				util.log(constCommonMessage20);
+				util.log(CONSTANTS.MESSAGES.M20);
 				return;
 			}
 		}
 
 		if (isNaN(bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM])) {
-			util.log(constCommonMessage11 + bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]);
+			util.log(CONSTANTS.MESSAGES.M11 + bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]);
 			return;
 		}
 
@@ -1194,7 +1340,7 @@
 
 		// if adapter is not a BidPassThrough and ecpm is <= 0 then reject the bid
 		//if(!adapterBidPassThrough[bidderID] && 0 >= bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]){
-		//	util.log(constCommonMessage22+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]);
+		//	util.log(CONSTANTS.MESSAGES.M22+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]);
 		//	return;
 		//}
 
@@ -1202,7 +1348,7 @@
 		bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] = parseFloat((bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] * bidManagerGetAdapterRevShare(bidderID)).toFixed(bidPrecision));
 
 		//if(!adapterBidPassThrough[bidderID] && 0 >= bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]){
-		//	util.log(constCommonMessage22+' Post revshare and bidPrecision. '+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]);
+		//	util.log(CONSTANTS.MESSAGES.M22+' Post revshare and bidPrecision. '+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]);
 		//	return;
 		//}
 
@@ -1240,12 +1386,12 @@
 			if (lastBidWasDefaultBid || !isPostTimeout) {
 
 				if (lastBidWasDefaultBid) {
-					util.log(constCommonMessage23);
+					util.log(CONSTANTS.MESSAGES.M23);
 				}
 
 				if (lastBidWasDefaultBid || bidMap[divID][bids][bidderID][bid][lastBidID][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] < bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]) {
 
-					util.log(constCommonMessage12 + bidMap[divID][bids][bidderID][bid][lastBidID][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] + constCommonMessage13 + bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] + constCommonMessage14);
+					util.log(CONSTANTS.MESSAGES.M12 + bidMap[divID][bids][bidderID][bid][lastBidID][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] + CONSTANTS.MESSAGES.M13 + bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] + CONSTANTS.MESSAGES.M14);
 					delete bidMap[divID][bids][bidderID][bid][lastBidID];
 					bidMap[divID][bids][bidderID][constCommonLastBidID] = bidID;
 					bidMap[divID][bids][bidderID][bid][bidID] = bidDetails;
@@ -1264,14 +1410,14 @@
 						});
 					}
 				} else {
-					util.log(constCommonMessage12 + bidMap[divID][bids][bidderID][bid][lastBidID][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] + constCommonMessage15 + bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] + constCommonMessage16);
+					util.log(CONSTANTS.MESSAGES.M12 + bidMap[divID][bids][bidderID][bid][lastBidID][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] + CONSTANTS.MESSAGES.M15 + bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] + CONSTANTS.MESSAGES.M16);
 				}
 			} else {
-				util.log(constCommonMessage17);
+				util.log(CONSTANTS.MESSAGES.M17);
 			}
 		} else {
 
-			util.log(constCommonMessage18);
+			util.log(CONSTANTS.MESSAGES.M18);
 			bidMap[divID][bids][bidderID][constCommonLastBidID] = bidID;
 			bidMap[divID][bids][bidderID][bid] = {};
 			bidMap[divID][bids][bidderID][bid][bidID] = bidDetails;
@@ -1419,7 +1565,7 @@
 	  }
 	  */
 
-			util.log(divID + constCommonMessage19 + adapterID);
+			util.log(divID + CONSTANTS.MESSAGES.M19 + adapterID);
 			var theBid = bidMap[divID][bids][adapterID][bid][bidID];
 
 			if (util.isOwnProperty(bidMap[divID][bids], adapterID)) {
@@ -1494,12 +1640,13 @@
 		return 1;
 	}
 
-	function getAdapterThrottle(adapterID) {
+	//todo: move to CONFIG
+	exports.getAdapterThrottle = function (adapterID) {
 		if (util.isOwnProperty(adapterThrottleMap, adapterID)) {
 			return adapterThrottleMap[adapterID];
 		}
 		return 0;
-	}
+	};
 
 	exports.executeAnalyticsPixel = function () {
 
@@ -1540,7 +1687,9 @@
 				for (var adapter in bidsArray) {
 
 					//if bid-pass-thru is set then do not log the bids
-					if (adapterBidPassThrough[adapter]) {
+					// 1: do NOT log, do NOT auction
+					// 2: do log, do NOT auction
+					if (adapterBidPassThrough[adapter] === 1) {
 						continue;
 					}
 
@@ -1625,13 +1774,15 @@
 
 /***/ }),
 /* 6 */
-/***/ ((function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var CONSTANTS = __webpack_require__(2);
 	var util = __webpack_require__(3);
 	var bidManager = __webpack_require__(5);
+
+	var prebid = __webpack_require__(7);
 
 	var registeredAdapters = {};
 
@@ -1659,7 +1810,7 @@
 					}
 					registeredAdapters[anAdapter].fB(configObject, activeSlots);
 				} else {
-					util.log(anAdapter + constCommonMessage02);
+					util.log(anAdapter + CONSTANTS.MESSAGES.M2);
 				}
 			}
 		}
@@ -1671,7 +1822,7 @@
 			if (util.isFunction(bidAdaptor.fB)) {
 				registeredAdapters[adapterID] = bidAdaptor;
 			} else {
-				util.log(adapterID + constCommonMessage03);
+				util.log(adapterID + CONSTANTS.MESSAGES.M3);
 			}
 		}
 	};
@@ -1681,6 +1832,145 @@
 		if (util.isOwnProperty(registeredAdapters, adapterID)) {
 			registeredAdapters[adapterID].dC(theDocument, bidDetails);
 		}
+	};
+
+	exports.registerAdapters = function () {
+		this.registerAdapter(prebid.register());
+	};
+
+/***/ }),
+/* 7 */
+/***/ ((function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	/*
+		TODO:
+			latency should be calculated ccording to mentioned in PB reponse
+			on refresh or in some cases PB is not returning bids asap, using full timeout
+	*/
+
+	var CONSTANTS = __webpack_require__(2);
+	var util = __webpack_require__(3);
+	var bidManager = __webpack_require__(5);
+	var adapterManager = __webpack_require__(6);
+
+	var adapterID = 'prebid';
+	var pbPrefix = 'PB_';
+	var kgpvMap = {};
+	var adapterConfigMandatoryParams = [CONSTANTS.CONFIG.KEY_GENERATION_PATTERN, CONSTANTS.CONFIG.KEY_LOOKUP_MAP];
+
+	function handleBidResponses(bidResponses) {
+		for (var responseID in bidResponses) {
+			if (util.isOwnProperty(bidResponses, responseID) && util.isOwnProperty(kgpvMap, responseID)) {
+				var bidObject = bidResponses[responseID];
+				var bids = bidObject.bids || [];
+
+				for (var i = 0; i < bids.length; i++) {
+					var bid = bids[i];
+					if (bid.bidderCode) {
+						bidManager.setBidFromBidder(kgpvMap[responseID].divID, pbPrefix + bid.bidderCode, bidManager.createBidObject(bid.cpm, bidManager.createDealObject(bid.dealId, "NA"), "", bid.ad, "", bid.width, bid.height, kgpvMap[responseID].kgpv, bid.adserverTargeting || null), util.getUniqueIdentifierStr());
+					}
+				}
+			}
+		}
+	}
+
+	function generatePbConf(pbAdapterID, configObject, activeSlots, adUnits) {
+
+		var adapterIdInPreBid = pbAdapterID.replace(pbPrefix, ''); // todo move to a function
+
+		util.log(pbAdapterID + constCommonMessage01);
+
+		var adapterConfig = util.loadGlobalConfigForAdapter(configObject, pbAdapterID, adapterConfigMandatoryParams);
+		if (!adapterConfig) {
+			return;
+		}
+
+		var keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN];
+		var keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP];
+
+		util.forEachGeneratedKey(pbAdapterID, [], activeSlots, keyGenerationPattern, keyLookupMap, (function (generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight) {
+
+			var code, sizes;
+
+			if (kgpConsistsWidthAndHeight) {
+				code = currentSlot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID] + '@' + adapterIdInPreBid + '@' + currentWidth + 'X' + currentHeight;
+				sizes = [[currentWidth, currentHeight]];
+			} else {
+				code = currentSlot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID];
+				sizes = currentSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES];
+			}
+
+			kgpvMap[code] = {
+				kgpv: generatedKey,
+				divID: currentSlot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID]
+			};
+
+			if (!util.isOwnProperty(adUnits, code)) {
+				adUnits[code] = {
+					code: code,
+					sizes: sizes,
+					bids: []
+				};
+			}
+
+			var adUnit = adUnits[code],
+			    bid = {
+				bidder: adapterIdInPreBid,
+				params: keyConfig
+			};
+			adUnit.bids.push(bid);
+		}));
+	};
+
+	function fetchBids(configObject, activeSlots) {
+
+		if (!window.pbjs) {
+			util.log('PreBid js is not loaded');
+			return;
+		}
+
+		/* read own config, anything to read ? */
+		//todo add a farzi conf param
+
+		var adUnits = {}; // create ad-units for prebid
+
+		for (var pbAdapterID in configObject['global']['adapters']) {
+			if (util.isOwnProperty(configObject['global']['adapters'], pbAdapterID) && pbAdapterID.indexOf(pbPrefix) == 0) {
+				generatePbConf(pbAdapterID, configObject, activeSlots, adUnits);
+			}
+		}
+
+		// adUnits is object create array from it
+		var adUnitsArray = [];
+		for (var code in adUnits) {
+			if (util.isOwnProperty(adUnits, code)) {
+				adUnitsArray.push(adUnits[code]);
+			}
+		}
+
+		if (adUnitsArray.length > 0) {
+			if (pbjs && util.isFunction(pbjs.addAdUnits)) {
+				pbjs.addAdUnits(adUnitsArray);
+				pbjs.requestBids({
+					bidsBackHandler: function bidsBackHandler(bidResponses) {
+						handleBidResponses(bidResponses);
+					},
+					timeout: TIMEOUT - 150
+				});
+			}
+		}
+	};
+
+	exports.register = function () {
+		return {
+			fB: fetchBids,
+			dC: util.displayCreative,
+			ID: function ID() {
+				return adapterID;
+			}
+		};
 	};
 
 /***/ }))
