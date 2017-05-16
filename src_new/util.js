@@ -200,7 +200,7 @@ exports.loadGlobalConfigForAdapter = function(configObject, adapterID, mandatory
 
     // if mandatory params are not present then return false
     if(!this.checkMandatoryParams(adapterConfig, mandatoryParams, adapterID)){
-      this.log(adapterID+constCommonMessage07);
+      this.log(adapterID+CONSTANTS.MESSAGES.7);
       return false;
     }
 
@@ -264,9 +264,9 @@ exports.forEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, act
         }else{
           keyConfig = keyLookupMap[generatedKey];
           if(!keyConfig){
-            this.log(adapterID+': '+generatedKey+constCommonMessage08);
+            this.log(adapterID+': '+generatedKey+CONSTANTS.MESSAGES.8);
           }else if(!this.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-            this.log(adapterID+': '+generatedKey+constCommonMessage09);
+            this.log(adapterID+': '+generatedKey+CONSTANTS.MESSAGES.9);
           }else{
             callHandlerFunction = true;
           }

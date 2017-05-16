@@ -82,3 +82,29 @@ exports.WRAPPER_TARGETING_KEYS = {
 exports.BID_ATTRIBUTES = {
 	"CREATION_TIME": "creationTime"
 };
+
+exports.MESSAGES = {
+	"1": ": In fetchbids.",
+	"2": ": Throttled.",
+	"3": ": adapter must implement the fetchBids() function.",
+	"4": "BidManager: entry ",
+	"5": ": Callback.",
+	"6": "bidAlreadExists : ",
+	"7": ": Exiting from fetchBids.",
+	"8": ". Config not found, ignored.",
+	"9": ". Config ignored.",
+	"10": "Bid is rejected as ecpm is NULL.",
+	"11": "Bid is rejected as ecpm is NaN: ",
+	"12": "Existing bid ecpm: ",
+	"13": ", is lower than new bid ecpm ",
+	"14": ", so we are replacing bid.",
+	"15": ", is greater than new bid ecpm ",
+	"16": ", so we are not replacing bid.",
+	"17": "Post timeout bid, ignored.",
+	"18": "Bid is selected.",
+	"19": ": Found winning adapterID: ",
+	"20": "Bid is rejected as ecpm is empty string.",
+	"21": ": error in respose handler.",
+	"22": "Bid is rejected as ecpm is <= 0.",
+	"23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner."
+};
