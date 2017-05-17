@@ -49,8 +49,8 @@ exports.config = {
 
 // TODO
 
-// step 2: all methods over config should stay here only
-//			remove them from other code parts
+// remove config references from other code
+// remove them from other code parts
 
 exports.getPublisherId = function(){
 	return this.config.global.pwt.t || 0;
@@ -99,3 +99,31 @@ exports.getAnalyticsPixelURL = function(){
 exports.getMonetizationPixelURL = function(){
 	return this.config.global.pwt[CONSTANTS.CONFIG.TRACKER_URL] || false;
 };
+
+exports.forEachAdapter = function(callback){
+	if(!util.isFunction(callback)){
+		return;
+	}
+
+	for(var adapterID in this.config.global.adapters){
+		if(util.isOwnProperty(this.config.global.adapters, adapterID)){
+			callback(adapterID, this.config.global.adapters[adapterID]);
+		}
+	}
+};
+
+/*
+exports.getAdapterKgp = function(adapterID){
+	if(util.isOwnProperty(this.config.global.adapters, adapterID)){
+		return this.config.global.adapters[adapterID][CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] || '';
+	}
+	return '';
+};
+
+exports.getAdapterKlm = function(adapterID){
+	if(util.isOwnProperty(this.config.global.adapters, adapterID)){
+		return this.config.global.adapters[adapterID][CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || {};
+	}
+	return {};
+};
+*/

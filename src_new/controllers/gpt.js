@@ -503,7 +503,7 @@ function  addHookOnGoogletagDisplay(win){
 			if(qualifyingSlotNames.length > 0){
 				updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, false);
 				qualifyingSlots = arrayOfSelectedSlots(qualifyingSlotNames);
-				adapterManager.callAdapters(configObject, qualifyingSlots);
+				adapterManager.callAdapters(qualifyingSlots);
 			}				
 
 			setTimeout(function(){
@@ -553,7 +553,7 @@ function addHookOnGooglePubAdsRefresh(win){
 			if(qualifyingSlotNames.length > 0){
 				updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, true);
 				qualifyingSlots = arrayOfSelectedSlots(qualifyingSlotNames);
-				adapterManager.callAdapters(configObject, qualifyingSlots);
+				adapterManager.callAdapters(qualifyingSlots);
 			}
 			
 			util.log('Intiating Call to original refresh function with configTimeout: ' + configTimeout+' ms');

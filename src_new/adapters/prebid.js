@@ -45,26 +45,22 @@ function handleBidResponses(bidResponses){
 	}
 }
 
-function generatePbConf(pbAdapterID, configObject, activeSlots, adUnits){
+function generatePbConf(pbAdapterID, adapterConfig, activeSlots, adUnits){
 
 	var adapterIdInPreBid = pbAdapterID.replace(pbPrefix, ''); // todo move to a function
 
 	util.log(pbAdapterID+CONSTANTS.MESSAGES.M1);
-
-	var adapterConfig = util.loadGlobalConfigForAdapter(configObject, pbAdapterID, adapterConfigMandatoryParams);
+	
 	if(!adapterConfig){
 		return;
-	}
-	
-	var keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN];
-	var keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP];
+	}	
 
 	util.forEachGeneratedKey(
 		pbAdapterID,
 		[],
 		activeSlots, 
-		keyGenerationPattern, 
-		keyLookupMap, 
+		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN], 
+		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP], 
 		function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){					
 			
 			var code, sizes;
@@ -90,35 +86,50 @@ function generatePbConf(pbAdapterID, configObject, activeSlots, adUnits){
 				};
 			}
 
+			adUnits[ code ].bids.push({
+				bidder: adapterIdInPreBid,
+				params: keyConfig
+			});			
+
+			/*
 			var adUnit = adUnits[ code ],
 				bid = {
 					bidder: adapterIdInPreBid,
 					params: keyConfig
 				}
 			;
-			adUnit.bids.push(bid);					
+			adUnit.bids.push(bid);
+			*/
 		},
 		true
 	);
 };
 
-function fetchBids(configObject, activeSlots){
+function fetchBids(activeSlots, impressionID){
 
 	if(! window.pbjs){
 		util.log('PreBid js is not loaded');	
 		return;
 	}
 
-	/* read own config, anything to read ? */
-	//todo add a farzi conf param
+	// todo: dont we need to register ever adapter ?
 
 	var adUnits = {};// create ad-units for prebid
 
+	// todo: move to config, forEachAdapter, accepts callback
+	/*
 	for(var pbAdapterID in configObject['global']['adapters']){
 		if(util.isOwnProperty(configObject['global']['adapters'], pbAdapterID) && pbAdapterID.indexOf(pbPrefix) == 0){
 			generatePbConf(pbAdapterID, configObject, activeSlots, adUnits);
 		}
 	}
+	*/
+
+	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
+		if(adapterID.indexOf(pbPrefix) == 0){
+			generatePbConf(adapterID, adapterConfig, activeSlots, adUnits);	
+		}
+	});
 
 	// adUnits is object create array from it
 	var adUnitsArray = [];
@@ -133,7 +144,7 @@ function fetchBids(configObject, activeSlots){
 			pbjs.addAdUnits(adUnitsArray);
 			pbjs.requestBids({
                 bidsBackHandler: function(bidResponses) {
-					handleBidResponses(bidResponses);							
+					handleBidResponses(bidResponses);
                 },
                 timeout: CONFIG.getTimeout()-150
 			});

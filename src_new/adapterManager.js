@@ -3,15 +3,15 @@ var CONSTANTS = require('./constants.js');
 var util = require('./util.js');
 var bidManager = require('./bidManager.js');
 
+// how we can do it optionally (include only iff required) ?
 var prebid = require('./adapters/prebid.js');
 
 var registeredAdapters = {};
 
-exports.callAdapters = function(configObject, activeSlots){
+exports.callAdapters = function(activeSlots){
 
 	var randomNumberBelow100 = Math.floor(Math.random()*100);	
-	var impressionID = util.generateUUID();	
-	//configObject.global.pwt.wiid = impressionID;// todo use constants
+	var impressionID = util.generateUUID();
 
 	for(var i in activeSlots){
 		if(util.isOwnProperty(activeSlots, i) && activeSlots[i]){
@@ -28,7 +28,7 @@ exports.callAdapters = function(configObject, activeSlots){
 						bidManager.setCallInitTime(activeSlots[j][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], anAdapter);
 					}
 				}
-				registeredAdapters[anAdapter].fB(configObject, activeSlots);
+				registeredAdapters[anAdapter].fB(activeSlots, impressionID);
 			}else{
 				util.log(anAdapter+CONSTANTS.MESSAGES.M2);
 			}				
