@@ -9,35 +9,6 @@ var bid = 'bid';
 var bids = 'bidsFromBidders';
 var constCommonLastBidID = 'lastbidid';
 
-
-// todo: may need to delete
-/*
-exports.createDealObject = function(dealID, dealChannel){
-	var dealDetailsObj = {};
-	dealDetailsObj[CONSTANTS.DEAL.ID] = dealID ? (''+dealID) : '';
-	dealDetailsObj[CONSTANTS.DEAL.CHANNEL] = dealID && dealChannel ? (''+dealChannel) : '';
-	return dealDetailsObj;
-};
-*/
-
-/*
-exports.createBidObject = function(ecpm, dealDetails, creativeID, creativeHTML, creativeURL, width, height, kgpv, keyValuePairs, defaultBid){
-	var bidObject = {};		
-	//todo: add adapter-id, bid-id as well
-	bidObject[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] = ecpm;
-	bidObject[CONSTANTS.BID_ATTRIBUTES.DEAL] = dealDetails;
-	bidObject[CONSTANTS.BID_ATTRIBUTES.AD_HTML] = creativeHTML;
-	bidObject[CONSTANTS.BID_ATTRIBUTES.AD_URL] = creativeURL;
-	bidObject[CONSTANTS.BID_ATTRIBUTES.CREATIVE_ID] = creativeID;
-	bidObject[CONSTANTS.COMMON.HEIGHT] = height;
-	bidObject[CONSTANTS.COMMON.WIDTH] = width;
-	bidObject[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE] = kgpv;
-	bidObject[CONSTANTS.COMMON.KEY_VALUE_PAIRS] = keyValuePairs || null;
-	bidObject[CONSTANTS.BID_ATTRIBUTES.DEFAULT_BID] = defaultBid || 0;
-	return bidObject;
-};
-*/
-
 function createBidEntry(divID){
 	var temp;
 	if(! util.isOwnProperty(PWT.bidMap, divID) ){		
@@ -59,8 +30,9 @@ exports.setCallInitTime = function(divID, bidderID){
 	if(! util.isOwnProperty(PWT.bidMap[divID][bids], bidderID) ){
 		PWT.bidMap[divID][bids][bidderID] = {};
 	}
-	PWT.bidMap[divID][bids][bidderID][CONSTANTS.BID_ATTRIBUTES.CALL_INITIATED_TIME] = util.getCurrentTimestampInMs();
-	util.log(CONSTANTS.MESSAGES.M4+divID + ' '+bidderID+' '+PWT.bidMap[divID][bids][bidderID][CONSTANTS.BID_ATTRIBUTES.CALL_INITIATED_TIME]);
+	var timestamp = util.getCurrentTimestampInMs();
+	PWT.bidMap[divID][bids][bidderID][CONSTANTS.BID_ATTRIBUTES.CALL_INITIATED_TIME] = timestamp;
+	util.log(CONSTANTS.MESSAGES.M4+divID + ' '+bidderID+' '+timestamp);
 };
 
 exports.setBidFromBidder = function(divID, bidDetails){
@@ -83,7 +55,7 @@ exports.setBidFromBidder = function(divID, bidDetails){
 		PWT.bidMap[divID][bids][bidderID] = {};
 	}		
 
-	util.log('BdManagerSetBid: divID: '+divID+', bidderID: '+bidderID+', ecpm: '+bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] + ', size: ' + bidDetails[CONSTANTS.COMMON.WIDTH]+'x'+bidDetails[CONSTANTS.COMMON.HEIGHT] + ', '+ CONSTANTS.BID_ATTRIBUTES.POST_TIMEOUT + ': '+isPostTimeout);
+	util.log('BdManagerSetBid: divID: '+divID+', bidderID: '+bidderID+', ecpm: '+bidDetails.getGrossEcpm() + ', size: ' + bidDetails.getWidth()+'x'+bidDetails.getHeight() + ', '+ CONSTANTS.BID_ATTRIBUTES.POST_TIMEOUT + ': '+isPostTimeout);
 	//util.log(CONSTANTS.MESSAGES.M6+ util.isOwnProperty(PWT.bidMap[divID][bids][bidderID], bid));
 
 
@@ -351,10 +323,10 @@ exports.displayCreative = function(theDocument, bidID){
 			this.executeMonetizationPixel({
 				'slt': divID,
 				'adp': adapterID,
-				'en': theBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM],
-				'eg': theBid[CONSTANTS.BID_ATTRIBUTES.ACTUAL_ECPM],
+				'en': theBid.getNetEcpm(),
+				'eg': theBid.getGrossEcpm(),
 				'iid': PWT.bidMap[divID][CONSTANTS.COMMON.IMPRESSION_ID],
-				'kgpv': theBid[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE],
+				'kgpv': theBid.getKGPV(),
 				'bidid': bidID
 			});
 		}
