@@ -334,3 +334,15 @@ exports.displayCreative = function(theDocument, bidDetails){
   theDocument.close();
   */
 };
+
+exports.getScreenWidth = function(win){
+  var screenWidth = -1;
+  win.innerHeight ? (screenWidth = win.innerWidth) : win.document && win.document.documentElement && win.document.documentElement.clientWidth ? (screenWidth = win.document.documentElement.clientWidth) : win.document.body && (screenWidth = win.document.body.clientWidth);
+  return screenWidth;
+};
+
+exports.getScreenHeight = function(win){
+  var screenHeight = -1;
+  win.innerHeight ? (screenHeight = win.innerHeight) : win.document && win.document.documentElement && win.document.documentElement.clientHeight ? (screenHeight = win.document.documentElement.clientHeight) : win.document.body && (screenHeight = win.document.body.clientHeight);
+  return screenHeight;
+};

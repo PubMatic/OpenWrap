@@ -18,12 +18,6 @@ var GPT_targetingMap = {};
 
 var localGoogletag;
 var localPubAdsObj;
-var original_display;
-var original_refresh;
-var original_disableInitialLoad;
-var original_setTargeting;
-var original_enableSingleRequest;
-var original_destroySlots;
 
 function getAdUnitIndex(currentGoogleSlot){
 	var index = 0;
@@ -32,20 +26,6 @@ function getAdUnitIndex(currentGoogleSlot){
 		index = adUnitIndexString[ adUnitIndex.length - 1 ];
 	}catch(ex){}
 	return index;
-}
-
-//todo: move to util
-function getScreenWidth(win){
-	var screenWidth = -1;
-	win.innerHeight ? (screenWidth = win.innerWidth) : win.document && win.document.documentElement && win.document.documentElement.clientWidth ? (screenWidth = win.document.documentElement.clientWidth) : win.document.body && (screenWidth = win.document.body.clientWidth);
-	return screenWidth;
-}
-
-//todo: move to util
-function getScreenHeight(win){
-	var screenHeight = -1;
-	win.innerHeight ? (screenHeight = win.innerHeight) : win.document && win.document.documentElement && win.document.documentElement.clientHeight ? (screenHeight = win.document.documentElement.clientHeight) : win.document.body && (screenHeight = win.document.body.clientHeight);
-	return screenHeight;
 }
 
 function getSizeFromSizeMapping(divID, slotSizeMapping, win){
@@ -63,8 +43,8 @@ function getSizeFromSizeMapping(divID, slotSizeMapping, win){
 	}
 
 	var sizeMapping = slotSizeMapping[divID];
-	var screenWidth = getScreenWidth(win);
-	var screenHeight = getScreenHeight(win);	
+	var screenWidth = util.getScreenWidth(win);
+	var screenHeight = util.getScreenHeight(win);	
 
 	util.log(divID+': responsiveSizeMapping found: screenWidth: '+ screenWidth + ', screenHeight: '+ screenHeight);
 	util.log(sizeMapping);
@@ -197,7 +177,6 @@ function updateStatusAfterRendering(divID, isRefreshCall){
 	setKeyValueOfSlotForDivId(divID, settings);
 }
 
-//todo: this function can be made generic
 function setKeyValueOfSlotForDivId(divID, keyValueObject){
 	var kv;
 
@@ -221,7 +200,6 @@ function getSlotNamesByStatus(statusObject){
 	return slots;
 }
 
-// i am here....
 function removeDMTargetingFromSlot(key){
 	var currenGoogleSlot;
 	var targetingKeys;
@@ -342,20 +320,20 @@ function defineWrapperTargetingKey(key){
 
 // Hooks related functions
 
-//todo: can  we localise these variables
 function addHookOnGooglePubAdsDisableInitialLoad(){
-	if( original_disableInitialLoad = (localPubAdsObj && localPubAdsObj.disableInitialLoad) ){	
+	var original_disableInitialLoad = localPubAdsObj && localPubAdsObj.disableInitialLoad;
+	if(util.isFunction(original_disableInitialLoad)){
 		localPubAdsObj.disableInitialLoad = function(){
 			disableInitialLoadIsSet = true;
 			util.log('Disable Initial Load is called');
-			var arg = arguments;
-			return original_disableInitialLoad.apply(this, arg);
+			return original_disableInitialLoad.apply(this, arguments);
 		};
 	}
 }
 
 function addHookOnGooglePubAdsEnableSingleRequest(){
-	if( original_enableSingleRequest = (localPubAdsObj && localPubAdsObj.enableSingleRequest) ){		
+	var original_enableSingleRequest = localPubAdsObj && localPubAdsObj.enableSingleRequest;
+	if(util.isFunction(original_enableSingleRequest)){
 		localPubAdsObj.enableSingleRequest = function(){					
 			util.log('enableSingleRequest is called');
 			var arg = arguments;
@@ -367,7 +345,8 @@ function addHookOnGooglePubAdsEnableSingleRequest(){
 }
 
 function addHookOnGooglePubAdsSetTargeting(){
-	if( original_setTargeting = (localPubAdsObj && localPubAdsObj.setTargeting) ){	
+	var original_setTargeting = localPubAdsObj && localPubAdsObj.setTargeting;
+	if(util.isFunction(original_setTargeting)){
 		localPubAdsObj.setTargeting = function(){
 			var arg = arguments,
 				key = arg[0] ? arg[0] : null
@@ -385,18 +364,26 @@ function addHookOnGooglePubAdsSetTargeting(){
 }
 
 function addHookOnGoogletagDestroySlots(win){
-	localGoogletag.destroySlots = function(arrayOfSlots){
-		for(var i = 0, l = arrayOfSlots.length; i < l; i++){
-			var divID = arrayOfSlots[i].getSlotId().getDomId();
-			delete slotsMap[divID];
-		}
-		original_destroySlots.apply(win.googletag, arguments);
-	};
+	var original_destroySlots = localGoogletag && localGoogletag.destroySlots;
+	if(util.isFunction(original_destroySlots)){
+		localGoogletag.destroySlots = function(arrayOfSlots){
+			for(var i = 0, l = arrayOfSlots.length; i < l; i++){
+				var divID = arrayOfSlots[i].getSlotId().getDomId();
+				delete slotsMap[divID];
+			}
+			original_destroySlots.apply(win.googletag, arguments);
+		};
+	}
 }
 
 // display
 function  addHookOnGoogletagDisplay(win){
 	if(displayHookIsAdded){
+		return;
+	}
+
+	var original_display = localGoogletag && localGoogletag.display;
+	if(!util.isFunction(original_display)){
 		return;
 	}
 
@@ -414,7 +401,7 @@ function  addHookOnGoogletagDisplay(win){
 									
 			3. googletag.pubads().definePassback('/1234567/sports', [468, 60]).display();
 				we are not going to support this one as well as third-party partners use this and they wont have setup required to render our bids
-	*/			
+	*/
 	
 	displayHookIsAdded = true;
 
@@ -508,9 +495,8 @@ function  addHookOnGoogletagDisplay(win){
 				//utilRealignVLogInfoPanel(arg[0]);
 				bidManager.executeAnalyticsPixel();
 			},2000+CONFIG.getTimeout());				
-		}
-						
-	};					
+		}						
+	};
 }
 
 // refresh
@@ -521,8 +507,9 @@ function addHookOnGooglePubAdsRefresh(win){
 			2. googletag.pubads().refresh([slot1, slot2]);
 			3. googletag.pubads().refresh();					
 			4. googletag.pubads().refresh(null, {changeCorrelator: false});		
-	*/		
-	if( original_refresh = (localPubAdsObj && localPubAdsObj.refresh) ){
+	*/
+	var original_refresh = localPubAdsObj && localPubAdsObj.refresh;
+	if(util.isFunction(original_refresh)){
 	
 		localPubAdsObj.refresh = function(){
 		
@@ -605,25 +592,27 @@ function addHookOnGooglePubAdsRefresh(win){
 	}
 }
 
+// slot.defineSizeMapping
+function addHookOnSlotDefineSizeMapping(){
+	var s1 = localGoogletag.defineSlot('/Harshad', [[728, 90]], 'Harshad-02051986');
+	if(s1 && s1.__proto__ && s1.__proto__.defineSizeMapping){
+		var originalDefineSizeMapping = s1.__proto__.defineSizeMapping;
+		if(util.isFunction(originalDefineSizeMapping)){
+			s1.__proto__.defineSizeMapping = function(){
+				slotSizeMapping[ this.getSlotId().getDomId() ] = arguments[0];
+				return originalDefineSizeMapping.apply(this, arguments);
+			};
+		}
+	}
+	localGoogletag.destroySlots([s1]);
+}
+
 function addHooks(win){
 
 	localGoogletag = win.googletag;
 	localPubAdsObj = localGoogletag.pubads();
 
-	//todo: move to a function
-	var s1 = localGoogletag.defineSlot('/Harshad', [[728, 90]], 'Harshad-02051986');
-	if(s1 && s1.__proto__ && s1.__proto__.defineSizeMapping){
-		var originalDefineSizeMapping = s1.__proto__.defineSizeMapping;
-		s1.__proto__.defineSizeMapping = function(){
-			slotSizeMapping[ this.getSlotId().getDomId() ] = arguments[0];
-			return originalDefineSizeMapping.apply(this, arguments);
-		};
-	}
-	localGoogletag.destroySlots([s1]);
-
-	original_display = (localGoogletag && localGoogletag.display);
-	original_destroySlots = (localGoogletag && localGoogletag.destroySlots);
-
+	addHookOnSlotDefineSizeMapping();
 	addHookOnGooglePubAdsDisableInitialLoad();
 	addHookOnGooglePubAdsEnableSingleRequest();		
 	addHookOnGoogletagDisplay(win);
