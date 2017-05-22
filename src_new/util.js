@@ -280,21 +280,13 @@ exports.forEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, act
         if(callHandlerFunction){
 
           if(addZeroBids == true){
+
+            var bid = BID.createBid();
+            bid.setGrossEcpm(0).setAdapterID(adapterID).setKGPV(generatedKey).setDefaultBidStatus(1).setBidID(this.getUniqueIdentifierStr());
             bidManager.setBidFromBidder(
               activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], 
               adapterID, 
-              bidManager.createBidObject(
-                0,
-                bidManager.createDealObject(),
-                "",
-                "",
-                "",
-                0,
-                0,
-                generatedKey,
-                null,
-                1
-              ), 
+              bid, 
               this.getUniqueIdentifierStr()
             );
           }

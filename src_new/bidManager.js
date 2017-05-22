@@ -1,6 +1,7 @@
 var CONFIG = require('./config.js');
 var CONSTANTS = require('./constants.js');
 var util = require('./util.js');
+var BID = require('./bid.js');
 
 //PWT.bidIdMap = {}; // bidID => {slotID, adapterID}
 
@@ -8,6 +9,8 @@ var bid = 'bid';
 var bids = 'bidsFromBidders';
 var constCommonLastBidID = 'lastbidid';
 
+
+// todo: may need to delete
 exports.createDealObject = function(dealID, dealChannel){
 	var dealDetailsObj = {};
 	dealDetailsObj[CONSTANTS.DEAL.ID] = dealID ? (''+dealID) : '';
@@ -17,7 +20,7 @@ exports.createDealObject = function(dealID, dealChannel){
 
 exports.createBidObject = function(ecpm, dealDetails, creativeID, creativeHTML, creativeURL, width, height, kgpv, keyValuePairs, defaultBid){
 	var bidObject = {};		
-
+	//todo: add adapter-id, bid-id as well
 	bidObject[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] = ecpm;
 	bidObject[CONSTANTS.BID_ATTRIBUTES.DEAL] = dealDetails;
 	bidObject[CONSTANTS.BID_ATTRIBUTES.AD_HTML] = creativeHTML;
@@ -323,24 +326,16 @@ exports.displayCreative = function(theDocument, bidID){
 	var divID = PWT.bidIdMap[bidID]['s'];
 	var adapterID = PWT.bidIdMap[bidID]['a'];
 
-	if( util.isOwnProperty(PWT.bidMap, divID) ){
-		//var adapterID = '';
-		// find the winning adapter
-		/*
-		for(var adapter in PWT.bidMap[divID][bids]){
-			if( util.isOwnProperty(PWT.bidMap[divID][bids], adapter) && PWT.bidMap[divID][bids][adapter].win ){
-				adapterID = adapter;
-				break;		
-			}
-		}
-		*/
-		
+	if( util.isOwnProperty(PWT.bidMap, divID) ){	
 		util.log(divID+CONSTANTS.MESSAGES.M19+ adapterID);
 		var theBid = PWT.bidMap[divID][bids][adapterID][bid][bidID];
 
+		// unnecessary check move this check before getting theBid
 		if( util.isOwnProperty(PWT.bidMap[divID][bids], adapterID) ){
 			util.displayCreative(theDocument, theBid);
 			//utilVLogInfo(divID, {type: 'disp', adapter: adapterID}); //todo
+
+			//todo: change strings to constants
 			this.executeMonetizationPixel({
 				'slt': divID,
 				'adp': adapterID,
