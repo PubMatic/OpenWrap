@@ -156,7 +156,6 @@ function fetchBids(activeSlots, impressionID){
 exports.register = function(){
 	return {
 		fB: fetchBids,
-		dC: util.displayCreative,
 		ID: function(){
 			return adapterID;
 		}

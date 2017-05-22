@@ -339,10 +339,7 @@ exports.displayCreative = function(theDocument, bidID){
 		var theBid = PWT.bidMap[divID][bids][adapterID][bid][bidID];
 
 		if( util.isOwnProperty(PWT.bidMap[divID][bids], adapterID) ){
-			//todo: deprecate it
-			/*adapterManagerDisplayCreative(
-				theDocument, adapterID, theBid
-			);*/
+			util.displayCreative(theDocument, theBid);
 			//utilVLogInfo(divID, {type: 'disp', adapter: adapterID}); //todo
 			this.executeMonetizationPixel({
 				'slt': divID,

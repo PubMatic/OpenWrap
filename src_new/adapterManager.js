@@ -47,13 +47,6 @@ function registerAdapter(bidAdaptor) {
 	}
 };
 
-// todo: deprecate
-exports.displayCreative = function(theDocument, adapterID, bidDetails){
-	if( util.isOwnProperty(registeredAdapters, adapterID) ){
-		registeredAdapters[adapterID].dC(theDocument, bidDetails);
-	}
-};
-
 exports.registerAdapters = function(){
 	registerAdapter(prebid.register());
 };
