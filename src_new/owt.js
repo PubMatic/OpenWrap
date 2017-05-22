@@ -9,7 +9,7 @@ window.PWT = window.PWT || {
 	bidMap: {},
 	bidIdMap: {}
 };
-controller.init(CONFIG.config, window);
+controller.init(window);
 
 /*
 

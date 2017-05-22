@@ -8,13 +8,11 @@ var displayHookIsAdded = false;
 var disableInitialLoadIsSet = false;
 var sendTargetingInfoIsSet = true;
 var sraIsSet = false;
-var configObject = {};// todo: save config in a json file
-var configTimeout = 1000;// refer dirctly from Config
 
 //todo: combine these maps
 var wrapperTargetingKeys = {}; // key is div id
 var slotSizeMapping = {}; // key is div id
-var slotsMap = {};			// key is div id,  stores the mapping of divID ==> googletag.slot
+var slotsMap = {};			// key is div id, stores the mapping of divID ==> googletag.slot
 
 var GPT_targetingMap = {};
 
@@ -450,7 +448,7 @@ function  addHookOnGoogletagDisplay(win){
 				// display method was called for this slot
 				case CONSTANTS.SLOT_STATUS.CREATED:
 				// dm flow is already intiated for this slot
-				// just intitate the configTimeout now
+				// just intitate the CONFIG.getTimeout() now
 				case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
 					setTimeout(function(){
 
@@ -474,7 +472,7 @@ function  addHookOnGoogletagDisplay(win){
 						// check status of the slot, if not displayed/
 						if(status != CONSTANTS.SLOT_STATUS.DISPLAYED){
 																
-							util.log('calling original display function after configTimeout with arguments, ');
+							util.log('calling original display function after CONFIG.getTimeout() with arguments, ');
 							util.log(arg);
 							updateStatusAfterRendering(arg[0], false);
 							original_display.apply(win.googletag, arg);
@@ -482,7 +480,7 @@ function  addHookOnGoogletagDisplay(win){
 							util.log('AdSlot already rendered');
 						}
 							
-					}, configTimeout);
+					}, CONFIG.getTimeout());
 					break;
 
 				// call the original function now
@@ -509,7 +507,7 @@ function  addHookOnGoogletagDisplay(win){
 			setTimeout(function(){
 				//utilRealignVLogInfoPanel(arg[0]);
 				bidManager.executeAnalyticsPixel();
-			},2000+configTimeout);				
+			},2000+CONFIG.getTimeout());				
 		}
 						
 	};					
@@ -556,10 +554,10 @@ function addHookOnGooglePubAdsRefresh(win){
 				adapterManager.callAdapters(qualifyingSlots);
 			}
 			
-			util.log('Intiating Call to original refresh function with configTimeout: ' + configTimeout+' ms');
+			util.log('Intiating Call to original refresh function with CONFIG.getTimeout(): ' + CONFIG.getTimeout()+' ms');
 			setTimeout(function(){
 				
-				util.log('Executing post configTimeout events, arguments: ');
+				util.log('Executing post CONFIG.getTimeout() events, arguments: ');
 				util.log(arg);
 				
 				var index,	
@@ -591,18 +589,18 @@ function addHookOnGooglePubAdsRefresh(win){
 						//utilCreateVLogInfoPanel(slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.SIZES]);						
 						//utilRealignVLogInfoPanel(slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID]);	
 					}						
-				}, 2000+configTimeout);
+				}, 2000+CONFIG.getTimeout());
 
 				bidManager.executeAnalyticsPixel();
 				
 				if(yesCallRefreshFunction){						
-					util.log('Calling original refresh function from configTimeout');
+					util.log('Calling original refresh function from CONFIG.getTimeout()');
 					original_refresh.apply(win.googletag.pubads(), arg );						
 				}else{
 					util.log('AdSlot already rendered');
 				}
 					
-			}, configTimeout);
+			}, CONFIG.getTimeout());
 		};
 	}
 }
@@ -647,13 +645,9 @@ function defineGPTVariables(win){
 	win.googletag.cmd = win.googletag.cmd || [];
 }
 
-exports.init = function(config, win){
-
-	configObject = config;
-	configTimeout = util.getTimeout(configObject);
+exports.init = function(win){
 	wrapperTargetingKeys = defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
 	defineGPTVariables(win);
-
 	adapterManager.registerAdapters();
 
 	if(util.isUndefined(win.google_onload_fired) && win.googletag.cmd.unshift){

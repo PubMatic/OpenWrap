@@ -166,13 +166,13 @@ exports.setBidFromBidder = function(divID, bidderID, bidDetails, bidID){
 				};
 
 				if(bidDetails[CONSTANTS.BID_ATTRIBUTES.DEFAULT_BID] === 0){
-					utilVLogInfo(divID, {
+					/*utilVLogInfo(divID, {
 						type: bid,
 						bidder: bidderID + (CONFIG.getBidPassThroughStatus(bidderID) !== 0 ? '(PT)' : ''),
 						bidDetails: bidDetails,
 						startTime: PWT.bidMap[divID][CONSTANTS.BID_ATTRIBUTES.CREATION_TIME],
 						endTime: currentTime
-					});
+					});*/
 				}
 
 			}else{
@@ -193,13 +193,13 @@ exports.setBidFromBidder = function(divID, bidderID, bidDetails, bidID){
 		};
 
 		if(bidDetails[CONSTANTS.BID_ATTRIBUTES.DEFAULT_BID] === 0){
-			utilVLogInfo(divID, {
+			/*utilVLogInfo(divID, {
 				type: bid,
 				bidder: bidderID + (CONFIG.getBidPassThroughStatus(bidderID) !== 0 ? '(PT)' : ''),
 				bidDetails: bidDetails,
 				startTime: PWT.bidMap[divID][CONSTANTS.BID_ATTRIBUTES.CREATION_TIME],
 				endTime: currentTime
-			});
+			});*/
 		}	
 	}		
 };

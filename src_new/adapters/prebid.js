@@ -141,8 +141,9 @@ function fetchBids(activeSlots, impressionID){
 
 	if(adUnitsArray.length > 0){
 		if(pbjs && util.isFunction(pbjs.addAdUnits)){
-			pbjs.addAdUnits(adUnitsArray);
+			//pbjs.addAdUnits(adUnitsArray);
 			pbjs.requestBids({
+				adUnits: adUnitsArray,
                 bidsBackHandler: function(bidResponses) {
 					handleBidResponses(bidResponses);
                 },
