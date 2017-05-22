@@ -1,3 +1,4 @@
+var CONFIG = require('../config.js');
 var CONSTANTS = require('../constants.js');
 var util = require('../util.js');
 var bidManager = require('../bidManager.js');
