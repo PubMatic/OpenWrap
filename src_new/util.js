@@ -1,4 +1,5 @@
 var CONSTANTS = require('./constants.js');
+var BID = require('./bid.js');
 var bidManager = require('./bidManager.js');
 
 var debugLogIsEnabled = false;
@@ -280,15 +281,9 @@ exports.forEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, act
         if(callHandlerFunction){
 
           if(addZeroBids == true){
-
-            var bid = BID.createBid();
-            bid.setGrossEcpm(0).setAdapterID(adapterID).setKGPV(generatedKey).setDefaultBidStatus(1).setBidID(this.getUniqueIdentifierStr());
-            bidManager.setBidFromBidder(
-              activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], 
-              adapterID, 
-              bid, 
-              this.getUniqueIdentifierStr()
-            );
+            var bid = BID.createBid(adapterID, generatedKey);
+            bid.setDefaultBidStatus(1);
+            bidManager.setBidFromBidder(activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], bid);
           }
 
           handlerFunction(
