@@ -1,14 +1,16 @@
-function Bid(){
-	this.adapterID = '';
-	this.bidID = '';
+var UTIL = require('./util.js');
+
+function Bid(adapterID, kgpv){
+	this.adapterID = adapterID;
+	this.kgpv = kgpv;
+	this.bidID = UTIL.getUniqueIdentifierStr();
 	this.grossEcpm = 0;
 	this.netEcpm = 0;
 	this.defaultBid = 0;
 	this.adHtml = '';
 	this.adUrl = '';
 	this.height = 0;
-	this.width = 0;
-	this.kgpv = '';
+	this.width = 0;	
 	this.creativeID = ''; //todo, is it needed ?
 	this.keyValuePairs = null;
 	this.isPostTimeout = false;
@@ -18,19 +20,23 @@ function Bid(){
 	this.isWinningBid = false;
 }
 
+/*
 Bid.prototype.setAdapterID = function(adapterID){
 	this.adapterID = adapterID;
 	return this;
 };
+*/
 
 Bid.prototype.getAdapterID = function(){
 	return this.adapterID;
 };
 
+/*
 Bid.prototype.setBidID = function(bidID){
 	this.bidID = bidID;
 	return this;
 };
+*/
 
 Bid.prototype.getBidID = function(){
 	return this.bidID;
@@ -99,10 +105,12 @@ Bid.prototype.getWidth = function(){
 	return this.width;
 };
 
+/*
 Bid.prototype.setKGPV = function(kgpv){
 	this.kgpv = kgpv;
 	return this;
 };
+*/
 
 Bid.prototype.getKGPV = function(){
 	return this.kgpv;
@@ -136,7 +144,7 @@ Bid.prototype.getReceivedTime = function(){
 };
 
 Bid.prototype.setDealID = function(dealID){
-	this.dealID = dealID;
+	this.dealID = dealID ? (''+dealID) : '';
 	return this;
 };
 
@@ -145,7 +153,7 @@ Bid.prototype.getDealID = function(){
 };
 
 Bid.prototype.setDealChannel = function(dealChannel){
-	this.dealChannel = dealChannel;
+	this.dealChannel = this.dealID && dealChannel ? (''+dealChannel) : '';
 	return this;
 };
 
@@ -162,6 +170,6 @@ Bid.prototype.getWinningBidStatus = function(){
 	return this.isWinningBid;
 };
 
-exports.createBid = function(){
-	return new Bid();
+exports.createBid = function(adapterID, kgpv){
+	return new Bid(adapterID, kgpv);
 }
