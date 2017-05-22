@@ -386,21 +386,21 @@ exports.executeAnalyticsPixel = function(){
 							continue;
 						}
 						var theBid = bidsArray[adapter].bid[bidID];
-						var endTime = theBid[CONSTANTS.BID_ATTRIBUTES.BID_RECEIVED_TIME];
+						var endTime = theBid.getReceivedTime();
 						slotObject['ps'].push({
 							'pn': adapter,
 							'bidid': bidID,
-							'db': theBid[CONSTANTS.BID_ATTRIBUTES.DEFAULT_BID],
-							'kgpv': theBid[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE],
-							'psz': theBid[CONSTANTS.COMMON.WIDTH] + 'x' + theBid[CONSTANTS.COMMON.HEIGHT],
-							'eg': theBid[CONSTANTS.BID_ATTRIBUTES.ACTUAL_ECPM],
-							'en': theBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM],
-							'di': theBid[CONSTANTS.BID_ATTRIBUTES.DEAL][CONSTANTS.DEAL.ID],
-							'dc': theBid[CONSTANTS.BID_ATTRIBUTES.DEAL][CONSTANTS.DEAL.CHANNEL],
+							'db': theBid.getDefaultBidStatus(),
+							'kgpv': theBid.getKGPV(),
+							'psz': theBid.getWidth() + 'x' + theBid.getHeight(),
+							'eg': theBid.getGrossEcpm(),
+							'en': theBid.getNetEcpm(),
+							'di': theBid.getDealID(),
+							'dc': theBid.getDealChannel(),
 							'l1': endTime - startTime,
 							'l2': 0,
-							't': theBid[CONSTANTS.BID_ATTRIBUTES.POST_TIMEOUT] === false ? 0 : 1,
-							'wb': theBid['win'] === true ? 1 : 0
+							't': theBid.getPostTimeoutStatus() === false ? 0 : 1,
+							'wb': theBid.getWinningBidStatus() === true ? 1 : 0
 						});
 						firePixel = true;
 					}
