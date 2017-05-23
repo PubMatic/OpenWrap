@@ -430,7 +430,8 @@ var bidMap = {},
 			outputObj = {},
 			firePixel = false,
 			impressionID = '',
-			pixelURL = bidManagerGetAnalyticsPixelURL()
+			pixelURL = bidManagerGetAnalyticsPixelURL(),
+			impressionIDMap = {} // impID => slots[]
 		;
 
 		if(!pixelURL){
@@ -460,6 +461,7 @@ var bidMap = {},
 
 				var bidsArray = bidMap[key][bids];
 				impressionID = bidMap[key][constImpressionID];
+				impressionIDMap[ impressionID ]	= impressionIDMap[ impressionID ] || [];
 
 				for(var adapter in bidsArray){
 
@@ -497,11 +499,30 @@ var bidMap = {},
 					}
 				}
 
-				outputObj['s'].push(slotObject);
+				//outputObj['s'].push(slotObject);
+				impressionIDMap[ impressionID ].push(slotObject);
 			}
 		}
 
-		if(firePixel){			
+		for(impressionID in impressionIDMap){
+			if(utilHasOwnProperty(impressionIDMap, impressionID)){
+				if(impressionIDMap[impressionID].length > 0){
+					outputObj['s'] = impressionIDMap[impressionID];
+					outputObj[constConfigPublisherID] = bidManagerGetPublisherID();
+					outputObj['to'] = bidManagerPwtConf['t'];
+					outputObj['purl'] = decodeURIComponent(utilMetaInfo.u);
+					outputObj[constBidInfoTimestamp] = utilGetCurrentTimestamp();
+					outputObj[constImpressionID] = encodeURIComponent(impressionID);
+					outputObj[constConfigProfileID] = bidManagerGetProfileID();
+					outputObj[constConfigProfileDisplayVersionID] = bidManagerGetProfileDisplayVersionID();
+					pixelURL += 'pubid=' + bidManagerPwtConf[constConfigPublisherID]+'&json=' + encodeURIComponent(JSON.stringify(outputObj));
+					(new Image()).src = utilMetaInfo.protocol + pixelURL;
+				}
+			}
+		}
+
+		/*
+		if(firePixel){
 			outputObj[constConfigPublisherID] = bidManagerGetPublisherID();
 			outputObj['to'] = bidManagerPwtConf['t'];
 			outputObj['purl'] = decodeURIComponent(utilMetaInfo.u);
@@ -524,6 +545,7 @@ var bidMap = {},
 				//);
 			}			
 		//}, TIMEOUT+5000);//todo: decide the timeout value
+		*/
 	},
 
 	bidManagerExecuteMonetizationPixel = function(slotID, adapterID, theBid, bidID){
