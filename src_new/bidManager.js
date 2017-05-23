@@ -333,6 +333,7 @@ exports.displayCreative = function(theDocument, bidID){
 	}		
 };
 
+// todo: accept PWT.bidMap as parameter
 exports.executeAnalyticsPixel = function(){
 
 	var selectedInfo = {},
