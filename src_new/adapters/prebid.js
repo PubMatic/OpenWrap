@@ -5,6 +5,7 @@
 */
 var CONFIG = require('../config.js');
 var CONSTANTS = require('../constants.js');
+var BID = require('../bid.js');
 var util = require('../util.js');
 var bidManager = require('../bidManager.js');
 var adapterManager = require('../adapterManager.js');
@@ -23,22 +24,17 @@ function handleBidResponses(bidResponses){
 			for(var i = 0; i<bids.length; i++){
 				var bid = bids[i];
 				if(bid.bidderCode){
-					bidManager.setBidFromBidder(
-						kgpvMap[responseID].divID, 
-						pbPrefix + bid.bidderCode, 
-						bidManager.createBidObject(
-							bid.cpm,
-							bidManager.createDealObject(bid.dealId, "NA"),
-							"",
-							bid.ad,
-							"",
-							bid.width,
-							bid.height,
-							kgpvMap[responseID].kgpv,
-							bid.adserverTargeting || null
-						), 
-						util.getUniqueIdentifierStr()
-					);
+
+					var theBid = BID.createBid(pbPrefix + bid.bidderCode, kgpvMap[responseID].kgpv);
+					theBid.
+						setGrossEcpm(bid.cpm).
+						setDealID(bid.dealId).
+						setDealChannel("NA").
+						setAdHtml(bid.ad).
+						setWidth(bid.width).
+						setHeight(bid.height).
+						setKeyValuePairs(bid.adserverTargeting || null);
+					bidManager.setBidFromBidder(kgpvMap[responseID].divID, theBid);
 				}
 			}
 		}
@@ -112,18 +108,7 @@ function fetchBids(activeSlots, impressionID){
 		return;
 	}
 
-	// todo: dont we need to register ever adapter ?
-
 	var adUnits = {};// create ad-units for prebid
-
-	// todo: move to config, forEachAdapter, accepts callback
-	/*
-	for(var pbAdapterID in configObject['global']['adapters']){
-		if(util.isOwnProperty(configObject['global']['adapters'], pbAdapterID) && pbAdapterID.indexOf(pbPrefix) == 0){
-			generatePbConf(pbAdapterID, configObject, activeSlots, adUnits);
-		}
-	}
-	*/
 
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
 		if(adapterID.indexOf(pbPrefix) == 0){
