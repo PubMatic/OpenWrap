@@ -124,8 +124,13 @@ function fetchBids(activeSlots, impressionID){
 		}
 	}
 
-	if(adUnitsArray.length > 0){
-		if(pbjs && util.isFunction(pbjs.addAdUnits)){
+	if(adUnitsArray.length > 0 && pbjs){
+
+		if(util.isFunction(pbjs.setBidderSequence)){
+			pbjs.setBidderSequence('random');
+		}
+
+		if(util.isFunction(pbjs.requestBids)){
 			//pbjs.addAdUnits(adUnitsArray);
 			pbjs.requestBids({
 				adUnits: adUnitsArray,
