@@ -333,3 +333,19 @@ exports.getScreenHeight = function(win){
   win.innerHeight ? (screenHeight = win.innerHeight) : win.document && win.document.documentElement && win.document.documentElement.clientHeight ? (screenHeight = win.document.documentElement.clientHeight) : win.document.body && (screenHeight = win.document.body.clientHeight);
   return screenHeight;
 };
+
+exports.forEachOnObject = function(theObject, callback){
+  if(!this.isObject(theObject)){
+    return;
+  }
+
+  if(!this.isFunction(callback)){
+    return;
+  }
+
+  for(var key in theObject){
+    if(this.isOwnProperty(theObject, key)){
+      callback(key, theObject[key]);
+    }
+  }
+};

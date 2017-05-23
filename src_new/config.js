@@ -101,15 +101,7 @@ exports.getMonetizationPixelURL = function(){
 };
 
 exports.forEachAdapter = function(callback){
-	if(!util.isFunction(callback)){
-		return;
-	}
-
-	for(var adapterID in this.config.global.adapters){
-		if(util.isOwnProperty(this.config.global.adapters, adapterID)){
-			callback(adapterID, this.config.global.adapters[adapterID]);
-		}
-	}
+	util.forEachOnObject(this.config.global.adapters, callback);
 };
 
 /*

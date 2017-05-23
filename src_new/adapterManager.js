@@ -21,16 +21,16 @@ exports.callAdapters = function(activeSlots){
 		}
 	}
 
-	CONFIG.forEachAdapter(function(anAdapter){
-		if(randomNumberBelow100 >= CONFIG.getAdapterThrottle(anAdapter)){
+	util.forEachOnObject(registeredAdapters, function(adapterID){
+		if(randomNumberBelow100 >= CONFIG.getAdapterThrottle(adapterID)){
 			for(var j in activeSlots){
 				if(util.isOwnProperty(activeSlots, j) && activeSlots[j]){
-					bidManager.setCallInitTime(activeSlots[j][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], anAdapter);
+					bidManager.setCallInitTime(activeSlots[j][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], adapterID);
 				}
 			}
-			registeredAdapters[anAdapter].fB(activeSlots, impressionID);
+			registeredAdapters[adapterID].fB(activeSlots, impressionID);
 		}else{
-			util.log(anAdapter+CONSTANTS.MESSAGES.M2);
+			util.log(adapterID+CONSTANTS.MESSAGES.M2);
 		}
 	});
 };
