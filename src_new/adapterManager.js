@@ -7,38 +7,49 @@ var prebid = require('./adapters/prebid.js');
 
 var registeredAdapters = {};
 
-exports.callAdapters = function(activeSlots){
-
-	var randomNumberBelow100 = Math.floor(Math.random()*100);	
+exports.callAdapters = function(activeSlots){	
 	var impressionID = util.generateUUID();
+	resetSlots(activeSlots, impressionID);
+	callAdapter(registeredAdapters, activeSlots, impressionID);
+};
 
-	//todo: better way of looping through objects; util-function
-	for(var i in activeSlots){
-		if(util.isOwnProperty(activeSlots, i) && activeSlots[i]){
-			var divID = activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID];
-			bidManager.resetBid(divID, impressionID);
-			bidManager.setSizes(divID, util.generateSlotNamesFromPattern(activeSlots[i], '_W_x_H_'));
-		}
-	}
-
-	util.forEachOnObject(registeredAdapters, function(adapterID){
-		if(randomNumberBelow100 >= CONFIG.getAdapterThrottle(adapterID)){
-			for(var j in activeSlots){
-				if(util.isOwnProperty(activeSlots, j) && activeSlots[j]){
-					bidManager.setCallInitTime(activeSlots[j][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], adapterID);
-				}
-			}
-			registeredAdapters[adapterID].fB(activeSlots, impressionID);
+// todo: give betetr name to this function
+function callAdapter(adapters, slots, impressionID){
+	var randomNumberBelow100 = Math.floor(Math.random()*100);
+	util.forEachOnObject(adapters, function(adapterID, theAdapter){
+		if(throttleAdapter(randomNumberBelow100, adapterID) == false){
+			setInitTimeForSlotsForAdapter(slots, adapterID);
+			theAdapter.fB(slots, impressionID);
 		}else{
 			util.log(adapterID+CONSTANTS.MESSAGES.M2);
 		}
+	});	
+}
+
+// todo: where this function should go ?
+function resetSlots(slots, impressionID){
+	util.forEachOnObject(slots, function(key, slot){
+		var divID = slot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID];
+		bidManager.resetBid(divID, impressionID);
+		bidManager.setSizes(divID, util.generateSlotNamesFromPattern(slot, '_W_x_H_'));	
 	});
-};
+}
+
+function throttleAdapter(randomNumber, adapterID){
+	return !(randomNumber >= CONFIG.getAdapterThrottle(adapterID));
+}
+
+// todo: where this function should go ?
+function setInitTimeForSlotsForAdapter(slots, adapterID){
+	util.forEachOnObject(slots, function(j){
+		bidManager.setCallInitTime(slots[j][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], adapterID);
+	});
+}
 
 function registerAdapter(bidAdaptor) {
 	if (bidAdaptor) {
 		var adapterID = bidAdaptor.ID();
-		if (util.isFunction(bidAdaptor.fB)) {
+		if (util.isFunction(bidAdaptor.fB)){
 			registeredAdapters[adapterID] = bidAdaptor;
 		} else {
 			util.log(adapterID + CONSTANTS.MESSAGES.M3);
