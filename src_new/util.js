@@ -68,7 +68,7 @@ var constDebugInConsolePrependWith = '-------------------------';
 exports.log = function(data){
   if( debugLogIsEnabled && console && this.isFunction(console.log) ){
     if(this.isString(data)){
-      console.log( constDebugInConsolePrependWith + data );
+      console.log( (new Date()).getTime()+ ' : ' + constDebugInConsolePrependWith + data );
     }else{
       console.log(data);
     }
