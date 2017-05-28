@@ -53,7 +53,7 @@ exports.config = {
 // remove them from other code parts
 
 exports.getPublisherId = function(){
-	return this.config.global.pwt.t || 0;
+	return util.trim(this.config.global.pwt.pubid) || "0";
 }
 
 exports.getTimeout = function(){
@@ -85,11 +85,11 @@ exports.getBidPassThroughStatus = function(adapterID){
 };
 
 exports.getProfileID = function(){
-	return this.config.global.pwt[CONSTANTS.CONFIG.PROFILE_ID] || "0";
+	return util.trim(this.config.global.pwt[CONSTANTS.CONFIG.PROFILE_ID]) || "0";
 };
 
 exports.getProfileDisplayVersionID = function(){
-	return this.config.global.pwt[CONSTANTS.CONFIG.PROFILE_VERSION_ID] || "0";
+	return util.trim(this.config.global.pwt[CONSTANTS.CONFIG.PROFILE_VERSION_ID]) || "0";
 };
 
 exports.getAnalyticsPixelURL = function(){

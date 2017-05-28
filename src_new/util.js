@@ -349,3 +349,11 @@ exports.forEachOnObject = function(theObject, callback){
     }
   }
 };
+
+exports.trim = function(s){
+  if(!this.isString(s)){
+    return s;
+  }else{
+    return s.replace(/^\s+/g,'').replace(/\s+$/g,'');
+  }
+};
