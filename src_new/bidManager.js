@@ -299,8 +299,47 @@ exports.getBid = function(divID, auctionFunction){
 	return winningBid;
 };
 
-// todo can we remove this one ?
+exports.getBidById = function(bidID){
+
+	if(!util.isOwnProperty(bidIdMap, bidID)){
+		util.log('Bid details not found for bidID: ' + bidID);
+		return null;
+	}
+
+	var divID = PWT.bidIdMap[bidID]['s'];
+	var adapterID = PWT.bidIdMap[bidID]['a'];
+
+	if( util.isOwnProperty(PWT.bidMap, divID) ){	
+		if( util.isOwnProperty(PWT.bidMap[divID][bids], adapterID) ){
+			util.log(bidID+': '+divID+CONSTANTS.MESSAGES.M19+ adapterID);
+			var theBid = PWT.bidMap[divID][bids][adapterID][bid][bidID];
+			return {
+				bid: theBid,
+				slotid: divID
+			};
+		}
+	}
+
+	util.log('Bid details not found for bidID: ' + bidID);
+	return null;
+};
+
 exports.displayCreative = function(theDocument, bidID){
+
+	var bidDetails = this.etBidById(bidID);
+
+	if(bidDetails){
+		var theBid = bidDetails.bid,
+			divID = bidDetails.slotid
+		;
+		util.displayCreative(theDocument, theBid);
+		//utilVLogInfo(divID, {type: 'disp', adapter: adapterID});
+		this.executeMonetizationPixel(divID, theBid);
+	}
+};
+
+// todo can we remove this one ?
+/*exports.displayCreative_OLD = function(theDocument, bidID){
 
 	if(!util.isOwnProperty(PWT.bidIdMap, bidID)){
 		util.log('Bid details not found for bidID: ' + bidID);
@@ -332,6 +371,7 @@ exports.displayCreative = function(theDocument, bidID){
 		}
 	}		
 };
+*/
 
 // todo: accept PWT.bidMap as parameter
 exports.executeAnalyticsPixel = function(){
@@ -436,7 +476,7 @@ exports.executeAnalyticsPixel = function(){
 	}
 };
 
-exports.executeMonetizationPixel = function(bidInfo){
+exports.executeMonetizationPixel = function(slotID, theBid){
 
 	var pixelURL = CONFIG.getMonetizationPixelURL();
 
@@ -447,15 +487,15 @@ exports.executeMonetizationPixel = function(bidInfo){
 	pixelURL += 'pubid=' + CONFIG.getPublisherId();
 	pixelURL += '&purl=' + utilMetaInfo.u;
 	pixelURL += '&tst=' + util.getCurrentTimestamp();
-	pixelURL += '&iid=' + encodeURIComponent(bidInfo[CONSTANTS.COMMON.IMPRESSION_ID]);
-	pixelURL += '&bidid=' + encodeURIComponent(bidInfo['bidid']);
+	pixelURL += '&iid=' + encodeURIComponent(PWT.bidMap[slotID][constImpressionID]); // todo
+	pixelURL += '&bidid=' + encodeURIComponent(theBid.getBidID());
 	pixelURL += '&pid=' + encodeURIComponent(CONFIG.getProfileID());
 	pixelURL += '&pdvid=' + encodeURIComponent(CONFIG.getProfileDisplayVersionID());
-	pixelURL += '&slot=' + encodeURIComponent(bidInfo[constBidInfoSlot]);
-	pixelURL += '&pn=' + encodeURIComponent(bidInfo[constBidInfoAdapter]);
-	pixelURL += '&en=' + encodeURIComponent(bidInfo[constBidInfoNetEcpm]);
-	pixelURL += '&eg=' + encodeURIComponent(bidInfo[constBidInfoGrossEcpm]);
-	pixelURL += '&kgpv=' + encodeURIComponent(bidInfo[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE]);
+	pixelURL += '&slot=' + encodeURIComponent(slotID);
+	pixelURL += '&pn=' + encodeURIComponent(theBid.getAdapterID());
+	pixelURL += '&en=' + encodeURIComponent(theBid.getNetEcpm());
+	pixelURL += '&eg=' + encodeURIComponent(theBid.getGrossEcpm());
+	pixelURL += '&kgpv=' + encodeURIComponent(theBid.getKGPV());
 
 	(new Image()).src = util.protocol + pixelURL;
 };
