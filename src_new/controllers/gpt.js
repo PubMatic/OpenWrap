@@ -93,8 +93,12 @@ function getAdSlotSizesArray(divID, currentGoogleSlot, win){
 		var sizeArrayLength = sizeArray.length;			
 		for(var index = 0; index < sizeArrayLength; index++){
 			var sizeObj = sizeArray[ index ];
-			//todo: check on methods
-			adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
+			if(sizeObj.getWidth && sizeObj.getHeight){
+				adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
+			}else{
+				util.log(divID + ', size object does not have getWidth and getHeight method. Ignoring: ');
+				util.log(sizeObj);
+			}	
 		}
 	}
 	
