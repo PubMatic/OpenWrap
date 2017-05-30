@@ -24,7 +24,7 @@ function getAdUnitIndex(currentGoogleSlot){
 	var index = 0;
 	try{
 		adUnitIndexString = currentGoogleSlot.getSlotId().getId().split('_');
-		index = adUnitIndexString[ adUnitIndex.length - 1 ];
+		index = adUnitIndexString[ adUnitIndexString.length - 1 ];
 	}catch(ex){}
 	return index;
 }
@@ -275,8 +275,12 @@ function arrayOfSelectedSlots(slotNames){
 }
 
 function findWinningBidAndApplyTargeting(divID){
-	var winningBid = bidManager.getBid(divID);
+	var data = bidManager.getBid(divID);
+	var winningBid = data.wb;
+	var keyValuePairs = data.kvp;
+
 	var googleDefinedSlot = slotsMap[ divID ][CONSTANTS.SLOT_ATTRIBUTES.SLOT_OBJECT];
+	// todo: do we need to consider any other PB key ?
 	var ignoreTheseKeys = {
 		'hb_bidder': 1,
 		'hb_adid': 1,
@@ -284,38 +288,38 @@ function findWinningBidAndApplyTargeting(divID){
 		'hb_size': 1
 	};
 
-
 	util.log('DIV: '+divID+' winningBid: ');
 	util.log(winningBid);
 	
-	if(winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] > 0){
-		slotsMap[ divID ][CONSTANTS.SLOT_ATTRIBUTES.STATUS] = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;			
-		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID, winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID]);
-		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS, winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS]);
-		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, (winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]).toFixed(CONSTANTS.COMMON.BID_PRECISION));
-		winningBid[CONSTANTS.BID_ATTRIBUTES.DEAL][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID] && googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID, winningBid[CONSTANTS.BID_ATTRIBUTES.DEAL][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID]);
-		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID, winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID]);
+	if(winningBid.getNetEcpm() > 0){
+		slotsMap[ divID ][CONSTANTS.SLOT_ATTRIBUTES.STATUS] = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
+
+		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID, winningBid.getBidID());
+		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS, winningBid.getStatus());
+		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, (winningBid.getNetEcpm()).toFixed(CONSTANTS.COMMON.BID_PRECISION));
+		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID, winningBid.getAdapterID());
+		//todo: there was a check for a dealID value exists, is it required now ?, we are setting it empty string by default
+		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID, winningBid.getDealID());
+		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID, CONFIG.getPublisherId());
+		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID());
+		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID, CONFIG.getProfileDisplayVersionID());
 	}
 
-	// attaching keyValuePairs from adapters
-	for(var key in winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS]){
-		if(util.isOwnProperty(winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS], key) && !util.isOwnProperty(ignoreTheseKeys, key)){
-			googleDefinedSlot.setTargeting(key, winningBid[CONSTANTS.COMMON.KEY_VALUE_PAIRS][key]);
+	// attaching keyValuePairs from adapters	
+	util.forEachOnObject(keyValuePairs, function(key, value){
+		if(!util.isOwnProperty(ignoreTheseKeys, key)){
+			googleDefinedSlot.setTargeting(key, value);
 			// adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
-			wrapperTargetingKeys[key] = '';
+			defineWrapperTargetingKey(key);
 		}
-	}
+	});
 }
 
 function defineWrapperTargetingKeys(object){
 	var output = {};
-
-	for(var key in object){
-		if(util.isOwnProperty(object, key)){
-			output[ object[key] ] = '';
-		}
-	}
-
+	util.forEachOnObject(object, function(key, value){
+		output[ value ] = '';
+	});	
 	return output;
 }
 
