@@ -59,7 +59,7 @@ exports.setBidFromBidder = function(divID, bidDetails){
 	//util.log(CONSTANTS.MESSAGES.M6+ util.isOwnProperty(PWT.bidMap[divID][bids][bidderID], bid));
 
 
-	// todo: move following validations to a function
+	// todo: move following validations to a function in bid
 	var grossEcpm = bidDetails.getGrossEcpm();
 
 	if(grossEcpm === null){
@@ -102,31 +102,8 @@ exports.setBidFromBidder = function(divID, bidDetails){
 	bidDetails.setReceivedTime(currentTime);
 	if(isPostTimeout === true){
 		bidDetails.setPostTimeoutStatus();
-	}
+	}	
 
-	// un-comment following block when we can pass multiple bids from a partner for a slot
-	/*
-	if(! util.isOwnProperty(PWT.bidMap[divID][bids][bidderID], bid) ){
-		PWT.bidMap[divID][bids][bidderID][bid] = {};	
-	}
-
-	PWT.bidMap[divID][bids][bidderID][bid][bidID] = bidDetails;
-
-	utilVLogInfo(divID, {
-		type: bid,
-		bidder: bidderID,
-		bidDetails: bidDetails,
-		startTime: PWT.bidMap[divID][CONSTANTS.BID_ATTRIBUTES.CREATION_TIME],
-		endTime: currentTime,
-	});
-
-	PWT.bidIdMap[bidID] = {
-		s: divID,
-		a: bidderID
-	};
-	*/		
-
-	// comment following block when we can pass multiple bids from a partner for a slot
 	if(util.isOwnProperty(PWT.bidMap[divID][bids][bidderID], bid)){
 
 		var lastBidID = PWT.bidMap[divID][bids][bidderID][constCommonLastBidID],
@@ -140,7 +117,6 @@ exports.setBidFromBidder = function(divID, bidDetails){
 				util.log(CONSTANTS.MESSAGES.M23);
 			}				
 
-			//if( lastBidWasDefaultBid || PWT.bidMap[divID][bids][bidderID][bid][lastBidID][CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] < bidDetails[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM]){
 			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
 
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14);
