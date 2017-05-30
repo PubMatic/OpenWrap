@@ -98,13 +98,15 @@ exports.getUniqueIdentifierStr = function() {
 };
 
 exports.copyKeyValueObject = function(copyTo, copyFrom){
-  for(var key in copyFrom){    
-    copyFrom[key] = this.isArray(copyFrom[key]) ? copyFrom[key] : [copyFrom[key]];
-    if(this.isOwnProperty(copyFrom, key)){
-      if(this.isOwnProperty(copyTo, key)){
-        copyTo[key].push.apply(copyTo[key], copyFrom[key])  ;
-      }else{
-        copyTo[key] = copyFrom[key];
+  if(this.isObject(copyTo) && this.isObject(copyFrom)){
+    for(var key in copyFrom){    
+      copyFrom[key] = this.isArray(copyFrom[key]) ? copyFrom[key] : [copyFrom[key]];
+      if(this.isOwnProperty(copyFrom, key)){
+        if(this.isOwnProperty(copyTo, key)){
+          copyTo[key].push.apply(copyTo[key], copyFrom[key])  ;
+        }else{
+          copyTo[key] = copyFrom[key];
+        }
       }
     }
   }
@@ -334,6 +336,7 @@ exports.getScreenHeight = function(win){
   return screenHeight;
 };
 
+// todo: how about accepting array of arguments to be passed to callback function after key, value, arrayOfArguments
 exports.forEachOnObject = function(theObject, callback){
   if(!this.isObject(theObject)){
     return;
