@@ -235,8 +235,10 @@ function auctionBids(bids){
 					continue;
 				}
 
-				if(winningBid && winningBid.getNetEcpm() < theBid.getNetEcpm()){
-					winningBid = theBid;				
+				if(winningBid == null){
+					winningBid = theBid;
+				}else if(winningBid.getNetEcpm() < theBid.getNetEcpm()){
+					winningBid = theBid;
 				}
 			}
 		}
@@ -259,10 +261,11 @@ exports.getBid = function(divID, auctionFunction){
 		winningBid = data.wb;
 		keyValuePairs = data.kvp;
 
-		winningBid.serStatus(1);
+		
 		PWT.bidMap[divID]['ae'] = true; // Analytics Enabled
 
-		if(winningBid.getNetEcpm() > 0){
+		if(winningBid && winningBid.getNetEcpm() > 0){
+			winningBid.setStatus(1);
 			winningBid.setWinningBidStatus();
 			//todo
 			/*utilVLogInfo(divID, {

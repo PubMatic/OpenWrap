@@ -291,12 +291,12 @@ function findWinningBidAndApplyTargeting(divID){
 	util.log('DIV: '+divID+' winningBid: ');
 	util.log(winningBid);
 	
-	if(winningBid.getNetEcpm() > 0){
+	if(winningBid && winningBid.getNetEcpm() > 0){
 		slotsMap[ divID ][CONSTANTS.SLOT_ATTRIBUTES.STATUS] = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
 
 		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID, winningBid.getBidID());
 		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS, winningBid.getStatus());
-		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, (winningBid.getNetEcpm()).toFixed(CONSTANTS.COMMON.BID_PRECISION));
+		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
 		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID, winningBid.getAdapterID());
 		//todo: there was a check for a dealID value exists, is it required now ?, we are setting it empty string by default
 		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID, winningBid.getDealID());

@@ -30,7 +30,7 @@ Bid.prototype.getBidID = function(){
 };
 
 Bid.prototype.setGrossEcpm = function(ecpm){
-	this.grossEcpm = ecpm;
+	this.grossEcpm = parseFloat(ecpm); //todo if parseFloat fails , set it to 0
 	return this;
 };
 
@@ -39,7 +39,7 @@ Bid.prototype.getGrossEcpm = function(){
 };
 
 Bid.prototype.setNetEcpm = function(ecpm){
-	this.netEcpm = ecpm;
+	this.netEcpm = parseFloat(ecpm); //todo if parseFloat fails , set it to 0
 	return this;
 };
 
