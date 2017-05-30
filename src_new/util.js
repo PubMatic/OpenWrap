@@ -302,26 +302,36 @@ exports.forEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, act
   }
 };
 
-exports.displayCreative = function(theDocument, bidDetails){
-  //todo
-  //utilResizeWindow(theDocument, bidDetails[constTargetingHeight], bidDetails[constTargetingWidth]);
-  /*
-  if(bidDetails[constTargetingAdHTML]){
-    theDocument.write(bidDetails[constTargetingAdHTML]);
-  }else if(bidDetails[constTargetingAdUrl]){
-    utilCreateAndInsertFrame(
-      theDocument,
-      bidDetails[constTargetingAdUrl], 
-      bidDetails[constTargetingHeight] , bidDetails[constTargetingWidth] , 
-      ""
-    );
+exports.resizeWindow = function(theDocument, width, height){
+  if(height && width){
+    try{
+      var fr = theDocument.defaultView.frameElement;
+      fr.width = width;
+      fr.height = height;
+    }catch(e){}
+  }
+};
+
+exports.writeIframe = function(theDocument, src, width, height, style){     
+  theDocument.write('<iframe'                   
+    + ' frameborder="0" allowtransparency="true" marginheight="0" marginwidth="0" scrolling="no" width="'
+    + width  + '" hspace="0" vspace="0" height="'
+    + height + '"' 
+    + (style ?  ' style="'+ style+'"' : '' )
+    + ' src="' + src + '"'        
+    + '></ifr' + 'ame>');
+};
+
+exports.displayCreative = function(theDocument, bid){
+  this.resizeWindow(theDocument, bid.getWidth(), bid.getHeight());
+  if(bid.getAdHtml()){
+    theDocument.write(bid.getAdHtml());
+  }else if(bid.getAdUrl()){
+    this.writeIframe(theDocument, bid.getAdUrl(), bid.getWidth(), bid.getHeight(), "");
   }else{
     this.log("creative details are not found");
-    this.log(bidDetails);
+    this.log(bid);
   }
-  
-  theDocument.close();
-  */
 };
 
 exports.getScreenWidth = function(win){

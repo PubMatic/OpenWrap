@@ -1,7 +1,8 @@
 var CONFIG = require('./config.js');
 var CONSTANTS = require('./constants.js');
 var util = require('./util.js');
-var controller = require('./controllers/gpt.js');
+var controller = require('./controllers/gpt.js');//todo: configer how to select controller, may be from config
+var bidManager = require('./bidManager.js');
 
 util.enableDebugLog();
 
@@ -9,6 +10,44 @@ window.PWT = window.PWT || {
 	bidMap: {},
 	bidIdMap: {}
 };
+
+window.PWT.displayCreative = function(theDocument, bidID){
+	util.log('In displayCreative for: ' + bidID);
+	bidManager.displayCreative(theDocument, bidID);
+};
+
+window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
+	util.log('In displayPMPCreative for: ' + values);	
+	var bidID = utilGetBididForPMP(values, priorityArray);
+	bidID && bidManagerDisplayCreative(theDocument, bidID);
+};
+
+window.PWT.sfDisplayCreative = function(theDocument, bidID){
+	util.log('In sfDisplayCreative for: ' + bidID);
+	utilAddMessageEventListenerForSafeFrame(true);	
+	window.parent.postMessage(
+		JSON.stringify({
+			pwt_type: "1",
+			pwt_bidID: bidID,
+			pwt_origin: win.location.protocol+'//'+win.location.hostname
+		}), 
+		"*"
+	);
+};
+
+window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
+	util.log('In sfDisplayPMPCreative for: ' + values);
+	utilAddMessageEventListenerForSafeFrame(true);
+	window.parent.postMessage(
+		JSON.stringify({
+			pwt_type: "1",
+			pwt_bidID: utilGetBididForPMP(values, priorityArray),
+			pwt_origin: win.location.protocol+'//'+win.location.hostname
+		}), 
+		"*"
+	);
+};
+
 controller.init(window);
 
 /*
