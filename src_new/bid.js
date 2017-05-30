@@ -4,8 +4,8 @@ function Bid(adapterID, kgpv){
 	this.adapterID = adapterID;
 	this.kgpv = kgpv;
 	this.bidID = UTIL.getUniqueIdentifierStr();
-	this.grossEcpm = 0;
-	this.netEcpm = 0;
+	this.grossEcpm = 0; // one given by bidder
+	this.netEcpm = 0; // one after bid adjustment
 	this.defaultBid = 0;
 	this.adHtml = '';
 	this.adUrl = '';
@@ -18,25 +18,12 @@ function Bid(adapterID, kgpv){
 	this.dealID = '';
 	this.dealChannel = '';
 	this.isWinningBid = false;
+	this.status = 0;
 }
-
-/*
-Bid.prototype.setAdapterID = function(adapterID){
-	this.adapterID = adapterID;
-	return this;
-};
-*/
 
 Bid.prototype.getAdapterID = function(){
 	return this.adapterID;
 };
-
-/*
-Bid.prototype.setBidID = function(bidID){
-	this.bidID = bidID;
-	return this;
-};
-*/
 
 Bid.prototype.getBidID = function(){
 	return this.bidID;
@@ -105,13 +92,6 @@ Bid.prototype.getWidth = function(){
 	return this.width;
 };
 
-/*
-Bid.prototype.setKGPV = function(kgpv){
-	this.kgpv = kgpv;
-	return this;
-};
-*/
-
 Bid.prototype.getKGPV = function(){
 	return this.kgpv;
 };
@@ -170,6 +150,18 @@ Bid.prototype.getWinningBidStatus = function(){
 	return this.isWinningBid;
 };
 
+Bid.prototype.setStatus = function(status){
+	this.status = status;
+	return this;
+};
+
+Bid.prototype.getStatus = function(){
+	return this.status;
+};
+
 exports.createBid = function(adapterID, kgpv){
 	return new Bid(adapterID, kgpv);
-}
+};
+
+//todo:
+// how to support PMPG key-value-pair as we are setting bidID internally
