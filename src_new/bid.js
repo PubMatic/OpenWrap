@@ -1,3 +1,5 @@
+var CONFIG = require('./config.js');
+var CONSTANTS = require('./constants.js');
 var UTIL = require('./util.js');
 
 function Bid(adapterID, kgpv){
@@ -30,7 +32,33 @@ Bid.prototype.getBidID = function(){
 };
 
 Bid.prototype.setGrossEcpm = function(ecpm){
-	this.grossEcpm = parseFloat(ecpm); //todo if parseFloat fails , set it to 0
+
+	if(ecpm === null){
+		UTIL.log(CONSTANTS.MESSAGES.M10);
+		UTIL.log(this);
+		return this;
+	}
+
+	if(UTIL.isString(ecpm)){
+		ecpm = ecpm.replace(/\s/g, '');
+		if(ecpm.length === 0){
+			UTIL.log(CONSTANTS.MESSAGES.M20);
+			UTIL.log(this);
+			return this;
+		}
+	}
+
+	ecpm = parseFloat(ecpm);
+
+	if(isNaN(ecpm)){
+		UTIL.log(CONSTANTS.MESSAGES.M11+ecpm);
+		UTIL.log(this);
+		return;
+	}
+
+	this.grossEcpm = ecpm;
+	this.netEcpm = parseFloat(this.grossEcpm * CONFIG.getAdapterRevShare(this.getAdapterID()).toFixed(CONSTANTS.COMMON.BID_PRECISION));
+
 	return this;
 };
 
@@ -38,10 +66,10 @@ Bid.prototype.getGrossEcpm = function(){
 	return this.grossEcpm;
 };
 
-Bid.prototype.setNetEcpm = function(ecpm){
+/*Bid.prototype.setNetEcpm = function(ecpm){
 	this.netEcpm = parseFloat(ecpm); //todo if parseFloat fails , set it to 0
 	return this;
-};
+};*/
 
 Bid.prototype.getNetEcpm = function(){
 	return this.netEcpm;
@@ -165,3 +193,6 @@ exports.createBid = function(adapterID, kgpv){
 
 //todo:
 // how to support PMPG key-value-pair as we are setting bidID internally
+	// auto set the PMPG key value
+// move ecpm validations to bid
+// no need of setNetBid method

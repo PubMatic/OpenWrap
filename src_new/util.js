@@ -370,3 +370,26 @@ exports.trim = function(s){
     return s.replace(/^\s+/g,'').replace(/\s+$/g,'');
   }
 };
+
+exports.isIframe = function(theWindow){
+  try{
+    return theWindow.self !== theWindow.top;
+  }catch(e){
+    return false;
+  }
+};
+
+exports.getProtocol = function(theWindow){
+  if(theWindow.location.protocol ===  "https:"){
+    return "https://";
+  }
+  return "http://";
+};
+
+exports.getPageURL = function(theWindow){
+  return "";
+};
+
+exports.findInString = function(theString, find){
+  return theString.indexOf(find) >= 0;
+}

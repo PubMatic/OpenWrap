@@ -8,8 +8,17 @@ util.enableDebugLog();
 
 window.PWT = window.PWT || {
 	bidMap: {},
-	bidIdMap: {}
+	bidIdMap: {},
+	isIframe: util.isIframe(window),
+	protocol: util.getProtocol(window),
+	pageURL: util.getPageURL(window)
+	//safeframe flags here
 };
+
+//todo: set pageURL and refURL using one func call
+
+window.PWT['cDebug'] = util.findInString(window.PWT.pageURL, '');
+window.PWT['vDebug'] = util.findInString(window.PWT.pageURL, '');
 
 window.PWT.displayCreative = function(theDocument, bidID){
 	util.log('In displayCreative for: ' + bidID);
