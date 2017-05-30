@@ -76,7 +76,10 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"BID_STATUS": "pwtbst",
 	"BID_ECPM": "pwtecp",
 	"BID_DEAL_ID": "pwtdid",
-	"BID_ADAPTER_ID": "pwtpid"
+	"BID_ADAPTER_ID": "pwtpid",
+	"PUBLISHER_ID": "pwtpubid",
+	"PROFILE_ID": "pwtprofid",
+	"PROFILE_VERSION_ID": "pwtverid"
 };
 
 exports.BID_ATTRIBUTES = {
