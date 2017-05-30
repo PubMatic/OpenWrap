@@ -416,6 +416,7 @@ function  addHookOnGoogletagDisplay(win){
 
 	util.log('Adding hook on googletag.display');
 	
+	//todo move this function to a funtio
 	localGoogletag.display = function(){
 	
 		util.log('In display function, with arguments: ');
@@ -446,6 +447,7 @@ function  addHookOnGoogletagDisplay(win){
 				// dm flow is already intiated for this slot
 				// just intitate the CONFIG.getTimeout() now
 				case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
+					//todo move the function
 					setTimeout(function(){
 
 						util.log('PostTimeout.. back in display function');
