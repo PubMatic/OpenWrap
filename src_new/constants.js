@@ -1,3 +1,6 @@
+//todo:
+// remove unnecessary constants
+
 exports.COMMON = {
 	"BID_PRECISION": 4,
 	"CONFIG": "config",
