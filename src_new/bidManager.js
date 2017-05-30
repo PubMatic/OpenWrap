@@ -300,7 +300,7 @@ exports.getBid_OLD = function(divID, auctionFunction){
 
 exports.getBidById = function(bidID){
 
-	if(!util.isOwnProperty(bidIdMap, bidID)){
+	if(!util.isOwnProperty(PWT.bidIdMap, bidID)){
 		util.log('Bid details not found for bidID: ' + bidID);
 		return null;
 	}
@@ -325,7 +325,7 @@ exports.getBidById = function(bidID){
 
 exports.displayCreative = function(theDocument, bidID){
 
-	var bidDetails = this.etBidById(bidID);
+	var bidDetails = this.getBidById(bidID);
 
 	if(bidDetails){
 		var theBid = bidDetails.bid,
