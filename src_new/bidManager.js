@@ -383,7 +383,6 @@ exports.executeMonetizationPixel = function(slotID, theBid){
 };
 
 //todo
-// move ecpm validations to bid
 // check if all bid comparisons are made on netEcpm
 // check data types in logger pixel
 // logger per impression id

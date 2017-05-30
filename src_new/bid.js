@@ -66,11 +66,6 @@ Bid.prototype.getGrossEcpm = function(){
 	return this.grossEcpm;
 };
 
-/*Bid.prototype.setNetEcpm = function(ecpm){
-	this.netEcpm = parseFloat(ecpm); //todo if parseFloat fails , set it to 0
-	return this;
-};*/
-
 Bid.prototype.getNetEcpm = function(){
 	return this.netEcpm;
 };
@@ -194,5 +189,3 @@ exports.createBid = function(adapterID, kgpv){
 //todo:
 // how to support PMPG key-value-pair as we are setting bidID internally
 	// auto set the PMPG key value
-// move ecpm validations to bid
-// no need of setNetBid method

@@ -2,6 +2,9 @@
 	TODO:
 		latency should be calculated ccording to mentioned in PB reponse
 		on refresh or in some cases PB is not returning bids asap, using full timeout
+		read adapter level params and set to PB params accrdingly
+			keep map of known adapter-level params, pass every other param in PB param
+		PubMatic special handliing
 */
 var CONFIG = require('../config.js');
 var CONSTANTS = require('../constants.js');
@@ -85,17 +88,7 @@ function generatePbConf(pbAdapterID, adapterConfig, activeSlots, adUnits){
 			adUnits[ code ].bids.push({
 				bidder: adapterIdInPreBid,
 				params: keyConfig
-			});			
-
-			/*
-			var adUnit = adUnits[ code ],
-				bid = {
-					bidder: adapterIdInPreBid,
-					params: keyConfig
-				}
-			;
-			adUnit.bids.push(bid);
-			*/
+			});
 		},
 		true
 	);
