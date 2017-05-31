@@ -1,3 +1,6 @@
+//todo
+//  pageURL refURL protocol related functions
+
 var CONSTANTS = require('./constants.js');
 var BID = require('./bid.js');
 var bidManager = require('./bidManager.js');
@@ -42,20 +45,6 @@ exports.isOwnProperty = function(theObject, proertyName){
 
 exports.isUndefined = function(object){
   return typeof object === "undefined";
-};
-
-exports.getTimeout = function(config){
-
-  var defaultTimeout = 1000;
-
-  if( this.isOwnProperty(config, CONSTANTS.CONFIG.GLOBAL) 
-    && this.isOwnProperty(config[CONSTANTS.CONFIG.GLOBAL], CONSTANTS.CONFIG.COMMON ) 
-    && this.isOwnProperty(config[CONSTANTS.CONFIG.GLOBAL][CONSTANTS.CONFIG.COMMON], CONSTANTS.CONFIG.TIMEOUT) ){
-
-    return parseInt(config[CONSTANTS.CONFIG.GLOBAL][CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.TIMEOUT]) || defaultTimeout;
-  }
-
-  return defaultTimeout;
 };
 
 exports.enableDebugLog = function(){
