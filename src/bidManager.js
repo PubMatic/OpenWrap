@@ -428,7 +428,7 @@ var bidMap = {},
 
 		var selectedInfo = {},
 			outputObj = {},
-			firePixel = false,
+			//firePixel = false,
 			impressionID = '',
 			pixelURL = bidManagerGetAnalyticsPixelURL(),
 			impressionIDMap = {} // impID => slots[]
