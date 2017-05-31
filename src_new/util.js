@@ -102,7 +102,7 @@ exports.copyKeyValueObject = function(copyTo, copyFrom){
 };
 
 exports.protocol = "https://"; //todo need a set method
-exports.pageURL = "http://abc.com/ljljl/abc";
+exports.pageURL = "http://abc.com/ljljl/abc"; //todo removed
 
 exports.getIncrementalInteger = (function() {
   var count = 0;
@@ -187,25 +187,7 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
   return slotNames;
 };
 
-exports.loadGlobalConfigForAdapter = function(configObject, adapterID, mandatoryParams){
-  //todo: move this method to CONFIG
-  if( this.isOwnProperty(configObject, CONSTANTS.CONFIG.GLOBAL) 
-    && this.isOwnProperty(configObject[CONSTANTS.CONFIG.GLOBAL], CONSTANTS.CONFIG.ADAPTERS)
-    && this.isOwnProperty(configObject[CONSTANTS.CONFIG.GLOBAL][CONSTANTS.CONFIG.ADAPTERS], adapterID)){
-
-    var adapterConfig = configObject[CONSTANTS.CONFIG.GLOBAL][CONSTANTS.CONFIG.ADAPTERS][adapterID];
-
-    // if mandatory params are not present then return false
-    if(!this.checkMandatoryParams(adapterConfig, mandatoryParams, adapterID)){
-      this.log(adapterID+CONSTANTS.MESSAGES.M7);
-      return false;
-    }
-
-    return adapterConfig;
-  }
-  return false;
-};
-
+//todo: is it required ?
 exports.checkMandatoryParams = function(object, keys, adapterID){
   var error = false,
     success = true

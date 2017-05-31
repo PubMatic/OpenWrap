@@ -1,5 +1,8 @@
 /*
 	TODO:
+		we are not doing mandatory param check as PB does it
+			does PB logs if mandatory param is missing
+		How to enble PB log mode fro code, when pwtv/pwtvc is set	
 		latency should be calculated ccording to mentioned in PB reponse
 		on refresh or in some cases PB is not returning bids asap, using full timeout
 		read adapter level params and set to PB params accrdingly
