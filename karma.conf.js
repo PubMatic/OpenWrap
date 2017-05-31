@@ -1,6 +1,6 @@
 // Karma configuration
 // Generated on Thu Feb 23 2017 19:29:00 GMT+0530 (India Standard Time)
-
+var webpackConfig = require('./webpack.config');
 module.exports = function(config) {
   config.set({
 
@@ -10,12 +10,12 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['mocha', 'browserify'],
+    frameworks: ['mocha'/*, 'browserify'*/],
 
 
     // list of files / patterns to load in the browser
     files: [
-        'dist/*.js'
+        'test/**/*.spec.js'
     ],
 
 
@@ -27,7 +27,15 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-        'dist/*.js': [ 'browserify' ]
+        // 'dist/*.js': [ 'browserify' ]
+        'test/**/*.spec.js': ['webpack'],
+        'src/**/*.js': ['coverage']
+    },
+
+    // WebPack Related
+    webpack: webpackConfig,
+    webpackMiddleware: {
+      noInfo: true
     },
     
 
@@ -96,7 +104,14 @@ module.exports = function(config) {
       'karma-junit-reporter',
       'karma-html-reporter',
       'karma-chrome-launcher',      
-      'karma-requirejs'
+      'karma-requirejs',
+      'karma-es5-shim',
+      // 'karma-mocha',
+      'karma-sinon',
+      'karma-expect',
+      'karma-webpack',
+      // 'karma-chrome-launcher',
+      // 'karma-requirejs'
     ]
 
   })

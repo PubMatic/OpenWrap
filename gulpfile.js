@@ -19,6 +19,8 @@ var webpackConfig = require('./webpack.conf.js');
 var replace = require('gulp-replace');
 var optimizejs = require('gulp-optimize-js');
 
+var stripCode = require('gulp-strip-code');
+
 
 gulp.task('clean', function(){
 	return gulp.src(['dist/**/*.js'], {
@@ -120,4 +122,15 @@ gulp.task('coverage', function (done) {
 	  open: true
 	}));
 
+});
+
+var paths = ['src_new/**/*.js', 'test/**/*.js'];
+
+gulp.task('unexpose', function(){
+    gulp.src(paths, {base: './'})
+      .pipe(stripCode({
+        start_comment: "start-test-block",
+        end_comment: "end-test-block"
+      }))
+      .pipe(gulp.dest('./'));
 });

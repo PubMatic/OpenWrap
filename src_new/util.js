@@ -13,6 +13,10 @@ function isA(object, testForType) {
   return toString.call(object) === '[object ' + testForType + ']';
 }
 
+/* start-test-block */
+exports.isA = isA;
+/* end-test-block */
+
 exports.isFunction = function (object) {
   return isA(object, typeFunction);
 };
