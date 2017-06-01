@@ -24,10 +24,11 @@ function getAdUnitIndex(currentGoogleSlot){
 	var index = 0;
 	try{
 		adUnitIndexString = currentGoogleSlot.getSlotId().getId().split('_');
-		index = adUnitIndexString[ adUnitIndexString.length - 1 ];
+		index = parseInt(adUnitIndexString[ adUnitIndexString.length - 1 ]);
 	}catch(ex){}
 	return index;
 }
+exports.getAdUnitIndex = getAdUnitIndex;
 
 function getSizeFromSizeMapping(divID, slotSizeMapping, win){
 	/*
@@ -147,7 +148,6 @@ function updateSlotsMapFromGoogleSlots(win, googleSlotsArray, argumentsFromCalli
 		divIdFromDisplayFunction
 	;
 
-	googleSlotsArray = win.googletag.pubads().getSlots();
 	googleSlotsArrayLength = googleSlotsArray.length;
 
 	for(var i=0; i<googleSlotsArrayLength; i++){
@@ -329,27 +329,30 @@ function defineWrapperTargetingKey(key){
 
 // Hooks related functions
 
-function addHookOnGooglePubAdsDisableInitialLoad(){
-	var original_disableInitialLoad = localPubAdsObj && localPubAdsObj.disableInitialLoad;
-	if(util.isFunction(original_disableInitialLoad)){
-		localPubAdsObj.disableInitialLoad = function(){
+function newDisableInitialLoadFunction(theObject, originalFunction){
+	if(util.isObject(theObject) && util.isFunction(originalFunction)){	
+		return function(){
 			disableInitialLoadIsSet = true;
 			util.log('Disable Initial Load is called');
-			return original_disableInitialLoad.apply(this, arguments);
-		};
+			return originalFunction.apply(theObject, arguments);
+		}
+	}else{
+		util.log('disableInitialLoad: originalFunction is not a function');
+		return null;
 	}
 }
 
-function addHookOnGooglePubAdsEnableSingleRequest(){
-	var original_enableSingleRequest = localPubAdsObj && localPubAdsObj.enableSingleRequest;
-	if(util.isFunction(original_enableSingleRequest)){
-		localPubAdsObj.enableSingleRequest = function(){					
+function newEnableSingleRequestFunction(theObject, originalFunction){
+	if(util.isObject(theObject) && util.isFunction(originalFunction)){
+		return function(){
 			util.log('enableSingleRequest is called');
-			var arg = arguments;
 			sraIsSet = true;
-			addHookOnGoogletagDisplay();
-			return original_enableSingleRequest.apply(this, arg);
-		};			
+			//addHookOnGoogletagDisplay();// todo
+			return originalFunction.apply(theObject, arguments);
+		}
+	}else{
+		util.log('disableInitialLoad: originalFunction is not a function');
+		return null;
 	}
 }
 
@@ -495,6 +498,7 @@ function  addHookOnGoogletagDisplay(win){
 					break;
 			}
 			
+			//todo move to a function
 			qualifyingSlotNames = getSlotNamesByStatus({0:''});
 			if(qualifyingSlotNames.length > 0){
 				updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, false);
@@ -603,17 +607,23 @@ function addHookOnGooglePubAdsRefresh(win){
 	}
 }
 
+function newSizeMappingFunction(theObject, originalFunction){
+	if(util.isObject(theObject) && util.isFunction(originalFunction)){	
+		return function(){
+			slotSizeMapping[ theObject.getSlotId().getDomId() ] = arguments[0];
+			return originalFunction.apply(theObject, arguments);
+		}
+	}else{
+		util.log('newSizeMappingFunction: originalFunction is not a function');
+		return null;
+	}
+}
+
 // slot.defineSizeMapping
 function addHookOnSlotDefineSizeMapping(){
 	var s1 = localGoogletag.defineSlot('/Harshad', [[728, 90]], 'Harshad-02051986');
-	if(s1 && s1.__proto__ && s1.__proto__.defineSizeMapping){
-		var originalDefineSizeMapping = s1.__proto__.defineSizeMapping;
-		if(util.isFunction(originalDefineSizeMapping)){
-			s1.__proto__.defineSizeMapping = function(){
-				slotSizeMapping[ this.getSlotId().getDomId() ] = arguments[0];
-				return originalDefineSizeMapping.apply(this, arguments);
-			};
-		}
+	if(s1){
+		util.addHookOnFunction(s1, true, 'defineSizeMapping', newSizeMappingFunction);
 	}
 	localGoogletag.destroySlots([s1]);
 }
@@ -624,8 +634,8 @@ function addHooks(win){
 	localPubAdsObj = localGoogletag.pubads();
 
 	addHookOnSlotDefineSizeMapping();
-	addHookOnGooglePubAdsDisableInitialLoad();
-	addHookOnGooglePubAdsEnableSingleRequest();		
+	util.addHookOnFunction(localPubAdsObj, false, 'disableInitialLoad', newDisableInitialLoadFunction);		
+	util.addHookOnFunction(localPubAdsObj, false, 'enableSingleRequest', newEnableSingleRequestFunction);
 	addHookOnGoogletagDisplay(win);
 	addHookOnGooglePubAdsRefresh(win);
 	//	setTargeting is implemented by
