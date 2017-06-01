@@ -13,9 +13,13 @@ exports.callAdapters = function(activeSlots){
 	callAdapter(registeredAdapters, activeSlots, impressionID);
 };
 
-// todo: give betetr name to this function
+function getRandomNumberBelow100(){
+	return Math.floor(Math.random()*100);
+}
+
+// todo: give better name to this function
 function callAdapter(adapters, slots, impressionID){
-	var randomNumberBelow100 = Math.floor(Math.random()*100);
+	var randomNumberBelow100 = getRandomNumberBelow100();
 	util.forEachOnObject(adapters, function(adapterID, theAdapter){
 		if(throttleAdapter(randomNumberBelow100, adapterID) == false){
 			setInitTimeForSlotsForAdapter(slots, adapterID);
@@ -23,10 +27,10 @@ function callAdapter(adapters, slots, impressionID){
 		}else{
 			util.log(adapterID+CONSTANTS.MESSAGES.M2);
 		}
-	});	
+	});
 }
 
-// todo: where this function should go ?
+// todo: where this function should go ? move to bidManager
 function resetSlots(slots, impressionID){
 	util.forEachOnObject(slots, function(key, slot){
 		var divID = slot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID];
@@ -39,7 +43,7 @@ function throttleAdapter(randomNumber, adapterID){
 	return !(randomNumber >= CONFIG.getAdapterThrottle(adapterID));
 }
 
-// todo: where this function should go ?
+// todo: where this function should go ? move to bidManager
 function setInitTimeForSlotsForAdapter(slots, adapterID){
 	util.forEachOnObject(slots, function(j){
 		bidManager.setCallInitTime(slots[j][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], adapterID);
