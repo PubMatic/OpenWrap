@@ -363,4 +363,15 @@ exports.getPageURL = function(theWindow){
 
 exports.findInString = function(theString, find){
   return theString.indexOf(find) >= 0;
-}
+};
+
+exports.addHookOnFunction = function(theObject, useProto, functionName, newFunction){  
+  var callMethodOn = theObject;
+  theObject = useProto ? theObject.__proto__ : theObject;
+  if(this.isObject(theObject) && this.isFunction(theObject[functionName])){
+    var originalFunction = theObject[functionName];
+    theObject[functionName] = newFunction(callMethodOn, originalFunction);
+  }else{
+    this.log('in assignNewDefination: oldReference is not a function')
+  }
+};
