@@ -33,7 +33,7 @@ exports.isNumber = function(object) {
 };
 
 exports.isObject = function(object){
-  return typeof object === "object";
+  return typeof object === "object" && object !== null;
 }
 
 exports.isOwnProperty = function(theObject, proertyName){
