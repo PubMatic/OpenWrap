@@ -276,11 +276,13 @@ function arrayOfSelectedSlots(slotNames){
 
 function findWinningBidAndApplyTargeting(divID){
 	var data = bidManager.getBid(divID);
-	var winningBid = data.wb;
-	var keyValuePairs = data.kvp;
+	var winningBid = data.wb || null;
+	var keyValuePairs = data.kvp || null;
 
 	var googleDefinedSlot = slotsMap[ divID ][CONSTANTS.SLOT_ATTRIBUTES.SLOT_OBJECT];
+	
 	// todo: do we need to consider any other PB key ?
+	//todo: move this out
 	var ignoreTheseKeys = {
 		'hb_bidder': 1,
 		'hb_adid': 1,
@@ -621,6 +623,8 @@ function newSizeMappingFunction(theObject, originalFunction){
 
 // slot.defineSizeMapping
 function addHookOnSlotDefineSizeMapping(){
+	// todo: add checks
+	// can we avoid localGoogletag var
 	var s1 = localGoogletag.defineSlot('/Harshad', [[728, 90]], 'Harshad-02051986');
 	if(s1){
 		util.addHookOnFunction(s1, true, 'defineSizeMapping', newSizeMappingFunction);
@@ -630,6 +634,7 @@ function addHookOnSlotDefineSizeMapping(){
 
 function addHooks(win){
 
+	//todo add checks
 	localGoogletag = win.googletag;
 	localPubAdsObj = localGoogletag.pubads();
 
@@ -655,25 +660,35 @@ function defineGPTVariables(win){
 	win.googletag.cmd = win.googletag.cmd || [];
 }
 
-exports.init = function(win){
-	wrapperTargetingKeys = defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
-	defineGPTVariables(win);
-	adapterManager.registerAdapters();
-
-	if(util.isUndefined(win.google_onload_fired) && win.googletag.cmd.unshift){
+function addHooksIfPossible(win){
+	if(util.isUndefined(win.google_onload_fired) && win.googletag && win.googletag.cmd && util.isFunction(win.googletag.cmd.unshift)){
 		util.log('Succeeded to load before GPT');
 		win.googletag.cmd.unshift( function(){ 
 			util.log('OpenWrap initialization started');
 			addHooks(win);
 			util.log('OpenWrap initialization completed');
 		} );
+		return true;
 	}else{
 		util.log('Failed to load before GPT');
+		return false;
 	}
-	
-	if(util.isFunction(win.PWT.jsLoaded)){
+}
+
+function callJsLoadedIfRequired(win){
+	if(win.PWT && util.isFunction(win.PWT.jsLoaded)){
 		win.PWT.jsLoaded();
+		return true;
 	}
+	return false;
+}
+
+exports.init = function(win){
+	wrapperTargetingKeys = defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
+	defineGPTVariables(win);
+	adapterManager.registerAdapters();
+	addHooksIfPossible(win);
+	callJsLoadedIfRequired(win);	
 };
 
 // todo: export all functions in test scenario for unit testing
