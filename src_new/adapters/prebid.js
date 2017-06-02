@@ -9,6 +9,11 @@
 		read adapter level params and set to PB params accrdingly
 			keep map of known adapter-level params, pass every other param in PB param
 		PubMatic special handliing
+		OpenX special handling
+			deldomain param
+		PulsePoint
+			cf is mandatory , WxH
+		RubiconFastlane		
 */
 var CONFIG = require('../config.js');
 var CONSTANTS = require('../constants.js');
@@ -134,7 +139,7 @@ function fetchBids(activeSlots, impressionID){
                 bidsBackHandler: function(bidResponses) {
 					handleBidResponses(bidResponses);
                 },
-                timeout: CONFIG.getTimeout()-150
+                timeout: CONFIG.getTimeout()-150 //todo is it higher ?
 			});
 		}
 	}
