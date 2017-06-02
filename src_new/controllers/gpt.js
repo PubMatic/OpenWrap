@@ -121,7 +121,7 @@ function storeInSlotsMap (dmSlotName, currentGoogleSlot, isDisplayFlow, win){
 		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS]					= [];
 		//slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.POSITION]					= utilFindPosition(dmSlotName);//todo
 
-		if(SEND_TARGETING_INFO && JSON && typeof JSON.stringify == "function"){
+		if(SEND_TARGETING_INFO && JSON && typeof JSON.stringify == "function"){//todo changes
 			var targetKeys = currentGoogleSlot.getTargetingKeys();
 			var targetKeysLength = targetKeys.length;				
 			slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.KEY_VALUE] = {};
@@ -358,35 +358,43 @@ function newEnableSingleRequestFunction(theObject, originalFunction){
 	}
 }
 
-function addHookOnGooglePubAdsSetTargeting(){
-	var original_setTargeting = localPubAdsObj && localPubAdsObj.setTargeting;
-	if(util.isFunction(original_setTargeting)){
-		localPubAdsObj.setTargeting = function(){
+function newSetTargetingFunction(theObject, originalFunction){
+	if(util.isObject(theObject) && util.isFunction(originalFunction)){
+		return function(){
 			var arg = arguments,
 				key = arg[0] ? arg[0] : null
 			;
-			addHookOnGoogletagDisplay();			
+			//addHookOnGoogletagDisplay();//todo
 			if(key != null){				
 				if( ! util.isOwnProperty(GPT_targetingMap, key) ){
 					GPT_targetingMap[ key ] = [];
 				}
 				GPT_targetingMap[ key ] = GPT_targetingMap[ key ].concat( arg[1] );
 			}
-			return original_setTargeting.apply(localPubAdsObj, arg);
-		};	
-	}	
+			return originalFunction.apply(theObject, arguments);
+		}
+	}else{
+		util.log('setTargeting: originalFunction is not a function');
+		return null;
+	}
 }
 
-function addHookOnGoogletagDestroySlots(win){
-	var original_destroySlots = localGoogletag && localGoogletag.destroySlots;
-	if(util.isFunction(original_destroySlots)){
-		localGoogletag.destroySlots = function(arrayOfSlots){
-			for(var i = 0, l = arrayOfSlots.length; i < l; i++){
-				var divID = arrayOfSlots[i].getSlotId().getDomId();
-				delete slotsMap[divID];
+function newDestroySlotsFunction(theObject, originalFunction){
+	if(util.isObject(theObject) && util.isFunction(originalFunction)){
+		return function(){
+			var arrayOfSlots = arguments[0] || [];
+			console.log(arrayOfSlots);
+			if(util.isArray(arrayOfSlots)){
+				for(var i = 0, l = arrayOfSlots.length; i < l; i++){
+					var divID = arrayOfSlots[i].getSlotId().getDomId();
+					delete slotsMap[divID];
+				}
 			}
-			original_destroySlots.apply(win.googletag, arguments);
-		};
+			return originalFunction.apply(theObject, arguments);
+		}
+	}else{
+		util.log('destroySlots: originalFunction is not a function');
+		return null;
 	}
 }
 
@@ -635,6 +643,7 @@ function addHookOnSlotDefineSizeMapping(){
 function addHooks(win){
 
 	//todo add checks
+	//todo is it needed in global scope ?
 	localGoogletag = win.googletag;
 	localPubAdsObj = localGoogletag.pubads();
 
@@ -650,15 +659,18 @@ function addHooks(win){
 	//			we do not care about it
 	//		slot.setTargeting(key, value);
 	//			we do not care, as it has a get method
-	addHookOnGooglePubAdsSetTargeting();
-	addHookOnGoogletagDestroySlots(win);
+	util.addHookOnFunction(localPubAdsObj, false, 'setTargeting', newSetTargetingFunction);
+	util.addHookOnFunction(localGoogletag, false, 'destroySlots', newDestroySlotsFunction);
 }
 
 function defineGPTVariables(win){
 	// define the command array if not already defined
-	win.googletag = win.googletag || {};
-	win.googletag.cmd = win.googletag.cmd || [];
+	if(util.isObject(win)){
+		win.googletag = win.googletag || {};
+		win.googletag.cmd = win.googletag.cmd || [];
+	}
 }
+exports.defineGPTVariables = defineGPTVariables;//todo: pre-defined comment
 
 function addHooksIfPossible(win){
 	if(util.isUndefined(win.google_onload_fired) && win.googletag && win.googletag.cmd && util.isFunction(win.googletag.cmd.unshift)){
@@ -676,19 +688,21 @@ function addHooksIfPossible(win){
 }
 
 function callJsLoadedIfRequired(win){
-	if(win.PWT && util.isFunction(win.PWT.jsLoaded)){
+	if(util.isObject(win) && util.isObject(win.PWT) && util.isFunction(win.PWT.jsLoaded)){
 		win.PWT.jsLoaded();
 		return true;
 	}
 	return false;
 }
+exports.callJsLoadedIfRequired = callJsLoadedIfRequired;//todo add the private function snippet
 
 exports.init = function(win){
+	//todo checks on win
 	wrapperTargetingKeys = defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
 	defineGPTVariables(win);
 	adapterManager.registerAdapters();
 	addHooksIfPossible(win);
-	callJsLoadedIfRequired(win);	
+	callJsLoadedIfRequired(win);
 };
 
 // todo: export all functions in test scenario for unit testing
