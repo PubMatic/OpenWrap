@@ -45,8 +45,8 @@ function throttleAdapter(randomNumber, adapterID){
 
 // todo: where this function should go ? move to bidManager
 function setInitTimeForSlotsForAdapter(slots, adapterID){
-	util.forEachOnObject(slots, function(j){
-		bidManager.setCallInitTime(slots[j][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], adapterID);
+	util.forEachOnObject(slots, function(j, slot){
+		bidManager.setCallInitTime(slot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], adapterID);
 	});
 }
 
