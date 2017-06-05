@@ -1,8 +1,7 @@
 var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
-var BID = require("./bid.js");
-var PWT = require("./owt").PWT;
+//var PWT = require("./owt").PWT;
 //PWT.bidIdMap = {}; // bidID => {slotID, adapterID}
 
 var bid = "bid";
@@ -185,11 +184,10 @@ function auctionBids(stringBidders){
 	};
 }
 
-exports.getBid = function(divID, auctionFunction){
+exports.getBid = function(divID){
 
 	var winningBid = null;
 	var keyValuePairs = null;
-	//winningBid[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] = 0;
 
 	if( util.isOwnProperty(PWT.bidMap, divID) ){		
 		var data = auctionBids(PWT.bidMap[divID][stringBidders]);
@@ -367,9 +365,9 @@ exports.executeMonetizationPixel = function(slotID, theBid){
 	}
 
 	pixelURL += "pubid=" + CONFIG.getPublisherId();
-	pixelURL += "&purl=" + utilMetaInfo.u;
+	pixelURL += "&purl=" + utilMetaInfo.u;//todo
 	pixelURL += "&tst=" + util.getCurrentTimestamp();
-	pixelURL += "&iid=" + encodeURIComponent(PWT.bidMap[slotID][constImpressionID]); // todo
+	pixelURL += "&iid=" + encodeURIComponent(PWT.bidMap[slotID][CONSTANTS.COMMON.IMPRESSION_ID]); // todo
 	pixelURL += "&bidid=" + encodeURIComponent(theBid.getBidID());
 	pixelURL += "&pid=" + encodeURIComponent(CONFIG.getProfileID());
 	pixelURL += "&pdvid=" + encodeURIComponent(CONFIG.getProfileDisplayVersionID());
