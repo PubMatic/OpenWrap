@@ -21,6 +21,8 @@ var optimizejs = require('gulp-optimize-js');
 
 var stripCode = require('gulp-strip-code');
 
+const eslint = require('gulp-eslint');
+
 
 gulp.task('clean', function() {
     return gulp.src(['dist/**/*.js', 'build/'], {
@@ -133,4 +135,23 @@ gulp.task('unexpose', function() {
             end_comment: "end-test-block"
         }))
         .pipe(gulp.dest('./'));
+});
+
+gulp.task('lint', () => {
+  return gulp.src(['src_new/**/*.js', 'test/**/*.js'])
+    .pipe(eslint())
+    .pipe(eslint.format('stylish'))
+    .pipe(eslint.failAfterError());
+});
+
+
+gulp.task('mocha', ['webpack', 'lint'], function() {
+    return gulp.src(['test/spec/loaders/**/*.js'], { read: false })
+        .pipe(mocha({
+          reporter: 'spec',
+          globals: {
+            expect: require('chai').expect
+          }
+        }))
+        .on('error', gutil.log);
 });
