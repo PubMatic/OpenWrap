@@ -104,7 +104,7 @@ function getAdSlotSizesArray(divID, currentGoogleSlot){
 				util.log(divID + ", size object does not have getWidth and getHeight method. Ignoring: ");
 				util.log(sizeObj);
 			}
-		})
+		});
 	}
 	
 	return adslotSizesArray;

@@ -349,9 +349,9 @@ exports.forEachOnArray = function(theArray, callback){
 	}
 
 	for(var index=0, arrayLength= theArray.length; index<arrayLength; index++){
-		callback(index, arrayElement);
-	}	
-}
+		callback(index, theArray[index]);
+	}
+};
 
 exports.trim = function(s){
 	if(!this.isString(s)){
