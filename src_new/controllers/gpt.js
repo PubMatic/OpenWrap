@@ -634,7 +634,7 @@ function newRefreshFuncton(theObject, originalFunction){
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){	
 		return function(){
 			
-			console.log('mnbmnbmnbmnbmnbmbmnbmn');
+			
 
 			return originalFunction.apply(theObject, arguments);
 		}
