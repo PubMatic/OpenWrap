@@ -8,7 +8,6 @@ var SEND_TARGETING_INFO = true;
 var displayHookIsAdded = false;
 var disableInitialLoadIsSet = false;
 var sendTargetingInfoIsSet = true;
-var sraIsSet = false;
 
 //todo: combine these maps
 var wrapperTargetingKeys = {}; // key is div id
@@ -33,7 +32,7 @@ function getWindowReference(){
 function getAdUnitIndex(currentGoogleSlot){
 	var index = 0;
 	try{
-		adUnitIndexString = currentGoogleSlot.getSlotId().getId().split("_");
+		var adUnitIndexString = currentGoogleSlot.getSlotId().getId().split("_");
 		index = parseInt(adUnitIndexString[ adUnitIndexString.length - 1 ]);
 	}catch(ex){} // eslint-disable-line no-empty
 	return index;
@@ -133,7 +132,7 @@ function storeInSlotsMap (dmSlotName, currentGoogleSlot, isDisplayFlow){
 		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS]					= [];
 		//slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.POSITION]					= utilFindPosition(dmSlotName);//todo
 
-		if(SEND_TARGETING_INFO && JSON && typeof JSON.stringify == "function"){//todo changes
+		if(sendTargetingInfoIsSet && JSON && typeof JSON.stringify == "function"){//todo changes
 			var targetKeys = currentGoogleSlot.getTargetingKeys();
 			var targetKeysLength = targetKeys.length;				
 			slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.KEY_VALUE] = {};
@@ -364,7 +363,6 @@ function newEnableSingleRequestFunction(theObject, originalFunction){
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){
 		return function(){
 			util.log("enableSingleRequest is called");
-			sraIsSet = true;
 			//addHookOnGoogletagDisplay();// todo
 			return originalFunction.apply(theObject, arguments);
 		};
@@ -442,7 +440,8 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
 			util.forEachOnObject(slotsMap, function(key, slot){
 				findWinningBidIfRequired_Display(key, slot);
 			});
-				//move this into a function
+			
+			//move this into a function
 			if(getStatusOfSlotForDivId( arg[0] ) != CONSTANTS.SLOT_STATUS.DISPLAYED){
 				updateStatusAndCallOriginalFunction_Display(
 						"Calling original display function after timeout with arguments, ",
@@ -638,9 +637,8 @@ function newRefreshFuncton(theObject, originalFunction){
 				slotsToConsider = theObject.getSlots(),
 				slotsToConsiderLength,
 				qualifyingSlotNames = [],
-				qualifyingSlots,
-				index
-				;
+				qualifyingSlots
+			;
 
 			util.log("In Refresh function");
 			updateSlotsMapFromGoogleSlots(slotsToConsider, arg, false);
@@ -649,8 +647,22 @@ function newRefreshFuncton(theObject, originalFunction){
 				slotsToConsider = arg[0] == null ? theObject.getSlots() : arg[0];
 			}
 
+			//todo: move to a function
+			for(var index = 0, slotsToConsiderLength = slotsToConsider.length; index < slotsToConsiderLength; index++){
+				qualifyingSlotNames = qualifyingSlotNames.concat( slotsToConsider[ index ].getSlotId().getDomId() );
+			}
 
-			//forQualifyingSlotNamesCallAdapters
+			forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus({0:""}), arguments, true);
+
+			util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout()+" ms");
+
+			setTimeout(function(){
+				util.log("Executing post CONFIG.getTimeout() events, arguments: ");
+				util.log(arg);
+
+
+
+			}, CONFIG.getTimeout());
 
 			return originalFunction.apply(theObject, arguments);
 		};
