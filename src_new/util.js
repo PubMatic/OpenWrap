@@ -339,6 +339,20 @@ exports.forEachOnObject = function(theObject, callback){
 	}
 };
 
+exports.forEachOnArray = function(theArray, callback){
+	if(!this.isArray(theArray)){
+		return;
+	}
+
+	if(!this.isFunction(callback)){
+		return;
+	}
+
+	for(var index=0, arrayLength= theArray.length; index<arrayLength; index++){
+		callback(index, arrayElement);
+	}	
+}
+
 exports.trim = function(s){
 	if(!this.isString(s)){
 		return s;
