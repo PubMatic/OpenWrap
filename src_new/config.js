@@ -1,5 +1,5 @@
-var CONSTANTS = require('./constants.js');
-var util = require('./util.js');
+var CONSTANTS = require("./constants.js");
+var util = require("./util.js");
 
 exports.config = {
 	global: {
@@ -54,7 +54,7 @@ exports.config = {
 
 exports.getPublisherId = function(){
 	return util.trim(this.config.global.pwt.pubid) || "0";
-}
+};
 
 exports.getTimeout = function(){
 	return parseInt(this.config.global.t) || 1000;
@@ -63,7 +63,7 @@ exports.getTimeout = function(){
 exports.getAdapterRevShare = function(adapterID){
 	var adapterConfig = this.config.global.adapters;
 	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.REV_SHARE)){
-		return (1 - parseFloat(adapterConfig[adapterID][CONSTANTS.CONFIG.REV_SHARE])/100)
+		return (1 - parseFloat(adapterConfig[adapterID][CONSTANTS.CONFIG.REV_SHARE])/100);
 	}
 	return 1;
 };
@@ -71,7 +71,7 @@ exports.getAdapterRevShare = function(adapterID){
 exports.getAdapterThrottle = function(adapterID){
 	var adapterConfig = this.config.global.adapters;
 	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.THROTTLE)){
-		return 100 - parseFloat(adapterConfig[adapterID][CONSTANTS.CONFIG.THROTTLE])
+		return 100 - parseFloat(adapterConfig[adapterID][CONSTANTS.CONFIG.THROTTLE]);
 	}
 	return 0;
 };

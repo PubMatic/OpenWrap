@@ -1,6 +1,6 @@
-var CONFIG = require('./config.js');
-var CONSTANTS = require('./constants.js');
-var UTIL = require('./util.js');
+var CONFIG = require("./config.js");
+var CONSTANTS = require("./constants.js");
+var UTIL = require("./util.js");
 
 function Bid(adapterID, kgpv){
 	this.adapterID = adapterID;
@@ -9,16 +9,16 @@ function Bid(adapterID, kgpv){
 	this.grossEcpm = 0; // one given by bidder
 	this.netEcpm = 0; // one after bid adjustment
 	this.defaultBid = 0;
-	this.adHtml = '';
-	this.adUrl = '';
+	this.adHtml = "";
+	this.adUrl = "";
 	this.height = 0;
 	this.width = 0;	
-	this.creativeID = ''; //todo, is it needed ?
+	this.creativeID = ""; //todo, is it needed ?
 	this.keyValuePairs = null;
 	this.isPostTimeout = false;
 	this.receivedTime = 0;
-	this.dealID = '';
-	this.dealChannel = '';
+	this.dealID = "";
+	this.dealChannel = "";
 	this.isWinningBid = false;
 	this.status = 0;
 }
@@ -40,7 +40,7 @@ Bid.prototype.setGrossEcpm = function(ecpm){
 	}
 
 	if(UTIL.isString(ecpm)){
-		ecpm = ecpm.replace(/\s/g, '');
+		ecpm = ecpm.replace(/\s/g, "");
 		if(ecpm.length === 0){
 			UTIL.log(CONSTANTS.MESSAGES.M20);
 			UTIL.log(this);
@@ -147,7 +147,7 @@ Bid.prototype.getReceivedTime = function(){
 };
 
 Bid.prototype.setDealID = function(dealID){
-	this.dealID = dealID ? (''+dealID) : '';
+	this.dealID = dealID ? (""+dealID) : "";
 	return this;
 };
 
@@ -156,7 +156,7 @@ Bid.prototype.getDealID = function(){
 };
 
 Bid.prototype.setDealChannel = function(dealChannel){
-	this.dealChannel = this.dealID && dealChannel ? (''+dealChannel) : '';
+	this.dealChannel = this.dealID && dealChannel ? (""+dealChannel) : "";
 	return this;
 };
 

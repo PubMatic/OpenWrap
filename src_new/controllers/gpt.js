@@ -1,8 +1,8 @@
-var CONFIG = require('../config.js');
-var CONSTANTS = require('../constants.js');
-var util = require('../util.js');
-var bidManager = require('../bidManager.js');
-var adapterManager = require('../adapterManager.js');
+var CONFIG = require("../config.js");
+var CONSTANTS = require("../constants.js");
+var util = require("../util.js");
+var bidManager = require("../bidManager.js");
+var adapterManager = require("../adapterManager.js");
 
 var SEND_TARGETING_INFO = true;
 var displayHookIsAdded = false;
@@ -33,9 +33,9 @@ function getWindowReference(){
 function getAdUnitIndex(currentGoogleSlot){
 	var index = 0;
 	try{
-		adUnitIndexString = currentGoogleSlot.getSlotId().getId().split('_');
+		adUnitIndexString = currentGoogleSlot.getSlotId().getId().split("_");
 		index = parseInt(adUnitIndexString[ adUnitIndexString.length - 1 ]);
-	}catch(ex){}
+	}catch(ex){} // eslint-disable-line no-empty
 	return index;
 }
 exports.getAdUnitIndex = getAdUnitIndex;
@@ -60,7 +60,7 @@ function getSizeFromSizeMapping(divID, slotSizeMapping){
 	var screenWidth = util.getScreenWidth(getWindowReference());
 	var screenHeight = util.getScreenHeight(getWindowReference());	
 
-	util.log(divID+': responsiveSizeMapping found: screenWidth: '+ screenWidth + ', screenHeight: '+ screenHeight);
+	util.log(divID+": responsiveSizeMapping found: screenWidth: "+ screenWidth + ", screenHeight: "+ screenHeight);
 	util.log(sizeMapping);
 
 	if(!util.isArray(sizeMapping)){
@@ -78,7 +78,7 @@ function getSizeFromSizeMapping(divID, slotSizeMapping){
 					if(sizeMapping[i][1].length == 2 && util.isNumber(sizeMapping[i][1][0]) && util.isNumber(sizeMapping[i][1][1]) ){
 						return [sizeMapping[i][1]];	
 					}else{
-						util.log(divID + ': Unsupported mapping template.');
+						util.log(divID + ": Unsupported mapping template.");
 						util.log(sizeMapping);
 					}
 				}
@@ -94,7 +94,7 @@ function getAdSlotSizesArray(divID, currentGoogleSlot){
 	var sizeMapping = getSizeFromSizeMapping(divID, slotSizeMapping);
 
 	if(sizeMapping !== false){
-		util.log(divID + ': responsiveSizeMapping applied: ');
+		util.log(divID + ": responsiveSizeMapping applied: ");
 		util.log(sizeMapping);
 		return sizeMapping;
 	}
@@ -109,7 +109,7 @@ function getAdSlotSizesArray(divID, currentGoogleSlot){
 			if(sizeObj.getWidth && sizeObj.getHeight){
 				adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
 			}else{
-				util.log(divID + ', size object does not have getWidth and getHeight method. Ignoring: ');
+				util.log(divID + ", size object does not have getWidth and getHeight method. Ignoring: ");
 				util.log(sizeObj);
 			}	
 		}
@@ -158,9 +158,9 @@ function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFun
 		currentGoogleSlot,				
 		dmSlotName,
 		divIdFromDisplayFunction
-	;
+		;
 
-	util.log('Generating slotsMap');
+	util.log("Generating slotsMap");
 
 	googleSlotsArrayLength = googleSlotsArray.length;
 
@@ -300,13 +300,13 @@ function findWinningBidAndApplyTargeting(divID){
 	// todo: do we need to consider any other PB key ?
 	//todo: move this out
 	var ignoreTheseKeys = {
-		'hb_bidder': 1,
-		'hb_adid': 1,
-		'hb_pb': 1,
-		'hb_size': 1
+		"hb_bidder": 1,
+		"hb_adid": 1,
+		"hb_pb": 1,
+		"hb_size": 1
 	};
 
-	util.log('DIV: '+divID+' winningBid: ');
+	util.log("DIV: "+divID+" winningBid: ");
 	util.log(winningBid);
 	
 	if(winningBid && winningBid.getNetEcpm() > 0){
@@ -336,13 +336,13 @@ function findWinningBidAndApplyTargeting(divID){
 function defineWrapperTargetingKeys(object){
 	var output = {};
 	util.forEachOnObject(object, function(key, value){
-		output[ value ] = '';
+		output[ value ] = "";
 	});	
 	return output;
 }
 
 function defineWrapperTargetingKey(key){
-	wrapperTargetingKeys[key] = '';
+	wrapperTargetingKeys[key] = "";
 }
 
 // Hooks related functions
@@ -351,11 +351,11 @@ function newDisableInitialLoadFunction(theObject, originalFunction){
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){	
 		return function(){
 			disableInitialLoadIsSet = true;
-			util.log('Disable Initial Load is called');
+			util.log("Disable Initial Load is called");
 			return originalFunction.apply(theObject, arguments);
-		}
+		};
 	}else{
-		util.log('disableInitialLoad: originalFunction is not a function');
+		util.log("disableInitialLoad: originalFunction is not a function");
 		return null;
 	}
 }
@@ -363,13 +363,13 @@ function newDisableInitialLoadFunction(theObject, originalFunction){
 function newEnableSingleRequestFunction(theObject, originalFunction){
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){
 		return function(){
-			util.log('enableSingleRequest is called');
+			util.log("enableSingleRequest is called");
 			sraIsSet = true;
 			//addHookOnGoogletagDisplay();// todo
 			return originalFunction.apply(theObject, arguments);
-		}
+		};
 	}else{
-		util.log('disableInitialLoad: originalFunction is not a function');
+		util.log("disableInitialLoad: originalFunction is not a function");
 		return null;
 	}
 }
@@ -388,9 +388,9 @@ function newSetTargetingFunction(theObject, originalFunction){
 				GPT_targetingMap[ key ] = GPT_targetingMap[ key ].concat( arg[1] );
 			}
 			return originalFunction.apply(theObject, arguments);
-		}
+		};
 	}else{
-		util.log('setTargeting: originalFunction is not a function');
+		util.log("setTargeting: originalFunction is not a function");
 		return null;
 	}
 }
@@ -399,7 +399,7 @@ function newDestroySlotsFunction(theObject, originalFunction){
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){
 		return function(){
 			var arrayOfSlots = arguments[0] || [];
-			console.log(arrayOfSlots);
+
 			if(util.isArray(arrayOfSlots)){
 				for(var i = 0, l = arrayOfSlots.length; i < l; i++){
 					var divID = arrayOfSlots[i].getSlotId().getDomId();
@@ -407,9 +407,9 @@ function newDestroySlotsFunction(theObject, originalFunction){
 				}
 			}
 			return originalFunction.apply(theObject, arguments);
-		}
+		};
 	}else{
-		util.log('destroySlots: originalFunction is not a function');
+		util.log("destroySlots: originalFunction is not a function");
 		return null;
 	}
 }
@@ -431,48 +431,49 @@ function findWinningBidIfRequired_Display(key, slot){
 function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg){
 	switch(oldStatus){	
 		// display method was called for this slot
-		case CONSTANTS.SLOT_STATUS.CREATED:
+	case CONSTANTS.SLOT_STATUS.CREATED: 
 		// dm flow is already intiated for this slot
 		// just intitate the CONFIG.getTimeout() now
-		case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
-			setTimeout(function(){
+		// eslint-disable-line no-fallthrough
+	case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
+		setTimeout(function(){
 
-				util.log('PostTimeout.. back in display function');
-				util.forEachOnObject(slotsMap, function(key, slot){
-					findWinningBidIfRequired_Display(key, slot);
-				});
+			util.log("PostTimeout.. back in display function");
+			util.forEachOnObject(slotsMap, function(key, slot){
+				findWinningBidIfRequired_Display(key, slot);
+			});
 				//move this into a function
-				if(getStatusOfSlotForDivId( arg[0] ) != CONSTANTS.SLOT_STATUS.DISPLAYED){
-					updateStatusAndCallOriginalFunction_Display(
-						'Calling original display function after timeout with arguments, ',
+			if(getStatusOfSlotForDivId( arg[0] ) != CONSTANTS.SLOT_STATUS.DISPLAYED){
+				updateStatusAndCallOriginalFunction_Display(
+						"Calling original display function after timeout with arguments, ",
 						theObject,
 						originalFunction,
 						arg
 					);
-				}else{
-					util.log('AdSlot already rendered');
-				}
+			}else{
+				util.log("AdSlot already rendered");
+			}
 
-			}, CONFIG.getTimeout());
-			break;
+		}, CONFIG.getTimeout());
+		break;
 		// call the original function now
-		case CONSTANTS.SLOT_STATUS.TARGETING_ADDED:
-			updateStatusAndCallOriginalFunction_Display(
-				'As DM processing is already done, Calling original display function with arguments',
+	case CONSTANTS.SLOT_STATUS.TARGETING_ADDED:
+		updateStatusAndCallOriginalFunction_Display(
+				"As DM processing is already done, Calling original display function with arguments",
 				theObject,
 				originalFunction,
 				arg
 			);
-			break;
+		break;
 
-		case CONSTANTS.SLOT_STATUS.DISPLAYED:
-			updateStatusAndCallOriginalFunction_Display(
-				'As slot is already displayed, Calling original display function with arguments',
+	case CONSTANTS.SLOT_STATUS.DISPLAYED:
+		updateStatusAndCallOriginalFunction_Display(
+				"As slot is already displayed, Calling original display function with arguments",
 				theObject,
 				originalFunction,
 				arg
 			);
-			break;
+		break;
 	}		
 }
 
@@ -487,17 +488,17 @@ function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshC
 function newDisplayFunction(theObject, originalFunction){
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){
 		return function(){		
-			util.log('In display function, with arguments: ');
+			util.log("In display function, with arguments: ");
 			util.log(arguments);
 
 			if( disableInitialLoadIsSet ){
-				util.log('DisableInitialLoad was called, Nothing to do');
+				util.log("DisableInitialLoad was called, Nothing to do");
 				return originalFunction.apply(theObject, arguments);
 			}
 
 			updateSlotsMapFromGoogleSlots(theObject.pubads().getSlots(), arguments, true);
 			displayFunctionStatusHandler(getStatusOfSlotForDivId( arguments[0] ), theObject, originalFunction, arguments);
-			forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus({0:''}), arguments, false);
+			forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus({0:""}), arguments, false);
 
 			setTimeout(function(){
 				//utilRealignVLogInfoPanel(arg[0]);
@@ -505,9 +506,9 @@ function newDisplayFunction(theObject, originalFunction){
 			},2000+CONFIG.getTimeout());
 
 			return originalFunction.apply(theObject, arguments);
-		}
+		};
 	}else{
-		util.log('display: originalFunction is not a function');
+		util.log("display: originalFunction is not a function");
 		return null;
 	}
 }
@@ -533,8 +534,8 @@ function newAddHookOnGoogletagDisplay(localGoogletag){
 		return;
 	}
 	displayHookIsAdded = true;
-	util.log('Adding hook on googletag.display.');
-	util.addHookOnFunction(localGoogletag, false, 'display', newDisplayFunction);
+	util.log("Adding hook on googletag.display.");
+	util.addHookOnFunction(localGoogletag, false, "display", newDisplayFunction);
 }
 
 // refresh
@@ -557,9 +558,9 @@ function addHookOnGooglePubAdsRefresh(win){
 				qualifyingSlotNames = [],
 				qualifyingSlots,
 				index
-			;
+				;
 			
-			util.log('In Refresh function');
+			util.log("In Refresh function");
 
 			updateSlotsMapFromGoogleSlots(slotsToConsider, arg, false);
 			
@@ -579,10 +580,10 @@ function addHookOnGooglePubAdsRefresh(win){
 				adapterManager.callAdapters(qualifyingSlots);
 			}
 			
-			util.log('Intiating Call to original refresh function with CONFIG.getTimeout(): ' + CONFIG.getTimeout()+' ms');
+			util.log("Intiating Call to original refresh function with CONFIG.getTimeout(): " + CONFIG.getTimeout()+" ms");
 			setTimeout(function(){
 				
-				util.log('Executing post CONFIG.getTimeout() events, arguments: ');
+				util.log("Executing post CONFIG.getTimeout() events, arguments: ");
 				util.log(arg);
 				
 				var index,	
@@ -590,7 +591,7 @@ function addHookOnGooglePubAdsRefresh(win){
 					divID,
 					yesCallRefreshFunction = false,
 					qualifyingSlotNamesLength
-				;
+					;
 
 				qualifyingSlotNamesLength = qualifyingSlotNames.length;					
 				for(index=0; index<qualifyingSlotNamesLength; index++){						
@@ -619,10 +620,10 @@ function addHookOnGooglePubAdsRefresh(win){
 				bidManager.executeAnalyticsPixel();
 				
 				if(yesCallRefreshFunction){						
-					util.log('Calling original refresh function from CONFIG.getTimeout()');
+					util.log("Calling original refresh function from CONFIG.getTimeout()");
 					original_refresh.apply(win.googletag.pubads(), arg );						
 				}else{
-					util.log('AdSlot already rendered');
+					util.log("AdSlot already rendered");
 				}
 					
 			}, CONFIG.getTimeout());
@@ -639,9 +640,9 @@ function newRefreshFuncton(theObject, originalFunction){
 				qualifyingSlotNames = [],
 				qualifyingSlots,
 				index
-			;
+				;
 
-			util.log('In Refresh function');
+			util.log("In Refresh function");
 			updateSlotsMapFromGoogleSlots(slotsToConsider, arg, false);
 			if(arg.length != 0){								
 				// handeling case googletag.pubads().refresh(null, {changeCorrelator: false});
@@ -652,9 +653,9 @@ function newRefreshFuncton(theObject, originalFunction){
 			//forQualifyingSlotNamesCallAdapters
 
 			return originalFunction.apply(theObject, arguments);
-		}
+		};
 	}else{
-		util.log('refresh: originalFunction is not a function');
+		util.log("refresh: originalFunction is not a function");
 		return null;
 	}
 }
@@ -664,9 +665,9 @@ function newSizeMappingFunction(theObject, originalFunction){
 		return function(){
 			slotSizeMapping[ theObject.getSlotId().getDomId() ] = arguments[0];
 			return originalFunction.apply(theObject, arguments);
-		}
+		};
 	}else{
-		util.log('newSizeMappingFunction: originalFunction is not a function');
+		util.log("newSizeMappingFunction: originalFunction is not a function");
 		return null;
 	}
 }
@@ -675,9 +676,9 @@ function newSizeMappingFunction(theObject, originalFunction){
 function addHookOnSlotDefineSizeMapping(localGoogletag){
 	// todo: add checks
 	// can we avoid localGoogletag var
-	var s1 = localGoogletag.defineSlot('/Harshad', [[728, 90]], 'Harshad-02051986');
+	var s1 = localGoogletag.defineSlot("/Harshad", [[728, 90]], "Harshad-02051986");
 	if(s1){
-		util.addHookOnFunction(s1, true, 'defineSizeMapping', newSizeMappingFunction);
+		util.addHookOnFunction(s1, true, "defineSizeMapping", newSizeMappingFunction);
 	}
 	localGoogletag.destroySlots([s1]);
 }
@@ -690,11 +691,11 @@ function addHooks(win){
 	localPubAdsObj = localGoogletag.pubads();
 
 	addHookOnSlotDefineSizeMapping(localGoogletag);
-	util.addHookOnFunction(localPubAdsObj, false, 'disableInitialLoad', newDisableInitialLoadFunction);
-	util.addHookOnFunction(localPubAdsObj, false, 'enableSingleRequest', newEnableSingleRequestFunction);
+	util.addHookOnFunction(localPubAdsObj, false, "disableInitialLoad", newDisableInitialLoadFunction);
+	util.addHookOnFunction(localPubAdsObj, false, "enableSingleRequest", newEnableSingleRequestFunction);
 	newAddHookOnGoogletagDisplay(localGoogletag);
 	//addHookOnGooglePubAdsRefresh(win);
-	util.addHookOnFunction(localPubAdsObj, false, 'refresh', newRefreshFuncton);
+	util.addHookOnFunction(localPubAdsObj, false, "refresh", newRefreshFuncton);
 	//	setTargeting is implemented by
 	//		googletag.pubads().setTargeting(key, value);
 	//			we are only intresetd in this one
@@ -702,8 +703,8 @@ function addHooks(win){
 	//			we do not care about it
 	//		slot.setTargeting(key, value);
 	//			we do not care, as it has a get method
-	util.addHookOnFunction(localPubAdsObj, false, 'setTargeting', newSetTargetingFunction);
-	util.addHookOnFunction(localGoogletag, false, 'destroySlots', newDestroySlotsFunction);
+	util.addHookOnFunction(localPubAdsObj, false, "setTargeting", newSetTargetingFunction);
+	util.addHookOnFunction(localGoogletag, false, "destroySlots", newDestroySlotsFunction);
 }
 
 function defineGPTVariables(win){
@@ -717,15 +718,15 @@ exports.defineGPTVariables = defineGPTVariables;//todo: pre-defined comment
 
 function addHooksIfPossible(win){
 	if(util.isUndefined(win.google_onload_fired) && win.googletag && win.googletag.cmd && util.isFunction(win.googletag.cmd.unshift)){
-		util.log('Succeeded to load before GPT');
+		util.log("Succeeded to load before GPT");
 		win.googletag.cmd.unshift( function(){ 
-			util.log('OpenWrap initialization started');
+			util.log("OpenWrap initialization started");
 			addHooks(win);
-			util.log('OpenWrap initialization completed');
+			util.log("OpenWrap initialization completed");
 		} );
 		return true;
 	}else{
-		util.log('Failed to load before GPT');
+		util.log("Failed to load before GPT");
 		return false;
 	}
 }

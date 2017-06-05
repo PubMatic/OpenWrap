@@ -15,15 +15,15 @@
 			cf is mandatory , WxH
 		RubiconFastlane		
 */
-var CONFIG = require('../config.js');
-var CONSTANTS = require('../constants.js');
-var BID = require('../bid.js');
-var util = require('../util.js');
-var bidManager = require('../bidManager.js');
-var adapterManager = require('../adapterManager.js');
+var CONFIG = require("../config.js");
+var CONSTANTS = require("../constants.js");
+var BID = require("../bid.js");
+var util = require("../util.js");
+var bidManager = require("../bidManager.js");
+var adapterManager = require("../adapterManager.js");
 
-var adapterID = 'prebid';
-var pbPrefix = 'PB_';
+var adapterID = "prebid";
+var pbPrefix = "PB_";
 var kgpvMap = {};
 var adapterConfigMandatoryParams = [CONSTANTS.CONFIG.KEY_GENERATION_PATTERN, CONSTANTS.CONFIG.KEY_LOOKUP_MAP];
 
@@ -55,7 +55,7 @@ function handleBidResponses(bidResponses){
 
 function generatePbConf(pbAdapterID, adapterConfig, activeSlots, adUnits){
 
-	var adapterIdInPreBid = pbAdapterID.replace(pbPrefix, ''); // todo move to a function
+	var adapterIdInPreBid = pbAdapterID.replace(pbPrefix, ""); // todo move to a function
 
 	util.log(pbAdapterID+CONSTANTS.MESSAGES.M1);
 	
@@ -74,7 +74,7 @@ function generatePbConf(pbAdapterID, adapterConfig, activeSlots, adUnits){
 			var code, sizes;
 
 			if(kgpConsistsWidthAndHeight){
-				code = currentSlot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID] + '@' + adapterIdInPreBid + '@' + currentWidth + 'X' + currentHeight;
+				code = currentSlot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID] + "@" + adapterIdInPreBid + "@" + currentWidth + "X" + currentHeight;
 				sizes = [[currentWidth, currentHeight]];
 			}else{
 				code = currentSlot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID];
@@ -101,12 +101,12 @@ function generatePbConf(pbAdapterID, adapterConfig, activeSlots, adUnits){
 		},
 		true
 	);
-};
+}
 
 function fetchBids(activeSlots, impressionID){
 
 	if(! window.pbjs){
-		util.log('PreBid js is not loaded');	
+		util.log("PreBid js is not loaded");	
 		return;
 	}
 
@@ -129,21 +129,21 @@ function fetchBids(activeSlots, impressionID){
 	if(adUnitsArray.length > 0 && pbjs){
 
 		if(util.isFunction(pbjs.setBidderSequence)){
-			pbjs.setBidderSequence('random');
+			pbjs.setBidderSequence("random");
 		}
 
 		if(util.isFunction(pbjs.requestBids)){
 			//pbjs.addAdUnits(adUnitsArray);
 			pbjs.requestBids({
 				adUnits: adUnitsArray,
-                bidsBackHandler: function(bidResponses) {
+				bidsBackHandler: function(bidResponses) {
 					handleBidResponses(bidResponses);
-                },
-                timeout: CONFIG.getTimeout()-150 //todo is it higher ?
+				},
+				timeout: CONFIG.getTimeout()-150 //todo is it higher ?
 			});
 		}
 	}
-};
+}
 
 exports.register = function(){
 	return {

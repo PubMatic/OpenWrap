@@ -1,13 +1,13 @@
-var CONFIG = require('./config.js');
-var CONSTANTS = require('./constants.js');
-var util = require('./util.js');
-var BID = require('./bid.js');
-
+var CONFIG = require("./config.js");
+var CONSTANTS = require("./constants.js");
+var util = require("./util.js");
+var BID = require("./bid.js");
+var PWT = require("./owt").PWT;
 //PWT.bidIdMap = {}; // bidID => {slotID, adapterID}
 
-var bid = 'bid';
-var stringBidders = 'bidsFromBidders';
-var constCommonLastBidID = 'lastbidid';
+var bid = "bid";
+var stringBidders = "bidsFromBidders";
+var constCommonLastBidID = "lastbidid";
 
 function createBidEntry(divID){
 	var temp;
@@ -32,7 +32,7 @@ exports.setCallInitTime = function(divID, bidderID){
 	}
 	var timestamp = util.getCurrentTimestampInMs();
 	PWT.bidMap[divID][stringBidders][bidderID][CONSTANTS.BID_ATTRIBUTES.CALL_INITIATED_TIME] = timestamp;
-	util.log(CONSTANTS.MESSAGES.M4+divID + ' '+bidderID+' '+timestamp);
+	util.log(CONSTANTS.MESSAGES.M4+divID + " "+bidderID+" "+timestamp);
 };
 
 exports.setBidFromBidder = function(divID, bidDetails){
@@ -41,7 +41,7 @@ exports.setBidFromBidder = function(divID, bidDetails){
 	var bidID = bidDetails.getBidID();
 
 	if(!util.isOwnProperty(PWT.bidMap, divID)){
-		util.log('BidManager is not expecting bid for '+ divID +', from ' + bidderID);
+		util.log("BidManager is not expecting bid for "+ divID +", from " + bidderID);
 		return;
 	}
 
@@ -56,7 +56,7 @@ exports.setBidFromBidder = function(divID, bidDetails){
 		PWT.bidMap[divID][stringBidders][bidderID] = {};
 	}		
 
-	util.log('BdManagerSetBid: divID: '+divID+', bidderID: '+bidderID+', ecpm: '+bidDetails.getGrossEcpm() + ', size: ' + bidDetails.getWidth()+'x'+bidDetails.getHeight() + ', '+ CONSTANTS.BID_ATTRIBUTES.POST_TIMEOUT + ': '+isPostTimeout);
+	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", "+ CONSTANTS.BID_ATTRIBUTES.POST_TIMEOUT + ": "+isPostTimeout);
 	
 	bidDetails.setReceivedTime(currentTime);
 	if(isPostTimeout === true){
@@ -68,7 +68,7 @@ exports.setBidFromBidder = function(divID, bidDetails){
 		var lastBidID = PWT.bidMap[divID][stringBidders][bidderID][constCommonLastBidID],
 			lastBid = PWT.bidMap[divID][stringBidders][bidderID][bid][lastBidID],
 			lastBidWasDefaultBid = lastBid.getDefaultBidStatus() === 1
-		;
+			;
 
 		if( lastBidWasDefaultBid || !isPostTimeout){				
 
@@ -197,7 +197,7 @@ exports.getBid = function(divID, auctionFunction){
 		keyValuePairs = data.kvp;
 
 		
-		PWT.bidMap[divID]['ae'] = true; // Analytics Enabled
+		PWT.bidMap[divID]["ae"] = true; // Analytics Enabled
 
 		if(winningBid && winningBid.getNetEcpm() > 0){
 			winningBid.setStatus(1);
@@ -222,16 +222,16 @@ exports.getBid = function(divID, auctionFunction){
 exports.getBidById = function(bidID){
 
 	if(!util.isOwnProperty(PWT.bidIdMap, bidID)){
-		util.log('Bid details not found for bidID: ' + bidID);
+		util.log("Bid details not found for bidID: " + bidID);
 		return null;
 	}
 
-	var divID = PWT.bidIdMap[bidID]['s'];
-	var adapterID = PWT.bidIdMap[bidID]['a'];
+	var divID = PWT.bidIdMap[bidID]["s"];
+	var adapterID = PWT.bidIdMap[bidID]["a"];
 
 	if( util.isOwnProperty(PWT.bidMap, divID) ){	
 		if( util.isOwnProperty(PWT.bidMap[divID][stringBidders], adapterID) ){
-			util.log(bidID+': '+divID+CONSTANTS.MESSAGES.M19+ adapterID);
+			util.log(bidID+": "+divID+CONSTANTS.MESSAGES.M19+ adapterID);
 			var theBid = PWT.bidMap[divID][stringBidders][adapterID][bid][bidID];
 			return {
 				bid: theBid,
@@ -240,7 +240,7 @@ exports.getBidById = function(bidID){
 		}
 	}
 
-	util.log('Bid details not found for bidID: ' + bidID);
+	util.log("Bid details not found for bidID: " + bidID);
 	return null;
 };
 
@@ -262,15 +262,15 @@ exports.executeAnalyticsPixel = function(){
 	var selectedInfo = {},
 		outputObj = {},
 		firePixel = false,
-		impressionID = '',
+		impressionID = "",
 		pixelURL = CONFIG.getAnalyticsPixelURL()
-	;
+		;
 
 	if(!pixelURL){
 		return;
 	}
 
-	outputObj['s'] = [];
+	outputObj["s"] = [];
 
 	for(var key in PWT.bidMap){
 
@@ -279,14 +279,14 @@ exports.executeAnalyticsPixel = function(){
 		}
 
 		var startTime = PWT.bidMap[key][CONSTANTS.BID_ATTRIBUTES.CREATION_TIME];
-		if(util.isOwnProperty(PWT.bidMap, key) && PWT.bidMap[key].exp !== false && PWT.bidMap[key]['ae'] === true ){
+		if(util.isOwnProperty(PWT.bidMap, key) && PWT.bidMap[key].exp !== false && PWT.bidMap[key]["ae"] === true ){
 
 			PWT.bidMap[key].exp = false;
 
 			var slotObject = {
-				'sn': key,
-				'sz': PWT.bidMap[key][CONSTANTS.SLOT_ATTRIBUTES.SIZES],
-				'ps': []
+				"sn": key,
+				"sz": PWT.bidMap[key][CONSTANTS.SLOT_ATTRIBUTES.SIZES],
+				"ps": []
 			};
 
 			selectedInfo[key] = {};
@@ -312,26 +312,26 @@ exports.executeAnalyticsPixel = function(){
 						var theBid = bidsArray[adapter].bid[bidID];
 						var endTime = theBid.getReceivedTime();
 						//todo: take all these key names from constants
-						slotObject['ps'].push({
-							'pn': adapter,
-							'bidid': bidID,
-							'db': theBid.getDefaultBidStatus(),
-							'kgpv': theBid.getKGPV(),
-							'psz': theBid.getWidth() + 'x' + theBid.getHeight(),
-							'eg': theBid.getGrossEcpm(),
-							'en': theBid.getNetEcpm(),
-							'di': theBid.getDealID(),
-							'dc': theBid.getDealChannel(),
-							'l1': endTime - startTime,
-							'l2': 0,
-							't': theBid.getPostTimeoutStatus() === false ? 0 : 1,
-							'wb': theBid.getWinningBidStatus() === true ? 1 : 0
+						slotObject["ps"].push({
+							"pn": adapter,
+							"bidid": bidID,
+							"db": theBid.getDefaultBidStatus(),
+							"kgpv": theBid.getKGPV(),
+							"psz": theBid.getWidth() + "x" + theBid.getHeight(),
+							"eg": theBid.getGrossEcpm(),
+							"en": theBid.getNetEcpm(),
+							"di": theBid.getDealID(),
+							"dc": theBid.getDealChannel(),
+							"l1": endTime - startTime,
+							"l2": 0,
+							"t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
+							"wb": theBid.getWinningBidStatus() === true ? 1 : 0
 						});
 						firePixel = true;
 					}					
 				}
 			}
-			outputObj['s'].push(slotObject);
+			outputObj["s"].push(slotObject);
 		}
 	}
 
@@ -344,7 +344,7 @@ exports.executeAnalyticsPixel = function(){
 		outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 		outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
 
-		pixelURL += 'pubid=' + CONFIG.getPublisherId()+'&json=' + encodeURIComponent(JSON.stringify(outputObj));
+		pixelURL += "pubid=" + CONFIG.getPublisherId()+"&json=" + encodeURIComponent(JSON.stringify(outputObj));
 	}
 
 	if(firePixel){
@@ -366,18 +366,18 @@ exports.executeMonetizationPixel = function(slotID, theBid){
 		return;
 	}
 
-	pixelURL += 'pubid=' + CONFIG.getPublisherId();
-	pixelURL += '&purl=' + utilMetaInfo.u;
-	pixelURL += '&tst=' + util.getCurrentTimestamp();
-	pixelURL += '&iid=' + encodeURIComponent(PWT.bidMap[slotID][constImpressionID]); // todo
-	pixelURL += '&bidid=' + encodeURIComponent(theBid.getBidID());
-	pixelURL += '&pid=' + encodeURIComponent(CONFIG.getProfileID());
-	pixelURL += '&pdvid=' + encodeURIComponent(CONFIG.getProfileDisplayVersionID());
-	pixelURL += '&slot=' + encodeURIComponent(slotID);
-	pixelURL += '&pn=' + encodeURIComponent(theBid.getAdapterID());
-	pixelURL += '&en=' + encodeURIComponent(theBid.getNetEcpm());
-	pixelURL += '&eg=' + encodeURIComponent(theBid.getGrossEcpm());
-	pixelURL += '&kgpv=' + encodeURIComponent(theBid.getKGPV());
+	pixelURL += "pubid=" + CONFIG.getPublisherId();
+	pixelURL += "&purl=" + utilMetaInfo.u;
+	pixelURL += "&tst=" + util.getCurrentTimestamp();
+	pixelURL += "&iid=" + encodeURIComponent(PWT.bidMap[slotID][constImpressionID]); // todo
+	pixelURL += "&bidid=" + encodeURIComponent(theBid.getBidID());
+	pixelURL += "&pid=" + encodeURIComponent(CONFIG.getProfileID());
+	pixelURL += "&pdvid=" + encodeURIComponent(CONFIG.getProfileDisplayVersionID());
+	pixelURL += "&slot=" + encodeURIComponent(slotID);
+	pixelURL += "&pn=" + encodeURIComponent(theBid.getAdapterID());
+	pixelURL += "&en=" + encodeURIComponent(theBid.getNetEcpm());
+	pixelURL += "&eg=" + encodeURIComponent(theBid.getGrossEcpm());
+	pixelURL += "&kgpv=" + encodeURIComponent(theBid.getKGPV());
 
 	(new Image()).src = util.protocol + pixelURL;
 };

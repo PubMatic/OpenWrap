@@ -1,9 +1,9 @@
-var CONFIG = require('./config.js');
-var CONSTANTS = require('./constants.js');
-var util = require('./util.js');
-var bidManager = require('./bidManager.js');
+var CONFIG = require("./config.js");
+var CONSTANTS = require("./constants.js");
+var util = require("./util.js");
+var bidManager = require("./bidManager.js");
 // todo: how we can do it optionally (include only iff required) ?
-var prebid = require('./adapters/prebid.js');
+var prebid = require("./adapters/prebid.js");
 
 var registeredAdapters = {};
 
@@ -35,7 +35,7 @@ function resetSlots(slots, impressionID){
 	util.forEachOnObject(slots, function(key, slot){
 		var divID = slot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID];
 		bidManager.resetBid(divID, impressionID);
-		bidManager.setSizes(divID, util.generateSlotNamesFromPattern(slot, '_W_x_H_'));	
+		bidManager.setSizes(divID, util.generateSlotNamesFromPattern(slot, "_W_x_H_"));	
 	});
 }
 
@@ -59,7 +59,7 @@ function registerAdapter(bidAdaptor) {
 			util.log(adapterID + CONSTANTS.MESSAGES.M3);
 		}
 	}
-};
+}
 
 exports.registerAdapters = function(){
 	registerAdapter(prebid.register());
