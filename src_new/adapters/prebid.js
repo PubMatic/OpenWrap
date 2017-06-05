@@ -20,12 +20,11 @@ var CONSTANTS = require("../constants.js");
 var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
-var adapterManager = require("../adapterManager.js");
 
 var adapterID = "prebid";
 var pbPrefix = "PB_";
 var kgpvMap = {};
-var adapterConfigMandatoryParams = [CONSTANTS.CONFIG.KEY_GENERATION_PATTERN, CONSTANTS.CONFIG.KEY_LOOKUP_MAP];
+//var adapterConfigMandatoryParams = [CONSTANTS.CONFIG.KEY_GENERATION_PATTERN, CONSTANTS.CONFIG.KEY_LOOKUP_MAP];
 
 function handleBidResponses(bidResponses){
 	for(var responseID in bidResponses){
@@ -103,7 +102,7 @@ function generatePbConf(pbAdapterID, adapterConfig, activeSlots, adUnits){
 	);
 }
 
-function fetchBids(activeSlots, impressionID){
+function fetchBids(activeSlots){
 
 	if(! window.pbjs){
 		util.log("PreBid js is not loaded");	
@@ -126,15 +125,15 @@ function fetchBids(activeSlots, impressionID){
 		}
 	}
 
-	if(adUnitsArray.length > 0 && pbjs){
+	if(adUnitsArray.length > 0 && window.pbjs){
 
-		if(util.isFunction(pbjs.setBidderSequence)){
-			pbjs.setBidderSequence("random");
+		if(util.isFunction(window.pbjs.setBidderSequence)){
+			window.pbjs.setBidderSequence("random");
 		}
 
-		if(util.isFunction(pbjs.requestBids)){
+		if(util.isFunction(window.pbjs.requestBids)){
 			//pbjs.addAdUnits(adUnitsArray);
-			pbjs.requestBids({
+			window.pbjs.requestBids({
 				adUnits: adUnitsArray,
 				bidsBackHandler: function(bidResponses) {
 					handleBidResponses(bidResponses);
