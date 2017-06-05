@@ -630,6 +630,20 @@ function addHookOnGooglePubAdsRefresh(win){
 	}
 }
 
+function newRefreshFuncton(theObject, originalFunction){
+	if(util.isObject(theObject) && util.isFunction(originalFunction)){	
+		return function(){
+			
+			console.log('mnbmnbmnbmnbmnbmbmnbmn');
+
+			return originalFunction.apply(theObject, arguments);
+		}
+	}else{
+		util.log('refresh: originalFunction is not a function');
+		return null;
+	}
+}
+
 function newSizeMappingFunction(theObject, originalFunction){
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){	
 		return function(){
@@ -643,7 +657,7 @@ function newSizeMappingFunction(theObject, originalFunction){
 }
 
 // slot.defineSizeMapping
-function addHookOnSlotDefineSizeMapping(){
+function addHookOnSlotDefineSizeMapping(localGoogletag){
 	// todo: add checks
 	// can we avoid localGoogletag var
 	var s1 = localGoogletag.defineSlot('/Harshad', [[728, 90]], 'Harshad-02051986');
@@ -660,11 +674,12 @@ function addHooks(win){
 	localGoogletag = win.googletag;
 	localPubAdsObj = localGoogletag.pubads();
 
-	addHookOnSlotDefineSizeMapping();
+	addHookOnSlotDefineSizeMapping(localGoogletag);
 	util.addHookOnFunction(localPubAdsObj, false, 'disableInitialLoad', newDisableInitialLoadFunction);
 	util.addHookOnFunction(localPubAdsObj, false, 'enableSingleRequest', newEnableSingleRequestFunction);
 	newAddHookOnGoogletagDisplay(localGoogletag);
-	addHookOnGooglePubAdsRefresh(win);
+	//addHookOnGooglePubAdsRefresh(win);
+	util.addHookOnFunction(localPubAdsObj, false, 'refresh', newRefreshFuncton);
 	//	setTargeting is implemented by
 	//		googletag.pubads().setTargeting(key, value);
 	//			we are only intresetd in this one
