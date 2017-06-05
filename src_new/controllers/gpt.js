@@ -15,9 +15,6 @@ var slotsMap = {};			// key is div id, stores the mapping of divID ==> googletag
 
 var GPT_targetingMap = {};
 
-var localGoogletag;
-var localPubAdsObj;
-
 var windowReference = null;
 
 function setWindowReference(win){
@@ -99,18 +96,15 @@ function getAdSlotSizesArray(divID, currentGoogleSlot){
 
 	var adslotSizesArray = [];
 
-	if( util.isFunction(currentGoogleSlot.getSizes)){
-		var sizeArray = currentGoogleSlot.getSizes();
-		var sizeArrayLength = sizeArray.length;			
-		for(var index = 0; index < sizeArrayLength; index++){
-			var sizeObj = sizeArray[ index ];
+	if(util.isFunction(currentGoogleSlot.getSizes)){		
+		util.forEachOnArray(currentGoogleSlot.getSizes(), function(index, sizeObj){
 			if(sizeObj.getWidth && sizeObj.getHeight){
 				adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
 			}else{
 				util.log(divID + ", size object does not have getWidth and getHeight method. Ignoring: ");
 				util.log(sizeObj);
-			}	
-		}
+			}
+		})
 	}
 	
 	return adslotSizesArray;
@@ -132,13 +126,10 @@ function storeInSlotsMap (dmSlotName, currentGoogleSlot, isDisplayFlow){
 		//slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.POSITION]					= utilFindPosition(dmSlotName);//todo
 
 		if(sendTargetingInfoIsSet && JSON && typeof JSON.stringify == "function"){//todo changes
-			var targetKeys = currentGoogleSlot.getTargetingKeys();
-			var targetKeysLength = targetKeys.length;				
 			slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.KEY_VALUE] = {};
-			for(var k=0; k<targetKeysLength; k++ ){
-				var targetKey = targetKeys[k];
-				slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.KEY_VALUE][targetKey] = currentGoogleSlot.getTargeting( targetKey );
-			}
+			util.forEachOnArray(currentGoogleSlot.getTargetingKeys(), function(key){
+				slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.KEY_VALUE][key] = currentGoogleSlot.getTargeting( key );
+			});
 		}
 
 		//todo
@@ -151,32 +142,20 @@ function storeInSlotsMap (dmSlotName, currentGoogleSlot, isDisplayFlow){
 }
 
 function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow){
-
-	var googleSlotsArrayLength,
-		currentGoogleSlot,				
-		dmSlotName,
-		divIdFromDisplayFunction
-		;
-
-	util.log("Generating slotsMap");
-
-	googleSlotsArrayLength = googleSlotsArray.length;
-
-	for(var i=0; i<googleSlotsArrayLength; i++){
-		currentGoogleSlot = googleSlotsArray[ i ];
-		dmSlotName = currentGoogleSlot.getSlotId().getDomId();// here divID will be the key
-		storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow);			
-		if( isDisplayFlow && util.isOwnProperty(slotsMap, dmSlotName) ){
-			divIdFromDisplayFunction = argumentsFromCallingFunction[0];
+	util.log("Generating slotsMap");	
+	util.forEachOnArray(googleSlotsArray, function(index, currentGoogleSlot){
+		var dmSlotName = currentGoogleSlot.getSlotId().getDomId();// here divID will be the key
+		storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow);
+		if(isDisplayFlow){
+			var divIdFromDisplayFunction = argumentsFromCallingFunction[0];
 			// if display function is called for this slot only
 			if( divIdFromDisplayFunction && divIdFromDisplayFunction == slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID] ){					
 				// mark that display function for this slot has been called
 				slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.DISPLAY_FUNCTION_CALLED] = true;
 				slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = argumentsFromCallingFunction;
 			}
-		}
-	}
-
+		}	
+	});
 	util.log(slotsMap);
 }
 
@@ -197,94 +176,57 @@ function updateStatusAfterRendering(divID, isRefreshCall){
 }
 
 function setKeyValueOfSlotForDivId(divID, keyValueObject){
-	var kv;
-
 	if( util.isOwnProperty(slotsMap, divID) ){
-		for(kv in keyValueObject){
-			if(util.isOwnProperty(keyValueObject, kv)){
-				slotsMap[divID][kv] = keyValueObject[kv];
-			}
-		}
+		util.forEachOnObject(keyValueObject, function(key, value){
+			slotsMap[divID][key] = value;
+		});
 	}
 }
 
 function getSlotNamesByStatus(statusObject){
-	var key;
 	var slots = [];
-	for(key in slotsMap){	
-		if( util.isOwnProperty(statusObject, slotsMap[key][CONSTANTS.SLOT_ATTRIBUTES.STATUS]) ){
-			slots.push( key );
+	util.forEachOnObject(slotsMap, function(key, slot){
+		if( util.isOwnProperty(statusObject, slot[CONSTANTS.SLOT_ATTRIBUTES.STATUS]) ){
+			slots.push(key);
 		}
-	}	
+	});
 	return slots;
 }
 
 function removeDMTargetingFromSlot(key){
-	var currenGoogleSlot;
-	var targetingKeys;
-	var targetingKey;
-	var targetingMap;
-	var len;
-	var i;
-		
-	if(util.isOwnProperty(slotsMap, key)){
-		
-		targetingKeys = [];
-		targetingMap = {};
-		currenGoogleSlot = slotsMap[ key ][CONSTANTS.SLOT_ATTRIBUTES.SLOT_OBJECT];							
-		targetingKeys = currenGoogleSlot.getTargetingKeys();			
-		len = targetingKeys.length;
-		
-		// take backup of all targetings, except those set by DM
-		for(i = 0; i < len; i++){				
-			targetingKey = targetingKeys[ i ];				
-			if( ! util.isOwnProperty(wrapperTargetingKeys, targetingKey) ){				
-				targetingMap[ targetingKey ] = currenGoogleSlot.getTargeting( targetingKey );					
-			}
-		}
-		
-		// now clear all targetings
-		currenGoogleSlot.clearTargeting();
+	var currentGoogleSlot;
+	var targetingMap = {};
 
+	if(util.isOwnProperty(slotsMap, key)){		
+		currentGoogleSlot = slotsMap[ key ][CONSTANTS.SLOT_ATTRIBUTES.SLOT_OBJECT];
+		util.forEachOnArray(currentGoogleSlot.getTargetingKeys(), function(key){
+			targetingMap[ key ] = currentGoogleSlot.getTargeting( key );
+		});
+		// now clear all targetings
+		currentGoogleSlot.clearTargeting();
 		// now set all settings from backup
-		for( targetingKey in targetingMap){		
-			if( util.isOwnProperty(targetingMap, targetingKey) ){								
-				currenGoogleSlot.setTargeting( targetingKey, targetingMap[targetingKey] );						
-			}
-		}
+		util.forEachOnObject(targetingMap, function(key, value){
+			currentGoogleSlot.setTargeting(key, value);
+		});
 	}
 }
 
 function updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, argumentsFromCallingFunction, isRefreshCall){
-		
-	var slotNamesLength = slotNames.length;
-	var index;
-	var key;		
-
-	if( slotNamesLength > 0 ){
-		for(index=0; index < slotNamesLength; index++){
-			key = slotNames[ index ];
-			slotsMap[ key ][CONSTANTS.SLOT_ATTRIBUTES.STATUS] = CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
-			if( isRefreshCall ){
-				removeDMTargetingFromSlot( key );
-				slotsMap[ key ][CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED] = true;					
-				slotsMap[ key ][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = argumentsFromCallingFunction;
-			}
+	util.forEachOnArray(slotNames, function(index, slotName){
+		slotsMap[ slotName ][CONSTANTS.SLOT_ATTRIBUTES.STATUS] = CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
+		if( isRefreshCall ){
+			removeDMTargetingFromSlot( slotName );
+			slotsMap[ slotName ][CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED] = true;					
+			slotsMap[ slotName ][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = argumentsFromCallingFunction;
 		}
-	}	
+	});	
 }
 
-function arrayOfSelectedSlots(slotNames){		
-	var slotNamesLength = slotNames.length;
-	var	index;
+function arrayOfSelectedSlots(slotNames){
 	var output = [];		
-
-	if( slotNamesLength > 0 ){
-		for(index=0; index < slotNamesLength; index++){
-			output.push(slotsMap[ slotNames[index] ]);
-		}
-	}
-	
+	util.forEachOnArray(slotNames, function(index, slotName){
+		output.push(slotsMap[ slotName ]);
+	});	
 	return output;
 }
 
@@ -371,6 +313,15 @@ function newEnableSingleRequestFunction(theObject, originalFunction){
 	}
 }
 
+/*	
+	setTargeting is implemented by
+		googletag.pubads().setTargeting(key, value);
+			we are only intresetd in this one
+	googletag.PassbackSlot.setTargeting(key, value);
+		we do not care about it
+	slot.setTargeting(key, value);
+		we do not care, as it has a get method
+*/
 function newSetTargetingFunction(theObject, originalFunction){
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){
 		return function(){
@@ -378,8 +329,8 @@ function newSetTargetingFunction(theObject, originalFunction){
 				key = arg[0] ? arg[0] : null
 			;
 			//addHookOnGoogletagDisplay();//todo
-			if(key != null){				
-				if( ! util.isOwnProperty(GPT_targetingMap, key) ){
+			if(key != null){
+				if(!util.isOwnProperty(GPT_targetingMap, key)){
 					GPT_targetingMap[ key ] = [];
 				}
 				GPT_targetingMap[ key ] = GPT_targetingMap[ key ].concat( arg[1] );
@@ -395,14 +346,9 @@ function newSetTargetingFunction(theObject, originalFunction){
 function newDestroySlotsFunction(theObject, originalFunction){
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){
 		return function(){
-			var arrayOfSlots = arguments[0] || [];
-
-			if(util.isArray(arrayOfSlots)){
-				for(var i = 0, l = arrayOfSlots.length; i < l; i++){
-					var divID = arrayOfSlots[i].getSlotId().getDomId();
-					delete slotsMap[divID];
-				}
-			}
+			util.forEachOnArray(arguments[0] || [], function(index, slot){
+				delete slotsMap[slot.getSlotId().getDomId()];
+			});
 			return originalFunction.apply(theObject, arguments);
 		};
 	}else{
@@ -551,19 +497,15 @@ function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue){
 function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg){	
 	util.log("Executing post CONFIG.getTimeout() events, arguments: ");
 	util.log(arg);
-
 	var yesCallRefreshFunction = false;
-
-	for(var index=0, qualifyingSlotNamesLength = qualifyingSlotNames.length; index<qualifyingSlotNamesLength; index++){		
-		var dmSlot = qualifyingSlotNames[ index ];
+	util.forEachOnArray(qualifyingSlotNames, function(index, dmSlot){
 		var divID = slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID];
 		yesCallRefreshFunction = findWinningBidIfRequired_Refresh(dmSlot, divID, yesCallRefreshFunction);
 		setTimeout(function(){
 			//utilCreateVLogInfoPanel(slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.SIZES]);						
 			//utilRealignVLogInfoPanel(slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID]);	
-		}, 2000+CONFIG.getTimeout());
-	}
-
+		}, 2000+CONFIG.getTimeout());	
+	});
 	bidManager.executeAnalyticsPixel();
 	callOriginalRefeshFunction(yesCallRefreshFunction, theObject, originalFunction, arg);
 }
@@ -577,6 +519,19 @@ function callOriginalRefeshFunction(flag, theObject, originalFunction, arg){
 	}
 }
 
+function getQualifyingSlotNamesForRefresh(arg, theObject){
+	var qualifyingSlotNames = [],
+		slotsToConsider = [];
+	if(arg.length != 0){
+		// handeling case googletag.pubads().refresh(null, {changeCorrelator: false});
+		slotsToConsider = arg[0] == null ? theObject.getSlots() : arg[0];
+	}
+	util.forEachOnArray(slotsToConsider, function(index, slot){
+		qualifyingSlotNames = qualifyingSlotNames.concat( slot.getSlotId().getDomId() );
+	});
+	return qualifyingSlotNames;
+}
+
 /*
 	there are many ways of calling refresh
 		1. googletag.pubads().refresh([slot1]);
@@ -586,32 +541,15 @@ function callOriginalRefeshFunction(flag, theObject, originalFunction, arg){
 */
 function newRefreshFuncton(theObject, originalFunction){
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){	
-		return function(){
-			var arg = arguments,
-				slotsToConsider = theObject.getSlots(),
-				qualifyingSlotNames = []
-			;
-
+		return function(){			
 			util.log("In Refresh function");
-			updateSlotsMapFromGoogleSlots(slotsToConsider, arg, false);
-			if(arg.length != 0){								
-				// handeling case googletag.pubads().refresh(null, {changeCorrelator: false});
-				slotsToConsider = arg[0] == null ? theObject.getSlots() : arg[0];
-			}
-
-			//todo: move to a function
-			for(var index = 0, slotsToConsiderLength = slotsToConsider.length; index < slotsToConsiderLength; index++){
-				qualifyingSlotNames = qualifyingSlotNames.concat( slotsToConsider[ index ].getSlotId().getDomId() );
-			}
-
+			updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
+			var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(arguments, theObject);
 			forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
-
 			util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout()+" ms");
-
 			setTimeout(function(){
-				postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
+				postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);
 			}, CONFIG.getTimeout());
-
 			return originalFunction.apply(theObject, arguments);
 		};
 	}else{
@@ -635,7 +573,6 @@ function newSizeMappingFunction(theObject, originalFunction){
 // slot.defineSizeMapping
 function addHookOnSlotDefineSizeMapping(localGoogletag){
 	// todo: add checks
-	// can we avoid localGoogletag var
 	var s1 = localGoogletag.defineSlot("/Harshad", [[728, 90]], "Harshad-02051986");
 	if(s1){
 		util.addHookOnFunction(s1, true, "defineSizeMapping", newSizeMappingFunction);
@@ -644,26 +581,25 @@ function addHookOnSlotDefineSizeMapping(localGoogletag){
 }
 
 function addHooks(win){
+	if(util.isObject(win) && util.isObject(win.googletag) && util.isFunction(win.googletag.pubads)){
+		var localGoogletag = win.googletag;
+		var localPubAdsObj = localGoogletag.pubads();
+		
+		if(!util.isObject(localPubAdsObj)){
+			return false;
+		}
 
-	//todo add checks
-	//todo is it needed in global scope ?
-	localGoogletag = win.googletag;
-	localPubAdsObj = localGoogletag.pubads();
-
-	addHookOnSlotDefineSizeMapping(localGoogletag);
-	util.addHookOnFunction(localPubAdsObj, false, "disableInitialLoad", newDisableInitialLoadFunction);
-	util.addHookOnFunction(localPubAdsObj, false, "enableSingleRequest", newEnableSingleRequestFunction);
-	newAddHookOnGoogletagDisplay(localGoogletag);
-	util.addHookOnFunction(localPubAdsObj, false, "refresh", newRefreshFuncton);
-	//	setTargeting is implemented by
-	//		googletag.pubads().setTargeting(key, value);
-	//			we are only intresetd in this one
-	//		googletag.PassbackSlot.setTargeting(key, value);
-	//			we do not care about it
-	//		slot.setTargeting(key, value);
-	//			we do not care, as it has a get method
-	util.addHookOnFunction(localPubAdsObj, false, "setTargeting", newSetTargetingFunction);
-	util.addHookOnFunction(localGoogletag, false, "destroySlots", newDestroySlotsFunction);
+		addHookOnSlotDefineSizeMapping(localGoogletag);
+		util.addHookOnFunction(localPubAdsObj, false, "disableInitialLoad", newDisableInitialLoadFunction);
+		util.addHookOnFunction(localPubAdsObj, false, "enableSingleRequest", newEnableSingleRequestFunction);
+		newAddHookOnGoogletagDisplay(localGoogletag);
+		util.addHookOnFunction(localPubAdsObj, false, "refresh", newRefreshFuncton);
+		util.addHookOnFunction(localPubAdsObj, false, "setTargeting", newSetTargetingFunction);
+		util.addHookOnFunction(localGoogletag, false, "destroySlots", newDestroySlotsFunction);
+		return true;
+	}else{
+		return false;
+	}
 }
 
 function defineGPTVariables(win){
@@ -700,13 +636,17 @@ function callJsLoadedIfRequired(win){
 exports.callJsLoadedIfRequired = callJsLoadedIfRequired;//todo add the private function snippet
 
 exports.init = function(win){
-	//todo checks on win
-	setWindowReference(win);
-	wrapperTargetingKeys = defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
-	defineGPTVariables(win);
-	adapterManager.registerAdapters();
-	addHooksIfPossible(win);
-	callJsLoadedIfRequired(win);
+	if(util.isObject(win)){
+		setWindowReference(win);
+		wrapperTargetingKeys = defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
+		defineGPTVariables(win);
+		adapterManager.registerAdapters();
+		addHooksIfPossible(win);
+		callJsLoadedIfRequired(win);
+		return true;
+	}else{
+		return false;
+	}
 };
 
 // todo: export all functions in test scenario for unit testing
