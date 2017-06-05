@@ -10,7 +10,7 @@ var constCommonLastBidID = "lastbidid";
 
 function createBidEntry(divID){
 	var temp;
-	if(! util.isOwnProperty(PWT.bidMap, divID) ){		
+	if(! util.isOwnProperty(PWT.bidMap, divID) ){
 		temp = {};
 		temp[stringBidders] = {};
 		temp[CONSTANTS.SLOT_ATTRIBUTES.SIZES] = [];
