@@ -3,7 +3,7 @@ var path = require('path');
 
 module.exports = {
     output: {
-        filename: 'cerebro.js'
+        filename: 'owt.js'
     },
     devtool: 'source-map',
     resolve: {
@@ -12,5 +12,7 @@ module.exports = {
     resolveLoader: {
         modulesDirectories: ['node_modules']
     },
-    module: {}
+    module: {
+
+    }
 };
