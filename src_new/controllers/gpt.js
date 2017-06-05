@@ -476,9 +476,9 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
 	}		
 }
 
-function forQualifyingSlotNamesCallAdapters_Display(qualifyingSlotNames, arg){
+function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall){
 	if(qualifyingSlotNames.length > 0){
-		updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, false);
+		updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, isRefreshCall);
 		var qualifyingSlots = arrayOfSelectedSlots(qualifyingSlotNames);
 		adapterManager.callAdapters(qualifyingSlots);
 	}
@@ -497,7 +497,7 @@ function newDisplayFunction(theObject, originalFunction){
 
 			updateSlotsMapFromGoogleSlots(theObject.pubads().getSlots(), arguments, true);
 			displayFunctionStatusHandler(getStatusOfSlotForDivId( arguments[0] ), theObject, originalFunction, arguments);
-			forQualifyingSlotNamesCallAdapters_Display(getSlotNamesByStatus({0:''}), arguments);
+			forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus({0:''}), arguments, false);
 
 			setTimeout(function(){
 				//utilRealignVLogInfoPanel(arg[0]);
@@ -633,8 +633,23 @@ function addHookOnGooglePubAdsRefresh(win){
 function newRefreshFuncton(theObject, originalFunction){
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){	
 		return function(){
-			
-			
+			var arg = arguments,
+				slotsToConsider = theObject.getSlots(),
+				slotsToConsiderLength,
+				qualifyingSlotNames = [],
+				qualifyingSlots,
+				index
+			;
+
+			util.log('In Refresh function');
+			updateSlotsMapFromGoogleSlots(slotsToConsider, arg, false);
+			if(arg.length != 0){								
+				// handeling case googletag.pubads().refresh(null, {changeCorrelator: false});
+				slotsToConsider = arg[0] == null ? theObject.getSlots() : arg[0];
+			}
+
+
+			//forQualifyingSlotNamesCallAdapters
 
 			return originalFunction.apply(theObject, arguments);
 		}
