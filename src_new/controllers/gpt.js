@@ -4,7 +4,6 @@ var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var adapterManager = require("../adapterManager.js");
 
-var SEND_TARGETING_INFO = true;
 var displayHookIsAdded = false;
 var disableInitialLoadIsSet = false;
 var sendTargetingInfoIsSet = true;
@@ -537,107 +536,60 @@ function newAddHookOnGoogletagDisplay(localGoogletag){
 	util.addHookOnFunction(localGoogletag, false, "display", newDisplayFunction);
 }
 
-// refresh
-function addHookOnGooglePubAdsRefresh(win){
-	/*
-		there are many ways of calling refresh
-			1. googletag.pubads().refresh([slot1]);
-			2. googletag.pubads().refresh([slot1, slot2]);
-			3. googletag.pubads().refresh();					
-			4. googletag.pubads().refresh(null, {changeCorrelator: false});		
-	*/
-	var original_refresh = localPubAdsObj && localPubAdsObj.refresh;
-	if(util.isFunction(original_refresh)){
+function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue){
+	if( util.isOwnProperty(slotsMap, slotName) 
+		&& slotsMap[slotName][CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED] == true 
+		&& slotsMap[slotName][CONSTANTS.SLOT_ATTRIBUTES.STATUS] != CONSTANTS.SLOT_STATUS.DISPLAYED ){
 	
-		localPubAdsObj.refresh = function(){
-		
-			var arg = arguments,
-				slotsToConsider = win.googletag.pubads().getSlots(),
-				slotsToConsiderLength,
-				qualifyingSlotNames = [],
-				qualifyingSlots,
-				index
-				;
-			
-			util.log("In Refresh function");
+		findWinningBidAndApplyTargeting(divID);
+		updateStatusAfterRendering(divID, true);
+		return true;
+	}
+	return currentFlagValue;
+}
 
-			updateSlotsMapFromGoogleSlots(slotsToConsider, arg, false);
-			
-			if( arg.length != 0){								
-				// handeling case googletag.pubads().refresh(null, {changeCorrelator: false});
-				slotsToConsider = arg[0] == null ? win.googletag.pubads().getSlots() : arg[0];
-			}
-					
-			slotsToConsiderLength = slotsToConsider.length;				
-			for(index = 0; index < slotsToConsiderLength; index++){
-				qualifyingSlotNames = qualifyingSlotNames.concat( slotsToConsider[ index ].getSlotId().getDomId() );
-			}
+function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg){	
+	util.log("Executing post CONFIG.getTimeout() events, arguments: ");
+	util.log(arg);
 
-			if(qualifyingSlotNames.length > 0){
-				updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, true);
-				qualifyingSlots = arrayOfSelectedSlots(qualifyingSlotNames);
-				adapterManager.callAdapters(qualifyingSlots);
-			}
-			
-			util.log("Intiating Call to original refresh function with CONFIG.getTimeout(): " + CONFIG.getTimeout()+" ms");
-			setTimeout(function(){
-				
-				util.log("Executing post CONFIG.getTimeout() events, arguments: ");
-				util.log(arg);
-				
-				var index,	
-					dmSlot,
-					divID,
-					yesCallRefreshFunction = false,
-					qualifyingSlotNamesLength
-					;
+	var yesCallRefreshFunction = false;
 
-				qualifyingSlotNamesLength = qualifyingSlotNames.length;					
-				for(index=0; index<qualifyingSlotNamesLength; index++){						
-					
-					dmSlot = qualifyingSlotNames[ index ];
-					divID = slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID];
+	for(var index=0, qualifyingSlotNamesLength = qualifyingSlotNames.length; index<qualifyingSlotNamesLength; index++){		
+		var dmSlot = qualifyingSlotNames[ index ];
+		var divID = slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID];
+		yesCallRefreshFunction = findWinningBidIfRequired_Refresh(dmSlot, divID, yesCallRefreshFunction);
+		setTimeout(function(){
+			//utilCreateVLogInfoPanel(slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.SIZES]);						
+			//utilRealignVLogInfoPanel(slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID]);	
+		}, 2000+CONFIG.getTimeout());
+	}
 
-					if( util.isOwnProperty(slotsMap, dmSlot) 
-						&& slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED] == true 
-						&& slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.STATUS] != CONSTANTS.SLOT_STATUS.DISPLAYED ){
-					
-						findWinningBidAndApplyTargeting(divID);
-						updateStatusAfterRendering(divID, true);
-						yesCallRefreshFunction = true;
-					}
-				}
+	bidManager.executeAnalyticsPixel();
+	callOriginalRefeshFunction(yesCallRefreshFunction, theObject, originalFunction, arg);
+}
 
-				setTimeout(function(){
-					for(index=0; index<qualifyingSlotNamesLength; index++){
-						var dmSlot = qualifyingSlotNames[ index ];
-						//utilCreateVLogInfoPanel(slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.SIZES]);						
-						//utilRealignVLogInfoPanel(slotsMap[dmSlot][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID]);	
-					}						
-				}, 2000+CONFIG.getTimeout());
-
-				bidManager.executeAnalyticsPixel();
-				
-				if(yesCallRefreshFunction){						
-					util.log("Calling original refresh function from CONFIG.getTimeout()");
-					original_refresh.apply(win.googletag.pubads(), arg );						
-				}else{
-					util.log("AdSlot already rendered");
-				}
-					
-			}, CONFIG.getTimeout());
-		};
+function callOriginalRefeshFunction(flag, theObject, originalFunction, arg){
+	if(flag === true){
+		util.log("Calling original refresh function from CONFIG.getTimeout()");
+		originalFunction.apply(theObject, arg );
+	}else{
+		util.log("AdSlot already rendered");
 	}
 }
 
+/*
+	there are many ways of calling refresh
+		1. googletag.pubads().refresh([slot1]);
+		2. googletag.pubads().refresh([slot1, slot2]);
+		3. googletag.pubads().refresh();					
+		4. googletag.pubads().refresh(null, {changeCorrelator: false});		
+*/
 function newRefreshFuncton(theObject, originalFunction){
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){	
 		return function(){
 			var arg = arguments,
 				slotsToConsider = theObject.getSlots(),
-				slotsToConsiderLength,
-				qualifyingSlotNames = [],
-				qualifyingSlots
+				qualifyingSlotNames = []
 			;
 
 			util.log("In Refresh function");
@@ -652,16 +604,12 @@ function newRefreshFuncton(theObject, originalFunction){
 				qualifyingSlotNames = qualifyingSlotNames.concat( slotsToConsider[ index ].getSlotId().getDomId() );
 			}
 
-			forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus({0:""}), arguments, true);
+			forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
 
 			util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout()+" ms");
 
 			setTimeout(function(){
-				util.log("Executing post CONFIG.getTimeout() events, arguments: ");
-				util.log(arg);
-
-
-
+				postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
 			}, CONFIG.getTimeout());
 
 			return originalFunction.apply(theObject, arguments);
@@ -706,7 +654,6 @@ function addHooks(win){
 	util.addHookOnFunction(localPubAdsObj, false, "disableInitialLoad", newDisableInitialLoadFunction);
 	util.addHookOnFunction(localPubAdsObj, false, "enableSingleRequest", newEnableSingleRequestFunction);
 	newAddHookOnGoogletagDisplay(localGoogletag);
-	//addHookOnGooglePubAdsRefresh(win);
 	util.addHookOnFunction(localPubAdsObj, false, "refresh", newRefreshFuncton);
 	//	setTargeting is implemented by
 	//		googletag.pubads().setTargeting(key, value);
