@@ -55,7 +55,7 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	);
 };
 
-exports.PWT = window.PWT;
+//exports.PWT = window.PWT;
 
 controller.init(window);
 
