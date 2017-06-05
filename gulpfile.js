@@ -15,7 +15,7 @@ var connect = require('gulp-connect');
 var opens = require('open');
 var webserver = require('gulp-webserver');
 var webpack = require('webpack-stream');
-var webpackConfig = require('./webpack.conf.js');
+var webpackConfig = require('./webpack.config.js');
 var replace = require('gulp-replace');
 var optimizejs = require('gulp-optimize-js');
 
