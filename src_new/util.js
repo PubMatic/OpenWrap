@@ -92,17 +92,15 @@ exports.getUniqueIdentifierStr = function() {
 };
 
 exports.copyKeyValueObject = function(copyTo, copyFrom){
-	if(this.isObject(copyTo) && this.isObject(copyFrom)){
-		for(var key in copyFrom){    
-			copyFrom[key] = this.isArray(copyFrom[key]) ? copyFrom[key] : [copyFrom[key]];
-			if(this.isOwnProperty(copyFrom, key)){
-				if(this.isOwnProperty(copyTo, key)){
-					copyTo[key].push.apply(copyTo[key], copyFrom[key])  ;
-				}else{
-					copyTo[key] = copyFrom[key];
-				}
+	if(this.isObject(copyTo) && this.isObject(copyFrom)){		
+		this.forEachOnObject(copyFrom, function(key, value){
+			copyFrom[key] = this.isArray(value) ? value : [value];
+			if(this.isOwnProperty(copyTo, key)){
+				copyTo[key].push.apply(copyTo[key], value);
+			}else{
+				copyTo[key] = value;
 			}
-		}
+		});
 	}
 };
 
@@ -213,6 +211,7 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 		return success;
 	}
 
+	// can not change following for loop to this.forEachOnArray
 	for(var i=0; i<arrayLength; i++){
 		if(!this.isOwnProperty(object, keys[i])){
 			this.log(adapterID + ": "+keys[i]+", mandatory parameter not present.");
@@ -265,14 +264,14 @@ exports.forEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, act
 					}
 
 					handlerFunction(
-            generatedKey, 
-            kgpConsistsWidthAndHeight, 
-            activeSlots[i], 
-            keyLookupMap ? keyLookupMap[generatedKey] : null, 
-            activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.SIZES][j][0], 
-            activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.SIZES][j][1]
-          );
-				} 
+						generatedKey, 
+						kgpConsistsWidthAndHeight, 
+						activeSlots[i], 
+						keyLookupMap ? keyLookupMap[generatedKey] : null, 
+						activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.SIZES][j][0], 
+						activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.SIZES][j][1]
+					);
+				}
 			}
 		}
 	}

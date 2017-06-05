@@ -357,9 +357,8 @@ exports.executeAnalyticsPixel = function(){
 };
 
 exports.executeMonetizationPixel = function(slotID, theBid){
-
 	var pixelURL = CONFIG.getMonetizationPixelURL();
-
+	
 	if(!pixelURL){
 		return;
 	}
