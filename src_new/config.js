@@ -79,7 +79,7 @@ exports.getAdapterThrottle = function(adapterID){
 exports.getBidPassThroughStatus = function(adapterID){
 	var adapterConfig = this.config.global.adapters;
 	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.BID_PASS_THROUGH)){
-		return parseInt(adapterConfig[adapter][CONSTANTS.CONFIG.BID_PASS_THROUGH]);
+		return parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.BID_PASS_THROUGH]);
 	}
 	return 0;
 };
