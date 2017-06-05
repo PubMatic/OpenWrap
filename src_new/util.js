@@ -1,5 +1,6 @@
 //todo
 //  pageURL refURL protocol related functions
+// forEachOnArray
 
 var CONSTANTS = require("./constants.js");
 var BID = require("./bid.js");
