@@ -361,7 +361,7 @@ exports.getProtocol = function(theWindow){
 	return "http://";
 };
 
-exports.getPageURL = function(theWindow){
+exports.getPageURL = function(){ //theWindow (arg) // todo
 	return "";
 };
 
