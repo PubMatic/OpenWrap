@@ -135,23 +135,21 @@ describe("CONTROLLER: GPT", function() {
 			GPT.init(null).should.equal(false);
 		});
 
-		it("should return true when the null is passed", function() {
+		it("should return true when the object is passed", function() {
 			GPT.init({}).should.equal(true);
 		});
 
-		describe("Sinon check", function(){
-			sinon.spy(UTIL, "isObject");
-			sinon.spy(GPT, "setWindowReference");
-			sinon.spy(GPT, "defineWrapperTargetingKeys");
-			sinon.spy(GPT, "defineGPTVariables");					
-			sinon.spy(AM, "registerAdapters");
-			sinon.spy(GPT, "addHooksIfPossible");
-			sinon.spy(GPT, "callJsLoadedIfRequired");
+		describe("Sinon check", function(){			
 
-			//console.log(GPT.callJsLoadedIfRequired.calledOnce);
-
-			it("Attach Sinon spy to functions called from GPT.init ", function(done){
-				var output = GPT.init({});
+			it("Attach Sinon stub to functions called from GPT.init ", function(done){
+				sinon.stub(UTIL, "isObject", function(){return true});
+				sinon.stub(GPT, "setWindowReference");
+				sinon.stub(GPT, "defineWrapperTargetingKeys");
+				sinon.stub(GPT, "defineGPTVariables");					
+				sinon.stub(AM, "registerAdapters");
+				sinon.stub(GPT, "addHooksIfPossible");
+				sinon.stub(GPT, "callJsLoadedIfRequired");
+				GPT.init({PWT:{jsLoaded: function(){}}});
 				expect(UTIL.isObject.calledOnce &&
 				GPT.setWindowReference.calledOnce &&
 				GPT.defineWrapperTargetingKeys.calledOnce &&
