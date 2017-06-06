@@ -2,7 +2,7 @@
 
 var util = require("../src_new/util");
 var assert = require("assert");
-
+console.log('util.isA  ==>', util.isA);
 
 describe("Util", function() {
 	var obj_function = function() {};
@@ -23,7 +23,8 @@ describe("Util", function() {
 			done();
 		});
 	});
-
+	
+	/* start-test-block */
 	describe("isFunction Sinon stub example", function () {
 		sinon.stub(util, "isA");
 		it("should do what...", function (done) {
@@ -32,6 +33,7 @@ describe("Util", function() {
 			done();
 		});
 	});
+	/* end-test-block */
 
     /* start-test-block */
 	describe("isA", function () {

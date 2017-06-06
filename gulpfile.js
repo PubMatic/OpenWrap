@@ -18,10 +18,9 @@ var webpack = require('webpack-stream');
 var webpackConfig = require('./webpack.config.js');
 var replace = require('gulp-replace');
 var optimizejs = require('gulp-optimize-js');
-
 var stripCode = require('gulp-strip-code');
-
-const eslint = require('gulp-eslint');
+var eslint = require('gulp-eslint');
+var karmaServer = require('karma').Server;
 
 
 gulp.task('clean', function() {
@@ -29,22 +28,6 @@ gulp.task('clean', function() {
             read: true
         })
         .pipe(clean());
-});
-
-gulp.task('prodcode', function() {
-    var files = ['src/commonVariables.js', 'src/util.js', 'src/adapterManager.js', 'src/bidManager.js'];
-    var adapters = ['src/adapters/pubmatic.js'];
-    files = files.concat(adapters);
-    files = files.concat(['src/controllers/gpt.js', 'src/owt.js', 'test/util.spec.js']);
-
-    var files = ['src/commonVariables.js', 'src/util.js', 'test/util.spec.js']
-
-    return gulp.src(files)
-        .pipe(concat('owt.combine.js'))
-        .pipe(insert.prepend('(function(){\n'))
-        .pipe(insert.append('\n})();'))
-        //.pipe(uglify())
-        .pipe(gulp.dest('dist/'));
 });
 
 gulp.task('webpack', function() {
@@ -57,88 +40,73 @@ gulp.task('webpack', function() {
     webpackConfig.devtool = null;
 
     //const analyticsSources = helpers.getAnalyticsSources(analyticsDirectory);
-    return gulp.src([].concat('src_new/owt.js'))
+    return gulp.src('src_new/owt.js')
         .pipe(webpack(webpackConfig))
-        .pipe(replace('$prebid.version$', '11'))
-        //.pipe(uglify())
+        // .pipe(replace('$prebid.version$', '11'))
+        .pipe(uglify())
         //.pipe(header(banner, { prebid: prebid }))
         .pipe(optimizejs())
         .pipe(gulp.dest('build/dist'))
-        //.pipe(connect.reload())
+        .pipe(connect.reload())
     ;
 });
 
-gulp.task('jshint', function() {
-    return gulp.src('src_new/*.js')
-        .pipe(jshint('.jshintconf'))
-        .pipe(jshint.reporter('jshint-stylish'))
-        .pipe(jshint.reporter('fail'));
+
+gulp.task('test', ['unexpose'], function (done) {
+  new karmaServer({
+    configFile: __dirname + '/karma.conf.dev.js',
+    singleRun: true
+  }, function (done) {
+      gulp.src('temp', {
+            read: true
+        })
+        .pipe(clean());
+  }).start();
 });
 
-gulp.task('jscs', function() {
-    return gulp.src('src_new/*.js')
-        .pipe(jscs({
-            configPath: '.jscsconfig'
-        }))
-        .pipe(jscs.reporter());
+gulp.task('testall', function (done) {
+  new karmaServer({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }, done).start();
 });
 
-gulp.task('test', function() {
-    var defaultBrowsers = ['Chrome'];
 
-    return gulp.src('lookAtKarmaConfJS')
-        .pipe(karma({
-            browsers: defaultBrowsers,
-            configFile: 'karma.conf.js',
-            action: 'run'
-        }));
-});
 
-gulp.task('mocha', function() {
-    return gulp.src(['src_new/*.js'], { read: false })
-        .pipe(mocha({
-            reporter: 'spec',
-            globals: {
-                expect: require('chai').expect,
-                window: {}
-            }
-        }))
-        .on('error', gutil.log);
-});
-
-gulp.task('coverage', function(done) {
-    /*var coveragePort = 1999;
+// Small task to load coverage reports in the browser
+gulp.task('coverage', function (done) {
+    var coveragePort = 1999;
     connect.server({
-    	port: coveragePort,
-    	root: 'dist/coverage/',
-    	base: 'http://localhost',
-    	livereload: true
+        port: 1999,
+        root: 'build',
+        livereload: false
     });
     opens('http://localhost:' + coveragePort + '/coverage/');
-    done();*/
-
-    gulp.src(['dist/coverage'])
-        .pipe(webserver({
-            livereload: true,
-            directoryListing: true,
-            open: true
-        }));
-
+    done();
 });
 
-var paths = ['src_new/**/*.js', 'test/**/*.js'];
 
+// Task to remove privately exposed functions as well as remove test cases which test private functions
 gulp.task('unexpose', function() {
-    gulp.src(paths, { base: './' })
+    return gulp
+        .src([
+            'src_new/**/*.js', 
+            'test/**/*.js'
+            ],
+            { base: './' }
+        )
         .pipe(stripCode({
             start_comment: "start-test-block",
             end_comment: "end-test-block"
         }))
-        .pipe(gulp.dest('./'));
+        .pipe(gulp.dest('./temp/'));
 });
 
 gulp.task('lint', () => {
-  return gulp.src(['src_new/**/*.js', 'test/**/*.js'])
+  return gulp.src([
+        'src_new/**/*.js',
+        'test/**/*.js'
+    ])
     .pipe(eslint())
     .pipe(eslint.format('stylish'))
     .pipe(eslint.failAfterError());
@@ -146,7 +114,7 @@ gulp.task('lint', () => {
 
 
 gulp.task('mocha', ['webpack', 'lint'], function() {
-    return gulp.src(['test/spec/loaders/**/*.js'], { read: false })
+    return gulp.src(['test/**/*.spec.js'], { read: false })
         .pipe(mocha({
           reporter: 'spec',
           globals: {
@@ -154,4 +122,10 @@ gulp.task('mocha', ['webpack', 'lint'], function() {
           }
         }))
         .on('error', gutil.log);
+});
+
+
+// demo usage of yargs
+gulp.task('demo', function () {
+    console.log("argv ==>", argv);
 });
