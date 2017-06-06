@@ -1,9 +1,10 @@
 /* global describe, it, xit, sinon, expect */
-
+var sinon = require('sinon');
+var should = require("chai").should();
+var expect = require("chai").expect;
 var GPT = require("../../src_new/controllers/gpt.js");
 var UTIL = require("../../src_new/util.js");
-
-var should = require("chai").should();
+var AM = require("../../src_new/adapterManager.js");
 
 describe("CONTROLLER: GPT", function() {
 
@@ -127,5 +128,45 @@ describe("CONTROLLER: GPT", function() {
 			GPT.defineGPTVariables(x).should.equal(true) &&  UTIL.isObject(x.googletag) && UTIL.isArray(x.googletag.cmd) && x.googletag.cmd.length.should.equal(3);
 		});
 	});
+
+	describe("#init()", function(){
+
+		it("should return false when the null is passed", function() {
+			GPT.init(null).should.equal(false);
+		});
+
+		it("should return true when the null is passed", function() {
+			GPT.init({}).should.equal(true);
+		});
+
+		describe("Sinon check", function(){
+			sinon.spy(UTIL, "isObject");
+			sinon.spy(GPT, "setWindowReference");
+			sinon.spy(GPT, "defineWrapperTargetingKeys");
+			sinon.spy(GPT, "defineGPTVariables");					
+			sinon.spy(AM, "registerAdapters");
+			sinon.spy(GPT, "addHooksIfPossible");
+			sinon.spy(GPT, "callJsLoadedIfRequired");
+
+			//console.log(GPT.callJsLoadedIfRequired.calledOnce);
+
+			it("Attach Sinon spy to functions called from GPT.init ", function(done){
+				var output = GPT.init({});
+				expect(UTIL.isObject.calledOnce &&
+				GPT.setWindowReference.calledOnce &&
+				GPT.defineWrapperTargetingKeys.calledOnce &&
+				GPT.defineGPTVariables.calledOnce &&
+				AM.registerAdapters.calledOnce &&
+				GPT.addHooksIfPossible.calledOnce &&
+				GPT.callJsLoadedIfRequired.calledOnce).to.equal(true);
+				done();
+			});
+		});
+	});
+
+	describe("#defineWrapperTargetingKeys()", function(){
+
+	});
+
 
 });

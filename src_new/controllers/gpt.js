@@ -20,6 +20,9 @@ var windowReference = null;
 function setWindowReference(win){
 	windowReference = win;
 }
+/* start-test-block */
+exports.setWindowReference = setWindowReference;
+/* end-test-block */
 
 function getWindowReference(){
 	return windowReference;
@@ -267,9 +270,13 @@ function defineWrapperTargetingKeys(object){
 	var output = {};
 	util.forEachOnObject(object, function(key, value){
 		output[ value ] = "";
-	});	
+	});
 	return output;
 }
+/* start-test-block */
+exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
+/* end-test-block */
+
 
 function defineWrapperTargetingKey(key){
 	wrapperTargetingKeys[key] = "";
@@ -651,5 +658,4 @@ exports.init = function(win){
 	}
 };
 
-// todo: export all functions in test scenario for unit testing
 // todo: create a slot class
