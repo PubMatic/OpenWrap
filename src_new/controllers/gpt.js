@@ -168,19 +168,9 @@ function getStatusOfSlotForDivId(divID){
 }
 
 function updateStatusAfterRendering(divID, isRefreshCall){
-	var settings = {};
-	settings[ CONSTANTS.SLOT_ATTRIBUTES.STATUS ] = CONSTANTS.SLOT_STATUS.DISPLAYED;
-	settings[CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = [];
-	settings[ isRefreshCall ? CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED : CONSTANTS.SLOT_ATTRIBUTES.DISPLAY_FUNCTION_CALLED ] = false;		
-	setKeyValueOfSlotForDivId(divID, settings);
-}
-
-function setKeyValueOfSlotForDivId(divID, keyValueObject){
-	if( util.isOwnProperty(slotsMap, divID) ){
-		util.forEachOnObject(keyValueObject, function(key, value){
-			slotsMap[divID][key] = value;
-		});
-	}
+	slotsMap[divID][ CONSTANTS.SLOT_ATTRIBUTES.STATUS ] = CONSTANTS.SLOT_STATUS.DISPLAYED;
+	slotsMap[divID][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = [];
+	slotsMap[divID][ isRefreshCall ? CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED : CONSTANTS.SLOT_ATTRIBUTES.DISPLAY_FUNCTION_CALLED ] = false;
 }
 
 function getSlotNamesByStatus(statusObject){
@@ -572,12 +562,15 @@ function newSizeMappingFunction(theObject, originalFunction){
 
 // slot.defineSizeMapping
 function addHookOnSlotDefineSizeMapping(localGoogletag){
-	// todo: add checks
-	var s1 = localGoogletag.defineSlot("/Harshad", [[728, 90]], "Harshad-02051986");
-	if(s1){
-		util.addHookOnFunction(s1, true, "defineSizeMapping", newSizeMappingFunction);
+	if(util.isObject(localGoogletag) && util.isFunction(localGoogletag.defineSlot)){
+		var s1 = localGoogletag.defineSlot("/Harshad", [[728, 90]], "Harshad-02051986");
+		if(s1){
+			util.addHookOnFunction(s1, true, "defineSizeMapping", newSizeMappingFunction);
+			localGoogletag.destroySlots([s1]);
+			return true;
+		}				
 	}
-	localGoogletag.destroySlots([s1]);
+	return false;
 }
 
 function addHooks(win){
@@ -607,9 +600,13 @@ function defineGPTVariables(win){
 	if(util.isObject(win)){
 		win.googletag = win.googletag || {};
 		win.googletag.cmd = win.googletag.cmd || [];
+		return true;
 	}
+	return false;
 }
-exports.defineGPTVariables = defineGPTVariables;//todo: pre-defined comment
+/* start-test-block */
+exports.defineGPTVariables = defineGPTVariables;
+/* end-test-block */
 
 function addHooksIfPossible(win){
 	if(util.isUndefined(win.google_onload_fired) && win.googletag && win.googletag.cmd && util.isFunction(win.googletag.cmd.unshift)){
@@ -625,6 +622,9 @@ function addHooksIfPossible(win){
 		return false;
 	}
 }
+/* start-test-block */
+exports.addHooksIfPossible = addHooksIfPossible;
+/* end-test-block */
 
 function callJsLoadedIfRequired(win){
 	if(util.isObject(win) && util.isObject(win.PWT) && util.isFunction(win.PWT.jsLoaded)){
@@ -633,7 +633,9 @@ function callJsLoadedIfRequired(win){
 	}
 	return false;
 }
-exports.callJsLoadedIfRequired = callJsLoadedIfRequired;//todo add the private function snippet
+/* start-test-block */
+exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
+/* end-test-block */
 
 exports.init = function(win){
 	if(util.isObject(win)){
