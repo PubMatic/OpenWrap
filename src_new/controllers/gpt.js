@@ -646,12 +646,12 @@ exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
 
 exports.init = function(win){
 	if(util.isObject(win)){
-		setWindowReference(win);
-		wrapperTargetingKeys = defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
-		defineGPTVariables(win);
+		this.setWindowReference(win);
+		wrapperTargetingKeys = this.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
+		this.defineGPTVariables(win);
 		adapterManager.registerAdapters();
-		addHooksIfPossible(win);
-		callJsLoadedIfRequired(win);
+		this.addHooksIfPossible(win);
+		this.callJsLoadedIfRequired(win);
 		return true;
 	}else{
 		return false;
