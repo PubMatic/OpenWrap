@@ -515,8 +515,8 @@ var bidMap = {},
 					outputObj[constImpressionID] = encodeURIComponent(impressionID);
 					outputObj[constConfigProfileID] = bidManagerGetProfileID();
 					outputObj[constConfigProfileDisplayVersionID] = bidManagerGetProfileDisplayVersionID();
-					pixelURL += 'pubid=' + bidManagerPwtConf[constConfigPublisherID]+'&json=' + encodeURIComponent(JSON.stringify(outputObj));
-					(new Image()).src = utilMetaInfo.protocol + pixelURL;
+					//pixelURL += 'pubid=' + bidManagerPwtConf[constConfigPublisherID]+'&json=' + encodeURIComponent(JSON.stringify(outputObj));
+					(new Image()).src = utilMetaInfo.protocol + pixelURL + 'pubid=' + bidManagerPwtConf[constConfigPublisherID]+'&json=' + encodeURIComponent(JSON.stringify(outputObj));
 				}
 			}
 		}
