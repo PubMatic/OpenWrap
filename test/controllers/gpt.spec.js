@@ -110,7 +110,7 @@ describe("CONTROLLER: GPT", function() {
     //todo
 	describe("#defineGPTVariables()", function() {
 
-		it("should return false when the object passed is object and PWT property is set and jsLoaded is set to function and the function is called", function() {
+		xit("should return false when the object passed is object and PWT property is set and jsLoaded is set to function and the function is called", function() {
 			GPT.callJsLoadedIfRequired(_test).should.equal(true) && flag.should.equal(true);
 		});
 
