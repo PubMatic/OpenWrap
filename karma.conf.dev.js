@@ -120,7 +120,8 @@ module.exports = function(config) {
             'karma-sinon',
             'karma-expect',
             'karma-webpack',
-            'karma-chrome-launcher'
+            'karma-chrome-launcher',
+            'karma-phantomjs-launcher'
         ]
 
     })

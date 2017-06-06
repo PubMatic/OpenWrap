@@ -22,6 +22,8 @@ var stripCode = require('gulp-strip-code');
 var eslint = require('gulp-eslint');
 var karmaServer = require('karma').Server;
 
+var CI_MODE = process.env.NODE_ENV === 'ci';
+
 
 gulp.task('clean', function() {
     return gulp.src(['dist/**/*.js', 'build/'], {
@@ -30,7 +32,9 @@ gulp.task('clean', function() {
         .pipe(clean());
 });
 
-gulp.task('webpack', function() {
+
+// What all processing needs to be done ?
+gulp.task('webpack', ['clean'], function() {
 
     // change output filename if argument --tag given
     if (argv.tag && argv.tag.length) {
@@ -47,30 +51,34 @@ gulp.task('webpack', function() {
         //.pipe(header(banner, { prebid: prebid }))
         .pipe(optimizejs())
         .pipe(gulp.dest('build/dist'))
-        .pipe(connect.reload())
+        // .pipe(connect.reload())
     ;
 });
 
 
+// Test all code without private functions
 gulp.task('test', ['unexpose'], function (done) {
-  new karmaServer({
-    configFile: __dirname + '/karma.conf.dev.js',
-    singleRun: true
-  }, function (done) {
-      gulp.src('temp', {
+    var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
+    new karmaServer({
+        browsers: defaultBrowsers,
+        configFile: __dirname + '/karma.conf.dev.js',
+        singleRun: true
+    }, function (done) {
+        gulp.src('temp', {
             read: true
         })
-        .pipe(clean());
-  }).start();
+        .pipe(clean())
+    }).start();
 });
 
+
+// Test all code including private functions
 gulp.task('testall', function (done) {
   new karmaServer({
     configFile: __dirname + '/karma.conf.js',
     singleRun: true
   }, done).start();
 });
-
 
 
 // Small task to load coverage reports in the browser
@@ -102,6 +110,8 @@ gulp.task('unexpose', function() {
         .pipe(gulp.dest('./temp/'));
 });
 
+
+// Code linting with eslint
 gulp.task('lint', () => {
   return gulp.src([
         'src_new/**/*.js',
@@ -113,6 +123,7 @@ gulp.task('lint', () => {
 });
 
 
+// Todo: is required ?
 gulp.task('mocha', ['webpack', 'lint'], function() {
     return gulp.src(['test/**/*.spec.js'], { read: false })
         .pipe(mocha({
@@ -128,4 +139,12 @@ gulp.task('mocha', ['webpack', 'lint'], function() {
 // demo usage of yargs
 gulp.task('demo', function () {
     console.log("argv ==>", argv);
+});
+
+
+gulp.task('buildcerebro', function () {
+    console.log("Executing buildcerebro"); 
+    return gulp.src(['cerebroheader.js','prebid.js','./build/dist/owt.js'])
+        .pipe(concat('cerebro.js'))
+        .pipe(gulp.dest('build'));
 });
