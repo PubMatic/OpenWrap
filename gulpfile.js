@@ -59,7 +59,7 @@ gulp.task('webpack', function() {
     //const analyticsSources = helpers.getAnalyticsSources(analyticsDirectory);
     return gulp.src([].concat('src_new/owt.js'))
         .pipe(webpack(webpackConfig))
-        .pipe(replace('$prebid.version$', '11'))
+        //.pipe(replace('$prebid.version$', '11'))
         //.pipe(uglify())
         //.pipe(header(banner, { prebid: prebid }))
         .pipe(optimizejs())
