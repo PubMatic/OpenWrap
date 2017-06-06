@@ -1,6 +1,7 @@
 /* global describe, it, xit, sinon, expect */
 
 var GPT = require("../../src_new/controllers/gpt.js");
+var UTIL = require("../../src_new/util.js");
 
 var should = require("chai").should();
 
@@ -107,14 +108,24 @@ describe("CONTROLLER: GPT", function() {
 
 	});
 
-    //todo
-	describe("#defineGPTVariables()", function() {
-
-		it("should return false when the object passed is object and PWT property is set and jsLoaded is set to function and the function is called", function() {
-			GPT.callJsLoadedIfRequired(_test).should.equal(true) && flag.should.equal(true);
+	describe("#defineGPTVariables()", function() {		
+		it("should return false when the null is passed", function() {
+			GPT.defineGPTVariables(null).should.equal(false);
 		});
 
-	});
+		var x = {};
+		it("should return true when the object passed is valid", function() {
+			GPT.defineGPTVariables(x).should.equal(true) &&  UTIL.isObject(x.googletag) && UTIL.isArray(x.googletag.cmd);
+		});
 
+		var x = {
+			googletag: {
+				cmd: [1, 2, 3]
+			}
+		};
+		it("should return true when the googletag.cmd is already defined", function() {
+			GPT.defineGPTVariables(x).should.equal(true) &&  UTIL.isObject(x.googletag) && UTIL.isArray(x.googletag.cmd) && x.googletag.cmd.length.should.equal(3);
+		});
+	});
 
 });
