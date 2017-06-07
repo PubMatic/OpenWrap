@@ -108,19 +108,31 @@ Slot.prototype.getPubAdServerObject = function(){
 Slot.prototype.setDisplayFunctionCalled = function(value){
 	this.displayFunctionCalled = value;
 	return this;
-}
+};
 
 Slot.prototype.isDisplayFunctionCalled = function(){
 	return this.displayFunctionCalled;
-}
+};
 
 Slot.prototype.setRefreshFunctionCalled = function(value){
 	this.refreshFunctionCalled = value;
 	return this;
-}
+};
 
 Slot.prototype.isRefreshFunctionCalled = function(){
 	return this.refreshFunctionCalled;
+};
+
+
+Slot.prototype.updateStatusAfterRendering = function(isRefreshCalled){
+	this.status = CONSTANTS.SLOT_STATUS.DISPLAYED;
+	this.arguments = [];
+	if(isRefreshCalled){
+		this.refreshFunctionCalled = false;
+	}else{
+		this.displayFunctionCalled = false;
+	}
+
 }
 
 exports.createSlot = function(adapterID, kgpv){
