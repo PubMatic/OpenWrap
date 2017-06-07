@@ -214,7 +214,7 @@ function getStatusOfSlotForDivId(divID){
 	}
 	*/
 	if( util.isOwnProperty(slotsMap, divID) ){
-		slotsMap[divID].getStatus();	
+		return slotsMap[divID].getStatus();	
 	}
 	return CONSTANTS.SLOT_STATUS.DISPLAYED;
 }
