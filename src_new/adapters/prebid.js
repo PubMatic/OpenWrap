@@ -70,19 +70,19 @@ function generatePbConf(pbAdapterID, adapterConfig, activeSlots, adUnits){
 		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP], 
 		function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){					
 			
-			var code, sizes;
+			var code, sizes, divID = currentSlot.getDivID();
 
 			if(kgpConsistsWidthAndHeight){
-				code = currentSlot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID] + "@" + adapterIdInPreBid + "@" + currentWidth + "X" + currentHeight;
+				code = divID + "@" + adapterIdInPreBid + "@" + currentWidth + "X" + currentHeight;
 				sizes = [[currentWidth, currentHeight]];
 			}else{
-				code = currentSlot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID];
-				sizes = currentSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES];
+				code = divID;
+				sizes = currentSlot.getSizes();
 			}
 
 			kgpvMap [ code ] = {
 				kgpv: generatedKey,
-				divID: currentSlot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID]	
+				divID: divID	
 			};
 		
 			if(!util.isOwnProperty(adUnits, code)){
@@ -133,6 +133,7 @@ function fetchBids(activeSlots){
 
 		if(util.isFunction(window.pbjs.requestBids)){
 			//pbjs.addAdUnits(adUnitsArray);
+			pbjs.logging = true;//todo: enable optionally
 			window.pbjs.requestBids({
 				adUnits: adUnitsArray,
 				bidsBackHandler: function(bidResponses) {
