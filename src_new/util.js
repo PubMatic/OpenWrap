@@ -160,23 +160,25 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 	var slotNames = [],
 		slotName,
 		slotNamesObj = {},
+		sizeArray,
 		sizeArrayLength,
 		i
 		;
   
-	if(activeSlot && activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES]){
-		sizeArrayLength = activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES].length;
+	if(this.isObject(activeSlot) && this.isFunction(activeSlot.getSizes)){
+		sizeArray = activeSlot.getSizes();
+		sizeArrayLength = sizeArray.length;
 		if( sizeArrayLength > 0){
 			for(i = 0; i < sizeArrayLength; i++){
-				if(activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES][i][0] && activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES][i][1]){
+				if(sizeArray[i][0] && sizeArray[i][1]){
 
 					slotName = pattern;
-					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, activeSlot[CONSTANTS.SLOT_ATTRIBUTES.AD_UNIT_ID])
-                    .replace(constCommonMacroForWidthRegExp, activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES][i][0])
-                    .replace(constCommonMacroForHeightRegExp, activeSlot[CONSTANTS.SLOT_ATTRIBUTES.SIZES][i][1])
-                    .replace(constCommonMacroForAdUnitIndexRegExp, activeSlot[CONSTANTS.SLOT_ATTRIBUTES.AD_UNIT_INDEX])
+					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, activeSlot.getAdUnitID())
+                    .replace(constCommonMacroForWidthRegExp, sizeArray[i][0])
+                    .replace(constCommonMacroForHeightRegExp, sizeArray[i][1])
+                    .replace(constCommonMacroForAdUnitIndexRegExp, activeSlot.getAdUnitIndex())
                     .replace(constCommonMacroForIntegerRegExp, this.getIncrementalInteger())
-                    .replace(constCommonMacroForDivRegExp, activeSlot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID]);
+                    .replace(constCommonMacroForDivRegExp, activeSlot.getDivID());
 
 					if(! this.isOwnProperty(slotNamesObj, slotName)){
 						slotNamesObj[slotName] = "";
@@ -234,12 +236,14 @@ exports.forEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, act
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 		for(i = 0; i < activeSlotsLength; i++){
-			generatedKeys = this.generateSlotNamesFromPattern( activeSlots[i], keyGenerationPattern );
+			var activeSlot = activeSlots[i];
+			generatedKeys = this.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
 			generatedKeysLength = generatedKeys.length;
 			for(j = 0; j < generatedKeysLength; j++){
 				var generatedKey = generatedKeys[j],
 					keyConfig = null,
-					callHandlerFunction = false
+					callHandlerFunction = false,
+					sizeArray = activeSlot.getSizes()
 					;
 
 				if(keyLookupMap == null){
@@ -260,16 +264,16 @@ exports.forEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, act
 					if(addZeroBids == true){
 						var bid = BID.createBid(adapterID, generatedKey);
 						bid.setDefaultBidStatus(1);
-						bidManager.setBidFromBidder(activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], bid);
+						bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
 					}
 
 					handlerFunction(
 						generatedKey, 
 						kgpConsistsWidthAndHeight, 
-						activeSlots[i], 
+						activeSlot, 
 						keyLookupMap ? keyLookupMap[generatedKey] : null, 
-						activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.SIZES][j][0], 
-						activeSlots[i][CONSTANTS.SLOT_ATTRIBUTES.SIZES][j][1]
+						sizeArray[j][0], 
+						sizeArray[j][1]
 					);
 				}
 			}
