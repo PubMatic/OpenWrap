@@ -140,25 +140,10 @@ function storeInSlotsMap (dmSlotName, currentGoogleSlot, isDisplayFlow){
 		setAdUnitIndex(getAdUnitIndex(currentGoogleSlot)).
 		setSizes(getAdSlotSizesArray(dmSlotName, currentGoogleSlot)).
 		setStatus(CONSTANTS.SLOT_STATUS.CREATED);
-
-		/*
-		slotsMap[dmSlotName] = SLOT.createSlot(dmSlotName);
-		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID] 						= dmSlotName;
-		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.SLOT_OBJECT] 				= currentGoogleSlot;
-		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.AD_UNIT_ID] 					= currentGoogleSlot.getAdUnitPath();
-		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.AD_UNIT_INDEX] 				= getAdUnitIndex(currentGoogleSlot);
-		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.SIZES] 						= getAdSlotSizesArray(dmSlotName, currentGoogleSlot);
-		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.STATUS] 						= CONSTANTS.SLOT_STATUS.CREATED;
-		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.DISPLAY_FUNCTION_CALLED] 	= false;
-		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED] 	= false;
-		slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS]					= [];
-		//slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.POSITION]					= utilFindPosition(dmSlotName);//todo
-		*/
+		// todo: find and set position
 	
-		if(sendTargetingInfoIsSet && JSON && typeof JSON.stringify == "function"){//todo changes
-			//slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.KEY_VALUE] = {};
+		if(sendTargetingInfoIsSet && util.isObject(JSON) && util.isFunction(JSON.stringify)){
 			util.forEachOnArray(currentGoogleSlot.getTargetingKeys(), function(index, value){
-				//slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.KEY_VALUE][key] = currentGoogleSlot.getTargeting( key );
 				slot.setKeyValue(value, currentGoogleSlot.getTargeting(value));
 			});
 		}
@@ -167,8 +152,7 @@ function storeInSlotsMap (dmSlotName, currentGoogleSlot, isDisplayFlow){
 		//todo
 		//utilCreateVLogInfoPanel(dmSlotName, slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.SIZES]);
 	}else{
-		if(!isDisplayFlow){
-			//slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.SIZES] = getAdSlotSizesArray(dmSlotName, currentGoogleSlot);
+		if(!isDisplayFlow){			
 			slotsMap[dmSlotName].setSizes(getAdSlotSizesArray(dmSlotName, currentGoogleSlot));
 		}
 	}
@@ -187,18 +171,9 @@ function generateSlotName(googleSlot){
 function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow){
 	util.log("Generating slotsMap");	
 	util.forEachOnArray(googleSlotsArray, function(index, currentGoogleSlot){
-		var dmSlotName = generateSlotName(currentGoogleSlot);// here divID will be the key
+		var dmSlotName = generateSlotName(currentGoogleSlot);
 		storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow);
 		if(isDisplayFlow && util.isOwnProperty(slotsMap, dmSlotName)){
-			/*
-			var divIdFromDisplayFunction = argumentsFromCallingFunction[0];
-			// if display function is called for this slot only
-			if( divIdFromDisplayFunction && divIdFromDisplayFunction == slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.DIV_ID] ){					
-				// mark that display function for this slot has been called
-				slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.DISPLAY_FUNCTION_CALLED] = true;
-				slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = argumentsFromCallingFunction;
-			}
-			*/
 			setDisplayFunctionCalledIfRequired(slotsMap[dmSlotName], argumentsFromCallingFunction);
 		}	
 	});
@@ -207,25 +182,14 @@ function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFun
 
 //todo: pass slotsMap in every function that uses it
 function getStatusOfSlotForDivId(divID){
-	/*
-	var key = CONSTANTS.SLOT_ATTRIBUTES.STATUS;	
-	if( util.isOwnProperty(slotsMap, divID) && util.isOwnProperty(slotsMap[divID], key)){
-		return slotsMap[divID][key];
-	}
-	*/
 	if( util.isOwnProperty(slotsMap, divID) ){
-		return slotsMap[divID].getStatus();	
+		return slotsMap[divID].getStatus();
 	}
 	return CONSTANTS.SLOT_STATUS.DISPLAYED;
 }
 
 function updateStatusAfterRendering(divID, isRefreshCall){
-	if(util.isOwnProperty(slotsMap, divID)){		
-		/*
-		slotsMap[divID][ CONSTANTS.SLOT_ATTRIBUTES.STATUS ] = CONSTANTS.SLOT_STATUS.DISPLAYED;
-		slotsMap[divID][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = [];
-		slotsMap[divID][ isRefreshCall ? CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED : CONSTANTS.SLOT_ATTRIBUTES.DISPLAY_FUNCTION_CALLED ] = false;
-		*/
+	if(util.isOwnProperty(slotsMap, divID)){
 		slotsMap[divID].updateStatusAfterRendering(isRefreshCall);
 	}
 }
@@ -233,7 +197,6 @@ function updateStatusAfterRendering(divID, isRefreshCall){
 function getSlotNamesByStatus(statusObject){
 	var slots = [];
 	util.forEachOnObject(slotsMap, function(key, slot){
-		//if( util.isOwnProperty(statusObject, slot[CONSTANTS.SLOT_ATTRIBUTES.STATUS]) ){
 		if( util.isOwnProperty(statusObject, slot.getStatus() )){	
 			slots.push(key);
 		}
@@ -262,14 +225,10 @@ function removeDMTargetingFromSlot(key){
 function updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, argumentsFromCallingFunction, isRefreshCall){
 	util.forEachOnArray(slotNames, function(index, slotName){
 		if(util.isOwnProperty(slotsMap, slotName)){
-			//slotsMap[ slotName ][CONSTANTS.SLOT_ATTRIBUTES.STATUS] = CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
 			var slot = slotsMap[ slotName ];
 			slot.setStatus(CONSTANTS.SLOT_STATUS.PARTNERS_CALLED);			
 			if( isRefreshCall ){
 				removeDMTargetingFromSlot( slotName );
-				//can be moved to a function				
-				//slotsMap[ slotName ][CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED] = true;					
-				//slotsMap[ slotName ][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = argumentsFromCallingFunction;
 				slot.setRefreshFunctionCalled(true).setArguments([]);
 			}
 		}
@@ -288,8 +247,6 @@ function findWinningBidAndApplyTargeting(divID){
 	var data = bidManager.getBid(divID);
 	var winningBid = data.wb || null;
 	var keyValuePairs = data.kvp || null;
-
-	//var googleDefinedSlot = slotsMap[ divID ][CONSTANTS.SLOT_ATTRIBUTES.SLOT_OBJECT];
 	var googleDefinedSlot = slotsMap[ divID ].getPubAdServerObject();
 	
 	// todo: do we need to consider any other PB key ?
@@ -305,9 +262,7 @@ function findWinningBidAndApplyTargeting(divID){
 	util.log(winningBid);
 	
 	if(winningBid && winningBid.getNetEcpm() > 0){
-		//slotsMap[ divID ][CONSTANTS.SLOT_ATTRIBUTES.STATUS] = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
 		slotsMap[ divID ].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
-
 		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID, winningBid.getBidID());
 		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS, winningBid.getStatus());
 		googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
@@ -543,9 +498,7 @@ function newAddHookOnGoogletagDisplay(localGoogletag){
 }
 
 function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue){
-	if( util.isOwnProperty(slotsMap, slotName) 		
-		//&& slotsMap[slotName][CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED] == true 
-		//&& slotsMap[slotName][CONSTANTS.SLOT_ATTRIBUTES.STATUS] != CONSTANTS.SLOT_STATUS.DISPLAYED ){
+	if( util.isOwnProperty(slotsMap, slotName) 
 		&& slotsMap[slotName].isRefreshFunctionCalled === true	
 		&& slotsMap[slotName].getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED ){
 	
@@ -722,5 +675,3 @@ exports.init = function(win){
 		return false;
 	}
 };
-
-// todo: create a slot class
