@@ -157,9 +157,9 @@ function storeInSlotsMap (dmSlotName, currentGoogleSlot, isDisplayFlow){
 	
 		if(sendTargetingInfoIsSet && JSON && typeof JSON.stringify == "function"){//todo changes
 			//slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.KEY_VALUE] = {};
-			util.forEachOnArray(currentGoogleSlot.getTargetingKeys(), function(key){
+			util.forEachOnArray(currentGoogleSlot.getTargetingKeys(), function(index, value){
 				//slotsMap[dmSlotName][CONSTANTS.SLOT_ATTRIBUTES.KEY_VALUE][key] = currentGoogleSlot.getTargeting( key );
-				slot.setKeyValue(key, currentGoogleSlot.getTargeting(key));
+				slot.setKeyValue(value, currentGoogleSlot.getTargeting(value));
 			});
 		}
 
@@ -220,7 +220,7 @@ function getStatusOfSlotForDivId(divID){
 }
 
 function updateStatusAfterRendering(divID, isRefreshCall){
-	if( util.isOwnProperty(slotsMap, divID)){		
+	if(util.isOwnProperty(slotsMap, divID)){		
 		/*
 		slotsMap[divID][ CONSTANTS.SLOT_ATTRIBUTES.STATUS ] = CONSTANTS.SLOT_STATUS.DISPLAYED;
 		slotsMap[divID][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = [];
@@ -234,7 +234,7 @@ function getSlotNamesByStatus(statusObject){
 	var slots = [];
 	util.forEachOnObject(slotsMap, function(key, slot){
 		//if( util.isOwnProperty(statusObject, slot[CONSTANTS.SLOT_ATTRIBUTES.STATUS]) ){
-		if( util.isOwnProperty(statusObject, slot.getStatus() ){	
+		if( util.isOwnProperty(statusObject, slot.getStatus() )){	
 			slots.push(key);
 		}
 	});
