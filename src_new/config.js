@@ -42,6 +42,20 @@ exports.config = {
 						spaceId: 14071
 					}
 				}
+			},
+			PB_appnexus: {
+				rev_share: "0.0",
+				timeout: "2000",
+				throttle: "100",
+				kgp: "_DIV_",
+				klm: {
+					"Div_1": {
+						placementId: '8801674'
+					},
+					"Div-2": {
+						placementId: '8801685'
+					}
+				}
 			}
 		}
 	}
