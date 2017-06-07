@@ -12,10 +12,9 @@ var sendTargetingInfoIsSet = true;
 //todo: combine these maps
 var wrapperTargetingKeys = {}; // key is div id
 var slotSizeMapping = {}; // key is div id
-var slotsMap = {};			// key is div id, stores the mapping of divID ==> googletag.slot
+var slotsMap = {};	// key is div id, stores the mapping of divID ==> googletag.slot
 
 var GPT_targetingMap = {};
-
 var windowReference = null;
 
 function setWindowReference(win){

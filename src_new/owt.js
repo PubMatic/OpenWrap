@@ -14,7 +14,6 @@ window.PWT = window.PWT || {
 };
 
 //todo: set pageURL and refURL using one func call
-
 window.PWT["cDebug"] = util.findInString(window.PWT.pageURL, "");
 window.PWT["vDebug"] = util.findInString(window.PWT.pageURL, "");
 

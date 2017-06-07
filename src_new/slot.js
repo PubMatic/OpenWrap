@@ -1,5 +1,5 @@
 var CONSTANTS = require("./constants.js");
-var UTIL = require("./util.js");
+//var UTIL = require("./util.js");
 
 function Slot(name){
 	this.name = name;
@@ -133,8 +133,8 @@ Slot.prototype.updateStatusAfterRendering = function(isRefreshCalled){
 		this.displayFunctionCalled = false;
 	}
 
-}
+};
 
-exports.createSlot = function(adapterID, kgpv){
+exports.createSlot = function(name){
 	return new Slot(name);
 };

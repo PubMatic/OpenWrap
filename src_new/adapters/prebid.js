@@ -133,7 +133,7 @@ function fetchBids(activeSlots){
 
 		if(util.isFunction(window.pbjs.requestBids)){
 			//pbjs.addAdUnits(adUnitsArray);
-			pbjs.logging = true;//todo: enable optionally
+			window.pbjs.logging = true;//todo: enable optionally
 			window.pbjs.requestBids({
 				adUnits: adUnitsArray,
 				bidsBackHandler: function(bidResponses) {

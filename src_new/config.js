@@ -50,10 +50,10 @@ exports.config = {
 				kgp: "_DIV_",
 				klm: {
 					"Div_1": {
-						placementId: '8801674'
+						placementId: "8801674"
 					},
 					"Div-2": {
-						placementId: '8801685'
+						placementId: "8801685"
 					}
 				}
 			}

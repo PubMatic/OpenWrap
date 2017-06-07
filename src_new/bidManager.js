@@ -2,6 +2,7 @@ var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
 //var PWT = require("./owt").PWT;
+var PWT = window.PWT;
 //PWT.bidIdMap = {}; // bidID => {slotID, adapterID}
 
 var bid = "bid";
