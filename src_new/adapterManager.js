@@ -33,9 +33,10 @@ function callAdapter(adapters, slots, impressionID){
 // todo: where this function should go ? move to bidManager
 function resetSlots(slots, impressionID){
 	util.forEachOnObject(slots, function(key, slot){
-		var divID = slot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID];
+		var divID = slot.getDivID();
 		bidManager.resetBid(divID, impressionID);
-		bidManager.setSizes(divID, util.generateSlotNamesFromPattern(slot, "_W_x_H_"));	
+		bidManager.setSizes(divID, util.generateSlotNamesFromPattern(slot, "_W_x_H_"));
+		//todo: why don't we pass the sizes array as it is
 	});
 }
 
@@ -46,7 +47,7 @@ function throttleAdapter(randomNumber, adapterID){
 // todo: where this function should go ? move to bidManager
 function setInitTimeForSlotsForAdapter(slots, adapterID){
 	util.forEachOnObject(slots, function(j, slot){
-		bidManager.setCallInitTime(slot[CONSTANTS.SLOT_ATTRIBUTES.DIV_ID], adapterID);
+		bidManager.setCallInitTime(slot.getDivID(), adapterID);
 	});
 }
 
