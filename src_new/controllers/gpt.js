@@ -149,10 +149,20 @@ function storeInSlotsMap (dmSlotName, currentGoogleSlot, isDisplayFlow){
 	}
 }
 
+function generateSlotName(googleSlot){
+	if(util.isObject(googleSlot) && util.isFunction(googleSlot.getSlotId)){
+		var slotID = googleSlot.getSlotId();
+		if(slotID && util.isFunction(slotID.getDomId)){
+			return slotID.getDomId();
+		}
+	}
+	return "";
+}
+
 function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow){
 	util.log("Generating slotsMap");	
 	util.forEachOnArray(googleSlotsArray, function(index, currentGoogleSlot){
-		var dmSlotName = currentGoogleSlot.getSlotId().getDomId();// here divID will be the key
+		var dmSlotName = generateSlotName(currentGoogleSlot);// here divID will be the key
 		storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow);
 		if(isDisplayFlow){
 			var divIdFromDisplayFunction = argumentsFromCallingFunction[0];
@@ -355,7 +365,7 @@ function newDestroySlotsFunction(theObject, originalFunction){
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){
 		return function(){
 			util.forEachOnArray(arguments[0] || [], function(index, slot){
-				delete slotsMap[slot.getSlotId().getDomId()];
+				delete slotsMap[generateSlotName(slot)];
 			});
 			return originalFunction.apply(theObject, arguments);
 		};
@@ -535,7 +545,7 @@ function getQualifyingSlotNamesForRefresh(arg, theObject){
 		slotsToConsider = arg[0] == null ? theObject.getSlots() : arg[0];
 	}
 	util.forEachOnArray(slotsToConsider, function(index, slot){
-		qualifyingSlotNames = qualifyingSlotNames.concat( slot.getSlotId().getDomId() );
+		qualifyingSlotNames = qualifyingSlotNames.concat( generateSlotName(slot) );
 	});
 	return qualifyingSlotNames;
 }
@@ -569,7 +579,7 @@ function newRefreshFuncton(theObject, originalFunction){
 function newSizeMappingFunction(theObject, originalFunction){
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){	
 		return function(){
-			slotSizeMapping[ theObject.getSlotId().getDomId() ] = arguments[0];
+			slotSizeMapping[ generateSlotName(theObject) ] = arguments[0];
 			return originalFunction.apply(theObject, arguments);
 		};
 	}else{
