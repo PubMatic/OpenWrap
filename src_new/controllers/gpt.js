@@ -18,7 +18,9 @@ var GPT_targetingMap = {};
 var windowReference = null;
 
 function setWindowReference(win){
-	windowReference = win;
+	if(util.isObject(win)){
+		windowReference = win;
+	}
 }
 /* start-test-block */
 exports.setWindowReference = setWindowReference;
@@ -27,6 +29,9 @@ exports.setWindowReference = setWindowReference;
 function getWindowReference(){
 	return windowReference;
 }
+/* start-test-block */
+exports.getWindowReference = getWindowReference;
+/* end-test-block */
 
 function getAdUnitIndex(currentGoogleSlot){
 	var index = 0;
@@ -164,16 +169,19 @@ function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFun
 
 //todo: pass slotsMap in every function that uses it
 function getStatusOfSlotForDivId(divID){
-	if( util.isOwnProperty(slotsMap, divID) ){
-		return slotsMap[divID][CONSTANTS.SLOT_ATTRIBUTES.STATUS];
+	var key = CONSTANTS.SLOT_ATTRIBUTES.STATUS;
+	if( util.isOwnProperty(slotsMap, divID) && util.isOwnProperty(slotsMap[divID], key)){
+		return slotsMap[divID][key];
 	}
 	return CONSTANTS.SLOT_STATUS.DISPLAYED;
 }
 
 function updateStatusAfterRendering(divID, isRefreshCall){
-	slotsMap[divID][ CONSTANTS.SLOT_ATTRIBUTES.STATUS ] = CONSTANTS.SLOT_STATUS.DISPLAYED;
-	slotsMap[divID][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = [];
-	slotsMap[divID][ isRefreshCall ? CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED : CONSTANTS.SLOT_ATTRIBUTES.DISPLAY_FUNCTION_CALLED ] = false;
+	if( util.isOwnProperty(slotsMap, divID)){
+		slotsMap[divID][ CONSTANTS.SLOT_ATTRIBUTES.STATUS ] = CONSTANTS.SLOT_STATUS.DISPLAYED;
+		slotsMap[divID][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = [];
+		slotsMap[divID][ isRefreshCall ? CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED : CONSTANTS.SLOT_ATTRIBUTES.DISPLAY_FUNCTION_CALLED ] = false;
+	}
 }
 
 function getSlotNamesByStatus(statusObject){
@@ -206,11 +214,14 @@ function removeDMTargetingFromSlot(key){
 
 function updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, argumentsFromCallingFunction, isRefreshCall){
 	util.forEachOnArray(slotNames, function(index, slotName){
-		slotsMap[ slotName ][CONSTANTS.SLOT_ATTRIBUTES.STATUS] = CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
-		if( isRefreshCall ){
-			removeDMTargetingFromSlot( slotName );
-			slotsMap[ slotName ][CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED] = true;					
-			slotsMap[ slotName ][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = argumentsFromCallingFunction;
+		if(util.isOwnProperty(slotsMap, slotName)){
+			slotsMap[ slotName ][CONSTANTS.SLOT_ATTRIBUTES.STATUS] = CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
+			if( isRefreshCall ){
+				removeDMTargetingFromSlot( slotName );
+				//can be moved to a function
+				slotsMap[ slotName ][CONSTANTS.SLOT_ATTRIBUTES.REFRESH_FUNCTION_CALLED] = true;					
+				slotsMap[ slotName ][CONSTANTS.SLOT_ATTRIBUTES.ARGUMENTS] = argumentsFromCallingFunction;
+			}
 		}
 	});	
 }
@@ -616,7 +627,7 @@ exports.defineGPTVariables = defineGPTVariables;
 /* end-test-block */
 
 function addHooksIfPossible(win){
-	if(util.isUndefined(win.google_onload_fired) && win.googletag && win.googletag.cmd && util.isFunction(win.googletag.cmd.unshift)){
+	if(util.isUndefined(win.google_onload_fired) && util.isObject(win.googletag) && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)){
 		util.log("Succeeded to load before GPT");
 		win.googletag.cmd.unshift( function(){ 
 			util.log("OpenWrap initialization started");
