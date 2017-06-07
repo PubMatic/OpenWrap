@@ -129,6 +129,21 @@ describe("CONTROLLER: GPT", function() {
 		});
 	});
 
+	describe("#setWindowReference()", function(){
+
+		it("should not set WindowReference if argument is not object", function() {
+			GPT.setWindowReference(0);
+			expect(GPT.getWindowReference() === null).to.equal(true);
+		});
+
+		it("should set WindowReference if argument is object", function() {
+			var x = {a:0};
+			GPT.setWindowReference(x);
+			var y = GPT.getWindowReference();
+			expect(UTIL.isOwnProperty(y, 'a') && y.a === x.a).to.equal(true);
+		});
+	});
+
 	describe("#init()", function(){
 
 		it("should return false when the null is passed", function() {
@@ -163,7 +178,6 @@ describe("CONTROLLER: GPT", function() {
 	});
 
 	describe("#defineWrapperTargetingKeys()", function(){
-
 	});
 
 
