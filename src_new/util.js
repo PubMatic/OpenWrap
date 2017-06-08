@@ -92,10 +92,11 @@ exports.getUniqueIdentifierStr = function() {
 };
 
 exports.copyKeyValueObject = function(copyTo, copyFrom){
-	if(this.isObject(copyTo) && this.isObject(copyFrom)){		
+	if(this.isObject(copyTo) && this.isObject(copyFrom)){
+		var utilRef = this;
 		this.forEachOnObject(copyFrom, function(key, value){
-			copyFrom[key] = this.isArray(value) ? value : [value];
-			if(this.isOwnProperty(copyTo, key)){
+			copyFrom[key] = utilRef.isArray(value) ? value : [value];
+			if(utilRef.isOwnProperty(copyTo, key)){
 				copyTo[key].push.apply(copyTo[key], value);
 			}else{
 				copyTo[key] = value;
