@@ -8,21 +8,24 @@ var PWT = window.PWT;
 var bid = "bid";
 var stringBidders = "bidsFromBidders";
 var constCommonLastBidID = "lastbidid";
+var stringBidSizes = "adSlotSizes";
+var stringBidCreationTime = "creationTime";
+var stringBidCallInitiatedTime = "callInitiatedTime";
 
 function createBidEntry(divID){
 	var temp;
 	if(! util.isOwnProperty(PWT.bidMap, divID) ){
 		temp = {};
 		temp[stringBidders] = {};
-		temp[CONSTANTS.SLOT_ATTRIBUTES.SIZES] = [];
-		temp[CONSTANTS.BID_ATTRIBUTES.CREATION_TIME] = util.getCurrentTimestampInMs();
+		temp[stringBidSizes] = [];
+		temp[stringBidCreationTime] = util.getCurrentTimestampInMs();
 		PWT.bidMap[divID] = temp;
 	}
 }
 
 exports.setSizes = function(divID, slotSizes){
 	createBidEntry(divID);
-	PWT.bidMap[divID][CONSTANTS.SLOT_ATTRIBUTES.SIZES] = slotSizes;
+	PWT.bidMap[divID][stringBidSizes] = slotSizes;
 };
 
 exports.setCallInitTime = function(divID, bidderID){
@@ -31,7 +34,7 @@ exports.setCallInitTime = function(divID, bidderID){
 		PWT.bidMap[divID][stringBidders][bidderID] = {};
 	}
 	var timestamp = util.getCurrentTimestampInMs();
-	PWT.bidMap[divID][stringBidders][bidderID][CONSTANTS.BID_ATTRIBUTES.CALL_INITIATED_TIME] = timestamp;
+	PWT.bidMap[divID][stringBidders][bidderID][stringBidCallInitiatedTime] = timestamp;
 	util.log(CONSTANTS.MESSAGES.M4+divID + " "+bidderID+" "+timestamp);
 };
 
@@ -47,7 +50,7 @@ exports.setBidFromBidder = function(divID, bidDetails){
 
 	var currentTime = util.getCurrentTimestampInMs(),
 		// move to a function
-		isPostTimeout = (PWT.bidMap[divID][CONSTANTS.BID_ATTRIBUTES.CREATION_TIME]+CONFIG.getTimeout()) < currentTime ? true : false
+		isPostTimeout = (PWT.bidMap[divID][stringBidCreationTime]+CONFIG.getTimeout()) < currentTime ? true : false
 	;
 
 	createBidEntry(divID);
@@ -56,7 +59,7 @@ exports.setBidFromBidder = function(divID, bidDetails){
 		PWT.bidMap[divID][stringBidders][bidderID] = {};
 	}		
 
-	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", "+ CONSTANTS.BID_ATTRIBUTES.POST_TIMEOUT + ": "+isPostTimeout);
+	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", postTimeout: "+isPostTimeout);
 	
 	bidDetails.setReceivedTime(currentTime);
 	if(isPostTimeout === true){
@@ -92,7 +95,7 @@ exports.setBidFromBidder = function(divID, bidDetails){
 						type: bid,
 						bidder: bidderID + (CONFIG.getBidPassThroughStatus(bidderID) !== 0 ? '(PT)' : ''),
 						bidDetails: bidDetails,
-						startTime: PWT.bidMap[divID][CONSTANTS.BID_ATTRIBUTES.CREATION_TIME],
+						startTime: PWT.bidMap[divID][stringBidCreationTime],
 						endTime: currentTime
 					});*/
 				}
@@ -119,7 +122,7 @@ exports.setBidFromBidder = function(divID, bidDetails){
 				type: bid,
 				bidder: bidderID + (CONFIG.getBidPassThroughStatus(bidderID) !== 0 ? '(PT)' : ''),
 				bidDetails: bidDetails,
-				startTime: PWT.bidMap[divID][CONSTANTS.BID_ATTRIBUTES.CREATION_TIME],
+				startTime: PWT.bidMap[divID][stringBidCreationTime],
 				endTime: currentTime
 			});*/
 		}	
@@ -277,14 +280,14 @@ exports.executeAnalyticsPixel = function(){
 			continue;
 		}
 
-		var startTime = PWT.bidMap[key][CONSTANTS.BID_ATTRIBUTES.CREATION_TIME];
+		var startTime = PWT.bidMap[key][stringBidCreationTime];
 		if(util.isOwnProperty(PWT.bidMap, key) && PWT.bidMap[key].exp !== false && PWT.bidMap[key]["ae"] === true ){
 
 			PWT.bidMap[key].exp = false;
 
 			var slotObject = {
 				"sn": key,
-				"sz": PWT.bidMap[key][CONSTANTS.SLOT_ATTRIBUTES.SIZES],
+				"sz": PWT.bidMap[key][stringBidSizes],
 				"ps": []
 			};
 
