@@ -22,7 +22,7 @@ var stripCode = require('gulp-strip-code');
 var eslint = require('gulp-eslint');
 var karmaServer = require('karma').Server;
 
-var CI_MODE = (argv.mode ==== 'ci') ? true : false;
+var CI_MODE = (argv.mode === 'ci') ? true : false;
 
 
 gulp.task('clean', function() {
