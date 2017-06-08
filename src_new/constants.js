@@ -50,30 +50,6 @@ exports.SLOT_STATUS = {
 	"DISPLAYED": 3
 };
 
-exports.SLOT_ATTRIBUTES = {
-	"SLOT_OBJECT": "adSlot",
-	"SIZES": "adSlotSizes",
-	"AD_UNIT_ID": "adUnitID",
-	"AD_UNIT_INDEX": "adUnitIndex",
-	"DIV_ID": "divID",
-	"STATUS": "status",
-	"DISPLAY_FUNCTION_CALLED": "displayFunctionCalled",
-	"REFRESH_FUNCTION_CALLED": "refreshFunctionCalled",
-	"ARGUMENTS": "arguments",
-	"POSITION": "position",
-	"KEY_VALUE": "skv"
-};
-
-exports.DEAL = {
-	"ID": "id",
-	"CHANNEL": "channel",
-	"KEY_FIRST_PART": "pwtdeal_",
-	"KEY_VALUE_SEPARATOR": "_-_",
-	"CHANNEL_PMP": "PMP",
-	"CHANNEL_PMPG": "PMPG",
-	"CHANNEL_PREF": "PREF"
-};
-
 exports.WRAPPER_TARGETING_KEYS = {
 	"BID_ID": "pwtsid",
 	"BID_STATUS": "pwtbst",
@@ -83,19 +59,6 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"PUBLISHER_ID": "pwtpubid",
 	"PROFILE_ID": "pwtprofid",
 	"PROFILE_VERSION_ID": "pwtverid"
-};
-
-exports.BID_ATTRIBUTES = {
-	"CREATION_TIME": "creationTime",
-	"CALL_INITIATED_TIME": "callInitiatedTime",
-	"BID_RECEIVED_TIME": "bidReceivedTime",
-	"POST_TIMEOUT": "postTimeout",
-	"DEAL": "deal",
-	"AD_HTML": "ad_html",
-	"AD_URL": "ad_url",
-	"CREATIVE_ID": "creative_id",
-	"DEFAULT_BID": "db",
-	"ACTUAL_ECPM": "aecpm"
 };
 
 //todo: mention all params here and use accordigly
