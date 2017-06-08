@@ -1,7 +1,1 @@
-@node "%~dp0yourfile.js" %*
-
-
-
-
-
-
+@node "%~dp0buildfile.js" %*

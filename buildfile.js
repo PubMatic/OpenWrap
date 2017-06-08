@@ -1,4 +1,3 @@
-#! /usr/bin/env node
 console.log("running from shell script");
 var shell = require('shelljs');
 var argv = require('yargs').argv;

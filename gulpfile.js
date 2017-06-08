@@ -22,7 +22,7 @@ var stripCode = require('gulp-strip-code');
 var eslint = require('gulp-eslint');
 var karmaServer = require('karma').Server;
 
-var CI_MODE = process.env.NODE_ENV === 'ci';
+var CI_MODE = (argv.mode ==== 'ci') ? true : false;
 
 
 gulp.task('clean', function() {
@@ -36,20 +36,25 @@ gulp.task('clean', function() {
 // What all processing needs to be done ?
 gulp.task('webpack', ['clean'], function() {
 
-    // change output filename if argument --tag given
-    if (argv.tag && argv.tag.length) {
-        webpackConfig.output.filename = 'owt.' + argv.tag + '.js';
-    }
-
     webpackConfig.devtool = null;
 
     return gulp.src('src_new/owt.js')
         .pipe(webpack(webpackConfig))
-        //.pipe(uglify())
+        .pipe(uglify())
         .pipe(optimizejs())
         .pipe(gulp.dest('build/dist'))
-        // .pipe(connect.reload())
+        .pipe(connect.reload())
     ;
+});
+
+
+gulp.task('devpack', function () {
+  webpackConfig.devtool = 'source-map';
+  
+  return gulp.src('src_new/owt.js')
+    .pipe(webpack(webpackConfig))
+    .pipe(gulp.dest('build/dev'))
+    .pipe(connect.reload());
 });
 
 
@@ -58,10 +63,11 @@ gulp.task('test', ['unexpose'], function (done) {
     var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
     new karmaServer({
         browsers: defaultBrowsers,
-        configFile: __dirname + '/karma.conf.dev.js',
+        basePath: './temp',
+        configFile: __dirname + '/karma.conf.js',
         singleRun: true
     }, function (done) {
-        gulp.src('temp', {
+        return gulp.src('temp', {
             read: true
         })
         .pipe(clean())
@@ -71,10 +77,12 @@ gulp.task('test', ['unexpose'], function (done) {
 
 // Test all code including private functions
 gulp.task('testall', function (done) {
-  new karmaServer({
-    configFile: __dirname + '/karma.conf.js',
-    singleRun: true
-  }, done).start();
+    var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
+    new karmaServer({
+        browsers: defaultBrowsers,
+        configFile: __dirname + '/karma.conf.js',
+        singleRun: true
+    }, done).start();
 });
 
 
@@ -120,9 +128,19 @@ gulp.task('lint', () => {
 });
 
 
-gulp.task('buildcerebro', function () {
-    console.log("Executing buildcerebro"); 
-    return gulp.src(['cerebroheader.js','prebid.js','./build/dist/owt.js'])
+// Task to build minified version of cerebro.js
+gulp.task('build', function () {
+    console.log("Executing build"); 
+    return gulp.src(['prebid-header.js','../Prebid.js/build/dist/prebid.js','./build/dist/owt.js'])
+        .pipe(concat('cerebro.min.js'))
+        .pipe(gulp.dest('build'));
+});
+
+
+// Task to build non-minified version of cerebro.js
+gulp.task('devbuild', function () {
+    console.log("Executing Dev Build");
+    return gulp.src(['prebid-header.js', '../Prebid.js/build/dev/prebid.js', './build/dev/owt.js'])
         .pipe(concat('cerebro.js'))
         .pipe(gulp.dest('build'));
 });
