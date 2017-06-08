@@ -2,7 +2,7 @@ var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
 //var PWT = require("./owt").PWT;
-var PWT = window.PWT;
+//var PWT = window.PWT;
 //PWT.bidIdMap = {}; // bidID => {slotID, adapterID}
 
 var bid = "bid";
@@ -380,7 +380,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&eg=" + encodeURIComponent(theBid.getGrossEcpm());
 	pixelURL += "&kgpv=" + encodeURIComponent(theBid.getKGPV());
 
-	(new Image()).src = util.protocol + pixelURL;
+	(new Image()).src = util.protocol + pixelURL;//todo: protocol
 };
 
 //todo
