@@ -2,24 +2,65 @@ console.log("running from shell script");
 var shell = require('shelljs');
 var argv = require('yargs').argv;
 
+//
 shell.exec("gulp clean");
 
-shell.cd("../Prebid.js/");
+var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
 
-var buildTaskName = "build";
-var webpackTaskName = "pack";
+console.log("ARGV ==>", argv);
 
-if (argv.dev) {
-	buildTaskName = "dev" + buildTaskName;
-	webpackTaskName = "dev" + webpackTaskName;
-} else {
-	webpackTaskName = "web" + webpackTaskName;
+if(shell.cd(prebidRepoPath).code !== 0) {
+	shell.echo("Couldnt change the dir to Prebid repo");
+	shell.exit(1);
 }
 
-shell.exec("gulp " + webpackTaskName);
+var buildTaskName = "bundle";
+var webpackTaskName = "pack";
 
-shell.cd("../OpenWrap/")
 
-shell.exec("gulp " + webpackTaskName)
+if ( argv.mode && argv.mode == "test-build") {
+	console.log("Executing test-build");
+	buildTaskName = "dev" + buildTaskName;
+	webpackTaskName = "dev" + webpackTaskName;
 
-shell.exec("gulp " + buildTaskName);
+} else if ( argv.mode && argv.mode == "build" ) {
+	console.log("Executing build");
+	webpackTaskName = "web" + webpackTaskName;
+} else {
+	console.log("No mode supplied, Too few arguments");
+	shell.exit(1);
+}
+ 
+//
+
+// if (argv.dev) {
+// 	buildTaskName = "dev" + buildTaskName;
+// 	webpackTaskName = "dev" + webpackTaskName;
+// } else {
+// 	webpackTaskName = "web" + webpackTaskName;
+// }
+
+if(shell.exec("gulp " + webpackTaskName + " --mode=" + argv.mode).code !== 0) {
+	shell.echo('Error: buidlinng of project failed');
+  	shell.exit(1);
+}
+
+shell.cd("../OpenWrap/");
+if (argv.mode == "test-build") {
+	if(shell.exec("gulp test" + " --mode=" + argv.mode).code !== 0) {
+		shell.echo('Error: test cases failed');
+  		shell.exit(1);
+	}
+}
+
+if(shell.exec("gulp " + webpackTaskName + " --mode=" + argv.mode).code !== 0) {
+	shell.echo('Error: webpack task failed');
+	shell.exit(1);
+}
+
+
+if(shell.exec("gulp " + buildTaskName + " --mode=" + argv.mode).code !== 0) {
+	shell.echo('Error: build task failed');
+	shell.exit(1);
+}
+

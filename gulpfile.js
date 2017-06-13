@@ -21,8 +21,22 @@ var optimizejs = require('gulp-optimize-js');
 var stripCode = require('gulp-strip-code');
 var eslint = require('gulp-eslint');
 var karmaServer = require('karma').Server;
+var stripComments = require('gulp-strip-comments');
 
-var CI_MODE = (argv.mode === 'ci') ? true : false;
+var CI_MODE = (argv.mode === 'test-build') ? true : false;
+
+console.log("argv ==>", argv);
+
+var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
+
+// gulp.task('test-build' function () {
+//     console.log('Executing test-build gulp task');
+// });
+
+
+// gulp.task('build', function () {
+//     console.log('Executing build gulp task')
+// });
 
 
 gulp.task('clean', function() {
@@ -66,11 +80,17 @@ gulp.task('test', ['unexpose'], function (done) {
         basePath: './temp',
         configFile: __dirname + '/karma.conf.js',
         singleRun: true
-    }, function (done) {
-        return gulp.src('temp', {
+    }, function (exitCode) {
+        console.log("exitCode ==>", exitCode);
+        gulp.src('temp', {
             read: true
         })
         .pipe(clean())
+        .pipe(function () {
+            if (exitCode != 0) {
+                process.exit(exitCode);                
+            }
+        });
     }).start();
 });
 
@@ -82,7 +102,12 @@ gulp.task('testall', function (done) {
         browsers: defaultBrowsers,
         configFile: __dirname + '/karma.conf.js',
         singleRun: true
-    }, done).start();
+    }, function (exitCode) {
+        console.log("exitCode ==>", exitCode);
+        if (exitCode != 0) {
+            process.exit(exitCode);                
+        }   
+    }).start();
 });
 
 
@@ -128,19 +153,26 @@ gulp.task('lint', () => {
 });
 
 
-// Task to build minified version of cerebro.js
-gulp.task('build', function () {
+// Task to build minified version of owt.js
+gulp.task('bundle', function () {
     console.log("Executing build"); 
-    return gulp.src(['prebid-header.js','../Prebid.js/build/dist/prebid.js','./build/dist/owt.js'])
-        .pipe(concat('cerebro.min.js'))
+    // gulp.src(prebidRepoPath + '/build/dist/prebid.js')
+    //     .pipe(stripComments())
+    //     .pipe(gulp.dest(prebidRepoPath + '/build/dist'));
+    return gulp.src(['prebid-header.js', prebidRepoPath + '/build/dist/prebid.js','./build/dist/owt.js'])
+        .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 });
 
 
-// Task to build non-minified version of cerebro.js
-gulp.task('devbuild', function () {
+// Task to build non-minified version of owt.js
+gulp.task('devbundle', function () {
     console.log("Executing Dev Build");
-    return gulp.src(['prebid-header.js', '../Prebid.js/build/dev/prebid.js', './build/dev/owt.js'])
-        .pipe(concat('cerebro.js'))
+    // gulp.src(prebidRepoPath + '/build/dev/prebid.js')
+    //     .pipe(stripComments())
+    //     .pipe(gulp.dest(prebidRepoPath + '/build/dev/'));
+
+    return gulp.src(['prebid-header.js', prebidRepoPath + '/build/dev/prebid.js', './build/dev/owt.js'])
+        .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
 });
