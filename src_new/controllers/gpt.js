@@ -288,6 +288,7 @@ function defineWrapperTargetingKeys(object){
 	util.forEachOnObject(object, function(key, value){
 		output[ value ] = "";
 	});
+	console.log("Inside defineWrapperTargetingKeys ==>", output);
 	return output;
 }
 /* start-test-block */
@@ -444,6 +445,7 @@ function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshC
 }
 
 function newDisplayFunction(theObject, originalFunction){
+	console.log("Inside newDisplayFunction ==>", theObject);
 	if(util.isObject(theObject) && util.isFunction(originalFunction)){
 		return function(){		
 			util.log("In display function, with arguments: ");

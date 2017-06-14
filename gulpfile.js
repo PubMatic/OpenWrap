@@ -23,6 +23,35 @@ var eslint = require('gulp-eslint');
 var karmaServer = require('karma').Server;
 var stripComments = require('gulp-strip-comments');
 
+
+var server = require('gulp-server-livereload');
+
+
+
+gulp.task('serve', ['devpack', 'watch'])
+
+
+gulp.task('watch', function () {
+
+  gulp.watch([
+    'src_new/**/*.js',
+    // 'test/spec/**/*.js',
+    // '!test/spec/loaders/**/*.js'
+    ], ['devpack', 'webserver']);
+});
+
+
+gulp.task('webserver', function() {
+  gulp.src('./')
+    .pipe(server({
+      livereload: true,
+      // directoryListing: true,
+      defaultFile: './sample_pages/index.html',
+      open: true
+    }));
+});
+
+
 var CI_MODE = (argv.mode === 'test-build') ? true : false;
 
 console.log("argv ==>", argv);

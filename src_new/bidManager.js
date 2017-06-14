@@ -12,16 +12,24 @@ var stringBidSizes = "adSlotSizes";
 var stringBidCreationTime = "creationTime";
 var stringBidCallInitiatedTime = "callInitiatedTime";
 
-function createBidEntry(divID){
+function createBidEntry(bidMap, divID){
+	if (! util.isObject(bidMap)) {
+		return false;
+	}
 	var temp;
-	if(! util.isOwnProperty(PWT.bidMap, divID) ){
+	if(! util.isOwnProperty(bidMap, divID) ){
 		temp = {};
 		temp[stringBidders] = {};
 		temp[stringBidSizes] = [];
 		temp[stringBidCreationTime] = util.getCurrentTimestampInMs();
-		PWT.bidMap[divID] = temp;
+		bidMap[divID] = temp;
+		// console.log(bidMap[divID]);
 	}
 }
+
+/* start-test-block */
+exports.createBidEntry = createBidEntry;
+/* end-test-block */
 
 exports.setSizes = function(divID, slotSizes){
 	createBidEntry(divID);
@@ -387,3 +395,5 @@ exports.executeMonetizationPixel = function(slotID, theBid){
 // check if all bid comparisons are made on netEcpm
 // check data types in logger pixel
 // logger per impression id
+
+// // Todo: add method to check whether the object is of type bmSlot after extracting the createBidEntry fucntionality into separate module 

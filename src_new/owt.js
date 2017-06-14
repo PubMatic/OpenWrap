@@ -2,7 +2,7 @@ var util = require("./util.js");
 var controller = require("./controllers/gpt.js");//todo: configer how to select controller, may be from config
 var bidManager = require("./bidManager.js");
 
-util.enableDebugLog();
+// util.enableDebugLog();
 
 window.PWT = window.PWT || {
 	bidMap: {},

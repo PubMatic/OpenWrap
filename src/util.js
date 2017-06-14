@@ -192,9 +192,9 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 	},
 	
 	utilLog = function( data ){	
-		if( utilEnableDebugLog && console && utilIsFn(console.log) ){
-			utilIsStr(data) ? console.log( constDebugInConsolePrependWith + data ) : console.log(data);
-		}
+		// if( utilEnableDebugLog && console && utilIsFn(console.log) ){
+		// 	utilIsStr(data) ? console.log( constDebugInConsolePrependWith + data ) : console.log(data);
+		// }
 	},
 
 	utilCreateInvisibleIframe = function() {

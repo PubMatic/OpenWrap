@@ -138,3 +138,5 @@ Slot.prototype.updateStatusAfterRendering = function(isRefreshCalled){
 exports.createSlot = function(name){
 	return new Slot(name);
 };
+
+// Todo: add method to check whether the object is of type Slot 
