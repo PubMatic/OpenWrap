@@ -9,7 +9,7 @@ exports.pwt = {
 };
 
 exports.adapters = {
-	pubmatic: {
+	/*pubmatic: {
 		pub_id: "9999",
 		rev_share: "0.0",
 		timeout: "2000",
@@ -17,12 +17,28 @@ exports.adapters = {
 		kgp: "_AU_@_W_x_H_:_AUI_",
 		sk: "true"
 	}
-	,prebid: {
+	,*/prebid: {
 		rev_share: "0.0",
 		timeout: "2000",
 		throttle: "100",
 		kgp: "_DIV_",
 		klm: {								
+		}
+	},
+	PB_pubmatic: {
+		rev_share: "0.0",
+		timeout: "2000",
+		throttle: "100",
+		kgp: "_DIV_",
+		klm: {
+			"Div_1": {
+				publisherId: "9999",
+				adSlot: "DIV1_38519891@300x250"
+			},
+			"Div-2": {
+				publisherId: "9999",
+				adSlot: "DIV2_38519891@300x250"
+			}
 		}
 	},
 	PB_sekindoUM: {
