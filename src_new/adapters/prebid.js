@@ -41,7 +41,7 @@ function handleBidResponses(bidResponses){
 						setGrossEcpm(bid.cpm).
 						setDealID(bid.dealId).
 						setDealChannel("NA").
-						setAdHtml(bid.ad).
+						setAdHtml(bid.ad || "").
 						setWidth(bid.width).
 						setHeight(bid.height).
 						setKeyValuePairs(bid.adserverTargeting || null);
