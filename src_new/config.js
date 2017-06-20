@@ -7,7 +7,7 @@ exports.getPublisherId = function(){
 };
 
 exports.getTimeout = function(){
-	return parseInt(config.t) || 1000;
+	return parseInt(config.pwt.t) || 1000;
 };
 
 exports.getAdapterRevShare = function(adapterID){
