@@ -1,6 +1,7 @@
 var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
+var bmEntry = require("./bmEntry.js")
 //var PWT = require("./owt").PWT;
 //var PWT = window.PWT;
 //PWT.bidIdMap = {}; // bidID => {slotID, adapterID}
@@ -15,27 +16,34 @@ var stringBidCallInitiatedTime = "callInitiatedTime";
 function createBidEntry(divID){
 	var temp;
 	if(! util.isOwnProperty(PWT.bidMap, divID) ){
+		/*
 		temp = {};
 		temp[stringBidders] = {};
 		temp[stringBidSizes] = [];
 		temp[stringBidCreationTime] = util.getCurrentTimestampInMs();
 		PWT.bidMap[divID] = temp;
+		*/
+		PWT.bidMap[divID] = bmEntry.createBMEntry(divID);
 	}
 }
 
 exports.setSizes = function(divID, slotSizes){
 	createBidEntry(divID);
-	PWT.bidMap[divID][stringBidSizes] = slotSizes;
+	//PWT.bidMap[divID][stringBidSizes] = slotSizes;
+	PWT.bidMap[divID].setSizes(slotSizes);
 };
 
-exports.setCallInitTime = function(divID, bidderID){
+exports.setCallInitTime = function(divID, adapterID){
 	createBidEntry(divID);
+	/*
 	if(! util.isOwnProperty(PWT.bidMap[divID][stringBidders], bidderID) ){
 		PWT.bidMap[divID][stringBidders][bidderID] = {};
 	}
 	var timestamp = util.getCurrentTimestampInMs();
 	PWT.bidMap[divID][stringBidders][bidderID][stringBidCallInitiatedTime] = timestamp;
 	util.log(CONSTANTS.MESSAGES.M4+divID + " "+bidderID+" "+timestamp);
+	*/
+	PWT.bidMap[divID].setAdapterEntry(adapterID);
 };
 
 exports.setBidFromBidder = function(divID, bidDetails){
@@ -50,26 +58,29 @@ exports.setBidFromBidder = function(divID, bidDetails){
 
 	var currentTime = util.getCurrentTimestampInMs(),
 		// move to a function
-		isPostTimeout = (PWT.bidMap[divID][stringBidCreationTime]+CONFIG.getTimeout()) < currentTime ? true : false
+		//isPostTimeout = (PWT.bidMap[divID][stringBidCreationTime]+CONFIG.getTimeout()) < currentTime ? true : false
+		isPostTimeout = (PWT.bidMap[divID].getCreationTime()+CONFIG.getTimeout()) < currentTime ? true : false
 	;
 
 	createBidEntry(divID);
 
-	if(! util.isOwnProperty(PWT.bidMap[divID][stringBidders], bidderID) ){
-		PWT.bidMap[divID][stringBidders][bidderID] = {};
-	}		
+	//if(! util.isOwnProperty(PWT.bidMap[divID][stringBidders], bidderID) ){
+	//	PWT.bidMap[divID][stringBidders][bidderID] = {};
+	//}		
 
 	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", postTimeout: "+isPostTimeout);
 	
 	bidDetails.setReceivedTime(currentTime);
 	if(isPostTimeout === true){
 		bidDetails.setPostTimeoutStatus();
-	}	
+	}
 
-	if(util.isOwnProperty(PWT.bidMap[divID][stringBidders][bidderID], bid)){
+	var lastBidID = PWT.bidMap[divID].getLastBidIDForAdapter(bidderID);
+	//if(util.isOwnProperty(PWT.bidMap[divID][stringBidders][bidderID], bid)){
+	if(lastBidID != ""){
 
-		var lastBidID = PWT.bidMap[divID][stringBidders][bidderID][constCommonLastBidID],
-			lastBid = PWT.bidMap[divID][stringBidders][bidderID][bid][lastBidID],
+		//var lastBid = PWT.bidMap[divID][stringBidders][bidderID][bid][lastBidID],
+		var lastBid = PWT.bidMap[divID].getBid(bidderID, lastBidID), //todo: what if the lastBid is null
 			lastBidWasDefaultBid = lastBid.getDefaultBidStatus() === 1
 			;
 
@@ -82,9 +93,11 @@ exports.setBidFromBidder = function(divID, bidDetails){
 			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
 
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14);
-				delete PWT.bidMap[divID][stringBidders][bidderID][bid][lastBidID];
-				PWT.bidMap[divID][stringBidders][bidderID][constCommonLastBidID] = bidID;
-				PWT.bidMap[divID][stringBidders][bidderID][bid][bidID] = bidDetails;
+
+				PWT.bidMap[divID].setNewBid(bidderID, bidDetails);
+				//delete PWT.bidMap[divID][stringBidders][bidderID][bid][lastBidID];
+				//PWT.bidMap[divID][stringBidders][bidderID][constCommonLastBidID] = bidID;
+				//PWT.bidMap[divID][stringBidders][bidderID][bid][bidID] = bidDetails;
 				PWT.bidIdMap[bidID] = {
 					s: divID,
 					a: bidderID
@@ -110,9 +123,10 @@ exports.setBidFromBidder = function(divID, bidDetails){
 
 		util.log(CONSTANTS.MESSAGES.M18);
 		// todo following 6 lines should be moved to a func
-		PWT.bidMap[divID][stringBidders][bidderID][constCommonLastBidID] = bidID;
-		PWT.bidMap[divID][stringBidders][bidderID][bid] = {};
-		PWT.bidMap[divID][stringBidders][bidderID][bid][bidID] = bidDetails;
+		PWT.bidMap[divID].setNewBid(bidderID, bidDetails);
+		//PWT.bidMap[divID][stringBidders][bidderID][constCommonLastBidID] = bidID;
+		//PWT.bidMap[divID][stringBidders][bidderID][bid] = {};
+		//PWT.bidMap[divID][stringBidders][bidderID][bid][bidID] = bidDetails;
 		PWT.bidIdMap[bidID] = {
 			s: divID,
 			a: bidderID
@@ -133,14 +147,47 @@ exports.resetBid = function(divID, impressionID){
 	//utilVLogInfo(divID, {type: "hr"});//todo
 	delete PWT.bidMap[divID];
 	createBidEntry(divID);	
-	PWT.bidMap[divID][CONSTANTS.COMMON.IMPRESSION_ID] = impressionID;
+	//PWT.bidMap[divID][CONSTANTS.COMMON.IMPRESSION_ID] = impressionID;
+	PWT.bidMap[divID].setImpressionID(impressionID);
 };
 
-function auctionBids(stringBidders){
+// todo chnage required
+//function auctionBids(stringBidders){
+function auctionBids(bmEntry){	
 	var winningBid = null,
 		keyValuePairs = {}
 	;
 
+	util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry){
+		if(adapterEntry.getLastBidID() != ""){
+			util.forEachOnObject(adapterEntry.bids, function(bidID, theBid){
+				// do not consider post-timeout stringBidders
+				if(theBid.getPostTimeoutStatus() === true){
+					return;
+				}
+
+				//	if bidPassThrough is not enabled and ecpm > 0
+				//		then only append the key value pairs from partner bid				
+				if(CONFIG.getBidPassThroughStatus(adapterID) === 0 && theBid.getNetEcpm() > 0){
+					util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
+				}
+
+				//BidPassThrough: Do not participate in auction)
+				if(CONFIG.getBidPassThroughStatus(adapterID) !== 0){
+					util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
+					return;
+				}
+
+				if(winningBid == null){
+					winningBid = theBid;
+				}else if(winningBid.getNetEcpm() < theBid.getNetEcpm()){
+					winningBid = theBid;
+				}
+			});
+		}
+	});
+
+	/*
 	for(var adapter in stringBidders){
 		if(stringBidders[adapter] 
 			&& stringBidders[adapter].bid
@@ -159,10 +206,10 @@ function auctionBids(stringBidders){
 					continue;
 				}
 				
-				/*
-					if bidPassThrough is not enabled and ecpm > 0
-						then only append the key value pairs from partner bid
-				*/
+				
+				//	if bidPassThrough is not enabled and ecpm > 0
+				//		then only append the key value pairs from partner bid
+				
 				if(CONFIG.getBidPassThroughStatus(adapter) === 0 && theBid.getNetEcpm() > 0){
 					util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
 				}					
@@ -181,6 +228,7 @@ function auctionBids(stringBidders){
 			}
 		}
 	}
+	*/
 
 	return {
 		wb: winningBid,
@@ -194,7 +242,8 @@ exports.getBid = function(divID){
 	var keyValuePairs = null;
 
 	if( util.isOwnProperty(PWT.bidMap, divID) ){		
-		var data = auctionBids(PWT.bidMap[divID][stringBidders]);
+		//var data = auctionBids(PWT.bidMap[divID][stringBidders]);//todo change required
+		var data = auctionBids(PWT.bidMap[divID]);//todo change required
 		winningBid = data.wb;
 		keyValuePairs = data.kvp;
 
@@ -234,7 +283,13 @@ exports.getBidById = function(bidID){
 	if( util.isOwnProperty(PWT.bidMap, divID) ){	
 		if( util.isOwnProperty(PWT.bidMap[divID][stringBidders], adapterID) ){
 			util.log(bidID+": "+divID+CONSTANTS.MESSAGES.M19+ adapterID);
-			var theBid = PWT.bidMap[divID][stringBidders][adapterID][bid][bidID];
+			//var theBid = PWT.bidMap[divID][stringBidders][adapterID][bid][bidID];
+			var theBid = PWT.bidMap[divID].getBid(adapterID, bidID);
+			
+			if(theBid == null){
+				return null;
+			}
+
 			return {
 				bid: theBid,
 				slotid: divID
