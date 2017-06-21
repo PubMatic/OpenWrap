@@ -75,5 +75,8 @@ TODO:
 		safeframe
 			these changes are required in bidManager
 		named sizes
+			DONE
 		logger pixel execution	
+			DONE
+			
 */
