@@ -333,7 +333,6 @@ exports.executeAnalyticsPixel = function(){
 	}
 };
 
-// todo: changes required for new stucture
 exports.executeMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL();
 	
@@ -344,7 +343,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){
 	pixelURL += "pubid=" + CONFIG.getPublisherId();
 	pixelURL += "&purl=" + utilMetaInfo.u;//todo
 	pixelURL += "&tst=" + util.getCurrentTimestamp();
-	pixelURL += "&iid=" + encodeURIComponent(PWT.bidMap[slotID][CONSTANTS.COMMON.IMPRESSION_ID]); // todo
+	pixelURL += "&iid=" + encodeURIComponent(PWT.bidMap[slotID].getImpressionID());
 	pixelURL += "&bidid=" + encodeURIComponent(theBid.getBidID());
 	pixelURL += "&pid=" + encodeURIComponent(CONFIG.getProfileID());
 	pixelURL += "&pdvid=" + encodeURIComponent(CONFIG.getProfileDisplayVersionID());
