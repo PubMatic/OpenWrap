@@ -179,7 +179,7 @@ exports.getBidById = function(bidID){
 	var adapterID = PWT.bidIdMap[bidID].a;
 
 	if( util.isOwnProperty(PWT.bidMap, divID) ){	
-		util.log(bidID+": "+divID+CONSTANTS.MESSAGES.M19+ adapterID);			
+		util.log("BidID: "+bidID+", DivID: "+divID+CONSTANTS.MESSAGES.M19+ adapterID);			
 		var theBid = PWT.bidMap[divID].getBid(adapterID, bidID);
 			
 		if(theBid == null){
