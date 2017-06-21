@@ -6,9 +6,9 @@ var bmEntry = require("./bmEntry.js")
 //var PWT = window.PWT;
 //PWT.bidIdMap = {}; // bidID => {slotID, adapterID}
 
+//todo: is it required ?
 var bid = "bid";
 var stringBidders = "bidsFromBidders";
-var constCommonLastBidID = "lastbidid";
 var stringBidSizes = "adSlotSizes";
 var stringBidCreationTime = "creationTime";
 var stringBidCallInitiatedTime = "callInitiatedTime";
@@ -33,6 +33,7 @@ exports.setBidFromBidder = function(divID, bidDetails){
 
 	var bidderID = bidDetails.getAdapterID();
 	var bidID = bidDetails.getBidID();
+	var bidMapEntry = PWT.bidMap[divID];
 
 	if(!util.isOwnProperty(PWT.bidMap, divID)){
 		util.log("BidManager is not expecting bid for "+ divID +", from " + bidderID);
@@ -41,15 +42,10 @@ exports.setBidFromBidder = function(divID, bidDetails){
 
 	var currentTime = util.getCurrentTimestampInMs(),
 		// move to a function
-		//isPostTimeout = (PWT.bidMap[divID][stringBidCreationTime]+CONFIG.getTimeout()) < currentTime ? true : false
-		isPostTimeout = (PWT.bidMap[divID].getCreationTime()+CONFIG.getTimeout()) < currentTime ? true : false
+		isPostTimeout = (bidMapEntry.getCreationTime()+CONFIG.getTimeout()) < currentTime ? true : false
 	;
 
 	createBidEntry(divID);
-
-	//if(! util.isOwnProperty(PWT.bidMap[divID][stringBidders], bidderID) ){
-	//	PWT.bidMap[divID][stringBidders][bidderID] = {};
-	//}		
 
 	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", postTimeout: "+isPostTimeout);
 	
@@ -58,12 +54,10 @@ exports.setBidFromBidder = function(divID, bidDetails){
 		bidDetails.setPostTimeoutStatus();
 	}
 
-	var lastBidID = PWT.bidMap[divID].getLastBidIDForAdapter(bidderID);
-	//if(util.isOwnProperty(PWT.bidMap[divID][stringBidders][bidderID], bid)){
+	var lastBidID = bidMapEntry.getLastBidIDForAdapter(bidderID);
 	if(lastBidID != ""){
 
-		//var lastBid = PWT.bidMap[divID][stringBidders][bidderID][bid][lastBidID],
-		var lastBid = PWT.bidMap[divID].getBid(bidderID, lastBidID), //todo: what if the lastBid is null
+		var lastBid = bidMapEntry.getBid(bidderID, lastBidID), //todo: what if the lastBid is null
 			lastBidWasDefaultBid = lastBid.getDefaultBidStatus() === 1
 			;
 
@@ -71,16 +65,12 @@ exports.setBidFromBidder = function(divID, bidDetails){
 
 			if(lastBidWasDefaultBid){
 				util.log(CONSTANTS.MESSAGES.M23);
-			}				
+			}
 
 			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
 
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14);
-
 				PWT.bidMap[divID].setNewBid(bidderID, bidDetails);
-				//delete PWT.bidMap[divID][stringBidders][bidderID][bid][lastBidID];
-				//PWT.bidMap[divID][stringBidders][bidderID][constCommonLastBidID] = bidID;
-				//PWT.bidMap[divID][stringBidders][bidderID][bid][bidID] = bidDetails;
 				PWT.bidIdMap[bidID] = {
 					s: divID,
 					a: bidderID
@@ -107,9 +97,6 @@ exports.setBidFromBidder = function(divID, bidDetails){
 		util.log(CONSTANTS.MESSAGES.M18);
 		// todo following 6 lines should be moved to a func
 		PWT.bidMap[divID].setNewBid(bidderID, bidDetails);
-		//PWT.bidMap[divID][stringBidders][bidderID][constCommonLastBidID] = bidID;
-		//PWT.bidMap[divID][stringBidders][bidderID][bid] = {};
-		//PWT.bidMap[divID][stringBidders][bidderID][bid][bidID] = bidDetails;
 		PWT.bidIdMap[bidID] = {
 			s: divID,
 			a: bidderID
@@ -181,10 +168,8 @@ exports.getBid = function(divID){
 	if( util.isOwnProperty(PWT.bidMap, divID) ){
 		var data = auctionBids(PWT.bidMap[divID]);
 		winningBid = data.wb;
-		keyValuePairs = data.kvp;
-
-		//todo change required
-		PWT.bidMap[divID]["ae"] = true; // Analytics Enabled
+		keyValuePairs = data.kvp;		
+		PWT.bidMap[divID].setAnalyticEnabled();//Analytics Enabled
 
 		if(winningBid && winningBid.getNetEcpm() > 0){
 			winningBid.setStatus(1);
@@ -194,7 +179,6 @@ exports.getBid = function(divID){
 				type: "win-bid",
 				bidDetails: winningBid
 			});*/
-
 		}else{
 			//todo
 			/*utilVLogInfo(divID, {
@@ -376,4 +360,4 @@ exports.executeMonetizationPixel = function(slotID, theBid){
 //todo
 // check if all bid comparisons are made on netEcpm
 // check data types in logger pixel
-// logger per impression id
+// logger per impression id change
