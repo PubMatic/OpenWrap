@@ -65,6 +65,8 @@ controller.init(window);
 TODO:
 	When to execute logger pixel ?
 		like nightly ? or original
+	SafeFrame gpt:init
+		utilAddMessageEventListenerForSafeFrame(false);	
 	config how to store and read ?
 		DONE
 	any issue with bidManager/adapterManager being called from many files
