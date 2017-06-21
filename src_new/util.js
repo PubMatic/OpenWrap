@@ -97,9 +97,10 @@ exports.copyKeyValueObject = function(copyTo, copyFrom){
 		this.forEachOnObject(copyFrom, function(key, value){
 			copyFrom[key] = utilRef.isArray(value) ? value : [value];
 			if(utilRef.isOwnProperty(copyTo, key)){
-				copyTo[key].push.apply(copyTo[key], value);
+				//copyTo[key].push.apply(copyTo[key], value);
+				copyTo[key].push(value);
 			}else{
-				copyTo[key] = value;
+				copyTo[key] = [value];
 			}
 		});
 	}
