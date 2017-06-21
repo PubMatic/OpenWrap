@@ -41,7 +41,17 @@ function BMEntry(name){
 	this.creationTime = util.getCurrentTimestampInMs();
 	this.impressionID = "";
 	this.analyticsEnabled = false;
+	this.expired = false;
 }
+
+BMEntry.prototype.setExpired = function(){
+	this.expired = true;
+	return this;
+};
+
+BMEntry.prototype.getExpiredStatus = function(){
+	return this.expired;
+};
 
 BMEntry.prototype.setAnalyticEnabled = function(){
 	this.analyticsEnabled = true;
