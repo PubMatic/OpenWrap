@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-var sinon = require('sinon');
+var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 var GPT = require("../../src_new/controllers/gpt.js");
@@ -104,7 +104,8 @@ describe("CONTROLLER: GPT", function() {
 		};
 		var flag = false;
 		it("should return true when the object passed is object and PWT property is set and jsLoaded is set to function and the function is called", function() {
-			GPT.callJsLoadedIfRequired(_test).should.equal(true) && flag.should.equal(true);
+			GPT.callJsLoadedIfRequired(_test).should.equal(true);
+			flag.should.equal(true);
 		});
 
 	});
@@ -116,7 +117,9 @@ describe("CONTROLLER: GPT", function() {
 
 		var x = {};
 		it("should return true when the object passed is valid", function() {
-			GPT.defineGPTVariables(x).should.equal(true) &&  UTIL.isObject(x.googletag) && UTIL.isArray(x.googletag.cmd);
+			GPT.defineGPTVariables(x).should.equal(true);
+			UTIL.isObject(x.googletag);
+			UTIL.isArray(x.googletag.cmd);
 		});
 
 		var x = {
@@ -125,7 +128,29 @@ describe("CONTROLLER: GPT", function() {
 			}
 		};
 		it("should return true when the googletag.cmd is already defined", function() {
-			GPT.defineGPTVariables(x).should.equal(true) &&  UTIL.isObject(x.googletag) && UTIL.isArray(x.googletag.cmd) && x.googletag.cmd.length.should.equal(3);
+			GPT.defineGPTVariables(x).should.equal(true);
+			UTIL.isObject(x.googletag);
+			UTIL.isArray(x.googletag.cmd);
+			x.googletag.cmd.length.should.equal(3);
+		});
+
+		var winObj = {
+			googletag: {
+
+			}
+		};
+		it("should create googletag.cmd as empty array if not present", function (done) {
+			GPT.defineGPTVariables(winObj).should.equal(true);
+			UTIL.isArray(winObj.googletag.cmd);
+			winObj.googletag.cmd.length.should.equal(0);
+			done();
+		});
+
+		var winObj1 = {};
+		it("should create googletag as empty object if not present", function (done) {
+			GPT.defineGPTVariables(winObj1).should.equal(true);
+			UTIL.isObject(winObj.googletag);
+			done();
 		});
 	});
 
@@ -140,45 +165,318 @@ describe("CONTROLLER: GPT", function() {
 			var x = {a:0};
 			GPT.setWindowReference(x);
 			var y = GPT.getWindowReference();
-			expect(UTIL.isOwnProperty(y, 'a') && y.a === x.a).to.equal(true);
+			expect(UTIL.isOwnProperty(y, "a") && y.a === x.a).to.equal(true);
 		});
 	});
 
 	describe("#init()", function(){
 
-		it("should return false when the null is passed", function() {
+		it("should return false when window object is null", function() {
 			GPT.init(null).should.equal(false);
 		});
 
-		it("should return true when the object is passed", function() {
+		it("should return true when the required window object is passed", function() {
 			GPT.init({}).should.equal(true);
 		});
 
-		describe("Sinon check", function(){			
+		describe("When window object with required props are passed", function(){	
 
-			it("Attach Sinon stub to functions called from GPT.init ", function(done){
-				sinon.stub(UTIL, "isObject", function(){return true});
+			before(function (done) {
+				sinon.stub(UTIL, "isObject", function(){return true;});
 				sinon.stub(GPT, "setWindowReference");
 				sinon.stub(GPT, "defineWrapperTargetingKeys");
 				sinon.stub(GPT, "defineGPTVariables");					
 				sinon.stub(AM, "registerAdapters");
 				sinon.stub(GPT, "addHooksIfPossible");
-				sinon.stub(GPT, "callJsLoadedIfRequired");
-				GPT.init({PWT:{jsLoaded: function(){}}});
-				expect(UTIL.isObject.calledOnce &&
-				GPT.setWindowReference.calledOnce &&
-				GPT.defineWrapperTargetingKeys.calledOnce &&
-				GPT.defineGPTVariables.calledOnce &&
-				AM.registerAdapters.calledOnce &&
-				GPT.addHooksIfPossible.calledOnce &&
-				GPT.callJsLoadedIfRequired.calledOnce).to.equal(true);
+				sinon.stub(GPT, "callJsLoadedIfRequired");	
+				done();	
+			});	
+
+			after(function (done) {
+				UTIL.isObject.restore();
+				GPT.setWindowReference.restore();
+				GPT.defineWrapperTargetingKeys.restore();
+				GPT.defineGPTVariables.restore();
+				AM.registerAdapters.restore();
+				GPT.addHooksIfPossible.restore();
+				GPT.callJsLoadedIfRequired.restore();
+				done();
+			});
+
+			it("should have called respective internal functions ", function(done){
+				
+				GPT.init({
+					PWT:{
+						jsLoaded: function(){
+
+						}
+					}
+				});	
+
+				// console.log("UTIL.isObject.calledOnce ==>", UTIL.isObject.calledOnce)
+
+				UTIL.isObject.calledOnce.should.equal(true);
+				GPT.setWindowReference.calledOnce.should.equal(true);
+				GPT.defineWrapperTargetingKeys.calledOnce.should.equal(true);
+				GPT.defineGPTVariables.calledOnce.should.equal(true);
+				AM.registerAdapters.calledOnce.should.equal(true);
+				GPT.addHooksIfPossible.calledOnce.should.equal(true);
+				GPT.callJsLoadedIfRequired.calledOnce.should.equal(true);
 				done();
 			});
 		});
 	});
 
 	describe("#defineWrapperTargetingKeys()", function(){
+
+		it('should return empty object when empty object is passed', function (done) {
+			GPT.defineWrapperTargetingKeys({}).should.deep.equal({});
+			done();
+		});
+
+		describe('When object with keys n values is passed', function () {
+			beforeEach(function (done) {
+				sinon.spy(UTIL, "forEachOnObject");
+				done();
+			});
+
+			afterEach(function (done) {
+				UTIL.forEachOnObject.restore();
+				done();
+			});
+
+			var inputObject = {
+				"key1": "value1",
+				"key2": "value2"
+			};
+
+			var outputObject = {
+				"value1": "",
+				"value2": ""
+			};
+
+			it('should return object with values as keys and respective value should be empty strings', function (done) {
+				GPT.defineWrapperTargetingKeys(inputObject).should.deep.equal(outputObject);
+				done();
+			});
+
+			it('should have called util.forEachOnObject', function (done) {
+				GPT.defineWrapperTargetingKeys(inputObject);//.should.deep.equal(outputObject);
+				// console.log("UTIL.forEachOnObject.calledTwice ==>", UTIL.forEachOnObject.calledOnce);
+				UTIL.forEachOnObject.calledOnce.should.equal(true);
+				// expect(UTIL.forEachOnObject.calledTwice, true);
+				done();
+			});
+		});
 	});
 
+	describe('#generateSlotName()', function () {
+		var domId = null;
+		var slotIDObject = null;
+		var googleSlotObject = null;
+
+		beforeEach(function (done) {
+			sinon.spy(UTIL, "isFunction");
+			domId = "DIV_1";
+			slotIDObject = {
+				getDomId: function () {
+					return domId;
+				}
+			};
+
+			googleSlotObject = {
+				getSlotId: function () {
+					return slotIDObject;
+				}
+			};
+
+			done();
+		});
+
+		afterEach(function (done) {
+			UTIL.isFunction.restore();
+			domId = null;
+			slotIDObject = null;
+			googleSlotObject = null;
+			done();
+		});
+		
+		it('GPT.generateSlotName is a function', function (done) {
+			GPT.generateSlotName.should.be.a("function");
+			done();
+		});
+
+		it('return empty string if googleSlot is not an object', function (done) {
+			GPT.generateSlotName(null).should.equal("");
+			done();
+		});
+
+		it('return empty string if googleSlot is an object but without required methods', function (done) {
+			GPT.generateSlotName({}).should.equal("");
+			done();
+		});
+
+		it('should have called util.isFunction if propper googleSlot is passed', function (done) {
+			GPT.generateSlotName(googleSlotObject);
+			// console.log("UTIL.isFunction.called ==>", UTIL.isFunction.called);
+			UTIL.isFunction.calledTwice.should.equal(true);
+			done();
+		});
+
+		it('should have returned Dom Id as generated Slot name if propper googleSlot object is passed', function (done) {
+			GPT.generateSlotName(googleSlotObject).should.equal(domId);
+			done();
+		});
+	});
+
+	describe('#defineWrapperTargetingKey()', function () {
+
+		it('is a function', function (done) {
+			GPT.defineWrapperTargetingKey.should.be.a('function');
+			done();
+		});
+
+		it('set wrapper Targeting Key\'s value to empty string', function (done) {
+			GPT.defineWrapperTargetingKey("DIV_1");
+			GPT.wrapperTargetingKeys["DIV_1"].should.equal("");
+			done();
+		});
+	});
+
+	describe('#addHooksIfPossible()', function () {
+
+		beforeEach(function (done) {
+			sinon.spy(UTIL,"isUndefined");
+			sinon.spy(UTIL,"isObject");
+			sinon.spy(UTIL,"isArray");
+			sinon.spy(UTIL,"isFunction");
+			sinon.spy(UTIL,"log");
+			done();
+		});	
+
+		afterEach(function (done) {
+			UTIL.isUndefined.restore();
+			UTIL.isObject.restore();
+			UTIL.isArray.restore();
+			UTIL.isFunction.restore();
+			UTIL.log.restore();
+			done();
+		});
+
+		it('is a function', function (done) {
+			GPT.addHooksIfPossible.should.be.a('function');
+			done();
+		});
+
+		it('return false if passed in window object is impropper and should have called util.log', function (done) {
+			GPT.addHooksIfPossible({}).should.equal(false);
+			UTIL.log.calledOnce.should.equal(true);
+			UTIL.log.calledWith("Failed to load before GPT").should.be.true;
+
+			UTIL.isUndefined.calledOnce.should.equal(true);
+			UTIL.isObject.calledOnce.should.equal(true);
+			// UTIL.isArray.calledOnce.should.equal(true);
+			// UTIL.isFunction.calledOnce.should.equal(true);
+
+			done();
+		});
+
+		var winObj = {
+			googletag: {
+				cmd: []
+			}
+		};
+		it('return true if passed window object with required props and should have called util.log', function (done) {
+			GPT.addHooksIfPossible(winObj).should.equal(true);
+			UTIL.log.calledOnce.should.equal(true);
+			UTIL.log.calledWith("Succeeded to load before GPT").should.be.true;
+			done();
+		});
+	});
+
+
+	describe('#addHooks()', function () {
+		var winObj = null;
+		var winObjBad = null;
+		beforeEach(function (done) {
+			winObj = {
+				googletag: {
+					pubads: function () {
+						return {
+						};
+					}
+				}
+			};
+
+			winObjBad = {
+				googletag: {
+					pubads: function () {
+						return null;
+					}
+				}
+			};
+
+			sinon.spy(UTIL, "addHookOnFunction");
+			sinon.spy(GPT, "addHookOnSlotDefineSizeMapping");
+			sinon.spy(GPT, "newAddHookOnGoogletagDisplay");
+			done();
+		});
+
+		afterEach(function (done) {
+			winObj = null;
+			winObjBad = null;
+			UTIL.addHookOnFunction.restore();
+			GPT.addHookOnSlotDefineSizeMapping.restore();
+			GPT.newAddHookOnGoogletagDisplay.restore();
+			done();
+		});
+
+		it('is a function', function (done) {
+			GPT.addHooks.should.be.a('function');
+			done();
+		});
+
+		it('returns false if passed in window object is not an object', function (done) {
+			GPT.addHooks(null).should.equal(false);
+			done();
+		});
+
+		it('returns false if googletag.pubads returns a non object value ', function (done) {
+			GPT.addHooks(winObjBad).should.equal(false);
+			done();
+		});
+
+
+		it('returns true if proper window object is passed with required structure', function (done) {
+			GPT.addHooks(winObj).should.equal(true);
+			done();
+		});
+
+		it('on passing proper window object with required structure should have called util.addHookOnFunction for various googletag pubads object methods', function (done) {
+			GPT.addHooks(winObj).should.equal(true);
+
+			GPT.addHookOnSlotDefineSizeMapping.calledOnce.should.equal(true);
+			GPT.addHookOnSlotDefineSizeMapping.calledWith(winObj.googletag).should.equal(true);
+
+			UTIL.addHookOnFunction.calledWith(winObj.googletag.pubads(), false, "disableInitialLoad", GPT.newDisableInitialLoadFunction).should.equal(true);
+			UTIL.addHookOnFunction.calledWith(winObj.googletag.pubads(), false, "enableSingleRequest", GPT.newEnableSingleRequestFunction).should.equal(true);
+			
+			GPT.newAddHookOnGoogletagDisplay.calledOnce.should.equal(true);
+			GPT.newAddHookOnGoogletagDisplay.calledWith(winObj.googletag).should.equal(true);
+
+			UTIL.addHookOnFunction.calledWith(winObj.googletag.pubads(), false, "refresh", GPT.newRefreshFuncton).should.equal(true);
+			UTIL.addHookOnFunction.calledWith(winObj.googletag.pubads(), false, "setTargeting", GPT.newSetTargetingFunction).should.equal(true);
+			UTIL.addHookOnFunction.calledWith(winObj.googletag, false, "destroySlots", GPT.newDestroySlotsFunction).should.equal(true);
+
+			done();
+		});
+	});
+
+	describe('#addHookOnSlotDefineSizeMapping()', function () {
+		it('is a function', function (done) {
+			GPT.addHookOnSlotDefineSizeMapping.should.be.a('function');
+			done();
+		});
+	});
 
 });

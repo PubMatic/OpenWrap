@@ -11,6 +11,10 @@ var sendTargetingInfoIsSet = true;
 
 //todo: combine these maps
 var wrapperTargetingKeys = {}; // key is div id
+
+/* start-test-block */
+exports.wrapperTargetingKeys = wrapperTargetingKeys;
+/* end-test-block */
 var slotSizeMapping = {}; // key is div id
 var slotsMap = {}; // key is div id, stores the mapping of divID ==> googletag.slot
 
@@ -166,6 +170,10 @@ function generateSlotName(googleSlot) {
     return "";
 }
 
+/* start-test-block */
+exports.generateSlotName = generateSlotName;
+/* end-test-block */
+
 function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow) {
     util.log("Generating slotsMap");
     util.forEachOnArray(googleSlotsArray, function(index, currentGoogleSlot) {
@@ -295,8 +303,12 @@ exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 
 
 function defineWrapperTargetingKey(key) {
-    wrapperTargetingKeys[key] = "";
+    this.wrapperTargetingKeys[key] = "";
 }
+
+/* start-test-block */
+exports.defineWrapperTargetingKey = defineWrapperTargetingKey;
+/* end-test-block */
 
 // Hooks related functions
 
@@ -313,6 +325,11 @@ function newDisableInitialLoadFunction(theObject, originalFunction) {
     }
 }
 
+
+/* start-test-block */
+exports.newDisableInitialLoadFunction = newDisableInitialLoadFunction;
+/* end-test-block */
+
 function newEnableSingleRequestFunction(theObject, originalFunction) {
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
@@ -325,6 +342,10 @@ function newEnableSingleRequestFunction(theObject, originalFunction) {
         return null;
     }
 }
+
+/* start-test-block */
+exports.newEnableSingleRequestFunction = newEnableSingleRequestFunction;
+/* end-test-block */
 
 /*	
 	setTargeting is implemented by
@@ -355,6 +376,10 @@ function newSetTargetingFunction(theObject, originalFunction) {
     }
 }
 
+/* start-test-block */
+exports.newSetTargetingFunction = newSetTargetingFunction;
+/* end-test-block */
+
 function newDestroySlotsFunction(theObject, originalFunction) {
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
@@ -368,6 +393,10 @@ function newDestroySlotsFunction(theObject, originalFunction) {
         return null;
     }
 }
+
+/* start-test-block */
+exports.newDestroySlotsFunction = newDestroySlotsFunction;
+/* end-test-block */
 
 function updateStatusAndCallOriginalFunction_Display(message, theObject, originalFunction, arg) {
     util.log(message);
@@ -494,6 +523,10 @@ function newAddHookOnGoogletagDisplay(localGoogletag) {
     util.addHookOnFunction(localGoogletag, false, "display", newDisplayFunction);
 }
 
+/* start-test-block */
+exports.newAddHookOnGoogletagDisplay = newAddHookOnGoogletagDisplay;
+/* end-test-block */
+
 function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue) {
     if (util.isOwnProperty(slotsMap, slotName) && slotsMap[slotName].isRefreshFunctionCalled === true && slotsMap[slotName].getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED) {
 
@@ -568,6 +601,10 @@ function newRefreshFuncton(theObject, originalFunction) {
     }
 }
 
+/* start-test-block */
+exports.newRefreshFuncton = newRefreshFuncton;
+/* end-test-block */
+
 function newSizeMappingFunction(theObject, originalFunction) {
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
@@ -595,27 +632,37 @@ function addHookOnSlotDefineSizeMapping(localGoogletag) {
     return false;
 }
 
+/* start-test-block */
+exports.addHookOnSlotDefineSizeMapping = addHookOnSlotDefineSizeMapping;
+/* end-test-block */
+
 function addHooks(win) {
+	// console.log("win ==>", win);
     if (util.isObject(win) && util.isObject(win.googletag) && util.isFunction(win.googletag.pubads)) {
         var localGoogletag = win.googletag;
+        // console.log("localGoogletag ==>", localGoogletag);
         var localPubAdsObj = localGoogletag.pubads();
-
+        // console.log("localPubAdsObj ==>", localPubAdsObj);
         if (!util.isObject(localPubAdsObj)) {
             return false;
         }
 
-        addHookOnSlotDefineSizeMapping(localGoogletag);
-        util.addHookOnFunction(localPubAdsObj, false, "disableInitialLoad", newDisableInitialLoadFunction);
-        util.addHookOnFunction(localPubAdsObj, false, "enableSingleRequest", newEnableSingleRequestFunction);
-        newAddHookOnGoogletagDisplay(localGoogletag);
-        util.addHookOnFunction(localPubAdsObj, false, "refresh", newRefreshFuncton);
-        util.addHookOnFunction(localPubAdsObj, false, "setTargeting", newSetTargetingFunction);
-        util.addHookOnFunction(localGoogletag, false, "destroySlots", newDestroySlotsFunction);
+        this.addHookOnSlotDefineSizeMapping(localGoogletag);
+        util.addHookOnFunction(localPubAdsObj, false, "disableInitialLoad", this.newDisableInitialLoadFunction);
+        util.addHookOnFunction(localPubAdsObj, false, "enableSingleRequest", this.newEnableSingleRequestFunction);
+        this.newAddHookOnGoogletagDisplay(localGoogletag);
+        util.addHookOnFunction(localPubAdsObj, false, "refresh", this.newRefreshFuncton);
+        util.addHookOnFunction(localPubAdsObj, false, "setTargeting", this.newSetTargetingFunction);
+        util.addHookOnFunction(localGoogletag, false, "destroySlots", this.newDestroySlotsFunction);
         return true;
     } else {
         return false;
     }
 }
+
+/* start-test-block */
+exports.addHooks = addHooks;
+/* end-test-block */
 
 function defineGPTVariables(win) {
     // define the command array if not already defined
@@ -633,9 +680,10 @@ exports.defineGPTVariables = defineGPTVariables;
 function addHooksIfPossible(win) {
     if (util.isUndefined(win.google_onload_fired) && util.isObject(win.googletag) && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)) {
         util.log("Succeeded to load before GPT");
+        var refThis = this;
         win.googletag.cmd.unshift(function() {
             util.log("OpenWrap initialization started");
-            addHooks(win);
+            refThis.addHooks(win);
             util.log("OpenWrap initialization completed");
         });
         return true;
