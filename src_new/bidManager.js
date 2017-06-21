@@ -14,35 +14,18 @@ var stringBidCreationTime = "creationTime";
 var stringBidCallInitiatedTime = "callInitiatedTime";
 
 function createBidEntry(divID){
-	var temp;
 	if(! util.isOwnProperty(PWT.bidMap, divID) ){
-		/*
-		temp = {};
-		temp[stringBidders] = {};
-		temp[stringBidSizes] = [];
-		temp[stringBidCreationTime] = util.getCurrentTimestampInMs();
-		PWT.bidMap[divID] = temp;
-		*/
 		PWT.bidMap[divID] = bmEntry.createBMEntry(divID);
 	}
 }
 
 exports.setSizes = function(divID, slotSizes){
 	createBidEntry(divID);
-	//PWT.bidMap[divID][stringBidSizes] = slotSizes;
 	PWT.bidMap[divID].setSizes(slotSizes);
 };
 
 exports.setCallInitTime = function(divID, adapterID){
 	createBidEntry(divID);
-	/*
-	if(! util.isOwnProperty(PWT.bidMap[divID][stringBidders], bidderID) ){
-		PWT.bidMap[divID][stringBidders][bidderID] = {};
-	}
-	var timestamp = util.getCurrentTimestampInMs();
-	PWT.bidMap[divID][stringBidders][bidderID][stringBidCallInitiatedTime] = timestamp;
-	util.log(CONSTANTS.MESSAGES.M4+divID + " "+bidderID+" "+timestamp);
-	*/
 	PWT.bidMap[divID].setAdapterEntry(adapterID);
 };
 
@@ -146,13 +129,10 @@ exports.setBidFromBidder = function(divID, bidDetails){
 exports.resetBid = function(divID, impressionID){
 	//utilVLogInfo(divID, {type: "hr"});//todo
 	delete PWT.bidMap[divID];
-	createBidEntry(divID);	
-	//PWT.bidMap[divID][CONSTANTS.COMMON.IMPRESSION_ID] = impressionID;
+	createBidEntry(divID);
 	PWT.bidMap[divID].setImpressionID(impressionID);
 };
 
-// todo chnage required
-//function auctionBids(stringBidders){
 function auctionBids(bmEntry){	
 	var winningBid = null,
 		keyValuePairs = {}
@@ -161,7 +141,7 @@ function auctionBids(bmEntry){
 	util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry){
 		if(adapterEntry.getLastBidID() != ""){
 			util.forEachOnObject(adapterEntry.bids, function(bidID, theBid){
-				// do not consider post-timeout stringBidders
+				// do not consider post-timeout bids
 				if(theBid.getPostTimeoutStatus() === true){
 					return;
 				}
@@ -187,49 +167,6 @@ function auctionBids(bmEntry){
 		}
 	});
 
-	/*
-	for(var adapter in stringBidders){
-		if(stringBidders[adapter] 
-			&& stringBidders[adapter].bid
-			){
-
-			for(var bidID in stringBidders[adapter].bid){
-
-				if(! util.isOwnProperty(stringBidders[adapter].bid, bidID)){
-					continue;
-				}
-
-				var theBid = stringBidders[adapter].bid[bidID];
-
-				// do not consider post-timeout stringBidders
-				if(theBid.getPostTimeoutStatus() === true){
-					continue;
-				}
-				
-				
-				//	if bidPassThrough is not enabled and ecpm > 0
-				//		then only append the key value pairs from partner bid
-				
-				if(CONFIG.getBidPassThroughStatus(adapter) === 0 && theBid.getNetEcpm() > 0){
-					util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
-				}					
-
-				//BidPassThrough: Do not participate in auction)
-				if(CONFIG.getBidPassThroughStatus(adapter) !== 0){
-					util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
-					continue;
-				}
-
-				if(winningBid == null){
-					winningBid = theBid;
-				}else if(winningBid.getNetEcpm() < theBid.getNetEcpm()){
-					winningBid = theBid;
-				}
-			}
-		}
-	}
-	*/
-
 	return {
 		wb: winningBid,
 		kvp: keyValuePairs
@@ -241,13 +178,12 @@ exports.getBid = function(divID){
 	var winningBid = null;
 	var keyValuePairs = null;
 
-	if( util.isOwnProperty(PWT.bidMap, divID) ){		
-		//var data = auctionBids(PWT.bidMap[divID][stringBidders]);//todo change required
-		var data = auctionBids(PWT.bidMap[divID]);//todo change required
+	if( util.isOwnProperty(PWT.bidMap, divID) ){
+		var data = auctionBids(PWT.bidMap[divID]);
 		winningBid = data.wb;
 		keyValuePairs = data.kvp;
 
-		
+		//todo change required
 		PWT.bidMap[divID]["ae"] = true; // Analytics Enabled
 
 		if(winningBid && winningBid.getNetEcpm() > 0){
@@ -281,20 +217,17 @@ exports.getBidById = function(bidID){
 	var adapterID = PWT.bidIdMap[bidID]["a"];
 
 	if( util.isOwnProperty(PWT.bidMap, divID) ){	
-		//if( util.isOwnProperty(PWT.bidMap[divID][stringBidders], adapterID) ){
-			util.log(bidID+": "+divID+CONSTANTS.MESSAGES.M19+ adapterID);
-			//var theBid = PWT.bidMap[divID][stringBidders][adapterID][bid][bidID];
-			var theBid = PWT.bidMap[divID].getBid(adapterID, bidID);
+		util.log(bidID+": "+divID+CONSTANTS.MESSAGES.M19+ adapterID);			
+		var theBid = PWT.bidMap[divID].getBid(adapterID, bidID);
 			
-			if(theBid == null){
-				return null;
-			}
+		if(theBid == null){
+			return null;
+		}
 
-			return {
-				bid: theBid,
-				slotid: divID
-			};
-		//}
+		return {
+			bid: theBid,
+			slotid: divID
+		};
 	}
 
 	util.log("Bid details not found for bidID: " + bidID);
@@ -314,6 +247,7 @@ exports.displayCreative = function(theDocument, bidID){
 };
 
 // todo: accept PWT.bidMap as parameter
+// todo: changes required for new stucture
 exports.executeAnalyticsPixel = function(){
 
 	var selectedInfo = {},
@@ -415,6 +349,7 @@ exports.executeAnalyticsPixel = function(){
 	}
 };
 
+// todo: changes required for new stucture
 exports.executeMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL();
 	
