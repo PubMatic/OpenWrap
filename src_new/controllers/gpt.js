@@ -463,7 +463,7 @@ function newDisplayFunction(theObject, originalFunction){
 				bidManager.executeAnalyticsPixel();
 			},2000+CONFIG.getTimeout());
 
-			return originalFunction.apply(theObject, arguments);
+			//return originalFunction.apply(theObject, arguments);
 		};
 	}else{
 		util.log("display: originalFunction is not a function");
