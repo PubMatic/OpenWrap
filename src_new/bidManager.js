@@ -281,7 +281,7 @@ exports.getBidById = function(bidID){
 	var adapterID = PWT.bidIdMap[bidID]["a"];
 
 	if( util.isOwnProperty(PWT.bidMap, divID) ){	
-		if( util.isOwnProperty(PWT.bidMap[divID][stringBidders], adapterID) ){
+		//if( util.isOwnProperty(PWT.bidMap[divID][stringBidders], adapterID) ){
 			util.log(bidID+": "+divID+CONSTANTS.MESSAGES.M19+ adapterID);
 			//var theBid = PWT.bidMap[divID][stringBidders][adapterID][bid][bidID];
 			var theBid = PWT.bidMap[divID].getBid(adapterID, bidID);
@@ -294,7 +294,7 @@ exports.getBidById = function(bidID){
 				bid: theBid,
 				slotid: divID
 			};
-		}
+		//}
 	}
 
 	util.log("Bid details not found for bidID: " + bidID);
