@@ -40,7 +40,17 @@ function BMEntry(name){
 	this.adapters = {};
 	this.creationTime = util.getCurrentTimestampInMs();
 	this.impressionID = "";
+	this.analyticsEnabled = false;
 }
+
+BMEntry.prototype.setAnalyticEnabled = function(){
+	this.analyticsEnabled = true;
+	return this;
+};
+
+BMEntry.prototype.getAnalyticEnabledStatus = function(){
+	return this.analyticsEnabled;
+};
 
 BMEntry.prototype.setNewBid = function(adapterID, theBid){
 	if(!util.isOwnProperty(this.adapters, adapterID)){
