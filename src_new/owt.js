@@ -24,13 +24,14 @@ window.PWT.displayCreative = function(theDocument, bidID){
 
 window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In displayPMPCreative for: " + values);	
-	//var bidID = utilGetBididForPMP(values, priorityArray);//todo
-	//bidID && bidManagerDisplayCreative(theDocument, bidID);//todo
+	var bidID = util.getBididForPMP(values, priorityArray);
+	bidID && bidManager.displayCreative(theDocument, bidID);
 };
 
+//todo: change first argument to window, will require change in LineItemCreationTool 
 window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	util.log("In sfDisplayCreative for: " + bidID);
-	//utilAddMessageEventListenerForSafeFrame(true);//todo
+	util.addMessageEventListenerForSafeFrame(window, true);//todo
 	window.parent.postMessage(
 		JSON.stringify({
 			pwt_type: "1",
@@ -41,13 +42,14 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	);
 };
 
+//todo: change first argument to window, will require change in LineItemCreationTool
 window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In sfDisplayPMPCreative for: " + values);
-	//utilAddMessageEventListenerForSafeFrame(true);//todo
+	util.addMessageEventListenerForSafeFrame(window, true);
 	window.parent.postMessage(
 		JSON.stringify({
 			pwt_type: "1",
-			pwt_bidID: "",//utilGetBididForPMP(values, priorityArray),//todo
+			pwt_bidID: util.getBididForPMP(values, priorityArray),
 			pwt_origin: "", //win.location.protocol+"//"+win.location.hostname //todo
 		}), 
 		"*"
@@ -61,6 +63,8 @@ controller.init(window);
 /*
 
 TODO:
+	When to execute logger pixel ?
+		like nightly ? or original
 	config how to store and read ?
 		DONE
 	any issue with bidManager/adapterManager being called from many files
@@ -78,5 +82,5 @@ TODO:
 			DONE
 		logger pixel execution	
 			DONE
-			
+
 */

@@ -399,3 +399,184 @@ exports.addHookOnFunction = function(theObject, useProto, functionName, newFunct
 		this.log("in assignNewDefination: oldReference is not a function");
 	}
 };
+
+exports.getBididForPMP = function(values, priorityArray){
+	values = values.split(',');
+
+	var valuesLength = values.length,
+		priorityArrayLength = priorityArray.length,
+		selectedPMPDeal = '',
+		bidID = ''
+	;
+
+	if(valuesLength == 0){
+		this.log('Error: Unable to find bidID as values array is empty.');
+		return;
+	}
+	
+	for(var i = 0; i < priorityArrayLength; i++){
+
+		for(var j = 0; j < valuesLength; j++){
+			if(values[j].indexOf(priorityArray[i]) >= 0){
+				selectedPMPDeal = values[j];
+				break;
+			}
+		}
+
+		if(selectedPMPDeal != ''){
+			break;
+		}
+	}
+	
+	if(selectedPMPDeal == ''){
+		selectedPMPDeal = values[0];
+		this.log('No PMP-Deal was found matching PriorityArray, So Selecting first PMP-Deal: '+ selectedPMPDeal);		
+	}else{
+		this.log('Selecting PMP-Deal: '+ selectedPMPDeal);	
+	}
+
+	var temp = selectedPMPDeal.split(CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR);
+	if(temp.length == 3){
+		bidID = temp[2];
+	}
+
+	if(!bidID){
+		this.log('Error: bidID not found in PMP-Deal: '+ selectedPMPDeal);
+		return;
+	}
+
+	return bidID;
+};
+
+exports.createInvisibleIframe = function() {
+	var f = document.createElement('iframe');
+	f.id = this.getUniqueIdentifierStr();
+	f.height = 0;
+	f.width = 0;
+	f.border = '0px';
+	f.hspace = '0';
+	f.vspace = '0';
+	f.marginWidth = '0';
+	f.marginHeight = '0';
+	f.style.border = '0';
+	f.scrolling = 'no';
+	f.frameBorder = '0';
+	f.src = 'about:self';//todo: test by setting empty src on safari
+	f.style = 'display:none';
+	return f;
+}
+
+exports.utilAddMessageEventListener = function(theWindow, eventHandler){
+	if(typeof eventHandler !== "function"){
+		this.log("EventHandler should be a function");
+		return false;
+	}
+
+	if(theWindow.addEventListener){
+		theWindow.addEventListener("message", eventHandler, false);
+	}else{
+		theWindow.attachEvent("onmessage", eventHandler);
+	}
+	return true;
+}
+
+utilSafeFrameCommunicationProtocol = function(msg){
+	try{
+		msgData = JSON.parse(msg.data);
+		
+		if(!msgData.pwt_type){
+			return;
+		}
+
+		switch(parseInt(msgData.pwt_type)){
+
+			case 1:
+				if(inSafeFrame){ // todo
+					return;
+				}
+				
+				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+				if(bidDetails){
+					var theBid = bidDetails.bid,
+						adapterID = theBid.getAdapterID(),
+						divID = bidDetails.slotid,
+						newMsgData = {
+							pwt_type: 2,
+							pwt_bid: theBid
+						}
+					;
+					//utilVLogInfo(divID, {type: 'disp', adapter: adapterID});//todo
+					bidManager.executeMonetizationPixel(divID, theBid);
+					msg.source.postMessage(JSON.stringify(newMsgData), msgData.pwt_origin);
+				}
+
+				break;
+
+			case 2:
+				if(!inSafeFrame){ //todo
+					return;
+				}
+				
+				if(msgData.pwt_bid){
+					var theBid = msgData.pwt_bid;
+					this.resizeWindow(window.document, theBid.getHeight(), theBid.getWidth());
+
+					if(theBid.getAdHtml()){
+						try{
+							var iframe = this.createInvisibleIframe(window.document);
+							if(!iframe){
+								throw {message: 'Failed to create invisible frame.', name:""};
+							}
+
+							iframe.setAttribute('width', theBid.getWidth());
+        					iframe.setAttribute('height', theBid.getHeight());
+        					iframe.style = '';
+
+							window.document.body.appendChild(iframe);
+
+							if(!iframe.contentWindow){
+								throw {message: 'Unable to access frame window.', name:""};
+							}
+
+							var iframeDoc = iframe.contentWindow.document;
+							if(!iframeDoc){
+								throw {message: 'Unable to access frame window document.', name:""};
+							}
+
+							var content = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><base target="_top" /><scr' + 'ipt>inDapIF=true;</scr' + 'ipt></head>';
+								content += '<body>';
+								content += "<script>var $sf = window.parent.$sf;<\/script>";
+								content += "<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>";
+								content += theBid.getAdHtml();
+								content += '</body></html>';
+
+							iframeDoc.write(content);
+							iframeDoc.close();
+							
+						}catch(e){
+							this.log('Error in rendering creative in safe frame.');
+							//this.log(e);
+							this.log('Rendering synchronously.');
+							this.displayCreative(window.document, msgData.pwt_bid);
+						}
+
+					}else if(theBid.getAdUrl()){
+						this.writeIframe(window.document, theBid.getAdUrl(), theBid.getWidth(), theBid.getHeight(), "");						
+					}else{
+						this.log("creative details are not found");
+						this.log(theBid);
+					}											
+				}
+				break;
+		}
+	}catch(e){}
+}
+
+//todo: need to pass window reference
+exports.addMessageEventListenerForSafeFrame = function(theWindow, isInSafeFrame){
+	inSafeFrame = isInSafeFrame;//todo
+	if(!safeFrameMessageListenerAdded){//todo
+		utilAddMessageEventListener(theWindow, utilSafeFrameCommunicationProtocol);
+		safeFrameMessageListenerAdded = true;
+	}
+};
