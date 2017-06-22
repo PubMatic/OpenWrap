@@ -27,23 +27,20 @@ exports.adapters = {
 	},
 	PB_pubmatic: {
 		rev_share: "0.0",
-		timeout: "2000",
 		throttle: "100",
+		publisherId: "9999",
 		kgp: "_DIV_",
 		klm: {
-			"Div_1": {
-				publisherId: "9999",
+			"Div_1": {				
 				adSlot: "DIV1_38519891@300x250"
 			},
 			"Div-2": {
-				publisherId: "9999",
 				adSlot: "DIV2_38519891@300x250"
 			}
 		}
 	},
 	PB_sekindoUM: {
 		rev_share: "0.0",
-		timeout: "2000",
 		throttle: "100",
 		kgp: "_DIV_",
 		klm: {
@@ -57,7 +54,6 @@ exports.adapters = {
 	},
 	PB_appnexus: {
 		rev_share: "0.0",
-		timeout: "2000",
 		throttle: "100",
 		kgp: "_DIV_",
 		klm: {
