@@ -1,21 +1,24 @@
+var CONFIG = require("./conf.js");
 var util = require("./util.js");
 var controller = require("./controllers/gpt.js");//todo: configer how to select controller, may be from config
 var bidManager = require("./bidManager.js");
 
-util.enableDebugLog();
-
+var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {
 	bidMap: {},
 	bidIdMap: {},
-	isIframe: util.isIframe(window),
-	protocol: util.getProtocol(window),
-	pageURL: util.getPageURL(window)
+	isIframe: metaInfo.isInIframe,
+	protocol: metaInfo.protocol,
+	secure: metaInfo.secure,
+	pageURL: metaInfo.u,
+	refURL: metaInfo.r,
 	//safeframe flags here
+	isSafeFrame: false,
+	safeFrameMessageListenerAdded: false
 };
 
-//todo: set pageURL and refURL using one func call
-window.PWT["cDebug"] = util.findInString(window.PWT.pageURL, "");
-window.PWT["vDebug"] = util.findInString(window.PWT.pageURL, "");
+util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
+//util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc");
 
 window.PWT.displayCreative = function(theDocument, bidID){
 	util.log("In displayCreative for: " + bidID);
@@ -24,43 +27,65 @@ window.PWT.displayCreative = function(theDocument, bidID){
 
 window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In displayPMPCreative for: " + values);	
-	//var bidID = utilGetBididForPMP(values, priorityArray);//todo
-	//bidID && bidManagerDisplayCreative(theDocument, bidID);//todo
+	var bidID = util.getBididForPMP(values, priorityArray);
+	bidID && bidManager.displayCreative(theDocument, bidID);
 };
 
+//todo: change first argument to window, will require change in LineItemCreationTool 
 window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	util.log("In sfDisplayCreative for: " + bidID);
-	//utilAddMessageEventListenerForSafeFrame(true);//todo
+	this.isSafeFrame = true;
 	window.parent.postMessage(
 		JSON.stringify({
 			pwt_type: "1",
 			pwt_bidID: bidID,
-			pwt_origin: ""//win.location.protocol+"//"+win.location.hostname//todo
-		}), 
+			pwt_origin: window.location.protocol+"//"+window.location.hostname
+		}),
 		"*"
 	);
 };
 
+//todo: change first argument to window, will require change in LineItemCreationTool
 window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In sfDisplayPMPCreative for: " + values);
-	//utilAddMessageEventListenerForSafeFrame(true);//todo
+	this.isSafeFrame = true;
 	window.parent.postMessage(
 		JSON.stringify({
 			pwt_type: "1",
-			pwt_bidID: "",//utilGetBididForPMP(values, priorityArray),//todo
-			pwt_origin: "", //win.location.protocol+"//"+win.location.hostname //todo
+			pwt_bidID: util.getBididForPMP(values, priorityArray),
+			pwt_origin: window.location.protocol+"//"+window.location.hostname
 		}), 
 		"*"
 	);
 };
 
-//exports.PWT = window.PWT;
+if(CONFIG.FEATURES.SAFE_FRME){
+	if(!this.safeFrameMessageListenerAdded){
+		util.addMessageEventListenerForSafeFrame(window);
+		this.this.safeFrameMessageListenerAdded = true;
+	}	
+}
 
 controller.init(window);
 
 /*
-
 TODO:
+	Refresh flow is breaking
+		gpt:newRefreshFuncton
+			delete return originalFunction.apply(theObject, arguments)
+		getQualifyingSlotNamesForRefresh
+			arguments issue	
+	SafeFrame gpt:init
+		if(!this.safeFrameMessageListenerAdded){
+			util.addMessageEventListenerForSafeFrame(window, false);//todo
+			this.this.safeFrameMessageListenerAdded = true;
+		}
+	Util
+		visualConsole	
+	When to execute logger pixel ?
+		like nightly ? or original
+		NOPE, abhinav said so on 21st June, 1756(time)
+		DONE	
 	config how to store and read ?
 		DONE
 	any issue with bidManager/adapterManager being called from many files
@@ -75,5 +100,7 @@ TODO:
 		safeframe
 			these changes are required in bidManager
 		named sizes
-		logger pixel execution	
+			DONE
+		logger pixel execution
+			DONE
 */
