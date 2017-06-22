@@ -290,7 +290,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){
 	}
 
 	pixelURL += "pubid=" + CONFIG.getPublisherId();
-	pixelURL += "&purl=" + util.pageURL;//todo
+	pixelURL += "&purl=" + util.metaInfo.pageURL;
 	pixelURL += "&tst=" + util.getCurrentTimestamp();
 	pixelURL += "&iid=" + encodeURIComponent(PWT.bidMap[slotID].getImpressionID());
 	pixelURL += "&bidid=" + encodeURIComponent(theBid.getBidID());
@@ -302,7 +302,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&eg=" + encodeURIComponent(theBid.getGrossEcpm());
 	pixelURL += "&kgpv=" + encodeURIComponent(theBid.getKGPV());
 
-	(new Image()).src = util.protocol + pixelURL;//todo: protocol
+	(new Image()).src = util.metaInfo.protocol + pixelURL;
 };
 
 //todo
