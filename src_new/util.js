@@ -106,9 +106,6 @@ exports.copyKeyValueObject = function(copyTo, copyFrom){
 	}
 };
 
-exports.protocol = "https://"; //todo need a set method
-exports.pageURL = "http://abc.com/ljljl/abc"; //todo removed
-
 exports.getIncrementalInteger = (function() {
 	var count = 0;
 	return function() {
@@ -366,23 +363,56 @@ exports.trim = function(s){
 	}
 };
 
+exports.getTopFrameOfSameDomain = function(cWin) {
+	try {
+		if (cWin.parent.document != cWin.document){
+		  return this.getTopFrameOfSameDomain(cWin.parent);
+		}
+	} catch(e) {}
+	return cWin;		
+};
+
+exports.metaInfo = {};
+
+exports.getMetaInfo = function(cWin){
+	var  obj = {}
+		, MAX_PAGE_URL_LEN = 512
+		, frame
+	;
+	
+	obj.pageURL = "";
+	obj.refURL = "";
+	obj.protocol = "https://";
+	obj.secure = 1;
+	obj.isInIframe = this.isIframe(cWin);
+	
+	try{
+		frame = this.getTopFrameOfSameDomain(cWin);				
+		obj.refURL = ( frame.refurl || frame.document.referrer || '' ).substr( 0, MAX_PAGE_URL_LEN );
+		obj.pageURL = ( frame !== top && frame.document.referrer != ""  ? frame.document.referrer : frame.location.href).substr(0, MAX_PAGE_URL_LEN );
+		
+		obj.protocol = (function(frame){
+			if(frame.location.protocol ===  "http:"){
+				obj.secure = 0;
+				return "http://";
+			}
+			obj.secure = 1;
+			return "https://";
+		})(frame);
+		
+	}catch(e){}		
+
+	this.metaInfo = obj;
+
+	return obj;
+};
+
 exports.isIframe = function(theWindow){
 	try{
 		return theWindow.self !== theWindow.top;
 	}catch(e){
 		return false;
 	}
-};
-
-exports.getProtocol = function(theWindow){
-	if(theWindow.location.protocol ===  "https:"){
-		return "https://";
-	}
-	return "http://";
-};
-
-exports.getPageURL = function(){ //theWindow (arg) // todo
-	return "";
 };
 
 exports.findInString = function(theString, find){

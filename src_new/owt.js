@@ -2,20 +2,20 @@ var util = require("./util.js");
 var controller = require("./controllers/gpt.js");//todo: configer how to select controller, may be from config
 var bidManager = require("./bidManager.js");
 
-util.enableDebugLog();
-
+var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {
 	bidMap: {},
 	bidIdMap: {},
-	isIframe: util.isIframe(window),
-	protocol: util.getProtocol(window),
-	pageURL: util.getPageURL(window)
+	isIframe: metaInfo.isInIframe,
+	protocol: metaInfo.protocol,
+	secure: metaInfo.secure,
+	pageURL: metaInfo.u,
+	refURL: metaInfo.r
 	//safeframe flags here
 };
 
-//todo: set pageURL and refURL using one func call
-window.PWT["cDebug"] = util.findInString(window.PWT.pageURL, "");
-window.PWT["vDebug"] = util.findInString(window.PWT.pageURL, "");
+util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
+//util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc");
 
 window.PWT.displayCreative = function(theDocument, bidID){
 	util.log("In displayCreative for: " + bidID);
@@ -36,8 +36,8 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 		JSON.stringify({
 			pwt_type: "1",
 			pwt_bidID: bidID,
-			pwt_origin: ""//win.location.protocol+"//"+win.location.hostname//todo
-		}), 
+			pwt_origin: window.location.protocol+"//"+window.location.hostname
+		}),
 		"*"
 	);
 };
@@ -45,30 +45,30 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 //todo: change first argument to window, will require change in LineItemCreationTool
 window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In sfDisplayPMPCreative for: " + values);
-	util.addMessageEventListenerForSafeFrame(window, true);
+	util.addMessageEventListenerForSafeFrame(window, true);//todo
 	window.parent.postMessage(
 		JSON.stringify({
 			pwt_type: "1",
 			pwt_bidID: util.getBididForPMP(values, priorityArray),
-			pwt_origin: "", //win.location.protocol+"//"+win.location.hostname //todo
+			pwt_origin: window.location.protocol+"//"+window.location.hostname
 		}), 
 		"*"
 	);
 };
 
-//exports.PWT = window.PWT;
-
 controller.init(window);
 
 /*
 TODO:
-	Refresh flow
-	gpt:newRefreshFuncton
-		delete return originalFunction.apply(theObject, arguments)
-	getQualifyingSlotNamesForRefresh
-		arguments issue	
+	Refresh flow is breaking
+		gpt:newRefreshFuncton
+			delete return originalFunction.apply(theObject, arguments)
+		getQualifyingSlotNamesForRefresh
+			arguments issue	
 	SafeFrame gpt:init
 		utilAddMessageEventListenerForSafeFrame(false);
+	Util
+		visualConsole	
 	When to execute logger pixel ?
 		like nightly ? or original
 		NOPE, abhinav said so on 21st June, 1756(time))

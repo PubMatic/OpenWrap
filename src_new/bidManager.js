@@ -220,11 +220,11 @@ exports.executeAnalyticsPixel = function(){
 		return;
 	}
 
-	pixelURL = util.protocol + pixelURL + 'pubid=' + CONFIG.getPublisherId() +'&json=';
+	pixelURL = util.metaInfo.protocol + pixelURL + 'pubid=' + CONFIG.getPublisherId() +'&json=';
 
 	outputObj[CONSTANTS.CONFIG.PUBLISHER_ID] = CONFIG.getPublisherId();
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMEOUT] = CONFIG.getTimeout();
-	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.PAGE_URL] = decodeURIComponent(util.pageURL);//todo change it 
+	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.PAGE_URL] = decodeURIComponent(util.metaInfo.pageURL);
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
