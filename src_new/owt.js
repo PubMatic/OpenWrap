@@ -61,12 +61,18 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 controller.init(window);
 
 /*
-
 TODO:
+	Refresh flow
+	gpt:newRefreshFuncton
+		delete return originalFunction.apply(theObject, arguments)
+	getQualifyingSlotNamesForRefresh
+		arguments issue	
+	SafeFrame gpt:init
+		utilAddMessageEventListenerForSafeFrame(false);
 	When to execute logger pixel ?
 		like nightly ? or original
-	SafeFrame gpt:init
-		utilAddMessageEventListenerForSafeFrame(false);	
+		NOPE, abhinav said so on 21st June, 1756(time))
+		DONE	
 	config how to store and read ?
 		DONE
 	any issue with bidManager/adapterManager being called from many files
@@ -82,7 +88,6 @@ TODO:
 			these changes are required in bidManager
 		named sizes
 			DONE
-		logger pixel execution	
+		logger pixel execution
 			DONE
-
 */
