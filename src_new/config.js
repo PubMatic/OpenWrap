@@ -55,7 +55,24 @@ exports.forEachAdapter = function(callback){
 };
 
 exports.initConfig = function(){
+	var ignoreAdapterLevelParams = {};
+	util.forEachOnObject(CONSTANTS.CONFIG, function(key, value){
+		ignoreAdapterLevelParams[value] = "";
+	});
+
 	util.forEachOnObject(config.adapters, function(adapterID, adapterConfig){
-		adapterConfig["NEW_"+adapterID] = adapterID;
+		if(adapterID.indexOf(CONSTANTS.COMMON.PREBID_PREFIX) == 0){
+			var adapterLevelParams = {};
+			util.forEachOnObject(adapterConfig, function(key, value){
+				if(!util.isOwnProperty(ignoreAdapterLevelParams, key)){
+					adapterLevelParams[ key ] = value;	
+				}				
+			});
+			util.forEachOnObject(adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP], function(kgpv, slotLevelParams){
+				util.forEachOnObject(adapterLevelParams, function(key, value){
+					slotLevelParams[ key ] = value;
+				});
+			});
+		}		
 	});
 };
