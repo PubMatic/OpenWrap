@@ -2,6 +2,7 @@
 	Note:
 		
 	TODO:
+		Latency calculation by prebid data		
 		we are not doing mandatory param check as PB does it
 			does PB logs if mandatory param is missing
 		latency should be calculated ccording to mentioned in PB reponse
@@ -44,7 +45,8 @@ function handleBidResponses(bidResponses){
 						setAdHtml(bid.ad || "").
 						setWidth(bid.width).
 						setHeight(bid.height).
-						setKeyValuePairs(bid.adserverTargeting || null);
+						setKeyValuePairs(bid.adserverTargeting || null).
+						setReceivedTime(bid.responseTimestamp);
 					bidManager.setBidFromBidder(kgpvMap[responseID].divID, theBid);
 				}
 			}

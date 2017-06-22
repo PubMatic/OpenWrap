@@ -262,7 +262,7 @@ exports.forEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, act
 
 					if(addZeroBids == true){
 						var bid = BID.createBid(adapterID, generatedKey);
-						bid.setDefaultBidStatus(1);
+						bid.setDefaultBidStatus(1).setReceivedTime(this.getCurrentTimestampInMs());
 						bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
 					}
 
