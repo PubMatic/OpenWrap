@@ -59,6 +59,7 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	);
 };
 
+//todo: move to init
 if(CONFIG.FEATURES.SAFE_FRME){
 	if(!this.safeFrameMessageListenerAdded){
 		util.addMessageEventListenerForSafeFrame(window);
