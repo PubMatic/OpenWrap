@@ -70,16 +70,6 @@ controller.init(window);
 
 /*
 TODO:
-	Refresh flow is breaking
-		gpt:newRefreshFuncton
-			delete return originalFunction.apply(theObject, arguments)
-		getQualifyingSlotNamesForRefresh
-			arguments issue	
-	SafeFrame gpt:init
-		if(!this.safeFrameMessageListenerAdded){
-			util.addMessageEventListenerForSafeFrame(window, false);//todo
-			this.this.safeFrameMessageListenerAdded = true;
-		}
 	Util
 		visualConsole	
 	When to execute logger pixel ?

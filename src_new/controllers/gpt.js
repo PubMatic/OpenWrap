@@ -269,7 +269,7 @@ function updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, arguments
             var slot = slotsMap[slotName];
             slot.setStatus(CONSTANTS.SLOT_STATUS.PARTNERS_CALLED);
             if (isRefreshCall) {
-                this.removeDMTargetingFromSlot(slotName);
+                refThis.removeDMTargetingFromSlot(slotName);
                 slot.setRefreshFunctionCalled(true).setArguments([]);
             }
         }
@@ -605,7 +605,7 @@ exports.newAddHookOnGoogletagDisplay = newAddHookOnGoogletagDisplay;
 /* end-test-block */
 
 function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue) {
-    if (util.isOwnProperty(slotsMap, slotName) && slotsMap[slotName].isRefreshFunctionCalled === true && slotsMap[slotName].getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED) {
+    if (util.isOwnProperty(slotsMap, slotName) && slotsMap[slotName].isRefreshFunctionCalled() === true && slotsMap[slotName].getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED) {
 
         findWinningBidAndApplyTargeting(divID);
         updateStatusAfterRendering(divID, true);
@@ -624,7 +624,7 @@ function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFun
     var yesCallRefreshFunction = false;
     util.forEachOnArray(qualifyingSlotNames, function(index, dmSlot) {
         var divID = slotsMap[dmSlot].getDivID();
-        yesCallRefreshFunction = this.findWinningBidIfRequired_Refresh(dmSlot, divID, yesCallRefreshFunction);
+        yesCallRefreshFunction = refThis.findWinningBidIfRequired_Refresh(dmSlot, divID, yesCallRefreshFunction);
         setTimeout(function() {
             //utilCreateVLogInfoPanel(divID, slotsMap[dmSlot].getSizes());
             //utilRealignVLogInfoPanel(divID);  
@@ -654,12 +654,10 @@ exports.callOriginalRefeshFunction = callOriginalRefeshFunction;
 function getQualifyingSlotNamesForRefresh(arg, theObject) {
     var qualifyingSlotNames = [],
         slotsToConsider = [];
-    if (arg.length != 0) {
-        // handeling case googletag.pubads().refresh(null, {changeCorrelator: false});
-        slotsToConsider = arg[0] == null ? theObject.getSlots() : arg[0];
-    }
+    // handeling case googletag.pubads().refresh(null, {changeCorrelator: false});
+    slotsToConsider = arg.length == 0 || arg[0] == null ? theObject.getSlots() : arg[0];
     util.forEachOnArray(slotsToConsider, function(index, slot) {
-        qualifyingSlotNames = qualifyingSlotNames.concat(this.generateSlotName(slot));
+        qualifyingSlotNames = qualifyingSlotNames.concat(refThis.generateSlotName(slot));
     });
     return qualifyingSlotNames;
 }
@@ -687,7 +685,7 @@ function newRefreshFuncton(theObject, originalFunction) {
             setTimeout(function() {
                 refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);
             }, CONFIG.getTimeout());
-            return originalFunction.apply(theObject, arguments);
+            //return originalFunction.apply(theObject, arguments);
         };
     } else {
         util.log("refresh: originalFunction is not a function");
