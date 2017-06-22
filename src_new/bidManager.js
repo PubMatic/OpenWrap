@@ -31,16 +31,12 @@ exports.setBidFromBidder = function(divID, bidDetails){
 		return;
 	}
 
-	var currentTime = util.getCurrentTimestampInMs(),
-		// move to a function
-		isPostTimeout = (bidMapEntry.getCreationTime()+CONFIG.getTimeout()) < currentTime ? true : false
-	;
+	var isPostTimeout = (bidMapEntry.getCreationTime()+CONFIG.getTimeout()) < bidDetails.getReceivedTime() ? true : false;
 
 	createBidEntry(divID);
 
 	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", postTimeout: "+isPostTimeout);
 	
-	bidDetails.setReceivedTime(currentTime);
 	if(isPostTimeout === true){
 		bidDetails.setPostTimeoutStatus();
 	}
@@ -60,7 +56,7 @@ exports.setBidFromBidder = function(divID, bidDetails){
 
 			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14);
-				storeBidInBidMap(divID, bidderID, bidDetails, currentTime);				
+				storeBidInBidMap(divID, bidderID, bidDetails);				
 			}else{
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16);
 			}				
@@ -69,11 +65,11 @@ exports.setBidFromBidder = function(divID, bidDetails){
 		}
 	}else{
 		util.log(CONSTANTS.MESSAGES.M18);
-		storeBidInBidMap(divID, bidderID, bidDetails, currentTime);		
+		storeBidInBidMap(divID, bidderID, bidDetails);		
 	}		
 };
 
-function storeBidInBidMap(slotID, adapterID, theBid, currentTime){
+function storeBidInBidMap(slotID, adapterID, theBid){
 	PWT.bidMap[slotID].setNewBid(adapterID, theBid);
 	PWT.bidIdMap[theBid.getBidID()] = {
 		s: slotID,
@@ -86,7 +82,7 @@ function storeBidInBidMap(slotID, adapterID, theBid, currentTime){
 			bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(PT)' : ''),
 			bidDetails: theBid,
 			startTime: PWT.bidMap[slotID].getCreationTime(),
-			endTime: currentTime
+			endTime: currentTime //todo
 		});*/
 	}
 }

@@ -216,9 +216,9 @@ describe("CONTROLLER: GPT", function() {
                     }
                 });
 
-                // console.log("UTIL.isObject.calledOnce ==>", UTIL.isObject.calledOnce)
+                console.log("UTIL.isObject.calledOnce ==>", UTIL.isObject.callCount);
 
-                UTIL.isObject.calledOnce.should.equal(true);
+                UTIL.isObject.called.should.equal(true);
                 GPT.setWindowReference.calledOnce.should.equal(true);
                 GPT.defineWrapperTargetingKeys.calledOnce.should.equal(true);
                 GPT.defineGPTVariables.calledOnce.should.equal(true);

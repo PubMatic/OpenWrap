@@ -2,10 +2,10 @@
 	Note:
 		
 	TODO:
-		we are not doing mandatory param check as PB does it
-			does PB logs if mandatory param is missing
-		latency should be calculated ccording to mentioned in PB reponse
+		Latency calculation by prebid data
+			DONE		
 		on refresh or in some cases PB is not returning bids asap, using full timeout
+			DONE		
 		read adapter level params and set to PB params accrdingly
 			keep map of known adapter-level params, pass every other param in PB param
 		PubMatic special handliing
@@ -14,6 +14,8 @@
 		PulsePoint
 			cf is mandatory , WxH
 		RubiconFastlane		
+		we are not doing mandatory param check as PB does it
+			does PB logs if mandatory param is missing
 */
 var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
@@ -22,7 +24,7 @@ var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 
 var adapterID = "prebid";
-var pbPrefix = "PB_";
+var pbPrefix = CONSTANTS.COMMON.PREBID_PREFIX;
 var kgpvMap = {};
 //var adapterConfigMandatoryParams = [CONSTANTS.CONFIG.KEY_GENERATION_PATTERN, CONSTANTS.CONFIG.KEY_LOOKUP_MAP];
 
@@ -44,7 +46,8 @@ function handleBidResponses(bidResponses){
 						setAdHtml(bid.ad || "").
 						setWidth(bid.width).
 						setHeight(bid.height).
-						setKeyValuePairs(bid.adserverTargeting || null);
+						setKeyValuePairs(bid.adserverTargeting || null).
+						setReceivedTime(bid.responseTimestamp);
 					bidManager.setBidFromBidder(kgpvMap[responseID].divID, theBid);
 				}
 			}
@@ -113,6 +116,7 @@ function fetchBids(activeSlots){
 
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
 		if(adapterID.indexOf(pbPrefix) == 0){
+			console.log(adapterConfig);
 			generatePbConf(adapterID, adapterConfig, activeSlots, adUnits);	
 		}
 	});
