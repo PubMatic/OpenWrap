@@ -53,3 +53,9 @@ exports.getMonetizationPixelURL = function(){
 exports.forEachAdapter = function(callback){
 	util.forEachOnObject(config.adapters, callback);
 };
+
+exports.initConfig = function(){
+	util.forEachOnObject(config.adapters, function(adapterID, adapterConfig){
+		adapterConfig["NEW_"+adapterID] = adapterID;
+	});
+};

@@ -4,6 +4,7 @@
 exports.COMMON = {
 	"BID_PRECISION": 4,
 	"DEAL_KEY_VALUE_SEPARATOR": "_-_",
+	"PREBID_PREFIX": "PB_",
 	"CONFIG": "config",
 	"DIV_ID": "divID",
 	"PARAMS": "params",

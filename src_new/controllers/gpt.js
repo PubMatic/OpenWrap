@@ -804,6 +804,7 @@ exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
 /* end-test-block */
 
 exports.init = function(win) {
+	CONFIG.initConfig();
     if (util.isObject(win)) {
         this.setWindowReference(win);
         this.wrapperTargetingKeys = this.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);

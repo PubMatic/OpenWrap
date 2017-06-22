@@ -24,7 +24,7 @@ var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 
 var adapterID = "prebid";
-var pbPrefix = "PB_";
+var pbPrefix = CONSTANTS.COMMON.PREBID_PREFIX;
 var kgpvMap = {};
 //var adapterConfigMandatoryParams = [CONSTANTS.CONFIG.KEY_GENERATION_PATTERN, CONSTANTS.CONFIG.KEY_LOOKUP_MAP];
 
@@ -116,6 +116,7 @@ function fetchBids(activeSlots){
 
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
 		if(adapterID.indexOf(pbPrefix) == 0){
+			console.log(adapterConfig);
 			generatePbConf(adapterID, adapterConfig, activeSlots, adUnits);	
 		}
 	});
