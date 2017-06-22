@@ -496,7 +496,7 @@ exports.createInvisibleIframe = function() {
 	return f;
 }
 
-exports.utilAddMessageEventListener = function(theWindow, eventHandler){
+exports.addMessageEventListener = function(theWindow, eventHandler){
 	if(typeof eventHandler !== "function"){
 		this.log("EventHandler should be a function");
 		return false;
@@ -510,7 +510,7 @@ exports.utilAddMessageEventListener = function(theWindow, eventHandler){
 	return true;
 }
 
-utilSafeFrameCommunicationProtocol = function(msg){
+exports.safeFrameCommunicationProtocol = function(msg){
 	try{
 		msgData = JSON.parse(msg.data);
 		
@@ -521,7 +521,7 @@ utilSafeFrameCommunicationProtocol = function(msg){
 		switch(parseInt(msgData.pwt_type)){
 
 			case 1:
-				if(inSafeFrame){ // todo
+				if(window.PWT.inSafeFrame){
 					return;
 				}
 				
@@ -543,7 +543,7 @@ utilSafeFrameCommunicationProtocol = function(msg){
 				break;
 
 			case 2:
-				if(!inSafeFrame){ //todo
+				if(!window.PWT.inSafeFrame){
 					return;
 				}
 				
@@ -602,11 +602,6 @@ utilSafeFrameCommunicationProtocol = function(msg){
 	}catch(e){}
 }
 
-//todo: need to pass window reference
-exports.addMessageEventListenerForSafeFrame = function(theWindow, isInSafeFrame){
-	inSafeFrame = isInSafeFrame;//todo
-	if(!safeFrameMessageListenerAdded){//todo
-		utilAddMessageEventListener(theWindow, utilSafeFrameCommunicationProtocol);
-		safeFrameMessageListenerAdded = true;
-	}
+exports.addMessageEventListenerForSafeFrame = function(theWindow){
+	this.addMessageEventListener(theWindow, this.safeFrameCommunicationProtocol);
 };

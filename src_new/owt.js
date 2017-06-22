@@ -1,3 +1,4 @@
+var CONFIG = require("./conf.js");
 var util = require("./util.js");
 var controller = require("./controllers/gpt.js");//todo: configer how to select controller, may be from config
 var bidManager = require("./bidManager.js");
@@ -10,8 +11,10 @@ window.PWT = window.PWT || {
 	protocol: metaInfo.protocol,
 	secure: metaInfo.secure,
 	pageURL: metaInfo.u,
-	refURL: metaInfo.r
+	refURL: metaInfo.r,
 	//safeframe flags here
+	isSafeFrame: false,
+	safeFrameMessageListenerAdded: false
 };
 
 util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
@@ -31,7 +34,7 @@ window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 //todo: change first argument to window, will require change in LineItemCreationTool 
 window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	util.log("In sfDisplayCreative for: " + bidID);
-	util.addMessageEventListenerForSafeFrame(window, true);//todo
+	this.isSafeFrame = true;
 	window.parent.postMessage(
 		JSON.stringify({
 			pwt_type: "1",
@@ -45,7 +48,7 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 //todo: change first argument to window, will require change in LineItemCreationTool
 window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In sfDisplayPMPCreative for: " + values);
-	util.addMessageEventListenerForSafeFrame(window, true);//todo
+	this.isSafeFrame = true;
 	window.parent.postMessage(
 		JSON.stringify({
 			pwt_type: "1",
@@ -55,6 +58,13 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 		"*"
 	);
 };
+
+if(CONFIG.FEATURES.SAFE_FRME){
+	if(!this.safeFrameMessageListenerAdded){
+		util.addMessageEventListenerForSafeFrame(window);
+		this.this.safeFrameMessageListenerAdded = true;
+	}	
+}
 
 controller.init(window);
 
@@ -66,12 +76,15 @@ TODO:
 		getQualifyingSlotNamesForRefresh
 			arguments issue	
 	SafeFrame gpt:init
-		utilAddMessageEventListenerForSafeFrame(false);
+		if(!this.safeFrameMessageListenerAdded){
+			util.addMessageEventListenerForSafeFrame(window, false);//todo
+			this.this.safeFrameMessageListenerAdded = true;
+		}
 	Util
 		visualConsole	
 	When to execute logger pixel ?
 		like nightly ? or original
-		NOPE, abhinav said so on 21st June, 1756(time))
+		NOPE, abhinav said so on 21st June, 1756(time)
 		DONE	
 	config how to store and read ?
 		DONE

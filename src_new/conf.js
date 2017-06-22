@@ -70,3 +70,7 @@ exports.adapters = {
 		}
 	}
 };
+
+exports.FEATURES = {
+	SAFE_FRAME: false
+};
