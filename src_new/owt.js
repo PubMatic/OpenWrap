@@ -1,4 +1,3 @@
-var CONFIG = require("./conf.js");
 var util = require("./util.js");
 var controller = require("./controllers/gpt.js");//todo: configer how to select controller, may be from config
 var bidManager = require("./bidManager.js");
@@ -60,7 +59,7 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 };
 
 //todo: move to init
-if(CONFIG.FEATURES.SAFE_FRME){
+if(false){
 	if(!this.safeFrameMessageListenerAdded){
 		util.addMessageEventListenerForSafeFrame(window);
 		this.this.safeFrameMessageListenerAdded = true;
@@ -72,7 +71,7 @@ controller.init(window);
 /*
 TODO:
 	Util
-		visualConsole	
+		visualConsole
 	When to execute logger pixel ?
 		like nightly ? or original
 		NOPE, abhinav said so on 21st June, 1756(time)
