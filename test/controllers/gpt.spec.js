@@ -555,4 +555,137 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
+    describe('#getAdSlotSizesArray()', function () {
+    	beforeEach(function (done) {
+    		done();
+    	});	
+
+    	afterEach(function (done) {
+    		done();
+    	});	
+
+
+    	it('is a function', function (done) {
+    		GPT.getAdSlotSizesArray.should.be.a('function');
+    		done();
+    	});
+    	
+    });
+
+
+    describe('#newDisplayFunction()', function () {
+
+    	beforeEach(function (done) {
+    		sinon.spy(UTIL, "log");
+    		done();
+    	});
+
+    	afterEach(function (done) {
+    		UTIL.log.restore();
+    		done();
+    	});
+
+    	it('is a function', function (done) {
+    		GPT.newDisplayFunction.should.be.a('function');
+    		done();
+    	});
+
+    	it('should return null when impropper parameters are passed', function (done) {
+    		// TODO : finf better approach to check for null in chai
+    		var result = GPT.newDisplayFunction(null, function(){ console.log("inside function")});
+    		// console.log(" result ==>", result);
+    		should.not.exist(result);
+    		UTIL.log.calledOnce.should.equal(true);
+    		UTIL.log.calledWith("display: originalFunction is not a function").should.be.true;
+    		done();
+    	});
+
+    	it('should return function when proper parameters are passed', function (done) {
+    		GPT.newDisplayFunction({}, function () { console.log("inside function")}).should.be.a('function');
+    		// console.log("updateSlotsMapFromGoogleSlots ==>", GPT.updateSlotsMapFromGoogleSlots.callCount);
+    		done();
+    	});
+
+    });
+
+    describe('#newSizeMappingFunction', function () {
+
+    	beforeEach(function (done) {
+    		sinon.spy(UTIL, "log");
+    		sinon.spy(UTIL, "isObject");
+            sinon.spy(UTIL, "isFunction");
+    		done();
+    	});
+
+    	afterEach(function (done) {
+    		UTIL.log.restore();
+    		UTIL.isObject.restore();
+    		UTIL.isFunction.restore();
+    		done();
+    	});
+
+
+    	it('is a function', function (done) {
+    		GPT.newSizeMappingFunction.should.be.a('function');
+    		done();
+    	});
+
+    	it('should return null when impropper parameters passed', function (done) {
+    		var result = GPT.newSizeMappingFunction(null, {});
+    		should.not.exist(result);
+    		UTIL.log.calledOnce.should.be.true;
+    		UTIL.log.calledWith("newSizeMappingFunction: originalFunction is not a function").should.be.true;
+    		done();
+    	});
+
+    	it('should return a function when propper parameters are passed', function (done) {
+    		GPT.newSizeMappingFunction({}, function () {
+    			console.log("inside function");
+    		}).should.be.a('function');
+    		UTIL.isObject.calledOnce.should.be.true;
+    		UTIL.isFunction.calledOnce.should.be.true;
+    		done();
+    	});
+    });
+
+    describe('#newRefreshFuncton', function () {
+
+    	beforeEach(function (done) {
+    		sinon.spy(UTIL, "log");
+    		sinon.spy(UTIL, "isObject");
+            sinon.spy(UTIL, "isFunction");
+    		done();
+    	});
+
+    	afterEach(function (done) {
+    		UTIL.log.restore();
+    		UTIL.isObject.restore();
+    		UTIL.isFunction.restore();
+    		done();
+    	});
+
+
+    	it('is a function', function (done) {
+    		GPT.newRefreshFuncton.should.be.a('function');
+    		done();
+    	});
+
+    	it('should return null when impropper parameters passed', function (done) {
+    		var result = GPT.newRefreshFuncton(null, {});
+    		should.not.exist(result);
+    		UTIL.log.calledOnce.should.be.true;
+    		UTIL.log.calledWith("refresh: originalFunction is not a function").should.be.true;
+    		done();
+    	});
+
+    	it('should return a function when propper parameters are passed', function (done) {
+    		GPT.newRefreshFuncton({}, function () {
+    			console.log("inside function");
+    		}).should.be.a('function');
+    		UTIL.isObject.calledOnce.should.be.true;
+    		UTIL.isFunction.calledOnce.should.be.true;
+    		done();
+    	});
+    });
+
 });

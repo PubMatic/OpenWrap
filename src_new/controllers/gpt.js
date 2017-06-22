@@ -554,9 +554,9 @@ function newDisplayFunction(theObject, originalFunction) {
                 return originalFunction.apply(theObject, arguments);
             }
 
-            updateSlotsMapFromGoogleSlots(theObject.pubads().getSlots(), arguments, true);
-            displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
-            forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus({ 0: "" }), arguments, false);
+            refThis.updateSlotsMapFromGoogleSlots(theObject.pubads().getSlots(), arguments, true);
+            refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
+            refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus({ 0: "" }), arguments, false);
 
             setTimeout(function() {
                 //utilRealignVLogInfoPanel(arg[0]);
@@ -697,10 +697,10 @@ function newRefreshFuncton(theObject, originalFunction) {
 exports.newRefreshFuncton = newRefreshFuncton;
 /* end-test-block */
 
-function newSizeMappingFunction(theObject, originalFunction) {
+function newSizeMappingFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
-            slotSizeMapping[this.generateSlotName(theObject)] = arguments[0];
+            slotSizeMapping[refThis.generateSlotName(theObject)] = arguments[0];
             return originalFunction.apply(theObject, arguments);
         };
     } else {
@@ -714,13 +714,13 @@ exports.newSizeMappingFunction = newSizeMappingFunction;
 /* end-test-block */
 
 // slot.defineSizeMapping
-function addHookOnSlotDefineSizeMapping(localGoogletag) {
+function addHookOnSlotDefineSizeMapping(localGoogletag) { // TDD : done
     if (util.isObject(localGoogletag) && util.isFunction(localGoogletag.defineSlot)) {
         var s1 = localGoogletag.defineSlot("/Harshad", [
             [728, 90]
         ], "Harshad-02051986");
         if (s1) {
-            util.addHookOnFunction(s1, true, "defineSizeMapping", this.newSizeMappingFunction);
+            util.addHookOnFunction(s1, true, "defineSizeMapping", refThis.newSizeMappingFunction);
             localGoogletag.destroySlots([s1]);
             return true;
         }
@@ -732,7 +732,7 @@ function addHookOnSlotDefineSizeMapping(localGoogletag) {
 exports.addHookOnSlotDefineSizeMapping = addHookOnSlotDefineSizeMapping;
 /* end-test-block */
 
-function addHooks(win) {
+function addHooks(win) { // TDD : done
     // console.log("win ==>", win);
     if (util.isObject(win) && util.isObject(win.googletag) && util.isFunction(win.googletag.pubads)) {
         var localGoogletag = win.googletag;
@@ -743,13 +743,13 @@ function addHooks(win) {
             return false;
         }
 
-        this.addHookOnSlotDefineSizeMapping(localGoogletag);
-        util.addHookOnFunction(localPubAdsObj, false, "disableInitialLoad", this.newDisableInitialLoadFunction);
-        util.addHookOnFunction(localPubAdsObj, false, "enableSingleRequest", this.newEnableSingleRequestFunction);
-        this.newAddHookOnGoogletagDisplay(localGoogletag);
-        util.addHookOnFunction(localPubAdsObj, false, "refresh", this.newRefreshFuncton);
-        util.addHookOnFunction(localPubAdsObj, false, "setTargeting", this.newSetTargetingFunction);
-        util.addHookOnFunction(localGoogletag, false, "destroySlots", this.newDestroySlotsFunction);
+        refThis.addHookOnSlotDefineSizeMapping(localGoogletag);
+        util.addHookOnFunction(localPubAdsObj, false, "disableInitialLoad", refThis.newDisableInitialLoadFunction);
+        util.addHookOnFunction(localPubAdsObj, false, "enableSingleRequest", refThis.newEnableSingleRequestFunction);
+        refThis.newAddHookOnGoogletagDisplay(localGoogletag);
+        util.addHookOnFunction(localPubAdsObj, false, "refresh", refThis.newRefreshFuncton);
+        util.addHookOnFunction(localPubAdsObj, false, "setTargeting", refThis.newSetTargetingFunction);
+        util.addHookOnFunction(localGoogletag, false, "destroySlots", refThis.newDestroySlotsFunction);
         return true;
     } else {
         return false;
@@ -760,7 +760,7 @@ function addHooks(win) {
 exports.addHooks = addHooks;
 /* end-test-block */
 
-function defineGPTVariables(win) {
+function defineGPTVariables(win) { // TDD : done
     // define the command array if not already defined
     if (util.isObject(win)) {
         win.googletag = win.googletag || {};
@@ -773,10 +773,10 @@ function defineGPTVariables(win) {
 exports.defineGPTVariables = defineGPTVariables;
 /* end-test-block */
 
-function addHooksIfPossible(win) {
+function addHooksIfPossible(win) { // TDD : done
     if (util.isUndefined(win.google_onload_fired) && util.isObject(win.googletag) && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)) {
         util.log("Succeeded to load before GPT");
-        var refThis = this;
+        var refThis = this; // TODO : check whether the global refThis works here
         win.googletag.cmd.unshift(function() {
             util.log("OpenWrap initialization started");
             refThis.addHooks(win);
@@ -792,7 +792,7 @@ function addHooksIfPossible(win) {
 exports.addHooksIfPossible = addHooksIfPossible;
 /* end-test-block */
 
-function callJsLoadedIfRequired(win) {
+function callJsLoadedIfRequired(win) { // TDD : done
     if (util.isObject(win) && util.isObject(win.PWT) && util.isFunction(win.PWT.jsLoaded)) {
         win.PWT.jsLoaded();
         return true;
@@ -803,14 +803,14 @@ function callJsLoadedIfRequired(win) {
 exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
 /* end-test-block */
 
-exports.init = function(win) {
+exports.init = function(win) { // TDD : done
     if (util.isObject(win)) {
-        this.setWindowReference(win);
-        this.wrapperTargetingKeys = this.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
-        this.defineGPTVariables(win);
+        refThis.setWindowReference(win);
+        refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
+        refThis.defineGPTVariables(win);
         adapterManager.registerAdapters();
-        this.addHooksIfPossible(win);
-        this.callJsLoadedIfRequired(win);
+        refThis.addHooksIfPossible(win);
+        refThis.callJsLoadedIfRequired(win);
         return true;
     } else {
         return false;
