@@ -2,11 +2,10 @@
 	Note:
 		
 	TODO:
-		Latency calculation by prebid data		
-		we are not doing mandatory param check as PB does it
-			does PB logs if mandatory param is missing
-		latency should be calculated ccording to mentioned in PB reponse
+		Latency calculation by prebid data
+			DONE		
 		on refresh or in some cases PB is not returning bids asap, using full timeout
+			DONE		
 		read adapter level params and set to PB params accrdingly
 			keep map of known adapter-level params, pass every other param in PB param
 		PubMatic special handliing
@@ -15,6 +14,8 @@
 		PulsePoint
 			cf is mandatory , WxH
 		RubiconFastlane		
+		we are not doing mandatory param check as PB does it
+			does PB logs if mandatory param is missing
 */
 var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
