@@ -315,7 +315,8 @@ function findWinningBidAndApplyTargeting(divID) {
         "hb_bidder": 1,
         "hb_adid": 1,
         "hb_pb": 1,
-        "hb_size": 1
+        "hb_size": 1,
+        "hb_deal": 1
     };
 
     util.log("DIV: " + divID + " winningBid: ");
