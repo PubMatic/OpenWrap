@@ -199,6 +199,4 @@ exports.createBid = function(adapterID, kgpv){
 };
 
 //todo:
-// how to support PMPG key-value-pair as we are setting bidID internally
-	// auto set the PMPG key value
-	// generate partner-level key-value if deal-channel and deal-id is present	
+// add validations
