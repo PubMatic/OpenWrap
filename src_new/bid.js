@@ -14,7 +14,7 @@ function Bid(adapterID, kgpv){
 	this.height = 0;
 	this.width = 0;	
 	this.creativeID = ""; //todo, is it needed ?
-	this.keyValuePairs = null;
+	this.keyValuePairs = {};
 	this.isPostTimeout = false;
 	this.receivedTime = 0;
 	this.dealID = "";
@@ -119,8 +119,8 @@ Bid.prototype.getKGPV = function(){
 	return this.kgpv;
 };
 
-Bid.prototype.setKeyValuePairs = function(keyValuePairs){
-	this.keyValuePairs = keyValuePairs;
+Bid.prototype.setKeyValuePair = function(key, value){
+	this.keyValuePairs[key] = value;
 	return this;
 };
 
@@ -157,6 +157,7 @@ Bid.prototype.getDealID = function(){
 
 Bid.prototype.setDealChannel = function(dealChannel){
 	this.dealChannel = this.dealID && dealChannel ? (""+dealChannel) : "";
+
 	return this;
 };
 
@@ -189,3 +190,4 @@ exports.createBid = function(adapterID, kgpv){
 //todo:
 // how to support PMPG key-value-pair as we are setting bidID internally
 	// auto set the PMPG key value
+	// generate partner-level key-value if deal-channel and deal-id is present	

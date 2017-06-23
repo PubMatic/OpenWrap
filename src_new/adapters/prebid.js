@@ -8,6 +8,7 @@
 			DONE		
 		read adapter level params and set to PB params accrdingly
 			keep map of known adapter-level params, pass every other param in PB param
+			DONE
 		PubMatic special handliing
 		OpenX special handling
 			deldomain param
@@ -46,8 +47,10 @@ function handleBidResponses(bidResponses){
 						setAdHtml(bid.ad || "").
 						setWidth(bid.width).
 						setHeight(bid.height).
-						setKeyValuePairs(bid.adserverTargeting || null).
 						setReceivedTime(bid.responseTimestamp);
+					util.forEachOnObject(bid.adserverTargeting, function(key, value){
+						theBid.setKeyValuePair(key, value);
+					});
 					bidManager.setBidFromBidder(kgpvMap[responseID].divID, theBid);
 				}
 			}
