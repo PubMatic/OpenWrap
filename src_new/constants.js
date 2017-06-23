@@ -3,6 +3,7 @@
 
 exports.COMMON = {
 	"BID_PRECISION": 4,
+	"DEAL_KEY_FIRST_PART": "pwtdeal_",
 	"DEAL_KEY_VALUE_SEPARATOR": "_-_",
 	"PREBID_PREFIX": "PB_",
 	"CONFIG": "config",

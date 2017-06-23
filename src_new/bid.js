@@ -18,7 +18,7 @@ function Bid(adapterID, kgpv){
 	this.isPostTimeout = false;
 	this.receivedTime = 0;
 	this.dealID = "";
-	this.dealChannel = "";
+	this.dealChannel = "PMP";
 	this.isWinningBid = false;
 	this.status = 0;
 }
@@ -147,7 +147,13 @@ Bid.prototype.getReceivedTime = function(){
 };
 
 Bid.prototype.setDealID = function(dealID){
-	this.dealID = dealID ? (""+dealID) : "";
+	if(dealID){
+		this.dealID = dealID;
+		this.setKeyValuePair(
+			CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+this.adapterID, 
+			this.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + this.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + this.bidID
+		);
+	}
 	return this;
 };
 
@@ -156,8 +162,13 @@ Bid.prototype.getDealID = function(){
 };
 
 Bid.prototype.setDealChannel = function(dealChannel){
-	this.dealChannel = this.dealID && dealChannel ? (""+dealChannel) : "";
-
+	if(this.dealID && dealChannel){
+		this.dealChannel = dealChannel;
+		this.setKeyValuePair(
+			CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+this.adapterID, 
+			this.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + this.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + this.bidID
+		);
+	}	
 	return this;
 };
 
