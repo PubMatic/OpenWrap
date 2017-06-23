@@ -43,11 +43,11 @@ function handleBidResponses(bidResponses){
 					theBid.
 						setGrossEcpm(bid.cpm).
 						setDealID(bid.dealId).
-						setDealChannel("NA").
 						setAdHtml(bid.ad || "").
 						setWidth(bid.width).
 						setHeight(bid.height).
 						setReceivedTime(bid.responseTimestamp);
+					//todo: does any PB partner passes URL as creative ?	
 					util.forEachOnObject(bid.adserverTargeting, function(key, value){
 						theBid.setKeyValuePair(key, value);
 					});
