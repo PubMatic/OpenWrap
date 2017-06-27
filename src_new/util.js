@@ -7,6 +7,7 @@ var BID = require("./bid.js");
 var bidManager = require("./bidManager.js");
 
 var debugLogIsEnabled = false;
+var visualDebugLogIsEnabled = false;
 var typeArray = "Array";
 var typeString = "String";
 var typeFunction = "Function";
@@ -54,6 +55,10 @@ exports.isUndefined = function(object){
 
 exports.enableDebugLog = function(){
 	debugLogIsEnabled = true;
+};
+
+exports.enableVisualDebugLog = function(){
+	visualDebugLogIsEnabled = true;
 };
 
 //todo: move...

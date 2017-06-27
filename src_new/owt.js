@@ -13,11 +13,12 @@ window.PWT = window.PWT || {
 	refURL: metaInfo.r,
 	//safeframe flags here
 	isSafeFrame: false,
-	safeFrameMessageListenerAdded: false
+	safeFrameMessageListenerAdded: false,
+	udpv: util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtv") // usingDifferentProfileVersion
 };
 
 util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
-//util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc");
+util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc") && util.enableVisualDebugLog();
 
 window.PWT.displayCreative = function(theDocument, bidID){
 	util.log("In displayCreative for: " + bidID);
