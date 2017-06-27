@@ -7,28 +7,42 @@ var prebid = require("./adapters/prebid.js");
 
 var registeredAdapters = {};
 
+/* start-test-block */
+exports.registeredAdapters = registeredAdapters;
+/* end-test-block */
+
+var refThis = this;
+
 exports.callAdapters = function(activeSlots){	
 	var impressionID = util.generateUUID();
-	resetSlots(activeSlots, impressionID);
-	callAdapter(registeredAdapters, activeSlots, impressionID);
+	refThis.resetSlots(activeSlots, impressionID);
+	refThis.callAdapter(registeredAdapters, activeSlots, impressionID);
 };
 
 function getRandomNumberBelow100(){
 	return Math.floor(Math.random()*100);
 }
 
+/* start-test-block */
+exports.getRandomNumberBelow100 = getRandomNumberBelow100;
+/* end-test-block */
+
 // todo: give better name to this function
 function callAdapter(adapters, slots, impressionID){
-	var randomNumberBelow100 = getRandomNumberBelow100();
+	var randomNumberBelow100 = refThis.getRandomNumberBelow100();
 	util.forEachOnObject(adapters, function(adapterID, theAdapter){
-		if(throttleAdapter(randomNumberBelow100, adapterID) == false){
-			setInitTimeForSlotsForAdapter(slots, adapterID);
+		if(refThis.throttleAdapter(randomNumberBelow100, adapterID) == false){
+			refThis.setInitTimeForSlotsForAdapter(slots, adapterID);
 			theAdapter.fB(slots, impressionID);
 		}else{
 			util.log(adapterID+CONSTANTS.MESSAGES.M2);
 		}
 	});
 }
+
+/* start-test-block */
+exports.callAdapter = callAdapter;
+/* end-test-block */
 
 // todo: where this function should go ? move to bidManager
 function resetSlots(slots, impressionID){
@@ -40,9 +54,17 @@ function resetSlots(slots, impressionID){
 	});
 }
 
+/* start-test-block */
+exports.resetSlots = resetSlots;
+/* end-test-block */
+
 function throttleAdapter(randomNumber, adapterID){
 	return !(randomNumber >= CONFIG.getAdapterThrottle(adapterID));
 }
+
+/* start-test-block */
+exports.throttleAdapter = throttleAdapter;
+/* end-test-block */
 
 // todo: where this function should go ? move to bidManager
 function setInitTimeForSlotsForAdapter(slots, adapterID){
@@ -51,17 +73,30 @@ function setInitTimeForSlotsForAdapter(slots, adapterID){
 	});
 }
 
+/* start-test-block */
+exports.setInitTimeForSlotsForAdapter = setInitTimeForSlotsForAdapter;
+/* end-test-block */
+
 function registerAdapter(bidAdaptor) {
 	if (bidAdaptor) {
 		var adapterID = bidAdaptor.ID();
 		if (util.isFunction(bidAdaptor.fB)){
-			registeredAdapters[adapterID] = bidAdaptor;
+			refThis.registeredAdapters[adapterID] = bidAdaptor;
 		} else {
 			util.log(adapterID + CONSTANTS.MESSAGES.M3);
 		}
+	} else {
+		util.log("passsed argument is not a bidAdaptor");
 	}
 }
 
-exports.registerAdapters = function(){
-	registerAdapter(prebid.register());
+/* start-test-block */
+exports.registerAdapter = registerAdapter;
+/* end-test-block */
+
+function registerAdapters(){
+	refThis.registerAdapter(prebid.register());
 };
+
+
+exports.registerAdapters = registerAdapters;
