@@ -95,6 +95,12 @@ function generatePbConf(pbAdapterID, adapterConfig, activeSlots, adUnits){
 				};
 			}
 
+			// processing for each partner
+				// 1 PubMatic
+				// 2 Piximedia
+				// 3 Sovrn
+				// 4 PulsePoint				
+
 			//todo we can loop on sizes
 			//	then we can have special handling per adapter
 			if(keyConfig){

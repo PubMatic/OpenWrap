@@ -19,7 +19,6 @@ exports.adapters = {
 	}
 	,*/prebid: {
 		rev_share: "0.0",
-		timeout: "2000",
 		throttle: "100",
 		kgp: "_DIV_",
 		klm: {								
