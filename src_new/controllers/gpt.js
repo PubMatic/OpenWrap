@@ -165,8 +165,7 @@ function storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow) {
         }
 
         slotsMap[dmSlotName] = slot;
-        //todo
-        //utilCreateVLogInfoPanel(dmSlotName, slot.getSizes());
+        util.createVLogInfoPanel(dmSlotName, slot.getSizes());
     } else {
         if (!isDisplayFlow) {
             slotsMap[dmSlotName].setSizes(getAdSlotSizesArray(dmSlotName, currentGoogleSlot));
@@ -559,8 +558,9 @@ function newDisplayFunction(theObject, originalFunction) {
             refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
             refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus({ 0: "" }), arguments, false);
 
+            var divID = arguments[0];
             setTimeout(function() {
-                //utilRealignVLogInfoPanel(arg[0]);
+                util.realignVLogInfoPanel(divID);
                 bidManager.executeAnalyticsPixel();
             }, 2000 + CONFIG.getTimeout());
 
@@ -627,8 +627,8 @@ function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFun
         var divID = slotsMap[dmSlot].getDivID();
         yesCallRefreshFunction = refThis.findWinningBidIfRequired_Refresh(dmSlot, divID, yesCallRefreshFunction);
         setTimeout(function() {
-            //utilCreateVLogInfoPanel(divID, slotsMap[dmSlot].getSizes());
-            //utilRealignVLogInfoPanel(divID);  
+            util.createVLogInfoPanel(divID, slotsMap[dmSlot].getSizes());
+            util.realignVLogInfoPanel(divID);  
         }, 2000 + CONFIG.getTimeout());
     });
     bidManager.executeAnalyticsPixel();

@@ -540,7 +540,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 							pwt_bid: theBid
 						}
 					;
-					//utilVLogInfo(divID, {type: 'disp', adapter: adapterID});//todo
+					this.vLogInfo(divID, {type: 'disp', adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
 					msg.source.postMessage(JSON.stringify(newMsgData), msgData.pwt_origin);
 				}
@@ -609,4 +609,130 @@ exports.safeFrameCommunicationProtocol = function(msg){
 
 exports.addMessageEventListenerForSafeFrame = function(theWindow){
 	this.addMessageEventListener(theWindow, this.safeFrameCommunicationProtocol);
+};
+
+exports.getElementLocation = function( el ) {
+	var rect,
+		x = 0,
+		y = 0
+	;
+
+	if(this.isFunction(el.getBoundingClientRect)) {		
+		rect = el.getBoundingClientRect();
+		x 	 = Math.floor(rect.left);
+		y 	 = Math.floor(rect.top);
+	} else {
+		while(el) {
+			x += el.offsetLeft;
+			y += el.offsetTop;
+			el = el.offsetParent;
+		}
+	}
+	return { x: x, y: y	};
+}
+
+exports.createVLogInfoPanel = function(divID, dimensionArray){
+	var element,
+		infoPanelElement,
+		infoPanelElementID,
+		doc = window.document
+	;	
+
+	if(visualDebugLogIsEnabled){
+		element = doc.getElementById(divID);
+		if(element && dimensionArray.length && dimensionArray[0][0] && dimensionArray[0][1]){
+			infoPanelElementID = divID + '-pwtc-info';
+			if(!this.isUndefined(doc.getElementById(infoPanelElementID))){
+				var pos = this.getElementLocation(element);
+				infoPanelElement = doc.createElement('div');
+				infoPanelElement.id = infoPanelElementID;
+				infoPanelElement.style = 'position: absolute; /*top: '+pos.y+'px;*/ left: '+pos.x+'px; width: '+dimensionArray[0][0]+'px; height: '+dimensionArray[0][1]+'px; border: 1px solid rgb(255, 204, 52); padding-left: 11px; background: rgb(247, 248, 224) none repeat scroll 0% 0%; overflow: auto; z-index: 9999997; visibility: hidden;opacity:0.9;font-size:13px;font-family:monospace;';
+
+				var closeImage = doc.createElement('img');
+				closeImage.src = this.metaInfo.protocol+"ads.pubmatic.com/AdServer/js/pwt/close.png";
+				closeImage.style = 'cursor:pointer; position: absolute; top: 2px; left: '+(pos.x+dimensionArray[0][0]-16-15)+'px; z-index: 9999998;';
+				closeImage.title = 'close';
+				closeImage.onclick = function(){
+					infoPanelElement.style.display = "none";
+				};
+				infoPanelElement.appendChild(closeImage);
+				infoPanelElement.appendChild(doc.createElement('br'));
+
+				var text = 'Slot: '+divID+' | ';
+				for(var i=0; i<dimensionArray.length; i++){
+					text += (i != 0 ? ', ' : '') + dimensionArray[i][0] + 'x' + dimensionArray[i][1];
+				}
+				infoPanelElement.appendChild(doc.createTextNode(text));
+				infoPanelElement.appendChild(doc.createElement('br'));
+				element.parentNode.insertBefore(infoPanelElement, element);
+			}
+		}
+	}
+};
+
+exports.realignVLogInfoPanel = function(divID){
+	var element,
+		infoPanelElement,
+		infoPanelElementID,
+		doc = window.document
+	;
+
+	if(visualDebugLogIsEnabled){
+		element = doc.getElementById(divID);
+		if(element){
+			infoPanelElementID = divID + '-pwtc-info';
+			infoPanelElement = doc.getElementById(infoPanelElementID);
+			if(infoPanelElement){
+				var pos = this.getElementLocation(element);
+				infoPanelElement.style.visibility = 'visible';
+				infoPanelElement.style.left = pos.x + 'px';
+				infoPanelElement.style.height = element.clientHeight + 'px';
+			}
+		}
+	}
+};
+
+exports.vLogInfo = function(divID, infoObject){
+	var infoPanelElement,
+		message,
+		doc = window.document
+	;
+	if(visualDebugLogIsEnabled){		
+		var infoPanelElementID = divID + "-pwtc-info";
+		infoPanelElement = doc.getElementById(infoPanelElementID);
+		if( infoPanelElement ){
+			switch(infoObject.type){
+				case "bid":
+					var latency = infoObject.latency;
+					var bidDetails = infoObject.bidDetails;
+					if(latency < 0){
+						latency = 0;
+					}
+					message = "Bid: " + infoObject.bidder + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + "): " + latency + "ms";
+					if(bidDetails.getPostTimeoutStatus()){
+						message += ": POST-TIMEOUT";
+					}
+					break;
+
+				case "win-bid":
+					var bidDetails = infoObject.bidDetails;
+					message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm();
+					break;
+
+				case "win-bid-fail":
+					message = "There are no bids from PWT";
+					break;
+
+				case "hr":
+					message = "----------------------";
+					break;
+
+				case "disp":
+					message = "Displaying creative from "+ infoObject.adapter;
+					break;
+			}
+			infoPanelElement.appendChild(doc.createTextNode(message));
+			infoPanelElement.appendChild(doc.createElement("br"));
+		}
+	}
 };

@@ -9,12 +9,12 @@ window.PWT = window.PWT || {
 	isIframe: metaInfo.isInIframe,
 	protocol: metaInfo.protocol,
 	secure: metaInfo.secure,
-	pageURL: metaInfo.u,
-	refURL: metaInfo.r,
+	pageURL: metaInfo.pageURL,
+	refURL: metaInfo.refURL,
 	//safeframe flags here
 	isSafeFrame: false,
 	safeFrameMessageListenerAdded: false,
-	udpv: util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtv") // usingDifferentProfileVersion
+	udpv: util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtv=") // usingDifferentProfileVersion
 };
 
 util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();

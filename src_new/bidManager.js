@@ -31,7 +31,8 @@ exports.setBidFromBidder = function(divID, bidDetails){
 		return;
 	}
 
-	var isPostTimeout = (bidMapEntry.getCreationTime()+CONFIG.getTimeout()) < bidDetails.getReceivedTime() ? true : false;
+	var isPostTimeout = (bidMapEntry.getCreationTime()+CONFIG.getTimeout()) < bidDetails.getReceivedTime() ? true : false,
+		latency = bidDetails.getReceivedTime() - bidMapEntry.getCreationTime();
 
 	createBidEntry(divID);
 
@@ -56,7 +57,7 @@ exports.setBidFromBidder = function(divID, bidDetails){
 
 			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14);
-				storeBidInBidMap(divID, bidderID, bidDetails);				
+				storeBidInBidMap(divID, bidderID, bidDetails, latency);				
 			}else{
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16);
 			}				
@@ -65,11 +66,11 @@ exports.setBidFromBidder = function(divID, bidDetails){
 		}
 	}else{
 		util.log(CONSTANTS.MESSAGES.M18);
-		storeBidInBidMap(divID, bidderID, bidDetails);		
+		storeBidInBidMap(divID, bidderID, bidDetails, latency);		
 	}		
 };
 
-function storeBidInBidMap(slotID, adapterID, theBid){
+function storeBidInBidMap(slotID, adapterID, theBid, latency){
 	PWT.bidMap[slotID].setNewBid(adapterID, theBid);
 	PWT.bidIdMap[theBid.getBidID()] = {
 		s: slotID,
@@ -77,18 +78,17 @@ function storeBidInBidMap(slotID, adapterID, theBid){
 	};
 
 	if(theBid.getDefaultBidStatus() === 0){
-		/*utilVLogInfo(slotID, {
+		util.vLogInfo(slotID, {
 			type: "bid",
-			bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(PT)' : ''),
+			bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(Passthrough)' : ''),
 			bidDetails: theBid,
-			startTime: PWT.bidMap[slotID].getCreationTime(),
-			endTime: currentTime //todo
-		});*/
+			latency: latency
+		});
 	}
 }
 
 exports.resetBid = function(divID, impressionID){
-	//utilVLogInfo(divID, {type: "hr"});//todo
+	util.vLogInfo(divID, {type: "hr"});
 	delete PWT.bidMap[divID];
 	createBidEntry(divID);
 	PWT.bidMap[divID].setImpressionID(impressionID);
@@ -148,16 +148,14 @@ exports.getBid = function(divID){
 		if(winningBid && winningBid.getNetEcpm() > 0){
 			winningBid.setStatus(1);
 			winningBid.setWinningBidStatus();
-			//todo
-			/*utilVLogInfo(divID, {
+			util.vLogInfo(divID, {
 				type: "win-bid",
 				bidDetails: winningBid
-			});*/
+			});
 		}else{
-			//todo
-			/*utilVLogInfo(divID, {
+			util.vLogInfo(divID, {
 				type: "win-bid-fail",
-			});*/
+			});
 		}
 	}
 
@@ -199,7 +197,7 @@ exports.displayCreative = function(theDocument, bidID){
 			divID = bidDetails.slotid
 		;
 		util.displayCreative(theDocument, theBid);
-		//utilVLogInfo(divID, {type: 'disp', adapter: adapterID});
+		util.vLogInfo(divID, {type: 'disp', adapter: theBid.getAdapterID()});
 		this.executeMonetizationPixel(divID, theBid);
 	}
 };
