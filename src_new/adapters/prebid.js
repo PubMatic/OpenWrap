@@ -2,21 +2,18 @@
 	Note:
 		
 	TODO:
-		Latency calculation by prebid data
-			DONE		
-		on refresh or in some cases PB is not returning bids asap, using full timeout
-			DONE		
-		read adapter level params and set to PB params accrdingly
-			keep map of known adapter-level params, pass every other param in PB param
-			DONE
 		PubMatic special handliing
-		OpenX special handling
-			deldomain param
 		PulsePoint
 			cf is mandatory , WxH
-		RubiconFastlane		
+		RubiconFastlane
 		we are not doing mandatory param check as PB does it
 			does PB logs if mandatory param is missing
+		Following partners require W,H to be passed 
+			Piximedia	optional
+			PubMatic	depends on KGP
+			Sovrn		optional
+			PulsePoint	cf mandatory
+		Can we 	
 */
 var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
@@ -27,7 +24,6 @@ var bidManager = require("../bidManager.js");
 var adapterID = "prebid";
 var pbPrefix = CONSTANTS.COMMON.PREBID_PREFIX;
 var kgpvMap = {};
-//var adapterConfigMandatoryParams = [CONSTANTS.CONFIG.KEY_GENERATION_PATTERN, CONSTANTS.CONFIG.KEY_LOOKUP_MAP];
 
 function handleBidResponses(bidResponses){
 	for(var responseID in bidResponses){
@@ -73,7 +69,7 @@ function generatePbConf(pbAdapterID, adapterConfig, activeSlots, adUnits){
 		[],
 		activeSlots, 
 		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN], 
-		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP], 
+		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null, 
 		function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){					
 			
 			var code, sizes, divID = currentSlot.getDivID();
@@ -99,10 +95,14 @@ function generatePbConf(pbAdapterID, adapterConfig, activeSlots, adUnits){
 				};
 			}
 
-			adUnits[ code ].bids.push({
-				bidder: adapterIdInPreBid,
-				params: keyConfig
-			});
+			//todo we can loop on sizes
+			//	then we can have special handling per adapter
+			if(keyConfig){
+				adUnits[ code ].bids.push({
+					bidder: adapterIdInPreBid,
+					params: keyConfig
+				});
+			}
 		},
 		true
 	);
@@ -139,14 +139,13 @@ function fetchBids(activeSlots){
 		}
 
 		if(util.isFunction(window.pbjs.requestBids)){
-			//pbjs.addAdUnits(adUnitsArray);
 			window.pbjs.logging = true;//todo: enable optionally
 			window.pbjs.requestBids({
 				adUnits: adUnitsArray,
 				bidsBackHandler: function(bidResponses) {
 					handleBidResponses(bidResponses);
 				},
-				timeout: CONFIG.getTimeout()-150 //todo is it higher ?
+				timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
 			});
 		}
 	}
