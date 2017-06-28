@@ -90,20 +90,30 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits){
 					bids: []
 				};
 			}
+			
+			var slotParams = {};
+			util.forEachOnObject(keyConfig, function(key, value){
+				slotParams[key] = value;
+			});			
 
 			// processing for each partner
-				// 1 PubMatic
-				// 2 Piximedia
-				// 3 Sovrn
-				// 4 PulsePoint				
+			switch(adapterID){
+				case "pubmatic":
+					slotParams["publisherId"] = adapterConfig["publisherId"];
+					slotParams["adSlot"] = generatedKey;
+					adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+					break;
 
-			//todo we can loop on sizes
-			//	then we can have special handling per adapter
-			if(keyConfig){
-				adUnits[ code ].bids.push({
-					bidder: adapterID,
-					params: keyConfig
-				});
+				case "pulsepoint":					
+					util.forEachOnArray(sizes, function(index, size){
+						slotParams["cf"] = size[0] + "x" + size[1];
+						adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+					});
+					break;
+
+				default:
+					adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+					break;	 
 			}
 		},
 		true
