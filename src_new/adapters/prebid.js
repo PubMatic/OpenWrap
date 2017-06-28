@@ -21,8 +21,7 @@ var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 
-var adapterID = "prebid";
-var pbPrefix = CONSTANTS.COMMON.PREBID_PREFIX;
+var parentAdapterID = "prebid";
 var kgpvMap = {};
 
 function handleBidResponses(bidResponses){
@@ -35,7 +34,7 @@ function handleBidResponses(bidResponses){
 				var bid = bids[i];
 				if(bid.bidderCode){
 
-					var theBid = BID.createBid(pbPrefix + bid.bidderCode, kgpvMap[responseID].kgpv);
+					var theBid = BID.createBid(bid.bidderCode, kgpvMap[responseID].kgpv);
 					theBid.
 						setGrossEcpm(bid.cpm).
 						setDealID(bid.dealId).
@@ -54,18 +53,15 @@ function handleBidResponses(bidResponses){
 	}
 }
 
-function generatePbConf(pbAdapterID, adapterConfig, activeSlots, adUnits){
-
-	var adapterIdInPreBid = pbAdapterID.replace(pbPrefix, ""); // todo move to a function
-
-	util.log(pbAdapterID+CONSTANTS.MESSAGES.M1);
+function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits){
+	util.log(adapterID+CONSTANTS.MESSAGES.M1);
 	
 	if(!adapterConfig){
 		return;
-	}	
+	}
 
 	util.forEachGeneratedKey(
-		pbAdapterID,
+		adapterID,
 		[],
 		activeSlots, 
 		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN], 
@@ -75,7 +71,7 @@ function generatePbConf(pbAdapterID, adapterConfig, activeSlots, adUnits){
 			var code, sizes, divID = currentSlot.getDivID();
 
 			if(kgpConsistsWidthAndHeight){
-				code = divID + "@" + adapterIdInPreBid + "@" + currentWidth + "X" + currentHeight;
+				code = divID + "@" + adapterID + "@" + currentWidth + "X" + currentHeight;
 				sizes = [[currentWidth, currentHeight]];
 			}else{
 				code = divID;
@@ -105,7 +101,7 @@ function generatePbConf(pbAdapterID, adapterConfig, activeSlots, adUnits){
 			//	then we can have special handling per adapter
 			if(keyConfig){
 				adUnits[ code ].bids.push({
-					bidder: adapterIdInPreBid,
+					bidder: adapterID,
 					params: keyConfig
 				});
 			}
@@ -124,7 +120,7 @@ function fetchBids(activeSlots){
 	var adUnits = {};// create ad-units for prebid
 
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
-		if(adapterID.indexOf(pbPrefix) == 0){
+		if(adapterID !== parentAdapterID){
 			console.log(adapterConfig);
 			generatePbConf(adapterID, adapterConfig, activeSlots, adUnits);	
 		}
@@ -161,7 +157,7 @@ exports.register = function(){
 	return {
 		fB: fetchBids,
 		ID: function(){
-			return adapterID;
+			return parentAdapterID;
 		}
 	};
 };

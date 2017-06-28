@@ -24,7 +24,7 @@ exports.adapters = {
 		klm: {								
 		}
 	},
-	PB_pubmatic: {
+	pubmatic: {
 		rev_share: "0.0",
 		throttle: "100",
 		publisherId: "9999",
@@ -38,7 +38,7 @@ exports.adapters = {
 			}
 		}
 	},
-	PB_sekindoUM: {
+	sekindoUM: {
 		rev_share: "0.0",
 		throttle: "100",
 		kgp: "_DIV_",
@@ -51,7 +51,7 @@ exports.adapters = {
 			}
 		}
 	},
-	PB_appnexus: {
+	appnexus: {
 		rev_share: "0.0",
 		throttle: "100",
 		kgp: "_DIV_",
