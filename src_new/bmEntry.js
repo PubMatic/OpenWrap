@@ -111,7 +111,7 @@ BMEntry.prototype.setAdapterEntry = function(adapterID){
 
 BMEntry.prototype.getLastBidIDForAdapter = function(adapterID){
 	if(util.isOwnProperty(this.adapters, adapterID)){
-		this.adapters[adapterID].getLastBidID();
+		return this.adapters[adapterID].getLastBidID();
 	}
 	return "";
 };
