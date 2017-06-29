@@ -58,6 +58,7 @@ exports.enableDebugLog = function(){
 };
 
 exports.enableVisualDebugLog = function(){
+	debugLogIsEnabled = true;
 	visualDebugLogIsEnabled = true;
 };
 
