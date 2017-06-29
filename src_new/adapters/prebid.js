@@ -1,19 +1,12 @@
 /*
 	Note:
-		
+		Whenever we support a new PB adapter, we need to check if it needs actual sizes to be passed, 
+			if so we will need to add special handling
+
 	TODO:
 		PubMatic special handliing
-		PulsePoint
-			cf is mandatory , WxH
-		RubiconFastlane
-		we are not doing mandatory param check as PB does it
-			does PB logs if mandatory param is missing
-		Following partners require W,H to be passed 
-			Piximedia	optional
-			PubMatic	depends on KGP
-			Sovrn		optional
-			PulsePoint	cf mandatory
-		Can we 	
+		We are not doing mandatory param check as PB does it
+			does PB logs if mandatory param is missing		
 */
 var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
