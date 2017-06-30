@@ -3,7 +3,6 @@ console.log("running from shell script");
 var shell = require('shelljs');
 var argv = require('yargs').argv;
 
-#
 shell.exec("gulp clean");
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
@@ -32,14 +31,6 @@ if ( argv.mode && argv.mode == "test-build") {
 	shell.exit(1);
 }
  
-#
-
-# if (argv.dev) {
-# 	buildTaskName = "dev" + buildTaskName;
-# 	webpackTaskName = "dev" + webpackTaskName;
-# } else {
-# 	webpackTaskName = "web" + webpackTaskName;
-# }
 
 if(shell.exec("gulp " + webpackTaskName + " --mode=" + argv.mode).code !== 0) {
 	shell.echo('Error: buidlinng of project failed');
