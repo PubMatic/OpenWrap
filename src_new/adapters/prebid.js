@@ -31,6 +31,7 @@ function handleBidResponses(bidResponses){
 					theBid.
 						setGrossEcpm(bid.cpm).
 						setDealID(bid.dealId).
+						setDealChannel(bid.dealChannel).
 						setAdHtml(bid.ad || "").
 						setWidth(bid.width).
 						setHeight(bid.height).
@@ -46,7 +47,7 @@ function handleBidResponses(bidResponses){
 	}
 }
 
-function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits){
+function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID){
 	util.log(adapterID+CONSTANTS.MESSAGES.M1);
 	
 	if(!adapterConfig){
@@ -94,6 +95,11 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits){
 				case "pubmatic":
 					slotParams["publisherId"] = adapterConfig["publisherId"];
 					slotParams["adSlot"] = generatedKey;
+					slotParams["wiid"] = impressionID;
+					slotParams["profId"] = CONFIG.getProfileID();
+					if(window.PWT.udpv){
+						slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
+					}
 					adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 					break;
 
@@ -113,7 +119,7 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits){
 	);
 }
 
-function fetchBids(activeSlots){
+function fetchBids(activeSlots, impressionID){
 
 	if(! window.pbjs){
 		util.log("PreBid js is not loaded");	
@@ -125,7 +131,7 @@ function fetchBids(activeSlots){
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
 		if(adapterID !== parentAdapterID){
 			console.log(adapterConfig);
-			generatePbConf(adapterID, adapterConfig, activeSlots, adUnits);	
+			generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);	
 		}
 	});
 
