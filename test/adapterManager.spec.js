@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-// var sinon = require("sinon");
+var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 
@@ -12,6 +12,8 @@ var BIDMANAGER = require("../src_new/bidManager.js");
 var prebid = require("../src_new/adapters/prebid.js");
 
 var conf = require('../src_new/conf');
+
+var commonAdapterID = "pubmatic";
 
 
 describe("adapterManager : ADPTMgr", function() {
@@ -206,7 +208,7 @@ describe("adapterManager : ADPTMgr", function() {
     describe('#throttleAdapter()', function() {
         var adapterID = null;
         beforeEach(function(done) {
-            adapterID = "PB_pubmatic";
+            adapterID = commonAdapterID;
             sinon.spy(CONFIG, 'getAdapterThrottle');
             done();
         });
@@ -272,7 +274,7 @@ describe("adapterManager : ADPTMgr", function() {
                     }
                 }
             };
-            adapterID = "PB_pubmatic";
+            adapterID = commonAdapterID;
             sinon.stub(BIDMANAGER, 'setCallInitTime');
             sinon.spy(UTIL, 'forEachOnObject');
             done();
@@ -307,7 +309,7 @@ describe("adapterManager : ADPTMgr", function() {
         var adapterID = null;
 
         beforeEach(function(done) {
-            adapterID = "PB_pubmatic";
+            adapterID = commonAdapterID;
             bidAdaptor = {
                 ID: function() {
                     return adapterID;
