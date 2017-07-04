@@ -9,13 +9,6 @@ exports.pwt = {
 };
 
 exports.adapters = {
-	prebid: {
-		rev_share: "0.0",
-		throttle: "100",
-		kgp: "_DIV_",
-		klm: {								
-		}
-	},
 	pubmatic: {
 		rev_share: "0.0",
 		throttle: "100",
