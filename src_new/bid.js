@@ -194,6 +194,12 @@ Bid.prototype.getStatus = function(){
 	return this.status;
 };
 
+
+/* start-test-block */
+module.exports = Bid;
+/* end-test-block */
+
+
 exports.createBid = function(adapterID, kgpv){
 	return new Bid(adapterID, kgpv);
 };
