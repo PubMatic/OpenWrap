@@ -196,7 +196,7 @@ Bid.prototype.getStatus = function(){
 
 
 /* start-test-block */
-module.exports = Bid;
+module.exports.Bid = Bid;
 /* end-test-block */
 
 

@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-// var sinon = require("sinon");
+var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 
@@ -13,7 +13,7 @@ var UTIL = require("../src_new/util.js");
 var bmEntry = require("../src_new/bmEntry.js")
 
 
-var bid = require('../src_new/bid.js');
+var bid = require('../src_new/bid.js').Bid;
 
 var jsdom = require('jsdom').jsdom;
 var exposedProperties = ['window', 'navigator', 'document'];
