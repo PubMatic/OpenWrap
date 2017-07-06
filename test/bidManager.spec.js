@@ -926,7 +926,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(9);
+            window.encodeURIComponent.callCount.should.be.equal(10);
 
             done();
         });
