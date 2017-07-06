@@ -54,7 +54,21 @@ exports.forEachAdapter = function(callback){
 	util.forEachOnObject(config.adapters, callback);
 };
 
+function addPrebidAdapter(){
+	var preBidAdapter = "prebid";
+	if(!util.isOwnProperty(config.adapters, preBidAdapter)){
+		var adapterConfig = {};
+		adapterConfig[CONSTANTS.CONFIG.REV_SHARE] = "0.0";
+		adapterConfig[CONSTANTS.CONFIG.THROTTLE] = "100";
+		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN]	= "_DIV_";
+		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = {};
+		config.adapters[preBidAdapter] = adapterConfig;
+	}	
+}
+
 exports.initConfig = function(){
+	addPrebidAdapter();
+
 	var ignoreAdapterLevelParams = {};
 	util.forEachOnObject(CONSTANTS.CONFIG, function(key, value){
 		ignoreAdapterLevelParams[value] = "";
