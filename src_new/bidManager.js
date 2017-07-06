@@ -237,7 +237,7 @@ exports.executeAnalyticsPixel = function(){
 	pixelURL = util.metaInfo.protocol + pixelURL + 'pubid=' + CONFIG.getPublisherId() +'&json=';
 
 	outputObj[CONSTANTS.CONFIG.PUBLISHER_ID] = CONFIG.getPublisherId();
-	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMEOUT] = CONFIG.getTimeout();
+	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMEOUT] = ""+CONFIG.getTimeout();
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.PAGE_URL] = decodeURIComponent(util.metaInfo.pageURL);
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
@@ -304,7 +304,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD done
 	}
 
 	pixelURL += "pubid=" + CONFIG.getPublisherId();
-	pixelURL += "&purl=" + util.metaInfo.pageURL;
+	pixelURL += "&purl=" + window.encodeURIComponent(util.metaInfo.pageURL);
 	pixelURL += "&tst=" + util.getCurrentTimestamp();
 	pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
 	pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
