@@ -304,7 +304,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD done
 	}
 
 	pixelURL += "pubid=" + CONFIG.getPublisherId();
-	pixelURL += "&purl=" + util.metaInfo.pageURL;
+	pixelURL += "&purl=" + window.encodeURIComponent(util.metaInfo.pageURL);
 	pixelURL += "&tst=" + util.getCurrentTimestamp();
 	pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
 	pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
