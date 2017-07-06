@@ -1,8 +1,11 @@
 /* global describe, it, xit, sinon, expect */
+// var sinon = require("sinon");
+var should = require("chai").should();
+var expect = require("chai").expect;
 
 var util = require("../src_new/util");
 var assert = require("assert");
-console.log('util.isA  ==>', util.isA);
+// console.log('util.isA  ==>', util.isA);
 
 describe("Util", function() {
 	var obj_function = function() {};

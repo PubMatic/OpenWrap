@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-// var sinon = require("sinon");
+var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 
@@ -15,6 +15,8 @@ var bmEntry = require("../src_new/bmEntry.js")
 
 var bid = require('../src_new/bid.js').Bid;
 
+
+// TODO : remove as required during single TDD only
 var jsdom = require('jsdom').jsdom;
 var exposedProperties = ['window', 'navigator', 'document'];
 
@@ -24,6 +26,7 @@ var commonKGPV = "XYZ";
 var commonBidID = '9886ade8a';
 var conf = require("../src_new/conf");
 
+// TODO : remove as required during single TDD only
 global.document = jsdom('');
 global.window = document.defaultView;
 Object.keys(document.defaultView).forEach((property) => {
@@ -32,7 +35,6 @@ Object.keys(document.defaultView).forEach((property) => {
         global[property] = document.defaultView[property];
     }
 });
-
 global.navigator = {
     userAgent: 'node.js'
 };
@@ -805,7 +807,7 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
-
+    // TODO : check for window.Image issue
     describe('#executeMonetizationPixel', function() {
         var slotID = null;
         var adapterID = null;
@@ -956,7 +958,7 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
-
+    // TODO : check for window.Image issue
     describe('#setImageSrcToPixelURL', function() {
         var pixelURL = null;
         beforeEach(function(done) {

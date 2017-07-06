@@ -291,7 +291,7 @@ exports.executeAnalyticsPixel = function(){
 		if(slots.length > 0){
 			outputObj.s = slots;
 			outputObj[CONSTANTS.COMMON.IMPRESSION_ID] = window.encodeURIComponent(impressionID);
-			(new Image()).src = pixelURL + window.encodeURIComponent(JSON.stringify(outputObj));
+			(new window.Image()).src = pixelURL + window.encodeURIComponent(JSON.stringify(outputObj));
 		}
 	});
 };

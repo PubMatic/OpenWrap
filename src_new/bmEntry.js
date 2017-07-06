@@ -116,7 +116,10 @@ BMEntry.prototype.getLastBidIDForAdapter = function(adapterID){
 	return "";
 };
 
-// module.exports = BMEntry;
+
+/* start-test-block */
+module.exports.BMEntry = BMEntry;
+/* end-test-block */
 
 exports.createBMEntry = function(name){
 	return new BMEntry(name);
