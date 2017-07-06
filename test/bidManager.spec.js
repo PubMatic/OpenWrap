@@ -935,7 +935,7 @@ describe('bidManager BIDMgr', function() {
 
             var pixelURL = CONFIG.getMonetizationPixelURL();
             pixelURL += "pubid=" + CONFIG.getPublisherId();
-            pixelURL += "&purl=" + UTIL.metaInfo.pageURL;
+            pixelURL += "&purl=" + window.encodeURIComponent(UTIL.metaInfo.pageURL);
             pixelURL += "&tst=" + UTIL.getCurrentTimestamp();
             pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
             pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
