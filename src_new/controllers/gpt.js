@@ -251,7 +251,7 @@ function removeDMTargetingFromSlot(key) {
 
     if (util.isOwnProperty(slotsMap, key)) {
         currentGoogleSlot = slotsMap[key].getPubAdServerObject();
-        util.forEachOnArray(currentGoogleSlot.getTargetingKeys(), function(key) {
+        util.forEachOnArray(currentGoogleSlot.getTargetingKeys(), function(index, key) {
             targetingMap[key] = currentGoogleSlot.getTargeting(key);
         });
         // now clear all targetings

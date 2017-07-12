@@ -153,7 +153,7 @@ exports.generateUUID = function(){
 	return uuid;
 };
 
-var macroRegexFlag = macroRegexFlag;
+var macroRegexFlag = "g";
 var constCommonMacroForWidthRegExp = new RegExp(CONSTANTS.MACROS.WIDTH, macroRegexFlag);
 var constCommonMacroForHeightRegExp = new RegExp(CONSTANTS.MACROS.HEIGHT, macroRegexFlag);
 var constCommonMacroForAdUnitIDRegExp = new RegExp(CONSTANTS.MACROS.AD_UNIT_ID, macroRegexFlag);
