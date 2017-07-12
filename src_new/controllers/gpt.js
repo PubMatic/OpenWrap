@@ -16,6 +16,9 @@ var wrapperTargetingKeys = {}; // key is div id
 exports.wrapperTargetingKeys = wrapperTargetingKeys;
 /* end-test-block */
 var slotSizeMapping = {}; // key is div id
+/* start-test-block */
+exports.slotSizeMapping = slotSizeMapping;
+/* end-test-block */
 var slotsMap = {}; // key is div id, stores the mapping of divID ==> googletag.slot
 
 var GPT_targetingMap = {};
@@ -23,7 +26,7 @@ var windowReference = null;
 
 var refThis = this; 
 
-function setWindowReference(win) {
+function setWindowReference(win) { // TDD : done
     if (util.isObject(win)) {
         windowReference = win;
     }
@@ -39,7 +42,7 @@ function getWindowReference() {
 exports.getWindowReference = getWindowReference;
 /* end-test-block */
 
-function getAdUnitIndex(currentGoogleSlot) {
+function getAdUnitIndex(currentGoogleSlot) { // TDD : done
     var index = 0;
     try {
         var adUnitIndexString = currentGoogleSlot.getSlotId().getId().split("_");
@@ -66,10 +69,13 @@ function getSizeFromSizeMapping(divID, slotSizeMapping) {
     }
 
     var sizeMapping = slotSizeMapping[divID];
-    var screenWidth = util.getScreenWidth(getWindowReference());
-    var screenHeight = util.getScreenHeight(getWindowReference());
+    var screenWidth = util.getScreenWidth(refThis.getWindowReference());
+    var screenHeight = util.getScreenHeight(refThis.getWindowReference());
 
     util.log(divID + ": responsiveSizeMapping found: screenWidth: " + screenWidth + ", screenHeight: " + screenHeight);
+    console.log("--------------==================== sizeMapping");
+    console.log("sizeMapping ==>", sizeMapping);
+    console.log("--------------==================== sizeMapping");
     util.log(sizeMapping);
 
     if (!util.isArray(sizeMapping)) {
@@ -103,19 +109,18 @@ exports.getSizeFromSizeMapping = getSizeFromSizeMapping;
 /* end-test-block */
 
 function getAdSlotSizesArray(divID, currentGoogleSlot) {
-    var sizeMapping = getSizeFromSizeMapping(divID, slotSizeMapping);
+    var sizeMapping = refThis.getSizeFromSizeMapping(divID, refThis.slotSizeMapping);
 
     if (sizeMapping !== false) {
         util.log(divID + ": responsiveSizeMapping applied: ");
         util.log(sizeMapping);
         return sizeMapping;
     }
-
     var adslotSizesArray = [];
 
     if (util.isFunction(currentGoogleSlot.getSizes)) {
         util.forEachOnArray(currentGoogleSlot.getSizes(), function(index, sizeObj) {
-            if (sizeObj.getWidth && sizeObj.getHeight) {
+            if (util.isFunction(sizeObj.getWidth) && util.isFunction(sizeObj.getHeight)) {
                 adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
             } else {
                 util.log(divID + ", size object does not have getWidth and getHeight method. Ignoring: ");

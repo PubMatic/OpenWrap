@@ -2,18 +2,22 @@ var config = require("./conf.js");
 var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
 
+var refThis = null;
+
+refThis = this;
+
 exports.getPublisherId = function(){
 	return util.trim(config.pwt.pubid) || "0";
 };
 
 exports.getTimeout = function(){
-	return parseInt(config.pwt.t) || 1000;
+	return window.parseInt(config.pwt.t) || 1000;
 };
 
 exports.getAdapterRevShare = function(adapterID){
 	var adapterConfig = config.adapters;
 	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.REV_SHARE)){
-		return (1 - parseFloat(adapterConfig[adapterID][CONSTANTS.CONFIG.REV_SHARE])/100);
+		return (1 - window.parseFloat(adapterConfig[adapterID][CONSTANTS.CONFIG.REV_SHARE])/100);
 	}
 	return 1;
 };
@@ -21,7 +25,7 @@ exports.getAdapterRevShare = function(adapterID){
 exports.getAdapterThrottle = function(adapterID){
 	var adapterConfig = config.adapters;
 	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.THROTTLE)){
-		return 100 - parseFloat(adapterConfig[adapterID][CONSTANTS.CONFIG.THROTTLE]);
+		return 100 - window.parseFloat(adapterConfig[adapterID][CONSTANTS.CONFIG.THROTTLE]);
 	}
 	return 0;
 };
@@ -29,7 +33,7 @@ exports.getAdapterThrottle = function(adapterID){
 exports.getBidPassThroughStatus = function(adapterID){
 	var adapterConfig = config.adapters;
 	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.BID_PASS_THROUGH)){
-		return parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.BID_PASS_THROUGH]);
+		return window.parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.BID_PASS_THROUGH]);
 	}
 	return 0;
 };
@@ -66,8 +70,13 @@ function addPrebidAdapter(){
 	}	
 }
 
+
+/* start-test-block */
+exports.addPrebidAdapter = addPrebidAdapter;
+/* end-test-block */
+
 exports.initConfig = function(){
-	addPrebidAdapter();
+	refThis.addPrebidAdapter();
 
 	var ignoreAdapterLevelParams = {};
 	util.forEachOnObject(CONSTANTS.CONFIG, function(key, value){

@@ -229,7 +229,7 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 	return success;
 };
 
-exports.forEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids){
+exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids){
 	var activeSlotsLength = activeSlots.length,
 		i,
 		j,
@@ -273,7 +273,11 @@ exports.forEachGeneratedKey = function(adapterID, slotConfigMandatoryParams, act
 					}
 
 					handlerFunction(
-						generatedKey, 
+						adapterID,
+						adUnits,
+						adapterConfig,
+						impressionID,
+						generatedKey,
 						kgpConsistsWidthAndHeight, 
 						activeSlot, 
 						keyLookupMap ? keyLookupMap[generatedKey] : null, 

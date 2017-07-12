@@ -135,6 +135,10 @@ Slot.prototype.updateStatusAfterRendering = function(isRefreshCalled){
 
 };
 
+/* start-test-block */
+module.exports.Slot = Slot;
+/* end-test-block */
+
 exports.createSlot = function(name){
 	return new Slot(name);
 };

@@ -15,7 +15,18 @@ var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 
 var parentAdapterID = "prebid";
+
+/* start-test-block */
+exports.parentAdapterID = parentAdapterID;
+/* end-test-block */
 var kgpvMap = {};
+
+/* start-test-block */
+exports.kgpvMap = kgpvMap;
+/* end-test-block */
+
+var refThis = this;
+
 
 function handleBidResponses(bidResponses){
 	for(var responseID in bidResponses){
@@ -47,6 +58,71 @@ function handleBidResponses(bidResponses){
 	}
 }
 
+/* start-test-block */
+exports.handleBidResponses = handleBidResponses;
+/* end-test-block */
+
+function MyFunction(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){					
+			
+	var code, sizes, divID = currentSlot.getDivID();
+
+	if(kgpConsistsWidthAndHeight){
+		code = divID + "@" + adapterID + "@" + currentWidth + "X" + currentHeight;
+		sizes = [[currentWidth, currentHeight]];
+	}else{
+		code = divID;
+		sizes = currentSlot.getSizes();
+	}
+
+	refThis.kgpvMap [ code ] = {
+		kgpv: generatedKey,
+		divID: divID	
+	};
+
+	if(!util.isOwnProperty(adUnits, code)){
+		adUnits[ code ] = {
+			code: code,
+			sizes: sizes,
+			bids: []
+		};
+	}
+	
+	var slotParams = {};
+	util.forEachOnObject(keyConfig, function(key, value){
+		slotParams[key] = value;
+	});			
+
+	// processing for each partner
+	switch(adapterID){
+		case "pubmatic":
+			slotParams["publisherId"] = adapterConfig["publisherId"];
+			slotParams["adSlot"] = generatedKey;
+			slotParams["wiid"] = impressionID;
+			slotParams["profId"] = CONFIG.getProfileID();
+			if(window.PWT.udpv){
+				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
+			}
+			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			break;
+
+		case "pulsepoint":					
+			util.forEachOnArray(sizes, function(index, size){
+				slotParams["cf"] = size[0] + "x" + size[1];
+				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			});
+			break;
+
+		default:
+			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			break;	 
+	}
+};
+
+/* start-test-block */
+exports.MyFunction = MyFunction;
+/* end-test-block */
+
+
 function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID){
 	util.log(adapterID+CONSTANTS.MESSAGES.M1);
 	
@@ -56,71 +132,24 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 
 	util.forEachGeneratedKey(
 		adapterID,
+		adUnits,
+		adapterConfig,
+		impressionID,
 		[],
 		activeSlots, 
 		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN], 
 		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null, 
-		function(generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){					
-			
-			var code, sizes, divID = currentSlot.getDivID();
-
-			if(kgpConsistsWidthAndHeight){
-				code = divID + "@" + adapterID + "@" + currentWidth + "X" + currentHeight;
-				sizes = [[currentWidth, currentHeight]];
-			}else{
-				code = divID;
-				sizes = currentSlot.getSizes();
-			}
-
-			kgpvMap [ code ] = {
-				kgpv: generatedKey,
-				divID: divID	
-			};
-		
-			if(!util.isOwnProperty(adUnits, code)){
-				adUnits[ code ] = {
-					code: code,
-					sizes: sizes,
-					bids: []
-				};
-			}
-			
-			var slotParams = {};
-			util.forEachOnObject(keyConfig, function(key, value){
-				slotParams[key] = value;
-			});			
-
-			// processing for each partner
-			switch(adapterID){
-				case "pubmatic":
-					slotParams["publisherId"] = adapterConfig["publisherId"];
-					slotParams["adSlot"] = generatedKey;
-					slotParams["wiid"] = impressionID;
-					slotParams["profId"] = CONFIG.getProfileID();
-					if(window.PWT.udpv){
-						slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
-					}
-					adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
-					break;
-
-				case "pulsepoint":					
-					util.forEachOnArray(sizes, function(index, size){
-						slotParams["cf"] = size[0] + "x" + size[1];
-						adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
-					});
-					break;
-
-				default:
-					adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
-					break;	 
-			}
-		},
+		refThis.MyFunction,
 		true
 	);
 }
 
-function fetchBids(activeSlots, impressionID){
+/* start-test-block */
+exports.generatePbConf = generatePbConf;
+/* end-test-block */
 
+function fetchBids(activeSlots, impressionID){
+	// console.log(window.pbjs);
 	if(! window.pbjs){
 		util.log("PreBid js is not loaded");	
 		return;
@@ -129,9 +158,9 @@ function fetchBids(activeSlots, impressionID){
 	var adUnits = {};// create ad-units for prebid
 
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
-		if(adapterID !== parentAdapterID){
-			console.log(adapterConfig);
-			generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);	
+		if(adapterID !== refThis.parentAdapterID){
+			// console.log(adapterConfig);
+			refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);	
 		}
 	});
 
@@ -154,7 +183,7 @@ function fetchBids(activeSlots, impressionID){
 			window.pbjs.requestBids({
 				adUnits: adUnitsArray,
 				bidsBackHandler: function(bidResponses) {
-					handleBidResponses(bidResponses);
+					refThis.handleBidResponses(bidResponses);
 				},
 				timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
 			});
@@ -162,11 +191,22 @@ function fetchBids(activeSlots, impressionID){
 	}
 }
 
+/* start-test-block */
+exports.fetchBids = fetchBids;
+/* end-test-block */
+
+
+function getParenteAdapterID() {
+	return refThis.parentAdapterID;
+}
+
+/* start-test-block */
+exports.getParenteAdapterID = getParenteAdapterID;
+/* end-test-block */
+
 exports.register = function(){
 	return {
-		fB: fetchBids,
-		ID: function(){
-			return parentAdapterID;
-		}
+		fB: refThis.fetchBids,
+		ID: refThis.getParenteAdapterID
 	};
 };
