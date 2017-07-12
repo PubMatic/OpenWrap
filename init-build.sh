@@ -37,14 +37,14 @@ if [ -z $mode ]
 fi
 
 #echo "%s %s " "$prebid_path" "$mode"
-OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR}node_modules/"
+OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR}/node_modules/"
 
 # echo "$OpenWrapNodeModules"
 
 function prebidNpmInstall() {
   # echo "$1"
   cd $1
-  PrebidJSNodeModules="${GLOBAL_PREBID_PKG_JSON_DIR}node_modules/"
+  PrebidJSNodeModules="${GLOBAL_PREBID_PKG_JSON_DIR}/node_modules/"
   # echo $PrebidJSNodeModules
   ln -s "$PrebidJSNodeModules" "./node_modules"
   npm install
