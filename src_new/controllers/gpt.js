@@ -543,10 +543,10 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
 exports.displayFunctionStatusHandler = displayFunctionStatusHandler;
 /* end-test-block */
 
-function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall) {
+function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall) { // TDD : done
     if (qualifyingSlotNames.length > 0) {
-        updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, isRefreshCall);
-        var qualifyingSlots = arrayOfSelectedSlots(qualifyingSlotNames);
+        refThis.updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, isRefreshCall);
+        var qualifyingSlots = refThis.arrayOfSelectedSlots(qualifyingSlotNames);
         adapterManager.callAdapters(qualifyingSlots);
     }
 }
@@ -555,7 +555,7 @@ function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshC
 exports.forQualifyingSlotNamesCallAdapters = forQualifyingSlotNamesCallAdapters;
 /* end-test-block */
 
-function newDisplayFunction(theObject, originalFunction) {
+function newDisplayFunction(theObject, originalFunction) { // TDD : done 
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         // var refThis = this;
         return function() {

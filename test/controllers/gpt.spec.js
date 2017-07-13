@@ -1058,4 +1058,61 @@ describe("CONTROLLER: GPT", function() {
 
     });
 
+    describe('#forQualifyingSlotNamesCallAdapters', function () {
+
+        var qualifyingSlotNames = null, arg = null, isRefreshCall = null;
+        var qualifyingSlots = null;
+        beforeEach(function (done) {
+            qualifyingSlotNames = ["slot_1", "slot_2", "slot_3"];
+            arg = [["slot_1"], "slot_2"];
+            qualifyingSlots = ["slot_1", "slot_2"];
+            isRefreshCall = false;
+
+            sinon.stub(GPT, "updateStatusOfQualifyingSlotsBeforeCallingAdapters");
+            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.returns(true);
+
+            sinon.stub(GPT, "arrayOfSelectedSlots");
+            GPT.arrayOfSelectedSlots.returns(qualifyingSlots);
+
+            sinon.stub(AM, "callAdapters");
+            AM.callAdapters.returns(true);
+            
+            done();
+        });
+
+        afterEach(function (done) {
+            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.restore();
+            GPT.arrayOfSelectedSlots.restore();
+            AM.callAdapters.restore();
+
+            qualifyingSlotNames = null;
+            qualifyingSlots = null;
+
+            done();
+        });
+
+
+        it('should be a function', function (done) {
+            GPT.forQualifyingSlotNamesCallAdapters.should.be.a('function');
+            done();
+        });
+
+        it('should have called updateStatusOfQualifyingSlotsBeforeCallingAdapters and arrayOfSelectedSlots', function (done) {
+            GPT.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall);
+            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.calledWith(qualifyingSlotNames, arg, isRefreshCall).should.be.true;
+            GPT.arrayOfSelectedSlots.calledWith(qualifyingSlotNames).should.be.true;
+            AM.callAdapters.calledWith(qualifyingSlots).should.be.true;
+            done();
+        });
+
+        it('should not have called updateStatusOfQualifyingSlotsBeforeCallingAdapters and arrayOfSelectedSlots when passed qualifyingSlotNames is empty', function (done) {
+            qualifyingSlotNames = [];
+            GPT.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall);
+            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.called.should.be.false;
+            GPT.arrayOfSelectedSlots.called.should.be.false;
+            AM.callAdapters.called.should.be.false;
+            done();
+        });
+    });
+
 });
