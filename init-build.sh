@@ -29,11 +29,13 @@ done
 if [ -z $prebid_path ]
   then
         echo "Please provide appropriate Prebid.js repo path "
+        exit 1
 fi
 
 if [ -z $mode ]
   then
         echo "Please provide appropriate mode argument "
+        exit 1
 fi
 
 OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR}/node_modules/"
