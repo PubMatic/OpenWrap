@@ -159,8 +159,9 @@ function fetchBids(activeSlots, impressionID){
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
 
-
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
+		// Assumption: all partners are running through PreBid,
+		//				if we add any new parent-adapter, then code changes will be required
 		if(adapterID !== refThis.parentAdapterID){
 			if(adapterManager.throttleAdapter(randomNumberBelow100, adapterID) == false){
 				adapterManager.setInitTimeForSlotsForAdapter(activeSlots, adapterID);
