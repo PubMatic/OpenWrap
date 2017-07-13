@@ -125,9 +125,10 @@ function getAdSlotSizesArray(divID, currentGoogleSlot) {
         return sizeMapping;
     }
     var adslotSizesArray = [];
-
+    /* istanbul ignore else  */
     if (util.isFunction(currentGoogleSlot.getSizes)) {
         util.forEachOnArray(currentGoogleSlot.getSizes(), function(index, sizeObj) {
+            /* istanbul ignore else  */
             if (util.isFunction(sizeObj.getWidth) && util.isFunction(sizeObj.getHeight)) {
                 adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
             } else {
@@ -144,8 +145,10 @@ function getAdSlotSizesArray(divID, currentGoogleSlot) {
 exports.getAdSlotSizesArray = getAdSlotSizesArray;
 /* end-test-block */
 
-function setDisplayFunctionCalledIfRequired(slot, arg) {
+function setDisplayFunctionCalledIfRequired(slot, arg) { // TDD : done
+    /* istanbul ignore else */
     if (util.isObject(slot) && util.isFunction(slot.getDivID)) {
+        /* istanbul ignore else */
         if (util.isArray(arg) && arg[0] && arg[0] == slot.getDivID()) {
             slot.setDisplayFunctionCalled(true);
             slot.setArguments(arg);
@@ -381,6 +384,7 @@ exports.defineWrapperTargetingKey = defineWrapperTargetingKey;
 function newDisableInitialLoadFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
+            /* istanbul ignore next */
             disableInitialLoadIsSet = true;
             util.log("Disable Initial Load is called");
             return originalFunction.apply(theObject, arguments);
@@ -399,6 +403,7 @@ exports.newDisableInitialLoadFunction = newDisableInitialLoadFunction;
 function newEnableSingleRequestFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
+            /* istanbul ignore next */
             util.log("enableSingleRequest is called");
             //addHookOnGoogletagDisplay();// todo
             return originalFunction.apply(theObject, arguments);
@@ -425,6 +430,7 @@ exports.newEnableSingleRequestFunction = newEnableSingleRequestFunction;
 function newSetTargetingFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
+            /* istanbul ignore next */
             var arg = arguments,
                 key = arg[0] ? arg[0] : null;
             //addHookOnGoogletagDisplay();//todo
@@ -450,6 +456,7 @@ function newDestroySlotsFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         var refThis = this;
         return function() {
+            /* istanbul ignore next */
             util.forEachOnArray(arguments[0] || [], function(index, slot) {
                 delete slotsMap[this.generateSlotName(slot)];
             });
@@ -491,10 +498,12 @@ exports.findWinningBidIfRequired_Display = findWinningBidIfRequired_Display;
 function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg) { // TDD : done
     switch (oldStatus) {
         // display method was called for this slot
+        /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.CREATED:
             // dm flow is already intiated for this slot
             // just intitate the CONFIG.getTimeout() now
             // eslint-disable-line no-fallthrough
+        /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
             // var refThis = this;
             // TODO : ignore istanbul or extract function and add TDD ?
@@ -560,6 +569,7 @@ function newDisplayFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         // var refThis = this;
         return function() {
+            /* istanbul ignore next */
             util.log("In display function, with arguments: ");
             util.log(arguments);
 
@@ -692,6 +702,7 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD : done // Note 
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         // var refThis = this;
         return function() {
+            /* istanbul ignore next */
             util.log("In Refresh function");
             refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
             var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(arguments, theObject);
@@ -715,6 +726,7 @@ exports.newRefreshFuncton = newRefreshFuncton;
 function newSizeMappingFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
+            /* istanbul ignore next */
             slotSizeMapping[refThis.generateSlotName(theObject)] = arguments[0];
             return originalFunction.apply(theObject, arguments);
         };

@@ -1516,4 +1516,63 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
     });
+
+    describe('#setDisplayFunctionCalledIfRequired', function () {
+
+        var slot = null, arg = null;
+        beforeEach(function (done) {
+            slot = {
+                getDivID: function () {
+                    return "DIV_1";
+                },
+                setDisplayFunctionCalled: function () {
+                    return true;
+                },
+                setArguments: function () {
+                    return true;
+                }
+            };
+            arg = ["DIV_1", "DIV_2"];
+
+            sinon.spy(slot, "getDivID");
+            sinon.spy(slot, "setDisplayFunctionCalled");
+            sinon.spy(slot, "setArguments");
+
+            sinon.spy(UTIL, "isObject");
+            sinon.spy(UTIL, "isFunction");
+            sinon.spy(UTIL, "isArray");
+            done();
+        }); 
+
+        afterEach(function (done) {
+
+            slot.getDivID.restore();
+            slot.setDisplayFunctionCalled.restore();
+            slot.setArguments.restore();
+
+            slot = null;
+
+            UTIL.isObject.restore();
+            UTIL.isFunction.restore();
+            UTIL.isArray.restore();
+            done();
+        });
+
+        it('is a function', function (done) {
+            GPT.setDisplayFunctionCalledIfRequired.should.be.a('function');
+            done();
+        });
+
+        it('should have called setDisplayFunctionCalled and setArguments if given is proper ', function (done) {
+            GPT.setDisplayFunctionCalledIfRequired(slot, arg);
+            UTIL.isObject.calledWith(slot).should.be.true;
+            UTIL.isFunction.calledWith(slot.getDivID).should.be.true;
+            UTIL.isArray.calledWith(arg).should.be.true;
+            slot.getDivID.called.should.be.true;
+            slot.setDisplayFunctionCalled.calledWith(true).should.be.true;
+            slot.setArguments.calledWith(arg).should.be.true;
+            done();
+        }); 
+
+    });
 });
