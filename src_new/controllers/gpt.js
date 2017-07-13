@@ -479,7 +479,7 @@ exports.updateStatusAndCallOriginalFunction_Display = updateStatusAndCallOrigina
 function findWinningBidIfRequired_Display(key, slot) {
     var status = slot.getStatus();
     if (status != CONSTANTS.SLOT_STATUS.DISPLAYED && status != CONSTANTS.SLOT_STATUS.TARGETING_ADDED) {
-        findWinningBidAndApplyTargeting(key);
+        refThis.findWinningBidAndApplyTargeting(key);
     }
 }
 

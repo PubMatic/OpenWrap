@@ -1171,4 +1171,54 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
     });
+
+
+    describe('#findWinningBidIfRequired_Display', function () {
+        var key = null, slot = null;
+
+        beforeEach(function (done) {
+            key = "key_1";
+            slot = {
+                getStatus: function () {
+                    return CONSTANTS.SLOT_STATUS.CREATED;
+                }
+            };
+            sinon.stub(slot, "getStatus");
+
+            sinon.stub(GPT, "findWinningBidAndApplyTargeting");
+            GPT.findWinningBidAndApplyTargeting.returns(true);  
+
+            done();
+        });
+
+        afterEach(function (done) {
+            GPT.findWinningBidAndApplyTargeting.restore();
+
+            slot.getStatus.restore();
+
+            key = null;
+            slot = null;
+            done();
+        });
+
+        it('is a function', function (done) {
+            GPT.findWinningBidIfRequired_Display.should.be.a('function');
+            done();
+        });
+
+        it('should not have called GPT.findWinningBidAndApplyTargeting if slot\'s status is either DISPLAYED or TARGETING_ADDED', function (done) {
+            slot.getStatus.returns(CONSTANTS.SLOT_STATUS.DISPLAYED);
+            GPT.findWinningBidIfRequired_Display(key, slot);
+            GPT.findWinningBidAndApplyTargeting.called.should.be.false;
+            slot.getStatus.called.should.be.true;
+            done();
+        });
+
+        it('should have called GPT.findWinningBidAndApplyTargeting if slot\'s status is neither DISPLAYED nor TARGETING_ADDED', function (done) {
+            GPT.findWinningBidIfRequired_Display(key, slot);
+            GPT.findWinningBidAndApplyTargeting.called.should.be.true;
+            slot.getStatus.called.should.be.true;
+            done();
+        });
+    });
 });
