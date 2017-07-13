@@ -15,7 +15,7 @@ var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var adapterManager = require("../adapterManager.js");
 
-var parentAdapterID = "prebid";
+var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
