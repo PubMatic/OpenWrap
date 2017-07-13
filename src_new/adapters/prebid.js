@@ -13,6 +13,7 @@ var CONSTANTS = require("../constants.js");
 var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
+var adapterManager = require("../adapterManager.js");
 
 var parentAdapterID = "prebid";
 
@@ -156,11 +157,17 @@ function fetchBids(activeSlots, impressionID){
 	}
 
 	var adUnits = {};// create ad-units for prebid
+	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
+
 
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
 		if(adapterID !== refThis.parentAdapterID){
-			// console.log(adapterConfig);
-			refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);	
+			if(adapterManager.throttleAdapter(randomNumberBelow100, adapterID) == false){
+				adapterManager.setInitTimeForSlotsForAdapter(activeSlots, adapterID);
+				refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+			}else{
+				util.log(adapterID+CONSTANTS.MESSAGES.M2);
+			}
 		}
 	});
 
