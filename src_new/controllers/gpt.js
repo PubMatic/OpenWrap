@@ -488,7 +488,7 @@ function findWinningBidIfRequired_Display(key, slot) {
 exports.findWinningBidIfRequired_Display = findWinningBidIfRequired_Display;
 /* end-test-block */
 
-function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg) {
+function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg) { // TDD : done
     switch (oldStatus) {
         // display method was called for this slot
         case CONSTANTS.SLOT_STATUS.CREATED:
@@ -497,16 +497,17 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
             // eslint-disable-line no-fallthrough
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
             // var refThis = this;
-            setTimeout(function() {
+            // TODO : ignore istanbul or extract function and add TDD ?
+            window.setTimeout(function() {
 
                 util.log("PostTimeout.. back in display function");
-                util.forEachOnObject(slotsMap, function(key, slot) {
-                    findWinningBidIfRequired_Display(key, slot);
+                util.forEachOnObject(refThis.slotsMap, function(key, slot) {
+                    refThis.findWinningBidIfRequired_Display(key, slot);
                 });
 
                 //move this into a function
-                if (getStatusOfSlotForDivId(arg[0]) != CONSTANTS.SLOT_STATUS.DISPLAYED) {
-                    updateStatusAndCallOriginalFunction_Display(
+                if (refThis.getStatusOfSlotForDivId(arg[0]) != CONSTANTS.SLOT_STATUS.DISPLAYED) {
+                    refThis.updateStatusAndCallOriginalFunction_Display(
                         "Calling original display function after timeout with arguments, ",
                         theObject,
                         originalFunction,
@@ -520,7 +521,7 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
             break;
             // call the original function now
         case CONSTANTS.SLOT_STATUS.TARGETING_ADDED:
-            updateStatusAndCallOriginalFunction_Display(
+            refThis.updateStatusAndCallOriginalFunction_Display(
                 "As DM processing is already done, Calling original display function with arguments",
                 theObject,
                 originalFunction,
@@ -529,7 +530,7 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
             break;
 
         case CONSTANTS.SLOT_STATUS.DISPLAYED:
-            updateStatusAndCallOriginalFunction_Display(
+            refThis.updateStatusAndCallOriginalFunction_Display(
                 "As slot is already displayed, Calling original display function with arguments",
                 theObject,
                 originalFunction,

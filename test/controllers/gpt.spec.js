@@ -5,6 +5,7 @@ var expect = require("chai").expect;
 var GPT = require("../../src_new/controllers/gpt.js");
 var UTIL = require("../../src_new/util.js");
 var AM = require("../../src_new/adapterManager.js");
+var CONSTANTS = require("../../src_new/constants.js");
 
 var commonDivID = "DIV_1";
 
@@ -1115,4 +1116,59 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
+    describe('#displayFunctionStatusHandler', function () {
+
+        var oldStatus = null, theObject = null, originalFunction = null, arg = null;
+        beforeEach(function (done) {
+            oldStatus = CONSTANTS.SLOT_STATUS.CREATED;
+            theObject = {};
+            originalFunction = function () {
+                return "originalFunction"
+            };
+            arg = {};
+            sinon.spy(GPT, "updateStatusAndCallOriginalFunction_Display");
+            done();
+        });
+
+        afterEach(function (done) {
+            oldStatus = null;
+            theObject = null;
+            originalFunction = null;
+            arg = null;
+            GPT.updateStatusAndCallOriginalFunction_Display.restore();
+            done();
+        });
+
+        it('should be a function', function (done) {
+            GPT.displayFunctionStatusHandler.should.be.a('function');
+            done();
+        });
+
+        it('should have called updateStatusAndCallOriginalFunction_Display with proper arguments when oldStatus is  TARGETING_ADDED', function (done) {
+            oldStatus = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
+            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
+            GPT.updateStatusAndCallOriginalFunction_Display
+            // .called
+            .calledWith(
+                "As DM processing is already done, Calling original display function with arguments",
+                theObject,
+                originalFunction,
+                arg)
+            .should.be.true;
+            done();
+        });
+
+        it('should have called updateStatusAndCallOriginalFunction_Display with proper arguments when oldStatus is  DISPLAYED', function (done) {
+            oldStatus = CONSTANTS.SLOT_STATUS.DISPLAYED;
+            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
+            GPT.updateStatusAndCallOriginalFunction_Display
+            .calledWith(
+                "As slot is already displayed, Calling original display function with arguments",
+                theObject,
+                originalFunction,
+                arg)
+            .should.be.true;
+            done();
+        });
+    });
 });
