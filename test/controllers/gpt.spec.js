@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-// var sinon = require("sinon");
+var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 var GPT = require("../../src_new/controllers/gpt.js");
@@ -1476,4 +1476,44 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
+    describe('#arrayOfSelectedSlots', function () {
+        var slotNames =  null;
+        beforeEach(function (done) {
+            slotNames = ["slot_1", "slot_2", "slot_3"];
+            GPT.slotsMap = {
+                "slot_1": {
+                    getStatus: function () {
+                        return "slot_1";
+                    }
+                },
+                "slot_2": {
+                    getStatus: function () {
+                        return "slot_2";
+                    }
+                },
+                "slot_3": {
+                    getStatus: function () {
+                        return "slot_3";
+                    }
+                },
+            };
+            sinon.spy(UTIL, "forEachOnArray");
+            done();
+        });
+
+        afterEach(function (done) {
+            UTIL.forEachOnArray.restore();
+            done();
+        });
+
+        it('is a function', function (done) {
+            GPT.arrayOfSelectedSlots.should.be.a('function');
+            done();
+        });
+
+        it('return array slot objects of given slot names from the slotMap', function (done) {
+            GPT.arrayOfSelectedSlots(slotNames).should.be.a('array');
+            done();
+        });
+    });
 });

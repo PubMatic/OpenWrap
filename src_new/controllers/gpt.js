@@ -292,10 +292,10 @@ function updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, arguments
 exports.updateStatusOfQualifyingSlotsBeforeCallingAdapters = updateStatusOfQualifyingSlotsBeforeCallingAdapters;
 /* end-test-block */
 
-function arrayOfSelectedSlots(slotNames) {
+function arrayOfSelectedSlots(slotNames) { // TDD : done
     var output = [];
     util.forEachOnArray(slotNames, function(index, slotName) {
-        output.push(slotsMap[slotName]);
+        output.push(refThis.slotsMap[slotName]);
     });
     return output;
 }
@@ -304,7 +304,7 @@ function arrayOfSelectedSlots(slotNames) {
 exports.arrayOfSelectedSlots = arrayOfSelectedSlots;
 /* end-test-block */
 
-function defineWrapperTargetingKeys(object) {
+function defineWrapperTargetingKeys(object) { // TDD : done
     var output = {};
     util.forEachOnObject(object, function(key, value) {
         output[value] = "";
