@@ -476,7 +476,7 @@ function updateStatusAndCallOriginalFunction_Display(message, theObject, origina
 exports.updateStatusAndCallOriginalFunction_Display = updateStatusAndCallOriginalFunction_Display;
 /* end-test-block */
 
-function findWinningBidIfRequired_Display(key, slot) {
+function findWinningBidIfRequired_Display(key, slot) { // TDD : done
     var status = slot.getStatus();
     if (status != CONSTANTS.SLOT_STATUS.DISPLAYED && status != CONSTANTS.SLOT_STATUS.TARGETING_ADDED) {
         refThis.findWinningBidAndApplyTargeting(key);
