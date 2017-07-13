@@ -446,7 +446,7 @@ function newSetTargetingFunction(theObject, originalFunction) {
 exports.newSetTargetingFunction = newSetTargetingFunction;
 /* end-test-block */
 
-function newDestroySlotsFunction(theObject, originalFunction) {
+function newDestroySlotsFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         var refThis = this;
         return function() {
