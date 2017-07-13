@@ -832,4 +832,56 @@ describe("CONTROLLER: GPT", function() {
     	});
     });
 
+    describe('#getQualifyingSlotNamesForRefresh', function () {
+        var arg = null;
+        var theObject = null;
+
+        beforeEach(function (done) {
+            arg = [];
+            theObject = {
+                getSlots: function () {
+                    return ["slot_1", "slot_2"];
+                }
+            };
+            sinon.spy(UTIL, "forEachOnArray");
+            sinon.stub(GPT, "generateSlotName");
+            sinon.spy(theObject, "getSlots");
+            GPT.generateSlotName.returns("qualifying_slot_name");
+            done();
+        });
+
+        afterEach(function (done) {
+            UTIL.forEachOnArray.restore();
+            GPT.generateSlotName.restore();
+            theObject.getSlots.restore();
+            theObject = null;
+            arg = null;
+            done();
+        });
+
+        it('is a function', function (done) {
+            GPT.getQualifyingSlotNamesForRefresh.should.be.a('function');
+            done();
+        });
+
+        it('should return an array', function (done) {
+            GPT.getQualifyingSlotNamesForRefresh(arg, theObject).should.be.a('array');
+            done();
+        });
+
+        it('should have called GPT.generateSlotName and UTIL.forEachOnArray', function (done) {
+            GPT.getQualifyingSlotNamesForRefresh(arg, theObject);
+            GPT.generateSlotName.called.should.be.true;
+            UTIL.forEachOnArray.called.should.be.true;
+            UTIL.forEachOnArray.calledWith(theObject.getSlots()).should.be.true;
+            done();
+        });
+
+        it('should consider passed arg if its not empty instead of slots from the object being passed', function (done) {
+            arg = [["slot_1", "slot_2"]];
+            GPT.getQualifyingSlotNamesForRefresh(arg, theObject);
+            UTIL.forEachOnArray.calledWith(arg[0]).should.be.true;
+            done();
+        });
+    });
 });
