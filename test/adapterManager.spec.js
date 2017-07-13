@@ -134,18 +134,7 @@ describe("adapterManager : ADPTMgr", function() {
             throttleAdapterStub = null;
             done();
         });
-
-        it('should not have called setInitTimeForSlotsForAdapter when throttling', function(done) {
-            ADPTMgr.throttleAdapter.restore();
-            sinon.stub(ADPTMgr, 'throttleAdapter');
-            ADPTMgr.throttleAdapter.returns(true);
-
-            ADPTMgr.callAdapter(adapters, slots, impressionID);
-            ADPTMgr.getRandomNumberBelow100.calledOnce.should.be.true;
-            ADPTMgr.setInitTimeForSlotsForAdapter.called.should.be.false;
-            throttleAdapterStub = null;
-            done();
-        });
+        
     });
     /* end-test-block */
 
@@ -209,7 +198,8 @@ describe("adapterManager : ADPTMgr", function() {
         var adapterID = null;
         beforeEach(function(done) {
             adapterID = commonAdapterID;
-            sinon.spy(CONFIG, 'getAdapterThrottle');
+            sinon.stub(CONFIG, 'getAdapterThrottle');
+            CONFIG.getAdapterThrottle.returns(true);
             done();
         });
 

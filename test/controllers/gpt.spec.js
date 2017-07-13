@@ -218,7 +218,7 @@ describe("CONTROLLER: GPT", function() {
                     }
                 });
 
-                console.log("UTIL.isObject.calledOnce ==>", UTIL.isObject.callCount);
+                // console.log("UTIL.isObject.calledOnce ==>", UTIL.isObject.callCount);
 
                 UTIL.isObject.called.should.equal(true);
                 GPT.setWindowReference.calledOnce.should.equal(true);
@@ -939,4 +939,123 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
     });
+
+    describe('#findWinningBidIfRequired_Refresh', function () {
+        var slotName = null, divID = null, currentFlagValue = null;
+
+        beforeEach(function (done) {
+            slotName = "Slot_1";
+            divID = commonDivID;
+            currentFlagValue = true;
+            GPT.slotMap = {};
+            GPT.slotMap[slotName] = {
+                isRefreshFunctionCalled: function () {
+                    return true;
+                },
+                getStatus: function () {
+                    return CONSTANTS.SLOT_STATUS.CREATED; 
+                }
+            };
+            
+            sinon.stub(GPT.slotMap[slotName], "isRefreshFunctionCalled");
+
+            sinon.stub(GPT.slotMap[slotName], "getStatus");
+
+            sinon.stub(UTIL, "isOwnProperty");
+            UTIL.isOwnProperty.returns(true);
+
+            sinon.stub(GPT, "findWinningBidAndApplyTargeting");
+            GPT.findWinningBidAndApplyTargeting.returns(true);
+            
+            sinon.stub(GPT, "updateStatusAfterRendering");
+            GPT.updateStatusAfterRendering.returns(true);
+
+            done();
+        });
+
+        afterEach(function (done) {
+
+            
+            GPT.slotMap[slotName].isRefreshFunctionCalled.restore();
+            GPT.slotMap[slotName].getStatus.restore();
+
+            GPT.slotMap[slotName] = null;
+            
+
+            UTIL.isOwnProperty.restore();
+
+            GPT.findWinningBidAndApplyTargeting.restore();
+            
+            GPT.updateStatusAfterRendering.restore();
+            
+            slotName = null;
+            divID = null;
+            currentFlagValue = null;
+            done();
+        });
+
+        it('is a function', function (done) {
+            GPT.findWinningBidIfRequired_Refresh.should.be.a('function');
+            done();
+        });
+
+        xit('should return true ', function (done) {
+            GPT.findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue).should.be.true;
+            GPT.slotMap[slotName].isRefreshFunctionCalled.called.should.be.true;
+            GPT.slotMap[slotName].getStatus.called.should.be.true;
+            UTIL.isOwnProperty.calledWith(GPT.slotsMap, slotName).should.be.true;
+            done();
+        });
+
+        xit('should return passed currentFlagValue when either given slotName is not in slotMap or given slotNames refresh function is already not called or given slotNames status is of type DISPLAYED', function (done) {
+            currentFlagValue = false;
+            GPT.slotMap[slotName].isRefreshFunctionCalled.restore();
+            sinon.stub(GPT.slotMap[slotName], "isRefreshFunctionCalled");
+            GPT.slotMap[slotName].isRefreshFunctionCalled.returns(false);
+            GPT.findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue).should.be.false;
+            done();    
+        });
+    });
+
+    describe('#newAddHookOnGoogletagDisplay', function () {
+        var localGoogletag = null;
+        beforeEach(function (done) {
+            localGoogletag = {};
+            sinon.spy(UTIL, "log");
+            sinon.stub(UTIL, "addHookOnFunction");
+            UTIL.addHookOnFunction.returns(true);
+            done();
+        });
+
+        afterEach(function (done) {
+            localGoogletag = null;
+            UTIL.log.restore();
+            UTIL.addHookOnFunction.restore();
+            done();
+        });
+
+        it('is a function', function (done) {
+            GPT.newAddHookOnGoogletagDisplay.should.be.a('function');
+            done();
+        });
+
+        it('should have return without adding hook on localGoogletag passed', function (done) {
+            GPT.displayHookIsAdded  = true;
+            GPT.newAddHookOnGoogletagDisplay(localGoogletag);
+            UTIL.log.calledOnce.should.be.false;
+            UTIL.addHookOnFunction.calledOnce.should.be.false;
+            done();
+        });
+
+        it('should have return while adding hook on localGoogletag passed and logging it', function (done) {
+            GPT.displayHookIsAdded = false;
+            GPT.newAddHookOnGoogletagDisplay(localGoogletag);
+            UTIL.log.calledWith("Adding hook on googletag.display.").should.be.true;
+            UTIL.log.calledWith(localGoogletag, false, "display", GPT.newDisplayFunction).should.be.false;
+            done();
+        });
+
+
+    });
+
 });

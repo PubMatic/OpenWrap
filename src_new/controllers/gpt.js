@@ -6,6 +6,10 @@ var adapterManager = require("../adapterManager.js");
 var SLOT = require("../slot.js");
 
 var displayHookIsAdded = false;
+
+/* start-test-block */
+exports.displayHookIsAdded = displayHookIsAdded;
+/* end-test-block */
 var disableInitialLoadIsSet = false;
 var sendTargetingInfoIsSet = true;
 
@@ -20,6 +24,10 @@ var slotSizeMapping = {}; // key is div id
 exports.slotSizeMapping = slotSizeMapping;
 /* end-test-block */
 var slotsMap = {}; // key is div id, stores the mapping of divID ==> googletag.slot
+
+/* start-test-block */
+exports.slotsMap = slotsMap;
+/* end-test-block */
 
 var GPT_targetingMap = {};
 var windowReference = null;
@@ -597,11 +605,11 @@ exports.newDisplayFunction  = newDisplayFunction;
             we are not going to support this one as well as third-party partners use this and they wont have setup required to render our bids
 */
 
-function newAddHookOnGoogletagDisplay(localGoogletag) {
-    if (displayHookIsAdded) {
+function newAddHookOnGoogletagDisplay(localGoogletag) { // TDD : done
+    if (refThis.displayHookIsAdded) {
         return;
     }
-    displayHookIsAdded = true;
+    refThis.displayHookIsAdded = true;
     util.log("Adding hook on googletag.display.");
     util.addHookOnFunction(localGoogletag, false, "display", this.newDisplayFunction);
 }
@@ -611,10 +619,10 @@ exports.newAddHookOnGoogletagDisplay = newAddHookOnGoogletagDisplay;
 /* end-test-block */
 
 function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue) {
-    if (util.isOwnProperty(slotsMap, slotName) && slotsMap[slotName].isRefreshFunctionCalled() === true && slotsMap[slotName].getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED) {
+    if (util.isOwnProperty(refThis.slotsMap, slotName) && refThis.slotsMap[slotName].isRefreshFunctionCalled() === true && refThis.slotsMap[slotName].getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED) {
 
-        findWinningBidAndApplyTargeting(divID);
-        updateStatusAfterRendering(divID, true);
+        refThis.findWinningBidAndApplyTargeting(divID);
+        refThis.updateStatusAfterRendering(divID, true);
         return true;
     }
     return currentFlagValue;
