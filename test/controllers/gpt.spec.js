@@ -884,4 +884,59 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
     });
+
+
+    describe('#callOriginalRefeshFunction', function () {
+        var flag = null;
+        var theObject = null;
+        var obj = null;
+        // var originalFunction = null;
+        var arg = null;
+
+        beforeEach(function (done) {
+            flag = true
+            theObject = {} 
+            
+            obj = {
+                originalFunction: function (theObject, arg) {
+                    return "originalFunction";
+                }
+            };
+            // obj.originalFunction = originalFunction;
+            sinon.spy(obj.originalFunction, 'apply');
+            sinon.spy(UTIL, "log");
+            arg = [["slot_1", "slot_2"]];
+            done();
+        });
+
+        afterEach(function (done) {
+            obj.originalFunction.apply.restore();
+            UTIL.log.restore();
+            flag = null;
+            theObject = null;
+            obj.originalFunction = null;
+            obj = null;
+            arg = null;
+            done();
+        }); 
+
+        it('is a function', function (done) {
+            GPT.callOriginalRefeshFunction.should.be.a('function');
+            done();
+        });
+
+        it('should have logged if the ad has been already rendered ', function (done) {
+            flag = false;
+            GPT.callOriginalRefeshFunction(flag, theObject, obj.originalFunction, arg);
+            UTIL.log.calledWith("AdSlot already rendered").should.be.true;
+            done();
+        });
+
+        it('should have logged while calling the passed originalFunction with passed arguments', function (done) {
+            GPT.callOriginalRefeshFunction(flag, theObject, obj.originalFunction, arg);
+            obj.originalFunction.apply.calledWith(theObject, arg).should.be.true;
+            UTIL.log.calledWith("Calling original refresh function from CONFIG.getTimeout()").should.be.true;
+            done();
+        });
+    });
 });

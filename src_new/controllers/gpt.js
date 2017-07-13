@@ -644,7 +644,7 @@ function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFun
 exports.postTimeoutRefreshExecution = postTimeoutRefreshExecution;
 /* end-test-block */
 
-function callOriginalRefeshFunction(flag, theObject, originalFunction, arg) {
+function callOriginalRefeshFunction(flag, theObject, originalFunction, arg) { // TDD : done
     if (flag === true) {
         util.log("Calling original refresh function from CONFIG.getTimeout()");
         originalFunction.apply(theObject, arg);
