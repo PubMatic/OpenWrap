@@ -1320,4 +1320,160 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
     });
+
+    describe('#newSetTargetingFunction', function () {
+
+        var theObject = null, originalFunction = null;
+
+        beforeEach(function (done) {
+            theObject = {};
+            originalFunction = function () {
+                return "originalFunction";
+            };
+            
+            sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "isObject");
+            sinon.spy(UTIL, "isFunction");
+
+            done();
+
+        });
+
+        afterEach(function (done) {
+            originalFunction = null;
+            theObject = null;
+
+            UTIL.log.restore();
+            UTIL.isObject.restore();
+            UTIL.isFunction.restore();
+            
+            done();
+        });
+
+        it('is a function', function (done) {
+            GPT.newSetTargetingFunction.should.be.a('function');
+            done();
+        });
+
+        it('return null if passed object is not an object or passed function is not a function', function (done) {
+            theObject = null;
+            should.not.exist(GPT.newSetTargetingFunction(theObject, originalFunction));
+            UTIL.log.calledWith("setTargeting: originalFunction is not a function").should.be.true;
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.false;
+            done();
+        });
+
+        it('return function if passed object is an object and passed function is a function', function (done) {
+            GPT.newSetTargetingFunction(theObject, originalFunction).should.be.a('function');
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.true;
+            done();
+        });
+    });
+
+
+    describe('#newEnableSingleRequestFunction', function () {
+
+        var theObject = null, originalFunction = null;
+
+        beforeEach(function (done) {
+            theObject = {};
+            originalFunction = function () {
+                return "originalFunction";
+            };
+            
+            sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "isObject");
+            sinon.spy(UTIL, "isFunction");
+
+            done();
+
+        });
+
+        afterEach(function (done) {
+            originalFunction = null;
+            theObject = null;
+
+            UTIL.log.restore();
+            UTIL.isObject.restore();
+            UTIL.isFunction.restore();
+            
+            done();
+        });
+
+        it('is a function', function (done) {
+            GPT.newEnableSingleRequestFunction.should.be.a('function');
+            done();
+        });
+
+        it('return null if passed object is not an object or passed function is not a function', function (done) {
+            theObject = null;
+            should.not.exist(GPT.newEnableSingleRequestFunction(theObject, originalFunction));
+            UTIL.log.calledWith("disableInitialLoad: originalFunction is not a function").should.be.true;
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.false;
+            done();
+        });
+
+        it('return function if passed object is an object and passed function is a function', function (done) {
+            GPT.newEnableSingleRequestFunction(theObject, originalFunction).should.be.a('function');
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.true;
+            done();
+        });
+    });
+
+
+    describe('#newDisableInitialLoadFunction', function () {
+
+        var theObject = null, originalFunction = null;
+
+        beforeEach(function (done) {
+            theObject = {};
+            originalFunction = function () {
+                return "originalFunction";
+            };
+            
+            sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "isObject");
+            sinon.spy(UTIL, "isFunction");
+
+            done();
+
+        });
+
+        afterEach(function (done) {
+            originalFunction = null;
+            theObject = null;
+
+            UTIL.log.restore();
+            UTIL.isObject.restore();
+            UTIL.isFunction.restore();
+            
+            done();
+        });
+
+        it('is a function', function (done) {
+            GPT.newDisableInitialLoadFunction.should.be.a('function');
+            done();
+        });
+
+        it('return null if passed object is not an object or passed function is not a function', function (done) {
+            theObject = null;
+            should.not.exist(GPT.newDisableInitialLoadFunction(theObject, originalFunction));
+            UTIL.log.calledWith("disableInitialLoad: originalFunction is not a function").should.be.true;
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.false;
+            done();
+        });
+
+        it('return function if passed object is an object and passed function is a function', function (done) {
+            GPT.newDisableInitialLoadFunction(theObject, originalFunction).should.be.a('function');
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.true;
+            done();
+        });
+    });
+
 });

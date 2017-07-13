@@ -365,7 +365,7 @@ exports.findWinningBidAndApplyTargeting = findWinningBidAndApplyTargeting;
 /* end-test-block */
 
 
-function defineWrapperTargetingKey(key) {
+function defineWrapperTargetingKey(key) { // TDD : done
     if (!util.isObject(refThis.wrapperTargetingKeys)) {
         refThis.wrapperTargetingKeys = {};
     }
@@ -378,7 +378,7 @@ exports.defineWrapperTargetingKey = defineWrapperTargetingKey;
 
 // Hooks related functions
 
-function newDisableInitialLoadFunction(theObject, originalFunction) {
+function newDisableInitialLoadFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             disableInitialLoadIsSet = true;
@@ -396,7 +396,7 @@ function newDisableInitialLoadFunction(theObject, originalFunction) {
 exports.newDisableInitialLoadFunction = newDisableInitialLoadFunction;
 /* end-test-block */
 
-function newEnableSingleRequestFunction(theObject, originalFunction) {
+function newEnableSingleRequestFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             util.log("enableSingleRequest is called");
@@ -422,7 +422,7 @@ exports.newEnableSingleRequestFunction = newEnableSingleRequestFunction;
     slot.setTargeting(key, value);
         we do not care, as it has a get method
 */
-function newSetTargetingFunction(theObject, originalFunction) {
+function newSetTargetingFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             var arg = arguments,
