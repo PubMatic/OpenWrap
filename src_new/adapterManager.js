@@ -23,20 +23,17 @@ function getRandomNumberBelow100(){
 	return Math.floor(Math.random()*100);
 }
 
-/* start-test-block */
 exports.getRandomNumberBelow100 = getRandomNumberBelow100;
-/* end-test-block */
 
 // todo: give better name to this function
 function callAdapter(adapters, slots, impressionID){
 	var randomNumberBelow100 = refThis.getRandomNumberBelow100();
 	util.forEachOnObject(adapters, function(adapterID, theAdapter){
-		if(refThis.throttleAdapter(randomNumberBelow100, adapterID) == false){
-			refThis.setInitTimeForSlotsForAdapter(slots, adapterID);
-			theAdapter.fB(slots, impressionID);
-		}else{
-			util.log(adapterID+CONSTANTS.MESSAGES.M2);
-		}
+		//Note: if you have any other parent-adapter like prebid, and 
+		//		want to add throttling on the parent-adapters then 
+		//		you will need to add throttling logic here as well
+		refThis.setInitTimeForSlotsForAdapter(slots, adapterID);
+		theAdapter.fB(slots, impressionID);
 	});
 }
 
@@ -62,9 +59,7 @@ function throttleAdapter(randomNumber, adapterID){
 	return !(randomNumber >= CONFIG.getAdapterThrottle(adapterID));
 }
 
-/* start-test-block */
 exports.throttleAdapter = throttleAdapter;
-/* end-test-block */
 
 // todo: where this function should go ? move to bidManager
 function setInitTimeForSlotsForAdapter(slots, adapterID){
@@ -73,9 +68,7 @@ function setInitTimeForSlotsForAdapter(slots, adapterID){
 	});
 }
 
-/* start-test-block */
 exports.setInitTimeForSlotsForAdapter = setInitTimeForSlotsForAdapter;
-/* end-test-block */
 
 function registerAdapter(bidAdaptor) {
 	if (bidAdaptor) {
