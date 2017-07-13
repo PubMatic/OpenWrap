@@ -1148,7 +1148,6 @@ describe("CONTROLLER: GPT", function() {
             oldStatus = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
             GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
             GPT.updateStatusAndCallOriginalFunction_Display
-            // .called
             .calledWith(
                 "As DM processing is already done, Calling original display function with arguments",
                 theObject,
@@ -1218,6 +1217,56 @@ describe("CONTROLLER: GPT", function() {
             GPT.findWinningBidIfRequired_Display(key, slot);
             GPT.findWinningBidAndApplyTargeting.called.should.be.true;
             slot.getStatus.called.should.be.true;
+            done();
+        });
+    });
+
+    describe('#updateStatusAndCallOriginalFunction_Display', function () {
+        var message = null, theObject = null, originalFunction = null, arg = null;
+        var obj = null;
+
+        beforeEach(function (done) {
+            message = "log message";
+            theObject = {}; 
+            obj = {
+                originalFunction: function () {
+                    return "originalFunction";
+                }
+            };
+
+            arg = ["DIV_1", "DIV_2"];
+            // sinon.spy(obj, "originalFunction");
+            sinon.spy(obj.originalFunction, "apply");
+            sinon.spy(UTIL, "log");
+
+            sinon.stub(GPT, "updateStatusAfterRendering");
+            GPT.updateStatusAfterRendering.returns(true);
+
+            done();
+        });
+
+        afterEach(function (done) {
+            obj.originalFunction.apply.restore();
+            UTIL.log.restore();
+            GPT.updateStatusAfterRendering.restore();
+            message = null;
+            theObject = null;
+            originalFunction = null;
+            arg = null;
+            done();
+        });
+
+        it('is a function', function (done) {
+            GPT.updateStatusAndCallOriginalFunction_Display.should.be.a('function');
+            done();
+        });
+
+        it('should have called UTIL.log, GPT.updateStatusAfterRendering and passed originalFunction with proper arguments', function (done) {
+            GPT.updateStatusAndCallOriginalFunction_Display(message, theObject, obj.originalFunction, arg);
+            UTIL.log.calledWith(message).should.be.true;
+            UTIL.log.calledWith(arg).should.be.true;
+            obj.originalFunction.apply.calledWith(theObject, arg).should.be.true;
+            GPT.updateStatusAfterRendering.calledWith(arg[0], false).should.be.true;          
             done();
         });
     });

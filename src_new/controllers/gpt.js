@@ -465,10 +465,10 @@ function newDestroySlotsFunction(theObject, originalFunction) {
 exports.newDestroySlotsFunction = newDestroySlotsFunction;
 /* end-test-block */
 
-function updateStatusAndCallOriginalFunction_Display(message, theObject, originalFunction, arg) {
+function updateStatusAndCallOriginalFunction_Display(message, theObject, originalFunction, arg) { // TDD : done
     util.log(message);
     util.log(arg);
-    updateStatusAfterRendering(arg[0], false);
+    refThis.updateStatusAfterRendering(arg[0], false);
     originalFunction.apply(theObject, arg);
 }
 
