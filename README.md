@@ -21,6 +21,8 @@ What this means for publishers:
 
 All the publisher has to do is push the wrapper script and partner configuration live on the page and you are done. It’s that simple. The script takes care of detecting what ad units, divs and sizes are on page, fire up calls to desired partners and attach bids to DFP calls as key-values.
 
+OpenWrap as an extension of Prebid is under development and not currently available on this Github page. The updated OpenWrap source code extending Prebid.js will be available August 7th.
+
 # Design and Execution Flow
 
 # <span style="font-size: 20.0px;line-height: 1.5;">Interaction with GPT tag</span>
