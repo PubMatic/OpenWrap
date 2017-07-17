@@ -263,12 +263,12 @@ function getSlotNamesByStatus(statusObject) { // TDD : done
 exports.getSlotNamesByStatus = getSlotNamesByStatus;
 /* end-test-block */
 
-function removeDMTargetingFromSlot(key) {
+function removeDMTargetingFromSlot(key) { // TDD : done
     var currentGoogleSlot;
     var targetingMap = {};
-
-    if (util.isOwnProperty(slotsMap, key)) {
-        currentGoogleSlot = slotsMap[key].getPubAdServerObject();
+    /* istanbul ignore else */
+    if (util.isOwnProperty(refThis.slotsMap, key)) {
+        currentGoogleSlot = refThis.slotsMap[key].getPubAdServerObject();
         util.forEachOnArray(currentGoogleSlot.getTargetingKeys(), function(index, key) {
             targetingMap[key] = currentGoogleSlot.getTargeting(key);
         });
