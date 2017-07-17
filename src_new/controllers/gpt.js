@@ -250,13 +250,17 @@ exports.updateStatusAfterRendering = updateStatusAfterRendering;
 
 function getSlotNamesByStatus(statusObject) {
     var slots = [];
-    util.forEachOnObject(slotsMap, function(key, slot) {
+    util.forEachOnObject(refThis.slotsMap, function(key, slot) {
         if (util.isOwnProperty(statusObject, slot.getStatus())) {
             slots.push(key);
         }
     });
     return slots;
 }
+
+/* start-test-block */
+exports.getSlotNamesByStatus = getSlotNamesByStatus;
+/* end-test-block */
 
 function removeDMTargetingFromSlot(key) {
     var currentGoogleSlot;

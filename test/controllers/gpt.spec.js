@@ -1619,4 +1619,53 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
     });
+
+    describe('#getSlotNamesByStatus', function () {
+        var divID = null;
+        var statusObject = null;
+
+        beforeEach(function (done) {
+
+            divID = commonDivID;
+            statusObject = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
+
+            GPT.slotsMap[divID] = {
+                getStatus: function () {
+                    CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
+                }
+            };
+            sinon.spy(GPT.slotsMap[divID], "getStatus");
+            sinon.spy(UTIL, 'forEachOnObject');
+            // UTIL.forEachOnObject.returns(true);
+            sinon.stub(UTIL, 'isOwnProperty');
+            UTIL.isOwnProperty.returns(true);
+            done();
+        });
+
+        afterEach(function (done) {
+            GPT.slotMap[divID] = null;
+            UTIL.forEachOnObject.restore();
+            UTIL.isOwnProperty.restore();
+            divID = null;
+            done();
+        });
+
+        it('is a function', function (done) {
+            GPT.getSlotNamesByStatus.should.be.a('function');
+            done();
+        });
+
+        it('should return array of slots', function (done) {
+            GPT.getSlotNamesByStatus(statusObject).should.be.a('array');
+            done();
+        });
+
+        it('should have called UTIL functions and slot\'s getStatus', function (done) {
+            GPT.getSlotNamesByStatus(statusObject);
+            UTIL.isOwnProperty.called.should.be.true;
+            UTIL.forEachOnObject.called.should.be.true;
+            GPT.slotsMap[divID].getStatus.called.should.be.true;
+            done();
+        });
+    });
 });
