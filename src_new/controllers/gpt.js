@@ -239,6 +239,7 @@ exports.getStatusOfSlotForDivId = getStatusOfSlotForDivId;
 /* end-test-block */
 
 function updateStatusAfterRendering(divID, isRefreshCall) {
+    /* istanbul ignore else */
     if (util.isOwnProperty(slotsMap, divID)) {
         slotsMap[divID].updateStatusAfterRendering(isRefreshCall);
     }
@@ -379,6 +380,7 @@ exports.findWinningBidAndApplyTargeting = findWinningBidAndApplyTargeting;
 
 
 function defineWrapperTargetingKey(key) { // TDD : done
+    /* istanbul ignore else */
     if (!util.isObject(refThis.wrapperTargetingKeys)) {
         refThis.wrapperTargetingKeys = {};
     }
@@ -396,7 +398,9 @@ function newDisableInitialLoadFunction(theObject, originalFunction) { // TDD : d
         return function() {
             /* istanbul ignore next */
             disableInitialLoadIsSet = true;
+            /* istanbul ignore next */
             util.log("Disable Initial Load is called");
+            /* istanbul ignore next */
             return originalFunction.apply(theObject, arguments);
         };
     } else {
@@ -416,6 +420,7 @@ function newEnableSingleRequestFunction(theObject, originalFunction) { // TDD : 
             /* istanbul ignore next */
             util.log("enableSingleRequest is called");
             //addHookOnGoogletagDisplay();// todo
+            /* istanbul ignore next */
             return originalFunction.apply(theObject, arguments);
         };
     } else {
@@ -444,12 +449,16 @@ function newSetTargetingFunction(theObject, originalFunction) { // TDD : done
             var arg = arguments,
                 key = arg[0] ? arg[0] : null;
             //addHookOnGoogletagDisplay();//todo
+            /* istanbul ignore if */
             if (key != null) {
+                /* istanbul ignore if */
                 if (!util.isOwnProperty(GPT_targetingMap, key)) {
                     GPT_targetingMap[key] = [];
                 }
+                /* istanbul ignore next */
                 GPT_targetingMap[key] = GPT_targetingMap[key].concat(arg[1]);
             }
+            /* istanbul ignore next */
             return originalFunction.apply(theObject, arguments);
         };
     } else {
@@ -470,6 +479,7 @@ function newDestroySlotsFunction(theObject, originalFunction) { // TDD : done
             util.forEachOnArray(arguments[0] || [], function(index, slot) {
                 delete slotsMap[this.generateSlotName(slot)];
             });
+            /* istanbul ignore next */
             return originalFunction.apply(theObject, arguments);
         };
     } else {
@@ -581,18 +591,23 @@ function newDisplayFunction(theObject, originalFunction) { // TDD : done
         return function() {
             /* istanbul ignore next */
             util.log("In display function, with arguments: ");
+            /* istanbul ignore next */
             util.log(arguments);
-
+            /* istanbul ignore next */
+            /* istanbul ignore if */
             if (disableInitialLoadIsSet) {
                 util.log("DisableInitialLoad was called, Nothing to do");
                 return originalFunction.apply(theObject, arguments);
             }
-
+            /* istanbul ignore next */
             refThis.updateSlotsMapFromGoogleSlots(theObject.pubads().getSlots(), arguments, true);
+            /* istanbul ignore next */
             refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
+            /* istanbul ignore next */
             refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus({ 0: "" }), arguments, false);
-
+            /* istanbul ignore next */
             var divID = arguments[0];
+            /* istanbul ignore next */
             setTimeout(function() {
                 util.realignVLogInfoPanel(divID);
                 bidManager.executeAnalyticsPixel();
@@ -653,15 +668,17 @@ function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue) {
 exports.findWinningBidIfRequired_Refresh = findWinningBidIfRequired_Refresh;
 /* end-test-block */
 
-function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg) {
+function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg) { // TDD : done
     util.log("Executing post CONFIG.getTimeout() events, arguments: ");
     util.log(arg);
     var yesCallRefreshFunction = false;
     util.forEachOnArray(qualifyingSlotNames, function(index, dmSlot) {
-        var divID = slotsMap[dmSlot].getDivID();
+        var divID = refThis.slotsMap[dmSlot].getDivID();
         yesCallRefreshFunction = refThis.findWinningBidIfRequired_Refresh(dmSlot, divID, yesCallRefreshFunction);
-        setTimeout(function() {
-            util.createVLogInfoPanel(divID, slotsMap[dmSlot].getSizes());
+        window.setTimeout(function() {
+            /* istanbul ignore next */
+            util.createVLogInfoPanel(divID, refthis.slotsMap[dmSlot].getSizes());
+            /* istanbul ignore next */
             util.realignVLogInfoPanel(divID);  
         }, 2000 + CONFIG.getTimeout());
     });
@@ -714,10 +731,15 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD : done // Note 
         return function() {
             /* istanbul ignore next */
             util.log("In Refresh function");
+            /* istanbul ignore next */
             refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
+            /* istanbul ignore next */
             var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(arguments, theObject);
+            /* istanbul ignore next */
             refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
+            /* istanbul ignore next */
             util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
+            /* istanbul ignore next */
             setTimeout(function() {
                 refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);
             }, CONFIG.getTimeout());
@@ -738,6 +760,7 @@ function newSizeMappingFunction(theObject, originalFunction) { // TDD : done
         return function() {
             /* istanbul ignore next */
             slotSizeMapping[refThis.generateSlotName(theObject)] = arguments[0];
+            /* istanbul ignore next */
             return originalFunction.apply(theObject, arguments);
         };
     } else {
@@ -815,8 +838,11 @@ function addHooksIfPossible(win) { // TDD : done
         util.log("Succeeded to load before GPT");
         var refThis = this; // TODO : check whether the global refThis works here
         win.googletag.cmd.unshift(function() {
+            /* istanbul ignore next */
             util.log("OpenWrap initialization started");
+            /* istanbul ignore next */
             refThis.addHooks(win);
+            /* istanbul ignore next */
             util.log("OpenWrap initialization completed");
         });
         return true;

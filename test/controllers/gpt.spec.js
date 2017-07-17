@@ -6,8 +6,25 @@ var GPT = require("../../src_new/controllers/gpt.js");
 var UTIL = require("../../src_new/util.js");
 var AM = require("../../src_new/adapterManager.js");
 var CONSTANTS = require("../../src_new/constants.js");
+var CONFIG = require("../../src_new/config.js");
+var BM = require("../../src_new/bidManager.js");
 
 var commonDivID = "DIV_1";
+
+// TODO : remove as required during single TDD only
+// var jsdom = require('jsdom').jsdom;
+// var exposedProperties = ['window', 'navigator', 'document'];
+// global.document = jsdom('');
+// global.window = document.defaultView;
+// Object.keys(document.defaultView).forEach((property) => {
+//     if (typeof global[property] === 'undefined') {
+//         exposedProperties.push(property);
+//         global[property] = document.defaultView[property];
+//     }
+// });
+// global.navigator = {
+//     userAgent: 'node.js'
+// };
 
 describe("CONTROLLER: GPT", function() {
 
@@ -1814,6 +1831,89 @@ describe("CONTROLLER: GPT", function() {
             GPT.removeDMTargetingFromSlot.called.should.be.true;
             GPT.slotsMap["slot_1"].setRefreshFunctionCalled.calledWith(true).should.be.true;
             GPT.slotsMap["slot_1"].setArguments.calledWith(argumentsFromCallingFunction).should.be.true;
+            done();
+        });
+    });
+
+    describe('#postTimeoutRefreshExecution', function () {
+        var qualifyingSlotNames = null, theObject = null, originalFunction = null, arg = null;
+        var slotObject = null;
+        beforeEach(function (done) {
+            qualifyingSlotNames = ["slot_1", "slot_2"];
+            theObject = {};
+            originalFunction = function () {
+                return "originalFunction";
+            };
+            arg = {};
+            slotObject = {
+                getDivID: function () {
+                    return "getDivID";
+                },
+                getSizes: function () {
+                    return "getSizes";
+                },
+            };
+
+            GPT.slotsMap = {};
+            GPT.slotsMap["slot_1"] = slotObject;
+            GPT.slotsMap["slot_2"] = slotObject;
+
+            sinon.spy(slotObject, "getDivID");
+
+            sinon.spy(window, "setTimeout");
+            
+            sinon.spy(CONFIG, "getTimeout");
+
+            sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "forEachOnArray");
+            sinon.spy(UTIL, "createVLogInfoPanel");
+            sinon.spy(UTIL, "realignVLogInfoPanel");
+
+            sinon.stub(BM, "executeAnalyticsPixel");
+            BM.executeAnalyticsPixel.returns(true);
+            sinon.stub(GPT, "callOriginalRefeshFunction");
+            GPT.callOriginalRefeshFunction.returns(true);
+
+            sinon.stub(GPT, "findWinningBidIfRequired_Refresh");
+            GPT.findWinningBidIfRequired_Refresh.returns(true);
+            
+            done();
+        });
+
+        afterEach(function (done) {
+            UTIL.log.restore();
+            UTIL.forEachOnArray.restore();
+            UTIL.createVLogInfoPanel.restore();
+            UTIL.realignVLogInfoPanel.restore();
+
+            BM.executeAnalyticsPixel.restore();
+
+            GPT.callOriginalRefeshFunction.restore();
+
+            GPT.findWinningBidIfRequired_Refresh.restore();
+
+            window.setTimeout.restore();
+
+            CONFIG.getTimeout.restore();
+
+            slotObject.getDivID.restore();
+
+            done();
+        });
+
+        it('is a function', function (done) {
+            GPT.postTimeoutRefreshExecution.should.be.a('function');
+            done();
+        });
+
+        it('should have logged the arg', function (done) {
+            GPT.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
+            UTIL.log.calledWith("Executing post CONFIG.getTimeout() events, arguments: ").should.be.true;
+            UTIL.log.calledWith(arg).should.be.true;
+            UTIL.forEachOnArray.calledWith(qualifyingSlotNames).should.be.true;
+            window.setTimeout.called.should.be.true;
+            BM.executeAnalyticsPixel.called.should.be.true;
+            GPT.callOriginalRefeshFunction.calledWith(true, theObject, originalFunction, arg).should.be.true;
             done();
         });
     });
