@@ -285,14 +285,17 @@ function removeDMTargetingFromSlot(key) { // TDD : done
 exports.removeDMTargetingFromSlot = removeDMTargetingFromSlot;
 /* end-test-block */
 
-function updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, argumentsFromCallingFunction, isRefreshCall) {
+function updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, argumentsFromCallingFunction, isRefreshCall) { // TDD : done
     util.forEachOnArray(slotNames, function(index, slotName) {
-        if (util.isOwnProperty(slotsMap, slotName)) {
-            var slot = slotsMap[slotName];
+        /* istanbul ignore else */
+        if (util.isOwnProperty(refThis.slotsMap, slotName)) {
+            var slot = refThis.slotsMap[slotName];
             slot.setStatus(CONSTANTS.SLOT_STATUS.PARTNERS_CALLED);
+            /* istanbul ignore else */
             if (isRefreshCall) {
                 refThis.removeDMTargetingFromSlot(slotName);
-                slot.setRefreshFunctionCalled(true).setArguments([]);
+                slot.setRefreshFunctionCalled(true);
+                slot.setArguments(argumentsFromCallingFunction);
             }
         }
     });
