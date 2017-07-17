@@ -227,7 +227,7 @@ exports.updateSlotsMapFromGoogleSlots = updateSlotsMapFromGoogleSlots;
 
 //todo: pass slotsMap in every function that uses it
 function getStatusOfSlotForDivId(divID) { // TDD : done
-    /* instalbul ignore else */
+    /* istanbul ignore else */
     if (util.isOwnProperty(refThis.slotsMap, divID)) {
         return refThis.slotsMap[divID].getStatus();
     }
@@ -251,6 +251,7 @@ exports.updateStatusAfterRendering = updateStatusAfterRendering;
 function getSlotNamesByStatus(statusObject) { // TDD : done
     var slots = [];
     util.forEachOnObject(refThis.slotsMap, function(key, slot) {
+        /* istanbul ignore else */
         if (util.isOwnProperty(statusObject, slot.getStatus())) {
             slots.push(key);
         }
