@@ -116,7 +116,7 @@ function getSizeFromSizeMapping(divID, slotSizeMapping) {
 exports.getSizeFromSizeMapping = getSizeFromSizeMapping;
 /* end-test-block */
 
-function getAdSlotSizesArray(divID, currentGoogleSlot) {
+function getAdSlotSizesArray(divID, currentGoogleSlot) { // TDD : done
     var sizeMapping = refThis.getSizeFromSizeMapping(divID, refThis.slotSizeMapping);
 
     if (sizeMapping !== false) {
@@ -196,6 +196,7 @@ exports.storeInSlotsMap = storeInSlotsMap;
 function generateSlotName(googleSlot) {
     if (util.isObject(googleSlot) && util.isFunction(googleSlot.getSlotId)) {
         var slotID = googleSlot.getSlotId();
+        /* istanbul ignore else */
         if (slotID && util.isFunction(slotID.getDomId)) {
             return slotID.getDomId();
         }
@@ -225,9 +226,10 @@ exports.updateSlotsMapFromGoogleSlots = updateSlotsMapFromGoogleSlots;
 /* end-test-block */
 
 //todo: pass slotsMap in every function that uses it
-function getStatusOfSlotForDivId(divID) {
-    if (util.isOwnProperty(slotsMap, divID)) {
-        return slotsMap[divID].getStatus();
+function getStatusOfSlotForDivId(divID) { // TDD : done
+    /* instalbul ignore else */
+    if (util.isOwnProperty(refThis.slotsMap, divID)) {
+        return refThis.slotsMap[divID].getStatus();
     }
     return CONSTANTS.SLOT_STATUS.DISPLAYED;
 }

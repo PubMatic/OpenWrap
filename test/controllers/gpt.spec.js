@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-// var sinon = require("sinon");
+var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 var GPT = require("../../src_new/controllers/gpt.js");
@@ -1574,5 +1574,49 @@ describe("CONTROLLER: GPT", function() {
             done();
         }); 
 
+    });
+
+    describe('#getStatusOfSlotForDivId', function () {
+        var divID = null;
+
+        beforeEach(function (done) {
+            divID = commonDivID;
+            GPT.slotsMap[divID] = {
+                getStatus: function () {
+                    CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
+                }
+            };
+            sinon.spy(GPT.slotsMap[divID], "getStatus");
+            sinon.stub(UTIL, "isOwnProperty");
+
+            UTIL.isOwnProperty.returns(true)
+            done();
+        });
+
+        afterEach(function (done) {
+            GPT.slotMap[divID] = null;
+            UTIL.isOwnProperty.restore();
+            divID = null;
+            done();
+        });
+
+        it('is a function', function (done) {
+            GPT.getStatusOfSlotForDivId.should.be.a('function');
+            done();
+        });
+
+        it('should return slot status by calling getStatus of the given slot if its present in slotMap', function (done) {
+            GPT.getStatusOfSlotForDivId(divID);
+            // UTIL.isOwnProperty.calledWith(GPT.slotMap, divID).should.be.true;
+            UTIL.isOwnProperty.called.should.be.true;
+            GPT.slotsMap[divID].getStatus.called.should.be.true;
+            done();
+        });
+
+        it('should return slot status as DISPLAYED if given divID is not present in slotMap', function (done) {
+            UTIL.isOwnProperty.returns(false);
+            GPT.getStatusOfSlotForDivId(divID).should.be.equal(CONSTANTS.SLOT_STATUS.DISPLAYED);
+            done();
+        });
     });
 });
