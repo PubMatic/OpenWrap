@@ -248,7 +248,7 @@ function updateStatusAfterRendering(divID, isRefreshCall) {
 exports.updateStatusAfterRendering = updateStatusAfterRendering;
 /* end-test-block */
 
-function getSlotNamesByStatus(statusObject) {
+function getSlotNamesByStatus(statusObject) { // TDD : done
     var slots = [];
     util.forEachOnObject(refThis.slotsMap, function(key, slot) {
         if (util.isOwnProperty(statusObject, slot.getStatus())) {
