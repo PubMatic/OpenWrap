@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-var sinon = require("sinon");
+// var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 var GPT = require("../../src_new/controllers/gpt.js");
