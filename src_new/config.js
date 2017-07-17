@@ -59,7 +59,7 @@ exports.forEachAdapter = function(callback){
 };
 
 function addPrebidAdapter(){
-	var preBidAdapter = "prebid";
+	var preBidAdapter = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 	if(!util.isOwnProperty(config.adapters, preBidAdapter)){
 		var adapterConfig = {};
 		adapterConfig[CONSTANTS.CONFIG.REV_SHARE] = "0.0";
@@ -69,7 +69,6 @@ function addPrebidAdapter(){
 		config.adapters[preBidAdapter] = adapterConfig;
 	}	
 }
-
 
 /* start-test-block */
 exports.addPrebidAdapter = addPrebidAdapter;
