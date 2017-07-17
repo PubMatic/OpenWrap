@@ -31,28 +31,30 @@ var refThis = this;
 
 function handleBidResponses(bidResponses){
 	for(var responseID in bidResponses){
-		if(util.isOwnProperty(bidResponses, responseID) && util.isOwnProperty(kgpvMap, responseID)){
+		// console.log("responseID ==>", responseID);
+		/* istanbul ignore else */
+		if(util.isOwnProperty(bidResponses, responseID) && util.isOwnProperty(refThis.kgpvMap, responseID)){
 			var bidObject = bidResponses[responseID];
 			var bids = bidObject.bids || [];
 
 			for(var i = 0; i<bids.length; i++){
 				var bid = bids[i];
+				/* istanbul ignore else */
 				if(bid.bidderCode){
 
-					var theBid = BID.createBid(bid.bidderCode, kgpvMap[responseID].kgpv);
-					theBid.
-						setGrossEcpm(bid.cpm).
-						setDealID(bid.dealId).
-						setDealChannel(bid.dealChannel).
-						setAdHtml(bid.ad || "").
-						setWidth(bid.width).
-						setHeight(bid.height).
-						setReceivedTime(bid.responseTimestamp);
+					var theBid = BID.createBid(bid.bidderCode, refThis.kgpvMap[responseID].kgpv);
+					theBid.setGrossEcpm(bid.cpm);
+					theBid.setDealID(bid.dealId);
+					theBid.setDealChannel(bid.dealChannel);
+					theBid.setAdHtml(bid.ad || "");
+					theBid.setWidth(bid.width);
+					theBid.setHeight(bid.height);
+					theBid.setReceivedTime(bid.responseTimestamp);
 					//todo: does any PB partner passes URL as creative ?	
 					util.forEachOnObject(bid.adserverTargeting, function(key, value){
 						theBid.setKeyValuePair(key, value);
 					});
-					bidManager.setBidFromBidder(kgpvMap[responseID].divID, theBid);
+					bidManager.setBidFromBidder(refThis.kgpvMap[responseID].divID, theBid);
 				}
 			}
 		}
@@ -63,7 +65,7 @@ function handleBidResponses(bidResponses){
 exports.handleBidResponses = handleBidResponses;
 /* end-test-block */
 
-function MyFunction(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){					
+function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){					
 			
 	var code, sizes, divID = currentSlot.getDivID();
 
@@ -120,7 +122,7 @@ function MyFunction(adapterID, adUnits, adapterConfig, impressionID, generatedKe
 };
 
 /* start-test-block */
-exports.MyFunction = MyFunction;
+exports.generatedKeyCallback = generatedKeyCallback;
 /* end-test-block */
 
 
@@ -140,7 +142,7 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 		activeSlots, 
 		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN], 
 		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null, 
-		refThis.MyFunction,
+		refThis.generatedKeyCallback,
 		true
 	);
 }
@@ -191,6 +193,9 @@ function fetchBids(activeSlots, impressionID){
 			window.pbjs.requestBids({
 				adUnits: adUnitsArray,
 				bidsBackHandler: function(bidResponses) {
+					// console.log("++++++++++++++++++++ bidResponses ");
+					// console.log("++++++++++++++++++++ bidResponses ==>", bidResponses);
+					// console.log("++++++++++++++++++++ bidResponses ");
 					refThis.handleBidResponses(bidResponses);
 				},
 				timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
