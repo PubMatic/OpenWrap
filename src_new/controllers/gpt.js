@@ -81,22 +81,23 @@ function getSizeFromSizeMapping(divID, slotSizeMapping) {
     var screenHeight = util.getScreenHeight(refThis.getWindowReference());
 
     util.log(divID + ": responsiveSizeMapping found: screenWidth: " + screenWidth + ", screenHeight: " + screenHeight);
-    console.log("--------------==================== sizeMapping");
-    console.log("sizeMapping ==>", sizeMapping);
-    console.log("--------------==================== sizeMapping");
     util.log(sizeMapping);
-
+    /* istanbul ignore else */
     if (!util.isArray(sizeMapping)) {
         return false;
     }
 
     for (var i = 0, l = sizeMapping.length; i < l; i++) {
+        /* istanbul ignore if */
         if (sizeMapping[i].length == 2 && sizeMapping[i][0].length == 2) {
             var currentWidth = sizeMapping[i][0][0],
                 currentHeight = sizeMapping[i][0][1];
 
+            /* istanbul ignore if */
             if (screenWidth >= currentWidth && screenHeight >= currentHeight) {
+                /* istanbul ignore if */
                 if (sizeMapping[i][1].length != 0 && !util.isArray(sizeMapping[i][1][0])) {
+                    /* istanbul ignore if */
                     if (sizeMapping[i][1].length == 2 && util.isNumber(sizeMapping[i][1][0]) && util.isNumber(sizeMapping[i][1][1])) {
                         return [sizeMapping[i][1]];
                     } else {

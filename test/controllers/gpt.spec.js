@@ -1917,4 +1917,84 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
     });
+
+    describe('#getSizeFromSizeMapping', function () {
+        var divID = null, slotSizeMapping = null;
+        var sizeMapping = null;
+        beforeEach(function (done) {
+            divID = commonDivID;
+            sizeMapping = [[340, 210], [1024, 768]]
+            slotSizeMapping = sizeMapping;
+            sinon.stub(UTIL, "isOwnProperty");
+            sinon.stub(UTIL, "getScreenWidth");
+            sinon.stub(UTIL, "getScreenHeight");
+            sinon.stub(UTIL, "isArray");
+            sinon.stub(UTIL, "isNumber");
+            sinon.stub(UTIL, "log");
+
+            sinon.stub(GPT, "getWindowReference");
+            GPT.getWindowReference.returns(true);
+            done();
+        });
+
+        afterEach(function (done) {
+
+            UTIL.isOwnProperty.restore();
+            UTIL.getScreenWidth.restore();
+            UTIL.getScreenHeight.restore();
+            UTIL.isArray.restore();
+            UTIL.isNumber.restore();
+            UTIL.log.restore();
+
+            GPT.getWindowReference.restore();
+            done();
+        });
+
+        it('is a function', function (done) {
+            GPT.getSizeFromSizeMapping.should.be.a('function');
+            done();
+        });
+
+        it('returns false if given divID is not in give slotSizeMapping', function (done) {
+            UTIL.isOwnProperty.returns(false);
+            GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.false;
+            done();
+        });
+
+        it('returns false if sizeMapping for given divID is not an array', function (done) {
+            UTIL.isOwnProperty.returns(true);
+            UTIL.isArray.withArgs(sizeMapping).returns(false);
+            GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.false;
+            done();
+        });
+    });
+
+    describe('#storeInSlotsMap', function () {
+        it('is a function', function (done) {
+            GPT.storeInSlotsMap.should.be.a('function');
+            done();
+        });
+    });
+
+
+    describe('#updateSlotsMapFromGoogleSlots', function () {
+        it('is a function', function (done) {
+            GPT.updateSlotsMapFromGoogleSlots.should.be.a('function');
+            done();
+        });
+    });
+
+    describe('#updateStatusAfterRendering', function () {
+        it('is a function', function (done) {
+            GPT.updateStatusAfterRendering.should.be.a('function');
+            done();
+        });
+    });
+
+    describe('#getSizeFromSizeMapping', function () {
+        it('is a function', function (done) {
+            GPT.getSizeFromSizeMapping.should.be.a('function');
+            done();
+        });
+    });
 });
