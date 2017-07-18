@@ -82,19 +82,21 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		divID: divID	
 	};
 
+	/* istanbul ignore else */
 	if(!util.isOwnProperty(adUnits, code)){
-		adUnits[ code ] = {
+		adUnits[code] = {
 			code: code,
 			sizes: sizes,
 			bids: []
 		};
 	}
-	
+	// console.log("adUnits ==>", adUnits);
 	var slotParams = {};
 	util.forEachOnObject(keyConfig, function(key, value){
+		/* istanbul ignore next */
 		slotParams[key] = value;
 	});			
-
+	
 	// processing for each partner
 	switch(adapterID){
 		case "pubmatic":
@@ -102,6 +104,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			slotParams["adSlot"] = generatedKey;
 			slotParams["wiid"] = impressionID;
 			slotParams["profId"] = CONFIG.getProfileID();
+			/* istanbul ignore else*/
 			if(window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
@@ -116,7 +119,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			break;
 
 		default:
-			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			adUnits[code].bids.push({ bidder: adapterID, params: slotParams });
 			break;	 
 	}
 };

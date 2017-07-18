@@ -175,10 +175,111 @@ describe('ADAPTER: Prebid', function() {
     });
 
     describe('#generatedKeyCallback', function () {
+        var adapterID = null, adUnits = null, adapterConfig = null, 
+            impressionID = null, generatedKey = null, kgpConsistsWidthAndHeight = null, 
+            currentSlot = null, keyConfig = null, currentWidth = null, currentHeight = null;
+
+        beforeEach(function (done) {
+            currentSlot = {
+                getDivID: function () {
+                    return commonDivID;
+                },
+                getSizes: function () {
+                    return [[340, 210], [1024, 768]];
+                }
+            };
+
+            sinon.spy(currentSlot, "getDivID");
+            sinon.spy(currentSlot, "getSizes");
+            adapterConfig = {
+                "publisherId": 121
+            };
+            adapterID = commonAdpterID;
+            generatedKey = "generatedKey_1";
+            impressionID = 123123123;
+            adUnits = {};
+
+            sinon.stub(UTIL, "isOwnProperty").returns(false);
+            sinon.spy(UTIL, "forEachOnObject");
+            sinon.spy(UTIL, "forEachOnArray");
+
+            sinon.stub(CONFIG, "getProfileID").returns("profId");
+            sinon.stub(CONFIG, "getProfileDisplayVersionID").returns("verId");
+
+            kgpConsistsWidthAndHeight = true;
+            window.PWT = {
+                udpv: {}
+            };
+            currentWidth = 340;
+            currentHeight = 210;
+            done();
+        });
+
+        afterEach(function (done) {
+
+            UTIL.isOwnProperty.restore();
+            UTIL.forEachOnObject.restore();
+            UTIL.forEachOnArray.restore();
+            
+
+            currentSlot.getDivID.restore();
+            currentSlot.getSizes.restore();
+
+            CONFIG.getProfileID.restore();
+            CONFIG.getProfileDisplayVersionID.restore();
+
+            currentSlot = null;
+
+            kgpConsistsWidthAndHeight = null;
+            done();
+        });
+
     	it('is a function', function (done) {
     		PREBID.generatedKeyCallback.should.be.a('function');
     		done();
     	});
+
+        it('should have created bid object by composing from passed in params', function (done) {
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            CONFIG.getProfileID.called.should.be.true;
+            CONFIG.getProfileDisplayVersionID.called.should.be.true;
+
+            UTIL.forEachOnArray.called.should.be.false;
+            done();
+        });
+
+        it('should have created bid object using sizes passed', function (done) {
+            adapterID = "pulsepoint";
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            UTIL.forEachOnArray.calledWith([[currentWidth, currentHeight]]).should.be.true;
+            CONFIG.getProfileID.called.should.be.false;
+            CONFIG.getProfileDisplayVersionID.called.should.be.false;
+            done();
+        });
+
+        it('should have constructed proper slotParams', function (done) {
+            kgpConsistsWidthAndHeight = false;
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            // sizes => [[340, 210], [1024, 768]]
+            var slotParams = {
+                "publisherId": 121,
+                "adSlot": generatedKey,
+                "wiid": impressionID,
+                "profId": "profId",
+                "verId": "verId",
+            };
+            adUnits[commonDivID].bids[0].should.be.deep.equal({bidder: adapterID, params: slotParams });
+            done();
+        });
+
+
+        it('should have constructed proper slotParams', function (done) {
+            kgpConsistsWidthAndHeight = false;
+            adapterID = "different";
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            adUnits[commonDivID].bids[0].should.be.deep.equal({bidder: adapterID, params: {} });
+            done();
+        });
     });
 
     describe('#generatePbConf', function() {
