@@ -31,13 +31,17 @@ BMEntry.prototype.getAnalyticEnabledStatus = function(){
 };
 
 BMEntry.prototype.setNewBid = function(adapterID, theBid){
+	/* istanbul ignore else */
 	if(!util.isOwnProperty(this.adapters, adapterID)){
+		/* istanbul ignore next */
 		this.adapters[adapterID] = new AdapterEntry(adapterID);
 	}
+	/* istanbul ignore next */
 	this.adapters[adapterID].setNewBid(theBid);
 };
 
 BMEntry.prototype.getBid = function(adapterID, bidID){
+	/* istanbul ignore else */
 	if(util.isOwnProperty(this.adapters, adapterID)){
 		return this.adapters[adapterID].getBid(bidID);
 	}
@@ -70,6 +74,7 @@ BMEntry.prototype.getSizes = function(){
 };
 
 BMEntry.prototype.setAdapterEntry = function(adapterID){
+	/* istanbul ignore else */
 	if(!util.isOwnProperty(this.adapters, adapterID)){
 		this.adapters[adapterID] = new AdapterEntry(adapterID);
 		util.log(CONSTANTS.MESSAGES.M4+this.name + " "+adapterID+" "+this.adapters[adapterID].getCallInitiatedTime());
@@ -78,6 +83,7 @@ BMEntry.prototype.setAdapterEntry = function(adapterID){
 };
 
 BMEntry.prototype.getLastBidIDForAdapter = function(adapterID){
+	/* istanbul ignore else */
 	if(util.isOwnProperty(this.adapters, adapterID)){
 		return this.adapters[adapterID].getLastBidID();
 	}
