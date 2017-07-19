@@ -35,7 +35,7 @@ describe('AdapterEntry adapterEntryObject', function() {
     });
 
 
-    describe('Bid', function() {
+    describe('#AdapterEntry', function() {
         it('is a function', function(done) {
             AdapterEntry.should.be.a('function');
             done();
