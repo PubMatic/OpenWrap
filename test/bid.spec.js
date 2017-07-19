@@ -13,6 +13,22 @@ var commonKGPV = "XYZ";
 
 var BID = require("../src_new/bid.js").Bid;
 
+
+// TODO : remove as required during single TDD only
+// var jsdom = require('jsdom').jsdom;
+// var exposedProperties = ['window', 'navigator', 'document'];
+// global.document = jsdom('');
+// global.window = document.defaultView;
+// Object.keys(document.defaultView).forEach((property) => {
+//     if (typeof global[property] === 'undefined') {
+//         exposedProperties.push(property);
+//         global[property] = document.defaultView[property];
+//     }
+// });
+// global.navigator = {
+//     userAgent: 'node.js'
+// };
+
 describe('Bid bidObject', function() {
     var bidObject = null;
     var adapterID = null;
@@ -63,8 +79,67 @@ describe('Bid bidObject', function() {
     });
 
     describe('#setGrossEcpm', function() {
+
+        var ecpm = null;
+        beforeEach(function (done) {
+            ecpm = 2.0;
+            sinon.spy(UTIL, 'log');
+            sinon.stub(UTIL, "isString").returns(true);
+            sinon.stub(window, "isNaN").returns(true);
+            sinon.stub(window, "parseFloat").returns("NaN");
+            // sinon.spy(CONFIG, "getAdapterRevShare");
+            // sinon.spy(bidObject, "getAdapterID");
+
+            done();
+        });
+
+        afterEach(function (done) {
+            UTIL.log.restore();
+            UTIL.isString.restore();
+            window.isNaN.restore();
+            window.parseFloat.restore();
+            ecpm = null;
+            done();
+        });
+
         it('is a function', function(done) {
             bidObject.setGrossEcpm.should.be.a('function');
+            done();
+        });
+
+        it('should return unmodified bid object when ecpm passed is null', function (done) {
+            ecpm = null;
+            bidObject.setGrossEcpm(ecpm).should.be.deep.equal(bidObject);
+            UTIL.log.calledWith(CONSTANTS.MESSAGES.M10).should.be.true;
+            UTIL.log.calledWith(bidObject).should.be.true;
+            done();
+        });
+
+        it('should return unmodified bid object when ecpm passed is empty string', function (done) {
+            ecpm = "";
+            bidObject.setGrossEcpm(ecpm).should.be.deep.equal(bidObject);
+            UTIL.log.calledWith(CONSTANTS.MESSAGES.M20).should.be.true;
+            UTIL.log.calledWith(bidObject).should.be.true;
+            done();
+        });
+
+        it('should return when ecpm passed is Not a number', function (done) {
+            ecpm = "NotANumber";
+            UTIL.isString.returns(false);
+            window.parseFloat.returns("NotANumber");
+            bidObject.setGrossEcpm(ecpm).should.be.deep.equal(bidObject);
+            UTIL.log.calledWith(CONSTANTS.MESSAGES.M11+ecpm).should.be.true;
+            UTIL.log.calledWith(bidObject).should.be.true;
+            done();
+        });
+
+        it('should return modified bid object when ecpm passed is proper', function (done) {
+            ecpm = 2.0;
+            UTIL.isString.returns(false);
+            window.isNaN.returns(false);
+            window.parseFloat.returns(2.7);
+
+            bidObject.setGrossEcpm(ecpm).should.be.deep.equal(bidObject);
             done();
         });
 
@@ -332,10 +407,44 @@ describe('Bid bidObject', function() {
     });
 
     describe('#setDealID', function() {
+        var dealID = null;
+
+        beforeEach(function (done) {
+            sinon.spy(bidObject, "setKeyValuePair");
+            done();
+        });
+
+        afterEach(function (done) {
+            bidObject.setKeyValuePair.restore();
+            done();
+        });
         it('is a function', function(done) {
             bidObject.setDealID.should.be.a('function')
             done();
         });
+
+        it('returns bidObject with updating dealID if porper dealID is passed', function (done) {
+            dealID = "deal_id";
+            bidObject.setDealID(dealID).should.be.deep.equal(bidObject);
+            bidObject.setKeyValuePair.calledWith(
+                CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+bidObject.adapterID, 
+                bidObject.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.bidID
+            )
+            .should.be.true;
+            done();
+        });
+
+        it('returns bidObject without updating dealID if imporper dealID is passed', function (done) {
+            dealID = false;
+            bidObject.setDealID(dealID).should.be.deep.equal(bidObject);
+            bidObject.setKeyValuePair.calledWith(
+                CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+bidObject.adapterID, 
+                bidObject.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.bidID
+            )
+            .should.be.false;
+            done();
+        });
+
     });
 
     describe('#getDealID', function() {
@@ -351,10 +460,46 @@ describe('Bid bidObject', function() {
     });
 
     describe('#setDealChannel', function() {
+        var dealChannel = null;
+
+        beforeEach(function (done) {
+            sinon.spy(bidObject, "setKeyValuePair");
+            done();
+        });
+
+        afterEach(function (done) {
+            bidObject.setKeyValuePair.restore();
+            done();
+        });
+
         it('is a function', function(done) {
             bidObject.setDealChannel.should.be.a('function')
             done();
         });
+
+        it('returns bidObject with updating dealChannel if porper dealChannel is passed', function (done) {
+            dealChannel = "deal_channel";
+            bidObject.dealID = "deal_id";
+            bidObject.setDealChannel(dealChannel).should.be.deep.equal(bidObject);
+            bidObject.setKeyValuePair.calledWith(
+                CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+bidObject.adapterID, 
+                bidObject.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.bidID
+            )
+            .should.be.true;
+            done();
+        });
+
+        it('returns bidObject without updating dealChannel if imporper dealChannel is passed', function (done) {
+            dealChannel = false;
+            bidObject.setDealChannel(dealChannel).should.be.deep.equal(bidObject);
+            bidObject.setKeyValuePair.calledWith(
+                CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+bidObject.adapterID, 
+                bidObject.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.bidID
+            )
+            .should.be.false;
+            done();
+        });
+        
     });
 
     describe('#getDealChannel', function() {

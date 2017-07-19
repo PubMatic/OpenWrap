@@ -32,32 +32,35 @@ Bid.prototype.getBidID = function(){
 };
 
 Bid.prototype.setGrossEcpm = function(ecpm){
-
+	/* istanbul ignore else */
 	if(ecpm === null){
 		UTIL.log(CONSTANTS.MESSAGES.M10);
 		UTIL.log(this);
 		return this;
 	}
-
+	/* istanbul ignore else */
 	if(UTIL.isString(ecpm)){
 		ecpm = ecpm.replace(/\s/g, "");
+		/* istanbul ignore else */
 		if(ecpm.length === 0){
 			UTIL.log(CONSTANTS.MESSAGES.M20);
+			// console.log(CONSTANTS.MESSAGES.M20);
 			UTIL.log(this);
 			return this;
 		}
 	}
 
-	ecpm = parseFloat(ecpm);
-
-	if(isNaN(ecpm)){
+	ecpm = window.parseFloat(ecpm);
+	/* istanbul ignore else */
+	if(window.isNaN(ecpm)){
 		UTIL.log(CONSTANTS.MESSAGES.M11+ecpm);
+		// console.log(CONSTANTS.MESSAGES.M11+ecpm);
 		UTIL.log(this);
-		return;
+		return this;
 	}
 
 	this.grossEcpm = ecpm;
-	this.netEcpm = parseFloat(this.grossEcpm * CONFIG.getAdapterRevShare(this.getAdapterID()).toFixed(CONSTANTS.COMMON.BID_PRECISION));
+	this.netEcpm = window.parseFloat(this.grossEcpm * CONFIG.getAdapterRevShare(this.getAdapterID()).toFixed(CONSTANTS.COMMON.BID_PRECISION));
 
 	return this;
 };
@@ -147,6 +150,7 @@ Bid.prototype.getReceivedTime = function(){
 };
 
 Bid.prototype.setDealID = function(dealID){
+	/* istanbul ignore else */
 	if(dealID){
 		this.dealID = dealID;
 		this.setKeyValuePair(
@@ -162,6 +166,7 @@ Bid.prototype.getDealID = function(){
 };
 
 Bid.prototype.setDealChannel = function(dealChannel){
+	/* istanbul ignore else */
 	if(this.dealID && dealChannel){
 		this.dealChannel = dealChannel;
 		this.setKeyValuePair(
