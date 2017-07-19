@@ -180,25 +180,24 @@ function fetchBids(activeSlots, impressionID){
 	// adUnits is object create array from it
 	var adUnitsArray = [];
 	for(var code in adUnits){
+		/* istanbul ignore else */
 		if(util.isOwnProperty(adUnits, code)){
 			adUnitsArray.push(adUnits[code]);
 		}
 	}
-
+	
+	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window.pbjs){
-
+		/* istanbul ignore else */
 		if(util.isFunction(window.pbjs.setBidderSequence)){
 			window.pbjs.setBidderSequence("random");
 		}
-
+		/* istanbul ignore else */
 		if(util.isFunction(window.pbjs.requestBids)){
 			window.pbjs.logging = true;//todo: enable optionally
 			window.pbjs.requestBids({
 				adUnits: adUnitsArray,
 				bidsBackHandler: function(bidResponses) {
-					// console.log("++++++++++++++++++++ bidResponses ");
-					// console.log("++++++++++++++++++++ bidResponses ==>", bidResponses);
-					// console.log("++++++++++++++++++++ bidResponses ");
 					refThis.handleBidResponses(bidResponses);
 				},
 				timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
