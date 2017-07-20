@@ -678,7 +678,7 @@ function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFun
         yesCallRefreshFunction = refThis.findWinningBidIfRequired_Refresh(dmSlot, divID, yesCallRefreshFunction);
         window.setTimeout(function() {
             /* istanbul ignore next */
-            util.createVLogInfoPanel(divID, refthis.slotsMap[dmSlot].getSizes());
+            util.createVLogInfoPanel(divID, refThis.slotsMap[dmSlot].getSizes());
             /* istanbul ignore next */
             util.realignVLogInfoPanel(divID);  
         }, 2000 + CONFIG.getTimeout());

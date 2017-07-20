@@ -109,7 +109,9 @@ function auctionBids(bmEntry){
 		keyValuePairs = {}
 	;
 	// console.log("bmEntry.adapters ==>", bmEntry.adapters);
-	util.forEachOnObject(bmEntry.adapters, refThis.auctionBidsCallBack);
+	util.forEachOnObject(bmEntry.adapters, function (adapterID, adapterEntry) {
+		refThis.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
+	});
 
 	return {
 		wb: winningBid,
@@ -118,7 +120,7 @@ function auctionBids(bmEntry){
 }
 
 
-function auctionBidsCallBack(adapterID, adapterEntry) {
+function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) {
     /* istanbul ignore else */
     console.log("adapterID, adapterEntry ==>", adapterID, adapterEntry);
     if (adapterEntry.getLastBidID() != "") {
@@ -258,7 +260,9 @@ exports.executeAnalyticsPixel = function(){
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
 
-	util.forEachOnObject(window.PWT.bidMap, refThis.analyticalPixelCallback);
+	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {
+		refThis.analyticalPixelCallback(slotID, bmEntry, impressionIDMap);
+	});
 
 	util.forEachOnObject(impressionIDMap, function(impressionID, slots){
 		/* istanbul ignore else */
@@ -295,7 +299,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD done
 	// (new window.Image()).src = util.metaInfo.protocol + pixelURL; // TODO : extract this a separate function so we can test that proper pixelURL is generated and is passed tot he extracted function
 };
 
-function analyticalPixelCallback(slotID, bmEntry) {
+function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) {
     var startTime = bmEntry.getCreationTime();
     if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
         var slotObject = {
