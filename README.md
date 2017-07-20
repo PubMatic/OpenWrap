@@ -3,6 +3,8 @@
 
 OpenWrap as an extension of Prebid is under development and not currently available on this Github page. The updated OpenWrap source code extending Prebid.js will be available August 7th.
 
+Portions of OpenWrap contain code from Prebid.js licensed under the Apache License, Version 2.0.
+
 As publishers have embraced header bidding, running multiple header tags from different providers has become a top priority with many considerations.
 
 The main areas of concern are:
@@ -531,6 +533,4 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  
-Portions of OpenWrap contain code from Prebid.js licensed under the
-Apache License, Version 2.0.
 </a>
