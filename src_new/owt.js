@@ -31,7 +31,6 @@ window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 	bidID && bidManager.displayCreative(theDocument, bidID);
 };
 
-//todo: change first argument to window, will require change in LineItemCreationTool 
 window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	util.log("In sfDisplayCreative for: " + bidID);
 	this.isSafeFrame = true;
@@ -45,7 +44,6 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	);
 };
 
-//todo: change first argument to window, will require change in LineItemCreationTool
 window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In sfDisplayPMPCreative for: " + values);
 	this.isSafeFrame = true;
@@ -60,10 +58,10 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 };
 
 //todo: move to init
-if(false){
+if(false){ //todo: enable this feature by default
 	if(!this.safeFrameMessageListenerAdded){
 		util.addMessageEventListenerForSafeFrame(window);
-		this.this.safeFrameMessageListenerAdded = true;
+		this.this.safeFrameMessageListenerAdded = true; //todo check 
 	}	
 }
 

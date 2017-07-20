@@ -337,7 +337,7 @@ function findWinningBidAndApplyTargeting(divID) {
     var googleDefinedSlot = slotsMap[divID].getPubAdServerObject();
 
     // todo: do we need to consider any other PB key ?
-    //todo: move this out
+    //todo: move this into constants
     var ignoreTheseKeys = {
         "hb_bidder": 1,
         "hb_adid": 1,
@@ -836,7 +836,7 @@ exports.defineGPTVariables = defineGPTVariables;
 
 function addHooksIfPossible(win) { // TDD : done
     if (util.isUndefined(win.google_onload_fired) && util.isObject(win.googletag) && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)) {
-        util.log("Succeeded to load before GPT");
+        util.log("Succeeded to load before GPT");//todo
         var refThis = this; // TODO : check whether the global refThis works here
         win.googletag.cmd.unshift(function() {
             /* istanbul ignore next */
