@@ -468,7 +468,7 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
-    xdescribe('#auctionBids', function() {
+    describe('#auctionBids', function() {
         var bmEntryObj = null;
         var divID = null;
         var adapterID_1 = commonAdpterID + "_1";
@@ -487,6 +487,9 @@ describe('bidManager BIDMgr', function() {
             theBid_2 = new bid(adapterID_2, kgpv);
             bmEntryObj.setNewBid(adapterID_2, theBid_2);
 
+            sinon.stub(BIDMgr, "auctionBidsCallBack").returns(true);
+            sinon.spy(UTIL, "forEachOnObject");
+
             // bmEntryObj.adapters = conf.adapters;
             // window.PWT.bidMap[divID] = bmEntry.createBMEntry(divID); 
             done();
@@ -495,12 +498,14 @@ describe('bidManager BIDMgr', function() {
         afterEach(function(done) {
             bmEntryObj = null;
             divID = null;
+            BIDMgr.auctionBidsCallBack.restore();
+            UTIL.forEachOnObject.restore();
             done();
         });
 
         it('is a function', function(done) {
             BIDMgr.auctionBids.should.be.a('function');
-            console.log("bmEntryObj.adapters ==>", bmEntryObj.adapters);
+            // console.log("bmEntryObj.adapters ==>", bmEntryObj.adapters);
             done();
         });
 
@@ -508,6 +513,11 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.auctionBids(bmEntryObj);
 
             UTIL.forEachOnObject.called.should.be.true;
+            done();
+        });
+
+        it('returns winning bid with key value pairs', function (done) {
+            BIDMgr.auctionBids(bmEntryObj).should.have.all.keys('wb', 'kvp');
             done();
         });
     });
@@ -798,14 +808,88 @@ describe('bidManager BIDMgr', function() {
     });
 
     describe('#executeAnalyticsPixel', function() {
+
+        beforeEach(function (done) {
+            sinon.stub(CONFIG, "getAnalyticsPixelURL").returns("http://pb.analytics.com/dm/");
+            sinon.stub(CONFIG, "getPublisherId");
+
+            // sinon.spy(CONFIG, "getPublisherId");
+            sinon.spy(CONFIG, "getTimeout");
+            sinon.spy(CONFIG, "getProfileID");
+            sinon.spy(CONFIG, "getProfileDisplayVersionID");
+
+            var timeNow = new Date().getTime();
+            sinon.stub(UTIL, "getCurrentTimestamp").returns(timeNow);
+
+            sinon.stub(UTIL, "forEachOnObject").returns(true);
+            window.PWT = {
+                bidMap: {}
+            };
+            // sinon.spy(window, "encodeURIComponent");
+            done();
+        });
+
+        afterEach(function (done) {
+            CONFIG.getAnalyticsPixelURL.restore();
+            CONFIG.getPublisherId.restore();
+
+            // CONFIG.getPublisherId.restore();
+            CONFIG.getTimeout.restore();
+            CONFIG.getProfileID.restore();
+            CONFIG.getProfileDisplayVersionID.restore();
+
+            UTIL.getCurrentTimestamp.restore();
+            UTIL.forEachOnObject.restore();
+            window.PWT = null;
+            // window.encodeURIComponent.restore();
+            done(); 
+        });
+
         it('is a function', function(done) {
             BIDMgr.executeAnalyticsPixel.should.be.a('function');
+            done();
+        });
+
+        it('should return if pixelURL is empty', function (done) {
+            CONFIG.getAnalyticsPixelURL.returns(null);
+            BIDMgr.executeAnalyticsPixel();
+            CONFIG.getPublisherId.called.should.be.false;
+            done();
+        });
+
+
+        it('should have caled CONFIG functions to generate output Object', function (done) {
+            BIDMgr.executeAnalyticsPixel();
+
+            CONFIG.getPublisherId.called.should.be.true;
+            CONFIG.getTimeout.called.should.be.true;
+            CONFIG.getProfileID.called.should.be.true;
+            CONFIG.getProfileDisplayVersionID.called.should.be.true;
+
+            UTIL.getCurrentTimestamp.called.should.be.true;
+            done();
+        });
+
+        it('should have called UTIL.forEachOnObject with bidMap', function (done) {
+
+            BIDMgr.executeAnalyticsPixel();
+
+            UTIL.forEachOnObject.calledWith(window.PWT.bidMap).should.be.true;
+            done();
+            
+        });
+
+
+        it('should have called UTIL.forEachOnObject twice', function (done) {
+            BIDMgr.executeAnalyticsPixel();
+            UTIL.forEachOnObject.calledTwice.should.be.true;
+            // window.encodeURIComponent.called.should.be.true;
             done();
         });
     });
 
     // TODO : check for window.Image issue
-    xdescribe('#executeMonetizationPixel', function() {
+    describe('#executeMonetizationPixel', function() {
         var slotID = null;
         var adapterID = null;
         var theBid = null;
@@ -827,7 +911,7 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, 'getGrossEcpm');
             sinon.spy(theBid, 'getKGPV');
 
-            sinon.spy(window, 'Image');
+            sinon.stub(window, 'Image').returns({});
 
             window.PWT = {
                 bidMap: {}
@@ -956,11 +1040,11 @@ describe('bidManager BIDMgr', function() {
     });
 
     // TODO : check for window.Image issue
-    xdescribe('#setImageSrcToPixelURL', function() {
+    describe('#setImageSrcToPixelURL', function() {
         var pixelURL = null;
         beforeEach(function(done) {
             pixelURL = "t.pubmatic.com/wt?pubid=9999&purl=undefined&tst=1499332621&iid=123123&bidid=784b05cc03a84a&pid=46&pdvid=4&slot=Slot_1&pn=null&en=0&eg=0&kgpv=XYZ";
-            sinon.spy(window, 'Image');
+            sinon.stub(window, 'Image').returns({});
             done();
         });
 
@@ -969,6 +1053,7 @@ describe('bidManager BIDMgr', function() {
             window.Image.restore();
             done();
         });
+
         it('is a function', function(done) {
             BIDMgr.setImageSrcToPixelURL.should.be.a('function');
             done();

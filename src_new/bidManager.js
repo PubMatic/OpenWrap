@@ -108,35 +108,8 @@ function auctionBids(bmEntry){
 	var winningBid = null,
 		keyValuePairs = {}
 	;
-
-	util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry){
-		if(adapterEntry.getLastBidID() != ""){
-			util.forEachOnObject(adapterEntry.bids, function(bidID, theBid){
-				// do not consider post-timeout bids
-				if(theBid.getPostTimeoutStatus() === true){
-					return;
-				}
-
-				//	if bidPassThrough is not enabled and ecpm > 0
-				//		then only append the key value pairs from partner bid				
-				if(CONFIG.getBidPassThroughStatus(adapterID) === 0 && theBid.getNetEcpm() > 0){
-					util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
-				}
-
-				//BidPassThrough: Do not participate in auction)
-				if(CONFIG.getBidPassThroughStatus(adapterID) !== 0){
-					util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
-					return;
-				}
-
-				if(winningBid == null){
-					winningBid = theBid;
-				}else if(winningBid.getNetEcpm() < theBid.getNetEcpm()){
-					winningBid = theBid;
-				}
-			});
-		}
-	});
+	// console.log("bmEntry.adapters ==>", bmEntry.adapters);
+	util.forEachOnObject(bmEntry.adapters, refThis.auctionBidsCallBack);
 
 	return {
 		wb: winningBid,
@@ -144,6 +117,48 @@ function auctionBids(bmEntry){
 	};
 }
 
+
+function auctionBidsCallBack(adapterID, adapterEntry) {
+    /* istanbul ignore else */
+    console.log("adapterID, adapterEntry ==>", adapterID, adapterEntry);
+    if (adapterEntry.getLastBidID() != "") {
+        util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+        	console.log("theBid ==>", theBid);
+            // do not consider post-timeout bids
+            /* istanbul ignore else */
+            if (theBid.getPostTimeoutStatus() === true) {
+                return;
+            }
+
+            //	if bidPassThrough is not enabled and ecpm > 0
+            //		then only append the key value pairs from partner bid
+            /* istanbul ignore else */
+            if (CONFIG.getBidPassThroughStatus(adapterID) === 0 && theBid.getNetEcpm() > 0) {
+                util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
+            }
+
+            //BidPassThrough: Do not participate in auction)
+            /* istanbul ignore else */
+            if (CONFIG.getBidPassThroughStatus(adapterID) !== 0) {
+                util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
+                return;
+            }
+
+            if (winningBid == null) {
+                winningBid = theBid;
+                console.log("inside winningBid == null ==>", winningBid);
+            } else if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
+                winningBid = theBid;
+            }
+        });
+    }
+}
+
+
+
+/* start-test-block */
+exports.auctionBidsCallBack = auctionBidsCallBack;
+/* end-test-block */
 
 /* start-test-block */
 exports.auctionBids = auctionBids;
@@ -229,7 +244,7 @@ exports.executeAnalyticsPixel = function(){
 		pixelURL = CONFIG.getAnalyticsPixelURL(),
 		impressionIDMap = {} // impID => slots[]
 		;
-
+	// console.log("pixelURL ==>", pixelURL);
 	if(!pixelURL){
 		return;
 	}
@@ -238,56 +253,15 @@ exports.executeAnalyticsPixel = function(){
 
 	outputObj[CONSTANTS.CONFIG.PUBLISHER_ID] = CONFIG.getPublisherId();
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMEOUT] = ""+CONFIG.getTimeout();
-	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.PAGE_URL] = decodeURIComponent(util.metaInfo.pageURL);
+	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.PAGE_URL] = window.decodeURIComponent(util.metaInfo.pageURL);
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
 
-	util.forEachOnObject(PWT.bidMap, function(slotID, bmEntry){
-		var startTime = bmEntry.getCreationTime();
-		if(bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()){			
-			var slotObject = {
-				"sn": slotID,
-				"sz": bmEntry.getSizes(),
-				"ps": []
-			};
-
-			bmEntry.setExpired();
-			var impressionID = bmEntry.getImpressionID();
-			impressionIDMap[ impressionID ]	= impressionIDMap[ impressionID ] || [];
-
-			util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry){
-
-				if(CONFIG.getBidPassThroughStatus(adapterID) == 1){
-					return;
-				}
-
-				util.forEachOnObject(adapterEntry.bids, function(bidID, theBid){
-					var endTime = theBid.getReceivedTime();
-					//todo: take all these key names from constants
-					slotObject["ps"].push({
-						"pn": adapterID,
-						"bidid": bidID,
-						"db": theBid.getDefaultBidStatus(),
-						"kgpv": theBid.getKGPV(),
-						"psz": theBid.getWidth() + "x" + theBid.getHeight(),
-						"eg": theBid.getGrossEcpm(),
-						"en": theBid.getNetEcpm(),
-						"di": theBid.getDealID(),
-						"dc": theBid.getDealChannel(),
-						"l1": endTime - startTime,
-						"l2": 0,
-						"t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
-						"wb": theBid.getWinningBidStatus() === true ? 1 : 0
-					});
-				})
-			});
-
-			impressionIDMap[ impressionID ].push(slotObject);
-		}
-	});
+	util.forEachOnObject(window.PWT.bidMap, refThis.analyticalPixelCallback);
 
 	util.forEachOnObject(impressionIDMap, function(impressionID, slots){
+		/* istanbul ignore else */
 		if(slots.length > 0){
 			outputObj.s = slots;
 			outputObj[CONSTANTS.COMMON.IMPRESSION_ID] = window.encodeURIComponent(impressionID);
@@ -321,10 +295,59 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD done
 	// (new window.Image()).src = util.metaInfo.protocol + pixelURL; // TODO : extract this a separate function so we can test that proper pixelURL is generated and is passed tot he extracted function
 };
 
+function analyticalPixelCallback(slotID, bmEntry) {
+    var startTime = bmEntry.getCreationTime();
+    if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
+        var slotObject = {
+            "sn": slotID,
+            "sz": bmEntry.getSizes(),
+            "ps": []
+        };
+
+        bmEntry.setExpired();
+        var impressionID = bmEntry.getImpressionID();
+        impressionIDMap[impressionID] = impressionIDMap[impressionID] || [];
+
+        util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
+
+            if (CONFIG.getBidPassThroughStatus(adapterID) == 1) {
+                return;
+            }
+
+            util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+                var endTime = theBid.getReceivedTime();
+                //todo: take all these key names from constants
+                slotObject["ps"].push({
+                    "pn": adapterID,
+                    "bidid": bidID,
+                    "db": theBid.getDefaultBidStatus(),
+                    "kgpv": theBid.getKGPV(),
+                    "psz": theBid.getWidth() + "x" + theBid.getHeight(),
+                    "eg": theBid.getGrossEcpm(),
+                    "en": theBid.getNetEcpm(),
+                    "di": theBid.getDealID(),
+                    "dc": theBid.getDealChannel(),
+                    "l1": endTime - startTime,
+                    "l2": 0,
+                    "t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
+                    "wb": theBid.getWinningBidStatus() === true ? 1 : 0
+                });
+            })
+        });
+
+        impressionIDMap[impressionID].push(slotObject);
+    }
+}
+
+/* start-test-block */
+exports.analyticalPixelCallback = analyticalPixelCallback;
+/* end-test-block */
+
 
 
 exports.setImageSrcToPixelURL = function (pixelURL) { // TDD done
-	(new window.Image()).src = util.metaInfo.protocol + pixelURL;
+	var img = new window.Image();
+	img.src = util.metaInfo.protocol + pixelURL;
 };
 
 //todo
