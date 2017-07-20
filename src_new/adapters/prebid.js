@@ -31,7 +31,6 @@ var refThis = this;
 
 function handleBidResponses(bidResponses){
 	for(var responseID in bidResponses){
-		// console.log("responseID ==>", responseID);
 		/* istanbul ignore else */
 		if(util.isOwnProperty(bidResponses, responseID) && util.isOwnProperty(refThis.kgpvMap, responseID)){
 			var bidObject = bidResponses[responseID];
@@ -90,7 +89,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			bids: []
 		};
 	}
-	// console.log("adUnits ==>", adUnits);
+	
 	var slotParams = {};
 	util.forEachOnObject(keyConfig, function(key, value){
 		/* istanbul ignore next */
@@ -155,7 +154,7 @@ exports.generatePbConf = generatePbConf;
 /* end-test-block */
 
 function fetchBids(activeSlots, impressionID){
-	// console.log(window.pbjs);
+	
 	if(! window.pbjs){
 		util.log("PreBid js is not loaded");	
 		return;
@@ -167,7 +166,9 @@ function fetchBids(activeSlots, impressionID){
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
 		// Assumption: all partners are running through PreBid,
 		//				if we add any new parent-adapter, then code changes will be required
+		/* istanbul ignore else */
 		if(adapterID !== refThis.parentAdapterID){
+			/* istanbul ignore if */
 			if(adapterManager.throttleAdapter(randomNumberBelow100, adapterID) == false){
 				adapterManager.setInitTimeForSlotsForAdapter(activeSlots, adapterID);
 				refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);

@@ -43,8 +43,7 @@ Bid.prototype.setGrossEcpm = function(ecpm){
 		ecpm = ecpm.replace(/\s/g, "");
 		/* istanbul ignore else */
 		if(ecpm.length === 0){
-			UTIL.log(CONSTANTS.MESSAGES.M20);
-			// console.log(CONSTANTS.MESSAGES.M20);
+			UTIL.log(CONSTANTS.MESSAGES.M20);			
 			UTIL.log(this);
 			return this;
 		}
@@ -53,8 +52,7 @@ Bid.prototype.setGrossEcpm = function(ecpm){
 	ecpm = window.parseFloat(ecpm);
 	/* istanbul ignore else */
 	if(window.isNaN(ecpm)){
-		UTIL.log(CONSTANTS.MESSAGES.M11+ecpm);
-		// console.log(CONSTANTS.MESSAGES.M11+ecpm);
+		UTIL.log(CONSTANTS.MESSAGES.M11+ecpm);		
 		UTIL.log(this);
 		return this;
 	}

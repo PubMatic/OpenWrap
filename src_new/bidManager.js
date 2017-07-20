@@ -2,7 +2,6 @@ var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
 var bmEntry = require("./bmEntry.js")
-//PWT.bidIdMap = {}; // bidID => {slotID, adapterID}
 
 var refThis = this;
 
@@ -83,6 +82,7 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD done
 		a: adapterID
 	};
 
+	/* istanbul ignore else */
 	if(theBid.getDefaultBidStatus() === 0){
 		util.vLogInfo(slotID, {
 			type: "bid",
@@ -104,28 +104,55 @@ exports.resetBid = function(divID, impressionID){ // TDD done
 	window.PWT.bidMap[divID].setImpressionID(impressionID);
 };
 
-function auctionBids(bmEntry){	
-	var winningBid = null,
-		keyValuePairs = {}
-	;
-	// console.log("bmEntry.adapters ==>", bmEntry.adapters);
-	util.forEachOnObject(bmEntry.adapters, function (adapterID, adapterEntry) {
-		refThis.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
-	});
+function auctionBids(bmEntry) {
+    var winningBid = null,
+        keyValuePairs = {};
+    
+    util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
+        // refThis.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
+        if (adapterEntry.getLastBidID() != "") {
+            util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+                // do not consider post-timeout bids
+                /* istanbul ignore else */
+                if (theBid.getPostTimeoutStatus() === true) {
+                    return;
+                }
 
-	return {
-		wb: winningBid,
-		kvp: keyValuePairs
-	};
+                //	if bidPassThrough is not enabled and ecpm > 0
+                //		then only append the key value pairs from partner bid
+                /* istanbul ignore else */
+                if (CONFIG.getBidPassThroughStatus(adapterID) === 0 && theBid.getNetEcpm() > 0) {
+                    util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
+                }
+
+                //BidPassThrough: Do not participate in auction)
+                /* istanbul ignore else */
+                if (CONFIG.getBidPassThroughStatus(adapterID) !== 0) {
+                    util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
+                    return;
+                }
+
+                if (winningBid == null) {
+                    winningBid = theBid;
+                } else if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
+                    winningBid = theBid;
+                }
+            });
+        }
+    });
+
+    return {
+        wb: winningBid,
+        kvp: keyValuePairs
+    };
 }
+
 
 
 function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) {
     /* istanbul ignore else */
-    console.log("adapterID, adapterEntry ==>", adapterID, adapterEntry);
     if (adapterEntry.getLastBidID() != "") {
         util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
-        	console.log("theBid ==>", theBid);
             // do not consider post-timeout bids
             /* istanbul ignore else */
             if (theBid.getPostTimeoutStatus() === true) {
@@ -146,9 +173,9 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
                 return;
             }
 
-            if (winningBid == null) {
+            if (Object.keys(winningBid).length === 0) {
+            // if (winningBid == null) {}
                 winningBid = theBid;
-                console.log("inside winningBid == null ==>", winningBid);
             } else if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
                 winningBid = theBid;
             }
@@ -169,15 +196,13 @@ exports.auctionBids = auctionBids;
 exports.getBid = function(divID){ // TDD done
 
 	var winningBid = null;
-	var keyValuePairs = null;	
-	// console.log("window.PWT.bidMap ==>", window.PWT.bidMap);
+	var keyValuePairs = null;
 
 	if( util.isOwnProperty(window.PWT.bidMap, divID) ){
 		var data = refThis.auctionBids(window.PWT.bidMap[divID]);
-		// console.log("data ==>", data);
 		winningBid = data.wb;
 		keyValuePairs = data.kvp;
-		// console.log("window.PWT.bidMap[divID] ==>", window.PWT.bidMap[divID]);
+
 		window.PWT.bidMap[divID].setAnalyticEnabled();//Analytics Enabled
 
 		if(winningBid && winningBid.getNetEcpm() > 0){
@@ -246,7 +271,7 @@ exports.executeAnalyticsPixel = function(){
 		pixelURL = CONFIG.getAnalyticsPixelURL(),
 		impressionIDMap = {} // impID => slots[]
 		;
-	// console.log("pixelURL ==>", pixelURL);
+	
 	if(!pixelURL){
 		return;
 	}
@@ -294,7 +319,6 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD done
 	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
 	pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
 
-	// console.log("pixelURL ==>", pixelURL);
 	refThis.setImageSrcToPixelURL(pixelURL);
 	// (new window.Image()).src = util.metaInfo.protocol + pixelURL; // TODO : extract this a separate function so we can test that proper pixelURL is generated and is passed tot he extracted function
 };

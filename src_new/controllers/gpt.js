@@ -347,9 +347,7 @@ function findWinningBidAndApplyTargeting(divID) {
     };
 
     util.log("DIV: " + divID + " winningBid: ");
-    // if (winningBid.adapterID === "PB_pubmatic") {
-    //     console.info("DIV: " + divID + " Pubtmatic Won");
-    // }
+    
     util.log(winningBid);
 
     if (winningBid && winningBid.getNetEcpm() > 0) {
@@ -794,12 +792,12 @@ exports.addHookOnSlotDefineSizeMapping = addHookOnSlotDefineSizeMapping;
 /* end-test-block */
 
 function addHooks(win) { // TDD : done
-    // console.log("win ==>", win);
+
     if (util.isObject(win) && util.isObject(win.googletag) && util.isFunction(win.googletag.pubads)) {
         var localGoogletag = win.googletag;
-        // console.log("localGoogletag ==>", localGoogletag);
+        
         var localPubAdsObj = localGoogletag.pubads();
-        // console.log("localPubAdsObj ==>", localPubAdsObj);
+        
         if (!util.isObject(localPubAdsObj)) {
             return false;
         }
