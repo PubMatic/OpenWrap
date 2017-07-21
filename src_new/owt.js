@@ -57,39 +57,4 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	);
 };
 
-//todo: move to init
-if(false){ //todo: enable this feature by default
-	if(!this.safeFrameMessageListenerAdded){
-		util.addMessageEventListenerForSafeFrame(window);
-		this.this.safeFrameMessageListenerAdded = true; //todo check 
-	}	
-}
-
 controller.init(window);
-
-/*
-TODO:
-	Util
-		visualConsole
-	When to execute logger pixel ?
-		like nightly ? or original
-		NOPE, abhinav said so on 21st June, 1756(time)
-		DONE	
-	config how to store and read ?
-		DONE
-	any issue with bidManager/adapterManager being called from many files
-		does it keeps all data together OR creates many new versions
-		DONE
-	common name-space
-		how to add callbacks in common namespace
-	first adapter:
-		Prebid
-		PubMatic
-	COMPARE FEATURES FROM LATEST CODE
-		safeframe
-			these changes are required in bidManager
-		named sizes
-			DONE
-		logger pixel execution
-			DONE
-*/
