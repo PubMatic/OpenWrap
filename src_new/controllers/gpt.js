@@ -866,10 +866,21 @@ exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
 /* end-test-block */
 
 
+function initSafeFrameListener(theWindow){
+    if(!theWindow.PWT.safeFrameMessageListenerAdded){
+        util.addMessageEventListenerForSafeFrame(theWindow);
+        theWindow.PWT.safeFrameMessageListenerAdded = true;
+    }
+}
+/* start-test-block */
+exports.initSafeFrameListener = initSafeFrameListener;
+/* end-test-block */
+
 exports.init = function(win) { // TDD : done
 	CONFIG.initConfig();
     if (util.isObject(win)) {
         refThis.setWindowReference(win);
+        refThis.initSafeFrameListener(win);
         refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
         refThis.defineGPTVariables(win);
         adapterManager.registerAdapters();
