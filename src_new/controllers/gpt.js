@@ -760,9 +760,9 @@ function newSizeMappingFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             /* istanbul ignore next */
-            slotSizeMapping[refThis.generateSlotName(theObject)] = arguments[0];
+            slotSizeMapping[refThis.generateSlotName(this)] = arguments[0];
             /* istanbul ignore next */
-            return originalFunction.apply(theObject, arguments);
+            return originalFunction.apply(this, arguments);
         };
     } else {
         util.log("newSizeMappingFunction: originalFunction is not a function");
