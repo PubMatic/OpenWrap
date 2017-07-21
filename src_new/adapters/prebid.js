@@ -72,9 +72,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		code = divID + "@" + adapterID + "@" + currentWidth + "X" + currentHeight;
 		sizes = [[currentWidth, currentHeight]];
 	}else{
-		//todo will it create issue if two partners do not have kgp w/o W n H
-		// one of the partner 
-		code = divID;
+		code = divID + "@" + adapterID;
 		sizes = currentSlot.getSizes();
 	}
 
