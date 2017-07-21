@@ -63,7 +63,7 @@ exports.enableVisualDebugLog = function(){
 };
 
 //todo: move...
-var constDebugInConsolePrependWith = "-------------------------";
+var constDebugInConsolePrependWith = "[OpenWrap] : ";
 
 exports.log = function(data){
 	if( debugLogIsEnabled && console && this.isFunction(console.log) ){ // eslint-disable-line no-console
