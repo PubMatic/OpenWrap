@@ -3,33 +3,26 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-// var CONFIG = require("../src_new/config.js");
-// var CONSTANTS = require("../src_new/constants.js");
 var UTIL = require("../src_new/util.js");
+var AdapterEntry = require("../src_new/adapterEntry.js").AdapterEntry;
+var BID = require("../src_new/bid.js").Bid;
 
 var commonAdpterID = 'pubmatic';
+
 var commonBidID = '9886ade8a';
 var commonKGPV = "XYZ";
+
 var commonNewBidID = "a4de2312";
 var commonNewKGPV = "ABC";
 
-var AdapterEntry = require("../src_new/adapterEntry.js").AdapterEntry;
 
-var BID = require("../src_new/bid.js").Bid;
-
-
-describe('AdapterEntry', function() {
-
-});
 
 describe('AdapterEntry adapterEntryObject', function() {
 
     var adapterEntryObject = null;
     var adapterID = null;
-    // var kgpv = null;
     beforeEach(function(done) {
         adapterID = commonAdpterID;
-        // kgpv = commonKGPV;
         adapterEntryObject = new AdapterEntry(adapterID);
         done();
     });
