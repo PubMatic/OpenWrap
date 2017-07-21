@@ -190,20 +190,26 @@ function fetchBids(activeSlots, impressionID){
 	
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window.pbjs){
-		/* istanbul ignore else */
-		if(util.isFunction(window.pbjs.setBidderSequence)){
-			window.pbjs.setBidderSequence("random");
-		}
-		/* istanbul ignore else */
-		if(util.isFunction(window.pbjs.requestBids)){
-			window.pbjs.logging = true;//todo: enable optionally
-			window.pbjs.requestBids({
-				adUnits: adUnitsArray,
-				bidsBackHandler: function(bidResponses) {
-					refThis.handleBidResponses(bidResponses);
-				},
-				timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
-			});
+
+		try{
+			/* istanbul ignore else */
+			if(util.isFunction(window.pbjs.setBidderSequence)){
+				window.pbjs.setBidderSequence("random");
+			}
+			/* istanbul ignore else */
+			if(util.isFunction(window.pbjs.requestBids)){
+				window.pbjs.logging = true;//todo: enable optionally
+				window.pbjs.requestBids({
+					adUnits: adUnitsArray,
+					bidsBackHandler: function(bidResponses) {
+						refThis.handleBidResponses(bidResponses);
+					},
+					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
+				});
+			}
+		} catch (e) {
+			util.log('Error occured in calling PreBid.');
+			util.log(e);
 		}
 	}
 }
