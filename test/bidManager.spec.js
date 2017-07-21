@@ -7,10 +7,11 @@ var BIDMgr = require('../src_new/bidManager');
 
 var CONFIG = require("../src_new/config.js");
 
-// console.log("CONFIG ==>", CONFIG.getTimeout);
+
 var CONSTANTS = require("../src_new/constants.js");
 var UTIL = require("../src_new/util.js");
-var bmEntry = require("../src_new/bmEntry.js")
+var bmEntry = require("../src_new/bmEntry.js");
+var bmEntryContstuctor = require("../src_new/bmEntry.js").BMEntry;
 
 var AdapterEntry = require("../src_new/adapterEntry").AdapterEntry;
 
@@ -913,23 +914,27 @@ describe('bidManager BIDMgr', function() {
             keyValuePairs = {};
             winningBid = null;
             bidID = commonBidID;
-            theBidObject = {
-                getPostTimeoutStatus: function () {
-                    return "getPostTimeoutStatus";
-                },
-                getNetEcpm: function () {
-                    return "getNetEcpm";
-                },
-                getKeyValuePairs: function () {
-                    return "getKeyValuePairs";
-                },
-            };
+            theBidObject = theBid = new bid(commonAdpterID, commonKGPV);
+            
+            sinon.stub(theBidObject, "getPostTimeoutStatus");
+            sinon.stub(theBidObject, "getKeyValuePairs");
             sinon.stub(adapterEntry, "getLastBidID").returns("");
+            sinon.spy(UTIL, "forEachOnObject");
+            sinon.stub(CONFIG, "getBidPassThroughStatus");
+
+            sinon.spy(UTIL, "copyKeyValueObject");
             done();
         });
 
         afterEach(function (done) {
             adapterEntry.getLastBidID.restore();
+            UTIL.forEachOnObject.restore();
+            UTIL.copyKeyValueObject.restore();
+            
+            theBidObject.getPostTimeoutStatus.restore();
+            theBidObject.getKeyValuePairs.restore();
+
+            CONFIG.getBidPassThroughStatus.restore();
             done();
         });
 
@@ -938,15 +943,29 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('should do what...', function (done) {
-            adapterEntry.bids = {};
-            adapterEntry.bids[commonBidID] = theBidObject;
+        it('should return object containing winningBid and keyValuePairs passed', function (done) {
+            BIDMgr.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid).should.deep.equal({
+                winningBid: winningBid,
+                keyValuePairs: keyValuePairs
+            });
+
+            done();
+        });
+
+        it('should return if bid\'s has come post timeout ', function (done) {
+            theBidObject.getPostTimeoutStatus.returns(true);
+            adapterEntry.setNewBid(theBidObject);
+            // adapterEntry.bids[commonBidID] = theBidObject;
+            adapterEntry.getLastBidID.returns("pubmatic");
+            
             BIDMgr.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
+            UTIL.forEachOnObject.called.should.be.true;
+            CONFIG.getBidPassThroughStatus.called.should.be.false;
             done();
         });
     });
 
-    // TODO : check for window.Image issue
+    // TODO : check for window.Image issue for phantomJS
     describe('#executeMonetizationPixel', function() {
         var slotID = null;
         var adapterID = null;
@@ -1097,7 +1116,7 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
-    // TODO : check for window.Image issue
+    // TODO : check for window.Image issue for phantomJS
     describe('#setImageSrcToPixelURL', function() {
         var pixelURL = null;
         beforeEach(function(done) {
@@ -1126,10 +1145,159 @@ describe('bidManager BIDMgr', function() {
     });
 
     describe('#analyticalPixelCallback', function () {
+        var slotID = null, bmEntryObj = null, impressionIDMap = null;
+        var theBid = null;
+        beforeEach(function (done) {
+            slotID = "Slot_1";
+            bmEntryObj = new bmEntryContstuctor("pubmatic");
+
+
+            sinon.stub(bmEntryObj, "getCreationTime");
+            sinon.stub(bmEntryObj, "getAnalyticEnabledStatus");
+            sinon.stub(bmEntryObj, "getExpiredStatus");
+            sinon.stub(bmEntryObj, "getSizes");
+            sinon.stub(bmEntryObj, "setExpired");
+            sinon.stub(bmEntryObj, "getImpressionID");
+
+            sinon.stub(CONFIG, "getBidPassThroughStatus");
+
+            sinon.spy(UTIL, "forEachOnObject");
+            theBid = new bid(commonAdpterID, commonKGPV);
+
+            sinon.spy(theBid, "getReceivedTime");
+            sinon.spy(theBid, "getDefaultBidStatus");
+            sinon.spy(theBid, "getKGPV");
+            sinon.spy(theBid, "getWidth");
+            sinon.spy(theBid, "getHeight");
+            sinon.spy(theBid, "getGrossEcpm");
+            sinon.spy(theBid, "getNetEcpm");
+            sinon.spy(theBid, "getDealID");
+            sinon.spy(theBid, "getDealChannel");
+            sinon.spy(theBid, "getPostTimeoutStatus");
+            sinon.spy(theBid, "getWinningBidStatus");
+            impressionIDMap = {};
+            done();
+        });
+
+        afterEach(function (done) {
+            bmEntryObj.getCreationTime.restore();
+            bmEntryObj.getAnalyticEnabledStatus.restore();
+            bmEntryObj.getExpiredStatus.restore();
+            bmEntryObj.getSizes.restore();
+            bmEntryObj.setExpired.restore();
+            bmEntryObj.getImpressionID.restore();
+
+            CONFIG.getBidPassThroughStatus.restore();
+
+            UTIL.forEachOnObject.restore();
+
+            bmEntryObj = null;
+            theBid.getReceivedTime.restore();
+            theBid.getDefaultBidStatus.restore();
+            theBid.getKGPV.restore();
+            theBid.getWidth.restore();
+            theBid.getHeight.restore();
+            theBid.getGrossEcpm.restore();
+            theBid.getNetEcpm.restore();
+            theBid.getDealID.restore();
+            theBid.getDealChannel.restore();
+            theBid.getPostTimeoutStatus.restore();
+            theBid.getWinningBidStatus.restore();
+
+            theBid = null;
+            done();
+        });
+
         it('is a function', function (done) {
             BIDMgr.analyticalPixelCallback.should.be.a('function');
             done();
         });
+
+        it('should have called bmEntry\'s getCreationTime ', function (done) {
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            bmEntryObj.getCreationTime.calledOnce.should.be.true;
+            done();
+        });
+
+        it('should check whether given bmEntry\'s analytic status is enabled and whether it is expired or not', function (done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            bmEntryObj.getAnalyticEnabledStatus.calledOnce.should.be.true;
+            bmEntryObj.getExpiredStatus.calledOnce.should.be.true;
+            done();
+        });
+
+        it('should have calle setExpired on given bmEntry object and extract impressionID from the bmEntry object', function (done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            bmEntryObj.setExpired.calledOnce.should.be.true;
+            bmEntryObj.getImpressionID.calledOnce.should.be.true;
+            done();
+        });
+
+        it('should return if Bid Pass Through Status for adapterID is 1', function (done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry(commonAdpterID); 
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+            CONFIG.getBidPassThroughStatus.returns(1);
+
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap); 
+            
+            UTIL.forEachOnObject.calledWith(bmEntryObj.adapters).should.be.true;
+            UTIL.forEachOnObject.calledOnce.should.be.true;
+            
+            done();
+        });
+
+        it('should have iterated over bmEntry\'s adapters to create slotObject for all the bids in adapterEntry', function (done) {
+
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry(commonAdpterID); 
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+            CONFIG.getBidPassThroughStatus.returns(2);
+            
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap); 
+            
+            UTIL.forEachOnObject.calledWith(bmEntryObj.adapters).should.be.true;
+            UTIL.forEachOnObject.calledTwice.should.be.true;
+            
+            done();
+        });
+
+        it('should have generated slotObject with the bid object\'s properties', function (done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry(commonAdpterID); 
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+            CONFIG.getBidPassThroughStatus.returns(2);
+
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap); 
+
+            theBid.getDefaultBidStatus.calledOnce.should.be.true;
+            theBid.getKGPV.calledOnce.should.be.true;
+            theBid.getWidth.calledOnce.should.be.true;
+            theBid.getHeight.calledOnce.should.be.true;
+            theBid.getGrossEcpm.calledOnce.should.be.true;
+            theBid.getNetEcpm.calledOnce.should.be.true;
+            theBid.getDealID.calledOnce.should.be.true;
+            theBid.getDealChannel.calledOnce.should.be.true;
+            theBid.getPostTimeoutStatus.calledOnce.should.be.true;
+            theBid.getWinningBidStatus.calledOnce.should.be.true;
+
+            done();
+        });
+
+        it('should have added impressionIDMap with the generated slotObject', function (done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry(commonAdpterID); 
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+            CONFIG.getBidPassThroughStatus.returns(2);
+
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap); 
+
+            impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn","bidid","db","kgpv","psz","eg","en","di","dc","l1","l2","t","wb");
+            done();
+        });
+
     });
 
 });

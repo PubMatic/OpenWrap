@@ -124,11 +124,12 @@ function auctionBids(bmEntry) {
 
 function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) {
     if (adapterEntry.getLastBidID() != "") {
+    	// console.log("Comming here and adapterEntry.bids ==>", adapterEntry.bids);
         util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
             // do not consider post-timeout bids
             /* istanbul ignore else */
             if (theBid.getPostTimeoutStatus() === true) {
-                return;
+                return { winningBid: winningBid , keyValuePairs: keyValuePairs };
             }
 
             //	if bidPassThrough is not enabled and ecpm > 0
@@ -142,7 +143,7 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
             /* istanbul ignore else */
             if (CONFIG.getBidPassThroughStatus(adapterID) !== 0) {
                 util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
-                return;
+                return { winningBid: winningBid , keyValuePairs: keyValuePairs };
             }
 
             if (winningBid == null) {
@@ -309,14 +310,15 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) {
         bmEntry.setExpired();
         var impressionID = bmEntry.getImpressionID();
         impressionIDMap[impressionID] = impressionIDMap[impressionID] || [];
-
+        
         util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
-
+        	/* istanbul ignore else */
             if (CONFIG.getBidPassThroughStatus(adapterID) == 1) {
                 return;
             }
 
             util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+            	
                 var endTime = theBid.getReceivedTime();
                 //todo: take all these key names from constants
                 slotObject["ps"].push({
