@@ -109,36 +109,9 @@ function auctionBids(bmEntry) {
         keyValuePairs = {};
     
     util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
-        // refThis.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
-        if (adapterEntry.getLastBidID() != "") {
-            util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
-                // do not consider post-timeout bids
-                /* istanbul ignore else */
-                if (theBid.getPostTimeoutStatus() === true) {
-                    return;
-                }
-
-                //	if bidPassThrough is not enabled and ecpm > 0
-                //		then only append the key value pairs from partner bid
-                /* istanbul ignore else */
-                if (CONFIG.getBidPassThroughStatus(adapterID) === 0 && theBid.getNetEcpm() > 0) {
-                    util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
-                }
-
-                //BidPassThrough: Do not participate in auction)
-                /* istanbul ignore else */
-                if (CONFIG.getBidPassThroughStatus(adapterID) !== 0) {
-                    util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
-                    return;
-                }
-
-                if (winningBid == null) {
-                    winningBid = theBid;
-                } else if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
-                    winningBid = theBid;
-                }
-            });
-        }
+        var obj = refThis.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
+        winningBid  = obj.winningBid;
+        keyValuePairs = obj.keyValuePairs;
     });
 
     return {
@@ -150,7 +123,6 @@ function auctionBids(bmEntry) {
 
 
 function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) {
-    /* istanbul ignore else */
     if (adapterEntry.getLastBidID() != "") {
         util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
             // do not consider post-timeout bids
@@ -173,13 +145,15 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
                 return;
             }
 
-            if (Object.keys(winningBid).length === 0) {
-            // if (winningBid == null) {}
+            if (winningBid == null) {
                 winningBid = theBid;
             } else if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
                 winningBid = theBid;
             }
         });
+        return { winningBid: winningBid , keyValuePairs: keyValuePairs };
+    } else {
+    	return { winningBid: winningBid , keyValuePairs: keyValuePairs };
     }
 }
 

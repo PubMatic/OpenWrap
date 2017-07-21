@@ -511,14 +511,14 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        xit('should have called UTIL.forEachOnObject', function(done) {
+        it('should have called UTIL.forEachOnObject', function(done) {
             BIDMgr.auctionBids(bmEntryObj);
 
             UTIL.forEachOnObject.called.should.be.true;
             done();
         });
 
-        xit('returns winning bid with key value pairs', function (done) {
+        it('returns winning bid with key value pairs', function (done) {
             BIDMgr.auctionBids(bmEntryObj).should.have.all.keys('wb', 'kvp');
             done();
         });
@@ -939,12 +939,8 @@ describe('bidManager BIDMgr', function() {
         });
 
         it('should do what...', function (done) {
-            console.log("adapterEntry.bids ==>", adapterEntry.bids);
             adapterEntry.bids = {};
-            // var theBidObjectID = {};
-            // theBidObjectID[bidID] = theBidObject
             adapterEntry.bids[commonBidID] = theBidObject;
-
             BIDMgr.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
             done();
         });
@@ -1126,6 +1122,13 @@ describe('bidManager BIDMgr', function() {
             window.Image.called.should.be.true;
             done();
 
+        });
+    });
+
+    describe('#analyticalPixelCallback', function () {
+        it('is a function', function (done) {
+            BIDMgr.analyticalPixelCallback.should.be.a('function');
+            done();
         });
     });
 
