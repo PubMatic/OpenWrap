@@ -85,24 +85,19 @@ describe("adapterManager : ADPTMgr", function() {
                     return true;
                 }
             };
-            sinon.spy(ADPTMgr, 'getRandomNumberBelow100');
+            
             sinon.spy(UTIL, 'forEachOnObject');
             sinon.spy(ADPTMgr, 'throttleAdapter');
             sinon.spy(ADPTMgr, 'setInitTimeForSlotsForAdapter');
             adapters = conf.adapters, slots = {}, impressionID = {};
             UTIL.forEachOnObject(adapters, function (key, value) {
-            	// console.log("key ==>", key);
             	adapters[key].ID = bidAdaptor.ID;
             	adapters[key].fB = bidAdaptor.fB;
-            	// console.log("value ==>", value);
             });
-            // adapters = 
-            // adapters = ADPTMgr.
             done();
         });
 
         afterEach(function(done) {
-            ADPTMgr.getRandomNumberBelow100.restore();
             UTIL.forEachOnObject.restore();
             ADPTMgr.throttleAdapter.restore();
             ADPTMgr.setInitTimeForSlotsForAdapter.restore();
@@ -115,9 +110,8 @@ describe("adapterManager : ADPTMgr", function() {
             done();
         });
 
-        it('should have called getRandomNumberBelow100 , UTIL.forEachOnObject', function(done) {
+        it('should have called UTIL.forEachOnObject', function(done) {
             ADPTMgr.callAdapter(adapters, slots, impressionID);
-            ADPTMgr.getRandomNumberBelow100.calledOnce.should.be.true;
             UTIL.forEachOnObject.called.should.be.true;
             done();
         });
@@ -128,8 +122,6 @@ describe("adapterManager : ADPTMgr", function() {
             ADPTMgr.throttleAdapter.returns(false);
 
             ADPTMgr.callAdapter(adapters, slots, impressionID);
-            ADPTMgr.getRandomNumberBelow100.calledOnce.should.be.true;
-            // console.log("ADPTMgr.setInitTimeForSlotsForAdapter.called ==> ", ADPTMgr.setInitTimeForSlotsForAdapter.called);
             ADPTMgr.setInitTimeForSlotsForAdapter.called.should.be.true;
             throttleAdapterStub = null;
             done();
