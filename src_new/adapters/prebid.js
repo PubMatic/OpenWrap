@@ -72,6 +72,8 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		code = divID + "@" + adapterID + "@" + currentWidth + "X" + currentHeight;
 		sizes = [[currentWidth, currentHeight]];
 	}else{
+		//todo will it create issue if two partners do not have kgp w/o W n H
+		// one of the partner 
 		code = divID;
 		sizes = currentSlot.getSizes();
 	}
@@ -154,8 +156,7 @@ exports.generatePbConf = generatePbConf;
 /* end-test-block */
 
 function fetchBids(activeSlots, impressionID){
-	
-	if(! window.pbjs){
+	if(! window.pbjs){ // todo: move this code to initial state of adhooks
 		util.log("PreBid js is not loaded");	
 		return;
 	}
