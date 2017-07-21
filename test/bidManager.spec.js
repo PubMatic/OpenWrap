@@ -12,6 +12,8 @@ var CONSTANTS = require("../src_new/constants.js");
 var UTIL = require("../src_new/util.js");
 var bmEntry = require("../src_new/bmEntry.js")
 
+var AdapterEntry = require("../src_new/adapterEntry").AdapterEntry;
+
 
 var bid = require('../src_new/bid.js').Bid;
 
@@ -509,14 +511,14 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('should have called UTIL.forEachOnObject', function(done) {
+        xit('should have called UTIL.forEachOnObject', function(done) {
             BIDMgr.auctionBids(bmEntryObj);
 
             UTIL.forEachOnObject.called.should.be.true;
             done();
         });
 
-        it('returns winning bid with key value pairs', function (done) {
+        xit('returns winning bid with key value pairs', function (done) {
             BIDMgr.auctionBids(bmEntryObj).should.have.all.keys('wb', 'kvp');
             done();
         });
@@ -821,11 +823,17 @@ describe('bidManager BIDMgr', function() {
             var timeNow = new Date().getTime();
             sinon.stub(UTIL, "getCurrentTimestamp").returns(timeNow);
 
-            sinon.stub(UTIL, "forEachOnObject").returns(true);
+            sinon.spy(UTIL, "forEachOnObject")
+            // .returns(true);
             window.PWT = {
-                bidMap: {}
+                bidMap: {
+                    "Slot_1": {
+
+                    }
+                }
             };
             // sinon.spy(window, "encodeURIComponent");
+            sinon.stub(BIDMgr, "analyticalPixelCallback").returns(true);
             done();
         });
 
@@ -842,6 +850,7 @@ describe('bidManager BIDMgr', function() {
             UTIL.forEachOnObject.restore();
             window.PWT = null;
             // window.encodeURIComponent.restore();
+            BIDMgr.analyticalPixelCallback.restore();
             done(); 
         });
 
@@ -856,7 +865,6 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getPublisherId.called.should.be.false;
             done();
         });
-
 
         it('should have caled CONFIG functions to generate output Object', function (done) {
             BIDMgr.executeAnalyticsPixel();
@@ -879,11 +887,65 @@ describe('bidManager BIDMgr', function() {
             
         });
 
+        it('should have called analyticalPixelCallback', function (done) {
+            BIDMgr.executeAnalyticsPixel();
+            BIDMgr.analyticalPixelCallback.called.should.be.true;
+            done();
+        });
+
 
         it('should have called UTIL.forEachOnObject twice', function (done) {
             BIDMgr.executeAnalyticsPixel();
             UTIL.forEachOnObject.calledTwice.should.be.true;
             // window.encodeURIComponent.called.should.be.true;
+            done();
+        });
+    });
+
+
+    describe('#auctionBidsCallBack', function () {
+        var adapterID = null, adapterEntry = null, keyValuePairs = null, winningBid = null;
+        var bidID = null;
+        var theBidObject = null;
+        beforeEach(function (done) {
+            adapterID = commonAdpterID;
+            adapterEntry =  new AdapterEntry(adapterID); 
+            keyValuePairs = {};
+            winningBid = null;
+            bidID = commonBidID;
+            theBidObject = {
+                getPostTimeoutStatus: function () {
+                    return "getPostTimeoutStatus";
+                },
+                getNetEcpm: function () {
+                    return "getNetEcpm";
+                },
+                getKeyValuePairs: function () {
+                    return "getKeyValuePairs";
+                },
+            };
+            sinon.stub(adapterEntry, "getLastBidID").returns("");
+            done();
+        });
+
+        afterEach(function (done) {
+            adapterEntry.getLastBidID.restore();
+            done();
+        });
+
+        it('is a function', function (done) {
+            BIDMgr.auctionBidsCallBack.should.be.a('function');
+            done();
+        });
+
+        it('should do what...', function (done) {
+            console.log("adapterEntry.bids ==>", adapterEntry.bids);
+            adapterEntry.bids = {};
+            // var theBidObjectID = {};
+            // theBidObjectID[bidID] = theBidObject
+            adapterEntry.bids[commonBidID] = theBidObject;
+
+            BIDMgr.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
             done();
         });
     });

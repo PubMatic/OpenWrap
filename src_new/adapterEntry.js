@@ -16,6 +16,7 @@ AdapterEntry.prototype.getLastBidID = function(){
 };
 
 AdapterEntry.prototype.getBid = function(bidID){
+	/* istanbul ignore else */
 	if(util.isOwnProperty(this.bids, bidID)){
 		return this.bids[ bidID ];
 	}
