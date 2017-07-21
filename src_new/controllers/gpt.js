@@ -668,7 +668,7 @@ exports.findWinningBidIfRequired_Refresh = findWinningBidIfRequired_Refresh;
 /* end-test-block */
 
 function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg) { // TDD : done
-    util.log("Executing post CONFIG.getTimeout() events, arguments: ");
+    util.log("Executing post timeout events, arguments: ");
     util.log(arg);
     var yesCallRefreshFunction = false;
     util.forEachOnArray(qualifyingSlotNames, function(index, dmSlot) {
@@ -691,7 +691,7 @@ exports.postTimeoutRefreshExecution = postTimeoutRefreshExecution;
 
 function callOriginalRefeshFunction(flag, theObject, originalFunction, arg) { // TDD : done
     if (flag === true) {
-        util.log("Calling original refresh function from CONFIG.getTimeout()");
+        util.log("Calling original refresh function post timeout");
         originalFunction.apply(theObject, arg);
     } else {
         util.log("AdSlot already rendered");
@@ -738,9 +738,11 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD : done // Note 
             refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
             /* istanbul ignore next */
             util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
+            
+            var arg = arguments;
             /* istanbul ignore next */
             setTimeout(function() {
-                refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);
+                refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
             }, CONFIG.getTimeout());
             //return originalFunction.apply(theObject, arguments);
         };
