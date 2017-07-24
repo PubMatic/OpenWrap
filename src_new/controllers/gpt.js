@@ -462,11 +462,11 @@ exports.newSetTargetingFunction = newSetTargetingFunction;
 
 function newDestroySlotsFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
-        var refThis = this;
         return function() {
+            var slots = arguments[0] || window.googletag.pubads().getSlots();
             /* istanbul ignore next */
-            util.forEachOnArray(arguments[0] || [], function(index, slot) {
-                delete slotsMap[this.generateSlotName(slot)];
+            util.forEachOnArray(slots, function(index, slot) {
+                delete slotsMap[refThis.generateSlotName(slot)];
             });
             /* istanbul ignore next */
             return originalFunction.apply(theObject, arguments);
