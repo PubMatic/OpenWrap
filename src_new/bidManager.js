@@ -39,7 +39,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 	var isPostTimeout = (bidMapEntry.getCreationTime()+CONFIG.getTimeout()) < bidDetails.getReceivedTime() ? true : false,
 		latency = bidDetails.getReceivedTime() - bidMapEntry.getCreationTime();
 
-	refThis.createBidEntry(divID); // TODO : remove this call
+	refThis.createBidEntry(divID);
 
 	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", postTimeout: "+isPostTimeout);
 	
@@ -200,7 +200,7 @@ exports.getBid = function(divID){ // TDD done
 exports.getBidById = function(bidID) { // TDD done
 
     if (!util.isOwnProperty(window.PWT.bidIdMap, bidID)) {
-        util.log("Bid details not found for bidID: " + bidID);
+        util.log(CONSTANTS.MESSAGES.M25 + bidID);
         return null;
     }
 
@@ -222,7 +222,7 @@ exports.getBidById = function(bidID) { // TDD done
         };
     }
 
-    util.log("Bid details not found for bidID: " + bidID);
+    util.log(CONSTANTS.MESSAGES.M25 + bidID);
     return null;
 };
 
@@ -294,8 +294,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD done
 	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
 	pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
 
-	refThis.setImageSrcToPixelURL(pixelURL);
-	// (new window.Image()).src = util.metaInfo.protocol + pixelURL; // TODO : extract this a separate function so we can test that proper pixelURL is generated and is passed tot he extracted function
+	refThis.setImageSrcToPixelURL(pixelURL);	
 };
 
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) {
@@ -353,7 +352,3 @@ exports.setImageSrcToPixelURL = function (pixelURL) { // TDD done
 	var img = new window.Image();
 	img.src = util.metaInfo.protocol + pixelURL;
 };
-
-//todo
-// check if all bid comparisons are made on netEcpm
-// check data types in logger pixel
