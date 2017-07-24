@@ -429,6 +429,29 @@ exports.findInString = function(theString, find){
 	return theString.indexOf(find) >= 0;
 };
 
+exports.findQueryParamInURL = function(url, name){
+	return this.isOwnProperty(this.parseQueryParams(url), name);
+};
+
+exports.parseQueryParams = function(url){
+	var parser = document.createElement('a');
+	parser.href = url;
+	var params = {};
+
+	if(parser.search){
+		var queryString = parser.search.replace('?', '');
+		queryString = queryString.split('&');
+		this.forEachOnArray(queryString, function(index, keyValue){
+			var keyValue = keyValue.split('=');
+			var key = keyValue[0] || '';
+			var value = keyValue [1] || '';
+			params[key] = value;
+		});
+	}
+
+	return params;
+};
+
 exports.addHookOnFunction = function(theObject, useProto, functionName, newFunction){  
 	var callMethodOn = theObject;
 	theObject = useProto ? theObject.__proto__ : theObject;

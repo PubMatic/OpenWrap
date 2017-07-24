@@ -14,11 +14,11 @@ window.PWT = window.PWT || {
 	//safeframe flags here
 	isSafeFrame: false,
 	safeFrameMessageListenerAdded: false,
-	udpv: util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtv=") // usingDifferentProfileVersion
+	udpv: util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtv") // usingDifferentProfileVersion
 };
 
-util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
-util.findInString(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc") && util.enableVisualDebugLog();
+util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
+util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc") && util.enableVisualDebugLog();
 
 window.PWT.displayCreative = function(theDocument, bidID){
 	util.log("In displayCreative for: " + bidID);
