@@ -590,10 +590,13 @@ function newDisplayFunction(theObject, originalFunction) { // TDD : done
             }
             /* istanbul ignore next */
             refThis.updateSlotsMapFromGoogleSlots(theObject.pubads().getSlots(), arguments, true);
+                        
             /* istanbul ignore next */
             refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
+            var statusObj = {};
+            statusObj[CONSTANTS.SLOT_STATUS.CREATED] = "";
             /* istanbul ignore next */
-            refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus({ 0: "" }), arguments, false);
+            refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus(statusObj), arguments, false);
             /* istanbul ignore next */
             var divID = arguments[0];
             /* istanbul ignore next */
