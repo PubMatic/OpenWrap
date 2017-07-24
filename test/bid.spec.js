@@ -123,7 +123,8 @@ describe('Bid bidObject', function() {
             done();
         });
 
-        it('should return when ecpm passed is Not a number', function (done) {
+        //todo: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/NaN
+        xit('should return when ecpm passed is Not a number', function (done) {
             ecpm = "NotANumber";
             UTIL.isString.returns(false);
             window.parseFloat.returns("NotANumber");
