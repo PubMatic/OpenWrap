@@ -335,19 +335,9 @@ function findWinningBidAndApplyTargeting(divID) {
     var winningBid = data.wb || null;
     var keyValuePairs = data.kvp || null;
     var googleDefinedSlot = slotsMap[divID].getPubAdServerObject();
+    var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
 
-    // todo: do we need to consider any other PB key ?
-    //todo: move this into constants
-    var ignoreTheseKeys = {
-        "hb_bidder": 1,
-        "hb_adid": 1,
-        "hb_pb": 1,
-        "hb_size": 1,
-        "hb_deal": 1
-    };
-
-    util.log("DIV: " + divID + " winningBid: ");
-    
+    util.log("DIV: " + divID + " winningBid: ");    
     util.log(winningBid);
 
     if (winningBid && winningBid.getNetEcpm() > 0) {

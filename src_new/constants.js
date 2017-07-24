@@ -65,6 +65,14 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"PROFILE_VERSION_ID": "pwtverid"
 };
 
+exports.IGNORE_PREBID_KEYS = {
+	"hb_bidder": 1,
+    "hb_adid": 1,
+    "hb_pb": 1,
+    "hb_size": 1,
+    "hb_deal": 1
+};
+
 //todo: mention all params here and use accordigly
 exports.LOGGER_PIXEL_PARAMS = {
 	"TIMESTAMP": "tst",
