@@ -103,5 +103,6 @@ exports.MESSAGES = {
 	"M20": "Bid is rejected as ecpm is empty string.",
 	"M21": ": error in respose handler.",
 	"M22": "Bid is rejected as ecpm is <= 0.",
-	"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner."
+	"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner.",,
+	"M24": "Passsed argument is not a bidAdaptor"
 };

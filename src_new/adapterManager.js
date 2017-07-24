@@ -25,7 +25,6 @@ function getRandomNumberBelow100(){
 
 exports.getRandomNumberBelow100 = getRandomNumberBelow100;
 
-// todo: give better name to this function
 function callAdapter(adapters, slots, impressionID){
 	util.forEachOnObject(adapters, function(adapterID, theAdapter){
 		//Note: if you have any other parent-adapter like prebid, and 
@@ -40,13 +39,11 @@ function callAdapter(adapters, slots, impressionID){
 exports.callAdapter = callAdapter;
 /* end-test-block */
 
-// todo: where this function should go ? move to bidManager
-function resetSlots(slots, impressionID){ //todo: how is it working on an array ?
-	util.forEachOnObject(slots, function(key, slot){
+function resetSlots(slots, impressionID){
+	util.forEachOnArray(slots, function(key, slot){
 		var divID = slot.getDivID();
 		bidManager.resetBid(divID, impressionID);
 		bidManager.setSizes(divID, util.generateSlotNamesFromPattern(slot, "_W_x_H_"));
-		//todo: why don't we pass the sizes array as it is
 	});
 }
 
@@ -60,7 +57,6 @@ function throttleAdapter(randomNumber, adapterID){
 
 exports.throttleAdapter = throttleAdapter;
 
-// todo: where this function should go ? move to bidManager
 function setInitTimeForSlotsForAdapter(slots, adapterID){
 	util.forEachOnObject(slots, function(j, slot){
 		bidManager.setCallInitTime(slot.getDivID(), adapterID);
@@ -78,7 +74,8 @@ function registerAdapter(bidAdaptor) {
 			util.log(adapterID + CONSTANTS.MESSAGES.M3);
 		}
 	} else {
-		util.log("passsed argument is not a bidAdaptor"); // todo: move to constants
+		util.log(CONSTANTS.MESSAGES.M3);
+		util.log(bidAdaptor);
 	}
 }
 
