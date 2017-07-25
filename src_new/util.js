@@ -7,7 +7,15 @@ var BID = require("./bid.js");
 var bidManager = require("./bidManager.js");
 
 var debugLogIsEnabled = false;
+
+/* start-test-block */
+exports.debugLogIsEnabled = debugLogIsEnabled;
+/* end-test-block */
 var visualDebugLogIsEnabled = false;
+
+/* start-test-block */
+exports.visualDebugLogIsEnabled = visualDebugLogIsEnabled;
+/* end-test-block */
 var typeArray = "Array";
 var typeString = "String";
 var typeFunction = "Function";
@@ -25,19 +33,19 @@ exports.isA = isA;
 /* end-test-block */
 
 exports.isFunction = function (object) {
-	return isA(object, typeFunction);
+	return refThis.isA(object, typeFunction);
 };
 
 exports.isString = function (object) {
-	return isA(object, typeString);
+	return refThis.isA(object, typeString);
 };
 
 exports.isArray = function (object) {
-	return isA(object, typeArray);
+	return refThis.isA(object, typeArray);
 };
 
 exports.isNumber = function(object) {
-	return isA(object, typeNumber);
+	return refThis.isA(object, typeNumber);
 };
 
 exports.isObject = function(object){
@@ -45,6 +53,7 @@ exports.isObject = function(object){
 };
 
 exports.isOwnProperty = function(theObject, proertyName){
+	/* istanbul ignore else */
 	if(theObject.hasOwnProperty){
 		return theObject.hasOwnProperty(proertyName);	
 	}
@@ -56,19 +65,21 @@ exports.isUndefined = function(object){
 };
 
 exports.enableDebugLog = function(){
-	debugLogIsEnabled = true;
+	refThis.debugLogIsEnabled = true;
 };
 
 exports.enableVisualDebugLog = function(){
-	debugLogIsEnabled = true;
-	visualDebugLogIsEnabled = true;
+	refThis.debugLogIsEnabled = true;
+	refThis.visualDebugLogIsEnabled = true;
 };
 
 //todo: move...
 var constDebugInConsolePrependWith = "[OpenWrap] : ";
 
+
+
 exports.log = function(data){
-	if( debugLogIsEnabled && console && this.isFunction(console.log) ){ // eslint-disable-line no-console
+	if( refThis.debugLogIsEnabled && console && this.isFunction(console.log) ){ // eslint-disable-line no-console
 		if(this.isString(data)){
 			console.log( (new Date()).getTime()+ " : " + constDebugInConsolePrependWith + data ); // eslint-disable-line no-console
 		}else{
@@ -78,7 +89,7 @@ exports.log = function(data){
 };
 
 exports.getCurrentTimestampInMs = function(){
-	var date = new Date();
+	var date = new window.Date();
 	return date.getTime();
 };
 
@@ -95,17 +106,26 @@ var utilGetIncrementalInteger = (function() {
 	};
 })();
 
+/* start-test-block */
+exports.utilGetIncrementalInteger = utilGetIncrementalInteger;
+/* end-test-block */
+
 exports.getUniqueIdentifierStr = function() {
-	return utilGetIncrementalInteger() + Math.random().toString(16).substr(2);
+	return utilGetIncrementalInteger() + window.Math.random().toString(16).substr(2);
 };
 
 exports.copyKeyValueObject = function(copyTo, copyFrom){
-	if(this.isObject(copyTo) && this.isObject(copyFrom)){
-		var utilRef = this;
-		this.forEachOnObject(copyFrom, function(key, value){
+	/* istanbul ignore else */
+	if(refThis.isObject(copyTo) && refThis.isObject(copyFrom)){
+		var utilRef = refThis;
+		refThis.forEachOnObject(copyFrom, function(key, value){
 			copyFrom[key] = utilRef.isArray(value) ? value : [value];
 			if(utilRef.isOwnProperty(copyTo, key)){
-				//copyTo[key].push.apply(copyTo[key], value);
+				// copyTo[key].push.apply(copyTo[key], value);
+				if (!refThis.isArray(copyTo[key])) {
+					var temp = copyTo[key];
+					copyTo[key] = [temp];
+				}
 				copyTo[key].push(value);
 			}else{
 				copyTo[key] = [value];
@@ -123,9 +143,9 @@ exports.getIncrementalInteger = (function() {
 })();
 
 exports.generateUUID = function(){
-	var d = new Date().getTime(),
+	var d = new window.Date().getTime(),
       // todo: this.pageURL ???
-		url = decodeURIComponent(this.pageURL).toLowerCase().replace(/[^a-z,A-Z,0-9]/gi, ""),
+		url = window.decodeURIComponent(this.pageURL).toLowerCase().replace(/[^a-z,A-Z,0-9]/gi, ""),
 		urlLength = url.length
 		;
 
@@ -171,12 +191,14 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 		sizeArrayLength,
 		i
 		;
-  
-	if(this.isObject(activeSlot) && this.isFunction(activeSlot.getSizes)){
+  	/* istanbul ignore else */
+	if(refThis.isObject(activeSlot) && refThis.isFunction(activeSlot.getSizes)){
 		sizeArray = activeSlot.getSizes();
 		sizeArrayLength = sizeArray.length;
+		/* istanbul ignore else */
 		if( sizeArrayLength > 0){
 			for(i = 0; i < sizeArrayLength; i++){
+				/* istanbul ignore else */
 				if(sizeArray[i][0] && sizeArray[i][1]){
 
 					slotName = pattern;
@@ -184,10 +206,11 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
                     .replace(constCommonMacroForWidthRegExp, sizeArray[i][0])
                     .replace(constCommonMacroForHeightRegExp, sizeArray[i][1])
                     .replace(constCommonMacroForAdUnitIndexRegExp, activeSlot.getAdUnitIndex())
-                    .replace(constCommonMacroForIntegerRegExp, this.getIncrementalInteger())
+                    .replace(constCommonMacroForIntegerRegExp, refThis.getIncrementalInteger())
                     .replace(constCommonMacroForDivRegExp, activeSlot.getDivID());
 
-					if(! this.isOwnProperty(slotNamesObj, slotName)){
+                    /* istanbul ignore else */
+					if(! refThis.isOwnProperty(slotNamesObj, slotName)){
 						slotNamesObj[slotName] = "";
 						slotNames.push(slotName);
 					}
@@ -204,26 +227,28 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 	var error = false,
 		success = true
 	;
-
-	if(!object || !this.isObject(object) || this.isArray(object)){
-		this.log(adapterID + "provided object is invalid.");
+	/* istanbul ignore else */
+	if(!object || !refThis.isObject(object) || refThis.isArray(object)){
+		refThis.log(adapterID + "provided object is invalid.");
 		return error;
 	}
-
-	if(!this.isArray(keys)){
-		this.log(adapterID + "provided keys must be in an array.");
+	/* istanbul ignore else */
+	if(!refThis.isArray(keys)){
+		refThis.log(adapterID + "provided keys must be in an array.");
 		return error;
 	}
 
 	var arrayLength = keys.length;
+	/* istanbul ignore else */
 	if(arrayLength == 0){
 		return success;
 	}
 
-	// can not change following for loop to this.forEachOnArray
+	// can not change following for loop to refThis.forEachOnArray
 	for(var i=0; i<arrayLength; i++){
-		if(!this.isOwnProperty(object, keys[i])){
-			this.log(adapterID + ": "+keys[i]+", mandatory parameter not present.");
+		/* istanbul ignore else */
+		if(!refThis.isOwnProperty(object, keys[i])){
+			refThis.log(adapterID + ": "+keys[i]+", mandatory parameter not present.");
 			return error;
 		}
 	}
@@ -240,11 +265,12 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 		kgpConsistsWidthAndHeight
 		;
 
+	/* istanbul ignore else */
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 		for(i = 0; i < activeSlotsLength; i++){
 			var activeSlot = activeSlots[i];
-			generatedKeys = this.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
+			generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
 			generatedKeysLength = generatedKeys.length;
 			for(j = 0; j < generatedKeysLength; j++){
 				var generatedKey = generatedKeys[j],
@@ -258,19 +284,20 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 				}else{
 					keyConfig = keyLookupMap[generatedKey];
 					if(!keyConfig){
-						this.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
-					}else if(!this.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-						this.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
+						refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
+					}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
+						refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
 					}else{
 						callHandlerFunction = true;
 					}
 				}
 
+				/* istanbul ignore else */
 				if(callHandlerFunction){
 
 					if(addZeroBids == true){
 						var bid = BID.createBid(adapterID, generatedKey);
-						bid.setDefaultBidStatus(1).setReceivedTime(this.getCurrentTimestampInMs());
+						bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
 						bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
 					}
 
@@ -293,6 +320,7 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 };
 
 exports.resizeWindow = function(theDocument, width, height){
+	/* istanbul ignore else */
 	if(height && width){
 		try{
 			var fr = theDocument.defaultView.frameElement;
@@ -313,14 +341,14 @@ exports.writeIframe = function(theDocument, src, width, height, style){
 };
 
 exports.displayCreative = function(theDocument, bid){
-	this.resizeWindow(theDocument, bid.width, bid.height);
+	refThis.resizeWindow(theDocument, bid.width, bid.height);
 	if(bid.adHtml){
 		theDocument.write(bid.adHtml);
 	}else if(bid.adUrl){
-		this.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
+		refThis.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
 	}else{
-		this.log("creative details are not found");
-		this.log(bid);
+		refThis.log("creative details are not found");
+		refThis.log(bid);
 	}
 };
 
@@ -338,27 +366,32 @@ exports.getScreenHeight = function(win){
 
 // todo: how about accepting array of arguments to be passed to callback function after key, value, arrayOfArguments
 exports.forEachOnObject = function(theObject, callback){
-	if(!this.isObject(theObject)){
+	/* istanbul ignore else */
+	if(!refThis.isObject(theObject)){
 		return;
 	}
 
-	if(!this.isFunction(callback)){
+	/* istanbul ignore else */
+	if(!refThis.isFunction(callback)){
 		return;
 	}
 
 	for(var key in theObject){
-		if(this.isOwnProperty(theObject, key)){
+		/* istanbul ignore else */
+		if(refThis.isOwnProperty(theObject, key)){
 			callback(key, theObject[key]);
 		}
 	}
 };
 
 exports.forEachOnArray = function(theArray, callback){
-	if(!this.isArray(theArray)){
+	/* istanbul ignore else */
+	if(!refThis.isArray(theArray)){
 		return;
 	}
 
-	if(!this.isFunction(callback)){
+	/* istanbul ignore else */
+	if(!refThis.isFunction(callback)){
 		return;
 	}
 
@@ -368,7 +401,7 @@ exports.forEachOnArray = function(theArray, callback){
 };
 
 exports.trim = function(s){
-	if(!this.isString(s)){
+	if(!refThis.isString(s)){
 		return s;
 	}else{
 		return s.replace(/^\s+/g,"").replace(/\s+$/g,"");
@@ -377,8 +410,9 @@ exports.trim = function(s){
 
 exports.getTopFrameOfSameDomain = function(cWin) {
 	try {
+		/* istanbul ignore else */
 		if (cWin.parent.document != cWin.document){
-		  return this.getTopFrameOfSameDomain(cWin.parent);
+		  return refThis.getTopFrameOfSameDomain(cWin.parent);
 		}
 	} catch(e) {}
 	return cWin;		
@@ -404,6 +438,7 @@ exports.getMetaInfo = function(cWin){
 		obj.pageURL = ( frame !== top && frame.document.referrer != ""  ? frame.document.referrer : frame.location.href).substr(0, MAX_PAGE_URL_LEN );
 		
 		obj.protocol = (function(frame){
+			/* istanbul ignore else */
 			if(frame.location.protocol ===  "http:"){
 				obj.secure = 0;
 				return "http://";
@@ -432,18 +467,19 @@ exports.findInString = function(theString, find){
 };
 
 exports.findQueryParamInURL = function(url, name){
-	return this.isOwnProperty(this.parseQueryParams(url), name);
+	return refThis.isOwnProperty(refThis.parseQueryParams(url), name);
 };
 
 exports.parseQueryParams = function(url){
-	var parser = document.createElement('a');
+	var parser = window.document.createElement('a');
 	parser.href = url;
 	var params = {};
 
+	/* istanbul ignore else */
 	if(parser.search){
 		var queryString = parser.search.replace('?', '');
 		queryString = queryString.split('&');
-		this.forEachOnArray(queryString, function(index, keyValue){
+		refThis.forEachOnArray(queryString, function(index, keyValue){
 			var keyValue = keyValue.split('=');
 			var key = keyValue[0] || '';
 			var value = keyValue [1] || '';
@@ -457,11 +493,11 @@ exports.parseQueryParams = function(url){
 exports.addHookOnFunction = function(theObject, useProto, functionName, newFunction){  
 	var callMethodOn = theObject;
 	theObject = useProto ? theObject.__proto__ : theObject;
-	if(this.isObject(theObject) && this.isFunction(theObject[functionName])){
+	if(refThis.isObject(theObject) && refThis.isFunction(theObject[functionName])){
 		var originalFunction = theObject[functionName];
 		theObject[functionName] = newFunction(callMethodOn, originalFunction);
 	}else{
-		this.log("in assignNewDefination: oldReference is not a function");
+		refThis.log("in assignNewDefination: oldReference is not a function");
 	}
 };
 
@@ -474,6 +510,7 @@ exports.getBididForPMP = function(values, priorityArray){
 		bidID = ''
 	;
 
+	/* istanbul ignore else */
 	if(valuesLength == 0){
 		this.log('Error: Unable to find bidID as values array is empty.');
 		return;
@@ -488,6 +525,7 @@ exports.getBididForPMP = function(values, priorityArray){
 			}
 		}
 
+		/* istanbul ignore else */
 		if(selectedPMPDeal != ''){
 			break;
 		}
@@ -501,10 +539,12 @@ exports.getBididForPMP = function(values, priorityArray){
 	}
 
 	var temp = selectedPMPDeal.split(CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR);
+	/* istanbul ignore else */
 	if(temp.length == 3){
 		bidID = temp[2];
 	}
 
+	/* istanbul ignore else */
 	if(!bidID){
 		this.log('Error: bidID not found in PMP-Deal: '+ selectedPMPDeal);
 		return;
@@ -514,8 +554,8 @@ exports.getBididForPMP = function(values, priorityArray){
 };
 
 exports.createInvisibleIframe = function() {
-	var f = document.createElement('iframe');
-	f.id = this.getUniqueIdentifierStr();
+	var f = window.document.createElement('iframe');
+	f.id = refThis.getUniqueIdentifierStr();
 	f.height = 0;
 	f.width = 0;
 	f.border = '0px';
@@ -532,8 +572,9 @@ exports.createInvisibleIframe = function() {
 }
 
 exports.addMessageEventListener = function(theWindow, eventHandler){
+	/* istanbul ignore else */
 	if(typeof eventHandler !== "function"){
-		this.log("EventHandler should be a function");
+		refThis.log("EventHandler should be a function");
 		return false;
 	}
 
@@ -549,6 +590,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 	try{
 		msgData = JSON.parse(msg.data);
 		
+		/* istanbul ignore else */
 		if(!msgData.pwt_type){
 			return;
 		}
@@ -556,11 +598,13 @@ exports.safeFrameCommunicationProtocol = function(msg){
 		switch(parseInt(msgData.pwt_type)){
 
 			case 1:
+				/* istanbul ignore else */
 				if(window.PWT.isSafeFrame){
 					return;
 				}
 				
 				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+				/* istanbul ignore else */
 				if(bidDetails){
 					var theBid = bidDetails.bid,
 						adapterID = theBid.getAdapterID(),
@@ -578,10 +622,12 @@ exports.safeFrameCommunicationProtocol = function(msg){
 				break;
 
 			case 2:
+				/* istanbul ignore else */
 				if(!window.PWT.isSafeFrame){
 					return;
 				}
 				
+				/* istanbul ignore else */
 				if(msgData.pwt_bid){
 					var theBid = msgData.pwt_bid;
 					refThis.resizeWindow(window.document, theBid.height, theBid.width);
@@ -589,6 +635,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					if(theBid.adHtml){
 						try{
 							var iframe = refThis.createInvisibleIframe(window.document);
+							/* istanbul ignore else */
 							if(!iframe){
 								throw {message: 'Failed to create invisible frame.', name:""};
 							}
@@ -599,11 +646,13 @@ exports.safeFrameCommunicationProtocol = function(msg){
 
 							window.document.body.appendChild(iframe);
 
+							/* istanbul ignore else */
 							if(!iframe.contentWindow){
 								throw {message: 'Unable to access frame window.', name:""};
 							}
 
 							var iframeDoc = iframe.contentWindow.document;
+							/* istanbul ignore else */
 							if(!iframeDoc){
 								throw {message: 'Unable to access frame window document.', name:""};
 							}
@@ -638,7 +687,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 }
 
 exports.addMessageEventListenerForSafeFrame = function(theWindow){
-	this.addMessageEventListener(theWindow, this.safeFrameCommunicationProtocol);
+	refThis.addMessageEventListener(theWindow, refThis.safeFrameCommunicationProtocol);
 };
 
 exports.getElementLocation = function( el ) {
@@ -647,7 +696,7 @@ exports.getElementLocation = function( el ) {
 		y = 0
 	;
 
-	if(this.isFunction(el.getBoundingClientRect)) {		
+	if(refThis.isFunction(el.getBoundingClientRect)) {		
 		rect = el.getBoundingClientRect();
 		x 	 = Math.floor(rect.left);
 		y 	 = Math.floor(rect.top);
@@ -668,10 +717,13 @@ exports.createVLogInfoPanel = function(divID, dimensionArray){
 		doc = window.document
 	;	
 
-	if(visualDebugLogIsEnabled){
+	/* istanbul ignore else */
+	if(refThis.visualDebugLogIsEnabled){
 		element = doc.getElementById(divID);
+		/* istanbul ignore else */
 		if(element && dimensionArray.length && dimensionArray[0][0] && dimensionArray[0][1]){
 			infoPanelElementID = divID + '-pwtc-info';
+			/* istanbul ignore else */
 			if(!this.isUndefined(doc.getElementById(infoPanelElementID))){
 				var pos = this.getElementLocation(element);
 				infoPanelElement = doc.createElement('div');
@@ -707,11 +759,14 @@ exports.realignVLogInfoPanel = function(divID){
 		doc = window.document
 	;
 
-	if(visualDebugLogIsEnabled){
+	/* istanbul ignore else */
+	if(refThis.visualDebugLogIsEnabled){
 		element = doc.getElementById(divID);
+		/* istanbul ignore else */
 		if(element){
 			infoPanelElementID = divID + '-pwtc-info';
 			infoPanelElement = doc.getElementById(infoPanelElementID);
+			/* istanbul ignore else */
 			if(infoPanelElement){
 				var pos = this.getElementLocation(element);
 				infoPanelElement.style.visibility = 'visible';
@@ -727,18 +782,22 @@ exports.vLogInfo = function(divID, infoObject){
 		message,
 		doc = window.document
 	;
-	if(visualDebugLogIsEnabled){		
+	/* istanbul ignore else */
+	if(refThis.visualDebugLogIsEnabled){		
 		var infoPanelElementID = divID + "-pwtc-info";
 		infoPanelElement = doc.getElementById(infoPanelElementID);
+		/* istanbul ignore else */
 		if( infoPanelElement ){
 			switch(infoObject.type){
 				case "bid":
 					var latency = infoObject.latency;
 					var bidDetails = infoObject.bidDetails;
+					/* istanbul ignore else */
 					if(latency < 0){
 						latency = 0;
 					}
 					message = "Bid: " + infoObject.bidder + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + "): " + latency + "ms";
+					/* istanbul ignore else */
 					if(bidDetails.getPostTimeoutStatus()){
 						message += ": POST-TIMEOUT";
 					}
