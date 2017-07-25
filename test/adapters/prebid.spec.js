@@ -94,6 +94,9 @@ describe('ADAPTER: Prebid', function() {
                 setKeyValuePair: function () {
                     return "setKeyValuePair";
                 },
+                setAdUrl: function () {
+                    return "setAdUrl";
+                }
             };
             sinon.stub(UTIL, "isOwnProperty").returns(true);
             sinon.spy(UTIL, "forEachOnObject");
@@ -107,6 +110,8 @@ describe('ADAPTER: Prebid', function() {
             sinon.spy(theBid, "setReceivedTime");
 
             sinon.spy(theBid, "setKeyValuePair");
+
+            sinon.spy(theBid, "setAdUrl");
 
 
             sinon.stub(BM, "setBidFromBidder").returns(true);
@@ -135,6 +140,8 @@ describe('ADAPTER: Prebid', function() {
             theBid.setReceivedTime.restore();
 
             theBid.setKeyValuePair.restore();
+
+            theBid.setAdUrl.restore();
 
             BM.setBidFromBidder.restore();
             BID.createBid.restore();
