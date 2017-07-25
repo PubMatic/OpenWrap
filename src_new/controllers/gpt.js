@@ -335,19 +335,9 @@ function findWinningBidAndApplyTargeting(divID) {
     var winningBid = data.wb || null;
     var keyValuePairs = data.kvp || null;
     var googleDefinedSlot = slotsMap[divID].getPubAdServerObject();
+    var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
 
-    // todo: do we need to consider any other PB key ?
-    //todo: move this into constants
-    var ignoreTheseKeys = {
-        "hb_bidder": 1,
-        "hb_adid": 1,
-        "hb_pb": 1,
-        "hb_size": 1,
-        "hb_deal": 1
-    };
-
-    util.log("DIV: " + divID + " winningBid: ");
-    
+    util.log("DIV: " + divID + " winningBid: ");    
     util.log(winningBid);
 
     if (winningBid && winningBid.getNetEcpm() > 0) {
@@ -472,11 +462,11 @@ exports.newSetTargetingFunction = newSetTargetingFunction;
 
 function newDestroySlotsFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
-        var refThis = this;
         return function() {
+            var slots = arguments[0] || window.googletag.pubads().getSlots();
             /* istanbul ignore next */
-            util.forEachOnArray(arguments[0] || [], function(index, slot) {
-                delete slotsMap[this.generateSlotName(slot)];
+            util.forEachOnArray(slots, function(index, slot) {
+                delete slotsMap[refThis.generateSlotName(slot)];
             });
             /* istanbul ignore next */
             return originalFunction.apply(theObject, arguments);
@@ -600,10 +590,13 @@ function newDisplayFunction(theObject, originalFunction) { // TDD : done
             }
             /* istanbul ignore next */
             refThis.updateSlotsMapFromGoogleSlots(theObject.pubads().getSlots(), arguments, true);
+                        
             /* istanbul ignore next */
             refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
+            var statusObj = {};
+            statusObj[CONSTANTS.SLOT_STATUS.CREATED] = "";
             /* istanbul ignore next */
-            refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus({ 0: "" }), arguments, false);
+            refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus(statusObj), arguments, false);
             /* istanbul ignore next */
             var divID = arguments[0];
             /* istanbul ignore next */
@@ -668,7 +661,7 @@ exports.findWinningBidIfRequired_Refresh = findWinningBidIfRequired_Refresh;
 /* end-test-block */
 
 function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg) { // TDD : done
-    util.log("Executing post CONFIG.getTimeout() events, arguments: ");
+    util.log("Executing post timeout events, arguments: ");
     util.log(arg);
     var yesCallRefreshFunction = false;
     util.forEachOnArray(qualifyingSlotNames, function(index, dmSlot) {
@@ -691,7 +684,7 @@ exports.postTimeoutRefreshExecution = postTimeoutRefreshExecution;
 
 function callOriginalRefeshFunction(flag, theObject, originalFunction, arg) { // TDD : done
     if (flag === true) {
-        util.log("Calling original refresh function from CONFIG.getTimeout()");
+        util.log("Calling original refresh function post timeout");
         originalFunction.apply(theObject, arg);
     } else {
         util.log("AdSlot already rendered");
@@ -738,9 +731,11 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD : done // Note 
             refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
             /* istanbul ignore next */
             util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
+            
+            var arg = arguments;
             /* istanbul ignore next */
             setTimeout(function() {
-                refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);
+                refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
             }, CONFIG.getTimeout());
             //return originalFunction.apply(theObject, arguments);
         };
@@ -758,9 +753,9 @@ function newSizeMappingFunction(theObject, originalFunction) { // TDD : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             /* istanbul ignore next */
-            slotSizeMapping[refThis.generateSlotName(theObject)] = arguments[0];
+            slotSizeMapping[refThis.generateSlotName(this)] = arguments[0];
             /* istanbul ignore next */
-            return originalFunction.apply(theObject, arguments);
+            return originalFunction.apply(this, arguments);
         };
     } else {
         util.log("newSizeMappingFunction: originalFunction is not a function");
@@ -866,10 +861,21 @@ exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
 /* end-test-block */
 
 
+function initSafeFrameListener(theWindow){
+    if(!theWindow.PWT.safeFrameMessageListenerAdded){
+        util.addMessageEventListenerForSafeFrame(theWindow);
+        theWindow.PWT.safeFrameMessageListenerAdded = true;
+    }
+}
+/* start-test-block */
+exports.initSafeFrameListener = initSafeFrameListener;
+/* end-test-block */
+
 exports.init = function(win) { // TDD : done
 	CONFIG.initConfig();
     if (util.isObject(win)) {
         refThis.setWindowReference(win);
+        refThis.initSafeFrameListener(win);
         refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
         refThis.defineGPTVariables(win);
         adapterManager.registerAdapters();

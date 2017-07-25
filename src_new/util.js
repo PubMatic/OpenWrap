@@ -14,6 +14,8 @@ var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
 
+var refThis = this;
+
 function isA(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
 }
@@ -63,7 +65,7 @@ exports.enableVisualDebugLog = function(){
 };
 
 //todo: move...
-var constDebugInConsolePrependWith = "-------------------------";
+var constDebugInConsolePrependWith = "[OpenWrap] : ";
 
 exports.log = function(data){
 	if( debugLogIsEnabled && console && this.isFunction(console.log) ){ // eslint-disable-line no-console
@@ -311,11 +313,11 @@ exports.writeIframe = function(theDocument, src, width, height, style){
 };
 
 exports.displayCreative = function(theDocument, bid){
-	this.resizeWindow(theDocument, bid.getWidth(), bid.getHeight());
-	if(bid.getAdHtml()){
-		theDocument.write(bid.getAdHtml());
-	}else if(bid.getAdUrl()){
-		this.writeIframe(theDocument, bid.getAdUrl(), bid.getWidth(), bid.getHeight(), "");
+	this.resizeWindow(theDocument, bid.width, bid.height);
+	if(bid.adHtml){
+		theDocument.write(bid.adHtml);
+	}else if(bid.adUrl){
+		this.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
 	}else{
 		this.log("creative details are not found");
 		this.log(bid);
@@ -429,6 +431,29 @@ exports.findInString = function(theString, find){
 	return theString.indexOf(find) >= 0;
 };
 
+exports.findQueryParamInURL = function(url, name){
+	return this.isOwnProperty(this.parseQueryParams(url), name);
+};
+
+exports.parseQueryParams = function(url){
+	var parser = document.createElement('a');
+	parser.href = url;
+	var params = {};
+
+	if(parser.search){
+		var queryString = parser.search.replace('?', '');
+		queryString = queryString.split('&');
+		this.forEachOnArray(queryString, function(index, keyValue){
+			var keyValue = keyValue.split('=');
+			var key = keyValue[0] || '';
+			var value = keyValue [1] || '';
+			params[key] = value;
+		});
+	}
+
+	return params;
+};
+
 exports.addHookOnFunction = function(theObject, useProto, functionName, newFunction){  
 	var callMethodOn = theObject;
 	theObject = useProto ? theObject.__proto__ : theObject;
@@ -531,7 +556,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 		switch(parseInt(msgData.pwt_type)){
 
 			case 1:
-				if(window.PWT.inSafeFrame){
+				if(window.PWT.isSafeFrame){
 					return;
 				}
 				
@@ -545,7 +570,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 							pwt_bid: theBid
 						}
 					;
-					this.vLogInfo(divID, {type: 'disp', adapter: adapterID});
+					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
 					msg.source.postMessage(JSON.stringify(newMsgData), msgData.pwt_origin);
 				}
@@ -553,23 +578,23 @@ exports.safeFrameCommunicationProtocol = function(msg){
 				break;
 
 			case 2:
-				if(!window.PWT.inSafeFrame){
+				if(!window.PWT.isSafeFrame){
 					return;
 				}
 				
 				if(msgData.pwt_bid){
 					var theBid = msgData.pwt_bid;
-					this.resizeWindow(window.document, theBid.getHeight(), theBid.getWidth());
+					refThis.resizeWindow(window.document, theBid.height, theBid.width);
 
-					if(theBid.getAdHtml()){
+					if(theBid.adHtml){
 						try{
-							var iframe = this.createInvisibleIframe(window.document);
+							var iframe = refThis.createInvisibleIframe(window.document);
 							if(!iframe){
 								throw {message: 'Failed to create invisible frame.', name:""};
 							}
 
-							iframe.setAttribute('width', theBid.getWidth());
-        					iframe.setAttribute('height', theBid.getHeight());
+							iframe.setAttribute('width', theBid.width);
+        					iframe.setAttribute('height', theBid.height);
         					iframe.style = '';
 
 							window.document.body.appendChild(iframe);
@@ -587,21 +612,21 @@ exports.safeFrameCommunicationProtocol = function(msg){
 								content += '<body>';
 								content += "<script>var $sf = window.parent.$sf;<\/script>";
 								content += "<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>";
-								content += theBid.getAdHtml();
+								content += theBid.adHtml;
 								content += '</body></html>';
 
 							iframeDoc.write(content);
 							iframeDoc.close();
 							
 						}catch(e){
-							this.log('Error in rendering creative in safe frame.');
+							refThis.log('Error in rendering creative in safe frame.');
 							//this.log(e);
-							this.log('Rendering synchronously.');
-							this.displayCreative(window.document, msgData.pwt_bid);
+							refThis.log('Rendering synchronously.');
+							refThis.displayCreative(window.document, msgData.pwt_bid);
 						}
 
-					}else if(theBid.getAdUrl()){
-						this.writeIframe(window.document, theBid.getAdUrl(), theBid.getWidth(), theBid.getHeight(), "");						
+					}else if(theBid.getadUrl){
+						this.writeIframe(window.document, theBid.adUrl, theBid.width, theBid.height, "");						
 					}else{
 						this.log("creative details are not found");
 						this.log(theBid);

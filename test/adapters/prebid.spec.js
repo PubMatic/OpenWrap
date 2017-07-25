@@ -268,16 +268,15 @@ describe('ADAPTER: Prebid', function() {
                 "profId": "profId",
                 "verId": "verId",
             };
-            adUnits[commonDivID].bids[0].should.be.deep.equal({bidder: adapterID, params: slotParams });
+            adUnits[commonDivID+"@"+adapterID].bids[0].should.be.deep.equal({bidder: adapterID, params: slotParams });
             done();
         });
-
 
         it('should have constructed proper slotParams', function (done) {
             kgpConsistsWidthAndHeight = false;
             adapterID = "different";
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
-            adUnits[commonDivID].bids[0].should.be.deep.equal({bidder: adapterID, params: {} });
+            adUnits[commonDivID+"@"+adapterID].bids[0].should.be.deep.equal({bidder: adapterID, params: {} });
             done();
         });
     });

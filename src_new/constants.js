@@ -65,6 +65,14 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"PROFILE_VERSION_ID": "pwtverid"
 };
 
+exports.IGNORE_PREBID_KEYS = {
+	"hb_bidder": 1,
+    "hb_adid": 1,
+    "hb_pb": 1,
+    "hb_size": 1,
+    "hb_deal": 1
+};
+
 //todo: mention all params here and use accordigly
 exports.LOGGER_PIXEL_PARAMS = {
 	"TIMESTAMP": "tst",
@@ -95,5 +103,7 @@ exports.MESSAGES = {
 	"M20": "Bid is rejected as ecpm is empty string.",
 	"M21": ": error in respose handler.",
 	"M22": "Bid is rejected as ecpm is <= 0.",
-	"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner."
+	"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner.",
+	"M24": "Passsed argument is not a bidAdaptor",
+	"M25": "Bid details not found for bidID: "
 };

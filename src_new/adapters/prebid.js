@@ -73,9 +73,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		code = divID + "@" + adapterID + "@" + currentWidth + "X" + currentHeight;
 		sizes = [[currentWidth, currentHeight]];
 	}else{
-		//todo will it create issue if two partners do not have kgp w/o W n H
-		// one of the partner 
-		code = divID;
+		code = divID + "@" + adapterID;
 		sizes = currentSlot.getSizes();
 	}
 
@@ -192,20 +190,26 @@ function fetchBids(activeSlots, impressionID){
 	
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window.pbjs){
-		/* istanbul ignore else */
-		if(util.isFunction(window.pbjs.setBidderSequence)){
-			window.pbjs.setBidderSequence("random");
-		}
-		/* istanbul ignore else */
-		if(util.isFunction(window.pbjs.requestBids)){
-			window.pbjs.logging = true;//todo: enable optionally
-			window.pbjs.requestBids({
-				adUnits: adUnitsArray,
-				bidsBackHandler: function(bidResponses) {
-					refThis.handleBidResponses(bidResponses);
-				},
-				timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
-			});
+
+		try{
+			/* istanbul ignore else */
+			if(util.isFunction(window.pbjs.setBidderSequence)){
+				window.pbjs.setBidderSequence("random");
+			}
+			/* istanbul ignore else */
+			if(util.isFunction(window.pbjs.requestBids)){
+				window.pbjs.logging = true;//todo: enable optionally
+				window.pbjs.requestBids({
+					adUnits: adUnitsArray,
+					bidsBackHandler: function(bidResponses) {
+						refThis.handleBidResponses(bidResponses);
+					},
+					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
+				});
+			}
+		} catch (e) {
+			util.log('Error occured in calling PreBid.');
+			util.log(e);
 		}
 	}
 }
