@@ -24,7 +24,7 @@ describe("adapterManager : ADPTMgr", function() {
         var activeSlots = null;
 
         beforeEach(function(done) {
-            sinon.spy(UTIL, 'generateUUID');
+            sinon.stub(UTIL, 'generateUUID').returns(true);
             sinon.spy(ADPTMgr, 'resetSlots');
             sinon.spy(ADPTMgr, 'callAdapter');
             activeSlots = {};
@@ -137,20 +137,19 @@ describe("adapterManager : ADPTMgr", function() {
         var divID_2 = "DIV_ID_2";
         var impressionID = "impressionIDDummy";
         beforeEach(function(done) {
-            slots = {
-                slot_1: {
+            slots = [{
                     getDivID: function() {
                         return divID_1;
                     }
                 },
-                slot_2: {
+                {
                     getDivID: function() {
                         return divID_2;
                     }
                 }
-            };
+            ];
 
-            sinon.spy(UTIL, 'forEachOnObject');
+            sinon.spy(UTIL, 'forEachOnArray');
             sinon.spy(UTIL, 'generateSlotNamesFromPattern');
             sinon.stub(BIDMANAGER, 'resetBid');
             sinon.stub(BIDMANAGER, 'setSizes');
@@ -159,7 +158,7 @@ describe("adapterManager : ADPTMgr", function() {
 
 
         afterEach(function(done) {
-            UTIL.forEachOnObject.restore();
+            UTIL.forEachOnArray.restore();
             UTIL.generateSlotNamesFromPattern.restore();
             BIDMANAGER.resetBid.restore();
             BIDMANAGER.setSizes.restore();
@@ -173,13 +172,13 @@ describe("adapterManager : ADPTMgr", function() {
         });
 
         //todo: we are calling forEachOnArray
-        xit('should have called UTIL.forEachOnObject', function(done) {
+        it('should have called UTIL.forEachOnObject', function(done) {
             ADPTMgr.resetSlots(slots, impressionID);
-            UTIL.forEachOnObject.called.should.be.true;
+            UTIL.forEachOnArray.called.should.be.true;
             BIDMANAGER.resetBid.called.should.be.true;
             BIDMANAGER.setSizes.called.should.be.true;
             UTIL.generateSlotNamesFromPattern.called.should.be.true;
-            UTIL.generateSlotNamesFromPattern.calledWith(slots["slot_1"], "_W_x_H_").should.be.true;
+            UTIL.generateSlotNamesFromPattern.calledWith(slots[0], "_W_x_H_").should.be.true;
             done();
 
         });
@@ -322,10 +321,12 @@ describe("adapterManager : ADPTMgr", function() {
         });
 
         //todo: check, util.log is being called twice
-        xit('should call UTIL.log if bidAdaptor is not an object', function (done) {
+        it('should call UTIL.log if bidAdaptor is not an object', function (done) {
         	ADPTMgr.registerAdapter(null);
-        	UTIL.log.calledOnce.should.be.true;
-        	UTIL.log.calledWith("passsed argument is not a bidAdaptor").should.be.true;
+        	// UTIL.log.calledOnce.should.be.true;
+            UTIL.log.calledWith(CONSTANTS.MESSAGES.M3).should.be.true;
+            UTIL.log.calledWith(null).should.be.true;
+        	// UTIL.log.calledWith("passsed argument is not a bidAdaptor").should.be.true;
         	done();
         });
 
