@@ -12,6 +12,8 @@ var UTIL = require("../src_new/util");
 
 var SLOT = require("../src_new/slot.js").Slot;
 
+var BIDMgr = require("../src_new/bidManager.js");
+
 var commonAdapterID = "pubmatic";
 var commonDivID = "DIV_1";
 
@@ -1271,9 +1273,226 @@ describe('what?', function() {
     });
 
     describe('#safeFrameCommunicationProtocol', function() {
+        var msg = null;
+        var bidDetailsStub = null;
+        var iFrameStub = null;
+        beforeEach(function (done) {
+            msg = {
+                "data": '{"pwt_type":1,"pwt_bidID":1,"pwt_origin":1,"pwt_bid":{}}',
+                "source": {
+                    "postMessage": function () {
+                        return "postMessage";
+                    }
+                }
+            };
+
+            sinon.spy(msg.source, "postMessage");
+            window.PWT = {
+                isSafeFrame: true
+            };
+            bidDetailsStub = {
+                bid: {
+                    getAdapterID: function () {
+                        return commonAdapterID;
+                    }
+                },
+                slotid: "slot_1"
+            };
+            sinon.stub(BIDMgr, "getBidById").returns(bidDetailsStub);
+
+            sinon.spy(bidDetailsStub.bid, "getAdapterID");
+            sinon.stub(BIDMgr, "executeMonetizationPixel");
+
+            sinon.stub(UTIL, "vLogInfo").returns(true);
+            sinon.stub(UTIL, "resizeWindow").returns(true);
+            iFrameStub = {
+                setAttribute: function () {
+                    return "setAttribute"
+                },
+                style: "",
+                contentWindow: {
+                    document: {
+                        write: function () {
+                            return "write";
+                        },
+                        close: function () {
+                            return "close"
+                        }
+                    }
+                }
+            };
+
+            sinon.spy(iFrameStub, "setAttribute");
+            sinon.spy(iFrameStub.contentWindow.document, "write");
+            sinon.stub(UTIL, "createInvisibleIframe").returns(iFrameStub);
+            sinon.stub(UTIL, "displayCreative").returns(true);
+            sinon.spy(UTIL, "log");
+            sinon.stub(UTIL, "writeIframe").returns(true);
+            sinon.stub(window.document.body, "appendChild").returns(true);
+
+            sinon.spy(window, "parseInt");
+            done();
+        });
+
+        afterEach(function (done) {
+            window.parseInt.restore();
+            BIDMgr.executeMonetizationPixel.restore();
+            BIDMgr.getBidById.restore();
+
+            UTIL.vLogInfo.restore();
+            UTIL.resizeWindow.restore();
+            UTIL.createInvisibleIframe.restore();
+            UTIL.displayCreative.restore();
+            UTIL.log.restore();
+            UTIL.writeIframe.restore();
+
+            bidDetailsStub.bid.getAdapterID.restore();
+            msg.source.postMessage.restore();
+            window.document.body.appendChild.restore();
+            iFrameStub.setAttribute.restore();
+            // iFrameStub.contentWindow.document.write.restore();
+
+            msg = null;
+            done();
+        });
+
         it('is a function', function(done) {
             UTIL.safeFrameCommunicationProtocol.should.be.a('function');
             done();
+        });
+
+        it('should return pwt_type is not of known type', function (done) {
+            msg.data = '{"pwt_type":0,"pwt_bidID":1,"pwt_origin":1,"pwt_bid":{}}';
+            UTIL.safeFrameCommunicationProtocol(msg);
+            window.parseInt.called.should.be.false;
+            done();
+        });
+
+        describe('##when pwt_type is 1', function () {
+            it('should return if isSafeFrame flag is set', function (done) {
+                UTIL.safeFrameCommunicationProtocol(msg);
+                BIDMgr.getBidById.called.should.be.false;
+                done();
+            });
+
+            it('should have called vLogInfo and should have executed Monetization Pixel', function (done) {
+                window.PWT.isSafeFrame = false;
+                UTIL.safeFrameCommunicationProtocol(msg);
+                BIDMgr.getBidById.calledWith(1).should.be.true;
+                bidDetailsStub.bid.getAdapterID.called.should.be.true;
+                UTIL.vLogInfo.calledWith(bidDetailsStub.slotid, {type: 'disp', adapter: commonAdapterID}).should.be.true;
+                BIDMgr.executeMonetizationPixel.calledWith(bidDetailsStub.slotid, bidDetailsStub.bid).should.be.true;
+                msg.source.postMessage.calledWith(window.JSON.stringify({
+                    pwt_type: 2,
+                    pwt_bid: bidDetailsStub.bid
+                    }), 1).should.be.true;
+                done();
+            });
+        });
+
+        describe('##when pwt_type is 2', function () {
+            beforeEach(function (done) {
+                msg.data = '{"pwt_type":2,"pwt_bidID":1,"pwt_origin":1,"pwt_bid":{"width":400,"adHtml":"<html> ad content goes here </html>","adUrl":"http://ad.sever.url/path/to/add.html","height":200}}';
+                done();
+            });
+
+            it('should return if isSafeFrame flag is not set', function (done) {
+                window.PWT.isSafeFrame = false;
+                UTIL.safeFrameCommunicationProtocol(msg);
+                UTIL.resizeWindow.called.should.be.false;
+                done();
+            });
+
+            it('should have called resizeWindow', function (done) {
+                window.PWT.isSafeFrame = true;
+                UTIL.safeFrameCommunicationProtocol(msg);
+                UTIL.resizeWindow.calledWith(window.document, 200, 400).should.be.true;
+                done();
+            });
+
+            describe('### when bid has adHtml', function () {
+                it('should have called UTIL.createInvisibleIframe', function (done) {
+                    UTIL.safeFrameCommunicationProtocol(msg);
+                    UTIL.createInvisibleIframe.called.should.be.true;
+                    iFrameStub.setAttribute.called.should.be.true;
+                    done();
+                });
+
+                it('should have thrown if iframe is not generated', function (done) {
+                    UTIL.createInvisibleIframe.returns(false);
+                    UTIL.safeFrameCommunicationProtocol(msg);
+                    UTIL.log.calledWith('Error in rendering creative in safe frame.').should.be.true;
+                    UTIL.log.calledWith({message: 'Failed to create invisible frame.', name:""}).should.be.true;
+                    UTIL.log.calledWith('Rendering synchronously.').should.be.true;
+                    UTIL.displayCreative.called.should.be.true;
+                    done();
+                });
+
+                it('should have thrown if iframe doenst have contentWindow', function (done) {
+                    iFrameStub.contentWindow = false;
+                    UTIL.createInvisibleIframe.returns(iFrameStub);
+                    UTIL.safeFrameCommunicationProtocol(msg);
+                    UTIL.log.calledWith('Error in rendering creative in safe frame.').should.be.true;
+                    UTIL.log.calledWith({message: 'Unable to access frame window.', name:""}).should.be.true;
+                    UTIL.log.calledWith('Rendering synchronously.').should.be.true;
+                    UTIL.displayCreative.called.should.be.true;
+                    done();
+                });
+
+                it('should have thrown if iframeDoc is invalid', function (done) {
+                    iFrameStub.contentWindow.document = false;
+                    UTIL.createInvisibleIframe.returns(iFrameStub);
+                    UTIL.safeFrameCommunicationProtocol(msg);
+                    UTIL.log.calledWith('Error in rendering creative in safe frame.').should.be.true;
+                    UTIL.log.calledWith({message: 'Unable to access frame window document.', name:""}).should.be.true;
+                    UTIL.log.calledWith('Rendering synchronously.').should.be.true;
+                    UTIL.displayCreative.called.should.be.true;
+                    done();
+                });
+
+                it('should have thrown if iframeDoc is invalid', function (done) {
+                    // iFrameStub.contentWindow.document = false;
+                    UTIL.createInvisibleIframe.returns(iFrameStub);
+                    UTIL.safeFrameCommunicationProtocol(msg);
+                    var content = content = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><base target="_top" /><scr' + 'ipt>inDapIF=true;</scr' + 'ipt></head>';
+                                content += '<body>';
+                                content += "<script>var $sf = window.parent.$sf;<\/script>";
+                                content += "<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>";
+                                content += "<html> ad content goes here </html>";
+                                content += '</body></html>';
+                    iFrameStub.contentWindow.document.write.calledWith(content).should.be.true;
+                    done();
+                });
+            });
+
+            describe('## when bid object doenst have adHtml', function () {
+                beforeEach(function (done) {
+                    msg.data = '{"pwt_type":2,"pwt_bidID":1,"pwt_origin":1,"pwt_bid":{"width":400,"adUrl":"http://ad.sever.url/path/to/add.html","height":200}}';
+                    done();
+                });
+
+                it('should have called UTIL.writeIframe', function (done) {
+                    UTIL.safeFrameCommunicationProtocol(msg);
+                    UTIL.writeIframe.calledWith(window.document, "http://ad.sever.url/path/to/add.html", 400, 200, "").should.be.true;
+                    done();
+                });
+            });
+
+            describe('## when bid object doenst have either adHtml or adUrl', function () {
+                beforeEach(function (done) {
+                    msg.data = '{"pwt_type":2,"pwt_bidID":1,"pwt_origin":1,"pwt_bid":{"width":400,"height":200}}';
+                    done();
+                });
+
+                it('should do what...', function (done) {
+                    UTIL.safeFrameCommunicationProtocol(msg);
+                    UTIL.log.calledWith("creative details are not found").should.be.true;
+                    UTIL.createInvisibleIframe.called.should.be.false;
+                    done();    
+                });
+            });
+
+
         });
 
     });

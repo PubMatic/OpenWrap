@@ -588,14 +588,13 @@ exports.addMessageEventListener = function(theWindow, eventHandler){
 
 exports.safeFrameCommunicationProtocol = function(msg){
 	try{
-		msgData = JSON.parse(msg.data);
-		
+		msgData = window.JSON.parse(msg.data);
 		/* istanbul ignore else */
 		if(!msgData.pwt_type){
 			return;
 		}
 
-		switch(parseInt(msgData.pwt_type)){
+		switch(window.parseInt(msgData.pwt_type)){
 
 			case 1:
 				/* istanbul ignore else */
@@ -616,7 +615,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					;
 					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
-					msg.source.postMessage(JSON.stringify(newMsgData), msgData.pwt_origin);
+					msg.source.postMessage(window.JSON.stringify(newMsgData), msgData.pwt_origin);
 				}
 
 				break;
@@ -669,16 +668,16 @@ exports.safeFrameCommunicationProtocol = function(msg){
 							
 						}catch(e){
 							refThis.log('Error in rendering creative in safe frame.');
-							//this.log(e);
+							refThis.log(e);
 							refThis.log('Rendering synchronously.');
 							refThis.displayCreative(window.document, msgData.pwt_bid);
 						}
 
-					}else if(theBid.getadUrl){
-						this.writeIframe(window.document, theBid.adUrl, theBid.width, theBid.height, "");						
+					}else if(theBid.adUrl){
+						refThis.writeIframe(window.document, theBid.adUrl, theBid.width, theBid.height, "");						
 					}else{
-						this.log("creative details are not found");
-						this.log(theBid);
+						refThis.log("creative details are not found");
+						refThis.log(theBid);
 					}											
 				}
 				break;
