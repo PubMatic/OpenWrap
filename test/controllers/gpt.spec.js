@@ -903,6 +903,15 @@ describe("CONTROLLER: GPT", function() {
             UTIL.forEachOnArray.calledWith(arg[0]).should.be.true;
             done();
         });
+
+        // TODO: input - output case is not considered
+        // [['']]
+        // need to add check for googletag.pubads().refresh(['']); // ignored in returned array
+        // [[]]
+        // need to add check for googletag.pubads().refresh(); // all slots will be refreshed
+        // [null]
+        // need to add check for googletag.pubads().refresh(null); // all slots will be refreshed
+
     });
 
 
