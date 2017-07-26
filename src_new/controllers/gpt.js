@@ -701,7 +701,10 @@ function getQualifyingSlotNamesForRefresh(arg, theObject) { // TDD : done
     // handeling case googletag.pubads().refresh(null, {changeCorrelator: false});
     slotsToConsider = arg.length == 0 || arg[0] == null ? theObject.getSlots() : arg[0];
     util.forEachOnArray(slotsToConsider, function(index, slot) {
-        qualifyingSlotNames = qualifyingSlotNames.concat(refThis.generateSlotName(slot));
+        var slotName = refThis.generateSlotName(slot);
+        if(slotName.length>0){
+            qualifyingSlotNames = qualifyingSlotNames.concat();
+        }        
     });
     return qualifyingSlotNames;
 }
