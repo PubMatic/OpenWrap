@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-// var sinon = require("sinon");
+var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 
@@ -13,21 +13,22 @@ var UTIL = require("../src_new/util");
 var SLOT = require("../src_new/slot.js").Slot;
 
 var commonAdapterID = "pubmatic";
+var commonDivID = "DIV_1";
 
 // TODO : remove as required during single TDD only
-// var jsdom = require('jsdom').jsdom;
-// var exposedProperties = ['window', 'navigator', 'document'];
-// global.document = jsdom('');
-// global.window = document.defaultView;
-// Object.keys(document.defaultView).forEach((property) => {
-//     if (typeof global[property] === 'undefined') {
-//         exposedProperties.push(property);
-//         global[property] = document.defaultView[property];
-//     }
-// });
-// global.navigator = {
-//     userAgent: 'node.js'
-// };
+var jsdom = require('jsdom').jsdom;
+var exposedProperties = ['window', 'navigator', 'document'];
+global.document = jsdom('');
+global.window = document.defaultView;
+Object.keys(document.defaultView).forEach((property) => {
+    if (typeof global[property] === 'undefined') {
+        exposedProperties.push(property);
+        global[property] = document.defaultView[property];
+    }
+});
+global.navigator = {
+    userAgent: 'node.js'
+};
 
 describe('what?', function() {
     beforeEach(function(done) {
@@ -1329,11 +1330,146 @@ describe('what?', function() {
     });
 
     describe('#vLogInfo', function() {
+        var divID = null, infoObject = null;
+        var infoPanelElementStub = null;
+
+        beforeEach(function (done) {
+            divID = commonDivID;
+
+            infoObject = {
+                type: "bid",
+                latency: 100,
+                bidder: "pubmatic",
+                adapter: "",
+                bidDetails: {
+                    getNetEcpm: function () {
+                        return 4.0;
+                    },
+                    getGrossEcpm: function () {
+                        return 4.0;
+                    },
+                    getPostTimeoutStatus: function () {
+                        return true;
+                    },
+                    getAdapterID: function () {
+                        return "pubmatic";
+                    },
+                }
+            };
+
+            sinon.spy(infoObject.bidDetails, "getGrossEcpm");
+            sinon.stub(infoObject.bidDetails, "getPostTimeoutStatus");
+            sinon.spy(infoObject.bidDetails, "getAdapterID");
+            sinon.spy(infoObject.bidDetails, "getNetEcpm");
+
+
+
+            infoPanelElementStub = {
+                appendChild: function () {
+                    return "appendChild";
+                }
+            };
+            
+            sinon.stub(infoPanelElementStub, "appendChild");
+            sinon.stub(window.document, "getElementById").returns(infoPanelElementStub);
+
+            sinon.stub(window.document, "createTextNode");
+            sinon.stub(window.document, "createElement");
+            UTIL.visualDebugLogIsEnabled = true; 
+            done();
+        });
+
+        afterEach(function (done) {
+            window.document.getElementById.restore();
+            infoPanelElementStub.appendChild.restore();
+
+            window.document.createTextNode.restore();
+            window.document.createElement.restore();
+
+            infoObject.bidDetails.getNetEcpm.restore();
+            infoObject.bidDetails.getGrossEcpm.restore();
+            infoObject.bidDetails.getPostTimeoutStatus.restore();
+            infoObject.bidDetails.getAdapterID.restore();
+            infoObject = null;
+
+            done();
+        });
+
         it('is a function', function(done) {
             UTIL.vLogInfo.should.be.a('function');
             done();
         });
 
+        it('should proceed only if visualDebugLogIsEnabled is enabled', function (done) {
+            UTIL.visualDebugLogIsEnabled = false;
+            UTIL.vLogInfo(divID, infoObject);
+            window.document.getElementById.called.should.be.false;
+            infoPanelElementStub.appendChild.called.should.be.false;
+            done();
+        });
+
+        it('should have created the text node when type of the infoObject is bid with proper message being generated but getPostTimeoutStatus is false', function (done) {
+            infoObject.bidDetails.getPostTimeoutStatus.returns(false);
+            infoObject.type = "bid";
+            UTIL.vLogInfo(divID, infoObject);
+            infoObject.bidDetails.getNetEcpm.called.should.be.true;
+            infoObject.bidDetails.getGrossEcpm.called.should.be.true;
+
+            window.document.createTextNode.calledWith("Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + "): " + infoObject.latency + "ms").should.be.true;
+            infoPanelElementStub.appendChild.calledTwice.should.be.true;
+            done();
+        });
+
+        it('should have created the text node when type of the infoObject is bid with proper message being generated but getPostTimeoutStatus is true and latency is negative', function (done) {
+            infoObject.bidDetails.getPostTimeoutStatus.returns(true);
+            infoObject.type = "bid";
+            infoObject.latency = -10;
+            UTIL.vLogInfo(divID, infoObject);
+            infoObject.bidDetails.getNetEcpm.called.should.be.true;
+            infoObject.bidDetails.getGrossEcpm.called.should.be.true;
+            window.document.createTextNode.calledWith("Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + "): " + 0 + "ms" + ": POST-TIMEOUT").should.be.true;
+            infoPanelElementStub.appendChild.calledTwice.should.be.true;
+            done();
+        });
+
+        it('should have created the text node when type of the infoObject is \'win-bid\' with proper message being generated', function (done) {
+            // infoObject.bidDetails.getPostTimeoutStatus.returns(true);
+            infoObject.type = "win-bid";
+            // infoObject.latency = -10;
+            // infoObject.bidDetails.getAdapterID.called.should.be.true;
+            // infoObject.bidDetails.getNetEcpm.called.should.be.true;
+            UTIL.vLogInfo(divID, infoObject);
+            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm()).should.be.true;
+            infoPanelElementStub.appendChild.calledTwice.should.be.true;
+            done();
+        });
+
+        it('should have created the text node when type of the infoObject is \'win-bid-fail\' with proper message being generated', function (done) {
+            infoObject.type = "win-bid-fail";
+            UTIL.vLogInfo(divID, infoObject);
+            infoPanelElementStub.appendChild.called.should.be.true;
+            window.document.createTextNode.calledWith("There are no bids from PWT").should.be.true;
+            infoPanelElementStub.appendChild.calledTwice.should.be.true;
+            done();
+        });
+
+        it('should have created the text node when type of the infoObject is \'hr\' with proper message being generated', function (done) {
+            infoObject.type = "hr";
+            UTIL.vLogInfo(divID, infoObject);
+            infoPanelElementStub.appendChild.called.should.be.true;
+            window.document.createTextNode.calledWith("----------------------").should.be.true;
+            infoPanelElementStub.appendChild.calledTwice.should.be.true;
+            done();
+        });
+
+        it('should have created the text node when type of the infoObject is \'disp\' with proper message being generated', function (done) {
+            infoObject.type = "disp";
+            UTIL.vLogInfo(divID, infoObject);
+            infoPanelElementStub.appendChild.called.should.be.true;
+            window.document.createTextNode.calledWith("Displaying creative from "+ infoObject.adapter).should.be.true;
+            infoPanelElementStub.appendChild.calledTwice.should.be.true;
+            done();
+        });
     });
 
     describe('#findQueryParamInURL', function () {
