@@ -58,7 +58,7 @@ Bid.prototype.setGrossEcpm = function(ecpm){
 	}
 
 	this.grossEcpm = ecpm;
-	this.netEcpm = window.parseFloat(this.grossEcpm * CONFIG.getAdapterRevShare(this.getAdapterID()).toFixed(CONSTANTS.COMMON.BID_PRECISION));
+	this.netEcpm = window.parseFloat((this.grossEcpm * CONFIG.getAdapterRevShare(this.getAdapterID())).toFixed(CONSTANTS.COMMON.BID_PRECISION));
 
 	return this;
 };
