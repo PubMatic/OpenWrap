@@ -430,12 +430,12 @@ exports.getMetaInfo = function(cWin){
 	obj.refURL = "";
 	obj.protocol = "https://";
 	obj.secure = 1;
-	obj.isInIframe = this.isIframe(cWin);
+	obj.isInIframe = refThis.isIframe(cWin);
 	
 	try{
-		frame = this.getTopFrameOfSameDomain(cWin);				
+		frame = refThis.getTopFrameOfSameDomain(cWin);				
 		obj.refURL = ( frame.refurl || frame.document.referrer || '' ).substr( 0, MAX_PAGE_URL_LEN );
-		obj.pageURL = ( frame !== top && frame.document.referrer != ""  ? frame.document.referrer : frame.location.href).substr(0, MAX_PAGE_URL_LEN );
+		obj.pageURL = ( frame !== window.top && frame.document.referrer != ""  ? frame.document.referrer : frame.location.href).substr(0, MAX_PAGE_URL_LEN );
 		
 		obj.protocol = (function(frame){
 			/* istanbul ignore else */
@@ -449,7 +449,7 @@ exports.getMetaInfo = function(cWin){
 		
 	}catch(e){}		
 
-	this.metaInfo = obj;
+	refThis.metaInfo = obj;
 
 	return obj;
 };

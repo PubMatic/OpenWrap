@@ -1006,18 +1006,60 @@ describe('what?', function() {
 
     });
 
-    // describe('#metaInfo', function() {
-    //     it('is a function', function(done) {
-    //         UTIL.metaInfo.should.be.a('function');
-    //         done();
-    //     });
-
-    // });
-
-    // TODO ?
     describe('#getMetaInfo', function() {
+        var cWin = null;
+        var frameStub = null;
+        beforeEach(function (done) {
+            cWin = {
+
+            };
+            frameStub = {
+                refurl: "http://www.example.com/page1",
+                document : {
+                    referrer: "http://www.example.com/page1"
+                },
+                location: {
+                    href:"",
+                    protocol: "http"
+                }
+            }
+            sinon.spy(UTIL, "isIframe");
+            sinon.stub(UTIL, "getTopFrameOfSameDomain").returns(frameStub);
+            window.top = frameStub;
+            done();
+        });
+
+        afterEach(function (done) {
+            cWin = null;
+            UTIL.getTopFrameOfSameDomain.restore();
+            UTIL.isIframe.restore();
+            done();
+        });
+
         it('is a function', function(done) {
             UTIL.getMetaInfo.should.be.a('function');
+            done();
+        });
+
+        it('should return metaInfo object', function (done) {
+            UTIL.getMetaInfo(cWin)
+            .should.have.all.keys([
+                "refURL",
+                "protocol",
+                "secure",
+                "isInIframe",
+                "pageURL",
+            ]);
+            done();
+        });
+
+        it('should do what...', function (done) {
+            frameStub.location.protocol = "ftp";
+            var metaInfoObj = UTIL.getMetaInfo();
+            expect(metaInfoObj.secure).to.be.equal(1);
+            expect(metaInfoObj.protocol).to.be.equal("https://");
+            UTIL.isIframe.called.should.be.true;
+            UTIL.getTopFrameOfSameDomain.called.should.be.true;
             done();
         });
     });
