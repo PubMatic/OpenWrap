@@ -1525,8 +1525,64 @@ describe('what?', function() {
     });
 
     describe('#getElementLocation', function() {
+
+        var el = null;
+        var rectStub = null;
+        beforeEach(function (done) {
+            rectStub = {
+                "left": 100,
+                "top": 50
+            };
+            el = {
+                getBoundingClientRect: function () {
+                    return rectStub;
+                },
+                "offsetLeft":100,
+                "offsetTop": 50,
+                "offsetParent": null,
+            };
+            sinon.spy(el, "getBoundingClientRect");
+            sinon.stub(UTIL, "isFunction").returns(true);
+            done();
+        });
+
+        afterEach(function (done) {
+            el.getBoundingClientRect.restore();
+            UTIL.isFunction.restore();
+            el = null;
+            done();
+        });
+
         it('is a function', function(done) {
             UTIL.getElementLocation.should.be.a('function');
+            done();
+        });
+
+        it('should return object with x and y position of the element', function (done) {
+            UTIL.getElementLocation(el).should.be.deep.equal({
+                x: 100,
+                y: 50
+            });
+            done();
+        });
+
+        it('should have called isFunction', function (done) {
+            UTIL.getElementLocation(el);
+            UTIL.isFunction.called.should.be.true;
+            UTIL.isFunction.returned(true);
+            el.getBoundingClientRect.called.should.be.true;
+            done();
+        });
+
+        it('should have returned location object when element passed doenst have getBoundingClientRect function', function (done) {
+            UTIL.isFunction.returns(false);
+            UTIL.getElementLocation(el).should.be.deep.equal({
+                x: 100,
+                y: 50
+            });;
+            UTIL.isFunction.called.should.be.true;
+            UTIL.isFunction.returned(false);
+            el.getBoundingClientRect.called.should.be.false;
             done();
         });
 
