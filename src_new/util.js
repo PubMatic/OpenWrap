@@ -768,7 +768,7 @@ exports.realignVLogInfoPanel = function(divID){
 			infoPanelElement = doc.getElementById(infoPanelElementID);
 			/* istanbul ignore else */
 			if(infoPanelElement){
-				var pos = this.getElementLocation(element);
+				var pos = refThis.getElementLocation(element);
 				infoPanelElement.style.visibility = 'visible';
 				infoPanelElement.style.left = pos.x + 'px';
 				infoPanelElement.style.height = element.clientHeight + 'px';

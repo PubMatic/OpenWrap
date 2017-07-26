@@ -1322,8 +1322,64 @@ describe('what?', function() {
     });
 
     describe('#realignVLogInfoPanel', function() {
+        var divID = null; 
+        var elementStub = null;
+        var infoPanelElementStub = null;
+
+        beforeEach(function (done) {
+            divID = commonDivID;
+            elementStub = {
+                clientHeight: 768
+            };
+            sinon.stub(window.document, "getElementById").returns(elementStub);
+            infoPanelElementStub = {
+                style: {
+                    visibility: "visible",
+                    left: 100,
+                    height: 100,
+                }
+            };
+            window.document.getElementById.withArgs(divID + '-pwtc-info').returns(infoPanelElementStub);
+            sinon.stub(UTIL, "getElementLocation").returns({
+                x: 200
+            });
+            UTIL.visualDebugLogIsEnabled = true;
+            done();
+        });
+
+        afterEach(function (done) {
+            window.document.getElementById.restore();
+            UTIL.getElementLocation.restore();
+            infoPanelElementStub = null;
+            divID = null;
+            done();
+        });
+
         it('is a function', function(done) {
             UTIL.realignVLogInfoPanel.should.be.a('function');
+            done();
+        });
+
+        it('should proceed only visualDebugLogIsEnabled is enabled', function (done) {
+            UTIL.visualDebugLogIsEnabled = false;
+            UTIL.realignVLogInfoPanel(divID);
+            window.document.getElementById.called.should.be.false;
+            done();
+        });
+
+
+        it('should have changed infoPanelElement properties', function (done) {
+            UTIL.realignVLogInfoPanel(divID);
+            infoPanelElementStub.should.deep.equal({
+                style: {
+                    visibility: "visible",
+                    left: "200px",
+                    height: "768px",
+                }
+            });
+            window.document.getElementById.calledWith(divID).should.be.true;
+            window.document.getElementById.calledWith(divID + '-pwtc-info').should.be.true;
+            UTIL.getElementLocation.calledWith(elementStub).should.be.true;
             done();
         });
 
@@ -1433,11 +1489,7 @@ describe('what?', function() {
         });
 
         it('should have created the text node when type of the infoObject is \'win-bid\' with proper message being generated', function (done) {
-            // infoObject.bidDetails.getPostTimeoutStatus.returns(true);
             infoObject.type = "win-bid";
-            // infoObject.latency = -10;
-            // infoObject.bidDetails.getAdapterID.called.should.be.true;
-            // infoObject.bidDetails.getNetEcpm.called.should.be.true;
             UTIL.vLogInfo(divID, infoObject);
             window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm()).should.be.true;
             infoPanelElementStub.appendChild.calledTwice.should.be.true;
