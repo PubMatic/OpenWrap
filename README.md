@@ -1,7 +1,7 @@
 
 # Introduction
 
-OpenWrap as an extension of Prebid is under development and not currently available on this Github page. The updated OpenWrap source code extending Prebid.js will be available August 7th.
+OpenWrap as an extension of Prebid is under development and not currently available on this Github page. The updated OpenWrap source code extending Prebid.js will be available August 17th.
 
 Portions of OpenWrap contain code from Prebid.js licensed under the Apache License, Version 2.0.
 
