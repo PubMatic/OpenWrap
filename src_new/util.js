@@ -723,14 +723,14 @@ exports.createVLogInfoPanel = function(divID, dimensionArray){
 		if(element && dimensionArray.length && dimensionArray[0][0] && dimensionArray[0][1]){
 			infoPanelElementID = divID + '-pwtc-info';
 			/* istanbul ignore else */
-			if(!this.isUndefined(doc.getElementById(infoPanelElementID))){
-				var pos = this.getElementLocation(element);
+			if(!refThis.isUndefined(doc.getElementById(infoPanelElementID))){
+				var pos = refThis.getElementLocation(element);
 				infoPanelElement = doc.createElement('div');
 				infoPanelElement.id = infoPanelElementID;
 				infoPanelElement.style = 'position: absolute; /*top: '+pos.y+'px;*/ left: '+pos.x+'px; width: '+dimensionArray[0][0]+'px; height: '+dimensionArray[0][1]+'px; border: 1px solid rgb(255, 204, 52); padding-left: 11px; background: rgb(247, 248, 224) none repeat scroll 0% 0%; overflow: auto; z-index: 9999997; visibility: hidden;opacity:0.9;font-size:13px;font-family:monospace;';
 
 				var closeImage = doc.createElement('img');
-				closeImage.src = this.metaInfo.protocol+"ads.pubmatic.com/AdServer/js/pwt/close.png";
+				closeImage.src = refThis.metaInfo.protocol+"ads.pubmatic.com/AdServer/js/pwt/close.png";
 				closeImage.style = 'cursor:pointer; position: absolute; top: 2px; left: '+(pos.x+dimensionArray[0][0]-16-15)+'px; z-index: 9999998;';
 				closeImage.title = 'close';
 				closeImage.onclick = function(){

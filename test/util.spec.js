@@ -1533,8 +1533,114 @@ describe('what?', function() {
     });
 
     describe('#createVLogInfoPanel', function() {
+        var divID = null, dimensionArray =  null;
+        var elementStub = null;
+        var posStub = null;
+        var infoPanelElementStub = null;
+        var closeImageStub = null;
+
+        beforeEach(function (done) {
+            divID = commonDivID;
+            UTIL.visualDebugLogIsEnabled = true;
+            elementStub = {
+                parentNode: {
+                    insertBefore: function () {
+                        return "insertBefore";
+                    }
+                }
+            };
+            dimensionArray = [
+                [1024,120]
+            ];
+            sinon.spy(elementStub.parentNode, "insertBefore");
+            sinon.stub(window.document, "getElementById");
+            window.document.getElementById.withArgs(divID).returns(elementStub);
+            window.document.getElementById.withArgs(divID + '-pwtc-info').returns(false);
+
+            sinon.stub(window.document, "createElement");
+            infoPanelElementStub = {
+                "id": "div_id",
+                "style": "none",
+                appendChild: function () {
+                    return "appendChild";
+                }
+            };
+            sinon.spy(infoPanelElementStub, "appendChild");
+            window.document.createElement.withArgs("div").returns(infoPanelElementStub);
+            closeImageStub = {
+                "src": "",
+                "style": "",
+                "title": "",
+                "onclick": function () {
+                    return "onclick";
+                }
+            };
+            window.document.createElement.withArgs("img").returns(closeImageStub);
+            window.document.createElement.withArgs("br").returns(infoPanelElementStub);
+            posStub = {
+                x: 200,
+                y: 400
+            };
+            sinon.stub(UTIL, "getElementLocation").returns(posStub);
+            sinon.stub(UTIL, "isUndefined");
+            sinon.spy(window.document, "createTextNode");
+
+            done();
+        });
+
+        afterEach(function (done) {
+            window.document.getElementById.restore();
+            UTIL.isUndefined.restore();
+            UTIL.getElementLocation.restore();
+            infoPanelElementStub.appendChild.restore();
+            window.document.createTextNode.restore();
+            window.document.createElement.restore();
+            elementStub.parentNode.insertBefore.restore();
+            done();
+        });
+
         it('is a function', function(done) {
             UTIL.createVLogInfoPanel.should.be.a('function');
+            done();
+        });
+
+        it('should proceed only when visualDebugLogIsEnabled is enabled', function (done) {
+            UTIL.visualDebugLogIsEnabled = false;
+            UTIL.createVLogInfoPanel(divID, dimensionArray);
+            done();
+        });
+
+        it('should have called doc.getElementById', function (done) {
+            UTIL.createVLogInfoPanel(divID, dimensionArray);
+            window.document.getElementById.calledWith(divID).should.be.true;
+            done();
+        });
+
+        it('should have called doc.getElementById', function (done) {
+            UTIL.createVLogInfoPanel(divID, dimensionArray);
+            UTIL.isUndefined.returned(false);
+            window.document.createElement.calledWith("img").should.be.true;
+            window.document.createElement.calledWith("div").should.be.true;
+            window.document.createElement.calledWith("br").should.be.true;
+
+            expect(infoPanelElementStub.id).to.be.equal(divID + '-pwtc-info');
+            expect(infoPanelElementStub.style).to.be.equal('position: absolute; /*top: '+posStub.y+'px;*/ left: '+posStub.x+'px; width: '+dimensionArray[0][0]+'px; height: '+dimensionArray[0][1]+'px; border: 1px solid rgb(255, 204, 52); padding-left: 11px; background: rgb(247, 248, 224) none repeat scroll 0% 0%; overflow: auto; z-index: 9999997; visibility: hidden;opacity:0.9;font-size:13px;font-family:monospace;');
+
+            expect(closeImageStub.src).to.be.equal(UTIL.metaInfo.protocol+"ads.pubmatic.com/AdServer/js/pwt/close.png");
+            expect(closeImageStub.style).to.be.equal('cursor:pointer; position: absolute; top: 2px; left: '+(posStub.x+dimensionArray[0][0]-16-15)+'px; z-index: 9999998;');            
+            expect(closeImageStub.title).to.be.equal('close');
+
+            elementStub.parentNode.insertBefore.calledWith(infoPanelElementStub, elementStub).should.be.true;
+            done();
+        });
+
+        it('should not have proceeded when div with \'-pwtc-info\' is missing', function (done) {
+            UTIL.isUndefined.returns(true);
+            UTIL.createVLogInfoPanel(divID, dimensionArray);
+            window.document.createElement.calledWith("img").should.be.false;
+            window.document.createElement.calledWith("div").should.be.false;
+            window.document.createElement.calledWith("br").should.be.false;
+            elementStub.parentNode.insertBefore.calledOnce.should.be.false;
             done();
         });
 
