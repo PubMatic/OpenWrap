@@ -2,6 +2,7 @@
 // var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
+
 var GPT = require("../../src_new/controllers/gpt.js");
 var UTIL = require("../../src_new/util.js");
 var AM = require("../../src_new/adapterManager.js");
@@ -196,9 +197,7 @@ describe("CONTROLLER: GPT", function() {
         });
 
         //todo: now we are calling a safeframe related function
-        xit("should return true when the required window object is passed", function() {
-            GPT.init({}).should.equal(true);
-        });
+        
 
         describe("When window object with required props are passed", function() {
 
@@ -207,12 +206,13 @@ describe("CONTROLLER: GPT", function() {
                     function() {
                         return true;
                     });
-                sinon.stub(GPT, "setWindowReference");
-                sinon.stub(GPT, "defineWrapperTargetingKeys");
-                sinon.stub(GPT, "defineGPTVariables");
-                sinon.stub(AM, "registerAdapters");
-                sinon.stub(GPT, "addHooksIfPossible");
-                sinon.stub(GPT, "callJsLoadedIfRequired");
+                sinon.stub(GPT, "setWindowReference").returns(true);
+                sinon.stub(GPT, "defineWrapperTargetingKeys").returns(true);
+                sinon.stub(GPT, "defineGPTVariables").returns(true);
+                sinon.stub(AM, "registerAdapters").returns(true);
+                sinon.stub(GPT, "addHooksIfPossible").returns(true);
+                sinon.stub(GPT, "callJsLoadedIfRequired").returns(true);
+                sinon.stub(GPT, "initSafeFrameListener").returns(true);
                 done();
             });
 
@@ -227,8 +227,12 @@ describe("CONTROLLER: GPT", function() {
                 done();
             });
 
+            it("should return true when the required window object is passed", function() {
+                GPT.init({}).should.equal(true);
+            });
+
             //todo: now we are calling a safeframe related function
-            xit("should have called respective internal functions ", function(done) {
+            it("should have called respective internal functions ", function(done) {
 
                 GPT.init({
                     PWT: {
@@ -240,13 +244,14 @@ describe("CONTROLLER: GPT", function() {
 
                 // console.log("UTIL.isObject.calledOnce ==>", UTIL.isObject.callCount);
 
-                UTIL.isObject.called.should.equal(true);
-                GPT.setWindowReference.calledOnce.should.equal(true);
-                GPT.defineWrapperTargetingKeys.calledOnce.should.equal(true);
-                GPT.defineGPTVariables.calledOnce.should.equal(true);
-                AM.registerAdapters.calledOnce.should.equal(true);
-                GPT.addHooksIfPossible.calledOnce.should.equal(true);
-                GPT.callJsLoadedIfRequired.calledOnce.should.equal(true);
+                UTIL.isObject.called.should.be.true;
+                UTIL.isObject.returned(true);
+                GPT.setWindowReference.called.should.be.true;
+                GPT.defineWrapperTargetingKeys.called.should.be.true;
+                GPT.defineGPTVariables.called.should.be.true;
+                AM.registerAdapters.called.should.be.true;
+                GPT.addHooksIfPossible.called.should.be.true;
+                GPT.callJsLoadedIfRequired.called.should.be.true;
                 done();
             });
         });
@@ -671,7 +676,7 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    xdescribe('#getSizeFromSizeMapping', function () {
+    describe('#getSizeFromSizeMapping', function () {
         var divID = null;
         var slotSizeMapping = null;
         var screenWidth = 1024;
@@ -1934,6 +1939,7 @@ describe("CONTROLLER: GPT", function() {
     describe('#getSizeFromSizeMapping', function () {
         var divID = null, slotSizeMapping = null;
         var sizeMapping = null;
+
         beforeEach(function (done) {
             divID = commonDivID;
             sizeMapping = [[340, 210], [1024, 768]]
@@ -2004,9 +2010,143 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#getSizeFromSizeMapping', function () {
+    describe('#findWinningBidAndApplyTargeting', function () {
+        var divID = null;
+        var dataStub = null;
+        var winningBidStub =  null;
+        var keyValuePairsStub = null;
+        var googleDefinedSlotStub = null;
+
+        beforeEach(function (done) {
+            divID = commonDivID;
+            winningBidStub = {
+                getBidID: function () {
+                    return "getBidID";
+                },
+                getStatus: function () {
+                    return "getStatus";
+                },
+                getNetEcpm: function () {
+                    return "getNetEcpm";
+                },
+                getDealID: function () {
+                    return "getDealID";
+                },
+                getAdapterID: function () {
+                    return "getAdapterID";
+                },
+            };
+            sinon.stub(winningBidStub, "getBidID");
+            sinon.stub(winningBidStub, "getStatus");
+            sinon.stub(winningBidStub, "getNetEcpm");
+            sinon.stub(winningBidStub, "getDealID");
+            sinon.stub(winningBidStub, "getAdapterID");
+            keyValuePairsStub = {
+                "key1": {
+                    "k1": "v1",
+                    "k2": "v2"
+                },
+                "key2": {
+                    "k12": "v12",
+                    "k22": "v22"
+                }
+            };
+            dataStub = {
+                wb: winningBidStub,
+                kvp: keyValuePairsStub
+            };
+            googleDefinedSlotStub = {
+                setTargeting: function () {
+                    return "setTargeting";
+                }
+            };
+            sinon.spy(googleDefinedSlotStub, "setTargeting");
+
+            GPT.slotsMap[divID] = {
+                getPubAdServerObject: function () {
+                    return  googleDefinedSlotStub;
+                },
+                setStatus: function () {
+                    return "setStatus";
+                }
+            };
+            sinon.spy(GPT.slotsMap[divID], "setStatus");
+
+            sinon.stub(BM, "getBid").withArgs(divID).returns(dataStub);
+            sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "forEachOnObject");
+            sinon.stub(UTIL, "isOwnProperty");
+            sinon.stub(GPT, "defineWrapperTargetingKey").returns(true);
+            done();
+        });
+
+        afterEach(function (done) {
+            BM.getBid.restore();
+
+            UTIL.log.restore();
+            UTIL.forEachOnObject.restore();
+            UTIL.isOwnProperty.restore();
+
+            GPT.slotsMap[divID].setStatus.restore();
+
+            googleDefinedSlotStub.setTargeting.restore();
+            GPT.defineWrapperTargetingKey.restore();
+
+            if (winningBidStub) {
+                winningBidStub.getBidID.restore();
+                winningBidStub.getStatus.restore();
+                winningBidStub.getNetEcpm.restore();
+                winningBidStub.getDealID.restore();
+                winningBidStub.getAdapterID.restore();
+            }
+            divID = null;
+            done();
+        });
+
         it('is a function', function (done) {
-            GPT.getSizeFromSizeMapping.should.be.a('function');
+            GPT.findWinningBidAndApplyTargeting.should.be.a('function');
+            done();
+        });
+
+        it('should have logged passed divID along with winning Bid object', function (done) {
+            GPT.findWinningBidAndApplyTargeting(divID);
+            UTIL.log.calledWith("DIV: " + divID + " winningBid: ").should.be.true;
+            UTIL.log.calledWith(winningBidStub).should.be.true;
+            done();
+        });
+
+        it('should not have called setTargeting for bid if the winningBid is invalid object', function (done) {
+            winningBidStub = null;
+            GPT.findWinningBidAndApplyTargeting(divID);
+            googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.SLOT_STATUS.TARGETING_ADDED).should.be.false;
+            googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID()).should.be.false;
+            done();
+        });
+
+        it('should not have called setTargeting for bid if bid\'s net ecpm is not greater than 0', function (done) {
+            winningBidStub.getNetEcpm.returns(-1);
+            GPT.findWinningBidAndApplyTargeting(divID);
+            googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.SLOT_STATUS.TARGETING_ADDED).should.be.false;
+            googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID()).should.be.false;
+            winningBidStub.getNetEcpm.called.should.be.true;
+            winningBidStub.getBidID.called.should.be.false;
+            winningBidStub.getStatus.called.should.be.false;
+            winningBidStub.getDealID.called.should.be.false;
+            winningBidStub.getAdapterID.called.should.be.false;
+            done();
+        });
+
+        it('should not have called defineWrapperTargetingKey if key in keyValuePairs is among prebid keys to ignore', function (done) {
+            winningBidStub.getNetEcpm.returns(2);
+            
+            UTIL.isOwnProperty.withArgs(CONSTANTS.IGNORE_PREBID_KEYS).returns(true);
+            
+            GPT.findWinningBidAndApplyTargeting(divID);
+
+            winningBidStub.getNetEcpm.called.should.be.true;
+            winningBidStub.getBidID.called.should.be.true;
+            winningBidStub.getStatus.called.should.be.true;
+            GPT.defineWrapperTargetingKey.called.should.be.false;
             done();
         });
     });

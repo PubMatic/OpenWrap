@@ -334,14 +334,15 @@ function findWinningBidAndApplyTargeting(divID) {
     var data = bidManager.getBid(divID);
     var winningBid = data.wb || null;
     var keyValuePairs = data.kvp || null;
-    var googleDefinedSlot = slotsMap[divID].getPubAdServerObject();
+    var googleDefinedSlot = refThis.slotsMap[divID].getPubAdServerObject();
     var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
 
     util.log("DIV: " + divID + " winningBid: ");    
     util.log(winningBid);
-
+    
+    /* istanbul ignore else*/
     if (winningBid && winningBid.getNetEcpm() > 0) {
-        slotsMap[divID].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
+        refThis.slotsMap[divID].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID, winningBid.getBidID());
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS, winningBid.getStatus());
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));        
@@ -355,10 +356,11 @@ function findWinningBidAndApplyTargeting(divID) {
     // var refThis = this;
     // attaching keyValuePairs from adapters    
     util.forEachOnObject(keyValuePairs, function(key, value) {
+        /* istanbul ignore else*/
         if (!util.isOwnProperty(ignoreTheseKeys, key)) {
             googleDefinedSlot.setTargeting(key, value);
             // adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
-            defineWrapperTargetingKey(key);
+            refThis.defineWrapperTargetingKey(key);
         }
     });
 }
