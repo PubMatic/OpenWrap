@@ -9,20 +9,15 @@ var CONSTANTS = require("../../src_new/constants.js");
 var BID = require("../../src_new/bid.js");
 var UTIL = require("../../src_new/util.js");
 var BM = require("../../src_new/bidManager.js");
-
-
+var CONF = require("../../src_new/conf.js");
+var AM = require("../../src_new/adapterManager.js");
 var SLOT = require("../../src_new/slot.js").Slot;
-
 var PREBID = require("../../src_new/adapters/prebid.js");
 
 var parentAdapterID = "prebid";
-
 var commonAdpterID = 'pubmatic';
 var commonDivID = "DIV_1";
 var commonKGPV = "XYZ";
-// var kgpvMap = {};
-
-// var commonActiveSlots = [new Slot("Slot_1"), new Slot("Slot_2")];
 
 // TODO : remove as required during single TDD only
 // var jsdom = require('jsdom').jsdom;
@@ -359,7 +354,7 @@ describe('ADAPTER: Prebid', function() {
             activeSlots = [new SLOT("Slot_1"), new SLOT("Slot_2")];
             impressionID = 123123123;
             sinon.spy(UTIL, 'log');
-            sinon.spy(UTIL, 'isOwnProperty');
+            sinon.stub(UTIL, 'isOwnProperty').returns(true);
             sinon.spy(UTIL, 'isFunction');
 
             sinon.spy(CONFIG, 'forEachAdapter');
@@ -369,6 +364,9 @@ describe('ADAPTER: Prebid', function() {
             window.pbjs = {
 
             };
+            sinon.stub(AM, "getRandomNumberBelow100").returns(89);
+            sinon.stub(AM, "throttleAdapter").returns(true);
+            sinon.stub(AM, "setInitTimeForSlotsForAdapter").returns(true);
             done();
         });
 
@@ -381,6 +379,10 @@ describe('ADAPTER: Prebid', function() {
 
             CONFIG.forEachAdapter.restore();
             PREBID.generatePbConf.restore();
+
+            AM.getRandomNumberBelow100.restore();
+            AM.throttleAdapter.restore();
+            AM.setInitTimeForSlotsForAdapter.restore();
             delete window.pbjs;
             done();
         });
@@ -398,16 +400,22 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        // TODO : change TDD as predbi.js code has changed a bit
-        xit('should have called generatePbConf', function(done) {
+        it('should have called generatePbConf if adapterID for current adapterConfig is not parentAdapterID', function(done) {
+            AM.throttleAdapter.returns(false);
             PREBID.fetchBids(activeSlots, impressionID);
-            // UTIL.log.calledWith("PreBid js is not loaded").should.be.true;
             CONFIG.forEachAdapter.called.should.be.true;
-            // PREBID.generatePbConf.called.should.be.true;
+            PREBID.generatePbConf.called.should.be.true;
             done();
         });
 
-
+        it('should have logged when adapter is throttled', function(done) {
+            AM.throttleAdapter.returns(true);
+            PREBID.fetchBids(activeSlots, impressionID);
+            CONFIG.forEachAdapter.called.should.be.true;
+            PREBID.generatePbConf.called.should.be.false;
+            UTIL.log.calledWith("pubmatic"+CONSTANTS.MESSAGES.M2).should.be.true;
+            done();
+        });
     });
 
     describe('#getParenteAdapterID', function() {
