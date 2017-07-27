@@ -33,6 +33,7 @@ describe('Bid bidObject', function() {
     var bidObject = null;
     var adapterID = null;
     var kgpv = null;
+
     beforeEach(function(done) {
         adapterID = commonAdpterID;
         kgpv = commonKGPV;
@@ -47,6 +48,7 @@ describe('Bid bidObject', function() {
 
 
     describe('Bid', function() {
+
         it('is a function', function(done) {
             BID.should.be.a('function');
             done();
@@ -55,6 +57,7 @@ describe('Bid bidObject', function() {
 
 
     describe('#getAdapterID', function() {
+
         it('is a function', function(done) {
             bidObject.getAdapterID.should.be.a('function');
             done();
@@ -67,6 +70,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#getBidID', function() {
+
         it('is a function', function(done) {
             bidObject.getBidID.should.be.a('function');
             done();
@@ -79,8 +83,8 @@ describe('Bid bidObject', function() {
     });
 
     describe('#setGrossEcpm', function() {
-
         var ecpm = null;
+
         beforeEach(function(done) {
             ecpm = 2.0;
             sinon.spy(UTIL, 'log');
@@ -149,11 +153,11 @@ describe('Bid bidObject', function() {
             expect(bidObject.getNetEcpm().toString().split(".")[1].length).to.be.below(5);
             done();
         });
-
     });
 
 
     describe('#getGrossEcpm', function() {
+
         it('is a function', function(done) {
             bidObject.getGrossEcpm.should.be.a('function')
             done();
@@ -166,6 +170,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#getNetEcpm', function() {
+
         it('is a function', function(done) {
             bidObject.getNetEcpm.should.be.a('function')
             done();
@@ -178,6 +183,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#setDefaultBidStatus', function() {
+
         it('is a function', function(done) {
             bidObject.setDefaultBidStatus.should.be.a('function')
             done();
@@ -194,6 +200,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#getDefaultBidStatus', function() {
+
         it('is a function', function(done) {
             bidObject.getDefaultBidStatus.should.be.a('function')
             done();
@@ -206,6 +213,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#setAdHtml', function() {
+
         it('is a function', function(done) {
             bidObject.setAdHtml.should.be.a('function')
             done();
@@ -217,11 +225,11 @@ describe('Bid bidObject', function() {
             bidObject.setAdHtml(adHtml).should.deep.equal(bidObject);
             bidObject.adHtml.should.equal(adHtml);
             done();
-
         });
     });
 
     describe('#getAdHtml', function() {
+
         it('is a function', function(done) {
             bidObject.getAdHtml.should.be.a('function')
             done();
@@ -234,6 +242,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#setAdUrl', function() {
+
         it('is a function', function(done) {
             bidObject.setAdUrl.should.be.a('function')
             done();
@@ -245,11 +254,11 @@ describe('Bid bidObject', function() {
             bidObject.setAdUrl(adUrl).should.deep.equal(bidObject);
             bidObject.adUrl.should.equal(adUrl);
             done();
-
         });
     });
 
     describe('#getAdUrl', function() {
+
         it('is a function', function(done) {
             bidObject.getAdUrl.should.be.a('function')
             done();
@@ -262,6 +271,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#setHeight', function() {
+
         it('is a function', function(done) {
             bidObject.setHeight.should.be.a('function')
             done();
@@ -273,11 +283,11 @@ describe('Bid bidObject', function() {
             bidObject.setHeight(height).should.deep.equal(bidObject);
             bidObject.height.should.equal(height);
             done();
-
         });
     });
 
     describe('#getHeight', function() {
+
         it('is a function', function(done) {
             bidObject.getHeight.should.be.a('function')
             done();
@@ -290,6 +300,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#setWidth', function() {
+
         it('is a function', function(done) {
             bidObject.setWidth.should.be.a('function')
             done();
@@ -301,11 +312,11 @@ describe('Bid bidObject', function() {
             bidObject.setWidth(width).should.deep.equal(bidObject);
             bidObject.width.should.equal(width);
             done();
-
         });
     });
 
     describe('#getWidth', function() {
+
         it('is a function', function(done) {
             bidObject.getWidth.should.be.a('function')
             done();
@@ -318,6 +329,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#getKGPV', function() {
+
         it('is a function', function(done) {
             bidObject.getKGPV.should.be.a('function')
             done();
@@ -330,6 +342,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#setKeyValuePair', function() {
+
         it('is a function', function(done) {
             bidObject.setKeyValuePair.should.be.a('function')
             done();
@@ -342,11 +355,11 @@ describe('Bid bidObject', function() {
             bidObject.setKeyValuePair(key, value).should.deep.equal(bidObject);
             bidObject.keyValuePairs[key].should.equal(value);
             done();
-
         });
     });
 
     describe('#getKeyValuePairs', function() {
+
         it('is a function', function(done) {
             bidObject.getKeyValuePairs.should.be.a('function')
             done();
@@ -362,6 +375,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#setPostTimeoutStatus', function() {
+
         it('is a function', function(done) {
             bidObject.setPostTimeoutStatus.should.be.a('function')
             done();
@@ -376,6 +390,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#getPostTimeoutStatus', function() {
+
         it('is a function', function(done) {
             bidObject.getPostTimeoutStatus.should.be.a('function')
             done();
@@ -388,6 +403,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#setReceivedTime', function() {
+
         it('is a function', function(done) {
             bidObject.setReceivedTime.should.be.a('function')
             done();
@@ -402,6 +418,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#getReceivedTime', function() {
+
         it('is a function', function(done) {
             bidObject.getReceivedTime.should.be.a('function')
             done();
@@ -425,6 +442,7 @@ describe('Bid bidObject', function() {
             bidObject.setKeyValuePair.restore();
             done();
         });
+
         it('is a function', function(done) {
             bidObject.setDealID.should.be.a('function')
             done();
@@ -451,10 +469,10 @@ describe('Bid bidObject', function() {
                 .should.be.false;
             done();
         });
-
     });
 
     describe('#getDealID', function() {
+
         it('is a function', function(done) {
             bidObject.getDealID.should.be.a('function')
             done();
@@ -506,10 +524,10 @@ describe('Bid bidObject', function() {
                 .should.be.false;
             done();
         });
-
     });
 
     describe('#getDealChannel', function() {
+
         it('is a function', function(done) {
             bidObject.getDealChannel.should.be.a('function')
             done();
@@ -522,6 +540,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#setWinningBidStatus', function() {
+
         it('is a function', function(done) {
             bidObject.setWinningBidStatus.should.be.a('function')
             done();
@@ -536,6 +555,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#getWinningBidStatus', function() {
+
         it('is a function', function(done) {
             bidObject.getWinningBidStatus.should.be.a('function')
             done();
@@ -548,6 +568,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#setStatus', function() {
+
         it('is a function', function(done) {
             bidObject.setStatus.should.be.a('function')
             done();
@@ -562,6 +583,7 @@ describe('Bid bidObject', function() {
     });
 
     describe('#getStatus', function() {
+
         it('is a function', function(done) {
             bidObject.getStatus.should.be.a('function')
             done();
@@ -572,5 +594,4 @@ describe('Bid bidObject', function() {
             done();
         });
     });
-
 });

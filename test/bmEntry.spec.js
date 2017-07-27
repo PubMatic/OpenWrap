@@ -34,7 +34,6 @@ describe('Bid bmEntryObject', function() {
 
     beforeEach(function(done) {
         name = commonBmEntryName;
-        // kgpv = commonKGPV;
         bmEntryObject = new BMEntry(name);
         done();
     });
@@ -46,6 +45,7 @@ describe('Bid bmEntryObject', function() {
 
 
     describe('#setExpired', function() {
+
         it('is a function', function(done) {
             bmEntryObject.setExpired.should.be.a('function');
             done();
@@ -58,6 +58,7 @@ describe('Bid bmEntryObject', function() {
     });
 
     describe('#getExpiredStatus', function() {
+
         it('is a function', function(done) {
             bmEntryObject.getExpiredStatus.should.be.a('function');
             done();
@@ -70,6 +71,7 @@ describe('Bid bmEntryObject', function() {
     });
 
     describe('#setAnalyticEnabled', function() {
+
         it('is a function', function(done) {
             bmEntryObject.setAnalyticEnabled.should.be.a('function');
             done();
@@ -82,6 +84,7 @@ describe('Bid bmEntryObject', function() {
     });
 
     describe('#getAnalyticEnabledStatus', function() {
+
         it('is a function', function(done) {
             bmEntryObject.getAnalyticEnabledStatus.should.be.a('function');
             done();
@@ -96,6 +99,7 @@ describe('Bid bmEntryObject', function() {
     xdescribe('#setNewBid', function() {
         var adapterID = null,
             theBid = null;
+
         var AdapterEntryStubReturn = null;
         beforeEach(function(done) {
             sinon.stub(UTIL, "isOwnProperty").returns(false);
@@ -149,7 +153,6 @@ describe('Bid bmEntryObject', function() {
             done();
         });
 
-
         it('is a function', function(done) {
             bmEntryObject.getBid.should.be.a('function');
             done();
@@ -173,6 +176,7 @@ describe('Bid bmEntryObject', function() {
     });
 
     describe('#getName', function() {
+
         it('is a function', function(done) {
             bmEntryObject.getName.should.be.a('function');
             done();
@@ -185,6 +189,7 @@ describe('Bid bmEntryObject', function() {
     });
 
     describe('#getCreationTime', function() {
+
         it('is a function', function(done) {
             bmEntryObject.getCreationTime.should.be.a('function');
             done();
@@ -197,6 +202,7 @@ describe('Bid bmEntryObject', function() {
     });
 
     describe('#setImpressionID', function() {
+
         it('is a function', function(done) {
             bmEntryObject.setImpressionID.should.be.a('function');
             done();
@@ -210,6 +216,7 @@ describe('Bid bmEntryObject', function() {
     });
 
     describe('#getImpressionID', function() {
+
         it('is a function', function(done) {
             bmEntryObject.getImpressionID.should.be.a('function');
             done();
@@ -222,6 +229,7 @@ describe('Bid bmEntryObject', function() {
     });
 
     describe('#setSizes', function() {
+
         it('is a function', function(done) {
             bmEntryObject.setSizes.should.be.a('function');
             done();
@@ -238,6 +246,7 @@ describe('Bid bmEntryObject', function() {
     });
 
     describe('#getSizes', function() {
+
         it('is a function', function(done) {
             bmEntryObject.getSizes.should.be.a('function');
             done();
@@ -250,7 +259,6 @@ describe('Bid bmEntryObject', function() {
     });
 
     xdescribe('#setAdapterEntry', function() {
-
         var adapterID = null;
 
         beforeEach(function(done) {
@@ -322,8 +330,5 @@ describe('Bid bmEntryObject', function() {
             bmEntryObject.adapters[adapterID].getLastBidID.called.should.be.true;
             done();
         });
-
-
     });
-
 });

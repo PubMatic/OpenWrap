@@ -14,9 +14,9 @@ var commonNewBidID = "a4de2312";
 var commonNewKGPV = "ABC";
 
 describe('AdapterEntry adapterEntryObject', function() {
-
     var adapterEntryObject = null;
     var adapterID = null;
+    
     beforeEach(function(done) {
         adapterID = commonAdpterID;
         adapterEntryObject = new AdapterEntry(adapterID);
@@ -30,6 +30,7 @@ describe('AdapterEntry adapterEntryObject', function() {
 
 
     describe('#AdapterEntry', function() {
+
         it('is a function', function(done) {
             AdapterEntry.should.be.a('function');
             done();
@@ -37,6 +38,7 @@ describe('AdapterEntry adapterEntryObject', function() {
     });
 
     describe('#getCallInitiatedTime', function() {
+
         it('is a function', function(done) {
             adapterEntryObject.getCallInitiatedTime.should.be.a('function');
             done();
@@ -49,15 +51,16 @@ describe('AdapterEntry adapterEntryObject', function() {
     });
 
     describe('#getLastBidID', function() {
+
         it('is a function', function(done) {
             adapterEntryObject.getLastBidID.should.be.a('function');
             done();
         });
+
         it('returns lastBidID', function(done) {
             adapterEntryObject.getLastBidID().should.equal(adapterEntryObject.lastBidID);
             done();
         });
-
     });
 
     describe('#getBid', function() {
@@ -88,7 +91,6 @@ describe('AdapterEntry adapterEntryObject', function() {
             should.not.exist(adapterEntryObject.getBid(commonBidID));
             done();
         });
-
     });
 
     describe('#setNewBid', function() {
@@ -107,6 +109,5 @@ describe('AdapterEntry adapterEntryObject', function() {
             adapterEntryObject.bids[theBid.getBidID()].should.be.equal(theBid);
             done();
         });
-
     });
 });

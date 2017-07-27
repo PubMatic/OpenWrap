@@ -27,7 +27,6 @@ var commonAdapterID = "pubmatic";
 
 describe('Config', function() {
 
-
     describe('#getPublisherId', function() {
 
         beforeEach(function(done) {
@@ -56,18 +55,15 @@ describe('Config', function() {
             CONFIG.getPublisherId().should.be.equal("0");
             done();
         });
-
     });
 
     describe('#getTimeout', function() {
 
         beforeEach(function(done) {
-            // sinon.spy(UTIL, "trim");
             done();
         });
 
         afterEach(function(done) {
-            // UTIL.trim.restore();
             done();
         });
 
@@ -78,7 +74,6 @@ describe('Config', function() {
 
         it('should return timeout from conf', function(done) {
             CONFIG.getTimeout().should.be.equal(window.parseInt(CONF.pwt.t));
-            // UTIL.trim.calledOnce.should.be.true;
             done();
         });
 
@@ -87,12 +82,11 @@ describe('Config', function() {
             CONFIG.getTimeout().should.be.equal(1000);
             done();
         });
-
     });
 
     describe('#getAdapterRevShare', function() {
-
         var adapterID = null;
+
         beforeEach(function(done) {
             sinon.stub(UTIL, "isOwnProperty");
             adapterID = commonAdapterID;
@@ -122,11 +116,11 @@ describe('Config', function() {
             UTIL.isOwnProperty.calledOnce.should.be.true;
             done();
         });
-
     });
 
     describe('#getAdapterThrottle', function() {
         var adapterID = null;
+
         beforeEach(function(done) {
             sinon.stub(UTIL, "isOwnProperty");
             adapterID = commonAdapterID;
@@ -160,8 +154,8 @@ describe('Config', function() {
     });
 
     describe('#getBidPassThroughStatus', function() {
-
         var adapterID = null;
+
         beforeEach(function(done) {
             sinon.stub(UTIL, "isOwnProperty");
             adapterID = commonAdapterID;
@@ -225,7 +219,6 @@ describe('Config', function() {
             CONFIG.getPublisherId().should.be.equal("0");
             done();
         });
-
     });
 
     describe('#getProfileDisplayVersionID', function() {
@@ -256,10 +249,10 @@ describe('Config', function() {
             CONFIG.getProfileDisplayVersionID().should.be.equal("0");
             done();
         });
-
     });
 
     describe('#getAnalyticsPixelURL', function() {
+
         it('is a function', function(done) {
             CONFIG.getAnalyticsPixelURL.should.be.a('function');
             done();
@@ -275,7 +268,6 @@ describe('Config', function() {
             CONFIG.getAnalyticsPixelURL().should.be.equal(false);
             done();
         });
-
     });
 
     describe('#getMonetizationPixelURL', function() {
@@ -295,7 +287,6 @@ describe('Config', function() {
             CONFIG.getMonetizationPixelURL().should.be.equal(false);
             done();
         });
-
     });
 
     describe('#forEachAdapter', function() {
@@ -327,19 +318,18 @@ describe('Config', function() {
     });
 
     describe('#addPrebidAdapter', function() {
+
         it('is a function', function(done) {
             CONFIG.addPrebidAdapter.should.be.a('function');
             done();
         });
-
     });
 
     describe('#initConfig', function() {
+
         it('is a function', function(done) {
             CONFIG.initConfig.should.be.a('function');
             done();
         });
-
     });
-
 });

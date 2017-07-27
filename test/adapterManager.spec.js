@@ -204,7 +204,7 @@ describe("adapterManager : ADPTMgr", function() {
         });
 
         it('should have called CONFIG.getAdapterThrottle', function(done) {
-            ADPTMgr.throttleAdapter(90, adapterID); // TODO: REfer this value PB_pubmatic by variable
+            ADPTMgr.throttleAdapter(90, adapterID);
             CONFIG.getAdapterThrottle.calledOnce.should.be.true;
             done();
         });
@@ -316,13 +316,10 @@ describe("adapterManager : ADPTMgr", function() {
             done();
         });
 
-        //todo: check, util.log is being called twice
         it('should call UTIL.log if bidAdaptor is not an object', function(done) {
             ADPTMgr.registerAdapter(null);
-            // UTIL.log.calledOnce.should.be.true;
             UTIL.log.calledWith(CONSTANTS.MESSAGES.M3).should.be.true;
             UTIL.log.calledWith(null).should.be.true;
-            // UTIL.log.calledWith("passsed argument is not a bidAdaptor").should.be.true;
             done();
         });
 
