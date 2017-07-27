@@ -61,6 +61,12 @@ describe('Slot slotObject', function() {
             slotObject.setStatus.should.be.a('function');
             done();
         });
+
+        it('should set the status of the slotObject to with given status value', function (done) {
+            slotObject.setStatus(CONSTANTS.SLOT_STATUS.DISPLAYED).should.deep.equal(slotObject);
+            expect(slotObject.status).to.be.equal(CONSTANTS.SLOT_STATUS.DISPLAYED);
+            done();
+        });
     });
 
     describe('#getStatus', function() {
@@ -80,6 +86,12 @@ describe('Slot slotObject', function() {
 
         it('is a function', function(done) {
             slotObject.setDivID.should.be.a('function');
+            done();
+        });
+
+        it('should set div id of the slotObject with given div id', function (done) {
+            slotObject.setDivID(commonDivID).should.deep.equal(slotObject);
+            expect(slotObject.divID).to.be.equal(commonDivID);
             done();
         });
     });
@@ -104,6 +116,12 @@ describe('Slot slotObject', function() {
             slotObject.setAdUnitID.should.be.a('function');
             done();
         });
+
+        it('should set the adUnitId of the slotObject to the given value', function (done) {
+            slotObject.setAdUnitID(commonAdUnitID).should.deep.equal(slotObject);
+            expect(slotObject.adUnitID).to.be.equal(commonAdUnitID);
+            done();
+        });
     });
 
     describe('#getAdUnitID', function() {
@@ -124,6 +142,12 @@ describe('Slot slotObject', function() {
 
         it('is a function', function(done) {
             slotObject.setAdUnitIndex.should.be.a('function');
+            done();
+        });
+
+        it('should set adUnitIndex of the slotObject with given value', function (done) {
+            slotObject.setAdUnitIndex(commonAdUnitIndex).should.deep.equal(slotObject);
+            expect(slotObject.adUnitIndex).to.be.equal(commonAdUnitIndex);
             done();
         });
     });
@@ -148,6 +172,12 @@ describe('Slot slotObject', function() {
             slotObject.setSizes.should.be.a('function');
             done();
         });
+
+        it('should set sizes of the slotObject to the given value', function (done) {
+            slotObject.setSizes(commonSizes).should.deep.equal(slotObject);
+            expect(slotObject.sizes).to.be.deep.equal(commonSizes);
+            done();
+        });
     });
 
     describe('#getSizes', function() {
@@ -170,12 +200,24 @@ describe('Slot slotObject', function() {
             slotObject.setKeyValue.should.be.a('function');
             done();
         });
+
+        it('should set given key value with slotObject', function (done) {
+            slotObject.setKeyValue("key_1", "value_1").should.deep.equal(slotObject);
+            expect(slotObject.keyValues["key_1"]).to.be.equal("value_1");
+            done();
+        });
     });
 
     describe('#setKeyValues', function() {
 
         it('is a function', function(done) {
             slotObject.setKeyValues.should.be.a('function');
+            done();
+        });
+
+        it('should set the keyValues of the slotObject to the given value', function (done) {
+            slotObject.setKeyValues({"key_1": "value_1"}).should.deep.equal(slotObject);
+            expect(slotObject.keyValues).to.be.deep.equal({"key_1": "value_1"});
             done();
         });
     });
@@ -197,6 +239,8 @@ describe('Slot slotObject', function() {
             };
             keyValPair[key] = value;
             slotObject.setKeyValues([keyValPair]).should.deep.equal(slotObject);
+            slotObject.getkeyValues().should.be.equal([keyValPair]);
+            expect(slotObject.keyValues).to.be.deep.equal([keyValPair]);
             slotObject.keyValues[0][key].should.equal(value);
             done();
         });
@@ -206,6 +250,12 @@ describe('Slot slotObject', function() {
 
         it('is a function', function(done) {
             slotObject.setArguments.should.be.a('function');
+            done();
+        });
+
+        it('should set the arguments of the slotObject to the given value', function (done) {
+            slotObject.setArguments(["arg1", "arg2"]).should.deep.equal(slotObject);
+            expect(slotObject.arguments).to.be.deep.equal(["arg1", "arg2"]);
             done();
         });
     });
@@ -229,6 +279,12 @@ describe('Slot slotObject', function() {
 
         it('is a function', function(done) {
             slotObject.setPubAdServerObject.should.be.a('function');
+            done();
+        });
+
+        it('should set the pubAdServerObject of the slotObject to given value', function (done) {
+            slotObject.setPubAdServerObject({"ad":"server"}).should.be.deep.equal(slotObject);
+            expect(slotObject.pubAdServerObject).to.be.deep.equal({"ad":"server"});
             done();
         });
     });
@@ -257,6 +313,12 @@ describe('Slot slotObject', function() {
             slotObject.setDisplayFunctionCalled.should.be.a('function');
             done();
         });
+
+        it('should set the displayFunctionCalled of slotObject to the given value', function (done) {
+            slotObject.setDisplayFunctionCalled(true).should.deep.equal(slotObject);
+            expect(slotObject.displayFunctionCalled).to.be.equal(true);
+            done();
+        });
     });
 
     describe('#isDisplayFunctionCalled', function() {
@@ -277,6 +339,12 @@ describe('Slot slotObject', function() {
 
         it('is a function', function(done) {
             slotObject.setRefreshFunctionCalled.should.be.a('function');
+            done();
+        });
+
+        it('should set refreshFunctionCalled of the slotObject to the given value', function (done) {
+            slotObject.setRefreshFunctionCalled(true).should.deep.equal(slotObject);
+            expect(slotObject.refreshFunctionCalled).to.be.equal(true);
             done();
         });
     });

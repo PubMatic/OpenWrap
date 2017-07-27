@@ -1,5 +1,4 @@
 var CONSTANTS = require("./constants.js");
-//var UTIL = require("./util.js");
 
 function Slot(name){
 	this.name = name;
