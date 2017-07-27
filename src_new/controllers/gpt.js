@@ -705,7 +705,7 @@ function getQualifyingSlotNamesForRefresh(arg, theObject) { // TDD : done
     util.forEachOnArray(slotsToConsider, function(index, slot) {
         var slotName = refThis.generateSlotName(slot);
         if(slotName.length>0){
-            qualifyingSlotNames = qualifyingSlotNames.concat();
+            qualifyingSlotNames = qualifyingSlotNames.concat(slotName);
         }        
     });
     return qualifyingSlotNames;
