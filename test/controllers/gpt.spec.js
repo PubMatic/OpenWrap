@@ -860,18 +860,39 @@ describe("CONTROLLER: GPT", function() {
     describe('#getQualifyingSlotNamesForRefresh', function() {
         var arg = null;
         var theObject = null;
+        var slot_1Stub = null;
+        var slot_2Stub = null;
 
         beforeEach(function(done) {
             arg = [];
+            slot_1Stub = {
+                getSlotId: function () {
+                    return {
+                        getDomId: function () {
+                            return "DIV_1";
+                        }
+                    }
+                }
+            };
+
+            slot_2Stub = {
+                getSlotId: function () {
+                    return {
+                        getDomId: function () {
+                            return "DIV_2";
+                        }
+                    }
+                }
+            };
             theObject = {
                 getSlots: function() {
-                    return ["slot_1", "slot_2"];
+                    return [slot_1Stub, slot_2Stub];
                 }
             };
             sinon.spy(UTIL, "forEachOnArray");
-            sinon.stub(GPT, "generateSlotName");
+            sinon.spy(GPT, "generateSlotName");
             sinon.spy(theObject, "getSlots");
-            GPT.generateSlotName.returns("qualifying_slot_name");
+            // GPT.generateSlotName.returns("qualifying_slot_name");
             done();
         });
 
@@ -902,23 +923,48 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should consider passed arg if its not empty instead of slots from the object being passed', function(done) {
-            arg = [
-                ["slot_1", "slot_2"]
-            ];
-            GPT.getQualifyingSlotNamesForRefresh(arg, theObject);
+        it('should consider passed arg if its not empty', function(done) {
+            arg = [ [slot_1Stub, slot_2Stub] ];
+            GPT.getQualifyingSlotNamesForRefresh(arg, theObject).should.be.deep.equal(['DIV_1', 'DIV_2']);
             UTIL.forEachOnArray.calledWith(arg[0]).should.be.true;
             done();
         });
 
-        // TODO: input - output case is not considered
-        // [['']]
-        // need to add check for googletag.pubads().refresh(['']); // ignored in returned array
-        // [[]]
-        // need to add check for googletag.pubads().refresh(); // all slots will be refreshed
-        // [null]
-        // need to add check for googletag.pubads().refresh(null); // all slots will be refreshed
+        it('should consider passed arg if first argumnet in array is null', function(done) {
+            arg = [ [null, slot_2Stub] ];
+            GPT.getQualifyingSlotNamesForRefresh(arg, theObject).should.be.deep.equal(['DIV_2']);
+            UTIL.forEachOnArray.calledWith(arg[0]).should.be.true;
+            done();
+        });
 
+
+        it('should consider passed arg if passed argumnet is empty string array', function(done) {
+            arg = [ [''] ];
+            GPT.getQualifyingSlotNamesForRefresh(arg, theObject).should.be.deep.equal([]);
+            UTIL.forEachOnArray.calledWith(arg[0]).should.be.true;
+            done();
+        });
+
+        it('should consider passed arg if first argumnet is empty string array and second is slot object', function(done) {
+            arg = [ ['', slot_2Stub] ];
+            GPT.getQualifyingSlotNamesForRefresh(arg, theObject).should.be.deep.equal(['DIV_2']);
+            UTIL.forEachOnArray.calledWith(arg[0]).should.be.true;
+            done();
+        });
+
+        it('should consider passed arg if its empty ', function(done) {
+            arg = [];
+            GPT.getQualifyingSlotNamesForRefresh(arg, theObject).should.be.deep.equal([ 'DIV_1', 'DIV_2']);
+            UTIL.forEachOnArray.calledWith(theObject.getSlots()).should.be.true;
+            done();
+        });
+
+        it('should consider passed arg if its null', function(done) {
+            arg = [null];
+            GPT.getQualifyingSlotNamesForRefresh(arg, theObject).should.be.deep.equal([ 'DIV_1', 'DIV_2']);
+            UTIL.forEachOnArray.calledWith(theObject.getSlots()).should.be.true;
+            done();
+        });
     });
 
 
