@@ -49,13 +49,14 @@ Bid.prototype.setGrossEcpm = function(ecpm){
 		}
 	}
 
-	ecpm = window.parseFloat(ecpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
 	/* istanbul ignore else */
 	if(window.isNaN(ecpm)){
 		UTIL.log(CONSTANTS.MESSAGES.M11+ecpm);		
 		UTIL.log(this);
 		return this;
 	}
+
+	ecpm = window.parseFloat(ecpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
 
 	this.grossEcpm = ecpm;
 	this.netEcpm = window.parseFloat((this.grossEcpm * CONFIG.getAdapterRevShare(this.getAdapterID())).toFixed(CONSTANTS.COMMON.BID_PRECISION));

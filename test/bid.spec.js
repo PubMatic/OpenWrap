@@ -86,9 +86,6 @@ describe('Bid bidObject', function() {
             sinon.spy(UTIL, 'log');
             sinon.stub(UTIL, "isString").returns(true);
             sinon.stub(window, "isNaN").returns(true);
-            sinon.stub(window, "parseFloat").returns("NaN");
-            // sinon.spy(CONFIG, "getAdapterRevShare");
-            // sinon.spy(bidObject, "getAdapterID");
 
             done();
         });
@@ -97,7 +94,7 @@ describe('Bid bidObject', function() {
             UTIL.log.restore();
             UTIL.isString.restore();
             window.isNaN.restore();
-            window.parseFloat.restore();
+            
             ecpm = null;
             done();
         });
@@ -123,11 +120,10 @@ describe('Bid bidObject', function() {
             done();
         });
 
-        //todo: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/NaN
-        xit('should return when ecpm passed is Not a number', function (done) {
-            ecpm = "NotANumber";
+        it('should return when ecpm passed is Not a number', function (done) {
+            ecpm = {"NotANumber": "NaN"};
             UTIL.isString.returns(false);
-            window.parseFloat.returns("NotANumber");
+
             bidObject.setGrossEcpm(ecpm).should.be.deep.equal(bidObject);
             UTIL.log.calledWith(CONSTANTS.MESSAGES.M11+ecpm).should.be.true;
             UTIL.log.calledWith(bidObject).should.be.true;
@@ -138,9 +134,19 @@ describe('Bid bidObject', function() {
             ecpm = 2.0;
             UTIL.isString.returns(false);
             window.isNaN.returns(false);
-            window.parseFloat.returns(2.7);
 
             bidObject.setGrossEcpm(ecpm).should.be.deep.equal(bidObject);
+            done();
+        });
+
+        it('should set netEcpm and grossEcpm value upto 4 decimal places at max', function (done) {
+            ecpm = 2.12345;
+            UTIL.isString.returns(false);
+            window.isNaN.returns(false);
+
+            bidObject.setGrossEcpm(ecpm).should.be.deep.equal(bidObject);
+            expect(bidObject.getGrossEcpm().toString().split(".")[1].length).to.be.below(5);
+            expect(bidObject.getNetEcpm().toString().split(".")[1].length).to.be.below(5);
             done();
         });
 
