@@ -239,7 +239,7 @@ describe('Slot slotObject', function() {
             };
             keyValPair[key] = value;
             slotObject.setKeyValues([keyValPair]).should.deep.equal(slotObject);
-            slotObject.getkeyValues().should.be.equal([keyValPair]);
+            slotObject.getkeyValues().should.be.deep.equal([keyValPair]);
             expect(slotObject.keyValues).to.be.deep.equal([keyValPair]);
             slotObject.keyValues[0][key].should.equal(value);
             done();
