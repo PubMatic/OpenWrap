@@ -197,7 +197,7 @@ describe("CONTROLLER: GPT", function() {
         });
 
         //todo: now we are calling a safeframe related function
-        
+
 
         describe("When window object with required props are passed", function() {
 
@@ -582,32 +582,32 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#getAdSlotSizesArray()', function () {
+    describe('#getAdSlotSizesArray()', function() {
         var divID = null;
         var currentGoogleSlots = null;
         var sizeObj_1 = null;
         var sizeObj_2 = null;
-    	beforeEach(function (done) {
+        beforeEach(function(done) {
             divID = commonDivID;
             sizeObj_1 = {
-                getWidth: function () {
+                getWidth: function() {
                     return 1024;
                 },
-                getHeight: function () {
+                getHeight: function() {
                     return 768;
                 }
             };
 
             sizeObj_2 = {
-                getWidth: function () {
+                getWidth: function() {
                     return 640;
                 },
-                getHeight: function () {
+                getHeight: function() {
                     return 480;
                 }
             };
             currentGoogleSlots = {
-                getSizes: function () {
+                getSizes: function() {
                     return [sizeObj_1, sizeObj_2];
                 }
             };
@@ -624,10 +624,10 @@ describe("CONTROLLER: GPT", function() {
             sinon.stub(UTIL, 'isFunction');
             UTIL.isFunction.returns(true);
             sinon.spy(UTIL, 'forEachOnArray');
-    		done();
-    	});	
+            done();
+        });
 
-    	afterEach(function (done) {
+        afterEach(function(done) {
             GPT.getSizeFromSizeMapping.restore();
             UTIL.log.restore();
             UTIL.isFunction.restore();
@@ -642,30 +642,30 @@ describe("CONTROLLER: GPT", function() {
             sizeObj_1 = null;
             sizeObj_2 = null;
             currentGoogleSlots = null;
-    		done();
-    	});	
+            done();
+        });
 
 
-    	it('is a function', function (done) {
-    		GPT.getAdSlotSizesArray.should.be.a('function');
-    		done();
-    	});
-    	
-        it('should have called getSizeFromSizeMapping', function (done) {
+        it('is a function', function(done) {
+            GPT.getAdSlotSizesArray.should.be.a('function');
+            done();
+        });
+
+        it('should have called getSizeFromSizeMapping', function(done) {
             GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.true;
             UTIL.log.calledWith(divID + ": responsiveSizeMapping applied: ");
             UTIL.log.calledWith(true);
             done();
         });
 
-        it('should have created adSlotSizesArray when proper currentGoogleSlots is passed ', function (done) {
+        it('should have created adSlotSizesArray when proper currentGoogleSlots is passed ', function(done) {
             GPT.getSizeFromSizeMapping.restore();
             sinon.stub(GPT, 'getSizeFromSizeMapping');
             GPT.getSizeFromSizeMapping.returns(false);
             GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.a('array');
             UTIL.isFunction.called.should.be.true;
             UTIL.forEachOnArray.called.should.be.true;
-            
+
             currentGoogleSlots.getSizes.called.should.be.true;
             sizeObj_1.getHeight.called.should.be.true;
             sizeObj_1.getWidth.called.should.be.true;
@@ -676,12 +676,12 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#getSizeFromSizeMapping', function () {
+    describe('#getSizeFromSizeMapping', function() {
         var divID = null;
         var slotSizeMapping = null;
         var screenWidth = 1024;
         var screenHeight = 768;
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             divID = commonDivID;
             slotSizeMapping = {};
             slotSizeMapping[divID] = [];
@@ -699,7 +699,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             divID = null;
             slotSizeMapping = null;
             UTIL.isOwnProperty.restore();
@@ -711,19 +711,19 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.getSizeFromSizeMapping.should.be.a('function');
             done();
         });
 
-        it('should return false when given divID not a property of slotSizeMapping passed', function (done) {
+        it('should return false when given divID not a property of slotSizeMapping passed', function(done) {
             delete slotSizeMapping[divID];
             GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.false;
             UTIL.isOwnProperty.calledOnce.should.be.true;
             done();
         });
 
-        it('should have logged sizeMapping and its details', function (done) {
+        it('should have logged sizeMapping and its details', function(done) {
             GPT.getSizeFromSizeMapping(divID, slotSizeMapping);
 
             UTIL.log.calledWith(divID + ": responsiveSizeMapping found: screenWidth: " + screenWidth + ", screenHeight: " + screenHeight).should.be.true;
@@ -731,7 +731,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should return false if sizeMapping is not and array', function (done) {
+        it('should return false if sizeMapping is not and array', function(done) {
             slotSizeMapping[divID] = {};
             GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.false;
             UTIL.isArray.calledOnce.should.be.true;
@@ -742,129 +742,129 @@ describe("CONTROLLER: GPT", function() {
     });
 
 
-    describe('#newDisplayFunction()', function () {
+    describe('#newDisplayFunction()', function() {
 
-    	beforeEach(function (done) {
-    		sinon.spy(UTIL, "log");
-    		done();
-    	});
+        beforeEach(function(done) {
+            sinon.spy(UTIL, "log");
+            done();
+        });
 
-    	afterEach(function (done) {
-    		UTIL.log.restore();
-    		done();
-    	});
+        afterEach(function(done) {
+            UTIL.log.restore();
+            done();
+        });
 
-    	it('is a function', function (done) {
-    		GPT.newDisplayFunction.should.be.a('function');
-    		done();
-    	});
+        it('is a function', function(done) {
+            GPT.newDisplayFunction.should.be.a('function');
+            done();
+        });
 
-    	it('should return null when impropper parameters are passed', function (done) {
-    		// TODO : finf better approach to check for null in chai
-    		var result = GPT.newDisplayFunction(null, function(){ console.log("inside function")});
-    		// console.log(" result ==>", result);
-    		should.not.exist(result);
-    		UTIL.log.calledOnce.should.equal(true);
-    		UTIL.log.calledWith("display: originalFunction is not a function").should.be.true;
-    		done();
-    	});
+        it('should return null when impropper parameters are passed', function(done) {
+            // TODO : finf better approach to check for null in chai
+            var result = GPT.newDisplayFunction(null, function() { console.log("inside function") });
+            // console.log(" result ==>", result);
+            should.not.exist(result);
+            UTIL.log.calledOnce.should.equal(true);
+            UTIL.log.calledWith("display: originalFunction is not a function").should.be.true;
+            done();
+        });
 
-    	it('should return function when proper parameters are passed', function (done) {
-    		GPT.newDisplayFunction({}, function () { console.log("inside function")}).should.be.a('function');
-    		// console.log("updateSlotsMapFromGoogleSlots ==>", GPT.updateSlotsMapFromGoogleSlots.callCount);
-    		done();
-    	});
+        it('should return function when proper parameters are passed', function(done) {
+            GPT.newDisplayFunction({}, function() { console.log("inside function") }).should.be.a('function');
+            // console.log("updateSlotsMapFromGoogleSlots ==>", GPT.updateSlotsMapFromGoogleSlots.callCount);
+            done();
+        });
 
     });
 
-    describe('#newSizeMappingFunction', function () {
+    describe('#newSizeMappingFunction', function() {
 
-    	beforeEach(function (done) {
-    		sinon.spy(UTIL, "log");
-    		sinon.spy(UTIL, "isObject");
+        beforeEach(function(done) {
+            sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "isObject");
             sinon.spy(UTIL, "isFunction");
-    		done();
-    	});
+            done();
+        });
 
-    	afterEach(function (done) {
-    		UTIL.log.restore();
-    		UTIL.isObject.restore();
-    		UTIL.isFunction.restore();
-    		done();
-    	});
+        afterEach(function(done) {
+            UTIL.log.restore();
+            UTIL.isObject.restore();
+            UTIL.isFunction.restore();
+            done();
+        });
 
 
-    	it('is a function', function (done) {
-    		GPT.newSizeMappingFunction.should.be.a('function');
-    		done();
-    	});
+        it('is a function', function(done) {
+            GPT.newSizeMappingFunction.should.be.a('function');
+            done();
+        });
 
-    	it('should return null when impropper parameters passed', function (done) {
-    		var result = GPT.newSizeMappingFunction(null, {});
-    		should.not.exist(result);
-    		UTIL.log.calledOnce.should.be.true;
-    		UTIL.log.calledWith("newSizeMappingFunction: originalFunction is not a function").should.be.true;
-    		done();
-    	});
+        it('should return null when impropper parameters passed', function(done) {
+            var result = GPT.newSizeMappingFunction(null, {});
+            should.not.exist(result);
+            UTIL.log.calledOnce.should.be.true;
+            UTIL.log.calledWith("newSizeMappingFunction: originalFunction is not a function").should.be.true;
+            done();
+        });
 
-    	it('should return a function when propper parameters are passed', function (done) {
-    		GPT.newSizeMappingFunction({}, function () {
-    			console.log("inside function");
-    		}).should.be.a('function');
-    		UTIL.isObject.calledOnce.should.be.true;
-    		UTIL.isFunction.calledOnce.should.be.true;
-    		done();
-    	});
+        it('should return a function when propper parameters are passed', function(done) {
+            GPT.newSizeMappingFunction({}, function() {
+                console.log("inside function");
+            }).should.be.a('function');
+            UTIL.isObject.calledOnce.should.be.true;
+            UTIL.isFunction.calledOnce.should.be.true;
+            done();
+        });
     });
 
-    describe('#newRefreshFuncton', function () {
+    describe('#newRefreshFuncton', function() {
 
-    	beforeEach(function (done) {
-    		sinon.spy(UTIL, "log");
-    		sinon.spy(UTIL, "isObject");
+        beforeEach(function(done) {
+            sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "isObject");
             sinon.spy(UTIL, "isFunction");
-    		done();
-    	});
+            done();
+        });
 
-    	afterEach(function (done) {
-    		UTIL.log.restore();
-    		UTIL.isObject.restore();
-    		UTIL.isFunction.restore();
-    		done();
-    	});
+        afterEach(function(done) {
+            UTIL.log.restore();
+            UTIL.isObject.restore();
+            UTIL.isFunction.restore();
+            done();
+        });
 
 
-    	it('is a function', function (done) {
-    		GPT.newRefreshFuncton.should.be.a('function');
-    		done();
-    	});
+        it('is a function', function(done) {
+            GPT.newRefreshFuncton.should.be.a('function');
+            done();
+        });
 
-    	it('should return null when impropper parameters passed', function (done) {
-    		var result = GPT.newRefreshFuncton(null, {});
-    		should.not.exist(result);
-    		UTIL.log.calledOnce.should.be.true;
-    		UTIL.log.calledWith("refresh: originalFunction is not a function").should.be.true;
-    		done();
-    	});
+        it('should return null when impropper parameters passed', function(done) {
+            var result = GPT.newRefreshFuncton(null, {});
+            should.not.exist(result);
+            UTIL.log.calledOnce.should.be.true;
+            UTIL.log.calledWith("refresh: originalFunction is not a function").should.be.true;
+            done();
+        });
 
-    	it('should return a function when propper parameters are passed', function (done) {
-    		GPT.newRefreshFuncton({}, function () {
-    			console.log("inside function");
-    		}).should.be.a('function');
-    		UTIL.isObject.calledOnce.should.be.true;
-    		UTIL.isFunction.calledOnce.should.be.true;
-    		done();
-    	});
+        it('should return a function when propper parameters are passed', function(done) {
+            GPT.newRefreshFuncton({}, function() {
+                console.log("inside function");
+            }).should.be.a('function');
+            UTIL.isObject.calledOnce.should.be.true;
+            UTIL.isFunction.calledOnce.should.be.true;
+            done();
+        });
     });
 
-    describe('#getQualifyingSlotNamesForRefresh', function () {
+    describe('#getQualifyingSlotNamesForRefresh', function() {
         var arg = null;
         var theObject = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             arg = [];
             theObject = {
-                getSlots: function () {
+                getSlots: function() {
                     return ["slot_1", "slot_2"];
                 }
             };
@@ -875,7 +875,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             UTIL.forEachOnArray.restore();
             GPT.generateSlotName.restore();
             theObject.getSlots.restore();
@@ -884,17 +884,17 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.getQualifyingSlotNamesForRefresh.should.be.a('function');
             done();
         });
 
-        it('should return an array', function (done) {
+        it('should return an array', function(done) {
             GPT.getQualifyingSlotNamesForRefresh(arg, theObject).should.be.a('array');
             done();
         });
 
-        it('should have called GPT.generateSlotName and UTIL.forEachOnArray', function (done) {
+        it('should have called GPT.generateSlotName and UTIL.forEachOnArray', function(done) {
             GPT.getQualifyingSlotNamesForRefresh(arg, theObject);
             GPT.generateSlotName.called.should.be.true;
             UTIL.forEachOnArray.called.should.be.true;
@@ -902,8 +902,10 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should consider passed arg if its not empty instead of slots from the object being passed', function (done) {
-            arg = [["slot_1", "slot_2"]];
+        it('should consider passed arg if its not empty instead of slots from the object being passed', function(done) {
+            arg = [
+                ["slot_1", "slot_2"]
+            ];
             GPT.getQualifyingSlotNamesForRefresh(arg, theObject);
             UTIL.forEachOnArray.calledWith(arg[0]).should.be.true;
             done();
@@ -920,30 +922,32 @@ describe("CONTROLLER: GPT", function() {
     });
 
 
-    describe('#callOriginalRefeshFunction', function () {
+    describe('#callOriginalRefeshFunction', function() {
         var flag = null;
         var theObject = null;
         var obj = null;
         // var originalFunction = null;
         var arg = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             flag = true
-            theObject = {} 
-            
+            theObject = {}
+
             obj = {
-                originalFunction: function (theObject, arg) {
+                originalFunction: function(theObject, arg) {
                     return "originalFunction";
                 }
             };
             // obj.originalFunction = originalFunction;
             sinon.spy(obj.originalFunction, 'apply');
             sinon.spy(UTIL, "log");
-            arg = [["slot_1", "slot_2"]];
+            arg = [
+                ["slot_1", "slot_2"]
+            ];
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             obj.originalFunction.apply.restore();
             UTIL.log.restore();
             flag = null;
@@ -952,14 +956,14 @@ describe("CONTROLLER: GPT", function() {
             obj = null;
             arg = null;
             done();
-        }); 
+        });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.callOriginalRefeshFunction.should.be.a('function');
             done();
         });
 
-        it('should have logged if the ad has been already rendered ', function (done) {
+        it('should have logged if the ad has been already rendered ', function(done) {
             flag = false;
             GPT.callOriginalRefeshFunction(flag, theObject, obj.originalFunction, arg);
             UTIL.log.calledWith("AdSlot already rendered").should.be.true;
@@ -967,7 +971,7 @@ describe("CONTROLLER: GPT", function() {
         });
 
         //todo: move the log messages to constants and use same here
-        it('should have logged while calling the passed originalFunction with passed arguments', function (done) {
+        it('should have logged while calling the passed originalFunction with passed arguments', function(done) {
             GPT.callOriginalRefeshFunction(flag, theObject, obj.originalFunction, arg);
             obj.originalFunction.apply.calledWith(theObject, arg).should.be.true;
             UTIL.log.calledWith("Calling original refresh function post timeout").should.be.true;
@@ -975,23 +979,25 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#findWinningBidIfRequired_Refresh', function () {
-        var slotName = null, divID = null, currentFlagValue = null;
+    describe('#findWinningBidIfRequired_Refresh', function() {
+        var slotName = null,
+            divID = null,
+            currentFlagValue = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             slotName = "Slot_1";
             divID = commonDivID;
             currentFlagValue = true;
             GPT.slotMap = {};
             GPT.slotMap[slotName] = {
-                isRefreshFunctionCalled: function () {
+                isRefreshFunctionCalled: function() {
                     return true;
                 },
-                getStatus: function () {
-                    return CONSTANTS.SLOT_STATUS.CREATED; 
+                getStatus: function() {
+                    return CONSTANTS.SLOT_STATUS.CREATED;
                 }
             };
-            
+
             sinon.stub(GPT.slotMap[slotName], "isRefreshFunctionCalled");
 
             sinon.stub(GPT.slotMap[slotName], "getStatus");
@@ -1001,40 +1007,40 @@ describe("CONTROLLER: GPT", function() {
 
             sinon.stub(GPT, "findWinningBidAndApplyTargeting");
             GPT.findWinningBidAndApplyTargeting.returns(true);
-            
+
             sinon.stub(GPT, "updateStatusAfterRendering");
             GPT.updateStatusAfterRendering.returns(true);
 
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
 
-            
+
             GPT.slotMap[slotName].isRefreshFunctionCalled.restore();
             GPT.slotMap[slotName].getStatus.restore();
 
             GPT.slotMap[slotName] = null;
-            
+
 
             UTIL.isOwnProperty.restore();
 
             GPT.findWinningBidAndApplyTargeting.restore();
-            
+
             GPT.updateStatusAfterRendering.restore();
-            
+
             slotName = null;
             divID = null;
             currentFlagValue = null;
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.findWinningBidIfRequired_Refresh.should.be.a('function');
             done();
         });
 
-        xit('should return true ', function (done) {
+        xit('should return true ', function(done) {
             GPT.findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue).should.be.true;
             GPT.slotMap[slotName].isRefreshFunctionCalled.called.should.be.true;
             GPT.slotMap[slotName].getStatus.called.should.be.true;
@@ -1042,19 +1048,19 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        xit('should return passed currentFlagValue when either given slotName is not in slotMap or given slotNames refresh function is already not called or given slotNames status is of type DISPLAYED', function (done) {
+        xit('should return passed currentFlagValue when either given slotName is not in slotMap or given slotNames refresh function is already not called or given slotNames status is of type DISPLAYED', function(done) {
             currentFlagValue = false;
             GPT.slotMap[slotName].isRefreshFunctionCalled.restore();
             sinon.stub(GPT.slotMap[slotName], "isRefreshFunctionCalled");
             GPT.slotMap[slotName].isRefreshFunctionCalled.returns(false);
             GPT.findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue).should.be.false;
-            done();    
+            done();
         });
     });
 
-    describe('#newAddHookOnGoogletagDisplay', function () {
+    describe('#newAddHookOnGoogletagDisplay', function() {
         var localGoogletag = null;
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             localGoogletag = {};
             sinon.spy(UTIL, "log");
             sinon.stub(UTIL, "addHookOnFunction");
@@ -1062,27 +1068,27 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             localGoogletag = null;
             UTIL.log.restore();
             UTIL.addHookOnFunction.restore();
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.newAddHookOnGoogletagDisplay.should.be.a('function');
             done();
         });
 
-        it('should have return without adding hook on localGoogletag passed', function (done) {
-            GPT.displayHookIsAdded  = true;
+        it('should have return without adding hook on localGoogletag passed', function(done) {
+            GPT.displayHookIsAdded = true;
             GPT.newAddHookOnGoogletagDisplay(localGoogletag);
             UTIL.log.calledOnce.should.be.false;
             UTIL.addHookOnFunction.calledOnce.should.be.false;
             done();
         });
 
-        it('should have return while adding hook on localGoogletag passed and logging it', function (done) {
+        it('should have return while adding hook on localGoogletag passed and logging it', function(done) {
             GPT.displayHookIsAdded = false;
             GPT.newAddHookOnGoogletagDisplay(localGoogletag);
             UTIL.log.calledWith("Adding hook on googletag.display.").should.be.true;
@@ -1093,13 +1099,17 @@ describe("CONTROLLER: GPT", function() {
 
     });
 
-    describe('#forQualifyingSlotNamesCallAdapters', function () {
+    describe('#forQualifyingSlotNamesCallAdapters', function() {
 
-        var qualifyingSlotNames = null, arg = null, isRefreshCall = null;
+        var qualifyingSlotNames = null,
+            arg = null,
+            isRefreshCall = null;
         var qualifyingSlots = null;
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             qualifyingSlotNames = ["slot_1", "slot_2", "slot_3"];
-            arg = [["slot_1"], "slot_2"];
+            arg = [
+                ["slot_1"], "slot_2"
+            ];
             qualifyingSlots = ["slot_1", "slot_2"];
             isRefreshCall = false;
 
@@ -1111,11 +1121,11 @@ describe("CONTROLLER: GPT", function() {
 
             sinon.stub(AM, "callAdapters");
             AM.callAdapters.returns(true);
-            
+
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.restore();
             GPT.arrayOfSelectedSlots.restore();
             AM.callAdapters.restore();
@@ -1127,12 +1137,12 @@ describe("CONTROLLER: GPT", function() {
         });
 
 
-        it('should be a function', function (done) {
+        it('should be a function', function(done) {
             GPT.forQualifyingSlotNamesCallAdapters.should.be.a('function');
             done();
         });
 
-        it('should have called updateStatusOfQualifyingSlotsBeforeCallingAdapters and arrayOfSelectedSlots', function (done) {
+        it('should have called updateStatusOfQualifyingSlotsBeforeCallingAdapters and arrayOfSelectedSlots', function(done) {
             GPT.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall);
             GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.calledWith(qualifyingSlotNames, arg, isRefreshCall).should.be.true;
             GPT.arrayOfSelectedSlots.calledWith(qualifyingSlotNames).should.be.true;
@@ -1140,7 +1150,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should not have called updateStatusOfQualifyingSlotsBeforeCallingAdapters and arrayOfSelectedSlots when passed qualifyingSlotNames is empty', function (done) {
+        it('should not have called updateStatusOfQualifyingSlotsBeforeCallingAdapters and arrayOfSelectedSlots when passed qualifyingSlotNames is empty', function(done) {
             qualifyingSlotNames = [];
             GPT.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall);
             GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.called.should.be.false;
@@ -1150,13 +1160,16 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#displayFunctionStatusHandler', function () {
+    describe('#displayFunctionStatusHandler', function() {
 
-        var oldStatus = null, theObject = null, originalFunction = null, arg = null;
-        beforeEach(function (done) {
+        var oldStatus = null,
+            theObject = null,
+            originalFunction = null,
+            arg = null;
+        beforeEach(function(done) {
             oldStatus = CONSTANTS.SLOT_STATUS.CREATED;
             theObject = {};
-            originalFunction = function () {
+            originalFunction = function() {
                 return "originalFunction"
             };
             arg = {};
@@ -1164,7 +1177,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             oldStatus = null;
             theObject = null;
             originalFunction = null;
@@ -1173,58 +1186,59 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should be a function', function (done) {
+        it('should be a function', function(done) {
             GPT.displayFunctionStatusHandler.should.be.a('function');
             done();
         });
 
-        it('should have called updateStatusAndCallOriginalFunction_Display with proper arguments when oldStatus is  TARGETING_ADDED', function (done) {
+        it('should have called updateStatusAndCallOriginalFunction_Display with proper arguments when oldStatus is  TARGETING_ADDED', function(done) {
             oldStatus = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
             GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
             GPT.updateStatusAndCallOriginalFunction_Display
-            .calledWith(
-                "As DM processing is already done, Calling original display function with arguments",
-                theObject,
-                originalFunction,
-                arg)
-            .should.be.true;
+                .calledWith(
+                    "As DM processing is already done, Calling original display function with arguments",
+                    theObject,
+                    originalFunction,
+                    arg)
+                .should.be.true;
             done();
         });
 
-        it('should have called updateStatusAndCallOriginalFunction_Display with proper arguments when oldStatus is  DISPLAYED', function (done) {
+        it('should have called updateStatusAndCallOriginalFunction_Display with proper arguments when oldStatus is  DISPLAYED', function(done) {
             oldStatus = CONSTANTS.SLOT_STATUS.DISPLAYED;
             GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
             GPT.updateStatusAndCallOriginalFunction_Display
-            .calledWith(
-                "As slot is already displayed, Calling original display function with arguments",
-                theObject,
-                originalFunction,
-                arg)
-            .should.be.true;
+                .calledWith(
+                    "As slot is already displayed, Calling original display function with arguments",
+                    theObject,
+                    originalFunction,
+                    arg)
+                .should.be.true;
             done();
         });
     });
 
 
-    describe('#findWinningBidIfRequired_Display', function () {
-        var key = null, slot = null;
+    describe('#findWinningBidIfRequired_Display', function() {
+        var key = null,
+            slot = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             key = "key_1";
             slot = {
-                getStatus: function () {
+                getStatus: function() {
                     return CONSTANTS.SLOT_STATUS.CREATED;
                 }
             };
             sinon.stub(slot, "getStatus");
 
             sinon.stub(GPT, "findWinningBidAndApplyTargeting");
-            GPT.findWinningBidAndApplyTargeting.returns(true);  
+            GPT.findWinningBidAndApplyTargeting.returns(true);
 
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             GPT.findWinningBidAndApplyTargeting.restore();
 
             slot.getStatus.restore();
@@ -1234,12 +1248,12 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.findWinningBidIfRequired_Display.should.be.a('function');
             done();
         });
 
-        it('should not have called GPT.findWinningBidAndApplyTargeting if slot\'s status is either DISPLAYED or TARGETING_ADDED', function (done) {
+        it('should not have called GPT.findWinningBidAndApplyTargeting if slot\'s status is either DISPLAYED or TARGETING_ADDED', function(done) {
             slot.getStatus.returns(CONSTANTS.SLOT_STATUS.DISPLAYED);
             GPT.findWinningBidIfRequired_Display(key, slot);
             GPT.findWinningBidAndApplyTargeting.called.should.be.false;
@@ -1247,7 +1261,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should have called GPT.findWinningBidAndApplyTargeting if slot\'s status is neither DISPLAYED nor TARGETING_ADDED', function (done) {
+        it('should have called GPT.findWinningBidAndApplyTargeting if slot\'s status is neither DISPLAYED nor TARGETING_ADDED', function(done) {
             GPT.findWinningBidIfRequired_Display(key, slot);
             GPT.findWinningBidAndApplyTargeting.called.should.be.true;
             slot.getStatus.called.should.be.true;
@@ -1255,15 +1269,18 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#updateStatusAndCallOriginalFunction_Display', function () {
-        var message = null, theObject = null, originalFunction = null, arg = null;
+    describe('#updateStatusAndCallOriginalFunction_Display', function() {
+        var message = null,
+            theObject = null,
+            originalFunction = null,
+            arg = null;
         var obj = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             message = "log message";
-            theObject = {}; 
+            theObject = {};
             obj = {
-                originalFunction: function () {
+                originalFunction: function() {
                     return "originalFunction";
                 }
             };
@@ -1279,7 +1296,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             obj.originalFunction.apply.restore();
             UTIL.log.restore();
             GPT.updateStatusAfterRendering.restore();
@@ -1290,30 +1307,31 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.updateStatusAndCallOriginalFunction_Display.should.be.a('function');
             done();
         });
 
-        it('should have called UTIL.log, GPT.updateStatusAfterRendering and passed originalFunction with proper arguments', function (done) {
+        it('should have called UTIL.log, GPT.updateStatusAfterRendering and passed originalFunction with proper arguments', function(done) {
             GPT.updateStatusAndCallOriginalFunction_Display(message, theObject, obj.originalFunction, arg);
             UTIL.log.calledWith(message).should.be.true;
             UTIL.log.calledWith(arg).should.be.true;
             obj.originalFunction.apply.calledWith(theObject, arg).should.be.true;
-            GPT.updateStatusAfterRendering.calledWith(arg[0], false).should.be.true;          
+            GPT.updateStatusAfterRendering.calledWith(arg[0], false).should.be.true;
             done();
         });
     });
 
-    describe('#newDestroySlotsFunction', function () {
-        var theObject = null, originalFunction = null;
+    describe('#newDestroySlotsFunction', function() {
+        var theObject = null,
+            originalFunction = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             theObject = {};
-            originalFunction = function () {
+            originalFunction = function() {
                 return "originalFunction";
             };
-            
+
             sinon.spy(UTIL, "log");
             sinon.spy(UTIL, "isObject");
             sinon.spy(UTIL, "isFunction");
@@ -1322,23 +1340,23 @@ describe("CONTROLLER: GPT", function() {
 
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             originalFunction = null;
             theObject = null;
 
             UTIL.log.restore();
             UTIL.isObject.restore();
             UTIL.isFunction.restore();
-            
+
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.newDestroySlotsFunction.should.be.a('function');
             done();
         });
 
-        it('return null if passed object is not an object or passed function is not a function', function (done) {
+        it('return null if passed object is not an object or passed function is not a function', function(done) {
             theObject = null;
             should.not.exist(GPT.newDestroySlotsFunction(theObject, originalFunction));
             UTIL.log.calledWith("destroySlots: originalFunction is not a function").should.be.true;
@@ -1347,7 +1365,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('return function if passed object is an object and passed function is a function', function (done) {
+        it('return function if passed object is an object and passed function is a function', function(done) {
             GPT.newDestroySlotsFunction(theObject, originalFunction).should.be.a('function');
             UTIL.isObject.calledWith(theObject).should.be.true;
             UTIL.isFunction.calledWith(originalFunction).should.be.true;
@@ -1355,16 +1373,17 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#newSetTargetingFunction', function () {
+    describe('#newSetTargetingFunction', function() {
 
-        var theObject = null, originalFunction = null;
+        var theObject = null,
+            originalFunction = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             theObject = {};
-            originalFunction = function () {
+            originalFunction = function() {
                 return "originalFunction";
             };
-            
+
             sinon.spy(UTIL, "log");
             sinon.spy(UTIL, "isObject");
             sinon.spy(UTIL, "isFunction");
@@ -1373,23 +1392,23 @@ describe("CONTROLLER: GPT", function() {
 
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             originalFunction = null;
             theObject = null;
 
             UTIL.log.restore();
             UTIL.isObject.restore();
             UTIL.isFunction.restore();
-            
+
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.newSetTargetingFunction.should.be.a('function');
             done();
         });
 
-        it('return null if passed object is not an object or passed function is not a function', function (done) {
+        it('return null if passed object is not an object or passed function is not a function', function(done) {
             theObject = null;
             should.not.exist(GPT.newSetTargetingFunction(theObject, originalFunction));
             UTIL.log.calledWith("setTargeting: originalFunction is not a function").should.be.true;
@@ -1398,7 +1417,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('return function if passed object is an object and passed function is a function', function (done) {
+        it('return function if passed object is an object and passed function is a function', function(done) {
             GPT.newSetTargetingFunction(theObject, originalFunction).should.be.a('function');
             UTIL.isObject.calledWith(theObject).should.be.true;
             UTIL.isFunction.calledWith(originalFunction).should.be.true;
@@ -1407,16 +1426,17 @@ describe("CONTROLLER: GPT", function() {
     });
 
 
-    describe('#newEnableSingleRequestFunction', function () {
+    describe('#newEnableSingleRequestFunction', function() {
 
-        var theObject = null, originalFunction = null;
+        var theObject = null,
+            originalFunction = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             theObject = {};
-            originalFunction = function () {
+            originalFunction = function() {
                 return "originalFunction";
             };
-            
+
             sinon.spy(UTIL, "log");
             sinon.spy(UTIL, "isObject");
             sinon.spy(UTIL, "isFunction");
@@ -1425,23 +1445,23 @@ describe("CONTROLLER: GPT", function() {
 
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             originalFunction = null;
             theObject = null;
 
             UTIL.log.restore();
             UTIL.isObject.restore();
             UTIL.isFunction.restore();
-            
+
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.newEnableSingleRequestFunction.should.be.a('function');
             done();
         });
 
-        it('return null if passed object is not an object or passed function is not a function', function (done) {
+        it('return null if passed object is not an object or passed function is not a function', function(done) {
             theObject = null;
             should.not.exist(GPT.newEnableSingleRequestFunction(theObject, originalFunction));
             UTIL.log.calledWith("disableInitialLoad: originalFunction is not a function").should.be.true;
@@ -1450,7 +1470,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('return function if passed object is an object and passed function is a function', function (done) {
+        it('return function if passed object is an object and passed function is a function', function(done) {
             GPT.newEnableSingleRequestFunction(theObject, originalFunction).should.be.a('function');
             UTIL.isObject.calledWith(theObject).should.be.true;
             UTIL.isFunction.calledWith(originalFunction).should.be.true;
@@ -1459,16 +1479,17 @@ describe("CONTROLLER: GPT", function() {
     });
 
 
-    describe('#newDisableInitialLoadFunction', function () {
+    describe('#newDisableInitialLoadFunction', function() {
 
-        var theObject = null, originalFunction = null;
+        var theObject = null,
+            originalFunction = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             theObject = {};
-            originalFunction = function () {
+            originalFunction = function() {
                 return "originalFunction";
             };
-            
+
             sinon.spy(UTIL, "log");
             sinon.spy(UTIL, "isObject");
             sinon.spy(UTIL, "isFunction");
@@ -1477,23 +1498,23 @@ describe("CONTROLLER: GPT", function() {
 
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             originalFunction = null;
             theObject = null;
 
             UTIL.log.restore();
             UTIL.isObject.restore();
             UTIL.isFunction.restore();
-            
+
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.newDisableInitialLoadFunction.should.be.a('function');
             done();
         });
 
-        it('return null if passed object is not an object or passed function is not a function', function (done) {
+        it('return null if passed object is not an object or passed function is not a function', function(done) {
             theObject = null;
             should.not.exist(GPT.newDisableInitialLoadFunction(theObject, originalFunction));
             UTIL.log.calledWith("disableInitialLoad: originalFunction is not a function").should.be.true;
@@ -1502,7 +1523,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('return function if passed object is an object and passed function is a function', function (done) {
+        it('return function if passed object is an object and passed function is a function', function(done) {
             GPT.newDisableInitialLoadFunction(theObject, originalFunction).should.be.a('function');
             UTIL.isObject.calledWith(theObject).should.be.true;
             UTIL.isFunction.calledWith(originalFunction).should.be.true;
@@ -1510,23 +1531,23 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#arrayOfSelectedSlots', function () {
-        var slotNames =  null;
-        beforeEach(function (done) {
+    describe('#arrayOfSelectedSlots', function() {
+        var slotNames = null;
+        beforeEach(function(done) {
             slotNames = ["slot_1", "slot_2", "slot_3"];
             GPT.slotsMap = {
                 "slot_1": {
-                    getStatus: function () {
+                    getStatus: function() {
                         return "slot_1";
                     }
                 },
                 "slot_2": {
-                    getStatus: function () {
+                    getStatus: function() {
                         return "slot_2";
                     }
                 },
                 "slot_3": {
-                    getStatus: function () {
+                    getStatus: function() {
                         return "slot_3";
                     }
                 },
@@ -1535,34 +1556,35 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             UTIL.forEachOnArray.restore();
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.arrayOfSelectedSlots.should.be.a('function');
             done();
         });
 
-        it('return array slot objects of given slot names from the slotMap', function (done) {
+        it('return array slot objects of given slot names from the slotMap', function(done) {
             GPT.arrayOfSelectedSlots(slotNames).should.be.a('array');
             done();
         });
     });
 
-    describe('#setDisplayFunctionCalledIfRequired', function () {
+    describe('#setDisplayFunctionCalledIfRequired', function() {
 
-        var slot = null, arg = null;
-        beforeEach(function (done) {
+        var slot = null,
+            arg = null;
+        beforeEach(function(done) {
             slot = {
-                getDivID: function () {
+                getDivID: function() {
                     return "DIV_1";
                 },
-                setDisplayFunctionCalled: function () {
+                setDisplayFunctionCalled: function() {
                     return true;
                 },
-                setArguments: function () {
+                setArguments: function() {
                     return true;
                 }
             };
@@ -1576,9 +1598,9 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(UTIL, "isFunction");
             sinon.spy(UTIL, "isArray");
             done();
-        }); 
+        });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
 
             slot.getDivID.restore();
             slot.setDisplayFunctionCalled.restore();
@@ -1592,12 +1614,12 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.setDisplayFunctionCalledIfRequired.should.be.a('function');
             done();
         });
 
-        it('should have called setDisplayFunctionCalled and setArguments if given is proper ', function (done) {
+        it('should have called setDisplayFunctionCalled and setArguments if given is proper ', function(done) {
             GPT.setDisplayFunctionCalledIfRequired(slot, arg);
             UTIL.isObject.calledWith(slot).should.be.true;
             UTIL.isFunction.calledWith(slot.getDivID).should.be.true;
@@ -1606,17 +1628,17 @@ describe("CONTROLLER: GPT", function() {
             slot.setDisplayFunctionCalled.calledWith(true).should.be.true;
             slot.setArguments.calledWith(arg).should.be.true;
             done();
-        }); 
+        });
 
     });
 
-    describe('#getStatusOfSlotForDivId', function () {
+    describe('#getStatusOfSlotForDivId', function() {
         var divID = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             divID = commonDivID;
             GPT.slotsMap[divID] = {
-                getStatus: function () {
+                getStatus: function() {
                     CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
                 }
             };
@@ -1627,19 +1649,19 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             GPT.slotMap[divID] = null;
             UTIL.isOwnProperty.restore();
             divID = null;
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.getStatusOfSlotForDivId.should.be.a('function');
             done();
         });
 
-        it('should return slot status by calling getStatus of the given slot if its present in slotMap', function (done) {
+        it('should return slot status by calling getStatus of the given slot if its present in slotMap', function(done) {
             GPT.getStatusOfSlotForDivId(divID);
             // UTIL.isOwnProperty.calledWith(GPT.slotMap, divID).should.be.true;
             UTIL.isOwnProperty.called.should.be.true;
@@ -1647,24 +1669,24 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should return slot status as DISPLAYED if given divID is not present in slotMap', function (done) {
+        it('should return slot status as DISPLAYED if given divID is not present in slotMap', function(done) {
             UTIL.isOwnProperty.returns(false);
             GPT.getStatusOfSlotForDivId(divID).should.be.equal(CONSTANTS.SLOT_STATUS.DISPLAYED);
             done();
         });
     });
 
-    describe('#getSlotNamesByStatus', function () {
+    describe('#getSlotNamesByStatus', function() {
         var divID = null;
         var statusObject = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
 
             divID = commonDivID;
             statusObject = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
 
             GPT.slotsMap[divID] = {
-                getStatus: function () {
+                getStatus: function() {
                     CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
                 }
             };
@@ -1676,7 +1698,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             GPT.slotMap[divID] = null;
             UTIL.forEachOnObject.restore();
             UTIL.isOwnProperty.restore();
@@ -1684,17 +1706,17 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.getSlotNamesByStatus.should.be.a('function');
             done();
         });
 
-        it('should return array of slots', function (done) {
+        it('should return array of slots', function(done) {
             GPT.getSlotNamesByStatus(statusObject).should.be.a('array');
             done();
         });
 
-        it('should have called UTIL functions and slot\'s getStatus', function (done) {
+        it('should have called UTIL functions and slot\'s getStatus', function(done) {
             GPT.getSlotNamesByStatus(statusObject);
             UTIL.isOwnProperty.called.should.be.true;
             UTIL.forEachOnObject.called.should.be.true;
@@ -1703,28 +1725,28 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#removeDMTargetingFromSlot', function () {
+    describe('#removeDMTargetingFromSlot', function() {
         var key = null;
         var currentGoogleSlot = null;
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             key = commonDivID;
             GPT.slotsMap = {};
-            currentGoogleSlot =  {
-                getTargetingKeys: function () {
+            currentGoogleSlot = {
+                getTargetingKeys: function() {
                     return "getTargetingKeys";
                 },
-                getTargeting: function () {
+                getTargeting: function() {
                     return "getTargeting";
                 },
-                clearTargeting: function () {
+                clearTargeting: function() {
                     return "clearTargeting";
                 },
-                setTargeting: function () {
+                setTargeting: function() {
                     return "setTargeting";
                 },
             };
             GPT.slotsMap[key] = {
-                getPubAdServerObject: function () {
+                getPubAdServerObject: function() {
                     return currentGoogleSlot;
                 }
             };
@@ -1741,10 +1763,10 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(UTIL, "forEachOnArray");
             sinon.spy(UTIL, "forEachOnObject");
             done();
-        });     
+        });
 
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             currentGoogleSlot.getTargetingKeys.restore();
             currentGoogleSlot.getTargeting.restore();
             currentGoogleSlot.clearTargeting.restore();
@@ -1757,12 +1779,12 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.removeDMTargetingFromSlot.should.be.a('function');
             done();
         });
 
-        it('should have called proper functions', function (done) {
+        it('should have called proper functions', function(done) {
             GPT.removeDMTargetingFromSlot(key);
             UTIL.isOwnProperty.called.should.be.true;
             UTIL.forEachOnObject.called.should.be.true;
@@ -1776,10 +1798,12 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#updateStatusOfQualifyingSlotsBeforeCallingAdapters', function () {
-        var slotNames = null, argumentsFromCallingFunction = null, isRefreshCall = null;
+    describe('#updateStatusOfQualifyingSlotsBeforeCallingAdapters', function() {
+        var slotNames = null,
+            argumentsFromCallingFunction = null,
+            isRefreshCall = null;
         var slotObject = null;
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             slotNames = ["slot_1", "slot_2", "slot_3"];
             argumentsFromCallingFunction = {};
             isRefreshCall = true;
@@ -1787,16 +1811,16 @@ describe("CONTROLLER: GPT", function() {
             sinon.stub(UTIL, "isOwnProperty");
             GPT.slotsMap = {};
             slotObject = {
-                setStatus: function () {
+                setStatus: function() {
                     return "setStatus";
                 },
-                setRefreshFunctionCalled: function () {
+                setRefreshFunctionCalled: function() {
                     return "setRefreshFunctionCalled";
                 },
-                setArguments: function () {
+                setArguments: function() {
                     return "setArguments";
                 },
-                getStatus: function () {
+                getStatus: function() {
                     return CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
                 }
             };
@@ -1814,9 +1838,9 @@ describe("CONTROLLER: GPT", function() {
             GPT.removeDMTargetingFromSlot.returns(true);
 
             done();
-        });     
+        });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
 
             slotObject.setStatus.restore();
             slotObject.setRefreshFunctionCalled.restore();
@@ -1831,19 +1855,19 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.should.be.a('function');
             done();
         });
 
-        it('should set status of slot to PARTNERS_CALLED if given slot is present in slotsMap', function (done) {
+        it('should set status of slot to PARTNERS_CALLED if given slot is present in slotsMap', function(done) {
             GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, argumentsFromCallingFunction, isRefreshCall);
             UTIL.forEachOnArray.calledWith(slotNames).should.be.true;
             GPT.slotsMap["slot_1"].getStatus().should.be.equal(CONSTANTS.SLOT_STATUS.PARTNERS_CALLED);
             done();
         });
 
-        it('should have called GPT.removeDMTargetingFromSlot with slot names and should have called respective slot\'s setRefreshFunctionCalled and setArguments if isRefreshCall is true', function (done) {
+        it('should have called GPT.removeDMTargetingFromSlot with slot names and should have called respective slot\'s setRefreshFunctionCalled and setArguments if isRefreshCall is true', function(done) {
             GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, argumentsFromCallingFunction, isRefreshCall);
             GPT.removeDMTargetingFromSlot.called.should.be.true;
             GPT.slotsMap["slot_1"].setRefreshFunctionCalled.calledWith(true).should.be.true;
@@ -1852,21 +1876,24 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#postTimeoutRefreshExecution', function () {
-        var qualifyingSlotNames = null, theObject = null, originalFunction = null, arg = null;
+    describe('#postTimeoutRefreshExecution', function() {
+        var qualifyingSlotNames = null,
+            theObject = null,
+            originalFunction = null,
+            arg = null;
         var slotObject = null;
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             qualifyingSlotNames = ["slot_1", "slot_2"];
             theObject = {};
-            originalFunction = function () {
+            originalFunction = function() {
                 return "originalFunction";
             };
             arg = {};
             slotObject = {
-                getDivID: function () {
+                getDivID: function() {
                     return "getDivID";
                 },
-                getSizes: function () {
+                getSizes: function() {
                     return "getSizes";
                 },
             };
@@ -1878,7 +1905,7 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(slotObject, "getDivID");
 
             sinon.spy(window, "setTimeout");
-            
+
             sinon.spy(CONFIG, "getTimeout");
 
             sinon.spy(UTIL, "log");
@@ -1893,11 +1920,11 @@ describe("CONTROLLER: GPT", function() {
 
             sinon.stub(GPT, "findWinningBidIfRequired_Refresh");
             GPT.findWinningBidIfRequired_Refresh.returns(true);
-            
+
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             UTIL.log.restore();
             UTIL.forEachOnArray.restore();
             UTIL.createVLogInfoPanel.restore();
@@ -1918,13 +1945,13 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.postTimeoutRefreshExecution.should.be.a('function');
             done();
         });
 
         // todo
-        xit('should have logged the arg', function (done) {
+        xit('should have logged the arg', function(done) {
             GPT.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
             UTIL.log.calledWith("Executing post CONFIG.getTimeout() events, arguments: ").should.be.true;
             UTIL.log.calledWith(arg).should.be.true;
@@ -1936,13 +1963,17 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#getSizeFromSizeMapping', function () {
-        var divID = null, slotSizeMapping = null;
+    describe('#getSizeFromSizeMapping', function() {
+        var divID = null,
+            slotSizeMapping = null;
         var sizeMapping = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             divID = commonDivID;
-            sizeMapping = [[340, 210], [1024, 768]]
+            sizeMapping = [
+                [340, 210],
+                [1024, 768]
+            ]
             slotSizeMapping = sizeMapping;
             sinon.stub(UTIL, "isOwnProperty");
             sinon.stub(UTIL, "getScreenWidth");
@@ -1956,7 +1987,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
 
             UTIL.isOwnProperty.restore();
             UTIL.getScreenWidth.restore();
@@ -1969,18 +2000,18 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.getSizeFromSizeMapping.should.be.a('function');
             done();
         });
 
-        it('returns false if given divID is not in give slotSizeMapping', function (done) {
+        it('returns false if given divID is not in give slotSizeMapping', function(done) {
             UTIL.isOwnProperty.returns(false);
             GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.false;
             done();
         });
 
-        it('returns false if sizeMapping for given divID is not an array', function (done) {
+        it('returns false if sizeMapping for given divID is not an array', function(done) {
             UTIL.isOwnProperty.returns(true);
             UTIL.isArray.withArgs(sizeMapping).returns(false);
             GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.false;
@@ -1988,51 +2019,51 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#storeInSlotsMap', function () {
-        it('is a function', function (done) {
+    describe('#storeInSlotsMap', function() {
+        it('is a function', function(done) {
             GPT.storeInSlotsMap.should.be.a('function');
             done();
         });
     });
 
 
-    describe('#updateSlotsMapFromGoogleSlots', function () {
-        it('is a function', function (done) {
+    describe('#updateSlotsMapFromGoogleSlots', function() {
+        it('is a function', function(done) {
             GPT.updateSlotsMapFromGoogleSlots.should.be.a('function');
             done();
         });
     });
 
-    describe('#updateStatusAfterRendering', function () {
-        it('is a function', function (done) {
+    describe('#updateStatusAfterRendering', function() {
+        it('is a function', function(done) {
             GPT.updateStatusAfterRendering.should.be.a('function');
             done();
         });
     });
 
-    describe('#findWinningBidAndApplyTargeting', function () {
+    describe('#findWinningBidAndApplyTargeting', function() {
         var divID = null;
         var dataStub = null;
-        var winningBidStub =  null;
+        var winningBidStub = null;
         var keyValuePairsStub = null;
         var googleDefinedSlotStub = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             divID = commonDivID;
             winningBidStub = {
-                getBidID: function () {
+                getBidID: function() {
                     return "getBidID";
                 },
-                getStatus: function () {
+                getStatus: function() {
                     return "getStatus";
                 },
-                getNetEcpm: function () {
+                getNetEcpm: function() {
                     return "getNetEcpm";
                 },
-                getDealID: function () {
+                getDealID: function() {
                     return "getDealID";
                 },
-                getAdapterID: function () {
+                getAdapterID: function() {
                     return "getAdapterID";
                 },
             };
@@ -2056,17 +2087,17 @@ describe("CONTROLLER: GPT", function() {
                 kvp: keyValuePairsStub
             };
             googleDefinedSlotStub = {
-                setTargeting: function () {
+                setTargeting: function() {
                     return "setTargeting";
                 }
             };
             sinon.spy(googleDefinedSlotStub, "setTargeting");
 
             GPT.slotsMap[divID] = {
-                getPubAdServerObject: function () {
-                    return  googleDefinedSlotStub;
+                getPubAdServerObject: function() {
+                    return googleDefinedSlotStub;
                 },
-                setStatus: function () {
+                setStatus: function() {
                     return "setStatus";
                 }
             };
@@ -2080,7 +2111,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             BM.getBid.restore();
 
             UTIL.log.restore();
@@ -2103,19 +2134,19 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             GPT.findWinningBidAndApplyTargeting.should.be.a('function');
             done();
         });
 
-        it('should have logged passed divID along with winning Bid object', function (done) {
+        it('should have logged passed divID along with winning Bid object', function(done) {
             GPT.findWinningBidAndApplyTargeting(divID);
             UTIL.log.calledWith("DIV: " + divID + " winningBid: ").should.be.true;
             UTIL.log.calledWith(winningBidStub).should.be.true;
             done();
         });
 
-        it('should not have called setTargeting for bid if the winningBid is invalid object', function (done) {
+        it('should not have called setTargeting for bid if the winningBid is invalid object', function(done) {
             winningBidStub = null;
             GPT.findWinningBidAndApplyTargeting(divID);
             googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.SLOT_STATUS.TARGETING_ADDED).should.be.false;
@@ -2123,7 +2154,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should not have called setTargeting for bid if bid\'s net ecpm is not greater than 0', function (done) {
+        it('should not have called setTargeting for bid if bid\'s net ecpm is not greater than 0', function(done) {
             winningBidStub.getNetEcpm.returns(-1);
             GPT.findWinningBidAndApplyTargeting(divID);
             googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.SLOT_STATUS.TARGETING_ADDED).should.be.false;
@@ -2136,11 +2167,11 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should not have called defineWrapperTargetingKey if key in keyValuePairs is among prebid keys to ignore', function (done) {
+        it('should not have called defineWrapperTargetingKey if key in keyValuePairs is among prebid keys to ignore', function(done) {
             winningBidStub.getNetEcpm.returns(2);
-            
+
             UTIL.isOwnProperty.withArgs(CONSTANTS.IGNORE_PREBID_KEYS).returns(true);
-            
+
             GPT.findWinningBidAndApplyTargeting(divID);
 
             winningBidStub.getNetEcpm.called.should.be.true;

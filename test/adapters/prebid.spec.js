@@ -3,7 +3,6 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-
 var CONFIG = require("../../src_new/config.js");
 var CONSTANTS = require("../../src_new/constants.js");
 var BID = require("../../src_new/bid.js");
@@ -36,60 +35,59 @@ var commonKGPV = "XYZ";
 
 
 describe('ADAPTER: Prebid', function() {
-	
-    describe('#handleBidResponses', function() {
-        var bidResponses = null, theBid = null;
 
-        beforeEach(function (done) {
+    describe('#handleBidResponses', function() {
+        var bidResponses = null,
+            theBid = null;
+
+        beforeEach(function(done) {
             bidResponses = {
                 "DIV_1": {
-                    "bids": [
-                        {
-                            bidderCode: "pulsepoint",
-                            cpm: 0,
-                            // ad: '<a id="aw0" onclick="ha('aw0')" onmouseover="ss('aw0')" onmousedown="st('aw0')"" href="http://www.googleadservices.com/pagead/aclk?sa=L&ai=CK7b0v3L_UefCMcq5igfJnYHAAt3X2IUDndattT3AjbcBEAEg0fv0CFDv-vz5-v____8BYOWCgIC8DqABw9iz3gPIAQLgAgCoAwHIA50EqgSTAU_Qwzp3CT6oJYbrzshQtFMB7rUGKBJO7Xs6mvz3XsycXn_AxTrZKhyHKjA2k2h44OdylJfUCBdmoQCv-9dEQWdzWiLucOpWTfWbQUgWXEcuW2K1OCGvIKJfs_4yvd8i6iHvJ5Qd3f-nV_G-yTQ-X9tjdwZvk6Uj56bvfun6fbhALaQBl1HGmLypN7rJ2l4men7QBuAEAYgGAaAGAoAHpafMIQ&num=1&cid=5Gj7aYzg3dHUFbEK-2-85FjM&sig=AOD64_2cCfX2QlpmV0FPZauMfRl1LZ2S8w&client=ca-pub-4798227666512375&adurl=http://www.junglee.com/Home-Cinema-TV-Video/b/802980031/%3Ftag%3Dgoogjudisp113239-21&nm=3" target="_top"><img class="img_ad" width="728" border="0" onload="" src="http://pagead2.googlesyndication.com/simgad/10320243368604073893"></a><iframe frameborder="0" allowtransparency="true" marginheight="0" marginwidth="0" width="0" hspace="0" vspace="0" height="0" style="height:0p;width:0p;display:none;" scrolling="no" src="http://haso.pubmatic.com/ads/9999/GRPBID/2.gif?trackid=12345"></iframe>',
-                            ad: " html goes here",
-                            width: "728",
-                            height: "90:0",
-                            responseTimestamp: 1500286874559,
-                            adserverTargeting: {
-                                "hb_adid" :"34c5f7266bb81a6",
-                                "hb_bidder" :"pubmatic",
-                                "hb_deal" :"PMERW36842",
-                                "hb_pb" :"9.00",
-                                "hb_size" :"728x90:0",
-                            }
+                    "bids": [{
+                        bidderCode: "pulsepoint",
+                        cpm: 0,
+                        // ad: '<a id="aw0" onclick="ha('aw0')" onmouseover="ss('aw0')" onmousedown="st('aw0')"" href="http://www.googleadservices.com/pagead/aclk?sa=L&ai=CK7b0v3L_UefCMcq5igfJnYHAAt3X2IUDndattT3AjbcBEAEg0fv0CFDv-vz5-v____8BYOWCgIC8DqABw9iz3gPIAQLgAgCoAwHIA50EqgSTAU_Qwzp3CT6oJYbrzshQtFMB7rUGKBJO7Xs6mvz3XsycXn_AxTrZKhyHKjA2k2h44OdylJfUCBdmoQCv-9dEQWdzWiLucOpWTfWbQUgWXEcuW2K1OCGvIKJfs_4yvd8i6iHvJ5Qd3f-nV_G-yTQ-X9tjdwZvk6Uj56bvfun6fbhALaQBl1HGmLypN7rJ2l4men7QBuAEAYgGAaAGAoAHpafMIQ&num=1&cid=5Gj7aYzg3dHUFbEK-2-85FjM&sig=AOD64_2cCfX2QlpmV0FPZauMfRl1LZ2S8w&client=ca-pub-4798227666512375&adurl=http://www.junglee.com/Home-Cinema-TV-Video/b/802980031/%3Ftag%3Dgoogjudisp113239-21&nm=3" target="_top"><img class="img_ad" width="728" border="0" onload="" src="http://pagead2.googlesyndication.com/simgad/10320243368604073893"></a><iframe frameborder="0" allowtransparency="true" marginheight="0" marginwidth="0" width="0" hspace="0" vspace="0" height="0" style="height:0p;width:0p;display:none;" scrolling="no" src="http://haso.pubmatic.com/ads/9999/GRPBID/2.gif?trackid=12345"></iframe>',
+                        ad: " html goes here",
+                        width: "728",
+                        height: "90:0",
+                        responseTimestamp: 1500286874559,
+                        adserverTargeting: {
+                            "hb_adid": "34c5f7266bb81a6",
+                            "hb_bidder": "pubmatic",
+                            "hb_deal": "PMERW36842",
+                            "hb_pb": "9.00",
+                            "hb_size": "728x90:0",
                         }
-                    ]
+                    }]
                 }
             };
 
             theBid = {
-                setGrossEcpm: function () {
+                setGrossEcpm: function() {
                     return "setGrossEcpm";
                 },
-                setDealID: function () {
+                setDealID: function() {
                     return "setDealID";
                 },
-                setDealChannel: function () {
+                setDealChannel: function() {
                     return "setDealChannel";
                 },
-                setAdHtml: function () {
+                setAdHtml: function() {
                     return "setAdHtml";
                 },
-                setWidth: function () {
+                setWidth: function() {
                     return "setWidth";
                 },
-                setHeight: function () {
+                setHeight: function() {
                     return "setHeight";
                 },
-                setReceivedTime: function () {
+                setReceivedTime: function() {
                     return "setReceivedTime";
                 },
-                setKeyValuePair: function () {
+                setKeyValuePair: function() {
                     return "setKeyValuePair";
                 },
-                setAdUrl: function () {
+                setAdUrl: function() {
                     return "setAdUrl";
                 }
             };
@@ -113,7 +111,7 @@ describe('ADAPTER: Prebid', function() {
 
             PREBID.kgpvMap = {};
             PREBID.kgpvMap["DIV_1"] = {
-                "kgpv": "kgpv_value" 
+                "kgpv": "kgpv_value"
             };
 
             sinon.stub(BID, "createBid").returns(theBid);
@@ -121,7 +119,7 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
 
             UTIL.isOwnProperty.restore();
             UTIL.forEachOnObject.restore();
@@ -148,14 +146,14 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should have called UTIL.isOwnProperty ', function (done) {
+        it('should have called UTIL.isOwnProperty ', function(done) {
             PREBID.handleBidResponses(bidResponses);
             // console.log("UTIL.isOwnProperty.callCount ==>", UTIL.isOwnProperty.callCount);
             UTIL.isOwnProperty.called.should.be.true;
             done();
         });
 
-        it('should have called bid Object\'s methods if it has bidderCode', function (done) {
+        it('should have called bid Object\'s methods if it has bidderCode', function(done) {
             PREBID.handleBidResponses(bidResponses);
             theBid.setGrossEcpm.called.should.be.true;
             theBid.setDealID.called.should.be.true;
@@ -167,7 +165,7 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should have called bid manager\'s setBidFromBidder', function (done) {
+        it('should have called bid manager\'s setBidFromBidder', function(done) {
             PREBID.handleBidResponses(bidResponses);
             BM.setBidFromBidder.called.should.be.true;
             UTIL.forEachOnObject.called.should.be.true;
@@ -176,18 +174,28 @@ describe('ADAPTER: Prebid', function() {
         });
     });
 
-    describe('#generatedKeyCallback', function () {
-        var adapterID = null, adUnits = null, adapterConfig = null, 
-            impressionID = null, generatedKey = null, kgpConsistsWidthAndHeight = null, 
-            currentSlot = null, keyConfig = null, currentWidth = null, currentHeight = null;
+    describe('#generatedKeyCallback', function() {
+        var adapterID = null,
+            adUnits = null,
+            adapterConfig = null,
+            impressionID = null,
+            generatedKey = null,
+            kgpConsistsWidthAndHeight = null,
+            currentSlot = null,
+            keyConfig = null,
+            currentWidth = null,
+            currentHeight = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             currentSlot = {
-                getDivID: function () {
+                getDivID: function() {
                     return commonDivID;
                 },
-                getSizes: function () {
-                    return [[340, 210], [1024, 768]];
+                getSizes: function() {
+                    return [
+                        [340, 210],
+                        [1024, 768]
+                    ];
                 }
             };
 
@@ -217,12 +225,12 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
 
             UTIL.isOwnProperty.restore();
             UTIL.forEachOnObject.restore();
             UTIL.forEachOnArray.restore();
-            
+
 
             currentSlot.getDivID.restore();
             currentSlot.getSizes.restore();
@@ -236,12 +244,12 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-    	it('is a function', function (done) {
-    		PREBID.generatedKeyCallback.should.be.a('function');
-    		done();
-    	});
+        it('is a function', function(done) {
+            PREBID.generatedKeyCallback.should.be.a('function');
+            done();
+        });
 
-        it('should have created bid object by composing from passed in params', function (done) {
+        it('should have created bid object by composing from passed in params', function(done) {
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             CONFIG.getProfileID.called.should.be.true;
             CONFIG.getProfileDisplayVersionID.called.should.be.true;
@@ -250,16 +258,18 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should have created bid object using sizes passed', function (done) {
+        it('should have created bid object using sizes passed', function(done) {
             adapterID = "pulsepoint";
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
-            UTIL.forEachOnArray.calledWith([[currentWidth, currentHeight]]).should.be.true;
+            UTIL.forEachOnArray.calledWith([
+                [currentWidth, currentHeight]
+            ]).should.be.true;
             CONFIG.getProfileID.called.should.be.false;
             CONFIG.getProfileDisplayVersionID.called.should.be.false;
             done();
         });
 
-        it('should have constructed proper slotParams', function (done) {
+        it('should have constructed proper slotParams', function(done) {
             kgpConsistsWidthAndHeight = false;
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             // sizes => [[340, 210], [1024, 768]]
@@ -270,15 +280,15 @@ describe('ADAPTER: Prebid', function() {
                 "profId": "profId",
                 "verId": "verId",
             };
-            adUnits[commonDivID+"@"+adapterID].bids[0].should.be.deep.equal({bidder: adapterID, params: slotParams });
+            adUnits[commonDivID + "@" + adapterID].bids[0].should.be.deep.equal({ bidder: adapterID, params: slotParams });
             done();
         });
 
-        it('should have constructed proper slotParams', function (done) {
+        it('should have constructed proper slotParams', function(done) {
             kgpConsistsWidthAndHeight = false;
             adapterID = "different";
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
-            adUnits[commonDivID+"@"+adapterID].bids[0].should.be.deep.equal({bidder: adapterID, params: {} });
+            adUnits[commonDivID + "@" + adapterID].bids[0].should.be.deep.equal({ bidder: adapterID, params: {} });
             done();
         });
     });
@@ -327,10 +337,10 @@ describe('ADAPTER: Prebid', function() {
         });
 
         it('should have called UTIL.forEachGeneratedKey with proper input', function(done) {
-        	adapterConfig = {};
-        	adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] = "value_1",
-            adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = "value_2",	
-            PREBID.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+            adapterConfig = {};
+            adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] = "value_1",
+                adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = "value_2",
+                PREBID.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
             UTIL.log.calledWith(adapterID + CONSTANTS.MESSAGES.M1);
             UTIL.forEachGeneratedKey.called.should.be.true;
             UTIL.forEachGeneratedKey.calledWith(adapterID,
@@ -413,7 +423,7 @@ describe('ADAPTER: Prebid', function() {
             PREBID.fetchBids(activeSlots, impressionID);
             CONFIG.forEachAdapter.called.should.be.true;
             PREBID.generatePbConf.called.should.be.false;
-            UTIL.log.calledWith("pubmatic"+CONSTANTS.MESSAGES.M2).should.be.true;
+            UTIL.log.calledWith("pubmatic" + CONSTANTS.MESSAGES.M2).should.be.true;
             done();
         });
     });

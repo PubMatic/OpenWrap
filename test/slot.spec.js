@@ -4,6 +4,7 @@ var should = require("chai").should();
 var expect = require("chai").expect;
 
 var CONSTANTS = require("../src_new/constants.js");
+var SLOT = require("../src_new/slot.js").Slot;
 
 var commonSlotName = "Slot_1";
 var commonDivID = "DIV_1";
@@ -13,19 +14,16 @@ var commonSizes = [
     [450, 300],
     [90, 750]
 ];
+var commonArguments = [1, 2, 3];
 
-var commonArguments = [1,2,3];
-
-var SLOT = require("../src_new/slot.js").Slot;
 
 
 describe('Slot slotObject', function() {
     var slotObject = null;
     var name = null;
-    // var kgpv = null;
+
     beforeEach(function(done) {
         name = commonSlotName;
-        // kgpv = commonKGPV;
         slotObject = new SLOT(name);
         done();
     });
@@ -35,8 +33,8 @@ describe('Slot slotObject', function() {
         done();
     });
 
-
     describe('Slot', function() {
+
         it('is a function', function(done) {
             SLOT.should.be.a('function');
             done();
@@ -45,6 +43,7 @@ describe('Slot slotObject', function() {
 
 
     describe('#getName', function() {
+
         it('is a function', function(done) {
             slotObject.getName.should.be.a('function');
             done();
@@ -57,6 +56,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#setStatus', function() {
+
         it('is a function', function(done) {
             slotObject.setStatus.should.be.a('function');
             done();
@@ -64,6 +64,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#getStatus', function() {
+
         it('is a function', function(done) {
             slotObject.getStatus.should.be.a('function');
             done();
@@ -76,6 +77,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#setDivID', function() {
+
         it('is a function', function(done) {
             slotObject.setDivID.should.be.a('function');
             done();
@@ -83,11 +85,11 @@ describe('Slot slotObject', function() {
     });
 
     describe('#getDivID', function() {
+
         it('is a function', function(done) {
             slotObject.getDivID.should.be.a('function');
             done();
         });
-
 
         it('returns slot div Id', function(done) {
             slotObject.setDivID(commonDivID);
@@ -97,6 +99,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#setAdUnitID', function() {
+
         it('is a function', function(done) {
             slotObject.setAdUnitID.should.be.a('function');
             done();
@@ -104,6 +107,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#getAdUnitID', function() {
+
         it('is a function', function(done) {
             slotObject.getAdUnitID.should.be.a('function');
             done();
@@ -117,6 +121,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#setAdUnitIndex', function() {
+
         it('is a function', function(done) {
             slotObject.setAdUnitIndex.should.be.a('function');
             done();
@@ -124,6 +129,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#getAdUnitIndex', function() {
+
         it('is a function', function(done) {
             slotObject.getAdUnitIndex.should.be.a('function');
             done();
@@ -137,6 +143,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#setSizes', function() {
+
         it('is a function', function(done) {
             slotObject.setSizes.should.be.a('function');
             done();
@@ -144,6 +151,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#getSizes', function() {
+
         it('is a function', function(done) {
             slotObject.getSizes.should.be.a('function');
             done();
@@ -157,6 +165,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#setKeyValue', function() {
+
         it('is a function', function(done) {
             slotObject.setKeyValue.should.be.a('function');
             done();
@@ -164,6 +173,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#setKeyValues', function() {
+
         it('is a function', function(done) {
             slotObject.setKeyValues.should.be.a('function');
             done();
@@ -171,13 +181,13 @@ describe('Slot slotObject', function() {
     });
 
     describe('#getkeyValues', function() {
+
         it('is a function', function(done) {
             slotObject.getkeyValues.should.be.a('function');
             done();
         });
 
-
-        // TODO : confirm working
+        // TODO : ?
         it('returns slot\'s keyValues', function(done) {
             slotObject.keyValues.should.deep.equal({});
             var key = "key_1";
@@ -193,6 +203,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#setArguments', function() {
+
         it('is a function', function(done) {
             slotObject.setArguments.should.be.a('function');
             done();
@@ -200,12 +211,13 @@ describe('Slot slotObject', function() {
     });
 
     describe('#getArguments', function() {
+
         it('is a function', function(done) {
             slotObject.getArguments.should.be.a('function');
             done();
         });
 
-        
+
         it('returns slot arguments', function(done) {
             slotObject.setArguments(commonArguments);
             slotObject.getArguments().should.equal(commonArguments);
@@ -214,6 +226,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#setPubAdServerObject', function() {
+
         it('is a function', function(done) {
             slotObject.setPubAdServerObject.should.be.a('function');
             done();
@@ -226,13 +239,12 @@ describe('Slot slotObject', function() {
             done();
         });
 
-        // TODO : confirm working
-
+        // TODO : ?
         it('returns slot pubAdServerObject', function(done) {
-        	var pubAdServerObject = {
-        		pub: "add",
-        		server: "object"
-        	};
+            var pubAdServerObject = {
+                pub: "add",
+                server: "object"
+            };
             slotObject.setPubAdServerObject(pubAdServerObject);
             slotObject.getPubAdServerObject().should.equal(pubAdServerObject);
             done();
@@ -240,6 +252,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#setDisplayFunctionCalled', function() {
+
         it('is a function', function(done) {
             slotObject.setDisplayFunctionCalled.should.be.a('function');
             done();
@@ -247,20 +260,21 @@ describe('Slot slotObject', function() {
     });
 
     describe('#isDisplayFunctionCalled', function() {
+
         it('is a function', function(done) {
             slotObject.isDisplayFunctionCalled.should.be.a('function');
             done();
         });
 
-         it('returns slot isDisplayFunctionCalled value', function(done) {
+        it('returns slot isDisplayFunctionCalled value', function(done) {
             slotObject.setDisplayFunctionCalled(true);
             slotObject.isDisplayFunctionCalled().should.equal(true);
             done();
         });
-
     });
 
     describe('#setRefreshFunctionCalled', function() {
+
         it('is a function', function(done) {
             slotObject.setRefreshFunctionCalled.should.be.a('function');
             done();
@@ -268,6 +282,7 @@ describe('Slot slotObject', function() {
     });
 
     describe('#isRefreshFunctionCalled', function() {
+
         it('is a function', function(done) {
             slotObject.isRefreshFunctionCalled.should.be.a('function');
             done();
@@ -281,30 +296,29 @@ describe('Slot slotObject', function() {
     });
 
     describe('#updateStatusAfterRendering', function() {
+
         it('is a function', function(done) {
             slotObject.updateStatusAfterRendering.should.be.a('function');
             done();
         });
 
+        it('set the status of slot as displyed and reset the arguments while setting refreshFunctionCalled to false when passed true', function(done) {
+            var isRefreshaCalled = true;
+            slotObject.updateStatusAfterRendering(isRefreshaCalled);
+            slotObject.status.should.equal(CONSTANTS.SLOT_STATUS.DISPLAYED);
+            slotObject.arguments.should.deep.equal([]);
+            slotObject.refreshFunctionCalled.should.be.false;
+            done();
 
-        it('set the status of slot as displyed and reset the arguments while setting refreshFunctionCalled to false when passed true', function (done) {
-        	var isRefreshaCalled = true;
-        	slotObject.updateStatusAfterRendering(isRefreshaCalled);
-        	slotObject.status.should.equal(CONSTANTS.SLOT_STATUS.DISPLAYED);
-        	slotObject.arguments.should.deep.equal([]);
-        	slotObject.refreshFunctionCalled.should.be.false;
-        	done();
-        	
         });
 
-        it('set the status of slot as displyed and reset the arguments while setting displayFunctionCalled to false when passed false', function (done) {
-        	var isRefreshaCalled = false;
-        	slotObject.updateStatusAfterRendering(isRefreshaCalled);
-        	slotObject.status.should.equal(CONSTANTS.SLOT_STATUS.DISPLAYED);
-        	slotObject.arguments.should.deep.equal([]);
-        	slotObject.displayFunctionCalled.should.be.false;
-        	done();
+        it('set the status of slot as displyed and reset the arguments while setting displayFunctionCalled to false when passed false', function(done) {
+            var isRefreshaCalled = false;
+            slotObject.updateStatusAfterRendering(isRefreshaCalled);
+            slotObject.status.should.equal(CONSTANTS.SLOT_STATUS.DISPLAYED);
+            slotObject.arguments.should.deep.equal([]);
+            slotObject.displayFunctionCalled.should.be.false;
+            done();
         });
     });
-
 });

@@ -8,14 +8,10 @@ var AdapterEntry = require("../src_new/adapterEntry.js").AdapterEntry;
 var BID = require("../src_new/bid.js").Bid;
 
 var commonAdpterID = 'pubmatic';
-
 var commonBidID = '9886ade8a';
 var commonKGPV = "XYZ";
-
 var commonNewBidID = "a4de2312";
 var commonNewKGPV = "ABC";
-
-
 
 describe('AdapterEntry adapterEntryObject', function() {
 
@@ -102,7 +98,7 @@ describe('AdapterEntry adapterEntryObject', function() {
             done();
         });
 
-        it('should assign passed bid as lastBid of the adapterEntry object while deleting the old one', function (done) {
+        it('should assign passed bid as lastBid of the adapterEntry object while deleting the old one', function(done) {
             var existingLastBid = new BID(commonBidID, commonKGPV);
             var theBid = new BID(commonNewBidID, commonNewKGPV);
             adapterEntryObject.lastBid = existingLastBid;

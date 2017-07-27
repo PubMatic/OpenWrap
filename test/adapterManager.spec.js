@@ -4,13 +4,11 @@ var should = require("chai").should();
 var expect = require("chai").expect;
 
 var ADPTMgr = require('../src_new/adapterManager');
-
 var CONFIG = require("../src_new/config.js");
 var CONSTANTS = require("../src_new/constants.js");
 var UTIL = require("../src_new/util.js");
 var BIDMANAGER = require("../src_new/bidManager.js");
 var prebid = require("../src_new/adapters/prebid.js");
-
 var conf = require('../src_new/conf');
 
 var commonAdapterID = "pubmatic";
@@ -77,7 +75,7 @@ describe("adapterManager : ADPTMgr", function() {
             bidAdaptor = null;
 
         beforeEach(function(done) {
-        	bidAdaptor = {
+            bidAdaptor = {
                 ID: function() {
                     return adapterID;
                 },
@@ -85,14 +83,14 @@ describe("adapterManager : ADPTMgr", function() {
                     return true;
                 }
             };
-            
+
             sinon.spy(UTIL, 'forEachOnObject');
             sinon.spy(ADPTMgr, 'throttleAdapter');
             sinon.spy(ADPTMgr, 'setInitTimeForSlotsForAdapter');
             adapters = conf.adapters, slots = {}, impressionID = {};
-            UTIL.forEachOnObject(adapters, function (key, value) {
-            	adapters[key].ID = bidAdaptor.ID;
-            	adapters[key].fB = bidAdaptor.fB;
+            UTIL.forEachOnObject(adapters, function(key, value) {
+                adapters[key].ID = bidAdaptor.ID;
+                adapters[key].fB = bidAdaptor.fB;
             });
             done();
         });
@@ -126,7 +124,7 @@ describe("adapterManager : ADPTMgr", function() {
             throttleAdapterStub = null;
             done();
         });
-        
+
     });
     /* end-test-block */
 
@@ -138,16 +136,14 @@ describe("adapterManager : ADPTMgr", function() {
         var impressionID = "impressionIDDummy";
         beforeEach(function(done) {
             slots = [{
-                    getDivID: function() {
-                        return divID_1;
-                    }
-                },
-                {
-                    getDivID: function() {
-                        return divID_2;
-                    }
+                getDivID: function() {
+                    return divID_1;
                 }
-            ];
+            }, {
+                getDivID: function() {
+                    return divID_2;
+                }
+            }];
 
             sinon.spy(UTIL, 'forEachOnArray');
             sinon.spy(UTIL, 'generateSlotNamesFromPattern');
@@ -321,13 +317,13 @@ describe("adapterManager : ADPTMgr", function() {
         });
 
         //todo: check, util.log is being called twice
-        it('should call UTIL.log if bidAdaptor is not an object', function (done) {
-        	ADPTMgr.registerAdapter(null);
-        	// UTIL.log.calledOnce.should.be.true;
+        it('should call UTIL.log if bidAdaptor is not an object', function(done) {
+            ADPTMgr.registerAdapter(null);
+            // UTIL.log.calledOnce.should.be.true;
             UTIL.log.calledWith(CONSTANTS.MESSAGES.M3).should.be.true;
             UTIL.log.calledWith(null).should.be.true;
-        	// UTIL.log.calledWith("passsed argument is not a bidAdaptor").should.be.true;
-        	done();
+            // UTIL.log.calledWith("passsed argument is not a bidAdaptor").should.be.true;
+            done();
         });
 
         it('should have called UTIL isFunction and bidAdaptor.ID', function(done) {

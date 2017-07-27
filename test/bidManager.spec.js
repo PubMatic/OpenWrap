@@ -4,25 +4,19 @@ var should = require("chai").should();
 var expect = require("chai").expect;
 
 var BIDMgr = require('../src_new/bidManager');
-
 var CONFIG = require("../src_new/config.js");
-
-
 var CONSTANTS = require("../src_new/constants.js");
 var UTIL = require("../src_new/util.js");
 var bmEntry = require("../src_new/bmEntry.js");
 var bmEntryContstuctor = require("../src_new/bmEntry.js").BMEntry;
-
 var AdapterEntry = require("../src_new/adapterEntry").AdapterEntry;
-
-
 var bid = require('../src_new/bid.js').Bid;
+var conf = require("../src_new/conf");
 
 var commonAdpterID = 'pubmatic';
 var commonDivID = "DIV_1";
 var commonKGPV = "XYZ";
 var commonBidID = '9886ade8a';
-var conf = require("../src_new/conf");
 
 // TODO : remove as required during single TDD only
 // var jsdom = require('jsdom').jsdom;
@@ -519,7 +513,7 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('returns winning bid with key value pairs', function (done) {
+        it('returns winning bid with key value pairs', function(done) {
             BIDMgr.auctionBids(bmEntryObj).should.have.all.keys('wb', 'kvp');
             done();
         });
@@ -812,7 +806,7 @@ describe('bidManager BIDMgr', function() {
 
     describe('#executeAnalyticsPixel', function() {
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             sinon.stub(CONFIG, "getAnalyticsPixelURL").returns("http://pb.analytics.com/dm/");
             sinon.stub(CONFIG, "getPublisherId");
 
@@ -825,7 +819,7 @@ describe('bidManager BIDMgr', function() {
             sinon.stub(UTIL, "getCurrentTimestamp").returns(timeNow);
 
             sinon.spy(UTIL, "forEachOnObject")
-            // .returns(true);
+                // .returns(true);
             window.PWT = {
                 bidMap: {
                     "Slot_1": {
@@ -838,7 +832,7 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             CONFIG.getAnalyticsPixelURL.restore();
             CONFIG.getPublisherId.restore();
 
@@ -852,7 +846,7 @@ describe('bidManager BIDMgr', function() {
             window.PWT = null;
             // window.encodeURIComponent.restore();
             BIDMgr.analyticalPixelCallback.restore();
-            done(); 
+            done();
         });
 
         it('is a function', function(done) {
@@ -860,14 +854,14 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('should return if pixelURL is empty', function (done) {
+        it('should return if pixelURL is empty', function(done) {
             CONFIG.getAnalyticsPixelURL.returns(null);
             BIDMgr.executeAnalyticsPixel();
             CONFIG.getPublisherId.called.should.be.false;
             done();
         });
 
-        it('should have caled CONFIG functions to generate output Object', function (done) {
+        it('should have caled CONFIG functions to generate output Object', function(done) {
             BIDMgr.executeAnalyticsPixel();
 
             CONFIG.getPublisherId.called.should.be.true;
@@ -879,23 +873,23 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('should have called UTIL.forEachOnObject with bidMap', function (done) {
+        it('should have called UTIL.forEachOnObject with bidMap', function(done) {
 
             BIDMgr.executeAnalyticsPixel();
 
             UTIL.forEachOnObject.calledWith(window.PWT.bidMap).should.be.true;
             done();
-            
+
         });
 
-        it('should have called analyticalPixelCallback', function (done) {
+        it('should have called analyticalPixelCallback', function(done) {
             BIDMgr.executeAnalyticsPixel();
             BIDMgr.analyticalPixelCallback.called.should.be.true;
             done();
         });
 
 
-        it('should have called UTIL.forEachOnObject twice', function (done) {
+        it('should have called UTIL.forEachOnObject twice', function(done) {
             BIDMgr.executeAnalyticsPixel();
             UTIL.forEachOnObject.calledTwice.should.be.true;
             // window.encodeURIComponent.called.should.be.true;
@@ -904,18 +898,21 @@ describe('bidManager BIDMgr', function() {
     });
 
 
-    describe('#auctionBidsCallBack', function () {
-        var adapterID = null, adapterEntry = null, keyValuePairs = null, winningBid = null;
+    describe('#auctionBidsCallBack', function() {
+        var adapterID = null,
+            adapterEntry = null,
+            keyValuePairs = null,
+            winningBid = null;
         var bidID = null;
         var theBidObject = null;
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             adapterID = commonAdpterID;
-            adapterEntry =  new AdapterEntry(adapterID); 
+            adapterEntry = new AdapterEntry(adapterID);
             keyValuePairs = {};
             winningBid = null;
             bidID = commonBidID;
             theBidObject = theBid = new bid(commonAdpterID, commonKGPV);
-            
+
             sinon.stub(theBidObject, "getPostTimeoutStatus");
             sinon.stub(theBidObject, "getKeyValuePairs");
             sinon.stub(adapterEntry, "getLastBidID").returns("");
@@ -926,11 +923,11 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             adapterEntry.getLastBidID.restore();
             UTIL.forEachOnObject.restore();
             UTIL.copyKeyValueObject.restore();
-            
+
             theBidObject.getPostTimeoutStatus.restore();
             theBidObject.getKeyValuePairs.restore();
 
@@ -938,12 +935,12 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             BIDMgr.auctionBidsCallBack.should.be.a('function');
             done();
         });
 
-        it('should return object containing winningBid and keyValuePairs passed', function (done) {
+        it('should return object containing winningBid and keyValuePairs passed', function(done) {
             BIDMgr.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid).should.deep.equal({
                 winningBid: winningBid,
                 keyValuePairs: keyValuePairs
@@ -952,12 +949,12 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('should return if bid\'s has come post timeout ', function (done) {
+        it('should return if bid\'s has come post timeout ', function(done) {
             theBidObject.getPostTimeoutStatus.returns(true);
             adapterEntry.setNewBid(theBidObject);
             // adapterEntry.bids[commonBidID] = theBidObject;
             adapterEntry.getLastBidID.returns("pubmatic");
-            
+
             BIDMgr.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
             UTIL.forEachOnObject.called.should.be.true;
             CONFIG.getBidPassThroughStatus.called.should.be.false;
@@ -1144,10 +1141,12 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
-    describe('#analyticalPixelCallback', function () {
-        var slotID = null, bmEntryObj = null, impressionIDMap = null;
+    describe('#analyticalPixelCallback', function() {
+        var slotID = null,
+            bmEntryObj = null,
+            impressionIDMap = null;
         var theBid = null;
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             slotID = "Slot_1";
             bmEntryObj = new bmEntryContstuctor("pubmatic");
 
@@ -1179,7 +1178,7 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             bmEntryObj.getCreationTime.restore();
             bmEntryObj.getAnalyticEnabledStatus.restore();
             bmEntryObj.getExpiredStatus.restore();
@@ -1208,18 +1207,18 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('is a function', function (done) {
+        it('is a function', function(done) {
             BIDMgr.analyticalPixelCallback.should.be.a('function');
             done();
         });
 
-        it('should have called bmEntry\'s getCreationTime ', function (done) {
+        it('should have called bmEntry\'s getCreationTime ', function(done) {
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
             bmEntryObj.getCreationTime.calledOnce.should.be.true;
             done();
         });
 
-        it('should check whether given bmEntry\'s analytic status is enabled and whether it is expired or not', function (done) {
+        it('should check whether given bmEntry\'s analytic status is enabled and whether it is expired or not', function(done) {
             bmEntryObj.getAnalyticEnabledStatus.returns(true);
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
             bmEntryObj.getAnalyticEnabledStatus.calledOnce.should.be.true;
@@ -1227,7 +1226,7 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('should have calle setExpired on given bmEntry object and extract impressionID from the bmEntry object', function (done) {
+        it('should have calle setExpired on given bmEntry object and extract impressionID from the bmEntry object', function(done) {
             bmEntryObj.getAnalyticEnabledStatus.returns(true);
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
             bmEntryObj.setExpired.calledOnce.should.be.true;
@@ -1235,42 +1234,42 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('should return if Bid Pass Through Status for adapterID is 1', function (done) {
+        it('should return if Bid Pass Through Status for adapterID is 1', function(done) {
             bmEntryObj.getAnalyticEnabledStatus.returns(true);
-            bmEntryObj.setAdapterEntry(commonAdpterID); 
+            bmEntryObj.setAdapterEntry(commonAdpterID);
             bmEntryObj.setNewBid(commonAdpterID, theBid);
             CONFIG.getBidPassThroughStatus.returns(1);
 
-            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap); 
-            
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+
             UTIL.forEachOnObject.calledWith(bmEntryObj.adapters).should.be.true;
             UTIL.forEachOnObject.calledOnce.should.be.true;
-            
+
             done();
         });
 
-        it('should have iterated over bmEntry\'s adapters to create slotObject for all the bids in adapterEntry', function (done) {
+        it('should have iterated over bmEntry\'s adapters to create slotObject for all the bids in adapterEntry', function(done) {
 
             bmEntryObj.getAnalyticEnabledStatus.returns(true);
-            bmEntryObj.setAdapterEntry(commonAdpterID); 
+            bmEntryObj.setAdapterEntry(commonAdpterID);
             bmEntryObj.setNewBid(commonAdpterID, theBid);
             CONFIG.getBidPassThroughStatus.returns(2);
-            
-            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap); 
-            
+
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+
             UTIL.forEachOnObject.calledWith(bmEntryObj.adapters).should.be.true;
             UTIL.forEachOnObject.calledTwice.should.be.true;
-            
+
             done();
         });
 
-        it('should have generated slotObject with the bid object\'s properties', function (done) {
+        it('should have generated slotObject with the bid object\'s properties', function(done) {
             bmEntryObj.getAnalyticEnabledStatus.returns(true);
-            bmEntryObj.setAdapterEntry(commonAdpterID); 
+            bmEntryObj.setAdapterEntry(commonAdpterID);
             bmEntryObj.setNewBid(commonAdpterID, theBid);
             CONFIG.getBidPassThroughStatus.returns(2);
 
-            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap); 
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
 
             theBid.getDefaultBidStatus.calledOnce.should.be.true;
             theBid.getKGPV.calledOnce.should.be.true;
@@ -1286,15 +1285,15 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('should have added impressionIDMap with the generated slotObject', function (done) {
+        it('should have added impressionIDMap with the generated slotObject', function(done) {
             bmEntryObj.getAnalyticEnabledStatus.returns(true);
-            bmEntryObj.setAdapterEntry(commonAdpterID); 
+            bmEntryObj.setAdapterEntry(commonAdpterID);
             bmEntryObj.setNewBid(commonAdpterID, theBid);
             CONFIG.getBidPassThroughStatus.returns(2);
 
-            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap); 
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
 
-            impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn","bidid","db","kgpv","psz","eg","en","di","dc","l1","l2","t","wb");
+            impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb");
             done();
         });
 

@@ -3,19 +3,14 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-// var CONFIG = require("../src_new/config.js");
-
 var CONSTANTS = require("../src_new/constants.js");
 var UTIL = require("../src_new/util.js");
 var AE = require("../src_new/adapterEntry");
+var BMEntry = require("../src_new/bmEntry.js").BMEntry;
 
 var commonAdpterID = 'pubmatic';
 var commonBidID = "bid_id";
-// var commonKGPV = "XYZ";
-
 var commonBmEntryName = "bm_entry_name";;
-
-var BMEntry = require("../src_new/bmEntry.js").BMEntry;
 
 
 // TODO : remove as required during single TDD only
@@ -309,23 +304,23 @@ describe('Bid bmEntryObject', function() {
             done();
         });
 
-        it('returns empty string if given adapterID is not in bmEntry\'s adapters', function (done) {
-        	UTIL.isOwnProperty.returns(false);
-        	adapterID = "non_existing_adapter_id";
-        	bmEntryObject.getLastBidIDForAdapter(adapterID).should.be.equal("");
-        	done();
+        it('returns empty string if given adapterID is not in bmEntry\'s adapters', function(done) {
+            UTIL.isOwnProperty.returns(false);
+            adapterID = "non_existing_adapter_id";
+            bmEntryObject.getLastBidIDForAdapter(adapterID).should.be.equal("");
+            done();
         });
 
-        it('return last Bid ID  for given adapterID of present in bmEntry\' adapters', function (done) {
-        	bmEntryObject.adapters[adapterID] = {
-        		getLastBidID: function () {
-        			return "getLastBidID";
-        		}
-        	};
-        	sinon.spy(bmEntryObject.adapters[adapterID], "getLastBidID")
-        	bmEntryObject.getLastBidIDForAdapter(adapterID).should.be.deep.equal(bmEntryObject.adapters[adapterID].getLastBidID());
-        	bmEntryObject.adapters[adapterID].getLastBidID.called.should.be.true;
-        	done();
+        it('return last Bid ID  for given adapterID of present in bmEntry\' adapters', function(done) {
+            bmEntryObject.adapters[adapterID] = {
+                getLastBidID: function() {
+                    return "getLastBidID";
+                }
+            };
+            sinon.spy(bmEntryObject.adapters[adapterID], "getLastBidID")
+            bmEntryObject.getLastBidIDForAdapter(adapterID).should.be.deep.equal(bmEntryObject.adapters[adapterID].getLastBidID());
+            bmEntryObject.adapters[adapterID].getLastBidID.called.should.be.true;
+            done();
         });
 
 

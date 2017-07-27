@@ -6,12 +6,12 @@ var expect = require("chai").expect;
 var CONFIG = require("../src_new/config.js");
 var CONSTANTS = require("../src_new/constants.js");
 var UTIL = require("../src_new/util.js");
+var BID = require("../src_new/bid.js").Bid;
 
 var commonAdpterID = 'pubmatic';
 var commonDivID = "DIV_1";
 var commonKGPV = "XYZ";
 
-var BID = require("../src_new/bid.js").Bid;
 
 
 // TODO : remove as required during single TDD only
@@ -81,7 +81,7 @@ describe('Bid bidObject', function() {
     describe('#setGrossEcpm', function() {
 
         var ecpm = null;
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             ecpm = 2.0;
             sinon.spy(UTIL, 'log');
             sinon.stub(UTIL, "isString").returns(true);
@@ -90,11 +90,11 @@ describe('Bid bidObject', function() {
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             UTIL.log.restore();
             UTIL.isString.restore();
             window.isNaN.restore();
-            
+
             ecpm = null;
             done();
         });
@@ -104,7 +104,7 @@ describe('Bid bidObject', function() {
             done();
         });
 
-        it('should return unmodified bid object when ecpm passed is null', function (done) {
+        it('should return unmodified bid object when ecpm passed is null', function(done) {
             ecpm = null;
             bidObject.setGrossEcpm(ecpm).should.be.deep.equal(bidObject);
             UTIL.log.calledWith(CONSTANTS.MESSAGES.M10).should.be.true;
@@ -112,7 +112,7 @@ describe('Bid bidObject', function() {
             done();
         });
 
-        it('should return unmodified bid object when ecpm passed is empty string', function (done) {
+        it('should return unmodified bid object when ecpm passed is empty string', function(done) {
             ecpm = "";
             bidObject.setGrossEcpm(ecpm).should.be.deep.equal(bidObject);
             UTIL.log.calledWith(CONSTANTS.MESSAGES.M20).should.be.true;
@@ -120,17 +120,17 @@ describe('Bid bidObject', function() {
             done();
         });
 
-        it('should return when ecpm passed is Not a number', function (done) {
-            ecpm = {"NotANumber": "NaN"};
+        it('should return when ecpm passed is Not a number', function(done) {
+            ecpm = { "NotANumber": "NaN" };
             UTIL.isString.returns(false);
 
             bidObject.setGrossEcpm(ecpm).should.be.deep.equal(bidObject);
-            UTIL.log.calledWith(CONSTANTS.MESSAGES.M11+ecpm).should.be.true;
+            UTIL.log.calledWith(CONSTANTS.MESSAGES.M11 + ecpm).should.be.true;
             UTIL.log.calledWith(bidObject).should.be.true;
             done();
         });
 
-        it('should return modified bid object when ecpm passed is proper', function (done) {
+        it('should return modified bid object when ecpm passed is proper', function(done) {
             ecpm = 2.0;
             UTIL.isString.returns(false);
             window.isNaN.returns(false);
@@ -139,7 +139,7 @@ describe('Bid bidObject', function() {
             done();
         });
 
-        it('should set netEcpm and grossEcpm value upto 4 decimal places at max', function (done) {
+        it('should set netEcpm and grossEcpm value upto 4 decimal places at max', function(done) {
             ecpm = 2.12345;
             UTIL.isString.returns(false);
             window.isNaN.returns(false);
@@ -416,12 +416,12 @@ describe('Bid bidObject', function() {
     describe('#setDealID', function() {
         var dealID = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             sinon.spy(bidObject, "setKeyValuePair");
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             bidObject.setKeyValuePair.restore();
             done();
         });
@@ -430,25 +430,25 @@ describe('Bid bidObject', function() {
             done();
         });
 
-        it('returns bidObject with updating dealID if porper dealID is passed', function (done) {
+        it('returns bidObject with updating dealID if porper dealID is passed', function(done) {
             dealID = "deal_id";
             bidObject.setDealID(dealID).should.be.deep.equal(bidObject);
             bidObject.setKeyValuePair.calledWith(
-                CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+bidObject.adapterID, 
-                bidObject.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.bidID
-            )
-            .should.be.true;
+                    CONSTANTS.COMMON.DEAL_KEY_FIRST_PART + bidObject.adapterID,
+                    bidObject.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.bidID
+                )
+                .should.be.true;
             done();
         });
 
-        it('returns bidObject without updating dealID if imporper dealID is passed', function (done) {
+        it('returns bidObject without updating dealID if imporper dealID is passed', function(done) {
             dealID = false;
             bidObject.setDealID(dealID).should.be.deep.equal(bidObject);
             bidObject.setKeyValuePair.calledWith(
-                CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+bidObject.adapterID, 
-                bidObject.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.bidID
-            )
-            .should.be.false;
+                    CONSTANTS.COMMON.DEAL_KEY_FIRST_PART + bidObject.adapterID,
+                    bidObject.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.bidID
+                )
+                .should.be.false;
             done();
         });
 
@@ -469,12 +469,12 @@ describe('Bid bidObject', function() {
     describe('#setDealChannel', function() {
         var dealChannel = null;
 
-        beforeEach(function (done) {
+        beforeEach(function(done) {
             sinon.spy(bidObject, "setKeyValuePair");
             done();
         });
 
-        afterEach(function (done) {
+        afterEach(function(done) {
             bidObject.setKeyValuePair.restore();
             done();
         });
@@ -484,29 +484,29 @@ describe('Bid bidObject', function() {
             done();
         });
 
-        it('returns bidObject with updating dealChannel if porper dealChannel is passed', function (done) {
+        it('returns bidObject with updating dealChannel if porper dealChannel is passed', function(done) {
             dealChannel = "deal_channel";
             bidObject.dealID = "deal_id";
             bidObject.setDealChannel(dealChannel).should.be.deep.equal(bidObject);
             bidObject.setKeyValuePair.calledWith(
-                CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+bidObject.adapterID, 
-                bidObject.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.bidID
-            )
-            .should.be.true;
+                    CONSTANTS.COMMON.DEAL_KEY_FIRST_PART + bidObject.adapterID,
+                    bidObject.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.bidID
+                )
+                .should.be.true;
             done();
         });
 
-        it('returns bidObject without updating dealChannel if imporper dealChannel is passed', function (done) {
+        it('returns bidObject without updating dealChannel if imporper dealChannel is passed', function(done) {
             dealChannel = false;
             bidObject.setDealChannel(dealChannel).should.be.deep.equal(bidObject);
             bidObject.setKeyValuePair.calledWith(
-                CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+bidObject.adapterID, 
-                bidObject.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.bidID
-            )
-            .should.be.false;
+                    CONSTANTS.COMMON.DEAL_KEY_FIRST_PART + bidObject.adapterID,
+                    bidObject.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidObject.bidID
+                )
+                .should.be.false;
             done();
         });
-        
+
     });
 
     describe('#getDealChannel', function() {
