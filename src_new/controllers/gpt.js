@@ -211,15 +211,14 @@ exports.generateSlotName = generateSlotName;
 
 function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow) {
     util.log("Generating slotsMap");
-    // var refThis = this;
     util.forEachOnArray(googleSlotsArray, function(index, currentGoogleSlot) {
-        var dmSlotName = generateSlotName(currentGoogleSlot);
-        storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow);
-        if (isDisplayFlow && util.isOwnProperty(slotsMap, dmSlotName)) {
-            setDisplayFunctionCalledIfRequired(slotsMap[dmSlotName], argumentsFromCallingFunction);
+        var dmSlotName = refThis.generateSlotName(currentGoogleSlot);
+        refThis.storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow);
+        if (isDisplayFlow && util.isOwnProperty(refThis.slotsMap, dmSlotName)) {
+            refThis.setDisplayFunctionCalledIfRequired(refThis.slotsMap[dmSlotName], argumentsFromCallingFunction);
         }
     });
-    util.log(slotsMap);
+    util.log(refThis.slotsMap);
 }
 
 /* start-test-block */
