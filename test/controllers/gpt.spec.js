@@ -1734,32 +1734,40 @@ describe("CONTROLLER: GPT", function() {
     });
 
     describe('#getSlotNamesByStatus', function() {
-        var divID = null;
         var statusObject = null;
+        var slot_1_Stub = null;
+        var slot_2_Stub = null;
 
         beforeEach(function(done) {
+            statusObject = CONSTANTS.SLOT_STATUS;
 
-            divID = commonDivID;
-            statusObject = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
-
-            GPT.slotsMap[divID] = {
-                getStatus: function() {
-                    CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
+            slot_1_Stub = {
+                getStatus: function () {
+                    return "CREATED";
                 }
             };
-            sinon.spy(GPT.slotsMap[divID], "getStatus");
+
+            slot_2_Stub =  {
+                getStatus: function () {
+                    return "NON_EXISITNG_STATUS";
+                }
+            };
+
+            GPT.slotsMap["DIV_1"] = slot_1_Stub;
+            GPT.slotsMap["DIV_2"] = slot_2_Stub;
+
+            sinon.spy(GPT.slotsMap["DIV_1"], "getStatus");
+            sinon.spy(GPT.slotsMap["DIV_2"], "getStatus");
             sinon.spy(UTIL, 'forEachOnObject');
-            // UTIL.forEachOnObject.returns(true);
-            sinon.stub(UTIL, 'isOwnProperty');
-            UTIL.isOwnProperty.returns(true);
+            sinon.spy(UTIL, 'isOwnProperty');
             done();
         });
 
         afterEach(function(done) {
-            GPT.slotMap[divID] = null;
+            GPT.slotMap["DIV_1"] = null;
+            GPT.slotMap["DIV_2"] = null;
             UTIL.forEachOnObject.restore();
             UTIL.isOwnProperty.restore();
-            divID = null;
             done();
         });
 
@@ -1775,9 +1783,25 @@ describe("CONTROLLER: GPT", function() {
 
         it('should have called UTIL functions and slot\'s getStatus', function(done) {
             GPT.getSlotNamesByStatus(statusObject);
+            
             UTIL.isOwnProperty.called.should.be.true;
             UTIL.forEachOnObject.called.should.be.true;
-            GPT.slotsMap[divID].getStatus.called.should.be.true;
+
+            GPT.slotsMap["DIV_1"].getStatus.called.should.be.true;
+            GPT.slotsMap["DIV_2"].getStatus.called.should.be.true;
+            done();
+        });
+
+        it('should return array of keys from slotMap which match the status of given status object', function (done) {
+            GPT.getSlotNamesByStatus(statusObject).should.be.an('array');
+            GPT.getSlotNamesByStatus(statusObject).should.be.deep.equal(["DIV_1"]);
+            done();
+        });
+
+        it('should return empty array if slotsMap is empty', function (done) {
+            GPT.slotsMap = {};
+            GPT.getSlotNamesByStatus(statusObject).should.be.an('array');
+            GPT.getSlotNamesByStatus(statusObject).should.be.deep.equal([]);
             done();
         });
     });
