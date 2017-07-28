@@ -241,8 +241,8 @@ exports.getStatusOfSlotForDivId = getStatusOfSlotForDivId;
 
 function updateStatusAfterRendering(divID, isRefreshCall) {
     /* istanbul ignore else */
-    if (util.isOwnProperty(slotsMap, divID)) {
-        slotsMap[divID].updateStatusAfterRendering(isRefreshCall);
+    if (util.isOwnProperty(refThis.slotsMap, divID)) {
+        refThis.slotsMap[divID].updateStatusAfterRendering(isRefreshCall);
     }
 }
 

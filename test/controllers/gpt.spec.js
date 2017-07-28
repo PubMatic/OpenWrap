@@ -9,6 +9,7 @@ var AM = require("../../src_new/adapterManager.js");
 var CONSTANTS = require("../../src_new/constants.js");
 var CONFIG = require("../../src_new/config.js");
 var BM = require("../../src_new/bidManager.js");
+var SLOT = require("../../src_new/slot.js");
 
 var commonDivID = "DIV_1";
 
@@ -2156,8 +2157,48 @@ describe("CONTROLLER: GPT", function() {
     });
 
     describe('#updateStatusAfterRendering', function() {
+        var divID = null, isRefreshCall = null;
+        var slot_1_Stub = null;
+        var slotName = null;
+
+        beforeEach(function (done) {
+            isRefreshCall = true;
+            slotName = "slot_1";
+            divID = commonDivID;
+            slot_1_Stub = SLOT.createSlot(slotName);
+            GPT.slotsMap[divID] = slot_1_Stub;
+
+            sinon.spy(GPT.slotsMap[divID], "updateStatusAfterRendering");
+
+            sinon.spy(UTIL, "isOwnProperty");
+            done();
+        });
+
+        afterEach(function (done) {
+            isRefreshCall = false;
+            GPT.slotsMap[divID].updateStatusAfterRendering.restore();
+            GPT.slotsMap[divID] = null;
+            slot_1_Stub = null;
+            divID = null;
+
+            UTIL.isOwnProperty.restore();
+            done();
+        });
+
         it('is a function', function(done) {
             GPT.updateStatusAfterRendering.should.be.a('function');
+            done();
+        });
+
+        it('should not proceed if given divID is not in slotsMap', function (done) {
+            GPT.updateStatusAfterRendering("non_existing_div_id", true);
+            GPT.slotsMap[divID].updateStatusAfterRendering.called.should.be.false;
+            done();
+        });
+
+        it('should have called updateStatusAfterRendering on slot of given id when present in slotsMap', function (done) {
+            GPT.updateStatusAfterRendering(divID, isRefreshCall);
+            GPT.slotsMap[divID].updateStatusAfterRendering.calledWith(isRefreshCall).should.be.true;
             done();
         });
     });
