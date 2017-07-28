@@ -157,45 +157,44 @@ describe("CONTROLLER: GPT", function() {
     });
 
     describe("#defineGPTVariables()", function() {
-        it("should return false when the null is passed", function() {
+        var windowObj = null;
+
+        it("should return false when the invalid window object is passed", function(done) {
             GPT.defineGPTVariables(null).should.equal(false);
-        });
-
-        var x = {};
-        it("should return true when the object passed is valid", function() {
-            GPT.defineGPTVariables(x).should.equal(true);
-            UTIL.isObject(x.googletag);
-            UTIL.isArray(x.googletag.cmd);
-        });
-
-        var x = {
-            googletag: {
-                cmd: [1, 2, 3]
-            }
-        };
-        it("should return true when the googletag.cmd is already defined", function() {
-            GPT.defineGPTVariables(x).should.equal(true);
-            UTIL.isObject(x.googletag);
-            UTIL.isArray(x.googletag.cmd);
-            x.googletag.cmd.length.should.equal(3);
-        });
-
-        var winObj = {
-            googletag: {
-
-            }
-        };
-        it("should create googletag.cmd as empty array if not present", function(done) {
-            GPT.defineGPTVariables(winObj).should.equal(true);
-            UTIL.isArray(winObj.googletag.cmd);
-            winObj.googletag.cmd.length.should.equal(0);
             done();
         });
 
-        var winObj1 = {};
+        it("should return true when the object passed is valid", function(done) {
+            windowObj = {};
+            GPT.defineGPTVariables(windowObj).should.equal(true);
+            UTIL.isObject(windowObj.googletag);
+            UTIL.isArray(windowObj.googletag.cmd);
+            done();
+        });
+
+        it("should return true when the googletag.cmd is already defined", function(done) {
+            windowObj.googletag = {
+                cmd: []
+            };
+            GPT.defineGPTVariables(windowObj).should.equal(true);
+            UTIL.isObject(windowObj.googletag);
+            UTIL.isArray(windowObj.googletag.cmd);
+            done();
+        });
+
+        it("should create googletag.cmd as empty array if not present", function(done) {
+            windowObj.googletag = {
+            };
+            GPT.defineGPTVariables(windowObj).should.equal(true);
+            UTIL.isArray(windowObj.googletag.cmd);
+            windowObj.googletag.cmd.length.should.equal(0);
+            done();
+        });
+        
         it("should create googletag as empty object if not present", function(done) {
-            GPT.defineGPTVariables(winObj1).should.equal(true);
-            UTIL.isObject(winObj.googletag);
+            windowObj = {};
+            GPT.defineGPTVariables(windowObj).should.equal(true);
+            UTIL.isObject(windowObj.googletag);
             done();
         });
     });
