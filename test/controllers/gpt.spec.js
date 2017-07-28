@@ -29,6 +29,30 @@ var commonDivID = "DIV_1";
 
 describe("CONTROLLER: GPT", function() {
 
+    describe("#setWindowReference()", function() {
+        var nonObject = 0;
+
+        it("should not set WindowReference if argument is not object", function(done) {
+            GPT.setWindowReference(nonObject);
+            expect(GPT.getWindowReference() === null).to.equal(true);
+            done();
+        });
+
+        it("should set WindowReference if argument is object", function(done) {
+            GPT.setWindowReference(window);
+            GPT.getWindowReference().should.be.deep.equal(window);
+            done();
+        });
+    });
+
+
+    describe('#getWindowReference', function () {
+        it('is a function', function (done) {
+            GPT.getWindowReference.should.be.a('function');
+            done();
+        });
+    });
+
     describe("#getAdUnitIndex()", function() {
 
         it("should return 0 when the object passed is null ", function() {
@@ -175,20 +199,7 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe("#setWindowReference()", function() {
-
-        it("should not set WindowReference if argument is not object", function() {
-            GPT.setWindowReference(0);
-            expect(GPT.getWindowReference() === null).to.equal(true);
-        });
-
-        it("should set WindowReference if argument is object", function() {
-            var x = { a: 0 };
-            GPT.setWindowReference(x);
-            var y = GPT.getWindowReference();
-            expect(UTIL.isOwnProperty(y, "a") && y.a === x.a).to.equal(true);
-        });
-    });
+    
 
     describe("#init()", function() {
 
