@@ -278,7 +278,9 @@ function removeDMTargetingFromSlot(key) { // TDD : done
         currentGoogleSlot.clearTargeting();
         // now set all settings from backup
         util.forEachOnObject(targetingMap, function(key, value) {
-            currentGoogleSlot.setTargeting(key, value);
+            if (!util.isOwnProperty(refThis.wrapperTargetingKeys, key)) {
+                currentGoogleSlot.setTargeting(key, value);
+            }
         });
     }
 }
