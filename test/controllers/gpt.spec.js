@@ -1784,39 +1784,47 @@ describe("CONTROLLER: GPT", function() {
 
     describe('#removeDMTargetingFromSlot', function() {
         var key = null;
-        var currentGoogleSlot = null;
+        var currentGoogleSlotStub = null;
+
         beforeEach(function(done) {
             key = commonDivID;
             GPT.slotsMap = {};
-            currentGoogleSlot = {
-                getTargetingKeys: function() {
-                    return "getTargetingKeys";
+            currentGoogleSlotStub = {
+                keyValuePairs: {
+                    "k1": "v1",
+                    "k2": "v2",
+                    "pk1": "pv1"
                 },
-                getTargeting: function() {
-                    return "getTargeting";
+                getTargetingKeys: function() {
+                    return Object.keys(this.keyValuePairs);
+                },
+                getTargeting: function(key) {
+                    return this.keyValuePairs[key];
                 },
                 clearTargeting: function() {
-                    return "clearTargeting";
+                    this.keyValuePairs = {};
                 },
-                setTargeting: function() {
-                    return "setTargeting";
+                setTargeting: function(key, value) {
+                    return this.keyValuePairs[key] = value;
                 },
             };
+            
+            GPT.wrapperTargetingKeys = {
+                "pk1": "pv1"
+            };
+
             GPT.slotsMap[key] = {
                 getPubAdServerObject: function() {
-                    return currentGoogleSlot;
+                    return currentGoogleSlotStub;
                 }
             };
 
-            sinon.stub(currentGoogleSlot, "getTargetingKeys");
-            currentGoogleSlot.getTargetingKeys.returns(["slot_1", "slot_2"]);
-            sinon.stub(currentGoogleSlot, "getTargeting");
-            sinon.stub(currentGoogleSlot, "clearTargeting");
-            sinon.stub(currentGoogleSlot, "setTargeting");
+            sinon.spy(currentGoogleSlotStub, "getTargetingKeys");
+            sinon.spy(currentGoogleSlotStub, "getTargeting");
+            sinon.spy(currentGoogleSlotStub, "clearTargeting");
+            sinon.spy(currentGoogleSlotStub, "setTargeting");
 
-            sinon.stub(UTIL, "isOwnProperty");
-            UTIL.isOwnProperty.returns(true);
-
+            sinon.spy(UTIL, "isOwnProperty");
             sinon.spy(UTIL, "forEachOnArray");
             sinon.spy(UTIL, "forEachOnObject");
             done();
@@ -1824,10 +1832,10 @@ describe("CONTROLLER: GPT", function() {
 
 
         afterEach(function(done) {
-            currentGoogleSlot.getTargetingKeys.restore();
-            currentGoogleSlot.getTargeting.restore();
-            currentGoogleSlot.clearTargeting.restore();
-            currentGoogleSlot.setTargeting.restore();
+            currentGoogleSlotStub.getTargetingKeys.restore();
+            currentGoogleSlotStub.getTargeting.restore();
+            currentGoogleSlotStub.clearTargeting.restore();
+            currentGoogleSlotStub.setTargeting.restore();
 
             UTIL.isOwnProperty.restore();
             UTIL.forEachOnArray.restore();
@@ -1841,16 +1849,43 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
+        it('should proceed only if given key is present in slotsMap', function (done) {
+            GPT.removeDMTargetingFromSlot("non_existing_key");
+
+            UTIL.isOwnProperty.calledOnce.should.be.true;
+
+            UTIL.forEachOnObject.called.should.be.false;
+            UTIL.forEachOnArray.called.should.be.false;
+
+            currentGoogleSlotStub.getTargetingKeys.called.should.be.false;
+            currentGoogleSlotStub.getTargeting.called.should.be.false;
+            currentGoogleSlotStub.clearTargeting.called.should.be.false;
+            currentGoogleSlotStub.setTargeting.called.should.be.false;
+            done();
+        });
+
         it('should have called proper functions', function(done) {
             GPT.removeDMTargetingFromSlot(key);
+
             UTIL.isOwnProperty.called.should.be.true;
             UTIL.forEachOnObject.called.should.be.true;
             UTIL.forEachOnArray.called.should.be.true;
 
-            currentGoogleSlot.getTargetingKeys.called.should.be.true;
-            currentGoogleSlot.getTargeting.called.should.be.true;
-            currentGoogleSlot.clearTargeting.called.should.be.true;
-            currentGoogleSlot.setTargeting.called.should.be.true;
+            currentGoogleSlotStub.getTargetingKeys.called.should.be.true;
+            currentGoogleSlotStub.getTargeting.called.should.be.true;
+            currentGoogleSlotStub.clearTargeting.called.should.be.true;
+            currentGoogleSlotStub.setTargeting.called.should.be.true;
+            done();
+        });
+
+        it('should have removed wrapper targeting keys', function (done) {
+            GPT.removeDMTargetingFromSlot(key);
+
+            currentGoogleSlotStub.keyValuePairs.should.not.have.all.keys(Object.keys(GPT.wrapperTargetingKeys));
+
+            currentGoogleSlotStub.setTargeting.calledWith("k1", "v1").should.be.true;
+            currentGoogleSlotStub.setTargeting.calledWith("k2", "v2").should.be.true;
+            currentGoogleSlotStub.setTargeting.calledWith("pk1", "pv1").should.be.false;
             done();
         });
     });
