@@ -1817,7 +1817,8 @@ describe("CONTROLLER: GPT", function() {
                 keyValuePairs: {
                     "k1": "v1",
                     "k2": "v2",
-                    "pk1": "pv1"
+                    "pk1": "pv1",
+                    "pk2": "pv2",                    
                 },
                 getTargetingKeys: function() {
                     return Object.keys(this.keyValuePairs);
@@ -1834,7 +1835,9 @@ describe("CONTROLLER: GPT", function() {
             };
             
             GPT.wrapperTargetingKeys = {
-                "pk1": "pv1"
+                "pk1": "pv1",
+                "pk2": "pv2",
+                "pk3": "pv3"
             };
 
             GPT.slotsMap[key] = {
@@ -1910,6 +1913,8 @@ describe("CONTROLLER: GPT", function() {
             currentGoogleSlotStub.setTargeting.calledWith("k1", "v1").should.be.true;
             currentGoogleSlotStub.setTargeting.calledWith("k2", "v2").should.be.true;
             currentGoogleSlotStub.setTargeting.calledWith("pk1", "pv1").should.be.false;
+            currentGoogleSlotStub.setTargeting.calledWith("pk2", "pv2").should.be.false;
+            currentGoogleSlotStub.setTargeting.calledWith("pk3", "pv3").should.be.false;
             done();
         });
     });
