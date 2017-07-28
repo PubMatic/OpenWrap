@@ -77,9 +77,11 @@ describe('Config', function() {
             done();
         });
 
-        it('should return 1000 when pubid is not present in conf', function(done) {
+        it('should return 1000 (default timeout value) when pubid is not present in conf(configuration)', function(done) {
+            var temp_t = CONF.pwt.t;
             delete CONF.pwt.t;
             CONFIG.getTimeout().should.be.equal(1000);
+            CONF.pwt.t = temp_t;
             done();
         });
     });
@@ -88,14 +90,22 @@ describe('Config', function() {
         var adapterID = null;
 
         beforeEach(function(done) {
-            sinon.stub(UTIL, "isOwnProperty");
+            CONF.adapters["non_adapter"] = {
+                throttle: "100",
+                publisherId: "9999",
+                kgp: "_DIV_@_W_x_H_:_AUI_"
+            };
+            sinon.spy(UTIL, "isOwnProperty");
+            sinon.spy(window, "parseFloat");
             adapterID = commonAdapterID;
             done();
         });
 
         afterEach(function(done) {
             UTIL.isOwnProperty.restore();
+            window.parseFloat.restore();
             adapterID = null;
+            delete CONF.adapters["non_adapter"];
             done();
         });
 
@@ -105,15 +115,16 @@ describe('Config', function() {
         });
 
         it('returns revShare value as 1 when revShare value is not present in conf of given adapterID', function(done) {
-            UTIL.isOwnProperty.returns(false);
-            CONFIG.getAdapterRevShare().should.equal(1);
+            CONFIG.getAdapterRevShare("non_adapter").should.equal(1);
             UTIL.isOwnProperty.calledOnce.should.be.true;
+            window.parseFloat.calledOnce.should.be.false;
             done();
         });
 
         it('returns revShare value when revShare value is present in conf of given adapterID', function(done) {
-            CONFIG.getAdapterRevShare().should.equal(1 - window.parseFloat(CONF.adapters[adapterID].rev_share) / 100);
+            CONFIG.getAdapterRevShare(adapterID).should.equal((1 - window.parseFloat(CONF.adapters[adapterID].rev_share) / 100));
             UTIL.isOwnProperty.calledOnce.should.be.true;
+            window.parseFloat.calledTwice.should.be.true;
             done();
         });
     });
@@ -122,7 +133,12 @@ describe('Config', function() {
         var adapterID = null;
 
         beforeEach(function(done) {
-            sinon.stub(UTIL, "isOwnProperty");
+            CONF.adapters["non_adapter"] = {
+                rev_share: "0.0",
+                publisherId: "9999",
+                kgp: "_DIV_@_W_x_H_:_AUI_"
+            };
+            sinon.spy(UTIL, "isOwnProperty");
             adapterID = commonAdapterID;
             done();
         });
@@ -130,6 +146,7 @@ describe('Config', function() {
         afterEach(function(done) {
             UTIL.isOwnProperty.restore();
             adapterID = null;
+            delete CONF.adapters["non_adapter"];
             done();
         });
 
@@ -140,14 +157,13 @@ describe('Config', function() {
 
 
         it('returns throttle value as 0 when throttle value is not present in conf of given adapterID', function(done) {
-            UTIL.isOwnProperty.returns(false);
-            CONFIG.getAdapterThrottle().should.equal(0);
+            CONFIG.getAdapterThrottle("non_adapter").should.equal(0);
             UTIL.isOwnProperty.calledOnce.should.be.true;
             done();
         });
 
         it('returns throttle value when throttle value is present in conf of given adapterID', function(done) {
-            CONFIG.getAdapterThrottle().should.equal(100 - CONF.adapters[adapterID].throttle);
+            CONFIG.getAdapterThrottle(adapterID).should.equal(100 - CONF.adapters[adapterID].throttle);
             UTIL.isOwnProperty.calledOnce.should.be.true;
             done();
         });
@@ -157,7 +173,14 @@ describe('Config', function() {
         var adapterID = null;
 
         beforeEach(function(done) {
-            sinon.stub(UTIL, "isOwnProperty");
+            CONF.adapters["non_adapter"] = {
+                rev_share: "0.0",
+                throttle: "100",
+                publisherId: "9999",
+                kgp: "_DIV_@_W_x_H_:_AUI_",
+                pt: "2"
+            };
+            sinon.spy(UTIL, "isOwnProperty");
             adapterID = commonAdapterID;
             done();
         });
@@ -165,6 +188,7 @@ describe('Config', function() {
         afterEach(function(done) {
             UTIL.isOwnProperty.restore();
             adapterID = null;
+            delete CONF.adapters["non_adapter"];
             done();
         });
 
@@ -174,8 +198,8 @@ describe('Config', function() {
         });
 
         it('returns BidPassThroughStatus value as 0 when BidPassThroughStatus value is not present in conf of given adapterID', function(done) {
-            UTIL.isOwnProperty.returns(false);
-            CONFIG.getBidPassThroughStatus().should.equal(0);
+            delete CONF.adapters["non_adapter"].pt;
+            CONFIG.getBidPassThroughStatus("non_adapter").should.equal(0);
             UTIL.isOwnProperty.calledOnce.should.be.true;
             done();
         });
@@ -184,7 +208,7 @@ describe('Config', function() {
             CONF.adapters[adapterID] = {
                 pt: "0"
             };
-            CONFIG.getBidPassThroughStatus().should.equal(window.parseInt(CONF.adapters[adapterID].pt));
+            CONFIG.getBidPassThroughStatus(adapterID).should.equal(window.parseInt(CONF.adapters[adapterID].pt));
             UTIL.isOwnProperty.calledOnce.should.be.true;
             done();
         });
@@ -290,14 +314,22 @@ describe('Config', function() {
     });
 
     describe('#forEachAdapter', function() {
+        var obj = null;
 
         beforeEach(function(done) {
-            sinon.stub(UTIL, "forEachOnObject").returns(true);
+            sinon.spy(UTIL, "forEachOnObject");
+            obj = {
+                callback: function() {
+                    return "callback";
+                }
+            };
+            sinon.spy(obj, "callback");
             done();
         });
 
         afterEach(function(done) {
             UTIL.forEachOnObject.restore();
+            obj.callback.restore();
             done();
         });
 
@@ -307,11 +339,9 @@ describe('Config', function() {
         });
 
         it('should have called UTIL.forEachOnObject with conf adapters and callback function being passed', function(done) {
-            var callback = function() {
-                console.log("callback");
-            };
-            CONFIG.forEachAdapter(callback);
-            UTIL.forEachOnObject.calledWith(CONF.adapters, callback).should.be.true;
+            CONFIG.forEachAdapter(obj.callback);
+            UTIL.forEachOnObject.calledWith(CONF.adapters, obj.callback).should.be.true;
+            obj.callback.called.should.be.true;
             done();
         });
 
@@ -319,8 +349,30 @@ describe('Config', function() {
 
     describe('#addPrebidAdapter', function() {
 
+        beforeEach(function (done) {
+            sinon.spy(UTIL, "isOwnProperty");
+            done();
+        });
+
+        afterEach(function (done) {
+            UTIL.isOwnProperty.restore();
+            delete CONF.adapters[CONSTANTS.COMMON.PARENT_ADAPTER_PREBID];
+            done();
+        });
+
         it('is a function', function(done) {
             CONFIG.addPrebidAdapter.should.be.a('function');
+            done();
+        });
+
+        it('should add Prebid Adapter to the conf if doesnt already exists', function (done) {
+            CONFIG.addPrebidAdapter();
+            expect(CONF.adapters[CONSTANTS.COMMON.PARENT_ADAPTER_PREBID]).to.be.deep.equal({
+                rev_share: "0.0",
+                throttle: "100",
+                kgp: "_DIV_",
+                klm: {}
+            });
             done();
         });
     });
