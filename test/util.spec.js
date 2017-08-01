@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-// var sinon = require("sinon");
+var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 
@@ -18,19 +18,19 @@ var commonAdapterID = "pubmatic";
 var commonDivID = "DIV_1";
 
 // TODO : remove as required during single TDD only
-// var jsdom = require('jsdom').jsdom;
-// var exposedProperties = ['window', 'navigator', 'document'];
-// global.document = jsdom('');
-// global.window = document.defaultView;
-// Object.keys(document.defaultView).forEach((property) => {
-//     if (typeof global[property] === 'undefined') {
-//         exposedProperties.push(property);
-//         global[property] = document.defaultView[property];
-//     }
-// });
-// global.navigator = {
-//     userAgent: 'node.js'
-// };
+var jsdom = require('jsdom').jsdom;
+var exposedProperties = ['window', 'navigator', 'document'];
+global.document = jsdom('');
+global.window = document.defaultView;
+Object.keys(document.defaultView).forEach((property) => {
+    if (typeof global[property] === 'undefined') {
+        exposedProperties.push(property);
+        global[property] = document.defaultView[property];
+    }
+});
+global.navigator = {
+    userAgent: 'node.js'
+};
 
 describe('UTIL', function() {
 
@@ -838,7 +838,7 @@ describe('UTIL', function() {
         it('should return if given object is not a valid Object', function(done) {
             theObject = null
             UTIL.forEachOnObject(theObject, obj.callback);
-            UTIL.isObject.returned(false);
+            UTIL.isObject.returned(false).should.be.true;
             UTIL.isFunction.called.should.be.false;
             done();
         });
@@ -846,7 +846,7 @@ describe('UTIL', function() {
         it('should return if given callback is not a valid Function', function(done) {
             obj.callback = null;
             UTIL.forEachOnObject(theObject, obj.callback);
-            UTIL.isObject.returned(true);
+            UTIL.isObject.returned(true).should.be.true;
             UTIL.isOwnProperty.called.should.be.false;
             done();
         });
@@ -894,7 +894,7 @@ describe('UTIL', function() {
         it('should return if given array is not an valid Array', function(done) {
             theArray = null
             UTIL.forEachOnArray(theArray, obj.callback);
-            UTIL.isArray.returned(false);
+            UTIL.isArray.returned(false).should.be.true;
             UTIL.isFunction.called.should.be.false;
             done();
         });
@@ -902,8 +902,8 @@ describe('UTIL', function() {
         it('should return if given callback is not a valid Function', function(done) {
             obj.callback = null;
             UTIL.forEachOnArray(theArray, obj.callback);
-            UTIL.isArray.returned(true);
-            UTIL.isFunction.returned(false);
+            UTIL.isArray.returned(true).should.be.true;
+            UTIL.isFunction.returned(false).should.be.true;
             done();
         });
 
@@ -1159,8 +1159,8 @@ describe('UTIL', function() {
         it('should have logged if passed object doesnt have function which we want to add hook on', function(done) {
             functionName = "non_existing_fn_name";
             UTIL.addHookOnFunction(theObject, useProto, functionName, obj.newFunction);
-            UTIL.isFunction.returned(false);
-            UTIL.isObject.returned(true);
+            UTIL.isFunction.returned(false).should.be.true;
+            UTIL.isObject.returned(true).should.be.true;
             UTIL.log.calledWith("in assignNewDefination: oldReference is not a function");
             done();
         });
@@ -1169,8 +1169,8 @@ describe('UTIL', function() {
         it('should assign the passed in object with passed function name the invocation of passed newFunction', function(done) {
             var originalFn = theObject[functionName];
             UTIL.addHookOnFunction(theObject, useProto, functionName, obj.newFunction);
-            UTIL.isObject.returned(true);
-            UTIL.isFunction.returned(true);
+            UTIL.isObject.returned(true).should.be.true;
+            UTIL.isFunction.returned(true).should.be.true;
             done();
         });
     });
@@ -1591,7 +1591,7 @@ describe('UTIL', function() {
         it('should have called isFunction', function(done) {
             UTIL.getElementLocation(el);
             UTIL.isFunction.called.should.be.true;
-            UTIL.isFunction.returned(true);
+            UTIL.isFunction.returned(true).should.be.true;
             el.getBoundingClientRect.called.should.be.true;
             done();
         });
@@ -1603,7 +1603,7 @@ describe('UTIL', function() {
                 y: 50
             });;
             UTIL.isFunction.called.should.be.true;
-            UTIL.isFunction.returned(false);
+            UTIL.isFunction.returned(false).should.be.true;
             el.getBoundingClientRect.called.should.be.false;
             done();
         });
@@ -1696,7 +1696,6 @@ describe('UTIL', function() {
 
         it('should have called doc.getElementById', function(done) {
             UTIL.createVLogInfoPanel(divID, dimensionArray);
-            UTIL.isUndefined.returned(false);
             window.document.createElement.calledWith("img").should.be.true;
             window.document.createElement.calledWith("div").should.be.true;
             window.document.createElement.calledWith("br").should.be.true;
