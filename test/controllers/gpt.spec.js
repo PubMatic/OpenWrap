@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-// var sinon = require("sinon");
+var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 
@@ -14,19 +14,19 @@ var SLOT = require("../../src_new/slot.js");
 var commonDivID = "DIV_1";
 
 // TODO : remove as required during single TDD only
-// var jsdom = require('jsdom').jsdom;
-// var exposedProperties = ['window', 'navigator', 'document'];
-// global.document = jsdom('');
-// global.window = document.defaultView;
-// Object.keys(document.defaultView).forEach((property) => {
-//     if (typeof global[property] === 'undefined') {
-//         exposedProperties.push(property);
-//         global[property] = document.defaultView[property];
-//     }
-// });
-// global.navigator = {
-//     userAgent: 'node.js'
-// };
+var jsdom = require('jsdom').jsdom;
+var exposedProperties = ['window', 'navigator', 'document'];
+global.document = jsdom('');
+global.window = document.defaultView;
+Object.keys(document.defaultView).forEach((property) => {
+    if (typeof global[property] === 'undefined') {
+        exposedProperties.push(property);
+        global[property] = document.defaultView[property];
+    }
+});
+global.navigator = {
+    userAgent: 'node.js'
+};
 
 describe("CONTROLLER: GPT", function() {
 
@@ -190,7 +190,7 @@ describe("CONTROLLER: GPT", function() {
             windowObj.googletag.cmd.length.should.equal(0);
             done();
         });
-        
+
         it("should create googletag as empty object if not present", function(done) {
             windowObj = {};
             GPT.defineGPTVariables(windowObj).should.equal(true);
@@ -202,69 +202,67 @@ describe("CONTROLLER: GPT", function() {
     
 
     describe("#init()", function() {
+        //todo: now we are calling a safeframe related function
+        beforeEach(function(done) {
+            sinon.spy(UTIL, "isObject");
+            sinon.spy(GPT, "setWindowReference");
+            sinon.spy(GPT, "defineWrapperTargetingKeys");
+            sinon.spy(GPT, "defineGPTVariables");
+            sinon.spy(AM, "registerAdapters");
+            sinon.spy(GPT, "addHooksIfPossible");
+            sinon.spy(GPT, "callJsLoadedIfRequired");
+            sinon.spy(GPT, "initSafeFrameListener");
+            done();
+        });
 
-        it("should return false when window object is null", function() {
+        afterEach(function(done) {
+            UTIL.isObject.restore();
+            GPT.setWindowReference.restore();
+            GPT.defineWrapperTargetingKeys.restore();
+            GPT.defineGPTVariables.restore();
+            AM.registerAdapters.restore();
+            GPT.addHooksIfPossible.restore();
+            GPT.callJsLoadedIfRequired.restore();
+            GPT.initSafeFrameListener.restore();
+            done();
+        });
+
+        it("should return false when window object is null", function(done) {
             GPT.init(null).should.equal(false);
+            done();
         });
 
         //todo: now we are calling a safeframe related function
+        it("should have called respective internal functions ", function(done) {
+            window.PWT = {};
+            GPT.init(window).should.equal(true);
 
+            UTIL.isObject.called.should.be.true;
+            UTIL.isObject.returned(true).should.to.be.true;
 
-        describe("When window object with required props are passed", function() {
+            GPT.setWindowReference.called.should.be.true;
+            GPT.defineWrapperTargetingKeys.called.should.be.true;
+            GPT.defineGPTVariables.called.should.be.true;
+            AM.registerAdapters.called.should.be.true;
+            GPT.addHooksIfPossible.called.should.be.true;
+            GPT.callJsLoadedIfRequired.called.should.be.true;
+            done();
+        });
 
-            before(function(done) {
-                sinon.stub(UTIL, "isObject",
-                    function() {
-                        return true;
-                    });
-                sinon.stub(GPT, "setWindowReference").returns(true);
-                sinon.stub(GPT, "defineWrapperTargetingKeys").returns(true);
-                sinon.stub(GPT, "defineGPTVariables").returns(true);
-                sinon.stub(AM, "registerAdapters").returns(true);
-                sinon.stub(GPT, "addHooksIfPossible").returns(true);
-                sinon.stub(GPT, "callJsLoadedIfRequired").returns(true);
-                sinon.stub(GPT, "initSafeFrameListener").returns(true);
-                done();
-            });
+        it('should not proceed if passed window object is invalid', function (done) {
+            GPT.init("NonObject").should.be.false;
 
-            after(function(done) {
-                UTIL.isObject.restore();
-                GPT.setWindowReference.restore();
-                GPT.defineWrapperTargetingKeys.restore();
-                GPT.defineGPTVariables.restore();
-                AM.registerAdapters.restore();
-                GPT.addHooksIfPossible.restore();
-                GPT.callJsLoadedIfRequired.restore();
-                done();
-            });
+            UTIL.isObject.called.should.be.true;
+            UTIL.isObject.returned(false).should.be.true;
 
-            it("should return true when the required window object is passed", function() {
-                GPT.init({}).should.equal(true);
-            });
-
-            //todo: now we are calling a safeframe related function
-            it("should have called respective internal functions ", function(done) {
-
-                GPT.init({
-                    PWT: {
-                        jsLoaded: function() {
-
-                        }
-                    }
-                });
-
-                // console.log("UTIL.isObject.calledOnce ==>", UTIL.isObject.callCount);
-
-                UTIL.isObject.called.should.be.true;
-                UTIL.isObject.returned(true);
-                GPT.setWindowReference.called.should.be.true;
-                GPT.defineWrapperTargetingKeys.called.should.be.true;
-                GPT.defineGPTVariables.called.should.be.true;
-                AM.registerAdapters.called.should.be.true;
-                GPT.addHooksIfPossible.called.should.be.true;
-                GPT.callJsLoadedIfRequired.called.should.be.true;
-                done();
-            });
+            UTIL.isObject.calledWith("NonObject").should.be.true;
+            GPT.setWindowReference.called.should.be.false;
+            GPT.defineWrapperTargetingKeys.called.should.be.false;
+            GPT.defineGPTVariables.called.should.be.false;
+            AM.registerAdapters.called.should.be.false;
+            GPT.addHooksIfPossible.called.should.be.false;
+            GPT.callJsLoadedIfRequired.called.should.be.false;
+            done(); 
         });
     });
 
