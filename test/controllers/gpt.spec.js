@@ -433,18 +433,15 @@ describe("CONTROLLER: GPT", function() {
 
             UTIL.isUndefined.calledOnce.should.equal(true);
             UTIL.isObject.calledOnce.should.equal(true);
-            // UTIL.isArray.calledOnce.should.equal(true);
-            // UTIL.isFunction.calledOnce.should.equal(true);
-
             done();
         });
 
-        var winObj = {
-            googletag: {
-                cmd: []
-            }
-        };
         it("return true if passed window object with required props and should have called util.log", function(done) {
+            var winObj = {
+                googletag: {
+                    cmd: []
+                }
+            };
             GPT.addHooksIfPossible(winObj).should.equal(true);
             UTIL.log.calledOnce.should.equal(true);
             UTIL.log.calledWith("Succeeded to load before GPT").should.be.true;
