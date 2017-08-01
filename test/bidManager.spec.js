@@ -924,6 +924,7 @@ describe('bidManager BIDMgr', function() {
         var latency = null;
         var kgpv = commonKGPV;
         var impressionID = 123123;
+        var origImage = null;
 
         beforeEach(function(done) {
             slotID = "Slot_1";
@@ -939,7 +940,10 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, 'getGrossEcpm');
             sinon.spy(theBid, 'getKGPV');
 
-            sinon.stub(window, 'Image').returns({});
+            origImage = window.Image;
+            window.Image = sinon.stub();
+            window.Image.returns({});
+            // sinon.stub(window, 'Image').returns({});
 
             window.PWT = {
                 bidMap: {}
@@ -977,7 +981,8 @@ describe('bidManager BIDMgr', function() {
             theBid.getKGPV.restore();
             theBid = null;
 
-            window.Image.restore();
+            // window.Image.restore();
+            window.Image = origImage;
 
             UTIL.getCurrentTimestamp.restore();
 
@@ -1069,15 +1074,20 @@ describe('bidManager BIDMgr', function() {
     // TODO : check for window.Image issue for phantomJS
     describe('#setImageSrcToPixelURL', function() {
         var pixelURL = null;
+        var origImage = null;
         beforeEach(function(done) {
             pixelURL = "t.pubmatic.com/wt?pubid=9999&purl=undefined&tst=1499332621&iid=123123&bidid=784b05cc03a84a&pid=46&pdvid=4&slot=Slot_1&pn=null&en=0&eg=0&kgpv=XYZ";
-            sinon.stub(window, 'Image').returns({});
+            // sinon.stub(window, 'Image').returns({});
+            origImage = window.Image;
+            window.Image = sinon.stub();
+            window.Image.returns({});
             done();
         });
 
         afterEach(function(done) {
             pixelURL = null;
-            window.Image.restore();
+            // window.Image.restore();
+            window.Image = origImage
             done();
         });
 

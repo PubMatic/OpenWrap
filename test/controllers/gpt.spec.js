@@ -1236,7 +1236,7 @@ describe("CONTROLLER: GPT", function() {
                 return "originalFunction"
             };
             arg = {};
-            sinon.spy(GPT, "updateStatusAndCallOriginalFunction_Display");
+            sinon.stub(GPT, "updateStatusAndCallOriginalFunction_Display").returns(true);
             done();
         });
 
