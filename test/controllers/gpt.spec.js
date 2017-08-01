@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-var sinon = require("sinon");
+// var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 
@@ -14,19 +14,19 @@ var SLOT = require("../../src_new/slot.js");
 var commonDivID = "DIV_1";
 
 // TODO : remove as required during single TDD only
-var jsdom = require('jsdom').jsdom;
-var exposedProperties = ['window', 'navigator', 'document'];
-global.document = jsdom('');
-global.window = document.defaultView;
-Object.keys(document.defaultView).forEach((property) => {
-    if (typeof global[property] === 'undefined') {
-        exposedProperties.push(property);
-        global[property] = document.defaultView[property];
-    }
-});
-global.navigator = {
-    userAgent: 'node.js'
-};
+// var jsdom = require('jsdom').jsdom;
+// var exposedProperties = ['window', 'navigator', 'document'];
+// global.document = jsdom('');
+// global.window = document.defaultView;
+// Object.keys(document.defaultView).forEach((property) => {
+//     if (typeof global[property] === 'undefined') {
+//         exposedProperties.push(property);
+//         global[property] = document.defaultView[property];
+//     }
+// });
+// global.navigator = {
+//     userAgent: 'node.js'
+// };
 
 describe("CONTROLLER: GPT", function() {
 
@@ -202,7 +202,7 @@ describe("CONTROLLER: GPT", function() {
     
 
     describe("#init()", function() {
-        //todo: now we are calling a safeframe related function
+        
         beforeEach(function(done) {
             sinon.spy(UTIL, "isObject");
             sinon.spy(GPT, "setWindowReference");
@@ -232,7 +232,6 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        //todo: now we are calling a safeframe related function
         it("should have called respective internal functions ", function(done) {
             window.PWT = {};
             GPT.init(window).should.equal(true);
