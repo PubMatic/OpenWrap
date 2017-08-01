@@ -29,16 +29,6 @@ console.log("argv ==>", argv);
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
 
-// gulp.task('test-build' function () {
-//     console.log('Executing test-build gulp task');
-// });
-
-
-// gulp.task('build', function () {
-//     console.log('Executing build gulp task')
-// });
-
-
 gulp.task('clean', function() {
     return gulp.src(['dist/**/*.js', 'build/'], {
             read: true
@@ -156,9 +146,6 @@ gulp.task('lint', () => {
 // Task to build minified version of owt.js
 gulp.task('bundle', function () {
     console.log("Executing build"); 
-    // gulp.src(prebidRepoPath + '/build/dist/prebid.js')
-    //     .pipe(stripComments())
-    //     .pipe(gulp.dest(prebidRepoPath + '/build/dist'));
     return gulp.src(['prebid-header.js', prebidRepoPath + '/build/dist/prebid.js','./build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
@@ -168,10 +155,6 @@ gulp.task('bundle', function () {
 // Task to build non-minified version of owt.js
 gulp.task('devbundle', function () {
     console.log("Executing Dev Build");
-    // gulp.src(prebidRepoPath + '/build/dev/prebid.js')
-    //     .pipe(stripComments())
-    //     .pipe(gulp.dest(prebidRepoPath + '/build/dev/'));
-
     return gulp.src(['prebid-header.js', prebidRepoPath + '/build/dev/prebid.js', './build/dev/owt.js'])
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));

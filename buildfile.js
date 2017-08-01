@@ -2,7 +2,7 @@ console.log("running from shell script");
 var shell = require('shelljs');
 var argv = require('yargs').argv;
 
-//
+
 shell.exec("gulp clean");
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
@@ -31,14 +31,6 @@ if ( argv.mode && argv.mode == "test-build") {
 	shell.exit(1);
 }
  
-//
-
-// if (argv.dev) {
-// 	buildTaskName = "dev" + buildTaskName;
-// 	webpackTaskName = "dev" + webpackTaskName;
-// } else {
-// 	webpackTaskName = "web" + webpackTaskName;
-// }
 
 if(shell.exec("gulp " + webpackTaskName + " --mode=" + argv.mode).code !== 0) {
 	shell.echo('Error: buidlinng of project failed');
@@ -47,7 +39,7 @@ if(shell.exec("gulp " + webpackTaskName + " --mode=" + argv.mode).code !== 0) {
 
 shell.cd("../OpenWrap/");
 if (argv.mode == "test-build") {
-	if(shell.exec("gulp test" + " --mode=" + argv.mode).code !== 0) {
+	if(shell.exec("gulp testall" + " --mode=" + argv.mode).code !== 0) {
 		shell.echo('Error: test cases failed');
   		shell.exit(1);
 	}

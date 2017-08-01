@@ -39,7 +39,7 @@ if(shell.exec("gulp " + webpackTaskName + " --mode=" + argv.mode).code !== 0) {
 
 shell.cd("../OpenWrap/");
 if (argv.mode == "test-build") {
-	if(shell.exec("gulp test" + " --mode=" + argv.mode).code !== 0) {
+	if(shell.exec("gulp testall" + " --mode=" + argv.mode).code !== 0) {
 		shell.echo('Error: test cases failed');
   		shell.exit(1);
 	}
