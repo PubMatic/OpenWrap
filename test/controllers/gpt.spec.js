@@ -66,6 +66,12 @@ describe("CONTROLLER: GPT", function() {
             GPT.getWindowReference.should.be.a('function');
             done();
         });
+
+        it('should return the window object reference', function (done) {
+            GPT.setWindowReference(window);
+            GPT.getWindowReference().should.deep.equal(window);
+            done();
+        });
     });
 
     describe("#getAdUnitIndex()", function() {
