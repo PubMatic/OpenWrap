@@ -43,7 +43,7 @@ function setWindowReference(win) { // TDD, i/o: done
 exports.setWindowReference = setWindowReference;
 /* end-test-block */
 
-function getWindowReference() {
+function getWindowReference() { // TDD, i/o: done
     return windowReference;
 }
 /* start-test-block */
