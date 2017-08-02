@@ -34,7 +34,7 @@ var windowReference = null;
 
 var refThis = this; 
 
-function setWindowReference(win) { // TDD : done
+function setWindowReference(win) { // TDD, i/o: done
     if (util.isObject(win)) {
         windowReference = win;
     }

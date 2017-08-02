@@ -33,15 +33,29 @@ describe("CONTROLLER: GPT", function() {
     describe("#setWindowReference()", function() {
         var nonObject = 0;
 
+        beforeEach(function (done) {
+            sinon.spy(UTIL, "isObject");
+            done();
+        });
+
+        afterEach(function (done) {
+            UTIL.isObject.restore();
+            done();
+        });
+
         it("should not set WindowReference if argument is not object", function(done) {
             GPT.setWindowReference(nonObject);
             expect(GPT.getWindowReference() === null).to.equal(true);
+            UTIL.isObject.returned(false).should.be.true;
+            UTIL.isObject.calledOnce.should.be.true;
             done();
         });
 
         it("should set WindowReference if argument is object", function(done) {
             GPT.setWindowReference(window);
             GPT.getWindowReference().should.be.deep.equal(window);
+            UTIL.isObject.calledOnce.should.be.true;
+            UTIL.isObject.returned(true).should.be.true;
             done();
         });
     });
