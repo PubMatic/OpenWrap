@@ -147,7 +147,7 @@ function getAdSlotSizesArray(divID, currentGoogleSlot) { // TDD, i/o : done
 exports.getAdSlotSizesArray = getAdSlotSizesArray;
 /* end-test-block */
 
-function setDisplayFunctionCalledIfRequired(slot, arg) { // TDD : done
+function setDisplayFunctionCalledIfRequired(slot, arg) { // TDD, i/o : done
     /* istanbul ignore else */
     if (util.isObject(slot) && util.isFunction(slot.getDivID)) {
         /* istanbul ignore else */

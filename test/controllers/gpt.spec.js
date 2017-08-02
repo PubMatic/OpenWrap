@@ -405,6 +405,82 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
+    describe('#setDisplayFunctionCalledIfRequired', function() {
+
+        var slot = null,
+            arg = null;
+        beforeEach(function(done) {
+            slot = SLOT.createSlot("slot_1");
+            slot.setDivID("DIV_1");
+            arg = ["DIV_1", "DIV_2"];
+
+            sinon.spy(slot, "getDivID");
+            sinon.spy(slot, "setDisplayFunctionCalled");
+            sinon.spy(slot, "setArguments");
+
+            sinon.spy(UTIL, "isObject");
+            sinon.spy(UTIL, "isFunction");
+            sinon.spy(UTIL, "isArray");
+            done();
+        });
+
+        afterEach(function(done) {
+            UTIL.isObject.restore();
+            UTIL.isFunction.restore();
+            UTIL.isArray.restore();
+
+            if (typeof slot.getDivID === "function") {
+                slot.getDivID.restore();
+            }
+            slot.setDisplayFunctionCalled.restore();
+            slot.setArguments.restore();
+
+            slot = null;
+
+            done();
+        });
+
+        it('is a function', function(done) {
+            GPT.setDisplayFunctionCalledIfRequired.should.be.a('function');
+            done();
+        });
+
+        it('should have called setDisplayFunctionCalled and setArguments if given arguments are proper ', function(done) {
+            GPT.setDisplayFunctionCalledIfRequired(slot, arg);
+            UTIL.isObject.calledWith(slot).should.be.true;
+            UTIL.isFunction.calledWith(slot.getDivID).should.be.true;
+            UTIL.isArray.calledWith(arg).should.be.true;
+            slot.getDivID.called.should.be.true;
+            slot.setDisplayFunctionCalled.calledWith(true).should.be.true;
+            slot.setArguments.calledWith(arg).should.be.true;
+            done();
+        });
+
+
+        it('should not proceed if given slot is not an object', function (done) {
+            GPT.setDisplayFunctionCalledIfRequired(null, arg);
+            UTIL.isObject.calledWith(slot).should.be.false;
+            UTIL.isFunction.calledWith(slot.getDivID).should.be.false;
+            UTIL.isArray.calledWith(arg).should.be.false;
+            slot.getDivID.called.should.be.false;
+            slot.setDisplayFunctionCalled.calledWith(true).should.be.false;
+            slot.setArguments.calledWith(arg).should.be.false;
+            done();
+        });
+
+        it('should not proceed if given slot doesnt have required method', function (done) {
+            slot.getDivID = null;
+            GPT.setDisplayFunctionCalledIfRequired(slot, arg);
+            UTIL.isObject.calledWith(slot).should.be.true;
+            UTIL.isFunction.calledWith(slot.getDivID).should.be.true;
+            UTIL.isArray.calledWith(arg).should.be.false;
+            slot.setDisplayFunctionCalled.calledWith(true).should.be.false;
+            slot.setArguments.calledWith(arg).should.be.false;
+            done();
+        });
+
+    });
+
     describe("#callJsLoadedIfRequired()", function() {
 
         it("should return false when the object passed is string ", function() {
@@ -1786,65 +1862,7 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#setDisplayFunctionCalledIfRequired', function() {
-
-        var slot = null,
-            arg = null;
-        beforeEach(function(done) {
-            slot = {
-                getDivID: function() {
-                    return "DIV_1";
-                },
-                setDisplayFunctionCalled: function() {
-                    return true;
-                },
-                setArguments: function() {
-                    return true;
-                }
-            };
-            arg = ["DIV_1", "DIV_2"];
-
-            sinon.spy(slot, "getDivID");
-            sinon.spy(slot, "setDisplayFunctionCalled");
-            sinon.spy(slot, "setArguments");
-
-            sinon.spy(UTIL, "isObject");
-            sinon.spy(UTIL, "isFunction");
-            sinon.spy(UTIL, "isArray");
-            done();
-        });
-
-        afterEach(function(done) {
-
-            slot.getDivID.restore();
-            slot.setDisplayFunctionCalled.restore();
-            slot.setArguments.restore();
-
-            slot = null;
-
-            UTIL.isObject.restore();
-            UTIL.isFunction.restore();
-            UTIL.isArray.restore();
-            done();
-        });
-
-        it('is a function', function(done) {
-            GPT.setDisplayFunctionCalledIfRequired.should.be.a('function');
-            done();
-        });
-
-        it('should have called setDisplayFunctionCalled and setArguments if given is proper ', function(done) {
-            GPT.setDisplayFunctionCalledIfRequired(slot, arg);
-            UTIL.isObject.calledWith(slot).should.be.true;
-            UTIL.isFunction.calledWith(slot.getDivID).should.be.true;
-            UTIL.isArray.calledWith(arg).should.be.true;
-            slot.getDivID.called.should.be.true;
-            slot.setDisplayFunctionCalled.calledWith(true).should.be.true;
-            slot.setArguments.calledWith(arg).should.be.true;
-            done();
-        });
-
-    });
+    
 
     describe('#getStatusOfSlotForDivId', function() {
         var divID = null;
