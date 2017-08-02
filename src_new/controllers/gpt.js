@@ -50,7 +50,7 @@ function getWindowReference() { // TDD, i/o: done
 exports.getWindowReference = getWindowReference;
 /* end-test-block */
 
-function getAdUnitIndex(currentGoogleSlot) { // TDD : done
+function getAdUnitIndex(currentGoogleSlot) { // TDD, i/o : done
     var index = 0;
     try {
         var adUnitIndexString = currentGoogleSlot.getSlotId().getId().split("_");
@@ -58,6 +58,7 @@ function getAdUnitIndex(currentGoogleSlot) { // TDD : done
     } catch (ex) {} // eslint-disable-line no-empty
     return index;
 }
+
 exports.getAdUnitIndex = getAdUnitIndex;
 
 

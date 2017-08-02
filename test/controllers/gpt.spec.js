@@ -75,39 +75,64 @@ describe("CONTROLLER: GPT", function() {
     });
 
     describe("#getAdUnitIndex()", function() {
+        var random = null;
+        var currentGoogleSlotStub = null;
 
-        it("should return 0 when the object passed is null ", function() {
+        beforeEach(function (done) {
+            random = Math.floor(Math.random() * 100);
+            currentGoogleSlotStub = {
+                getSlotId: function() {
+                    return this;
+                },
+                getId: function() {
+                    return "abcd_" + random;
+                }
+            };
+            sinon.spy(currentGoogleSlotStub, "getSlotId");
+            sinon.spy(currentGoogleSlotStub, "getId");
+            done();
+        });
+
+        afterEach(function (done) {
+            currentGoogleSlotStub.getSlotId.restore();
+            currentGoogleSlotStub.getId.restore();
+            random = null;
+            currentGoogleSlotStub = null;
+            done();
+        });
+
+
+        it("should return 0 when the object passed is null ", function(done) {
             GPT.getAdUnitIndex(null).should.equal(0);
+            done();
         });
 
-        it("should return 0 when the object passed is number ", function() {
+        it("should return 0 when the object passed is number ", function(done) {
             GPT.getAdUnitIndex(0).should.equal(0);
+            done();
         });
 
-        it("should return 0 when the object passed is empty string ", function() {
+        it("should return 0 when the object passed is empty string ", function(done) {
             GPT.getAdUnitIndex("").should.equal(0);
+            done();
         });
 
-        it("should return 0 when the object passed is not empty string ", function() {
+        it("should return 0 when the object passed is not empty string ", function(done) {
             GPT.getAdUnitIndex("abcd").should.equal(0);
+            done();
         });
 
-        it("should return 0 when the object passed does not have required method ", function() {
+        it("should return 0 when the object passed does not have required method ", function(done) {
             GPT.getAdUnitIndex({}).should.equal(0);
+            done();
         });
 
-        var random = Math.floor(Math.random() * 100);
-        var test = {
-            getSlotId: function() {
-                return this;
-            },
-            getId: function() {
-                return "abcd_" + random;
-            }
-        };
 
-        it("should return " + random + " when the object passed does have required method ", function() {
-            GPT.getAdUnitIndex(test).should.equal(random);
+        it("should return random when the object passed does have required method ", function(done) {
+            GPT.getAdUnitIndex(currentGoogleSlotStub).should.equal(random);
+            currentGoogleSlotStub.getSlotId.calledOnce.should.be.true;
+            currentGoogleSlotStub.getId.calledOnce.should.be.true;
+            done();
         });
 
     });
