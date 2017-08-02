@@ -1,7 +1,22 @@
 
+#Copyright
+Copyright 2016 PubMatic, Inc. All rights reserved.
+ 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
 # Introduction
 
-OpenWrap as an extension of Prebid is under development and not currently available on this Github page. The updated OpenWrap source code extending Prebid.js will be available August 17th.
+OpenWrap as an extension of Prebid is under development and not currently available on this Github page. The updated OpenWrap source code extending Prebid.js will be available mid August.
 
 Portions of OpenWrap contain code from Prebid.js licensed under the Apache License, Version 2.0.
 
@@ -518,19 +533,6 @@ To change the configuration and check bid responses use following JSFiddles :
 
 To add a partner adapter, one should follow a template from this repository at src/adapters/sampleAdapter.js
 
-#Copyright
-Copyright 2016 PubMatic, Inc. All rights reserved.
- 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
  
 </a>
