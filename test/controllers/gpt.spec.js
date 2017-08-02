@@ -137,6 +137,274 @@ describe("CONTROLLER: GPT", function() {
 
     });
 
+    describe('#getSizeFromSizeMapping', function() {
+        var divID = null;
+        var slotSizeMapping = null;
+        var screenWidth = 1024;
+        var screenHeight = 768;
+
+        beforeEach(function(done) {
+            divID = commonDivID;
+            slotSizeMapping = {};
+            slotSizeMapping[divID] = [];
+
+            sinon.spy(UTIL, 'isOwnProperty');
+
+            sinon.stub(UTIL, 'getScreenWidth');
+            UTIL.getScreenWidth.returns(screenWidth);
+
+            sinon.stub(UTIL, 'getScreenHeight');
+            UTIL.getScreenHeight.returns(screenHeight);
+
+            sinon.spy(UTIL, 'isArray');
+            sinon.spy(UTIL, 'isNumber');
+            sinon.spy(UTIL, 'log');
+            done();
+        });
+
+        afterEach(function(done) {
+            divID = null;
+            slotSizeMapping = null;
+
+            UTIL.getScreenWidth.restore();
+            UTIL.getScreenHeight.restore();
+
+            UTIL.isOwnProperty.restore();
+            UTIL.isArray.restore();
+            UTIL.isNumber.restore();
+            UTIL.log.restore();
+            done();
+        });
+
+        it('is a function', function(done) {
+            GPT.getSizeFromSizeMapping.should.be.a('function');
+            done();
+        });
+
+        it('should return false when given divID not a property of slotSizeMapping passed', function(done) {
+            delete slotSizeMapping[divID];
+            GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.false;
+            UTIL.isOwnProperty.calledOnce.should.be.true;
+            done();
+        });
+
+        it('should have logged sizeMapping and its details', function(done) {
+            GPT.getSizeFromSizeMapping(divID, slotSizeMapping);
+
+            UTIL.log.calledWith(divID + ": responsiveSizeMapping found: screenWidth: " + screenWidth + ", screenHeight: " + screenHeight).should.be.true;
+            UTIL.log.calledWith(slotSizeMapping[divID]).should.be.true;
+            done();
+        });
+
+        it('should return false if sizeMapping is not and array', function(done) {
+            slotSizeMapping[divID] = {};
+            GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.false;
+            UTIL.isArray.calledOnce.should.be.true;
+            done();
+        });
+
+        it('should have logged in case of unsupported mapping template', function (done) {
+            slotSizeMapping[divID] = 
+            [ 
+                [ 
+                    [ 1024, 768 ], 
+                    [ 
+                        "X970X", 250 
+                    ] 
+                ],
+
+                [ 
+                    [ 980, 600 ], 
+                    [ 
+                        [ 728, 90 ], 
+                        [ 640, 480 ] 
+                    ] 
+                ] 
+            ];
+            GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.an('array');
+            UTIL.isNumber.called.should.be.true;
+            UTIL.log.calledWith(divID + ": Unsupported mapping template.").should.be.true;
+            UTIL.log.calledWith(slotSizeMapping[divID]).should.be.true;
+            done(); 
+        });
+
+        it('should have logged in case of unsupported mapping template', function (done) {
+            slotSizeMapping[divID] = 
+            [ 
+                [ 
+                    [ 1024, 768 ], 
+                    [ 
+                        250, "X970X" 
+                    ] 
+                ],
+
+                [ 
+                    [ 980, 600 ], 
+                    [ 
+                        [ 728, 90 ], 
+                        [ 640, 480 ] 
+                    ] 
+                ] 
+            ];
+            GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.an('array');
+            UTIL.isNumber.calledTwice.should.be.true;
+            UTIL.log.calledWith(divID + ": Unsupported mapping template.").should.be.true;
+            UTIL.log.calledWith(slotSizeMapping[divID]).should.be.true;
+            done(); 
+        });
+    });
+
+    describe('#getAdSlotSizesArray()', function() {
+        var divID = null;
+        var currentGoogleSlots = null;
+        var sizeObj_1 = null;
+        var sizeObj_2 = null;
+        var slotSizeMapping = null;
+
+        beforeEach(function(done) {
+            divID = commonDivID;
+            sizeObj_1 = {
+                getWidth: function() {
+                    return 1024;
+                },
+                getHeight: function() {
+                    return 768;
+                },
+                "id": "sizeObj_1"
+            };
+
+            sizeObj_2 = {
+                getWidth: function() {
+                    return 640;
+                },
+                getHeight: function() {
+                    return 480;
+                },
+                "id": "sizeObj_2"
+            };
+            currentGoogleSlots = {
+                getSizes: function() {
+                    return [sizeObj_1, sizeObj_2];
+                }
+            };
+
+            sinon.spy(currentGoogleSlots, 'getSizes');
+            sinon.spy(sizeObj_1, 'getHeight');
+            sinon.spy(sizeObj_1, 'getWidth');
+            sinon.spy(sizeObj_2, 'getHeight');
+            sinon.spy(sizeObj_2, 'getWidth');
+
+            sinon.stub(GPT, 'getSizeFromSizeMapping');
+            slotSizeMapping = [ 
+                [ 
+                    [ 1024, 768 ], 
+                    [ 
+                        970, 250 
+                    ] 
+                ],
+
+                [ 
+                    [ 980, 600 ], 
+                    [ 
+                        [ 728, 90 ], 
+                        [ 640, 480 ] 
+                    ] 
+                ] 
+            ];
+            GPT.getSizeFromSizeMapping.returns(slotSizeMapping);
+            sinon.spy(UTIL, 'log');
+            sinon.stub(UTIL, 'isFunction');
+            UTIL.isFunction.withArgs(sizeObj_1.getWidth).onSecondCall().returns(false);
+            UTIL.isFunction.returns(true);
+            sinon.spy(UTIL, 'forEachOnArray');
+            done();
+        });
+
+        afterEach(function(done) {
+            GPT.getSizeFromSizeMapping.restore();
+            UTIL.log.restore();
+            UTIL.isFunction.restore();
+            UTIL.forEachOnArray.restore();
+
+            currentGoogleSlots.getSizes.restore();
+            if (sizeObj_1.getHeight) {
+                sizeObj_1.getHeight.restore();
+            }
+
+            if (sizeObj_1.getWidth) {
+                sizeObj_1.getWidth.restore();
+            }
+
+            if (sizeObj_2.getHeight) {
+                sizeObj_2.getHeight.restore();
+            }
+
+            if (sizeObj_2.getWidth) {
+                sizeObj_2.getWidth.restore();
+            }
+
+
+            sizeObj_1 = null;
+            sizeObj_2 = null;
+            currentGoogleSlots = null;
+            slotSizeMapping = null;
+            done();
+        });
+
+
+        it('is a function', function(done) {
+            GPT.getAdSlotSizesArray.should.be.a('function');
+            done();
+        });
+
+        it('should have called getSizeFromSizeMapping', function(done) {
+            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.deep.equal(slotSizeMapping);
+            UTIL.log.calledWith(divID + ": responsiveSizeMapping applied: ").should.be.true;
+            UTIL.log.calledWith(slotSizeMapping).should.be.true;
+            done();
+        });
+
+        it('should have created adSlotSizesArray when proper currentGoogleSlots is passed ', function(done) {
+            GPT.getSizeFromSizeMapping.restore();
+            sinon.stub(GPT, 'getSizeFromSizeMapping');
+            GPT.getSizeFromSizeMapping.returns(false);
+
+            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.deep.equal([[1024, 768], [640, 480]]);
+
+            UTIL.isFunction.called.should.be.true;
+            UTIL.forEachOnArray.called.should.be.true;
+
+            currentGoogleSlots.getSizes.called.should.be.true;
+            sizeObj_1.getHeight.called.should.be.true;
+            sizeObj_1.getWidth.called.should.be.true;
+            sizeObj_2.getHeight.called.should.be.true;
+            sizeObj_2.getWidth.called.should.be.true;
+
+            done();
+        });
+
+        // Todo : check error case
+        xit('should have logged when size object doesnt have either of the getWidth or getHeight methods', function (done) {
+            currentGoogleSlots.getSizes()[0].getWidth.restore();
+            delete currentGoogleSlots.getSizes()[0].getWidth;
+
+            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.an('array');
+            UTIL.log.calledWith(divID + ", size object does not have getWidth and getHeight method. Ignoring: ").should.be.true;
+            UTIL.log.calledWith(sizeObj_1).should.be.true;
+            done();
+        });
+
+        // Todo : check error case
+        xit('should have logged when size object doesnt have either of the getWidth or getHeight methods', function (done) {
+            delete sizeObj_2.getHeight;
+            currentGoogleSlots.getSizes()[1].getHeight = null;
+            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.an('array');
+            UTIL.log.calledWith(divID + ", size object does not have getWidth and getHeight method. Ignoring: ").should.be.true;
+            UTIL.log.calledWith(sizeObj_2).should.be.true;
+            done();
+        });
+    });
+
     describe("#callJsLoadedIfRequired()", function() {
 
         it("should return false when the object passed is string ", function() {
@@ -243,8 +511,6 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
     });
-
-    
 
     describe("#init()", function() {
         
@@ -643,166 +909,6 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
     });
-
-    describe('#getAdSlotSizesArray()', function() {
-        var divID = null;
-        var currentGoogleSlots = null;
-        var sizeObj_1 = null;
-        var sizeObj_2 = null;
-        beforeEach(function(done) {
-            divID = commonDivID;
-            sizeObj_1 = {
-                getWidth: function() {
-                    return 1024;
-                },
-                getHeight: function() {
-                    return 768;
-                }
-            };
-
-            sizeObj_2 = {
-                getWidth: function() {
-                    return 640;
-                },
-                getHeight: function() {
-                    return 480;
-                }
-            };
-            currentGoogleSlots = {
-                getSizes: function() {
-                    return [sizeObj_1, sizeObj_2];
-                }
-            };
-
-            sinon.spy(currentGoogleSlots, 'getSizes');
-            sinon.spy(sizeObj_1, 'getHeight');
-            sinon.spy(sizeObj_1, 'getWidth');
-            sinon.spy(sizeObj_2, 'getHeight');
-            sinon.spy(sizeObj_2, 'getWidth');
-
-            sinon.stub(GPT, 'getSizeFromSizeMapping');
-            GPT.getSizeFromSizeMapping.returns(true);
-            sinon.stub(UTIL, 'log');
-            sinon.stub(UTIL, 'isFunction');
-            UTIL.isFunction.returns(true);
-            sinon.spy(UTIL, 'forEachOnArray');
-            done();
-        });
-
-        afterEach(function(done) {
-            GPT.getSizeFromSizeMapping.restore();
-            UTIL.log.restore();
-            UTIL.isFunction.restore();
-            UTIL.forEachOnArray.restore();
-
-            currentGoogleSlots.getSizes.restore();
-            sizeObj_1.getHeight.restore();
-            sizeObj_1.getWidth.restore();
-            sizeObj_2.getHeight.restore();
-            sizeObj_2.getWidth.restore();
-
-            sizeObj_1 = null;
-            sizeObj_2 = null;
-            currentGoogleSlots = null;
-            done();
-        });
-
-
-        it('is a function', function(done) {
-            GPT.getAdSlotSizesArray.should.be.a('function');
-            done();
-        });
-
-        it('should have called getSizeFromSizeMapping', function(done) {
-            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.true;
-            UTIL.log.calledWith(divID + ": responsiveSizeMapping applied: ");
-            UTIL.log.calledWith(true);
-            done();
-        });
-
-        it('should have created adSlotSizesArray when proper currentGoogleSlots is passed ', function(done) {
-            GPT.getSizeFromSizeMapping.restore();
-            sinon.stub(GPT, 'getSizeFromSizeMapping');
-            GPT.getSizeFromSizeMapping.returns(false);
-            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.a('array');
-            UTIL.isFunction.called.should.be.true;
-            UTIL.forEachOnArray.called.should.be.true;
-
-            currentGoogleSlots.getSizes.called.should.be.true;
-            sizeObj_1.getHeight.called.should.be.true;
-            sizeObj_1.getWidth.called.should.be.true;
-            sizeObj_2.getHeight.called.should.be.true;
-            sizeObj_2.getWidth.called.should.be.true;
-
-            done();
-        });
-    });
-
-    describe('#getSizeFromSizeMapping', function() {
-        var divID = null;
-        var slotSizeMapping = null;
-        var screenWidth = 1024;
-        var screenHeight = 768;
-        beforeEach(function(done) {
-            divID = commonDivID;
-            slotSizeMapping = {};
-            slotSizeMapping[divID] = [];
-            sinon.spy(UTIL, 'isOwnProperty');
-
-            sinon.stub(UTIL, 'getScreenWidth');
-            UTIL.getScreenWidth.returns(screenWidth);
-
-            sinon.stub(UTIL, 'getScreenHeight');
-            UTIL.getScreenHeight.returns(screenHeight);
-
-            sinon.stub(UTIL, 'isArray');
-            sinon.stub(UTIL, 'isNumber');
-            sinon.stub(UTIL, 'log');
-            done();
-        });
-
-        afterEach(function(done) {
-            divID = null;
-            slotSizeMapping = null;
-            UTIL.isOwnProperty.restore();
-            UTIL.getScreenWidth.restore();
-            UTIL.getScreenHeight.restore();
-            UTIL.isArray.restore();
-            UTIL.isNumber.restore();
-            UTIL.log.restore();
-            done();
-        });
-
-        it('is a function', function(done) {
-            GPT.getSizeFromSizeMapping.should.be.a('function');
-            done();
-        });
-
-        it('should return false when given divID not a property of slotSizeMapping passed', function(done) {
-            delete slotSizeMapping[divID];
-            GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.false;
-            UTIL.isOwnProperty.calledOnce.should.be.true;
-            done();
-        });
-
-        it('should have logged sizeMapping and its details', function(done) {
-            GPT.getSizeFromSizeMapping(divID, slotSizeMapping);
-
-            UTIL.log.calledWith(divID + ": responsiveSizeMapping found: screenWidth: " + screenWidth + ", screenHeight: " + screenHeight).should.be.true;
-            UTIL.log.calledWith(slotSizeMapping[divID]).should.be.true;
-            done();
-        });
-
-        it('should return false if sizeMapping is not and array', function(done) {
-            slotSizeMapping[divID] = {};
-            GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.false;
-            UTIL.isArray.calledOnce.should.be.true;
-            done();
-        });
-
-
-    });
-
 
     describe('#newDisplayFunction()', function() {
 

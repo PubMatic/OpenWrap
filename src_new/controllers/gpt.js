@@ -63,7 +63,7 @@ exports.getAdUnitIndex = getAdUnitIndex;
 
 
 //todo:// remove dependency of win being passed
-function getSizeFromSizeMapping(divID, slotSizeMapping) {
+function getSizeFromSizeMapping(divID, slotSizeMapping) { // TDD, i/o : done
     /*
         Ref: https://support.google.com/dfp_premium/answer/3423562?hl=en
         The adslot.defineSizeMapping() method will receive an array of mappings in the following form: 
@@ -118,7 +118,7 @@ function getSizeFromSizeMapping(divID, slotSizeMapping) {
 exports.getSizeFromSizeMapping = getSizeFromSizeMapping;
 /* end-test-block */
 
-function getAdSlotSizesArray(divID, currentGoogleSlot) { // TDD : done
+function getAdSlotSizesArray(divID, currentGoogleSlot) { // TDD, i/o : done
     var sizeMapping = refThis.getSizeFromSizeMapping(divID, refThis.slotSizeMapping);
 
     if (sizeMapping !== false) {
