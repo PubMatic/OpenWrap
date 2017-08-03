@@ -1,5 +1,6 @@
 
-#Copyright
+# **Copyright**
+
 Copyright 2017 PubMatic, Inc. All rights reserved.
 
 [Apache License 2.0](LICENSE.md)
