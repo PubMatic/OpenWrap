@@ -2019,7 +2019,115 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
     });
-    
+
+    describe('#newDisplayFunction()', function() {
+        var theObject = null, originalFunction = null;
+        var pubadsStub = null;
+
+        beforeEach(function(done) {
+            sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "isObject");
+            sinon.spy(UTIL, "isFunction");
+            
+            pubadsStub = {
+                getSlots: function () {
+                    return ["slot_1", "slot_2"];
+                }
+            };
+
+            theObject = {
+                pubads: function () {
+                    return pubadsStub;
+                }
+            };
+            sinon.spy(theObject, "pubads");
+            sinon.spy(pubadsStub, "getSlots");
+
+            originalFunction = function () {
+                return "originalFunction";
+            };
+
+            sinon.stub(GPT, "updateSlotsMapFromGoogleSlots").returns(true);
+            sinon.stub(GPT, "displayFunctionStatusHandler").returns(true);
+            sinon.stub(GPT, "forQualifyingSlotNamesCallAdapters").returns(true);
+            sinon.stub(GPT, "getSlotNamesByStatus").returns(true);
+            
+            done();
+        });
+
+        afterEach(function(done) {
+            UTIL.log.restore();
+            UTIL.isObject.restore();
+            UTIL.isFunction.restore();
+
+            if (theObject) {
+                theObject.pubads.restore();
+            }
+
+            pubadsStub.getSlots.restore();
+
+
+            originalFunction = null;
+
+            GPT.updateSlotsMapFromGoogleSlots.restore();
+            GPT.displayFunctionStatusHandler.restore();
+            GPT.forQualifyingSlotNamesCallAdapters.restore();
+            GPT.getSlotNamesByStatus.restore();
+
+
+            pubadsStub = null;
+            theObject = null
+            
+            done();
+        });
+
+        it('is a function', function(done) {
+            GPT.newDisplayFunction.should.be.a('function');
+            done();
+        });
+
+        it('should return null when passed an non object as a parameter', function(done) {
+            theObject = null;
+            should.not.exist(GPT.newDisplayFunction(theObject, originalFunction));
+            UTIL.log.calledOnce.should.equal(true);
+            UTIL.isObject.called.should.be.true;
+            UTIL.isFunction.called.should.be.false;
+            UTIL.isObject.returned(false).should.be.true;
+            UTIL.log.calledWith("display: originalFunction is not a function").should.be.true;
+            done();
+        });
+
+        it('should return null when passed function is not a function', function(done) {
+            originalFunction = null;
+            should.not.exist(GPT.newDisplayFunction(theObject, originalFunction));
+            UTIL.log.calledOnce.should.equal(true);
+            UTIL.isObject.called.should.be.true;
+            UTIL.isFunction.called.should.be.true;
+            UTIL.isObject.returned(true).should.be.true;
+            UTIL.isFunction.returned(false).should.be.true;
+            UTIL.log.calledWith("display: originalFunction is not a function").should.be.true;
+            done();
+        });
+
+        it('should return function when proper parameters are passed', function(done) {
+            GPT.newDisplayFunction(theObject, originalFunction).should.be.a('function');
+            done();
+        });
+
+        it('should return a function which will original function', function (done) {
+            var returnedFunction = GPT.newDisplayFunction(theObject, originalFunction);
+            returnedFunction();
+            UTIL.log.calledWith("In display function, with arguments: ").should.be.true;
+            UTIL.log.calledWith("DisableInitialLoad was called, Nothing to do").should.be.false;
+            GPT.updateSlotsMapFromGoogleSlots.called.should.be.true;
+            GPT.displayFunctionStatusHandler.called.should.be.true;
+            GPT.forQualifyingSlotNamesCallAdapters.called.should.be.true;
+            GPT.getSlotNamesByStatus.called.should.be.true;
+            done();
+        });
+
+    });
+
     describe("#callJsLoadedIfRequired()", function() {
 
         it("should return false when the object passed is string ", function() {
@@ -2389,40 +2497,7 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#newDisplayFunction()', function() {
-
-        beforeEach(function(done) {
-            sinon.spy(UTIL, "log");
-            done();
-        });
-
-        afterEach(function(done) {
-            UTIL.log.restore();
-            done();
-        });
-
-        it('is a function', function(done) {
-            GPT.newDisplayFunction.should.be.a('function');
-            done();
-        });
-
-        it('should return null when impropper parameters are passed', function(done) {
-            // TODO : finf better approach to check for null in chai
-            var result = GPT.newDisplayFunction(null, function() { console.log("inside function") });
-            // console.log(" result ==>", result);
-            should.not.exist(result);
-            UTIL.log.calledOnce.should.equal(true);
-            UTIL.log.calledWith("display: originalFunction is not a function").should.be.true;
-            done();
-        });
-
-        it('should return function when proper parameters are passed', function(done) {
-            GPT.newDisplayFunction({}, function() { console.log("inside function") }).should.be.a('function');
-            // console.log("updateSlotsMapFromGoogleSlots ==>", GPT.updateSlotsMapFromGoogleSlots.callCount);
-            done();
-        });
-
-    });
+    
 
     describe('#newSizeMappingFunction', function() {
 

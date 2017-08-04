@@ -577,9 +577,9 @@ function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshC
 exports.forQualifyingSlotNamesCallAdapters = forQualifyingSlotNamesCallAdapters;
 /* end-test-block */
 
-function newDisplayFunction(theObject, originalFunction) { // TDD : done 
+function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done 
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
-        // var refThis = this;
+        // Todo : change structure to take out the anonymous function for better unit test cases
         return function() {
             /* istanbul ignore next */
             util.log("In display function, with arguments: ");
@@ -599,7 +599,7 @@ function newDisplayFunction(theObject, originalFunction) { // TDD : done
             var statusObj = {};
             statusObj[CONSTANTS.SLOT_STATUS.CREATED] = "";
             /* istanbul ignore next */
-            refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus(statusObj), arguments, false);
+            refThis.forQualifyingSlotNamesCallAdapters(refThis.getSlotNamesByStatus(statusObj), arguments, false);
             /* istanbul ignore next */
             var divID = arguments[0];
             /* istanbul ignore next */
