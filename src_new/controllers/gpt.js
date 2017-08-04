@@ -599,7 +599,8 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
             var statusObj = {};
             statusObj[CONSTANTS.SLOT_STATUS.CREATED] = "";
             /* istanbul ignore next */
-            refThis.forQualifyingSlotNamesCallAdapters(refThis.getSlotNamesByStatus(statusObj), arguments, false);
+            // Todo: need to add reThis whilwe calling getSlotNamesByStatus
+            refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus(statusObj), arguments, false);
             /* istanbul ignore next */
             var divID = arguments[0];
             /* istanbul ignore next */
