@@ -331,7 +331,7 @@ function defineWrapperTargetingKeys(object) { // TDD, i/o : done
 exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
-function findWinningBidAndApplyTargeting(divID) {
+function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     var data = bidManager.getBid(divID);
     var winningBid = data.wb || null;
     var keyValuePairs = data.kvp || null;
@@ -354,7 +354,7 @@ function findWinningBidAndApplyTargeting(divID) {
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID());
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID, CONFIG.getProfileDisplayVersionID());
     }
-    // var refThis = this;
+    
     // attaching keyValuePairs from adapters    
     util.forEachOnObject(keyValuePairs, function(key, value) {
         /* istanbul ignore else*/

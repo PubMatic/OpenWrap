@@ -1332,7 +1332,7 @@ describe("CONTROLLER: GPT", function() {
                 GPT.defineWrapperTargetingKeys({}).should.deep.equal({});
                 done();
             });
-            
+
             it("should return object with values as keys and respective value should be empty strings", function(done) {
                 GPT.defineWrapperTargetingKeys(inputObject).should.deep.equal(outputObject);
                 done();
@@ -1343,6 +1343,147 @@ describe("CONTROLLER: GPT", function() {
                 UTIL.forEachOnObject.calledOnce.should.equal(true);
                 done();
             });
+        });
+    });
+
+    describe('#findWinningBidAndApplyTargeting', function() {
+        var divID = null;
+        var dataStub = null;
+        var winningBidStub = null;
+        var keyValuePairsStub = null;
+        var googleDefinedSlotStub = null;
+
+        beforeEach(function(done) {
+            divID = commonDivID;
+            winningBidStub = {
+                getBidID: function() {
+                    return "getBidID";
+                },
+                getStatus: function() {
+                    return "getStatus";
+                },
+                getNetEcpm: function() {
+                    return "getNetEcpm";
+                },
+                getDealID: function() {
+                    return "getDealID";
+                },
+                getAdapterID: function() {
+                    return "getAdapterID";
+                },
+            };
+            sinon.stub(winningBidStub, "getBidID");
+            sinon.stub(winningBidStub, "getStatus");
+            sinon.stub(winningBidStub, "getNetEcpm");
+            sinon.stub(winningBidStub, "getDealID");
+            sinon.stub(winningBidStub, "getAdapterID");
+            keyValuePairsStub = {
+                "key1": {
+                    "k1": "v1",
+                    "k2": "v2"
+                },
+                "key2": {
+                    "k12": "v12",
+                    "k22": "v22"
+                }
+            };
+            dataStub = {
+                wb: winningBidStub,
+                kvp: keyValuePairsStub
+            };
+            googleDefinedSlotStub = {
+                setTargeting: function() {
+                    return "setTargeting";
+                }
+            };
+            sinon.spy(googleDefinedSlotStub, "setTargeting");
+
+            GPT.slotsMap[divID] = {
+                getPubAdServerObject: function() {
+                    return googleDefinedSlotStub;
+                },
+                setStatus: function() {
+                    return "setStatus";
+                }
+            };
+            sinon.spy(GPT.slotsMap[divID], "setStatus");
+
+            sinon.stub(BM, "getBid").withArgs(divID).returns(dataStub);
+            sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "forEachOnObject");
+            sinon.stub(UTIL, "isOwnProperty");
+            sinon.stub(GPT, "defineWrapperTargetingKey").returns(true);
+            done();
+        });
+
+        afterEach(function(done) {
+            BM.getBid.restore();
+
+            UTIL.log.restore();
+            UTIL.forEachOnObject.restore();
+            UTIL.isOwnProperty.restore();
+
+            GPT.slotsMap[divID].setStatus.restore();
+
+            googleDefinedSlotStub.setTargeting.restore();
+            GPT.defineWrapperTargetingKey.restore();
+
+            if (winningBidStub) {
+                winningBidStub.getBidID.restore();
+                winningBidStub.getStatus.restore();
+                winningBidStub.getNetEcpm.restore();
+                winningBidStub.getDealID.restore();
+                winningBidStub.getAdapterID.restore();
+            }
+            divID = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            GPT.findWinningBidAndApplyTargeting.should.be.a('function');
+            done();
+        });
+
+        it('should have logged passed divID along with winning Bid object', function(done) {
+            GPT.findWinningBidAndApplyTargeting(divID);
+            UTIL.log.calledWith("DIV: " + divID + " winningBid: ").should.be.true;
+            UTIL.log.calledWith(winningBidStub).should.be.true;
+            done();
+        });
+
+        it('should not have called setTargeting for bid if the winningBid is invalid object', function(done) {
+            winningBidStub = null;
+            GPT.findWinningBidAndApplyTargeting(divID);
+            googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.SLOT_STATUS.TARGETING_ADDED).should.be.false;
+            googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID()).should.be.false;
+            done();
+        });
+
+        it('should not have called setTargeting for bid if bid\'s net ecpm is not greater than 0', function(done) {
+            winningBidStub.getNetEcpm.returns(-1);
+            GPT.findWinningBidAndApplyTargeting(divID);
+            googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.SLOT_STATUS.TARGETING_ADDED).should.be.false;
+            googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID()).should.be.false;
+            winningBidStub.getNetEcpm.called.should.be.true;
+            winningBidStub.getBidID.called.should.be.false;
+            winningBidStub.getStatus.called.should.be.false;
+            winningBidStub.getDealID.called.should.be.false;
+            winningBidStub.getAdapterID.called.should.be.false;
+            done();
+        });
+
+        it('should not have called defineWrapperTargetingKey if key in keyValuePairs is among prebid keys to ignore', function(done) {
+            winningBidStub.getNetEcpm.returns(2);
+
+            UTIL.isOwnProperty.withArgs(CONSTANTS.IGNORE_PREBID_KEYS).returns(true);
+
+            GPT.findWinningBidAndApplyTargeting(divID);
+
+            winningBidStub.getNetEcpm.called.should.be.true;
+            winningBidStub.getBidID.called.should.be.true;
+            winningBidStub.getStatus.called.should.be.true;
+            GPT.defineWrapperTargetingKey.called.should.be.false;
+            done();
         });
     });
 
@@ -2731,144 +2872,5 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#findWinningBidAndApplyTargeting', function() {
-        var divID = null;
-        var dataStub = null;
-        var winningBidStub = null;
-        var keyValuePairsStub = null;
-        var googleDefinedSlotStub = null;
-
-        beforeEach(function(done) {
-            divID = commonDivID;
-            winningBidStub = {
-                getBidID: function() {
-                    return "getBidID";
-                },
-                getStatus: function() {
-                    return "getStatus";
-                },
-                getNetEcpm: function() {
-                    return "getNetEcpm";
-                },
-                getDealID: function() {
-                    return "getDealID";
-                },
-                getAdapterID: function() {
-                    return "getAdapterID";
-                },
-            };
-            sinon.stub(winningBidStub, "getBidID");
-            sinon.stub(winningBidStub, "getStatus");
-            sinon.stub(winningBidStub, "getNetEcpm");
-            sinon.stub(winningBidStub, "getDealID");
-            sinon.stub(winningBidStub, "getAdapterID");
-            keyValuePairsStub = {
-                "key1": {
-                    "k1": "v1",
-                    "k2": "v2"
-                },
-                "key2": {
-                    "k12": "v12",
-                    "k22": "v22"
-                }
-            };
-            dataStub = {
-                wb: winningBidStub,
-                kvp: keyValuePairsStub
-            };
-            googleDefinedSlotStub = {
-                setTargeting: function() {
-                    return "setTargeting";
-                }
-            };
-            sinon.spy(googleDefinedSlotStub, "setTargeting");
-
-            GPT.slotsMap[divID] = {
-                getPubAdServerObject: function() {
-                    return googleDefinedSlotStub;
-                },
-                setStatus: function() {
-                    return "setStatus";
-                }
-            };
-            sinon.spy(GPT.slotsMap[divID], "setStatus");
-
-            sinon.stub(BM, "getBid").withArgs(divID).returns(dataStub);
-            sinon.spy(UTIL, "log");
-            sinon.spy(UTIL, "forEachOnObject");
-            sinon.stub(UTIL, "isOwnProperty");
-            sinon.stub(GPT, "defineWrapperTargetingKey").returns(true);
-            done();
-        });
-
-        afterEach(function(done) {
-            BM.getBid.restore();
-
-            UTIL.log.restore();
-            UTIL.forEachOnObject.restore();
-            UTIL.isOwnProperty.restore();
-
-            GPT.slotsMap[divID].setStatus.restore();
-
-            googleDefinedSlotStub.setTargeting.restore();
-            GPT.defineWrapperTargetingKey.restore();
-
-            if (winningBidStub) {
-                winningBidStub.getBidID.restore();
-                winningBidStub.getStatus.restore();
-                winningBidStub.getNetEcpm.restore();
-                winningBidStub.getDealID.restore();
-                winningBidStub.getAdapterID.restore();
-            }
-            divID = null;
-            done();
-        });
-
-        it('is a function', function(done) {
-            GPT.findWinningBidAndApplyTargeting.should.be.a('function');
-            done();
-        });
-
-        it('should have logged passed divID along with winning Bid object', function(done) {
-            GPT.findWinningBidAndApplyTargeting(divID);
-            UTIL.log.calledWith("DIV: " + divID + " winningBid: ").should.be.true;
-            UTIL.log.calledWith(winningBidStub).should.be.true;
-            done();
-        });
-
-        it('should not have called setTargeting for bid if the winningBid is invalid object', function(done) {
-            winningBidStub = null;
-            GPT.findWinningBidAndApplyTargeting(divID);
-            googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.SLOT_STATUS.TARGETING_ADDED).should.be.false;
-            googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID()).should.be.false;
-            done();
-        });
-
-        it('should not have called setTargeting for bid if bid\'s net ecpm is not greater than 0', function(done) {
-            winningBidStub.getNetEcpm.returns(-1);
-            GPT.findWinningBidAndApplyTargeting(divID);
-            googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.SLOT_STATUS.TARGETING_ADDED).should.be.false;
-            googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID()).should.be.false;
-            winningBidStub.getNetEcpm.called.should.be.true;
-            winningBidStub.getBidID.called.should.be.false;
-            winningBidStub.getStatus.called.should.be.false;
-            winningBidStub.getDealID.called.should.be.false;
-            winningBidStub.getAdapterID.called.should.be.false;
-            done();
-        });
-
-        it('should not have called defineWrapperTargetingKey if key in keyValuePairs is among prebid keys to ignore', function(done) {
-            winningBidStub.getNetEcpm.returns(2);
-
-            UTIL.isOwnProperty.withArgs(CONSTANTS.IGNORE_PREBID_KEYS).returns(true);
-
-            GPT.findWinningBidAndApplyTargeting(divID);
-
-            winningBidStub.getNetEcpm.called.should.be.true;
-            winningBidStub.getBidID.called.should.be.true;
-            winningBidStub.getStatus.called.should.be.true;
-            GPT.defineWrapperTargetingKey.called.should.be.false;
-            done();
-        });
-    });
+    
 });
