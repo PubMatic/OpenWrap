@@ -1487,6 +1487,40 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
+    describe("#defineWrapperTargetingKey()", function() {
+
+        beforeEach(function (done) {
+            sinon.spy(UTIL, "isObject");
+            done();
+        });
+
+        afterEach(function (done) {
+            UTIL.isObject.restore();
+            done();
+        });
+
+        it("is a function", function(done) {
+            GPT.defineWrapperTargetingKey.should.be.a("function");
+            done();
+        });
+
+        it("set wrapper Targeting Key's value to empty string", function(done) {
+            GPT.defineWrapperTargetingKey("DIV_1");
+            GPT.wrapperTargetingKeys["DIV_1"].should.equal("");
+            done();
+        });
+
+
+        it("initialize wrapperTargetingKeys if its not been initialized", function(done) {
+            GPT.wrapperTargetingKeys = null;
+            GPT.defineWrapperTargetingKey("DIV_2");
+            GPT.wrapperTargetingKeys["DIV_2"].should.equal("");
+            Object.keys(GPT.wrapperTargetingKeys).length.should.be.equal(1);
+            UTIL.isObject.returned(false).should.be.true;
+            done();
+        });
+    });
+
     describe("#callJsLoadedIfRequired()", function() {
 
         it("should return false when the object passed is string ", function() {
@@ -1655,44 +1689,6 @@ describe("CONTROLLER: GPT", function() {
             GPT.addHooksIfPossible.called.should.be.false;
             GPT.callJsLoadedIfRequired.called.should.be.false;
             done(); 
-        });
-    });
-
-    
-
-    
-
-    describe("#defineWrapperTargetingKey()", function() {
-
-        beforeEach(function (done) {
-            sinon.spy(UTIL, "isObject");
-            done();
-        });
-
-        afterEach(function (done) {
-            UTIL.isObject.restore();
-            done();
-        });
-
-        it("is a function", function(done) {
-            GPT.defineWrapperTargetingKey.should.be.a("function");
-            done();
-        });
-
-        it("set wrapper Targeting Key's value to empty string", function(done) {
-            GPT.defineWrapperTargetingKey("DIV_1");
-            GPT.wrapperTargetingKeys["DIV_1"].should.equal("");
-            done();
-        });
-
-
-        it("initialize wrapperTargetingKeys if its not been initialized", function(done) {
-            GPT.wrapperTargetingKeys = {};
-            GPT.defineWrapperTargetingKey("DIV_2");
-            GPT.wrapperTargetingKeys["DIV_2"].should.equal("");
-            Object.keys(GPT.wrapperTargetingKeys).length.should.be.equal(1);
-            UTIL.isObject.returned(true).should.be.true;
-            done();
         });
     });
 

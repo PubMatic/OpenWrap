@@ -371,7 +371,7 @@ exports.findWinningBidAndApplyTargeting = findWinningBidAndApplyTargeting;
 /* end-test-block */
 
 
-function defineWrapperTargetingKey(key) { // TDD : done
+function defineWrapperTargetingKey(key) { // TDD, i/o : done
     /* istanbul ignore else */
     if (!util.isObject(refThis.wrapperTargetingKeys)) {
         refThis.wrapperTargetingKeys = {};
