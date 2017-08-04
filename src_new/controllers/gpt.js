@@ -434,7 +434,7 @@ exports.newEnableSingleRequestFunction = newEnableSingleRequestFunction;
     slot.setTargeting(key, value);
         we do not care, as it has a get method
 */
-function newSetTargetingFunction(theObject, originalFunction) { // TDD : done
+function newSetTargetingFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             /* istanbul ignore next */
@@ -463,7 +463,7 @@ function newSetTargetingFunction(theObject, originalFunction) { // TDD : done
 exports.newSetTargetingFunction = newSetTargetingFunction;
 /* end-test-block */
 
-function newDestroySlotsFunction(theObject, originalFunction) { // TDD : done
+function newDestroySlotsFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             var slots = arguments[0] || window.googletag.pubads().getSlots();
@@ -484,7 +484,7 @@ function newDestroySlotsFunction(theObject, originalFunction) { // TDD : done
 exports.newDestroySlotsFunction = newDestroySlotsFunction;
 /* end-test-block */
 
-function updateStatusAndCallOriginalFunction_Display(message, theObject, originalFunction, arg) { // TDD : done
+function updateStatusAndCallOriginalFunction_Display(message, theObject, originalFunction, arg) { // TDD, i/o : done
     util.log(message);
     util.log(arg);
     refThis.updateStatusAfterRendering(arg[0], false);
@@ -495,7 +495,7 @@ function updateStatusAndCallOriginalFunction_Display(message, theObject, origina
 exports.updateStatusAndCallOriginalFunction_Display = updateStatusAndCallOriginalFunction_Display;
 /* end-test-block */
 
-function findWinningBidIfRequired_Display(key, slot) { // TDD : done
+function findWinningBidIfRequired_Display(key, slot) { // TDD, i/o : done
     var status = slot.getStatus();
     if (status != CONSTANTS.SLOT_STATUS.DISPLAYED && status != CONSTANTS.SLOT_STATUS.TARGETING_ADDED) {
         refThis.findWinningBidAndApplyTargeting(key);

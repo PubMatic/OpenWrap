@@ -1644,6 +1644,235 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
+    describe('#newSetTargetingFunction', function() {
+
+        var theObject = null,
+            originalFunction = null;
+
+        beforeEach(function(done) {
+            theObject = {};
+            originalFunction = function() {
+                return "originalFunction";
+            };
+
+            sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "isObject");
+            sinon.spy(UTIL, "isFunction");
+
+            done();
+
+        });
+
+        afterEach(function(done) {
+            originalFunction = null;
+            theObject = null;
+
+            UTIL.log.restore();
+            UTIL.isObject.restore();
+            UTIL.isFunction.restore();
+
+            done();
+        });
+
+        it('is a function', function(done) {
+            GPT.newSetTargetingFunction.should.be.a('function');
+            done();
+        });
+
+        it('return null if passed object is not an object', function(done) {
+            theObject = null;
+            should.not.exist(GPT.newSetTargetingFunction(theObject, originalFunction));
+            UTIL.log.calledWith("setTargeting: originalFunction is not a function").should.be.true;
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.false;
+            done();
+        });
+
+        it('return null if function is not a function', function(done) {
+            originalFunction = null;
+            should.not.exist(GPT.newSetTargetingFunction(theObject, originalFunction));
+            UTIL.log.calledWith("setTargeting: originalFunction is not a function").should.be.true;
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.true;
+            UTIL.isFunction.returned(false).should.be.true;
+            done();
+        });
+
+        it('return function if passed object is an object and passed function is a function', function(done) {
+            GPT.newSetTargetingFunction(theObject, originalFunction).should.be.a('function');
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.true;
+            done();
+        });
+    });
+
+    describe('#newDestroySlotsFunction', function() {
+        var theObject = null,
+            originalFunction = null;
+
+        beforeEach(function(done) {
+            theObject = {};
+            originalFunction = function() {
+                return "originalFunction";
+            };
+
+            sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "isObject");
+            sinon.spy(UTIL, "isFunction");
+
+            done();
+
+        });
+
+        afterEach(function(done) {
+            originalFunction = null;
+            theObject = null;
+
+            UTIL.log.restore();
+            UTIL.isObject.restore();
+            UTIL.isFunction.restore();
+
+            done();
+        });
+
+        it('is a function', function(done) {
+            GPT.newDestroySlotsFunction.should.be.a('function');
+            done();
+        });
+
+        it('return null if passed object is not an object', function(done) {
+            theObject = null;
+            should.not.exist(GPT.newDestroySlotsFunction(theObject, originalFunction));
+            UTIL.log.calledWith("destroySlots: originalFunction is not a function").should.be.true;
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.false;
+            done();
+        });
+
+        it('return null if passed function is not a function', function(done) {
+            originalFunction = null;
+            should.not.exist(GPT.newDestroySlotsFunction(theObject, originalFunction));
+            UTIL.log.calledWith("destroySlots: originalFunction is not a function").should.be.true;
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.true;
+            UTIL.isFunction.returned(false).should.be.true;
+            done();
+        });
+
+        it('return function if passed object is an object and passed function is a function', function(done) {
+            GPT.newDestroySlotsFunction(theObject, originalFunction).should.be.a('function');
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.true;
+            done();
+        });
+    });
+
+    describe('#updateStatusAndCallOriginalFunction_Display', function() {
+        var message = null,
+            theObject = null,
+            originalFunction = null,
+            arg = null;
+        var obj = null;
+
+        beforeEach(function(done) {
+            message = "log message";
+            theObject = {};
+            obj = {
+                originalFunction: function() {
+                    return "originalFunction";
+                }
+            };
+
+            arg = ["DIV_1", "DIV_2"];
+            sinon.spy(obj.originalFunction, "apply");
+            sinon.spy(UTIL, "log");
+
+            sinon.stub(GPT, "updateStatusAfterRendering");
+            GPT.updateStatusAfterRendering.returns(true);
+
+            done();
+        });
+
+        afterEach(function(done) {
+            obj.originalFunction.apply.restore();
+            UTIL.log.restore();
+            GPT.updateStatusAfterRendering.restore();
+            message = null;
+            theObject = null;
+            originalFunction = null;
+            arg = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            GPT.updateStatusAndCallOriginalFunction_Display.should.be.a('function');
+            done();
+        });
+
+        it('should have called UTIL.log, GPT.updateStatusAfterRendering and passed originalFunction with proper arguments', function(done) {
+            GPT.updateStatusAndCallOriginalFunction_Display(message, theObject, obj.originalFunction, arg);
+            UTIL.log.calledWith(message).should.be.true;
+            UTIL.log.calledWith(arg).should.be.true;
+            obj.originalFunction.apply.calledWith(theObject, arg).should.be.true;
+            GPT.updateStatusAfterRendering.calledWith(arg[0], false).should.be.true;
+            done();
+        });
+    });
+
+    describe('#findWinningBidIfRequired_Display', function() {
+        var key = null,
+            slot = null;
+
+        beforeEach(function(done) {
+            key = "key_1";
+            slot = SLOT.createSlot(commonDivID);
+            sinon.stub(slot, "getStatus");
+
+            sinon.stub(GPT, "findWinningBidAndApplyTargeting");
+            GPT.findWinningBidAndApplyTargeting.returns(true);
+
+            done();
+        });
+
+        afterEach(function(done) {
+            GPT.findWinningBidAndApplyTargeting.restore();
+
+            slot.getStatus.restore();
+
+            key = null;
+            slot = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            GPT.findWinningBidIfRequired_Display.should.be.a('function');
+            done();
+        });
+
+        it('should not have called GPT.findWinningBidAndApplyTargeting if slot\'s status is either DISPLAYED or TARGETING_ADDED', function(done) {
+            slot.getStatus.returns(CONSTANTS.SLOT_STATUS.DISPLAYED);
+            GPT.findWinningBidIfRequired_Display(key, slot);
+            GPT.findWinningBidAndApplyTargeting.called.should.be.false;
+            slot.getStatus.called.should.be.true;
+            done();
+        });
+
+        it('should not have called GPT.findWinningBidAndApplyTargeting if slot\'s status is either DISPLAYED or TARGETING_ADDED', function(done) {
+            slot.getStatus.returns(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
+            GPT.findWinningBidIfRequired_Display(key, slot);
+            GPT.findWinningBidAndApplyTargeting.called.should.be.false;
+            slot.getStatus.called.should.be.true;
+            done();
+        });
+
+        it('should have called GPT.findWinningBidAndApplyTargeting if slot\'s status is neither DISPLAYED nor TARGETING_ADDED', function(done) {
+            GPT.findWinningBidIfRequired_Display(key, slot);
+            GPT.findWinningBidAndApplyTargeting.calledWith(key).should.be.true;
+            slot.getStatus.called.should.be.true;
+            done();
+        });
+    });
+
     describe("#callJsLoadedIfRequired()", function() {
 
         it("should return false when the object passed is string ", function() {
@@ -2163,7 +2392,6 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(UTIL, "forEachOnArray");
             sinon.spy(GPT, "generateSlotName");
             sinon.spy(theObject, "getSlots");
-            // GPT.generateSlotName.returns("qualifying_slot_name");
             done();
         });
 
@@ -2536,215 +2764,7 @@ describe("CONTROLLER: GPT", function() {
     });
 
 
-    describe('#findWinningBidIfRequired_Display', function() {
-        var key = null,
-            slot = null;
-
-        beforeEach(function(done) {
-            key = "key_1";
-            slot = {
-                getStatus: function() {
-                    return CONSTANTS.SLOT_STATUS.CREATED;
-                }
-            };
-            sinon.stub(slot, "getStatus");
-
-            sinon.stub(GPT, "findWinningBidAndApplyTargeting");
-            GPT.findWinningBidAndApplyTargeting.returns(true);
-
-            done();
-        });
-
-        afterEach(function(done) {
-            GPT.findWinningBidAndApplyTargeting.restore();
-
-            slot.getStatus.restore();
-
-            key = null;
-            slot = null;
-            done();
-        });
-
-        it('is a function', function(done) {
-            GPT.findWinningBidIfRequired_Display.should.be.a('function');
-            done();
-        });
-
-        it('should not have called GPT.findWinningBidAndApplyTargeting if slot\'s status is either DISPLAYED or TARGETING_ADDED', function(done) {
-            slot.getStatus.returns(CONSTANTS.SLOT_STATUS.DISPLAYED);
-            GPT.findWinningBidIfRequired_Display(key, slot);
-            GPT.findWinningBidAndApplyTargeting.called.should.be.false;
-            slot.getStatus.called.should.be.true;
-            done();
-        });
-
-        it('should have called GPT.findWinningBidAndApplyTargeting if slot\'s status is neither DISPLAYED nor TARGETING_ADDED', function(done) {
-            GPT.findWinningBidIfRequired_Display(key, slot);
-            GPT.findWinningBidAndApplyTargeting.called.should.be.true;
-            slot.getStatus.called.should.be.true;
-            done();
-        });
-    });
-
-    describe('#updateStatusAndCallOriginalFunction_Display', function() {
-        var message = null,
-            theObject = null,
-            originalFunction = null,
-            arg = null;
-        var obj = null;
-
-        beforeEach(function(done) {
-            message = "log message";
-            theObject = {};
-            obj = {
-                originalFunction: function() {
-                    return "originalFunction";
-                }
-            };
-
-            arg = ["DIV_1", "DIV_2"];
-            // sinon.spy(obj, "originalFunction");
-            sinon.spy(obj.originalFunction, "apply");
-            sinon.spy(UTIL, "log");
-
-            sinon.stub(GPT, "updateStatusAfterRendering");
-            GPT.updateStatusAfterRendering.returns(true);
-
-            done();
-        });
-
-        afterEach(function(done) {
-            obj.originalFunction.apply.restore();
-            UTIL.log.restore();
-            GPT.updateStatusAfterRendering.restore();
-            message = null;
-            theObject = null;
-            originalFunction = null;
-            arg = null;
-            done();
-        });
-
-        it('is a function', function(done) {
-            GPT.updateStatusAndCallOriginalFunction_Display.should.be.a('function');
-            done();
-        });
-
-        it('should have called UTIL.log, GPT.updateStatusAfterRendering and passed originalFunction with proper arguments', function(done) {
-            GPT.updateStatusAndCallOriginalFunction_Display(message, theObject, obj.originalFunction, arg);
-            UTIL.log.calledWith(message).should.be.true;
-            UTIL.log.calledWith(arg).should.be.true;
-            obj.originalFunction.apply.calledWith(theObject, arg).should.be.true;
-            GPT.updateStatusAfterRendering.calledWith(arg[0], false).should.be.true;
-            done();
-        });
-    });
-
-    describe('#newDestroySlotsFunction', function() {
-        var theObject = null,
-            originalFunction = null;
-
-        beforeEach(function(done) {
-            theObject = {};
-            originalFunction = function() {
-                return "originalFunction";
-            };
-
-            sinon.spy(UTIL, "log");
-            sinon.spy(UTIL, "isObject");
-            sinon.spy(UTIL, "isFunction");
-
-            done();
-
-        });
-
-        afterEach(function(done) {
-            originalFunction = null;
-            theObject = null;
-
-            UTIL.log.restore();
-            UTIL.isObject.restore();
-            UTIL.isFunction.restore();
-
-            done();
-        });
-
-        it('is a function', function(done) {
-            GPT.newDestroySlotsFunction.should.be.a('function');
-            done();
-        });
-
-        it('return null if passed object is not an object or passed function is not a function', function(done) {
-            theObject = null;
-            should.not.exist(GPT.newDestroySlotsFunction(theObject, originalFunction));
-            UTIL.log.calledWith("destroySlots: originalFunction is not a function").should.be.true;
-            UTIL.isObject.calledWith(theObject).should.be.true;
-            UTIL.isFunction.calledWith(originalFunction).should.be.false;
-            done();
-        });
-
-        it('return function if passed object is an object and passed function is a function', function(done) {
-            GPT.newDestroySlotsFunction(theObject, originalFunction).should.be.a('function');
-            UTIL.isObject.calledWith(theObject).should.be.true;
-            UTIL.isFunction.calledWith(originalFunction).should.be.true;
-            done();
-        });
-    });
-
-    describe('#newSetTargetingFunction', function() {
-
-        var theObject = null,
-            originalFunction = null;
-
-        beforeEach(function(done) {
-            theObject = {};
-            originalFunction = function() {
-                return "originalFunction";
-            };
-
-            sinon.spy(UTIL, "log");
-            sinon.spy(UTIL, "isObject");
-            sinon.spy(UTIL, "isFunction");
-
-            done();
-
-        });
-
-        afterEach(function(done) {
-            originalFunction = null;
-            theObject = null;
-
-            UTIL.log.restore();
-            UTIL.isObject.restore();
-            UTIL.isFunction.restore();
-
-            done();
-        });
-
-        it('is a function', function(done) {
-            GPT.newSetTargetingFunction.should.be.a('function');
-            done();
-        });
-
-        it('return null if passed object is not an object or passed function is not a function', function(done) {
-            theObject = null;
-            should.not.exist(GPT.newSetTargetingFunction(theObject, originalFunction));
-            UTIL.log.calledWith("setTargeting: originalFunction is not a function").should.be.true;
-            UTIL.isObject.calledWith(theObject).should.be.true;
-            UTIL.isFunction.calledWith(originalFunction).should.be.false;
-            done();
-        });
-
-        it('return function if passed object is an object and passed function is a function', function(done) {
-            GPT.newSetTargetingFunction(theObject, originalFunction).should.be.a('function');
-            UTIL.isObject.calledWith(theObject).should.be.true;
-            UTIL.isFunction.calledWith(originalFunction).should.be.true;
-            done();
-        });
-    });
-
-
     
-
 
     
 
