@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-// var sinon = require("sinon");
+var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 
@@ -14,19 +14,19 @@ var SLOT = require("../../src_new/slot.js");
 var commonDivID = "DIV_1";
 
 // TODO : remove as required during single TDD only
-// var jsdom = require('jsdom').jsdom;
-// var exposedProperties = ['window', 'navigator', 'document'];
-// global.document = jsdom('');
-// global.window = document.defaultView;
-// Object.keys(document.defaultView).forEach((property) => {
-//     if (typeof global[property] === 'undefined') {
-//         exposedProperties.push(property);
-//         global[property] = document.defaultView[property];
-//     }
-// });
-// global.navigator = {
-//     userAgent: 'node.js'
-// };
+var jsdom = require('jsdom').jsdom;
+var exposedProperties = ['window', 'navigator', 'document'];
+global.document = jsdom('');
+global.window = document.defaultView;
+Object.keys(document.defaultView).forEach((property) => {
+    if (typeof global[property] === 'undefined') {
+        exposedProperties.push(property);
+        global[property] = document.defaultView[property];
+    }
+});
+global.navigator = {
+    userAgent: 'node.js'
+};
 
 describe("CONTROLLER: GPT", function() {
 
@@ -1300,6 +1300,52 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
+    describe("#defineWrapperTargetingKeys()", function() {
+
+        it("should return empty object when empty object is passed", function(done) {
+            GPT.defineWrapperTargetingKeys({}).should.deep.equal({});
+            done();
+        });
+
+        describe("When object with keys n values is passed", function() {
+            beforeEach(function(done) {
+                sinon.spy(UTIL, "forEachOnObject");
+                done();
+            });
+
+            afterEach(function(done) {
+                UTIL.forEachOnObject.restore();
+                done();
+            });
+
+            var inputObject = {
+                "key1": "value1",
+                "key2": "value2"
+            };
+
+            var outputObject = {
+                "value1": "",
+                "value2": ""
+            };
+
+            it('should return empty object when given input object doesnt have any key value pairs', function (done) {
+                GPT.defineWrapperTargetingKeys({}).should.deep.equal({});
+                done();
+            });
+            
+            it("should return object with values as keys and respective value should be empty strings", function(done) {
+                GPT.defineWrapperTargetingKeys(inputObject).should.deep.equal(outputObject);
+                done();
+            });
+
+            it("should have called util.forEachOnObject", function(done) {
+                GPT.defineWrapperTargetingKeys(inputObject).should.deep.equal(outputObject);
+                UTIL.forEachOnObject.calledOnce.should.equal(true);
+                done();
+            });
+        });
+    });
+
     describe("#callJsLoadedIfRequired()", function() {
 
         it("should return false when the object passed is string ", function() {
@@ -1471,48 +1517,7 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe("#defineWrapperTargetingKeys()", function() {
-
-        it("should return empty object when empty object is passed", function(done) {
-            GPT.defineWrapperTargetingKeys({}).should.deep.equal({});
-            done();
-        });
-
-        describe("When object with keys n values is passed", function() {
-            beforeEach(function(done) {
-                sinon.spy(UTIL, "forEachOnObject");
-                done();
-            });
-
-            afterEach(function(done) {
-                UTIL.forEachOnObject.restore();
-                done();
-            });
-
-            var inputObject = {
-                "key1": "value1",
-                "key2": "value2"
-            };
-
-            var outputObject = {
-                "value1": "",
-                "value2": ""
-            };
-
-            it("should return object with values as keys and respective value should be empty strings", function(done) {
-                GPT.defineWrapperTargetingKeys(inputObject).should.deep.equal(outputObject);
-                done();
-            });
-
-            it("should have called util.forEachOnObject", function(done) {
-                GPT.defineWrapperTargetingKeys(inputObject); //.should.deep.equal(outputObject);
-                // console.log("UTIL.forEachOnObject.calledTwice ==>", UTIL.forEachOnObject.calledOnce);
-                UTIL.forEachOnObject.calledOnce.should.equal(true);
-                // expect(UTIL.forEachOnObject.calledTwice, true);
-                done();
-            });
-        });
-    });
+    
 
     
 

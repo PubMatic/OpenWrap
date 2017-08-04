@@ -320,7 +320,7 @@ function arrayOfSelectedSlots(slotNames) { // TDD, i/o : done
 exports.arrayOfSelectedSlots = arrayOfSelectedSlots;
 /* end-test-block */
 
-function defineWrapperTargetingKeys(object) { // TDD : done
+function defineWrapperTargetingKeys(object) { // TDD, i/o : done
     var output = {};
     util.forEachOnObject(object, function(key, value) {
         output[value] = "";
