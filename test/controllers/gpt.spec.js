@@ -1582,6 +1582,68 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
+    describe('#newEnableSingleRequestFunction', function() {
+
+        var theObject = null,
+            originalFunction = null;
+
+        beforeEach(function(done) {
+            theObject = {};
+            originalFunction = function() {
+                return "originalFunction";
+            };
+
+            sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "isObject");
+            sinon.spy(UTIL, "isFunction");
+
+            done();
+
+        });
+
+        afterEach(function(done) {
+            originalFunction = null;
+            theObject = null;
+
+            UTIL.log.restore();
+            UTIL.isObject.restore();
+            UTIL.isFunction.restore();
+
+            done();
+        });
+
+        it('is a function', function(done) {
+            GPT.newEnableSingleRequestFunction.should.be.a('function');
+            done();
+        });
+
+        it('return null if passed function is not a function', function(done) {
+            originalFunction = null;
+            should.not.exist(GPT.newEnableSingleRequestFunction(theObject, originalFunction));
+            UTIL.log.calledWith("disableInitialLoad: originalFunction is not a function").should.be.true;
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.true;
+            UTIL.isFunction.returned(false).should.be.true;
+            done();
+        });
+
+        it('return null if passed object is not an object', function(done) {
+            theObject = null;
+            should.not.exist(GPT.newEnableSingleRequestFunction(theObject, originalFunction));
+            UTIL.log.calledWith("disableInitialLoad: originalFunction is not a function").should.be.true;
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.false;
+            done();
+        });
+
+        it('return function if passed object is an object and passed function is a function', function(done) {
+            GPT.newEnableSingleRequestFunction(theObject, originalFunction).should.be.a('function');
+            UTIL.isObject.calledWith(theObject).should.be.true;
+            UTIL.isFunction.calledWith(originalFunction).should.be.true;
+            done();
+        });
+    });
+
     describe("#callJsLoadedIfRequired()", function() {
 
         it("should return false when the object passed is string ", function() {
@@ -2681,57 +2743,7 @@ describe("CONTROLLER: GPT", function() {
     });
 
 
-    describe('#newEnableSingleRequestFunction', function() {
-
-        var theObject = null,
-            originalFunction = null;
-
-        beforeEach(function(done) {
-            theObject = {};
-            originalFunction = function() {
-                return "originalFunction";
-            };
-
-            sinon.spy(UTIL, "log");
-            sinon.spy(UTIL, "isObject");
-            sinon.spy(UTIL, "isFunction");
-
-            done();
-
-        });
-
-        afterEach(function(done) {
-            originalFunction = null;
-            theObject = null;
-
-            UTIL.log.restore();
-            UTIL.isObject.restore();
-            UTIL.isFunction.restore();
-
-            done();
-        });
-
-        it('is a function', function(done) {
-            GPT.newEnableSingleRequestFunction.should.be.a('function');
-            done();
-        });
-
-        it('return null if passed object is not an object or passed function is not a function', function(done) {
-            theObject = null;
-            should.not.exist(GPT.newEnableSingleRequestFunction(theObject, originalFunction));
-            UTIL.log.calledWith("disableInitialLoad: originalFunction is not a function").should.be.true;
-            UTIL.isObject.calledWith(theObject).should.be.true;
-            UTIL.isFunction.calledWith(originalFunction).should.be.false;
-            done();
-        });
-
-        it('return function if passed object is an object and passed function is a function', function(done) {
-            GPT.newEnableSingleRequestFunction(theObject, originalFunction).should.be.a('function');
-            UTIL.isObject.calledWith(theObject).should.be.true;
-            UTIL.isFunction.calledWith(originalFunction).should.be.true;
-            done();
-        });
-    });
+    
 
 
     

@@ -406,7 +406,7 @@ function newDisableInitialLoadFunction(theObject, originalFunction) { // TDD, i/
 exports.newDisableInitialLoadFunction = newDisableInitialLoadFunction;
 /* end-test-block */
 
-function newEnableSingleRequestFunction(theObject, originalFunction) { // TDD : done
+function newEnableSingleRequestFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             /* istanbul ignore next */
