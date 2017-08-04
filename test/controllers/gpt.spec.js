@@ -1873,6 +1873,153 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
+    describe('#displayFunctionStatusHandler', function() {
+
+        var oldStatus = null,
+            theObject = null,
+            originalFunction = null,
+            arg = null;
+        beforeEach(function(done) {
+            oldStatus = CONSTANTS.SLOT_STATUS.CREATED;
+            theObject = {};
+            originalFunction = function() {
+                return "originalFunction"
+            };
+            arg = {};
+            sinon.stub(GPT, "updateStatusAndCallOriginalFunction_Display").returns(true);
+            sinon.spy(window, "setTimeout");
+            sinon.spy(CONFIG, "getTimeout");
+            done();
+        });
+
+        afterEach(function(done) {
+            oldStatus = null;
+            theObject = null;
+            originalFunction = null;
+            arg = null;
+            GPT.updateStatusAndCallOriginalFunction_Display.restore();
+            window.setTimeout.restore();
+            CONFIG.getTimeout.restore();
+            done();
+        });
+
+        it('should be a function', function(done) {
+            GPT.displayFunctionStatusHandler.should.be.a('function');
+            done();
+        });
+
+        it('should have fall through and called setTimeout with function to fire post timeout to handle slot rendering', function (done) {
+            oldStatus = CONSTANTS.SLOT_STATUS.CREATED;
+            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
+            window.setTimeout.called.should.be.true;
+            CONFIG.getTimeout.called.should.be.true;
+            done();
+        });
+
+        it('should have called setTimeout with function to fire post timeout to handle slot rendering', function (done) {
+            oldStatus = CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
+            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
+            window.setTimeout.called.should.be.true;
+            CONFIG.getTimeout.called.should.be.true;
+            done();
+        });
+
+        it('should have called updateStatusAndCallOriginalFunction_Display with proper arguments when oldStatus is  TARGETING_ADDED', function(done) {
+            oldStatus = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
+            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
+            GPT.updateStatusAndCallOriginalFunction_Display
+                .calledWith(
+                    "As DM processing is already done, Calling original display function with arguments",
+                    theObject,
+                    originalFunction,
+                    arg)
+                .should.be.true;
+            done();
+        });
+
+        it('should have called updateStatusAndCallOriginalFunction_Display with proper arguments when oldStatus is  DISPLAYED', function(done) {
+            oldStatus = CONSTANTS.SLOT_STATUS.DISPLAYED;
+            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
+            GPT.updateStatusAndCallOriginalFunction_Display
+                .calledWith(
+                    "As slot is already displayed, Calling original display function with arguments",
+                    theObject,
+                    originalFunction,
+                    arg)
+                .should.be.true;
+            done();
+        });
+    });
+
+    describe('#forQualifyingSlotNamesCallAdapters', function() {
+
+        var qualifyingSlotNames = null,
+            arg = null,
+            isRefreshCall = null;
+        var qualifyingSlots = null;
+        var slot_1 = null, slot_2 = null;
+
+        beforeEach(function(done) {
+            qualifyingSlotNames = ["slot_1", "slot_2", "slot_3"];
+            arg = [
+                ["slot_1"], "slot_2"
+            ];
+            slot_1 = SLOT.createSlot("slot_1");
+            slot_2 = SLOT.createSlot("slot_2");
+
+            qualifyingSlots = [slot_1, slot_2];
+            isRefreshCall = false;
+
+            sinon.stub(GPT, "updateStatusOfQualifyingSlotsBeforeCallingAdapters");
+            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.returns(true);
+
+            sinon.stub(GPT, "arrayOfSelectedSlots");
+            GPT.arrayOfSelectedSlots.returns(qualifyingSlots);
+
+            sinon.stub(AM, "callAdapters");
+            AM.callAdapters.returns(true);
+
+            done();
+        });
+
+        afterEach(function(done) {
+            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.restore();
+            GPT.arrayOfSelectedSlots.restore();
+            AM.callAdapters.restore();
+
+            qualifyingSlotNames = null;
+            qualifyingSlots = null;
+
+            slot_1 = null;
+            slot_2 = null;
+
+            done();
+        });
+
+
+        it('should be a function', function(done) {
+            GPT.forQualifyingSlotNamesCallAdapters.should.be.a('function');
+            done();
+        });
+
+        it('should have called updateStatusOfQualifyingSlotsBeforeCallingAdapters and arrayOfSelectedSlots', function(done) {
+            GPT.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall);
+            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.calledWith(qualifyingSlotNames, arg, isRefreshCall).should.be.true;
+            GPT.arrayOfSelectedSlots.calledWith(qualifyingSlotNames).should.be.true;
+            AM.callAdapters.calledWith(qualifyingSlots).should.be.true;
+            done();
+        });
+
+        it('should not have called updateStatusOfQualifyingSlotsBeforeCallingAdapters and arrayOfSelectedSlots when passed qualifyingSlotNames is empty', function(done) {
+            qualifyingSlotNames = [];
+            GPT.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall);
+            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.called.should.be.false;
+            GPT.arrayOfSelectedSlots.called.should.be.false;
+            AM.callAdapters.called.should.be.false;
+            done();
+        });
+    });
+    
     describe("#callJsLoadedIfRequired()", function() {
 
         it("should return false when the object passed is string ", function() {
@@ -2644,129 +2791,7 @@ describe("CONTROLLER: GPT", function() {
 
     });
 
-    describe('#forQualifyingSlotNamesCallAdapters', function() {
 
-        var qualifyingSlotNames = null,
-            arg = null,
-            isRefreshCall = null;
-        var qualifyingSlots = null;
-        beforeEach(function(done) {
-            qualifyingSlotNames = ["slot_1", "slot_2", "slot_3"];
-            arg = [
-                ["slot_1"], "slot_2"
-            ];
-            qualifyingSlots = ["slot_1", "slot_2"];
-            isRefreshCall = false;
-
-            sinon.stub(GPT, "updateStatusOfQualifyingSlotsBeforeCallingAdapters");
-            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.returns(true);
-
-            sinon.stub(GPT, "arrayOfSelectedSlots");
-            GPT.arrayOfSelectedSlots.returns(qualifyingSlots);
-
-            sinon.stub(AM, "callAdapters");
-            AM.callAdapters.returns(true);
-
-            done();
-        });
-
-        afterEach(function(done) {
-            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.restore();
-            GPT.arrayOfSelectedSlots.restore();
-            AM.callAdapters.restore();
-
-            qualifyingSlotNames = null;
-            qualifyingSlots = null;
-
-            done();
-        });
-
-
-        it('should be a function', function(done) {
-            GPT.forQualifyingSlotNamesCallAdapters.should.be.a('function');
-            done();
-        });
-
-        it('should have called updateStatusOfQualifyingSlotsBeforeCallingAdapters and arrayOfSelectedSlots', function(done) {
-            GPT.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall);
-            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.calledWith(qualifyingSlotNames, arg, isRefreshCall).should.be.true;
-            GPT.arrayOfSelectedSlots.calledWith(qualifyingSlotNames).should.be.true;
-            AM.callAdapters.calledWith(qualifyingSlots).should.be.true;
-            done();
-        });
-
-        it('should not have called updateStatusOfQualifyingSlotsBeforeCallingAdapters and arrayOfSelectedSlots when passed qualifyingSlotNames is empty', function(done) {
-            qualifyingSlotNames = [];
-            GPT.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall);
-            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.called.should.be.false;
-            GPT.arrayOfSelectedSlots.called.should.be.false;
-            AM.callAdapters.called.should.be.false;
-            done();
-        });
-    });
-
-    describe('#displayFunctionStatusHandler', function() {
-
-        var oldStatus = null,
-            theObject = null,
-            originalFunction = null,
-            arg = null;
-        beforeEach(function(done) {
-            oldStatus = CONSTANTS.SLOT_STATUS.CREATED;
-            theObject = {};
-            originalFunction = function() {
-                return "originalFunction"
-            };
-            arg = {};
-            sinon.stub(GPT, "updateStatusAndCallOriginalFunction_Display").returns(true);
-            done();
-        });
-
-        afterEach(function(done) {
-            oldStatus = null;
-            theObject = null;
-            originalFunction = null;
-            arg = null;
-            GPT.updateStatusAndCallOriginalFunction_Display.restore();
-            done();
-        });
-
-        it('should be a function', function(done) {
-            GPT.displayFunctionStatusHandler.should.be.a('function');
-            done();
-        });
-
-        it('should have called updateStatusAndCallOriginalFunction_Display with proper arguments when oldStatus is  TARGETING_ADDED', function(done) {
-            oldStatus = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
-            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
-            GPT.updateStatusAndCallOriginalFunction_Display
-                .calledWith(
-                    "As DM processing is already done, Calling original display function with arguments",
-                    theObject,
-                    originalFunction,
-                    arg)
-                .should.be.true;
-            done();
-        });
-
-        it('should have called updateStatusAndCallOriginalFunction_Display with proper arguments when oldStatus is  DISPLAYED', function(done) {
-            oldStatus = CONSTANTS.SLOT_STATUS.DISPLAYED;
-            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
-            GPT.updateStatusAndCallOriginalFunction_Display
-                .calledWith(
-                    "As slot is already displayed, Calling original display function with arguments",
-                    theObject,
-                    originalFunction,
-                    arg)
-                .should.be.true;
-            done();
-        });
-    });
-
-
-    
-
-    
 
     describe('#postTimeoutRefreshExecution', function() {
         var qualifyingSlotNames = null,

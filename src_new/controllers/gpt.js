@@ -507,7 +507,7 @@ function findWinningBidIfRequired_Display(key, slot) { // TDD, i/o : done
 exports.findWinningBidIfRequired_Display = findWinningBidIfRequired_Display;
 /* end-test-block */
 
-function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg) { // TDD : done
+function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg) { // TDD, i/o : done
     switch (oldStatus) {
         // display method was called for this slot
         /* istanbul ignore next */
@@ -565,7 +565,7 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
 exports.displayFunctionStatusHandler = displayFunctionStatusHandler;
 /* end-test-block */
 
-function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall) { // TDD : done
+function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall) { // TDD, i/o : done
     if (qualifyingSlotNames.length > 0) {
         refThis.updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, isRefreshCall);
         var qualifyingSlots = refThis.arrayOfSelectedSlots(qualifyingSlotNames);
