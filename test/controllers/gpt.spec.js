@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-// var sinon = require("sinon");
+var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 
@@ -14,19 +14,19 @@ var SLOT = require("../../src_new/slot.js");
 var commonDivID = "DIV_1";
 
 // TODO : remove as required during single TDD only
-// var jsdom = require('jsdom').jsdom;
-// var exposedProperties = ['window', 'navigator', 'document'];
-// global.document = jsdom('');
-// global.window = document.defaultView;
-// Object.keys(document.defaultView).forEach((property) => {
-//     if (typeof global[property] === 'undefined') {
-//         exposedProperties.push(property);
-//         global[property] = document.defaultView[property];
-//     }
-// });
-// global.navigator = {
-//     userAgent: 'node.js'
-// };
+var jsdom = require('jsdom').jsdom;
+var exposedProperties = ['window', 'navigator', 'document'];
+global.document = jsdom('');
+global.window = document.defaultView;
+Object.keys(document.defaultView).forEach((property) => {
+    if (typeof global[property] === 'undefined') {
+        exposedProperties.push(property);
+        global[property] = document.defaultView[property];
+    }
+});
+global.navigator = {
+    userAgent: 'node.js'
+};
 
 describe("CONTROLLER: GPT", function() {
 
@@ -1153,6 +1153,103 @@ describe("CONTROLLER: GPT", function() {
             currentGoogleSlotStub.setTargeting.calledWith("pk1", "pv1").should.be.false;
             currentGoogleSlotStub.setTargeting.calledWith("pk2", "pv2").should.be.false;
             currentGoogleSlotStub.setTargeting.calledWith("pk3", "pv3").should.be.false;
+            done();
+        });
+    });
+
+    describe('#updateStatusOfQualifyingSlotsBeforeCallingAdapters', function() {
+        var slotNames = null,
+            argumentsFromCallingFunction = null,
+            isRefreshCall = null;
+        var slotObject = null;
+
+        beforeEach(function(done) {
+            slotNames = ["slot_1", "slot_2", "slot_3"];
+            argumentsFromCallingFunction = {};
+            isRefreshCall = true;
+            sinon.spy(UTIL, "forEachOnArray");
+            sinon.spy(UTIL, "isOwnProperty");
+
+            GPT.slotsMap = {};
+            slotObject = {
+                setStatus: function() {
+                    return "setStatus";
+                },
+                setRefreshFunctionCalled: function() {
+                    return "setRefreshFunctionCalled";
+                },
+                setArguments: function() {
+                    return "setArguments";
+                },
+                getStatus: function() {
+                    return CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
+                }
+            };
+
+            sinon.spy(slotObject, "setStatus");
+            sinon.spy(slotObject, "setRefreshFunctionCalled");
+            sinon.spy(slotObject, "setArguments");
+
+            GPT.slotsMap["slot_1"] = slotObject;
+            GPT.slotsMap["slot_2"] = slotObject;
+            GPT.slotsMap["slot_3"] = slotObject;
+
+            sinon.stub(GPT, "removeDMTargetingFromSlot");
+            GPT.removeDMTargetingFromSlot.returns(true);
+
+            done();
+        });
+
+        afterEach(function(done) {
+
+            slotObject.setStatus.restore();
+            slotObject.setRefreshFunctionCalled.restore();
+            slotObject.setArguments.restore();
+
+            GPT.slotsMap = null;
+
+            UTIL.forEachOnArray.restore();
+            UTIL.isOwnProperty.restore();
+
+            GPT.removeDMTargetingFromSlot.restore();
+            done();
+        });
+
+        it('is a function', function(done) {
+            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.should.be.a('function');
+            done();
+        });
+
+        it('should not proceed if given slotNames are not present in slotsMap', function (done) {
+            delete GPT.slotsMap["slot_1"];
+            delete GPT.slotsMap["slot_2"];
+            delete GPT.slotsMap["slot_3"];
+            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, argumentsFromCallingFunction, isRefreshCall);
+            UTIL.isOwnProperty.alwaysReturned(false).should.be.true;
+            done();
+        });
+
+        it('should set status of slot to PARTNERS_CALLED if given slot is present in slotsMap', function(done) {
+            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, argumentsFromCallingFunction, isRefreshCall);
+            UTIL.forEachOnArray.calledWith(slotNames).should.be.true;
+            GPT.slotsMap["slot_1"].getStatus().should.be.equal(CONSTANTS.SLOT_STATUS.PARTNERS_CALLED);
+            done();
+        });
+
+        it('should not have called GPT.removeDMTargetingFromSlot and should not have called respective slot\'s setRefreshFunctionCalled and setArguments if isRefreshCall is false', function(done) {
+            isRefreshCall = false;
+            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, argumentsFromCallingFunction, isRefreshCall);
+            GPT.removeDMTargetingFromSlot.called.should.be.false;
+            GPT.slotsMap["slot_1"].setRefreshFunctionCalled.calledWith(true).should.be.false;
+            GPT.slotsMap["slot_1"].setArguments.calledWith(argumentsFromCallingFunction).should.be.false;
+            done();
+        });
+
+        it('should have called GPT.removeDMTargetingFromSlot with slot names and should have called respective slot\'s setRefreshFunctionCalled and setArguments if isRefreshCall is true', function(done) {
+            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, argumentsFromCallingFunction, isRefreshCall);
+            GPT.removeDMTargetingFromSlot.called.should.be.true;
+            GPT.slotsMap["slot_1"].setRefreshFunctionCalled.calledWith(true).should.be.true;
+            GPT.slotsMap["slot_1"].setArguments.calledWith(argumentsFromCallingFunction).should.be.true;
             done();
         });
     });
@@ -2485,83 +2582,7 @@ describe("CONTROLLER: GPT", function() {
 
     
 
-    describe('#updateStatusOfQualifyingSlotsBeforeCallingAdapters', function() {
-        var slotNames = null,
-            argumentsFromCallingFunction = null,
-            isRefreshCall = null;
-        var slotObject = null;
-        beforeEach(function(done) {
-            slotNames = ["slot_1", "slot_2", "slot_3"];
-            argumentsFromCallingFunction = {};
-            isRefreshCall = true;
-            sinon.spy(UTIL, "forEachOnArray");
-            sinon.stub(UTIL, "isOwnProperty");
-            GPT.slotsMap = {};
-            slotObject = {
-                setStatus: function() {
-                    return "setStatus";
-                },
-                setRefreshFunctionCalled: function() {
-                    return "setRefreshFunctionCalled";
-                },
-                setArguments: function() {
-                    return "setArguments";
-                },
-                getStatus: function() {
-                    return CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
-                }
-            };
-
-            sinon.spy(slotObject, "setStatus");
-            sinon.spy(slotObject, "setRefreshFunctionCalled");
-            sinon.spy(slotObject, "setArguments");
-
-            GPT.slotsMap["slot_1"] = slotObject;
-            GPT.slotsMap["slot_2"] = slotObject;
-            GPT.slotsMap["slot_3"] = slotObject;
-
-            UTIL.isOwnProperty.returns(true);
-            sinon.stub(GPT, "removeDMTargetingFromSlot");
-            GPT.removeDMTargetingFromSlot.returns(true);
-
-            done();
-        });
-
-        afterEach(function(done) {
-
-            slotObject.setStatus.restore();
-            slotObject.setRefreshFunctionCalled.restore();
-            slotObject.setArguments.restore();
-
-            GPT.slotsMap = null;
-
-            UTIL.forEachOnArray.restore();
-            UTIL.isOwnProperty.restore();
-
-            GPT.removeDMTargetingFromSlot.restore();
-            done();
-        });
-
-        it('is a function', function(done) {
-            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.should.be.a('function');
-            done();
-        });
-
-        it('should set status of slot to PARTNERS_CALLED if given slot is present in slotsMap', function(done) {
-            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, argumentsFromCallingFunction, isRefreshCall);
-            UTIL.forEachOnArray.calledWith(slotNames).should.be.true;
-            GPT.slotsMap["slot_1"].getStatus().should.be.equal(CONSTANTS.SLOT_STATUS.PARTNERS_CALLED);
-            done();
-        });
-
-        it('should have called GPT.removeDMTargetingFromSlot with slot names and should have called respective slot\'s setRefreshFunctionCalled and setArguments if isRefreshCall is true', function(done) {
-            GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, argumentsFromCallingFunction, isRefreshCall);
-            GPT.removeDMTargetingFromSlot.called.should.be.true;
-            GPT.slotsMap["slot_1"].setRefreshFunctionCalled.calledWith(true).should.be.true;
-            GPT.slotsMap["slot_1"].setArguments.calledWith(argumentsFromCallingFunction).should.be.true;
-            done();
-        });
-    });
+    
 
     describe('#postTimeoutRefreshExecution', function() {
         var qualifyingSlotNames = null,
