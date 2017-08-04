@@ -48,7 +48,7 @@ function prebidNpmInstall() {
   PrebidJSNodeModules="${GLOBAL_PREBID_PKG_JSON_DIR}/node_modules/"
 
   symLinkForPrebidNodeModules=node_modules
-  if [ -h $symLinkForPrebidNodeModules ]; then
+  if [ -L $symLinkForPrebidNodeModules ]; then
     unlink $symLinkForPrebidNodeModules
   fi
 
@@ -60,7 +60,7 @@ function prebidNpmInstall() {
 }
 
   symLinkForOpenWrapNodeModules=node_modules
-  if [ -h $symLinkForOpenWrapNodeModules ]; then
+  if [ -L $symLinkForOpenWrapNodeModules ]; then
     unlink $symLinkForOpenWrapNodeModules
   fi  
 
