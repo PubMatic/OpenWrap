@@ -162,7 +162,7 @@ function setDisplayFunctionCalledIfRequired(slot, arg) { // TDD, i/o : done
 exports.setDisplayFunctionCalledIfRequired = setDisplayFunctionCalledIfRequired;
 /* end-test-block */
 
-function storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow) {
+function storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow) { // TDD, i/o : done
     // note: here dmSlotName is actually the DivID
     if (!util.isOwnProperty(refThis.slotsMap, dmSlotName)) {
         var slot = SLOT.createSlot(dmSlotName);
@@ -194,7 +194,7 @@ function storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow) {
 exports.storeInSlotsMap = storeInSlotsMap;
 /* end-test-block */
 
-function generateSlotName(googleSlot) {
+function generateSlotName(googleSlot) { // TDD, i/o : done
     if (util.isObject(googleSlot) && util.isFunction(googleSlot.getSlotId)) {
         var slotID = googleSlot.getSlotId();
         /* istanbul ignore else */
@@ -209,7 +209,7 @@ function generateSlotName(googleSlot) {
 exports.generateSlotName = generateSlotName;
 /* end-test-block */
 
-function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow) {
+function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow) { // TDD, i/o : done
     util.log("Generating slotsMap");
     util.forEachOnArray(googleSlotsArray, function(index, currentGoogleSlot) {
         var dmSlotName = refThis.generateSlotName(currentGoogleSlot);
@@ -226,7 +226,7 @@ exports.updateSlotsMapFromGoogleSlots = updateSlotsMapFromGoogleSlots;
 /* end-test-block */
 
 //todo: pass slotsMap in every function that uses it
-function getStatusOfSlotForDivId(divID) { // TDD : done
+function getStatusOfSlotForDivId(divID) { // TDD, i/o : done
     /* istanbul ignore else */
     if (util.isOwnProperty(refThis.slotsMap, divID)) {
         return refThis.slotsMap[divID].getStatus();
@@ -238,7 +238,7 @@ function getStatusOfSlotForDivId(divID) { // TDD : done
 exports.getStatusOfSlotForDivId = getStatusOfSlotForDivId;
 /* end-test-block */
 
-function updateStatusAfterRendering(divID, isRefreshCall) {
+function updateStatusAfterRendering(divID, isRefreshCall) { // TDD, i/o : done
     /* istanbul ignore else */
     if (util.isOwnProperty(refThis.slotsMap, divID)) {
         refThis.slotsMap[divID].updateStatusAfterRendering(isRefreshCall);
@@ -249,7 +249,7 @@ function updateStatusAfterRendering(divID, isRefreshCall) {
 exports.updateStatusAfterRendering = updateStatusAfterRendering;
 /* end-test-block */
 
-function getSlotNamesByStatus(statusObject) { // TDD : done
+function getSlotNamesByStatus(statusObject) { // TDD, i/o : done
     var slots = [];
     util.forEachOnObject(refThis.slotsMap, function(key, slot) {
         /* istanbul ignore else */
@@ -264,7 +264,7 @@ function getSlotNamesByStatus(statusObject) { // TDD : done
 exports.getSlotNamesByStatus = getSlotNamesByStatus;
 /* end-test-block */
 
-function removeDMTargetingFromSlot(key) { // TDD : done
+function removeDMTargetingFromSlot(key) { // TDD, i/o : done
     var currentGoogleSlot;
     var targetingMap = {};
     /* istanbul ignore else */
