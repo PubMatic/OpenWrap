@@ -636,7 +636,7 @@ exports.newDisplayFunction  = newDisplayFunction;
             we are not going to support this one as well as third-party partners use this and they wont have setup required to render our bids
 */
 
-function newAddHookOnGoogletagDisplay(localGoogletag) { // TDD : done
+function newAddHookOnGoogletagDisplay(localGoogletag) { // TDD, i/o : done
     if (refThis.displayHookIsAdded) {
         return;
     }
@@ -649,7 +649,7 @@ function newAddHookOnGoogletagDisplay(localGoogletag) { // TDD : done
 exports.newAddHookOnGoogletagDisplay = newAddHookOnGoogletagDisplay;
 /* end-test-block */
 
-function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue) {
+function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue) { // TDD, i/o : done
     if (util.isOwnProperty(refThis.slotsMap, slotName) && refThis.slotsMap[slotName].isRefreshFunctionCalled() === true && refThis.slotsMap[slotName].getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED) {
 
         refThis.findWinningBidAndApplyTargeting(divID);
