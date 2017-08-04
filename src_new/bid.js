@@ -18,7 +18,7 @@ function Bid(adapterID, kgpv){
 	this.isPostTimeout = false;
 	this.receivedTime = 0;
 	this.dealID = "";
-	this.dealChannel = "PMP";
+	this.dealChannel = "";
 	this.isWinningBid = false;
 	this.status = 0;
 }
@@ -152,6 +152,7 @@ Bid.prototype.setDealID = function(dealID){
 	/* istanbul ignore else */
 	if(dealID){
 		this.dealID = dealID;
+		this.dealChannel = this.dealChannel || "PMP";
 		this.setKeyValuePair(
 			CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+this.adapterID, 
 			this.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + this.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + this.bidID

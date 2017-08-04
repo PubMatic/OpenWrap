@@ -468,10 +468,33 @@ describe('Bid bidObject', function() {
                 )
                 .should.be.false;
             done();
+        });        
+
+        it('on setting dealID, dealChannel should be set to PMP', function(done){
+            bidObject.setDealID('ABCD');
+            bidObject.getDealID().should.equal('ABCD');
+            bidObject.getDealChannel().should.equal('PMP');
+            done();
+        });
+
+        it('dealChannel is set only if setDealID is called', function(done){
+            bidObject.setDealChannel('PMPG');
+            bidObject.getDealChannel().should.equal('');
+            bidObject.setDealID('ABCD');            
+            bidObject.getDealChannel().should.equal('PMP');
+            bidObject.setDealChannel('PMPG');
+            bidObject.getDealChannel().should.equal('PMPG');
+            done();
         });
     });
 
     describe('#getDealID', function() {
+
+        it('new bid object should have dealID and dealChannel value as empty string', function(done){
+            bidObject.getDealID().should.equal('');
+            bidObject.getDealChannel().should.equal('');
+            done();
+        });
 
         it('is a function', function(done) {
             bidObject.getDealID.should.be.a('function')
