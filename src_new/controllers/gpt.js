@@ -308,7 +308,7 @@ function updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, arguments
 exports.updateStatusOfQualifyingSlotsBeforeCallingAdapters = updateStatusOfQualifyingSlotsBeforeCallingAdapters;
 /* end-test-block */
 
-function arrayOfSelectedSlots(slotNames) { // TDD : done
+function arrayOfSelectedSlots(slotNames) { // TDD, i/o : done
     var output = [];
     util.forEachOnArray(slotNames, function(index, slotName) {
         output.push(refThis.slotsMap[slotName]);

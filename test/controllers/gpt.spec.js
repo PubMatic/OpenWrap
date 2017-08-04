@@ -1254,6 +1254,52 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
+    describe('#arrayOfSelectedSlots', function() {
+        var slotNames = null;
+        var slot_1 = null, slot_2 = null, slot_3 = null;
+
+        beforeEach(function(done) {
+            slotNames = ["slot_1", "slot_2", "slot_3"];
+
+            slot_1 = SLOT.createSlot("slot_1");
+            slot_2 = SLOT.createSlot("slot_2");
+            slot_3 = SLOT.createSlot("slot_3");
+
+            GPT.slotsMap = {};
+
+            GPT.slotsMap["slot_1"] = slot_1;
+            GPT.slotsMap["slot_2"] = slot_2; 
+            GPT.slotsMap["slot_3"] = slot_3;
+            
+            sinon.spy(UTIL, "forEachOnArray");
+            done();
+        });
+
+        afterEach(function(done) {
+            GPT.slotsMap = {};
+            UTIL.forEachOnArray.restore();
+            done();
+        });
+
+        it('is a function', function(done) {
+            GPT.arrayOfSelectedSlots.should.be.a('function');
+            done();
+        });
+
+        it('should return empty array when slotNames given are empty', function (done) {
+            GPT.arrayOfSelectedSlots([]).should.deep.equal([]);
+            done();
+        });
+
+        it('return array slot objects of given slot names from the slotMap', function(done) {
+            GPT.arrayOfSelectedSlots(slotNames).should.be.a('array');
+            GPT.arrayOfSelectedSlots(slotNames).should.deep.equal([slot_1, slot_2, slot_3]);
+            Object.keys(GPT.slotsMap).should.be.deep.equal(slotNames);
+            Object.keys(GPT.slotsMap).length.should.be.equal(slotNames.length);
+            done();
+        });
+    });
+
     describe("#callJsLoadedIfRequired()", function() {
 
         it("should return false when the object passed is string ", function() {
@@ -2536,53 +2582,6 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
     });
-
-    describe('#arrayOfSelectedSlots', function() {
-        var slotNames = null;
-        beforeEach(function(done) {
-            slotNames = ["slot_1", "slot_2", "slot_3"];
-            GPT.slotsMap = {
-                "slot_1": {
-                    getStatus: function() {
-                        return "slot_1";
-                    }
-                },
-                "slot_2": {
-                    getStatus: function() {
-                        return "slot_2";
-                    }
-                },
-                "slot_3": {
-                    getStatus: function() {
-                        return "slot_3";
-                    }
-                },
-            };
-            sinon.spy(UTIL, "forEachOnArray");
-            done();
-        });
-
-        afterEach(function(done) {
-            UTIL.forEachOnArray.restore();
-            done();
-        });
-
-        it('is a function', function(done) {
-            GPT.arrayOfSelectedSlots.should.be.a('function');
-            done();
-        });
-
-        it('return array slot objects of given slot names from the slotMap', function(done) {
-            GPT.arrayOfSelectedSlots(slotNames).should.be.a('array');
-            done();
-        });
-    });
-
-    
-
-    
-
-    
 
     describe('#postTimeoutRefreshExecution', function() {
         var qualifyingSlotNames = null,
