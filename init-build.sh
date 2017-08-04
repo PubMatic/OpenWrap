@@ -47,12 +47,22 @@ function prebidNpmInstall() {
 
   PrebidJSNodeModules="${GLOBAL_PREBID_PKG_JSON_DIR}/node_modules/"
 
+  symLinkForPrebidNodeModules=node_modules
+  if [ -h $symLinkForPrebidNodeModules ]; then
+    unlink $symLinkForPrebidNodeModules
+  fi
+
   ln -s "$PrebidJSNodeModules" "./node_modules"
 
   npm install
 
   cd ../OpenWrap/
 }
+
+  symLinkForOpenWrapNodeModules=node_modules
+  if [ -h $symLinkForOpenWrapNodeModules ]; then
+    unlink $symLinkForOpenWrapNodeModules
+  fi  
 
 ln -s "$OpenWrapNodeModules" "./node_modules"
 
