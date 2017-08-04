@@ -481,6 +481,178 @@ describe("CONTROLLER: GPT", function() {
 
     });
 
+    describe('#storeInSlotsMap', function() {
+        var dmSlotName = null, currentGoogleSlotStub = null, isDisplayFlow = null;
+        var slotStub = null, sizeObj_1 = null, sizeObj_2 = null;
+
+        beforeEach(function (done) {
+            dmSlotName = "DIV_1"; // note: here dmSlotName is actually the DivID // please refer source code 
+
+            sinon.spy(UTIL, "isOwnProperty");
+            sinon.spy(UTIL, "isObject");
+            sinon.spy(UTIL, "isFunction");
+            sinon.spy(UTIL, "createVLogInfoPanel");
+            sinon.spy(UTIL, "forEachOnArray");
+            
+
+            slotStub = SLOT.createSlot(dmSlotName);
+
+            sinon.spy(slotStub, "setDivID");
+            sinon.spy(slotStub, "setPubAdServerObject");
+            sinon.spy(slotStub, "setAdUnitID");
+            sinon.spy(slotStub, "setAdUnitIndex");
+            // sinon.spy(slotStub, "setSizes");
+            sinon.spy(slotStub, "setStatus");
+            sinon.spy(slotStub, "setKeyValue");
+            sinon.spy(slotStub, "getSizes");
+            
+            
+
+            sinon.stub(SLOT, "createSlot").returns(slotStub);
+
+            sizeObj_1 = {
+                getWidth: function() {
+                    return 1024;
+                },
+                getHeight: function() {
+                    return 768;
+                },
+                "id": "sizeObj_1"
+            };
+
+            sizeObj_2 = {
+                getWidth: function() {
+                    return 640;
+                },
+                getHeight: function() {
+                    return 480;
+                },
+                "id": "sizeObj_2"
+            };
+
+            currentGoogleSlotStub = {
+                getTargetingKeys: function () {
+                    return [ "k1", "k2"];
+                },
+                getTargeting: function (key) {
+                    return "v1";
+                },
+                getSizes: function() {
+                    return [sizeObj_1, sizeObj_2];
+                },
+                getAdUnitPath: function () {
+                    return "ad_unit_path";
+                }
+            };
+
+            sinon.stub(currentGoogleSlotStub, "getTargeting")
+                .withArgs("k1").returns("v1")
+                .withArgs("k2").returns("v2");
+
+            GPT.slotsMap[dmSlotName] = slotStub;
+            sinon.spy(GPT.slotsMap[dmSlotName], "setSizes");
+            isDisplayFlow = true;
+
+            done();
+        });
+
+        afterEach(function (done) {
+            UTIL.isOwnProperty.restore();
+            UTIL.createVLogInfoPanel.restore();
+            UTIL.isObject.restore();
+            UTIL.isFunction.restore();
+            UTIL.forEachOnArray.restore();
+
+            SLOT.createSlot.restore();
+
+            slotStub.setDivID.restore();
+            slotStub.setPubAdServerObject.restore();
+            slotStub.setAdUnitID.restore();
+            slotStub.setAdUnitIndex.restore();
+            // slotStub.setSizes.restore();
+            slotStub.setStatus.restore();
+            slotStub.setKeyValue.restore();
+            slotStub.getSizes.restore();            
+
+            slotStub = null;
+
+            currentGoogleSlotStub.getTargeting.restore();
+
+            currentGoogleSlotStub = null;
+            
+            if (GPT.slotsMap[dmSlotName].setSizes) {
+                GPT.slotsMap[dmSlotName].setSizes.restore(); 
+            }
+
+            if (GPT.slotsMap[dmSlotName]) {
+
+                delete GPT.slotsMap[dmSlotName];
+            }
+
+            isDisplayFlow = null;
+            
+            done();
+        });
+
+
+        it('is a function', function(done) {
+            GPT.storeInSlotsMap.should.be.a('function');
+            done();
+        });
+
+        it('should called proper methods to create and add slot for given dmSlotName in slotsMap, if not present already ', function (done) {
+            delete GPT.slotsMap[dmSlotName];
+            GPT.storeInSlotsMap(dmSlotName, currentGoogleSlotStub, isDisplayFlow);
+            UTIL.isOwnProperty.returned(false).should.be.true;
+            slotStub.setDivID.calledWith(dmSlotName).should.be.true;
+            slotStub.setPubAdServerObject.calledWith(currentGoogleSlotStub).should.be.true;
+            slotStub.setAdUnitID.called.should.be.true;
+            slotStub.setAdUnitIndex.called.should.be.true;
+            done();
+        });
+
+        it('should create and add slot for given dmSlotName in slotsMap, if not present already ', function (done) {
+            delete GPT.slotsMap[dmSlotName];
+            GPT.storeInSlotsMap(dmSlotName, currentGoogleSlotStub, isDisplayFlow);
+            UTIL.isOwnProperty.returned(false).should.be.true;
+            slotStub.setDivID.calledWith(dmSlotName).should.be.true;
+            slotStub.setPubAdServerObject.calledWith(currentGoogleSlotStub).should.be.true;
+            slotStub.setAdUnitID.called.should.be.true;
+            slotStub.setAdUnitIndex.called.should.be.true;
+            GPT.slotsMap[dmSlotName].should.deep.equal(slotStub);
+            done();
+        });
+
+        it('should have set key value pairs on slot from given currentGoogleSlot targeting keys ', function (done) {
+            delete GPT.slotsMap[dmSlotName];
+            GPT.storeInSlotsMap(dmSlotName, currentGoogleSlotStub, isDisplayFlow);
+            UTIL.isOwnProperty.returned(false).should.be.true;
+            slotStub.setDivID.calledWith(dmSlotName).should.be.true;
+            slotStub.setPubAdServerObject.calledWith(currentGoogleSlotStub).should.be.true;
+            slotStub.setAdUnitID.called.should.be.true;
+            slotStub.setAdUnitIndex.called.should.be.true;
+
+            UTIL.forEachOnArray.calledWith(currentGoogleSlotStub.getTargetingKeys()).should.be.true;
+            Object.keys(slotStub.getkeyValues()).should.deep.equal(currentGoogleSlotStub.getTargetingKeys());
+            done();
+        });
+
+        it('should not set sizes on slot of given name if isDisplayFlow is true', function (done) {
+            GPT.storeInSlotsMap(dmSlotName, currentGoogleSlotStub, isDisplayFlow);
+            UTIL.isOwnProperty.returned(true).should.be.true;
+            GPT.slotsMap[dmSlotName].setSizes.called.should.be.false;
+            done();
+        });
+
+        it('should set sizes on slot of given name if isDisplayFlow is false', function (done) {
+            isDisplayFlow = false;
+            GPT.storeInSlotsMap(dmSlotName, currentGoogleSlotStub, isDisplayFlow);
+            UTIL.isOwnProperty.returned(true).should.be.true;
+            GPT.slotsMap[dmSlotName].setSizes.called.should.be.true;
+            done();
+        });
+    });
+
     describe("#callJsLoadedIfRequired()", function() {
 
         it("should return false when the object passed is string ", function() {
@@ -2315,12 +2487,7 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#storeInSlotsMap', function() {
-        it('is a function', function(done) {
-            GPT.storeInSlotsMap.should.be.a('function');
-            done();
-        });
-    });
+    
 
 
     describe('#updateSlotsMapFromGoogleSlots', function() {
@@ -2353,6 +2520,9 @@ describe("CONTROLLER: GPT", function() {
                 },
                 getAdUnitPath: function () {
                     return "getAdUnitPath";
+                },
+                setSizes: function () {
+                    return "setSizes"
                 }
             };
 
@@ -2384,6 +2554,9 @@ describe("CONTROLLER: GPT", function() {
                 },
                 getAdUnitPath: function () {
                     return "getAdUnitPath";
+                },
+                setSizes: function () {
+                    return "setSizes"
                 }
             };
 
@@ -2474,7 +2647,7 @@ describe("CONTROLLER: GPT", function() {
             GPT.updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow);
             GPT.setDisplayFunctionCalledIfRequired.calledWith(GPT.slotsMap["DIV_2"], argumentsFromCallingFunction).should.be.true;
             expect(googleSlotsArray.length).to.be.equal(2);
-            GPT.setDisplayFunctionCalledIfRequired.calledOnce.should.be.true;
+            GPT.setDisplayFunctionCalledIfRequired.called.should.be.true;
             done();
         });
 

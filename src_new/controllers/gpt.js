@@ -164,29 +164,28 @@ exports.setDisplayFunctionCalledIfRequired = setDisplayFunctionCalledIfRequired;
 
 function storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow) {
     // note: here dmSlotName is actually the DivID
-    if (!util.isOwnProperty(slotsMap, dmSlotName)) {
-
+    if (!util.isOwnProperty(refThis.slotsMap, dmSlotName)) {
         var slot = SLOT.createSlot(dmSlotName);
-        slot
-            .setDivID(dmSlotName)
-            .setPubAdServerObject(currentGoogleSlot)
-            .setAdUnitID(currentGoogleSlot.getAdUnitPath())
-            .setAdUnitIndex(getAdUnitIndex(currentGoogleSlot))
-            .setSizes(getAdSlotSizesArray(dmSlotName, currentGoogleSlot))
-            .setStatus(CONSTANTS.SLOT_STATUS.CREATED);
+        slot.setDivID(dmSlotName);
+        slot.setPubAdServerObject(currentGoogleSlot);
+        slot.setAdUnitID(currentGoogleSlot.getAdUnitPath());
+        slot.setAdUnitIndex(refThis.getAdUnitIndex(currentGoogleSlot));
+        slot.setSizes(refThis.getAdSlotSizesArray(dmSlotName, currentGoogleSlot));
+        slot.setStatus(CONSTANTS.SLOT_STATUS.CREATED);
         // todo: find and set position
-
+        /* istanbul ignore else */
         if (sendTargetingInfoIsSet && util.isObject(JSON) && util.isFunction(JSON.stringify)) {
             util.forEachOnArray(currentGoogleSlot.getTargetingKeys(), function(index, value) {
                 slot.setKeyValue(value, currentGoogleSlot.getTargeting(value));
             });
         }
 
-        slotsMap[dmSlotName] = slot;
+        refThis.slotsMap[dmSlotName] = slot;
         util.createVLogInfoPanel(dmSlotName, slot.getSizes());
     } else {
+        /* istanbul ignore else */
         if (!isDisplayFlow) {
-            slotsMap[dmSlotName].setSizes(getAdSlotSizesArray(dmSlotName, currentGoogleSlot));
+            refThis.slotsMap[dmSlotName].setSizes(refThis.getAdSlotSizesArray(dmSlotName, currentGoogleSlot));
         }
     }
 }
