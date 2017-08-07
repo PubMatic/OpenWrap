@@ -3,19 +3,18 @@ var controller = require("./controllers/gpt.js");//todo: configer how to select 
 var bidManager = require("./bidManager.js");
 
 var metaInfo = util.getMetaInfo(window);
-window.PWT = window.PWT || {
-	bidMap: {},
-	bidIdMap: {},
-	isIframe: metaInfo.isInIframe,
-	protocol: metaInfo.protocol,
-	secure: metaInfo.secure,
-	pageURL: metaInfo.pageURL,
-	refURL: metaInfo.refURL,
-	//safeframe flags here
-	isSafeFrame: false,
-	safeFrameMessageListenerAdded: false,
-	udpv: util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtv") // usingDifferentProfileVersion
-};
+window.PWT = window.PWT || {};
+window.PWT.bidMap = window.PWT.bidMap || {};
+window.PWT.bidIdMap = window.PWT.bidIdMap || {};
+window.PWT.isIframe = window.PWT.isIframe || metaInfo.isInIframe;
+window.PWT.protocol = window.PWT.protocol || metaInfo.protocol;
+window.PWT.secure = window.PWT.secure || metaInfo.secure;
+window.PWT.pageURL = window.PWT.pageURL || metaInfo.pageURL;
+window.PWT.refURL = window.PWT.refURL || metaInfo.refURL;
+window.PWT.isSafeFrame = window.PWT.isSafeFrame || false;
+window.PWT.safeFrameMessageListenerAdded = window.PWT.safeFrameMessageListenerAdded || false;
+// usingDifferentProfileVersion
+window.PWT.udpv = window.PWT.udpv || util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtv");
 
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc") && util.enableVisualDebugLog();
