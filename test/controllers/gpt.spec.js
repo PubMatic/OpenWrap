@@ -1495,7 +1495,7 @@ describe("CONTROLLER: GPT", function() {
 
             UTIL.forEachOnObject.called.should.be.true;
             GPT.defineWrapperTargetingKey.called.should.be.true;
-            
+
             googleDefinedSlotStub.setTargeting.calledWith("key1", keyValuePairsStub["key1"]).should.be.true;
             GPT.defineWrapperTargetingKey.calledWith("key1").should.be.true;
 
@@ -2315,6 +2315,7 @@ describe("CONTROLLER: GPT", function() {
             originalFunction = null,
             arg = null;
         var slotObject = null;
+
         beforeEach(function(done) {
             qualifyingSlotNames = ["slot_1", "slot_2"];
             theObject = {};
@@ -2383,10 +2384,36 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        // todo
-        xit('should have logged the arg', function(done) {
+        it('should not proceed if qualifyingSlotNames are empty', function (done) {
+            qualifyingSlotNames = [];
             GPT.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
-            UTIL.log.calledWith("Executing post CONFIG.getTimeout() events, arguments: ").should.be.true;
+            window.setTimeout.called.should.be.false;
+            BM.executeAnalyticsPixel.called.should.be.true;
+            GPT.callOriginalRefeshFunction.calledWith(false, theObject, originalFunction, arg).should.be.true;
+            done();
+        });
+
+        it('should have called callOriginalRefeshFunction with proper arguments', function (done) {
+            GPT.findWinningBidIfRequired_Refresh.returns(false);
+
+            GPT.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
+            
+            UTIL.log.calledWith("Executing post timeout events, arguments: ").should.be.true;
+            UTIL.log.calledWith(arg).should.be.true;
+            UTIL.forEachOnArray.calledWith(qualifyingSlotNames).should.be.true;
+            
+            window.setTimeout.called.should.be.true;
+            
+            BM.executeAnalyticsPixel.called.should.be.true;
+            
+            GPT.callOriginalRefeshFunction.calledWith(false, theObject, originalFunction, arg).should.be.true;
+            
+            done();
+        });
+
+        it('should have logged the arg while executing post timeout events', function(done) {
+            GPT.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
+            UTIL.log.calledWith("Executing post timeout events, arguments: ").should.be.true;
             UTIL.log.calledWith(arg).should.be.true;
             UTIL.forEachOnArray.calledWith(qualifyingSlotNames).should.be.true;
             window.setTimeout.called.should.be.true;
