@@ -129,7 +129,6 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
-
     describe('#setCallInitTime', function() {
         var adapterID = null;
         var divID = null;
@@ -171,16 +170,20 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
-
     describe('#setBidFromBidder', function() {
         var divID = null;
         var bidDetails = null;
-        var adapterID = commonAdpterID;
-        var kgpv = commonKGPV;
-        bidDetails = new bid(adapterID, kgpv);
+        var adapterID = null;
+        var kgpv = null;
+
 
         beforeEach(function(done) {
             divID = commonDivID;
+            adapterID = commonAdpterID;
+            kgpv = commonKGPV;
+            
+            bidDetails = new bid(adapterID, kgpv);
+
             window.PWT = {
                 bidMap: {
 
@@ -205,6 +208,10 @@ describe('bidManager BIDMgr', function() {
             bidDetails.getBidID.restore();
             CONFIG.getTimeout.restore();
             BIDMgr.storeBidInBidMap.restore();
+
+            kgpv = null;
+            adapterID = null;
+            divID = null;
             done();
         });
 
@@ -363,7 +370,6 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
-
     describe('#storeBidInBidMap', function() {
         var slotID = null;
         var adapterID = null;
@@ -420,13 +426,30 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('should have called UTIL.vLogInfo when default bid status is 0', function(done) {
+        it('should not have called UTIL.vLogInfo when default bid status is not zero', function (done) {
+            sinon.stub(theBid, 'getDefaultBidStatus');
+            theBid.getDefaultBidStatus.returns(1);
+
             BIDMgr.storeBidInBidMap(slotID, adapterID, theBid, latency);
 
+            UTIL.vLogInfo.calledOnce.should.be.false;
+            done();
+        });
+
+        it('should have called UTIL.vLogInfo when default bid status is 0', function(done) {
             sinon.stub(theBid, 'getDefaultBidStatus');
             theBid.getDefaultBidStatus.returns(0);
 
+            BIDMgr.storeBidInBidMap(slotID, adapterID, theBid, latency);
+
             UTIL.vLogInfo.calledOnce.should.be.true;
+            UTIL.vLogInfo.calledWith(slotID, {
+                type: "bid",
+                bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(Passthrough)' : ''),
+                bidDetails: theBid,
+                latency: latency
+            }).should.be.true;
+            
             done();
         });
     });
