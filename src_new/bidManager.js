@@ -1,11 +1,11 @@
 var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
-var bmEntry = require("./bmEntry.js")
+var bmEntry = require("./bmEntry.js");
 
 var refThis = this;
 
-function createBidEntry(divID){ // TDD done
+function createBidEntry(divID){ // TDD, i/o done
 	if(! util.isOwnProperty(window.PWT.bidMap, divID) ){
 		window.PWT.bidMap[divID] = bmEntry.createBMEntry(divID);
 	}

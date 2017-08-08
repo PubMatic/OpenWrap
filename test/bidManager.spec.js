@@ -37,6 +37,7 @@ describe('bidManager BIDMgr', function() {
 
     describe('#createBidEntry', function() {
         var divID = commonDivID;
+        var bidObj = null;
 
         beforeEach(function(done) {
             window.PWT = {
@@ -44,6 +45,9 @@ describe('bidManager BIDMgr', function() {
 
                 }
             };
+
+            bidObj = bmEntry.createBMEntry(divID);
+
             sinon.spy(UTIL, 'isOwnProperty');
             sinon.spy(bmEntry, 'createBMEntry');
             done();
@@ -53,6 +57,7 @@ describe('bidManager BIDMgr', function() {
             done();
             UTIL.isOwnProperty.restore();
             bmEntry.createBMEntry.restore();
+            bidObj = null;
         });
 
         it('is a function', function(done) {
@@ -65,14 +70,16 @@ describe('bidManager BIDMgr', function() {
             UTIL.isOwnProperty.calledOnce.should.be.true;
             bmEntry.createBMEntry.calledOnce.should.be.true;
             bmEntry.createBMEntry.calledWith(divID).should.be.true;
+            window.PWT.bidMap[divID].should.have.all.keys("adapters", "analyticsEnabled","creationTime","expired","impressionID","name","sizes");
             done();
         });
 
         it('should not have called bmEntry.createBMEntry when given DivID is not present in global BidMap', function(done) {
-            window.PWT.bidMap[divID] = bmEntry.createBMEntry(divID);
+            window.PWT.bidMap[divID] = bidObj;
             BIDMgr.createBidEntry(divID);
             UTIL.isOwnProperty.calledOnce.should.be.true;
             bmEntry.createBMEntry.calledTwice.should.be.false;
+            window.PWT.bidMap[divID].should.deep.equal(bidObj);
             done();
         });
     });
