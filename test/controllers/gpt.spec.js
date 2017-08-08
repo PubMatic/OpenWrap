@@ -2825,7 +2825,7 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe("#addHooks()", function() {
+    describe("#addHooks", function() {
         var winObj = null;
         var winObjBad = null;
         beforeEach(function(done) {
@@ -2844,8 +2844,10 @@ describe("CONTROLLER: GPT", function() {
                     }
                 }
             };
-
+            sinon.spy(UTIL, "isObject");
+            sinon.spy(UTIL, "isFunction");
             sinon.spy(UTIL, "addHookOnFunction");
+
             sinon.spy(GPT, "addHookOnSlotDefineSizeMapping");
             sinon.spy(GPT, "newAddHookOnGoogletagDisplay");
             done();
@@ -2854,7 +2856,11 @@ describe("CONTROLLER: GPT", function() {
         afterEach(function(done) {
             winObj = null;
             winObjBad = null;
+
             UTIL.addHookOnFunction.restore();
+            UTIL.isObject.restore();
+            UTIL.isFunction.restore();
+
             GPT.addHookOnSlotDefineSizeMapping.restore();
             GPT.newAddHookOnGoogletagDisplay.restore();
             done();
@@ -2867,11 +2873,38 @@ describe("CONTROLLER: GPT", function() {
 
         it("returns false if passed in window object is not an object", function(done) {
             GPT.addHooks(null).should.equal(false);
+
+            GPT.addHookOnSlotDefineSizeMapping.called.should.be.false;
+            GPT.newAddHookOnGoogletagDisplay.called.should.be.false;
+            UTIL.addHookOnFunction.called.should.be.false;
+            UTIL.isObject.called.should.be.true;
+            UTIL.isObject.calledOnce.should.be.true;
+            UTIL.isFunction.called.should.be.false;
+            done();
+        });
+
+        it("returns false if passed in window object is an object but doesnt have required structure and methods", function(done) {
+            GPT.addHooks({googletag : {}}).should.equal(false);
+
+            GPT.addHookOnSlotDefineSizeMapping.called.should.be.false;
+            GPT.newAddHookOnGoogletagDisplay.called.should.be.false;
+            UTIL.addHookOnFunction.called.should.be.false;
+            UTIL.isObject.called.should.be.true;
+            UTIL.isObject.calledTwice.should.be.true;
+            UTIL.isFunction.called.should.be.true;
+            UTIL.isFunction.returned(false).should.be.true;
             done();
         });
 
         it("returns false if googletag.pubads returns a non object value ", function(done) {
             GPT.addHooks(winObjBad).should.equal(false);
+
+            UTIL.isObject.calledThrice.should.be.true;
+            UTIL.isFunction.calledOnce.should.be.true;
+
+            GPT.addHookOnSlotDefineSizeMapping.called.should.be.false;
+            GPT.newAddHookOnGoogletagDisplay.called.should.be.false;
+            UTIL.addHookOnFunction.called.should.be.false;
             done();
         });
 

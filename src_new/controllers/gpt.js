@@ -796,7 +796,7 @@ function addHookOnSlotDefineSizeMapping(localGoogletag) { // TDD, i/o : done
 exports.addHookOnSlotDefineSizeMapping = addHookOnSlotDefineSizeMapping;
 /* end-test-block */
 
-function addHooks(win) { // TDD : done
+function addHooks(win) { // TDD, i/o : done
 
     if (util.isObject(win) && util.isObject(win.googletag) && util.isFunction(win.googletag.pubads)) {
         var localGoogletag = win.googletag;
