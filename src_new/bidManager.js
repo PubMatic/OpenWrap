@@ -5,7 +5,7 @@ var bmEntry = require("./bmEntry.js");
 
 var refThis = this;
 
-function createBidEntry(divID){ // TDD, i/o done
+function createBidEntry(divID){ // TDD, i/o : done
 	if(! util.isOwnProperty(window.PWT.bidMap, divID) ){
 		window.PWT.bidMap[divID] = bmEntry.createBMEntry(divID);
 	}
@@ -15,12 +15,12 @@ function createBidEntry(divID){ // TDD, i/o done
 exports.createBidEntry = createBidEntry;
 /* end-test-block */
 
-exports.setSizes = function(divID, slotSizes){ // TDD done
+exports.setSizes = function(divID, slotSizes){ // TDD, i/o : done
 	refThis.createBidEntry(divID);
 	window.PWT.bidMap[divID].setSizes(slotSizes);
 };
 
-exports.setCallInitTime = function(divID, adapterID){ // TDD done
+exports.setCallInitTime = function(divID, adapterID){ // TDD, i/o : done
 	refThis.createBidEntry(divID);
 	window.PWT.bidMap[divID].setAdapterEntry(adapterID);
 };

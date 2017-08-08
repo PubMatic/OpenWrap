@@ -85,7 +85,9 @@ describe('bidManager BIDMgr', function() {
     });
 
     describe('#setSizes', function() {
-        var divID = commonDivID;
+        var divID = null;
+        var slotSizes = null;
+        var bmEntryStub = null;
 
         beforeEach(function(done) {
             window.PWT = {
@@ -93,11 +95,21 @@ describe('bidManager BIDMgr', function() {
 
                 }
             };
-            sinon.spy(BIDMgr, 'createBidEntry');
+            divID = commonDivID;
+            slotSizes = [
+                [230, 450]
+            ];
+            bmEntryStub = bmEntry.createBMEntry(divID);
+            window.PWT.bidMap[divID] = bmEntryStub;
+            sinon.spy(bmEntry.BMEntry.prototype, "setSizes");
+            sinon.stub(BIDMgr, 'createBidEntry').returns(bmEntryStub);
             done();
         });
 
         afterEach(function(done) {
+            divID = null;
+            slotSizes = null;
+            bmEntry.BMEntry.prototype.setSizes.restore();
             BIDMgr.createBidEntry.restore();
             done();
         });
@@ -109,27 +121,39 @@ describe('bidManager BIDMgr', function() {
         });
 
         it('should have caled BIDMgr.createBidEntry', function(done) {
-            BIDMgr.setSizes(divID, [
-                [230, 450]
-            ]);
+            BIDMgr.setSizes(divID, slotSizes);
             BIDMgr.createBidEntry.calledOnce.should.be.true;
             window.PWT.bidMap[divID].setSizes.should.be.a('function');
+            window.PWT.bidMap[divID].setSizes.calledWith(slotSizes).should.be.true;
             done();
         });
     });
 
 
     describe('#setCallInitTime', function() {
-        var adapterID = commonAdpterID;
-        var divID = commonDivID;
+        var adapterID = null;
+        var divID = null;
+        var bmEntryStub = null;
 
         beforeEach(function(done) {
-            sinon.spy(BIDMgr, 'createBidEntry');
+            divID = commonDivID;
+            adapterID = commonAdpterID;
+
+            bmEntryStub = bmEntry.createBMEntry(divID);
+            window.PWT.bidMap[divID] = bmEntryStub;
+            sinon.spy(bmEntry.BMEntry.prototype, "setAdapterEntry");
+
+            sinon.stub(BIDMgr, 'createBidEntry').returns(bmEntryStub);
             done();
         });
 
         afterEach(function(done) {
             BIDMgr.createBidEntry.restore();
+            bmEntry.BMEntry.prototype.setAdapterEntry.restore();
+
+            divID = null;
+            adapterID = null;
+            bmEntryStub = null;
             done();
         });
 
@@ -141,6 +165,8 @@ describe('bidManager BIDMgr', function() {
         it('should have called BIDMgr.createBidEntry', function(done) {
             BIDMgr.setCallInitTime(divID, adapterID);
             BIDMgr.createBidEntry.calledOnce.should.be.true;
+            window.PWT.bidMap[divID].setAdapterEntry.should.be.a('function');
+            window.PWT.bidMap[divID].setAdapterEntry.calledWith(adapterID).should.be.true;
             done();
         });
     });
