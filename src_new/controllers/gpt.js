@@ -666,7 +666,7 @@ function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue) { /
 exports.findWinningBidIfRequired_Refresh = findWinningBidIfRequired_Refresh;
 /* end-test-block */
 
-function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg) { // TDD : done
+function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg) { // TDD, i/o : done
     util.log("Executing post timeout events, arguments: ");
     util.log(arg);
     var yesCallRefreshFunction = false;
