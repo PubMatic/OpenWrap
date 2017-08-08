@@ -859,7 +859,7 @@ function addHooksIfPossible(win) { // TDD, i/o : done
 exports.addHooksIfPossible = addHooksIfPossible;
 /* end-test-block */
 
-function callJsLoadedIfRequired(win) { // TDD : done
+function callJsLoadedIfRequired(win) { // TDD, i/o : done
     if (util.isObject(win) && util.isObject(win.PWT) && util.isFunction(win.PWT.jsLoaded)) {
         win.PWT.jsLoaded();
         return true;
@@ -871,7 +871,7 @@ exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
 /* end-test-block */
 
 
-function initSafeFrameListener(theWindow){
+function initSafeFrameListener(theWindow){ // TDD, i/o : done
     if(!theWindow.PWT.safeFrameMessageListenerAdded){
         util.addMessageEventListenerForSafeFrame(theWindow);
         theWindow.PWT.safeFrameMessageListenerAdded = true;
@@ -881,7 +881,7 @@ function initSafeFrameListener(theWindow){
 exports.initSafeFrameListener = initSafeFrameListener;
 /* end-test-block */
 
-exports.init = function(win) { // TDD : done
+exports.init = function(win) { // TDD, i/o : done
 	CONFIG.initConfig();
     if (util.isObject(win)) {
         refThis.setWindowReference(win);

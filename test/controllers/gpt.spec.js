@@ -3066,7 +3066,7 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe("#callJsLoadedIfRequired()", function() {
+    describe("#callJsLoadedIfRequired", function() {
 
         it("should return false when the object passed is string ", function() {
             GPT.callJsLoadedIfRequired("").should.equal(false);
@@ -3130,13 +3130,48 @@ describe("CONTROLLER: GPT", function() {
     });
 
     describe('#initSafeFrameListener', function () {
+        var theWindow = null;
+
+        beforeEach(function (done) {
+            sinon.stub(UTIL, "addMessageEventListenerForSafeFrame").returns(true);
+            theWindow = {
+                PWT: {
+                    safeFrameMessageListenerAdded: true
+                }
+            };
+            done();
+        });
+
+        afterEach(function (done) {
+            UTIL.addMessageEventListenerForSafeFrame.restore();
+            theWindow = null;
+            done();
+        });
+
         it('is a function', function (done) {
             GPT.initSafeFrameListener.should.be.a('function');
             done();
         });
+
+
+        it('should do nothing if message listener for safe frame is already added', function (done) {
+            GPT.initSafeFrameListener(theWindow);
+            UTIL.addMessageEventListenerForSafeFrame.called.should.be.false;
+            theWindow.PWT.safeFrameMessageListenerAdded.should.be.true;
+            done();
+        });
+
+
+        it('should add message listener for safe frame if not added', function (done) {
+            theWindow.PWT.safeFrameMessageListenerAdded = false;
+            GPT.initSafeFrameListener(theWindow);
+            UTIL.addMessageEventListenerForSafeFrame.calledOnce.should.be.true;
+            theWindow.PWT.safeFrameMessageListenerAdded.should.be.true;
+            done();
+        });
     });
 
-    describe("#init()", function() {
+    describe("#init", function() {
         
         beforeEach(function(done) {
             sinon.spy(UTIL, "isObject");
