@@ -758,7 +758,7 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
 exports.newRefreshFuncton = newRefreshFuncton;
 /* end-test-block */
 
-function newSizeMappingFunction(theObject, originalFunction) { // TDD : done
+function newSizeMappingFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             /* istanbul ignore next */

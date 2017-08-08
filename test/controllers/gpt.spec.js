@@ -2663,10 +2663,20 @@ describe("CONTROLLER: GPT", function() {
 
     describe('#newSizeMappingFunction', function() {
 
+        var theObject = null, obj  = null;
+
         beforeEach(function(done) {
             sinon.spy(UTIL, "log");
             sinon.spy(UTIL, "isObject");
             sinon.spy(UTIL, "isFunction");
+            obj = {
+                originalFunction: function () {
+                    return "originalFunction";
+                }
+            };
+            sinon.spy(obj.originalFunction, "apply");
+
+            theObject = {};
             done();
         });
 
@@ -2674,6 +2684,11 @@ describe("CONTROLLER: GPT", function() {
             UTIL.log.restore();
             UTIL.isObject.restore();
             UTIL.isFunction.restore();
+            if (obj.originalFunction) {
+                obj.originalFunction.apply.restore();
+            }
+            // obj.originalFunction = null;
+            theObject = null;
             done();
         });
 
@@ -2683,20 +2698,39 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should return null when impropper parameters passed', function(done) {
-            var result = GPT.newSizeMappingFunction(null, {});
+        it('should return null when impropper parameters passed, non object', function(done) {
+            theObject = null;
+            var result = GPT.newSizeMappingFunction(theObject, obj.originalFunction);
             should.not.exist(result);
+            UTIL.isObject.called.should.be.true;
+            UTIL.isFunction.called.should.be.false;
+            UTIL.log.calledOnce.should.be.true;
+            UTIL.log.calledWith("newSizeMappingFunction: originalFunction is not a function").should.be.true;
+            done();
+        });
+
+        it('should return null when impropper parameters passed, non function', function(done) {
+            obj.originalFunction = null
+            var result = GPT.newSizeMappingFunction(theObject, obj.originalFunction);
+            should.not.exist(result);
+            UTIL.isObject.called.should.be.true;
+            UTIL.isFunction.called.should.be.true;
             UTIL.log.calledOnce.should.be.true;
             UTIL.log.calledWith("newSizeMappingFunction: originalFunction is not a function").should.be.true;
             done();
         });
 
         it('should return a function when propper parameters are passed', function(done) {
-            GPT.newSizeMappingFunction({}, function() {
-                console.log("inside function");
-            }).should.be.a('function');
+            GPT.newSizeMappingFunction(theObject, obj.originalFunction).should.be.a('function');
             UTIL.isObject.calledOnce.should.be.true;
             UTIL.isFunction.calledOnce.should.be.true;
+            done();
+        });
+
+        it('should have called originalFunction when returned function is invoked', function (done) {
+            var returnedFn = GPT.newSizeMappingFunction(theObject, obj.originalFunction);
+            returnedFn();
+            obj.originalFunction.apply.called.should.be.true;
             done();
         });
     });
