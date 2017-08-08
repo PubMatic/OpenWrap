@@ -449,7 +449,7 @@ describe('bidManager BIDMgr', function() {
                 bidDetails: theBid,
                 latency: latency
             }).should.be.true;
-            
+
             done();
         });
     });
@@ -457,19 +457,30 @@ describe('bidManager BIDMgr', function() {
     describe('#resetBid', function() {
         var divID = null;
         var impressionID = null;
+        var bmEntryStub = null;
+        var bmEntryStubPrev = null;
 
         beforeEach(function(done) {
             impressionID = 123123123;
             divID = commonDivID;
-            sinon.spy(BIDMgr, 'createBidEntry');
-            sinon.spy(UTIL, 'vLogInfo');
+
             window.PWT = {
                 bidMap: {
-                    divID: {
-
-                    }
+                    
                 }
-            }
+            };
+
+            bmEntryStub = bmEntry.createBMEntry(divID);
+            bmEntryStubPrev = bmEntry.createBMEntry("DIV_1_1");
+            window.PWT.bidMap[divID] = bmEntryStubPrev;
+            sinon.spy(bmEntry.BMEntry.prototype, "setImpressionID");
+
+            sinon.stub(bmEntry, 'createBMEntry').withArgs(divID).returns(bmEntryStub);
+
+            sinon.spy(BIDMgr, "createBidEntry");
+
+            sinon.spy(UTIL, 'vLogInfo');
+
             done();
         });
 
@@ -477,7 +488,9 @@ describe('bidManager BIDMgr', function() {
             impressionID = null;
             divID = null;
             BIDMgr.createBidEntry.restore();
+            bmEntry.createBMEntry.restore();
             UTIL.vLogInfo.restore();
+            bmEntry.BMEntry.prototype.setImpressionID.restore();
             done();
         });
 
@@ -492,6 +505,8 @@ describe('bidManager BIDMgr', function() {
 
             BIDMgr.createBidEntry.called.should.be.true;
             UTIL.vLogInfo.calledWith(divID, { type: "hr" }).should.be.true;
+            window.PWT.bidMap[divID].should.not.deep.equal(bmEntryStubPrev);
+            window.PWT.bidMap[divID].setImpressionID.calledWith(impressionID).should.be.true;
             done();
         });
     });
