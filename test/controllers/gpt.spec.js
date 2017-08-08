@@ -2736,7 +2736,7 @@ describe("CONTROLLER: GPT", function() {
     });
 
     describe("#addHookOnSlotDefineSizeMapping()", function() {
-        var googleTag = null;
+        var googleTagStub = null;
         var definedSlotS1 = null;
 
         beforeEach(function(done) {
@@ -2748,7 +2748,7 @@ describe("CONTROLLER: GPT", function() {
                     id: "Harshad-02051986"
                 }
             };
-            googleTag = {
+            googleTagStub = {
                 defineSlot: function() {
                     return definedSlotS1;
                 },
@@ -2756,8 +2756,8 @@ describe("CONTROLLER: GPT", function() {
                     return {};
                 }
             };
-            sinon.spy(googleTag, "defineSlot");
-            sinon.spy(googleTag, "destroySlots");
+            sinon.spy(googleTagStub, "defineSlot");
+            sinon.spy(googleTagStub, "destroySlots");
             sinon.spy(UTIL, "isFunction");
             sinon.spy(UTIL, "isObject");
             sinon.spy(UTIL, "addHookOnFunction");
@@ -2765,14 +2765,21 @@ describe("CONTROLLER: GPT", function() {
         });
 
         afterEach(function(done) {
-            googleTag.defineSlot.restore();
-            googleTag.destroySlots.restore();
+            if (googleTagStub) {
+                if (googleTagStub.defineSlot) {
+                    googleTagStub.defineSlot.restore();
+                }
+                if (googleTagStub.destroySlots) {
+                    googleTagStub.destroySlots.restore();
+                }
+            }
+            
 
             UTIL.isFunction.restore();
             UTIL.isObject.restore();
             UTIL.addHookOnFunction.restore();
 
-            googleTag = null;
+            googleTagStub = null;
 
             done();
         });
@@ -2783,25 +2790,36 @@ describe("CONTROLLER: GPT", function() {
         });
 
         it("returns false if passed in googletag is not and object", function(done) {
-            GPT.addHookOnSlotDefineSizeMapping(null).should.equal(false);
+            googleTagStub = null;
+            GPT.addHookOnSlotDefineSizeMapping(googleTagStub).should.equal(false);
+            UTIL.isObject.called.should.be.true;
+            UTIL.isFunction.called.should.be.false;
             done();
         });
 
-        it("should return true when proper googleTag object is passed", function(done) {
-            GPT.addHookOnSlotDefineSizeMapping(googleTag).should.equal(true);
+        it("returns false if passed in googletag does not have defineSlot method", function(done) {
+            delete googleTagStub.defineSlot;
+            GPT.addHookOnSlotDefineSizeMapping(googleTagStub).should.equal(false);
+            UTIL.isObject.called.should.be.true;
+            UTIL.isFunction.called.should.be.true;
             done();
         });
 
-        it("on passing proper googleTag object should have called util.addHookOnFunction", function(done) {
-            GPT.addHookOnSlotDefineSizeMapping(googleTag).should.equal(true);
+        it("should return true when proper google object is passed", function(done) {
+            GPT.addHookOnSlotDefineSizeMapping(googleTagStub).should.equal(true);
+            done();
+        });
+
+        it("on passing proper googletag object should have called util.addHookOnFunction", function(done) {
+            GPT.addHookOnSlotDefineSizeMapping(googleTagStub).should.equal(true);
 
             UTIL.addHookOnFunction.calledWith(definedSlotS1, true, "defineSizeMapping", GPT.newSizeMappingFunction).should.equal(true);
 
-            googleTag.defineSlot.calledWith("/Harshad", [
+            googleTagStub.defineSlot.calledWith("/Harshad", [
                 [728, 90]
             ], "Harshad-02051986").should.equal(true);
 
-            googleTag.destroySlots.calledWith([definedSlotS1]).should.equal(true);
+            googleTagStub.destroySlots.calledWith([definedSlotS1]).should.equal(true);
 
             done();
         });

@@ -777,11 +777,12 @@ exports.newSizeMappingFunction = newSizeMappingFunction;
 /* end-test-block */
 
 // slot.defineSizeMapping
-function addHookOnSlotDefineSizeMapping(localGoogletag) { // TDD : done
+function addHookOnSlotDefineSizeMapping(localGoogletag) { // TDD, i/o : done
     if (util.isObject(localGoogletag) && util.isFunction(localGoogletag.defineSlot)) {
         var s1 = localGoogletag.defineSlot("/Harshad", [
             [728, 90]
         ], "Harshad-02051986");
+        /* istanbul ignore else */
         if (s1) {
             util.addHookOnFunction(s1, true, "defineSizeMapping", refThis.newSizeMappingFunction);
             localGoogletag.destroySlots([s1]);
