@@ -2735,7 +2735,7 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe("#addHookOnSlotDefineSizeMapping()", function() {
+    describe("#addHookOnSlotDefineSizeMapping", function() {
         var googleTagStub = null;
         var definedSlotS1 = null;
 
@@ -2934,11 +2934,30 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe("#defineGPTVariables()", function() {
+    describe("#defineGPTVariables", function() {
         var windowObj = null;
+
+        beforeEach(function (done) {
+            sinon.spy(UTIL, "isObject");
+            windowObj = {
+                googletag: {
+                    cmd: []
+                }
+            };
+            done();
+        });
+
+
+        afterEach(function (done) {
+            UTIL.isObject.restore();
+            windowObj = null;
+            done();
+        });
 
         it("should return false when the invalid window object is passed", function(done) {
             GPT.defineGPTVariables(null).should.equal(false);
+            UTIL.isObject.called.should.be.true;
+            UTIL.isObject.returned(false).should.be.true;
             done();
         });
 
@@ -2951,9 +2970,6 @@ describe("CONTROLLER: GPT", function() {
         });
 
         it("should return true when the googletag.cmd is already defined", function(done) {
-            windowObj.googletag = {
-                cmd: []
-            };
             GPT.defineGPTVariables(windowObj).should.equal(true);
             UTIL.isObject(windowObj.googletag);
             UTIL.isArray(windowObj.googletag.cmd);
@@ -2961,8 +2977,7 @@ describe("CONTROLLER: GPT", function() {
         });
 
         it("should create googletag.cmd as empty array if not present", function(done) {
-            windowObj.googletag = {
-            };
+            delete windowObj.googletag.cmd;
             GPT.defineGPTVariables(windowObj).should.equal(true);
             UTIL.isArray(windowObj.googletag.cmd);
             windowObj.googletag.cmd.length.should.equal(0);

@@ -824,7 +824,7 @@ function addHooks(win) { // TDD, i/o : done
 exports.addHooks = addHooks;
 /* end-test-block */
 
-function defineGPTVariables(win) { // TDD : done
+function defineGPTVariables(win) { // TDD, i/o : done
     // define the command array if not already defined
     if (util.isObject(win)) {
         win.googletag = win.googletag || {};
