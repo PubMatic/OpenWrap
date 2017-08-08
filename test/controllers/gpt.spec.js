@@ -2992,7 +2992,8 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe("#addHooksIfPossible()", function() {
+    describe("#addHooksIfPossible", function() {
+        var winObj = null;
 
         beforeEach(function(done) {
             sinon.spy(UTIL, "isUndefined");
@@ -3000,6 +3001,12 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(UTIL, "isArray");
             sinon.spy(UTIL, "isFunction");
             sinon.spy(UTIL, "log");
+
+            winObj = {
+                googletag: {
+                    cmd: []
+                }
+            }
             done();
         });
 
@@ -3018,7 +3025,31 @@ describe("CONTROLLER: GPT", function() {
         });
 
         it("return false if passed in window object is impropper and should have called util.log", function(done) {
-            GPT.addHooksIfPossible({}).should.equal(false);
+            winObj.google_onload_fired = true;
+            GPT.addHooksIfPossible(winObj).should.equal(false);
+            UTIL.log.calledOnce.should.equal(true);
+            UTIL.log.calledWith("Failed to load before GPT").should.be.true;
+
+            UTIL.isUndefined.calledOnce.should.equal(true);
+            UTIL.isObject.calledOnce.should.be.false;
+            done();
+        });
+
+        it("return false if passed in window object is impropper and should have called util.log", function(done) {
+            delete winObj.googletag;
+            GPT.addHooksIfPossible(winObj).should.equal(false);
+            UTIL.log.calledOnce.should.equal(true);
+            UTIL.log.calledWith("Failed to load before GPT").should.be.true;
+
+            UTIL.isUndefined.calledOnce.should.equal(true);
+            UTIL.isObject.calledOnce.should.equal(true);
+            done();
+        });
+
+
+        it("return false if passed in window object is impropper and should have called util.log", function(done) {
+            delete winObj.googletag.cmd;
+            GPT.addHooksIfPossible(winObj).should.equal(false);
             UTIL.log.calledOnce.should.equal(true);
             UTIL.log.calledWith("Failed to load before GPT").should.be.true;
 
@@ -3028,11 +3059,6 @@ describe("CONTROLLER: GPT", function() {
         });
 
         it("return true if passed window object with required props and should have called util.log", function(done) {
-            var winObj = {
-                googletag: {
-                    cmd: []
-                }
-            };
             GPT.addHooksIfPossible(winObj).should.equal(true);
             UTIL.log.calledOnce.should.equal(true);
             UTIL.log.calledWith("Succeeded to load before GPT").should.be.true;
