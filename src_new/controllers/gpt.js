@@ -688,7 +688,7 @@ function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFun
 exports.postTimeoutRefreshExecution = postTimeoutRefreshExecution;
 /* end-test-block */
 
-function callOriginalRefeshFunction(flag, theObject, originalFunction, arg) { // TDD : done
+function callOriginalRefeshFunction(flag, theObject, originalFunction, arg) { // TDD, i/o : done
     if (flag === true) {
         util.log("Calling original refresh function post timeout");
         originalFunction.apply(theObject, arg);
@@ -701,7 +701,7 @@ function callOriginalRefeshFunction(flag, theObject, originalFunction, arg) { //
 exports.callOriginalRefeshFunction = callOriginalRefeshFunction;
 /* end-test-block */
 
-function getQualifyingSlotNamesForRefresh(arg, theObject) { // TDD : done
+function getQualifyingSlotNamesForRefresh(arg, theObject) { // TDD, i/o : done
     var qualifyingSlotNames = [],
         slotsToConsider = [];
     // handeling case googletag.pubads().refresh(null, {changeCorrelator: false});
@@ -726,7 +726,7 @@ exports.getQualifyingSlotNamesForRefresh = getQualifyingSlotNamesForRefresh;
         3. googletag.pubads().refresh();                    
         4. googletag.pubads().refresh(null, {changeCorrelator: false});     
 */
-function newRefreshFuncton(theObject, originalFunction) { // TDD : done // Note : not covering the function currying atm , if need be will add istanbul ignore
+function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // Note : not covering the function currying atm , if need be will add istanbul ignore
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         // var refThis = this;
         return function() {

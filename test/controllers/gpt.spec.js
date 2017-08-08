@@ -2427,7 +2427,6 @@ describe("CONTROLLER: GPT", function() {
         var flag = null;
         var theObject = null;
         var obj = null;
-        // var originalFunction = null;
         var arg = null;
 
         beforeEach(function(done) {
@@ -2439,7 +2438,6 @@ describe("CONTROLLER: GPT", function() {
                     return "originalFunction";
                 }
             };
-            // obj.originalFunction = originalFunction;
             sinon.spy(obj.originalFunction, 'apply');
             sinon.spy(UTIL, "log");
             arg = [
@@ -2590,11 +2588,20 @@ describe("CONTROLLER: GPT", function() {
     });
 
     describe('#newRefreshFuncton', function() {
+        var theObject = null;
 
         beforeEach(function(done) {
             sinon.spy(UTIL, "log");
             sinon.spy(UTIL, "isObject");
             sinon.spy(UTIL, "isFunction");
+
+            sinon.stub(GPT, "updateSlotsMapFromGoogleSlots").returns(true);
+            sinon.stub(GPT, "forQualifyingSlotNamesCallAdapters").returns(true);
+            theObject = {
+                getSlots: function () {
+                    return "getSlots";
+                }
+            };
             done();
         });
 
@@ -2602,6 +2609,10 @@ describe("CONTROLLER: GPT", function() {
             UTIL.log.restore();
             UTIL.isObject.restore();
             UTIL.isFunction.restore();
+
+            GPT.updateSlotsMapFromGoogleSlots.restore();
+            GPT.forQualifyingSlotNamesCallAdapters.restore();
+            theObject = null;
             done();
         });
 
@@ -2612,19 +2623,40 @@ describe("CONTROLLER: GPT", function() {
         });
 
         it('should return null when impropper parameters passed', function(done) {
-            var result = GPT.newRefreshFuncton(null, {});
+            var result = GPT.newRefreshFuncton(null, function() {
+                console.log("inside function");
+            });
             should.not.exist(result);
+            UTIL.isObject.called.should.be.true;
+            UTIL.isFunction.called.should.be.false;
             UTIL.log.calledOnce.should.be.true;
             UTIL.log.calledWith("refresh: originalFunction is not a function").should.be.true;
             done();
         });
 
         it('should return a function when propper parameters are passed', function(done) {
-            GPT.newRefreshFuncton({}, function() {
+            GPT.newRefreshFuncton(theObject, function() {
                 console.log("inside function");
             }).should.be.a('function');
+            UTIL.isObject.called.should.be.true;
+            UTIL.isFunction.called.should.be.true;
             UTIL.isObject.calledOnce.should.be.true;
             UTIL.isFunction.calledOnce.should.be.true;
+            done();
+        });
+
+
+        it('the returned function when called should call refersh functionality', function (done) {
+            var returnedFn = GPT.newRefreshFuncton(theObject, function() {
+                console.log("inside function");
+            });
+            UTIL.isObject.calledOnce.should.be.true;
+            UTIL.isFunction.calledOnce.should.be.true;
+            returnedFn();
+            UTIL.log.calledWith("In Refresh function").should.be.true;
+            UTIL.log.calledWith("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms").should.be.true;
+            GPT.updateSlotsMapFromGoogleSlots.called.should.be.true;
+            GPT.forQualifyingSlotNamesCallAdapters.called.should.be.true;
             done();
         });
     });
