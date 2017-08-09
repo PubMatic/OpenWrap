@@ -196,7 +196,7 @@ exports.getBid = function(divID){ // TDD, i/o : done
 	return {wb: winningBid, kvp: keyValuePairs};
 };
 
-exports.getBidById = function(bidID) { // TDD done
+exports.getBidById = function(bidID) { // TDD, i/o : done
 
     if (!util.isOwnProperty(window.PWT.bidIdMap, bidID)) {
         util.log(CONSTANTS.MESSAGES.M25 + bidID);

@@ -731,7 +731,7 @@ describe('bidManager BIDMgr', function() {
         var divID = null;
         var keyValuePairs = null;
         var winningBidObj = null;
-        
+
         beforeEach(function(done) {
             divID = commonDivID;
             window.PWT = {
@@ -895,8 +895,8 @@ describe('bidManager BIDMgr', function() {
             UTIL.isOwnProperty.withArgs(window.PWT.bidMap, divID).returns(true);
 
             sinon.stub(window.PWT.bidMap[divID], 'getBid');
-            window.PWT.bidMap[divID].getBid.withArgs(adapterID, bidID)
-                .onFirstCall().returns(theBid);
+            window.PWT.bidMap[divID].getBid.withArgs(adapterID, bidID).returns(theBid);
+                
 
             done();
         });
@@ -904,7 +904,9 @@ describe('bidManager BIDMgr', function() {
         afterEach(function(done) {
             UTIL.isOwnProperty.restore();
             UTIL.log.restore();
-            window.PWT.bidMap[divID].getBid.restore();
+            if (window.PWT.bidMap[divID].getBid.restore) {
+                window.PWT.bidMap[divID].getBid.restore();
+            }
             done();
         });
 
@@ -915,20 +917,30 @@ describe('bidManager BIDMgr', function() {
 
         it('should return null while logging it when bidIdMap doesnt contains passed bidID', function(done) {
             should.not.exist(BIDMgr.getBidById(nonExistingBidID));
-            UTIL.log.calledWith("Bid details not found for bidID: " + nonExistingBidID).should.be.true;
+            UTIL.log.calledWith(CONSTANTS.MESSAGES.M25 + nonExistingBidID).should.be.true;
             done();
         });
 
         it('should return null when bidIdMap contains passed bidID but bidMap doenst have bid\'s divID', function(done) {
             window.PWT.bidIdMap[bidID].s = nonExistingDivID;
             should.not.exist(BIDMgr.getBidById(bidID));
-            UTIL.log.calledWith("Bid details not found for bidID: " + bidID).should.be.true;
+            UTIL.log.calledWith(CONSTANTS.MESSAGES.M25 + bidID).should.be.true;
             done();
         });
 
         it('should return object containing bid and slot id when bid object is not null', function(done) {
             BIDMgr.getBidById(bidID).should.be.deep.equal({ bid: theBid, slotid: divID });
             UTIL.log.calledWith("BidID: " + bidID + ", DivID: " + divID + CONSTANTS.MESSAGES.M19 + adapterID).should.be.true;
+            done();
+        });
+
+        it('returns resulting object as null when bid object for given divID is null', function (done) {
+            window.PWT.bidMap[divID].getBid =  function () {
+                return null;
+            };
+            should.not.exist(BIDMgr.getBidById(bidID));
+            UTIL.log.calledWith("BidID: " + bidID + ", DivID: " + divID + CONSTANTS.MESSAGES.M19 + adapterID).should.be.true;
+            UTIL.log.calledWith(CONSTANTS.MESSAGES.M25 + bidID).should.be.false;
             done();
         });
     });
