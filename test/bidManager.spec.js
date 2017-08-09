@@ -731,24 +731,27 @@ describe('bidManager BIDMgr', function() {
         var divID = null;
         var keyValuePairs = null;
         var winningBidObj = null;
+        
         beforeEach(function(done) {
             divID = commonDivID;
             window.PWT = {
                 bidMap: {}
             };
+
             window.PWT.bidMap[divID] = {
                 setAnalyticEnabled: function() {
                     return "setAnalyticEnabled";
                 }
             };
+
             keyValuePairs = {
                 "key_1": "value_1",
-                "key_2": "value2",
+                "key_2": "value2"
+            };
 
-
-            }
             sinon.spy(UTIL, 'isOwnProperty');
             sinon.stub(BIDMgr, 'auctionBids');
+
             winningBidObj = {
                 wb: {
                     getNetEcpm: function() {
@@ -763,10 +766,13 @@ describe('bidManager BIDMgr', function() {
                 },
                 kvp: keyValuePairs
             };
+
             BIDMgr.auctionBids.returns(winningBidObj);
+
             sinon.spy(winningBidObj.wb, 'setStatus');
             sinon.spy(winningBidObj.wb, 'setWinningBidStatus');
             sinon.spy(UTIL, 'vLogInfo');
+
             done();
         });
 
@@ -787,18 +793,15 @@ describe('bidManager BIDMgr', function() {
 
         it('should have called UTIL.isOwnProperty and return bid when bidMap doesnt have passed divID', function(done) {
             delete window.PWT.bidMap[divID];
-            var result = BIDMgr.getBid(divID);
-
-            result.should.deep.equal({ wb: null, kvp: null });
+            BIDMgr.getBid(divID).should.deep.equal({ wb: null, kvp: null });
             UTIL.isOwnProperty.called.should.be.true;
 
             done();
         });
 
         it('should have called UTIL.isOwnProperty and return bid when bidMap have passed divID', function(done) {
-            var result = BIDMgr.getBid(divID);
+            BIDMgr.getBid(divID).should.deep.equal({ wb: winningBidObj.wb, kvp: winningBidObj.kvp });
 
-            result.should.deep.equal({ wb: winningBidObj.wb, kvp: winningBidObj.kvp });
             UTIL.isOwnProperty.called.should.be.true;
 
             done();
@@ -808,7 +811,7 @@ describe('bidManager BIDMgr', function() {
             UTIL.isOwnProperty.restore();
             sinon.stub(UTIL, 'isOwnProperty');
             UTIL.isOwnProperty.withArgs(window.PWT.bidMap, divID).returns(true);
-            var result = BIDMgr.getBid(divID);
+            BIDMgr.getBid(divID).should.deep.equal({ wb: winningBidObj.wb, kvp: winningBidObj.kvp });;
             BIDMgr.auctionBids.calledOnce.should.be.true;
 
             winningBidObj.wb.setStatus.called.should.be.true;
@@ -819,7 +822,6 @@ describe('bidManager BIDMgr', function() {
                 bidDetails: winningBidObj.wb
             }).should.be.true;
 
-            result.should.deep.equal({ wb: winningBidObj.wb, kvp: winningBidObj.kvp });
             UTIL.isOwnProperty.called.should.be.true;
 
             done();
@@ -831,7 +833,7 @@ describe('bidManager BIDMgr', function() {
             winningBidObj.wb.getNetEcpm.returns(-1);
             sinon.stub(UTIL, 'isOwnProperty');
             UTIL.isOwnProperty.withArgs(window.PWT.bidMap, divID).returns(true);
-            var result = BIDMgr.getBid(divID);
+            BIDMgr.getBid(divID).should.deep.equal({ wb: winningBidObj.wb, kvp: winningBidObj.kvp });
             BIDMgr.auctionBids.calledOnce.should.be.true;
 
             winningBidObj.wb.setStatus.called.should.be.false;
@@ -841,9 +843,9 @@ describe('bidManager BIDMgr', function() {
                 type: "win-bid-fail",
             }).should.be.true;
 
-            result.should.deep.equal({ wb: winningBidObj.wb, kvp: winningBidObj.kvp });
             UTIL.isOwnProperty.called.should.be.true;
             winningBidObj.wb.getNetEcpm.restore();
+
             done();
         });
     });

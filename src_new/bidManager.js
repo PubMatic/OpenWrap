@@ -167,7 +167,7 @@ exports.auctionBidsCallBack = auctionBidsCallBack;
 exports.auctionBids = auctionBids;
 /* end-test-block */
 
-exports.getBid = function(divID){ // TDD done
+exports.getBid = function(divID){ // TDD, i/o : done
 
 	var winningBid = null;
 	var keyValuePairs = null;
