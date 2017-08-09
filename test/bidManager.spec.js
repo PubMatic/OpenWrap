@@ -525,13 +525,29 @@ describe('bidManager BIDMgr', function() {
             bmEntryObj = bmEntry.createBMEntry(divID);
 
             theBid_1 = new bid(adapterID_1, kgpv);
+            theBid_1.setKeyValuePair("k1", "v1");
+            theBid_1.setKeyValuePair("k2", "v2");
+            theBid_1.setKeyValuePair("k3", "v3");
+
+            sinon.stub(theBid_1, "getPostTimeoutStatus").returns(false);
+            sinon.stub(theBid_1, "getNetEcpm").returns(-1);
+
             bmEntryObj.setNewBid(adapterID_1, theBid_1);
 
             theBid_2 = new bid(adapterID_2, kgpv);
+
+            theBid_2.setKeyValuePair("k2", "v2");
+            theBid_2.setKeyValuePair("k21", "v21");
+            
+            sinon.stub(theBid_2, "getPostTimeoutStatus").returns(false);
+            sinon.stub(theBid_2, "getNetEcpm").returns(2);
             bmEntryObj.setNewBid(adapterID_2, theBid_2);
 
-            sinon.stub(BIDMgr, "auctionBidsCallBack").returns(true);
+            sinon.spy(BIDMgr, "auctionBidsCallBack");
             sinon.spy(UTIL, "forEachOnObject");
+
+            sinon.stub(CONFIG, "getBidPassThroughStatus").returns(0);
+            CONFIG.getBidPassThroughStatus.withArgs(adapterID_2).returns(2);
             done();
         });
 
@@ -540,6 +556,7 @@ describe('bidManager BIDMgr', function() {
             divID = null;
             BIDMgr.auctionBidsCallBack.restore();
             UTIL.forEachOnObject.restore();
+            CONFIG.getBidPassThroughStatus.restore();
             done();
         });
 
@@ -557,6 +574,17 @@ describe('bidManager BIDMgr', function() {
 
         it('returns winning bid with key value pairs', function(done) {
             BIDMgr.auctionBids(bmEntryObj).should.have.all.keys('wb', 'kvp');
+            done();
+        });
+
+        it('returns winning bid with key value pairs', function(done) {
+            BIDMgr.auctionBids(bmEntryObj).should.deep.equal({
+                "wb" : theBid_1,
+                "kvp": {
+                    "k2": [ "v2" ], 
+                    "k21": [ "v21" ] 
+                } 
+            });
             done();
         });
     });

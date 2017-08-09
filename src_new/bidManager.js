@@ -104,7 +104,7 @@ exports.resetBid = function(divID, impressionID){ // TDD, i/o : done
 	window.PWT.bidMap[divID].setImpressionID(impressionID);
 };
 
-function auctionBids(bmEntry) {
+function auctionBids(bmEntry) { // TDD, i/o : done 
     var winningBid = null,
         keyValuePairs = {};
     
