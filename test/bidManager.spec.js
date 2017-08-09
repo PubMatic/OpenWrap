@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-// var sinon = require("sinon");
+var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 
@@ -19,19 +19,19 @@ var commonKGPV = "XYZ";
 var commonBidID = '9886ade8a';
 
 // TODO : remove as required during single TDD only
-// var jsdom = require('jsdom').jsdom;
-// var exposedProperties = ['window', 'navigator', 'document'];
-// global.document = jsdom('');
-// global.window = document.defaultView;
-// Object.keys(document.defaultView).forEach((property) => {
-//     if (typeof global[property] === 'undefined') {
-//         exposedProperties.push(property);
-//         global[property] = document.defaultView[property];
-//     }
-// });
-// global.navigator = {
-//     userAgent: 'node.js'
-// };
+var jsdom = require('jsdom').jsdom;
+var exposedProperties = ['window', 'navigator', 'document'];
+global.document = jsdom('');
+global.window = document.defaultView;
+Object.keys(document.defaultView).forEach((property) => {
+    if (typeof global[property] === 'undefined') {
+        exposedProperties.push(property);
+        global[property] = document.defaultView[property];
+    }
+});
+global.navigator = {
+    userAgent: 'node.js'
+};
 
 describe('bidManager BIDMgr', function() {
 
@@ -945,7 +945,6 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
-
     describe('#displayCreative', function() {
         var bidID = null;
         var bidDetails = null;
@@ -1009,10 +1008,12 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.displayCreative(theDocument, bidID);
 
             BIDMgr.getBidById.calledOnce.should.be.true;
-            BIDMgr.executeMonetizationPixel.called.should.be.true;
-            UTIL.displayCreative.called.should.be.true;
-            UTIL.vLogInfo.called.should.be.true;
-            UTIL.vLogInfo.calledWith(divID, { type: 'disp', adapter: adapterID })
+
+            BIDMgr.executeMonetizationPixel.calledWith(bidDetails.slotid, bidDetails.bid).should.be.true;
+
+            UTIL.displayCreative.calledWith(theDocument ,bidDetails.bid).should.be.true;
+
+            UTIL.vLogInfo.calledWith(divID, { type: 'disp', adapter: adapterID }).should.be.true;
             done();
         });
     });

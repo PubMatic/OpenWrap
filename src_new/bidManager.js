@@ -226,7 +226,7 @@ exports.getBidById = function(bidID) { // TDD, i/o : done
 };
 
 
-exports.displayCreative = function(theDocument, bidID){ // TDD done
+exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 	var bidDetails = refThis.getBidById(bidID);
 	if(bidDetails){
 		var theBid = bidDetails.bid,
