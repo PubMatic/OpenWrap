@@ -589,6 +589,143 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
+    describe('#auctionBidsCallBack', function() {
+        var adapterID = null,
+            adapterEntry = null,
+            keyValuePairs = null,
+            winningBid = null;
+        var bidID = null;
+        var theBidObject = null;
+        var adapterID_1 = commonAdpterID + "_1";
+        var theBid_1 = null;
+        var adapterID_2 = commonAdpterID + "_2";
+        var theBid_2 = null;
+        var kgpv = commonKGPV;
+        var adapterEntry_1 = null;
+        var adapterEntry_2 = null;
+
+        beforeEach(function(done) {
+            adapterID = commonAdpterID;
+            adapterEntry = new AdapterEntry(adapterID);
+            keyValuePairs = {};
+            winningBid = null;
+            bidID = commonBidID;
+            theBidObject = theBid = new bid(commonAdpterID, commonKGPV);
+
+            sinon.stub(theBidObject, "getPostTimeoutStatus");
+            sinon.stub(theBidObject, "getKeyValuePairs");
+
+            adapterEntry_1 = new AdapterEntry(adapterID_1);
+            sinon.stub(adapterEntry_1, "getLastBidID");
+            theBid_1 = new bid(adapterID_1, kgpv);
+            
+            theBid_1.setKeyValuePair("k1", "v1");
+            theBid_1.setKeyValuePair("k2", "v2");
+            theBid_1.setKeyValuePair("k3", "v3");
+            adapterEntry_1.setNewBid(theBid_1);
+
+            sinon.stub(theBid_1, "getPostTimeoutStatus").returns(false);
+            sinon.stub(theBid_1, "getNetEcpm").returns(-1);
+
+            adapterEntry_2 = new AdapterEntry(adapterID_2);
+            theBid_2 = new bid(adapterID_2, kgpv);
+            theBid_2.setKeyValuePair("k2", "v2");
+            theBid_2.setKeyValuePair("k21", "v21");
+
+            sinon.stub(theBid_2, "getPostTimeoutStatus").returns(false);
+            sinon.stub(theBid_2, "getNetEcpm").returns(2);
+            sinon.spy(theBid_2, "getKeyValuePairs");
+            adapterEntry_2.setNewBid(theBid_2);
+
+            sinon.stub(adapterEntry, "getLastBidID").returns("");
+            sinon.spy(UTIL, "forEachOnObject");
+            sinon.stub(CONFIG, "getBidPassThroughStatus");
+            CONFIG.getBidPassThroughStatus.withArgs(adapterID_2).returns(2);
+
+            sinon.spy(UTIL, "copyKeyValueObject");
+            done();
+        });
+
+        afterEach(function(done) {
+            adapterEntry.getLastBidID.restore();
+            UTIL.forEachOnObject.restore();
+            UTIL.copyKeyValueObject.restore();
+
+            theBid_2.getPostTimeoutStatus.restore();
+            theBid_2.getNetEcpm.restore();
+            theBid_2.getKeyValuePairs.restore();
+
+            theBidObject.getPostTimeoutStatus.restore();
+            theBidObject.getKeyValuePairs.restore();
+
+            CONFIG.getBidPassThroughStatus.restore();
+            done();
+        });
+
+        it('is a function', function(done) {
+            BIDMgr.auctionBidsCallBack.should.be.a('function');
+            done();
+        });
+
+        it('should have returned proper key value pair', function (done) {
+            BIDMgr.auctionBidsCallBack(adapterID_1, adapterEntry_1, {}, null).keyValuePairs.should.deep.equal({ "k1": [ 'v1' ], "k2": [ 'v2' ], "k3": [ 'v3' ] });
+            done();
+        });
+
+        it('should have returned result with proper structure', function (done) {
+            BIDMgr.auctionBidsCallBack(adapterID_1, adapterEntry_1, {}, null).should.have.all.keys("winningBid", "keyValuePairs");
+            done()
+        });
+
+        it('should have returned result with proper structure', function (done) {
+            BIDMgr.auctionBidsCallBack(adapterID_2, adapterEntry_2, {}, theBid_2).should.have.all.keys("winningBid", "keyValuePairs");
+            done();
+        });
+
+        it('should have returned proper key value pair', function (done) {
+            BIDMgr.auctionBidsCallBack(adapterID_2, adapterEntry_2, {}, theBid_2).keyValuePairs.should.deep.equal({ "k2": [ 'v2' ], "k21": [ 'v21' ] });
+            done();
+        });
+
+        it('should return object containing winningBid and keyValuePairs passed', function(done) {
+            BIDMgr.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid).should.deep.equal({
+                winningBid: winningBid,
+                keyValuePairs: keyValuePairs
+            });
+            done();
+        });
+
+        it('should return while constructing outout object out of passed arguments when passed adapter entry\'s last bid id is empty ', function (done) {
+            adapterEntry_1.getLastBidID.returns("");
+            BIDMgr.auctionBidsCallBack(adapterID_1, adapterEntry_1, {}, theBid_2).should.have.all.keys("winningBid", "keyValuePairs");
+            theBid_2.getPostTimeoutStatus.called.should.be.false;
+            CONFIG.getBidPassThroughStatus.called.should.be.false;
+            theBid_2.getKeyValuePairs.called.should.be.false;
+            done();
+        });
+
+        it('should return if bid\'s has come post timeout ', function(done) {
+            theBidObject.getPostTimeoutStatus.returns(true);
+            adapterEntry.setNewBid(theBidObject);
+            adapterEntry.getLastBidID.returns("pubmatic");
+
+            BIDMgr.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
+            UTIL.forEachOnObject.called.should.be.true;
+            CONFIG.getBidPassThroughStatus.called.should.be.false;
+            done();
+        });
+
+
+        it('should elect the new winning bid whos net ECPM is greater than previous winning bid object', function (done) {
+            theBid_2.getPostTimeoutStatus.returns(false);
+            theBid_2.getNetEcpm.returns(3);
+            theBid_1.getNetEcpm.returns(1);
+            CONFIG.getBidPassThroughStatus.withArgs(adapterID_2).returns(0);
+            BIDMgr.auctionBidsCallBack(adapterID_2, adapterEntry_2, {}, theBid_1).winningBid.should.deep.equal(theBid_2);
+
+            done();
+        });
+    });
 
     describe('#getBid', function() {
         var divID = null;
@@ -947,70 +1084,6 @@ describe('bidManager BIDMgr', function() {
         it('should have called UTIL.forEachOnObject twice', function(done) {
             BIDMgr.executeAnalyticsPixel();
             UTIL.forEachOnObject.calledTwice.should.be.true;
-            done();
-        });
-    });
-
-
-    describe('#auctionBidsCallBack', function() {
-        var adapterID = null,
-            adapterEntry = null,
-            keyValuePairs = null,
-            winningBid = null;
-        var bidID = null;
-        var theBidObject = null;
-
-        beforeEach(function(done) {
-            adapterID = commonAdpterID;
-            adapterEntry = new AdapterEntry(adapterID);
-            keyValuePairs = {};
-            winningBid = null;
-            bidID = commonBidID;
-            theBidObject = theBid = new bid(commonAdpterID, commonKGPV);
-
-            sinon.stub(theBidObject, "getPostTimeoutStatus");
-            sinon.stub(theBidObject, "getKeyValuePairs");
-            sinon.stub(adapterEntry, "getLastBidID").returns("");
-            sinon.spy(UTIL, "forEachOnObject");
-            sinon.stub(CONFIG, "getBidPassThroughStatus");
-
-            sinon.spy(UTIL, "copyKeyValueObject");
-            done();
-        });
-
-        afterEach(function(done) {
-            adapterEntry.getLastBidID.restore();
-            UTIL.forEachOnObject.restore();
-            UTIL.copyKeyValueObject.restore();
-
-            theBidObject.getPostTimeoutStatus.restore();
-            theBidObject.getKeyValuePairs.restore();
-
-            CONFIG.getBidPassThroughStatus.restore();
-            done();
-        });
-
-        it('is a function', function(done) {
-            BIDMgr.auctionBidsCallBack.should.be.a('function');
-            done();
-        });
-
-        it('should return object containing winningBid and keyValuePairs passed', function(done) {
-            BIDMgr.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid).should.deep.equal({
-                winningBid: winningBid,
-                keyValuePairs: keyValuePairs
-            });
-            done();
-        });
-
-        it('should return if bid\'s has come post timeout ', function(done) {
-            theBidObject.getPostTimeoutStatus.returns(true);
-            adapterEntry.setNewBid(theBidObject);
-            adapterEntry.getLastBidID.returns("pubmatic");
-
-            BIDMgr.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
-            UTIL.forEachOnObject.called.should.be.true;
-            CONFIG.getBidPassThroughStatus.called.should.be.false;
             done();
         });
     });

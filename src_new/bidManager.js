@@ -122,9 +122,8 @@ function auctionBids(bmEntry) { // TDD, i/o : done
 
 
 
-function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) {
+function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) { // TDD, i/o : done
     if (adapterEntry.getLastBidID() != "") {
-    	// console.log("Comming here and adapterEntry.bids ==>", adapterEntry.bids);
         util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
             // do not consider post-timeout bids
             /* istanbul ignore else */
