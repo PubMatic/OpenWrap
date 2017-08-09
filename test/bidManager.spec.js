@@ -1019,6 +1019,8 @@ describe('bidManager BIDMgr', function() {
     });
 
     describe('#executeAnalyticsPixel', function() {
+        var slotID_1 =  null, slotID_2 = null;
+        var bmEntryStub_1 = null, bmEntryStub_2 = null;
 
         beforeEach(function(done) {
             sinon.stub(CONFIG, "getAnalyticsPixelURL").returns("http://pb.analytics.com/dm/");
@@ -1032,14 +1034,22 @@ describe('bidManager BIDMgr', function() {
             sinon.stub(UTIL, "getCurrentTimestamp").returns(timeNow);
 
             sinon.spy(UTIL, "forEachOnObject");
+
             window.PWT = {
                 bidMap: {
-                    "Slot_1": {
-
-                    }
                 }
             };
-            sinon.stub(BIDMgr, "analyticalPixelCallback").returns(true);
+
+            slotID_1 = "Slot_1";
+            bmEntryStub_1 = new bmEntryContstuctor(slotID_1);
+            slotID_2 = "Slot_2";
+            bmEntryStub_2 = new bmEntryContstuctor(slotID_2);
+
+            window.PWT.bidMap[slotID_1] = bmEntryStub_1;
+            window.PWT.bidMap[slotID_2] = bmEntryStub_2;
+
+            sinon.stub(BIDMgr, "analyticalPixelCallback");
+
             done();
         });
 
@@ -1065,13 +1075,13 @@ describe('bidManager BIDMgr', function() {
         });
 
         it('should return if pixelURL is empty', function(done) {
-            CONFIG.getAnalyticsPixelURL.returns(null);
+            CONFIG.getAnalyticsPixelURL.returns("");
             BIDMgr.executeAnalyticsPixel();
             CONFIG.getPublisherId.called.should.be.false;
             done();
         });
 
-        it('should have caled CONFIG functions to generate output Object', function(done) {
+        it('should have called CONFIG functions to generate output Object', function(done) {
             BIDMgr.executeAnalyticsPixel();
 
             CONFIG.getPublisherId.called.should.be.true;
@@ -1092,7 +1102,8 @@ describe('bidManager BIDMgr', function() {
 
         it('should have called analyticalPixelCallback', function(done) {
             BIDMgr.executeAnalyticsPixel();
-            BIDMgr.analyticalPixelCallback.called.should.be.true;
+            BIDMgr.analyticalPixelCallback.calledWith(slotID_1, bmEntryStub_1, {}).should.be.true;
+            BIDMgr.analyticalPixelCallback.calledWith(slotID_2, bmEntryStub_2, {}).should.be.true;
             done();
         });
 
@@ -1103,7 +1114,6 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
-    // TODO : check for window.Image issue for phantomJS
     describe('#executeMonetizationPixel', function() {
         var slotID = null;
         var adapterID = null;
@@ -1130,7 +1140,6 @@ describe('bidManager BIDMgr', function() {
             origImage = window.Image;
             window.Image = sinon.stub();
             window.Image.returns({});
-            // sinon.stub(window, 'Image').returns({});
 
             window.PWT = {
                 bidMap: {}
@@ -1168,7 +1177,6 @@ describe('bidManager BIDMgr', function() {
             theBid.getKGPV.restore();
             theBid = null;
 
-            // window.Image.restore();
             window.Image = origImage;
 
             UTIL.getCurrentTimestamp.restore();
@@ -1184,7 +1192,7 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('should return when pixelURL is null, without calling any ', function(done) {
+        it('should return when pixelURL is null, without proceeding further ', function(done) {
             CONFIG.getMonetizationPixelURL.restore();
 
             sinon.stub(CONFIG, 'getMonetizationPixelURL');
@@ -1255,39 +1263,6 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;
 
             done();
-        });
-    });
-
-    // TODO : check for window.Image issue for phantomJS
-    describe('#setImageSrcToPixelURL', function() {
-        var pixelURL = null;
-        var origImage = null;
-        beforeEach(function(done) {
-            pixelURL = "t.pubmatic.com/wt?pubid=9999&purl=undefined&tst=1499332621&iid=123123&bidid=784b05cc03a84a&pid=46&pdvid=4&slot=Slot_1&pn=null&en=0&eg=0&kgpv=XYZ";
-            // sinon.stub(window, 'Image').returns({});
-            origImage = window.Image;
-            window.Image = sinon.stub();
-            window.Image.returns({});
-            done();
-        });
-
-        afterEach(function(done) {
-            pixelURL = null;
-            // window.Image.restore();
-            window.Image = origImage
-            done();
-        });
-
-        it('is a function', function(done) {
-            BIDMgr.setImageSrcToPixelURL.should.be.a('function');
-            done();
-        });
-
-        it('should have called window.Image while setting its src to the passed pixelURL', function(done) {
-            BIDMgr.setImageSrcToPixelURL(pixelURL);
-            window.Image.called.should.be.true;
-            done();
-
         });
     });
 
@@ -1446,6 +1421,43 @@ describe('bidManager BIDMgr', function() {
 
             impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb");
             done();
+        });
+    });
+
+    describe('#setImageSrcToPixelURL', function() {
+        var pixelURL = null;
+        var origImage = null;
+        var imageObjStub = null;
+
+        beforeEach(function(done) {
+            pixelURL = "t.pubmatic.com/wt?pubid=9999&purl=undefined&tst=1499332621&iid=123123&bidid=784b05cc03a84a&pid=46&pdvid=4&slot=Slot_1&pn=null&en=0&eg=0&kgpv=XYZ";
+            origImage = window.Image;
+            window.Image = sinon.stub();
+            imageObjStub = {
+                src: ""
+            };
+
+            window.Image.returns(imageObjStub);
+            done();
+        });
+
+        afterEach(function(done) {
+            pixelURL = null;
+            window.Image = origImage
+            done();
+        });
+
+        it('is a function', function(done) {
+            BIDMgr.setImageSrcToPixelURL.should.be.a('function');
+            done();
+        });
+
+        it('should have called window.Image while setting its src to the passed pixelURL', function(done) {
+            BIDMgr.setImageSrcToPixelURL(pixelURL);
+            window.Image.called.should.be.true;
+            imageObjStub.src.should.equal(UTIL.metaInfo.protocol + pixelURL);
+            done();
+
         });
     });
 });
