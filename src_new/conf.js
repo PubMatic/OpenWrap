@@ -4,8 +4,8 @@ exports.pwt = {
 	gcv: "11",
 	pdvid: "4",
 	pubid: "9999",
-	dataURL: "t.pubmatic.com/wl?",
-	winURL: "t.pubmatic.com/wt?"
+	dataURL: "t.test-domain.com/logger?",
+	winURL: "t.test-domain.com/tracker?"
 };
 
 exports.adapters = {
