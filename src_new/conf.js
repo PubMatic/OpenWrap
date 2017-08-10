@@ -3,7 +3,9 @@ exports.pwt = {
 	pid: "46",
 	gcv: "11",
 	pdvid: "4",
-	pubid: "9999"	
+	pubid: "9999",
+	dataURL: "t.pubmatic.com/wl?",
+	winURL: "t.pubmatic.com/wt?"
 };
 
 exports.adapters = {
