@@ -1,5 +1,28 @@
 
+# **Copyright**
+
+Copyright 2017 PubMatic, Inc. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Portions of OpenWrap contain code from Prebid.js licensed under the
+Apache License, Version 2.0.
+
 # Introduction
+
+OpenWrap as an extension of Prebid is under development and not currently available on this Github page. The updated OpenWrap source code extending Prebid.js will be available mid August.
+
+Portions of OpenWrap contain code from Prebid.js licensed under the Apache License, Version 2.0.
 
 As publishers have embraced header bidding, running multiple header tags from different providers has become a top priority with many considerations.
 
@@ -412,7 +435,7 @@ If 80% of the bids are between $0 to $3, create line items at a $0.1 granularity
 
 Please see more details below. 
 
-**30 line items between $0-$3 with rate increment of $0.1    **
+**30 line items between $0-$3 with rate increment of $0.1**
 
 LineItem 1 (covers $0-$0.09)  Targeting: pwtecp=0.01*,pwtecp=0.02*....,pwtecp=0.09*, rate=$0.05
 
@@ -420,7 +443,8 @@ LineItem 2 (covers $0.10-$0.19) Targeting: pwtecp=0.1*, rate=$0.15
 
 and so on for next 28 line items
 
-**15 Line items between $3-$8 with rate increment of $0.30    **
+
+**15 Line items between $3-$8 with rate increment of $0.30**
 
 LineItem 31 (covers $3.0-$3.29)  Targeting: pwtecp=3.0*,pwtecp=3.1*,pwtecp=3.2*, rate=$3.15
 
@@ -428,13 +452,15 @@ LineItem 32 (covers $3.30-$3.59)  Targeting: pwtecp=3.3*,pwtecp=3.4*,pwtecp=3.5
 
 and so on for next 13 line items   
 
-**12 Line items between $9-$20 with rate increment of $1.0    **
+
+**12 Line items between $9-$20 with rate increment of $1.0**
 
 LineItem 46 (covers $9.0-$9.99)  Targeting: pwtecp=9.*, rate=$9.5
 
 LineItem 47 (covers $10.0-$10.99)  Targeting: pwtecp=10.*, rate=$3.45
 
 and so on for next 10 line items   
+
 
 **A final high- priority line item for very high bids**
 
@@ -514,21 +540,6 @@ To change the configuration and check bid responses use following JSFiddles :
 
 To add a partner adapter, one should follow a template from this repository at src/adapters/sampleAdapter.js
 
-#Copyright
-Copyright 2016 PubMatic, Inc. All rights reserved.
- 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
  
-Portions of OpenWrap contain code from Prebid.js licensed under the
-Apache License, Version 2.0.
 </a>
