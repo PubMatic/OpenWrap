@@ -400,12 +400,12 @@ This step is required so the ad server, based on actual bid price, can allocate 
 ![Step 2](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/LineItem.jpg)
   
 
-**Step 3: **Set targeting on the “pwtbst” value as 1 from the. In addition to  “pwtbst”,  you will also need to set targeting on “pwtecp”.  For more information, please refer to the [Best Practices to Create Line Items]
+**Step 3:** Set targeting on the “pwtbst” value as 1 from the. In addition to  “pwtbst”,  you will also need to set targeting on “pwtecp”.  For more information, please refer to the [Best Practices to Create Line Items]
 
 ![Step 3](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/Targeting.jpg)
 
 
-**Step 4: **Add the Wrapper creative provided by PubMatic to the line item you created. 
+**Step 4:** Add the Wrapper creative provided by PubMatic to the line item you created. 
 
     <script type='text/javascript'>
     var i = 0, w = window.self;
