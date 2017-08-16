@@ -66,6 +66,8 @@ The fork has PreBid Version [0.24.1](https://github.com/prebid/Prebid.js/release
 
 ## Configuration Exchange between OpenWrap and Prebid
 
+All partners from PreBid listed [here](http://prebid.org/dev-docs/bidders.html) can be used with OpenWrap.
+
 Please refer [src_new/conf.js](https://github.com/PubMatic/OpenWrap/blob/ContinuousIntegration/src_new/conf.js) in OpenWrap code:
 
 ```
@@ -433,7 +435,7 @@ In current integration PreBid does not share the bids received from partners aft
 So we will not be able to log information about the post-time-out bids like latency, ecpm.
 
 ## Safe Frame
-Expandable creative will not work correctly after rendering inside safe frame on Safari, IE11/Edge (UOE-2495)    
+Expandable creative will not work correctly after rendering inside safe frame on Safari, IE11/Edge
 
 ## Advanced GPT
 Advanced GPT implementation where publishers define and display slot on the fly is not supported due to PreBid [limitation](https://github.com/prebid/Prebid.js/issues/914)
