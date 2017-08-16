@@ -66,7 +66,7 @@ The fork has PreBid Version [0.24.1](https://github.com/prebid/Prebid.js/release
 
 ## Configuration Exchange between OpenWrap and Prebid
 
-All partners from PreBid listed [here](http://prebid.org/dev-docs/bidders.html) can be used with OpenWrap.
+All partners from PreBid listed [here](http://prebid.org/dev-docs/bidders.html) can be used with OpenWrap. Refer [build](https://github.com/PubMatic-OpenWrap/Prebid.js#Build) section to configure adapters to use with PreBid.
 
 Please refer [src_new/conf.js](https://github.com/PubMatic/OpenWrap/blob/ContinuousIntegration/src_new/conf.js) in OpenWrap code:
 
