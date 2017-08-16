@@ -145,15 +145,11 @@ There is a partners configured, AppNexus
 Following are the different cases of KGP and code value:
 
 | Index | Mapping Template | OpenWrap KGP | OpenWrap KGP Example | PreBid Code | PreBid Code Example |
-| --- | --- | --- | --- | --- || --- | --- |
+| --- | --- | --- | --- | --- | --- |
 |1|Div Level|`_DIV_`|`Top_Banner_1`|`_DIV_@_AdapterID_`|`Top_Banner_1@appnexus`|
-|2|AdUnit-Size  
-|`_AU_@_W_x_H_:_AUI_`|`/43743431/DMDemo1@300x250:0 <br> /43743431/DMDemo1@728x90:0 <br> /43743431/DMDemo1@160x600:0`|`_DIV_@_AdapterID_@_Width_x_Height_`|`Top_Banner_1@appnexus@300x250 <br> Top_Banner_1@appnexus@728x90 <br> Top_Banner_1@appnexus@160x600`|
-|3|Div-Size 
-|`_DIV_@_W_x_H_`|`Top_Banner_1@300x250 <br> Top_Banner_1@728x90 <br> Top_Banner_1@160x600`|`_DIV_@_AdapterID_@_Width_x_Height_`|`Top_Banner_1@appnexus@300x250 <br> Top_Banner_1@appnexus@728x90 <br> 
-Top_Banner_1@appnexus@160x600`|
-|4|Size|`_W_x_H_@_W_x_H_`|`300x250@300x250 <br> 728x90@728x90 <br> 160x600@160x600`|`_DIV_@_AdapterID_@_Width_x_Height_`|`Top_Banner_1@appnexus@300x250 <br> Top_Banner_1@appnexus@728x90 <br> 
-Top_Banner_1@appnexus@160x600`|
+|2|AdUnit-Size |`_AU_@_W_x_H_:_AUI_`|`/43743431/DMDemo1@300x250:0`  `/43743431/DMDemo1@728x90:0` `/43743431/DMDemo1@160x600:0`|`_DIV_@_AdapterID_@_Width_x_Height_`|`Top_Banner_1@appnexus@300x250` `Top_Banner_1@appnexus@728x90` `Top_Banner_1@appnexus@160x600`|
+|3|Div-Size |`_DIV_@_W_x_H_`|`Top_Banner_1@300x250` `Top_Banner_1@728x90` `Top_Banner_1@160x600`|`_DIV_@_AdapterID_@_Width_x_Height_`|`Top_Banner_1@appnexus@300x250`  `Top_Banner_1@appnexus@728x90` `Top_Banner_1@appnexus@160x600`|
+|4|Size|`_W_x_H_@_W_x_H_`|`300x250@300x250` `728x90@728x90` `160x600@160x600`|`_DIV_@_AdapterID_@_Width_x_Height_`|`Top_Banner_1@appnexus@300x250`  `Top_Banner_1@appnexus@728x90` `Top_Banner_1@appnexus@160x600`|
 
 
 ## How To Build
