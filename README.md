@@ -232,217 +232,14 @@ Here are the details on what partners are supported by Wrapper Tag Solution and 
 | Key Name | throttle | Y | Value of this parameter would be the percentage of impressions allocated to a partner\.Recommended value is 100 i.e. send all bid requests to a partner\.| <span> </span>Publisher Provided |
 | Key Name | kgp | Y |<span> Key Generation Pattern macro. The combination of these macros would be used to decide the key for picking up partner parameters from KLM json. Supported patterns are- <br>\_DIV_ (div ID from page)<br>\_W_ (width)<br>\_H_ (height)_AU_ (DFP/GPT ad unit)<br>\_AUI_ (DFP/GPT ad unit index) Used in case if there are multiple slots with same ad unit.<br>_I_ (index) Used in case if we have multiple ad units with same size<br>Example: <br>For **size level** mapping, the macro may look like _W_x_H_@_W_x_H_:_I_ <br>e.g. 720x90@720x90:1<br>For **div size** mapping, the macro may look like _DIV_@_W_x_H_<br>e.g. div ID can be div-atf-leaderboard, and size supported by this div can be 720x90, then a key to find parameters from KLM json would bediv-atf-leaderboard@720x90 </span>| Publisher Provided |
 
-### PubMatic
-
-| Config | Value | Mandatory | Explanation | Input Source |
-|------ | ------|-----------|-------------|-------------|
-| Key Name | <span style="color: rgb(84,84,84);">pub_id</span> | Y | <span>PubMatic publisher ID</span> | Publisher Provided|
-| Key Name | <span style="color: rgb(84,84,84);">sk</span> | Y | PubMatic server key flag indicating that slot mapping is at Ad Server side.<br>Slot name would be generated based on KGP macro and sent as is to PubMatic. |<span>Hardcoded to '**true**'</span>|
-
-Response Mapping:
-
-| Wrapper Key | Partner response key | Conversion | Explanation |
-| --- | --- | --- | --- |
-| pwtecp | bidDetailsMap[MD5(slotName)].ecpm | No | Bid value (USD) |
-
-
-### Rubicon Legacy
-
-|Config | Value | Mandatory | Explanation | Input Source
------- | ------|-----------|-------------|-------------
-Partner JS Library | [https://ads.rubiconproject.com/ad/](https://ads.rubiconproject.com/ad/)</span> [<span style="color: rgb(48,57,66);"><account_id>.js</span>](https://ads.rubiconproject.com/ad/) | Y | account_id is Rubicon publisher ID | Generated from account_id Provided by Publisher |
-| Key Name | <span style="color: rgb(84,84,84);">account_id</span> | Y | <span>Rubicon publisher ID</span> | Publisher Provided |
-| Key Name | <span style="color: rgb(84,84,84);">site_id</span> | Y | Rubicon Identifier for Site | <span>Publisher Provided</span> |
-| <span>Key Name</span> | <span style="color: rgb(84,84,84);">zone_id</span> | Y | <span>Rubicon Identifier for Zone</span> | <span>Publisher Provided</span> |
-| <span>Key Name</span> | <span style="color: rgb(84,84,84);">size_id</span> | Y | <span>Rubicon Identifier for Size</span> | <span>Publisher Provided</span> |
-| Key Name | tracking | N | Optional tracking code | Publisher Provided |
-
-Response Mapping:
-
-| Wrapper Key | Partner response key | Conversion | Explanation |
-| --- | --- | --- | --- |
-| pwtecp | ads[0].cpm | No | Bid value (USD) |
-
-### Rubicon Fastlane
-
-|Config | Value | Mandatory | Explanation | Input Source
------- | ------|-----------|-------------|-------------
-Partner JS Library |  https://ads.rubiconproject.com/header/accountId.js</span> | Y | account_id is Rubicon publisher ID | Generated from account_id Provided by Publisher |
-| Variable | <span style="color: rgb(84,84,84);">account_id</span> | Y | <span>Rubicon publisher ID</span> | Publisher Provided |
-|Variable | <span style="color: rgb(84,84,84);">site_id</span> | Y | Rubicon Identifier for Site | <span>Publisher Provided</span> |
-| <span>Variable</span> | <span style="color: rgb(84,84,84);">zone_id</span> | Y | <span>Rubicon Identifier for Zone</span> | <span>Publisher Provided</span> |
-
-
-Response Mapping:
-
-| Wrapper Key | Partner response key | Conversion | Explanation |
-| --- | --- | --- | --- |
-| pwtecp | ads[0].cpm | No | Bid value (USD) |
-
-### OpenX
-
-| Config | Value | Mandatory | Explanation | 
-| --- | --- | --- | --- | --- |
-| Partner JS Library | <span style="color: rgb(48,57,66);">[http://publisher-xxx.openx.net/w/1.0/jstag?nc=xxxxxxx-publisher](http://publisher-xxx.openx.net/w/1.0/jstag?nc=xxxxxxx-publisher)</span> | Y | JS library URL | Publisher Provided |
-| Key Name | <span style="color: rgb(84,84,84);">unit</span> | Y | OpenX adunit Identifier | Publisher Provided |
-
-Response Mapping:
-
-| Wrapper Key | Partner response key | Conversion | Explanation |
-| --- | --- | --- | --- |
-| pwtecp | pub_rev | Cent to Dollar | Bid value (USD) |
-
-### Appnexus
-
-|Config | Value | Mandatory | Explanation | Input Source |
-| --- | --- | --- | --- | --- |
-| Partner JS Library | The code is from PreBid | N/A | JS library URL is not required as the code for calling Appnexus Endpoint ( <span style="color: rgb(0,0,0);">[http://ib.adnxs.com/jpt](http://ib.adnxs.com/jpt))</span> | Prebid Code |
-| Key Name | placementId | Y | Appnexus adunit Identifier | Publisher Provided |
-| <span>Key Name</span> | member | N | Member ID for Appnexus, to be used in conjunction with invCode | <span>Publisher Provided</span> |
-| <span>Key Name</span> | invCode | N | Inventory code from Appnexus <span>to be used in conjunction with member</span> | <span>Publisher Provided</span> |
-| <span>Key Name</span> | query | N | Optional query parameter. **Note:** This is not supported right now <span>as it will be deprecated soon by Appnexus (as mentioned in PreBid code).</span> | Publisher Provided |
-
-Response Mapping:
-
-| Wrapper Key | Partner response key | Conversion | Explanation |
-| --- | --- | --- | --- |
-| pwtecp | result.cpm | result.cpm/10000 | Bid value (USD) |
-| pwtdid | result.deal_id | N/A | Deal ID |
-
-### YieldBot
-
-| Config | Value | Mandatory | Explanation | Input Source |
-| --- | --- | --- | --- | --- |
-| Partner JS Library |   <span style="color: rgb(48,57,66);">[http://cdn.yldbt.com/js/yieldbot.intent.js](http://cdn.yldbt.com/js/yieldbot.intent.js)</span> | Y | JS library URL | This is fixed for YB |
-| Key Name | psn | Y | Yieldbot publisher ID | Publisher Provided |
-| Key Name | slot | Y | The slot configure Yieldbot | Publisher Provided |
-
-Response Mapping:
-
-| Wrapper Key | Partner response key | Conversion | Explanation | 
-| --- | --- | --- | --- |
-| pwtecp | ybot_cpm | cent to Dollar | Bid value (USD) |
-
-### IndexExchange
-
-|Config | Value | Mandatory | Explanation | Input Source |
-| --- | --- | --- | --- | --- |
-| End-point |   <span style="color: rgb(48,57,66);">[://as-sec.casalemedia.com/headertag](//as-sec.casalemedia.com/headertag)</span> | NA | OpenRTB end-point | This is hardcoded |
-| Key Name | <span>siteID</span> | Y | Site ID STRING | Publisher Provided |
-| Key Name | <span>tier2SiteID</span> | N | <span>Tier-2 Site ID </span> | Publisher Provided |
-| Key Name | <span>tier3SiteID</span> | N | <span>Tier-3 Site ID </span> | <span>Publisher Provided</span> |
-
-Response Mapping:
-
-| Wrapper Key | Partner response key | Conversion | Explanation |
-| --- | --- | --- | --- |
-| pwtecp | seatbid.bid[N].ext.pricelevel | cent to Dollar | Bid value (USD) **Note:** <span>the response can be in different currency which needs to be adjusted in Bid Adjustment</span> |
-
-### AdForm
-
-| Config | Value | Mandatory | Explanation | Input Source |
-| --- | --- | --- | --- | --- |
-| End-point | Default value is <span style="color: rgb(199,37,78);">[adx.adform.net](http://adx.adform.net)</span> <span style="color: rgb(48,57,66);"> </span> | N | AdForm end-point domain | Publisher Provided |
-| Key Name | <span>mid</span> | Y | Master Tag Id for Adform | Publisher Provided |
-| Key Name | <span>inv</span> | N | Inventory Code | Publisher Provided |
-| Key Name | minip | N | Hard Floor (Will be passed as is no currency conversion) | <span>Publisher Provided</span> |
-
-Response Mapping:
-
-| Wrapper Key | Partner response key | Conversion | Explanation |
-| --- | --- | --- | --- |
-| pwtecp | winbid | N/A | Bid value (USD), **Note:** the response can be in different currency which needs to be adjusted in Bid Adjustment |
-
-### **DistrictM**
-
-| Config | Value | Mandatory | Explanation | Input Source |
-| --- | --- | --- | --- | --- |
-| Partner JS Library | The code is from PreBid | N/A | <span>JS library URL is not required as the code for calling <span>DistrictM</span> Endpoint (</span> <span style="color: rgb(0,0,0);">[http://ib.adnxs.com/jpt](http://ib.adnxs.com/jpt))</span> | Prebid Code |
-| Key Name | placementId | Y | DistrictM adunit Identifier | Publisher Provided |
-| Key Name | member | N | Member ID for <span>DistrictM</span>, to be used in conjunction with invCode | Publisher Provided |
-| Key Name | invCode | N | Inventory code from <span>DistrictM</span> to be used in conjunction with member | Publisher Provided |
-| Key Name | query | N | Optional query parameter. **Note:** This is not supported right now as it will be deprecated soon by <span>DistrictM </span>(as mentioned in PreBid code). | Publisher Provided |
-
-Response Mapping:
-
-| Wrapper Key | Partner Response Key | Conversion | Explanation |
-| --- | --- | --- | --- | --- |
-| pwtecp | result.cpm | result.cpm/10000 | Bid value (USD) |
-| pwtdid | result.deal_id | N/A | Deal ID |
-
-### **bRealTime**
-
-| Config | Value | Mandatory | Explanation | Input Source |
-| --- | --- | --- | --- | --- |
-| Partner JS Library | The code is from PreBid | N/A | <span>JS library URL is not required as the code for calling <span>bRealTime</span> Endpoint (</span> <span style="color: rgb(0,0,0);">[http://ib.adnxs.com/jpt](http://ib.adnxs.com/jpt))</span> | Prebid Code |
-| Key Name | placementId | Y | <span>Brealtime</span> adunit Identifier | Publisher Provided |
-| Key Name | member | N | Member ID for <span>bRealTime</span>, to be used in conjunction with invCode | Publisher Provided |
-| Key Name | invCode | N | Inventory code from <span>bRealTime</span> to be used in conjunction with member | Publisher Provided |
-| Key Name | query | N | Optional query parameter. **Note:** This is not supported right now as it will be deprecated soon by <span>bRealTime</span>(as mentioned in PreBid code). | Publisher Provided |
-
-Response Mapping:
-
-| Wrapper Key | Partner Response Key | Conversion | Explanation |
-| --- | --- | --- | --- | --- |
-| pwtecp | result.cpm | result.cpm/10000 | Bid value (USD) |
-| pwtdid | result.deal_id | N/A | Deal ID |
-
-### Sovrn
-
-|Config | Value | Mandatory | Explanation | Input Source
------- | ------|-----------|-------------|-------------
-Partner JS Library | [//ap.lijit.com/rtb/bid	](//ap.lijit.com/rtb/bid	)</span> [<span style="color: rgb(48,57,66);"><account_id></span>](//ap.lijit.com/rtb/bid) | N/A | This is hardcoded in the code | N/A |
-| Variable | <span style="color: rgb(84,84,84);">tagid</span> | Y | <span>Sovrn Ad Tag Id</span> | Publisher Provided |
-| Variable | <span style="color: rgb(84,84,84);">bidfloor</span> | N | <span>Floor to be passed for the slot/ad-unit</span> | <span>Publisher Provided</span> |
-
-
-Response Mapping:
-
-| Wrapper Key | Partner response key | Conversion | Explanation |
-| --- | --- | --- | --- |
-| pwtecp | searbid.bid[i].price | N/A | Bid value (USD) |
-
-### PulsePoint
-
-|Config | Value | Mandatory | Explanation | Input Source
------- | ------|-----------|-------------|-------------
-Partner Endpoint | [http://bid.contextweb.com/header/tag	](http://bid.contextweb.com/header/tag	)</span> [<span style="color: rgb(48,57,66);"><account_id></span>](http://bid.contextweb.com/header/tag) | Y | This is hardcoded in the code | N/A |
-| Variable | <span style="color: rgb(84,84,84);">cp</span> | Y | <span>PulsePoint Publisher ID</span> | Publisher Provided |
-|Variable | <span style="color: rgb(84,84,84);">ct</span> | Y | PulsePoint Identifier Ad Tag | <span>Publisher Provided</span> |
-
-
-Response Mapping:
-
-| Wrapper Key | Partner response key | Conversion | Explanation |
-| --- | --- | --- | --- |
-| pwtecp | bidCpm | No | Bid value (USD) |
-
-### AOL
-
-|Config | Value | Mandatory | Explanation | Input Source
------- | ------|-----------|-------------|-------------
-Partner Endpoint | [${'protocol'}://${'server'}/pubapi/3.0/$<br>{'network'}/${'placement'}/${'pageid'}/<br>${'sizeid'}/ADTECH;v=2;cmd=bid;cors=yes;alias=${'alias'}<br>${'bidfloor'};misc=${'misc'}]</span> [<span style="color: rgb(48,57,66);"><account_id></span>](http://bid.contextweb.com/header/tag) | N/A | This is hardcoded in the code | N/A |
-|Variable | <span style="color: rgb(84,84,84);">network</span> | Y | <span>AOL Publisher ID</span> | Publisher Provided |
-|Variable | <span style="color: rgb(84,84,84);">server</span> | Y | AOL server for endpoint | <span>Publisher Provided</span> |
-|Variable | <span style="color: rgb(84,84,84);">placement</span> | Y | AOL Identifier Ad Tag | <span>Publisher Provided</span> |
-|Variable | <span style="color: rgb(84,84,84);">alias</span> | N |   | <span>Publisher Provided</span> |
-|Variable | <span style="color: rgb(84,84,84);">sizeId</span> | N |   | <span>Publisher Provided</span> |
-|Variable | <span style="color: rgb(84,84,84);">bidFloor</span> | N |   | <span>Publisher Provided</span> |
-|Variable | <span style="color: rgb(84,84,84);">pageId</span> | N |  | <span>Publisher Provided</span> |
-
-
-Response Mapping:
-
-| Wrapper Key | Partner response key | Conversion | Explanation |
-| --- | --- | --- | --- |
-| pwtecp | response.seatbid[0].bid[0].ext.encp <br>OR <br>response.seatbid[0].bid[0].price | No | Bid value (USD) |
-| pwtdeal | response.seatbid[0].bid[0].dealid |   |   |
+For partner specific keys, refer to [PreBid bidders documnetation](http://prebid.org/dev-docs/bidders.html)
 
 
 ## Auction and Timeout
 
   ![Auction Logic](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/AuctionLogic.png)
 
+  As of current release, we are not capturing post-timeout bids as depicted in above diagram. We will support the same in subsequent release.
 
 # DFP Setup and Line Item creation
 
@@ -598,11 +395,17 @@ To change the configuration and check bid responses use following JSFiddles :
 
 [https://jsfiddle.net/OpenWrap/g9u42n02/](https://jsfiddle.net/OpenWrap/g9u42n02/)
 
-# Development Documents
+# Limitations
 
-## Partner Adapter Template
+## Post-timeout bids
+In current integration PreBid does not share the bids received from partners after timeout.
+So we will not be able to log information about the post-time-out bids like latency, ecpm.
 
-To add a partner adapter, one should follow a template from this repository at src/adapters/sampleAdapter.js
+## Safe Frame
+Expandable creative will not work correctly after rendering inside safe frame on Safari, IE11/Edge (UOE-2495)    
+
+## Advanced GPT
+Advanced GPT implementation where publishers define and display slot on the fly is not supported due to PreBid [limitation](https://github.com/prebid/Prebid.js/issues/914)
 
 
  
