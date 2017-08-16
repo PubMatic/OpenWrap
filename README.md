@@ -57,6 +57,11 @@ All the publisher has to do is push the wrapper script and partner configuration
 
 # Getting Started
 
+## PreBid Fork:
+
+We have created a fork from PreBid repo: https://github.com/PubMatic-OpenWrap/Prebid.js
+The fork has PreBid Version [0.24.1](https://github.com/prebid/Prebid.js/releases/tag/0.24.1)
+
 ## Check Out
 
 The source files include adapters for all of the current header tag integrations. The developer only has to include the required adapters while building and generating a tag using the instructions below.
