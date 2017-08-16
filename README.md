@@ -57,6 +57,8 @@ All the publisher has to do is push the wrapper script and partner configuration
 
 # Getting Started
 
+Please note that, OpenWrap extending PreBid code is in **src_new** folder of [ContinuousIntegration](https://github.com/PubMatic/OpenWrap/tree/ContinuousIntegration) branch. The changes will be merged into master branch soon.
+
 ## PreBid Fork:
 
 We have created a fork from PreBid repo: https://github.com/PubMatic-OpenWrap/Prebid.js
