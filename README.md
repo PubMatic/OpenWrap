@@ -64,9 +64,62 @@ Please note that, OpenWrap extending PreBid code is in ***src_new*** folder of [
 We have created a fork from PreBid repo: https://github.com/PubMatic-OpenWrap/Prebid.js
 The fork has PreBid Version [0.24.1](https://github.com/prebid/Prebid.js/releases/tag/0.24.1)
 
-## Check Out
+## Configuration for Exchanges between OpenWrap and Prebid
 
-The source files include adapters for all of the current header tag integrations. The developer only has to include the required adapters while building and generating a tag using the instructions below.
+Please refer [src_new/conf.js](https://github.com/PubMatic/OpenWrap/blob/ContinuousIntegration/src_new/conf.js) in OpenWrap code:
+
+```
+exports.pwt = {                                 // Start of PWT config
+    t: "3000",                                    // This is the timeout for all partners
+    pid: "46",                                    // Profile ID (optional and applicable for PubMatic analytics)
+    gcv: "11",                                    // Global Code Version (optional and applicable for PubMatic analytics)
+    pdvid: "4",                                   // Profile Display Version ID (optional and applicable for PubMatic analytics)
+    pubid: "9999",                                // Publisher ID (optional and applicable for PubMatic platoform)
+    dataURL: "t.youranalytics.com/logger?",               // End-point for logger pixel
+    winURL: "t.youranalytics.com/tracker?"                // End-point for tracker pixel
+};                                              // End of PWT config
+ 
+exports.adapters = {                            // Start of Adapters config
+ 
+    pubmatic: {                                 // PubMatic adapter
+        rev_share: "0.0",                     // Revenue Share for PubMatic
+        throttle: "100",                      // Throttling percentage, 100 means do not throttle
+        publisherId: "9999",                  // PubMatic Publisher ID
+        kgp: "_DIV_@_W_x_H_:_AUI_"                // KGP for PubMatic
+    },                                          // End of PubMatic config
+ 
+    appnexus: {                                 // AppNexus adapter
+        rev_share: "0.0",                     // Revenue Share for AppNexus
+        throttle: "100",                      // Throttling percentage, 100 means do not throttle
+        kgp: "_DIV_",                         // KGP for AppNexus
+        klm: {                                  // Key-Lookup-Map, KGPV, the value generated using KGP will be looked for into this map and respective config will be passed to PreBid
+            "Div_1": {                            // KGPV: Div_1
+                placementId: "8801674"            // AppNexus param: placementId
+            },                                  // End of KGPV: Div_1
+            "Div-2": {                            // KGPV: Div-2
+                placementId: "8801685"            // AppNexus param: placementId
+            }                                   // End of KGPV: Div-2
+        }                                       // End of KLM
+    },                                          // End of AppNexus config
+ 
+    pulsepoint: {                               // PulsePoint adapter
+        cp: "521732",                         // PulsePoint parameter cp, a partner level key, it will be copied at run-time to Prebid slot level configurations
+        rev_share: "0.0",                     // Revenue Share for PulsePoint
+        throttle: "100",                      // Throttling percentage, 100 means do not throttle
+        kgp: "_DIV_",                         // KGP for PulsePoint
+        klm: {                                  // // Key-Lookup-Map, KGPV, the value generated using KGP will be looked for into this map and respective config will be passed to PreBid
+            "Div_1": {                            // KGPV: Div_1 
+                ct: "76835"                       // PulsePoint param: ct
+            },                                  // End of KGPV: Div_1
+            "Div-2": {                            // KGPV: Div-2
+                ct: "147007"                  // PulsePoint param: ct
+            }                                   // End of KGPV: Div-2
+        }                                       // End of KLM
+    }                                           // End of PulsePoint config
+ 
+};                                              // End of Adapters config
+```
+
 
 ## How To Build
 
@@ -93,30 +146,6 @@ Example:
 ./build.sh --mode=build --prebidpath=../Prebid.js/
 ```
 
-
-
-
-
-The checked out source contains adapters for following header tags:
-
-1.  AdForm
-2.  AOL
-3.  AppNexus
-4.  bRealTime
-5.  District M
-6.  Index Exchange
-7.  OpenX
-8.  PubMatic
-9.  Pulsepoint
-10.  Rubicon Project
-11.  Rubicon Fastlane
-12. Sovrn
-13.  Yieldbot
-
-We have a python build script which helps you build the wrapper tag with only the adapters you need and gives you a minimize tag which you can directly use.
-
-From the repository you have checked out, run combine.py. Once this file is executed, you will get owt.combine.js and owt.combine.min.js generated in a directory named 'dist.' 
-Combine.py contains adapterFiles array, which holds all the adapters to be included in generated open wrapper js file. You may want to add or remove partner adapters to keep only your required partners in your tag.
 
 ## Deploy
 
