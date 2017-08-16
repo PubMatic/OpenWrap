@@ -158,6 +158,32 @@ To load minimized js synchronously, you can use below tag in the header section 
 
 And to load minimized wrapper js script asynchronously before GPT using callback, you can use below tag-
 
+```
+<script type="text/javascript">
+var PWT={}; //Initialize Namespace
+var googletag = googletag || {};
+googletag.cmd = googletag.cmd || [];
+PWT.jsLoaded = function(){ //PubMatic pwt.js on load callback is used to load GPT
+    (function() {
+        var gads = document.createElement('script');
+        var useSSL = 'https:' == document.location.protocol; 
+        gads.src = (useSSL ? 'https:' : 'http:') + '//www.googletagservices.com/tag/js/gpt.js';
+        var node = document.getElementsByTagName('script')[0];
+        node.parentNode.insertBefore(gads, node);
+    })();
+};
+(function() {
+    var wtads = document.createElement('script');
+    wtads.async = true;
+    wtads.type = 'text/javascript';
+    wtads.src = 'owt.js';
+    var node = document.getElementsByTagName('script')[0];
+    node.parentNode.insertBefore(wtads, node);
+})();
+</script>
+```    
+
+
     <!--GPT Tag with Callback begins here -->
     <script type="text/javascript">
         var PWT = {}; //Initialize Namespace
