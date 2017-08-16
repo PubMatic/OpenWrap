@@ -131,15 +131,7 @@ exports.adapters = {                            // St
 
 *   `window.pbjs.setBidderSequence("random");`
 *   `window.pbjs.logging = false;`
-*   `
-window.pbjs.requestBids({
-    adUnits: adUnitsArray,
-    bidsBackHandler: function(bidResponses) {
-        refThis.handleBidResponses(bidResponses); // function defined in OpenWrap code
-    },
-    timeout: CONFIG.getTimeout()-50 // The timeout passed to PreBid code is 50 ms lesser than what is set in OpenWrap code
-});    
-`
+*   `window.pbjs.requestBids({...});`
 
 ### Combinations of KGP to PreBid code:
 
@@ -152,7 +144,8 @@ For a slot with,
 There is a partners configured, AppNexus
 Following are the different cases of KGP and code value:
 
-|Index|Mapping Template|OpenWrap KGP|OpenWrap KGP Example|PreBid Code|PreBid Code Example|
+| Index | Mapping Template | OpenWrap KGP | OpenWrap KGP Example | PreBid Code | PreBid Code Example |
+| --- | --- | --- | --- | --- || --- | --- |
 |1|Div Level|`_DIV_`|`Top_Banner_1`|`_DIV_@_AdapterID_`|`Top_Banner_1@appnexus`|
 |2|AdUnit-Size  
 |`_AU_@_W_x_H_:_AUI_`|`/43743431/DMDemo1@300x250:0 <br> /43743431/DMDemo1@728x90:0 <br> /43743431/DMDemo1@160x600:0`|`_DIV_@_AdapterID_@_Width_x_Height_`|`Top_Banner_1@appnexus@300x250 <br> Top_Banner_1@appnexus@728x90 <br> Top_Banner_1@appnexus@160x600`|
