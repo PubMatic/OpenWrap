@@ -64,7 +64,7 @@ Please note that, OpenWrap extending PreBid code is in ***src_new*** folder of [
 We have created a fork from PreBid repo: https://github.com/PubMatic-OpenWrap/Prebid.js
 The fork has PreBid Version [0.24.1](https://github.com/prebid/Prebid.js/releases/tag/0.24.1)
 
-## Configuration for Exchanges between OpenWrap and Prebid
+## Configuration Exchange between OpenWrap and Prebid
 
 Please refer [src_new/conf.js](https://github.com/PubMatic/OpenWrap/blob/ContinuousIntegration/src_new/conf.js) in OpenWrap code:
 
@@ -119,6 +119,48 @@ exports.adapters = {                            // St
  
 };                                              // End of Adapters config
 ```
+
+
+## Default PreBid settings
+
+*   Namespace: window.pbjs
+*   Bidder Sequence: random
+*   Logging: false
+
+## PreBid  API's used:
+
+*   `window.pbjs.setBidderSequence("random");`
+*   `window.pbjs.logging = false;`
+*   ```
+window.pbjs.requestBids({
+    adUnits: adUnitsArray,
+    bidsBackHandler: function(bidResponses) {
+        refThis.handleBidResponses(bidResponses); // function defined in OpenWrap code
+    },
+    timeout: CONFIG.getTimeout()-50 // The timeout passed to PreBid code is 50 ms lesser than what is set in OpenWrap code
+});    
+```
+
+### Combinations of KGP to PreBid code:
+
+For a slot with,
+*   AdUnit ID: /43743431/DMDemo1
+*   AdUnit Index: 0
+*   Sizes: [[300, 250],[728,90],[160, 600]]
+*   Div ID: Top_Banner_1
+
+There is a partners configured, AppNexus
+Following are the different cases of KGP and code value:
+
+|Index|Mapping Template|OpenWrap KGP|OpenWrap KGP Example|PreBid Code|PreBid Code Example|
+|1|Div Level|`_DIV_`|`Top_Banner_1`|`_DIV_@_AdapterID_`|`Top_Banner_1@appnexus`|
+|2|AdUnit-Size  
+|`_AU_@_W_x_H_:_AUI_`|`/43743431/DMDemo1@300x250:0 <br> /43743431/DMDemo1@728x90:0 <br> /43743431/DMDemo1@160x600:0`|`_DIV_@_AdapterID_@_Width_x_Height_`|`Top_Banner_1@appnexus@300x250 <br> Top_Banner_1@appnexus@728x90 <br> Top_Banner_1@appnexus@160x600`|
+|3|Div-Size 
+|`_DIV_@_W_x_H_`|`Top_Banner_1@300x250 <br> Top_Banner_1@728x90 <br> Top_Banner_1@160x600`|`_DIV_@_AdapterID_@_Width_x_Height_`|`Top_Banner_1@appnexus@300x250 <br> Top_Banner_1@appnexus@728x90 <br> 
+Top_Banner_1@appnexus@160x600`|
+|4|Size|`_W_x_H_@_W_x_H_`|`300x250@300x250 <br> 728x90@728x90 <br> 160x600@160x600`|`_DIV_@_AdapterID_@_Width_x_Height_`|`Top_Banner_1@appnexus@300x250 <br> Top_Banner_1@appnexus@728x90 <br> 
+Top_Banner_1@appnexus@160x600`|
 
 
 ## How To Build
@@ -239,7 +281,7 @@ For partner specific keys, refer to [PreBid bidders documnetation](http://prebid
 
   ![Auction Logic](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/AuctionLogic.png)
 
-  As of current release, we are not capturing post-timeout bids as depicted in above diagram. We will support the same in subsequent release.
+  ***Note***: As of current release, we are not capturing post-timeout bids as depicted in above diagram. We will support the same in subsequent release.
 
 # DFP Setup and Line Item creation
 
