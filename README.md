@@ -213,8 +213,8 @@ These are the parameters which will be part of the standard wrapper configuratio
 |pwtecp | The eCPM of bid in USD up to 4 decimal places | 1.4356 |
 |pwtbst | Bid Status Flag, will be 1 in case of positive bid | 1 |
 |pwtdid | Deal Id, in case the bid has a deal associated | XYZ-DEAL 123 |
-|pwtsid |<span> The slot/bid id of the highest or winning bid | e7424477d70315b8a4bae5cff1887edf |
-|pwtpid | All partner data organized by partner name.<br>A filter can be added to retrieve data for a specific partner.<br><br>Examples:<br> pwtpid - to retrieve all partner data by partner name<br>pwtpid=pubmatic - to retrieve data only for PubMatic<br><br>The following partner names may be used to filter:<br><br>adform<br>aol<br>appnexus<br>bRealTime<br>districtM<br>indexExchange<br>openx<br>pubmatic<br>pulsePoint<br>rubicon<br>rubiconFastlane<br>sovrn<br>yieldbot</span>| pubmatic |
+|pwtsid | The slot/bid id of the highest or winning bid | e7424477d70315b8a4bae5cff1887edf |
+|pwtpid | All partner data organized by partner name.<br>A filter can be added to retrieve data for a specific partner.<br><br>Examples:<br> pwtpid - to retrieve all partner data by partner name<br>pwtpid=pubmatic - to retrieve data only for PubMatic<br><br>For partner names, refer ***bidder code*** used in [PreBid bidders documnetation](http://prebid.org/dev-docs/bidders.html)| pubmatic |
 
 
 # Partner Adapters and Auction Logic
