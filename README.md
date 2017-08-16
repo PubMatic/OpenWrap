@@ -77,18 +77,15 @@ Shell script to execute gulp job :
 This particular shell script named "build.sh" or "build.cmd" can be triggered to generate OpenWrap distribution.
 It accepts two parameters - 
 
-*   mode
-Its value can be either "build" or "test-build" .
-On passing the mode parameter with value "build", the shell script will generate production ready code , without running tests.
+*   **mode**: Its value can be either "build" or "test-build" .
+    On passing the mode parameter with value "build", the shell script will generate production ready code , without running tests.
+    On the other hand when mode parameter has "test-build" value, the shell script will run tests along with generation of dev version of the build.
 
-On the other hand when mode parameter has "test-build" value, the shell script will run tests along with generation of dev version of the build.
-
-*   prebidpath
-This should be the relative path of Prebid repo on local machine.
+*   **prebidpath**: This should be the relative path of Prebid repo on local machine.
 
 Example:
-*       ./build.sh --mode=test-build
-*       ./build.sh --mode=build --prebidpath=../Prebid.js/
+    ./build.sh --mode=test-build
+    ./build.sh --mode=build --prebidpath=../Prebid.js/
 
 
 
