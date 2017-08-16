@@ -66,7 +66,33 @@ The fork has PreBid Version [0.24.1](https://github.com/prebid/Prebid.js/release
 
 The source files include adapters for all of the current header tag integrations. The developer only has to include the required adapters while building and generating a tag using the instructions below.
 
-## Build
+## How To Build
+
+Building process of OpenWrap and Prebid.js has been automated with shell script named build.sh/build.cmd.
+Please use shell script for the same with desired mode and parameters supported.
+Shell script to execute gulp job :
+*   For Unix: build.sh
+*   For Windows: build.cmd
+
+This particular shell script named "build.sh" or "build.cmd" can be triggered to generate OpenWrap distribution.
+It accepts two parameters - 
+
+*   mode
+Its value can be either "build" or "test-build" .
+On passing the mode parameter with value "build", the shell script will generate production ready code , without running tests.
+
+On the other hand when mode parameter has "test-build" value, the shell script will run tests along with generation of dev version of the build.
+
+*   prebidpath
+This should be the relative path of Prebid repo on local machine.
+
+Example:
+*       ./build.sh --mode=test-build
+*       ./build.sh --mode=build --prebidpath=../Prebid.js/
+
+
+
+
 
 The checked out source contains adapters for following header tags:
 
