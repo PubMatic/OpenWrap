@@ -84,9 +84,11 @@ It accepts two parameters -
 *   **prebidpath**: This should be the relative path of Prebid repo on local machine.
 
 Example:
-```./build.sh --mode=test-build
 ```
-```./build.sh --mode=build --prebidpath=../Prebid.js/
+./build.sh --mode=test-build
+```
+```
+./build.sh --mode=build --prebidpath=../Prebid.js/
 ```
 
 
