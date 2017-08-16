@@ -131,7 +131,7 @@ exports.adapters = {                            // St
 
 *   `window.pbjs.setBidderSequence("random");`
 *   `window.pbjs.logging = false;`
-*   ```
+*   `
 window.pbjs.requestBids({
     adUnits: adUnitsArray,
     bidsBackHandler: function(bidResponses) {
@@ -139,7 +139,7 @@ window.pbjs.requestBids({
     },
     timeout: CONFIG.getTimeout()-50 // The timeout passed to PreBid code is 50 ms lesser than what is set in OpenWrap code
 });    
-```
+`
 
 ### Combinations of KGP to PreBid code:
 
