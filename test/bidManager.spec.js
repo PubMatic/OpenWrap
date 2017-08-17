@@ -525,13 +525,29 @@ describe('bidManager BIDMgr', function() {
             bmEntryObj = bmEntry.createBMEntry(divID);
 
             theBid_1 = new bid(adapterID_1, kgpv);
+            theBid_1.setKeyValuePair("k1", "v1");
+            theBid_1.setKeyValuePair("k2", "v2");
+            theBid_1.setKeyValuePair("k3", "v3");
+
+            sinon.stub(theBid_1, "getPostTimeoutStatus").returns(false);
+            sinon.stub(theBid_1, "getNetEcpm").returns(-1);
+
             bmEntryObj.setNewBid(adapterID_1, theBid_1);
 
             theBid_2 = new bid(adapterID_2, kgpv);
+
+            theBid_2.setKeyValuePair("k2", "v2");
+            theBid_2.setKeyValuePair("k21", "v21");
+            
+            sinon.stub(theBid_2, "getPostTimeoutStatus").returns(false);
+            sinon.stub(theBid_2, "getNetEcpm").returns(2);
             bmEntryObj.setNewBid(adapterID_2, theBid_2);
 
-            sinon.stub(BIDMgr, "auctionBidsCallBack").returns(true);
+            sinon.spy(BIDMgr, "auctionBidsCallBack");
             sinon.spy(UTIL, "forEachOnObject");
+
+            sinon.stub(CONFIG, "getBidPassThroughStatus").returns(0);
+            CONFIG.getBidPassThroughStatus.withArgs(adapterID_2).returns(2);
             done();
         });
 
@@ -540,6 +556,7 @@ describe('bidManager BIDMgr', function() {
             divID = null;
             BIDMgr.auctionBidsCallBack.restore();
             UTIL.forEachOnObject.restore();
+            CONFIG.getBidPassThroughStatus.restore();
             done();
         });
 
@@ -559,31 +576,182 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.auctionBids(bmEntryObj).should.have.all.keys('wb', 'kvp');
             done();
         });
+
+        it('returns winning bid with key value pairs', function(done) {
+            BIDMgr.auctionBids(bmEntryObj).should.deep.equal({
+                "wb" : theBid_1,
+                "kvp": {
+                    "k2": [ "v2" ], 
+                    "k21": [ "v21" ] 
+                } 
+            });
+            done();
+        });
     });
 
+    describe('#auctionBidsCallBack', function() {
+        var adapterID = null,
+            adapterEntry = null,
+            keyValuePairs = null,
+            winningBid = null;
+        var bidID = null;
+        var theBidObject = null;
+        var adapterID_1 = commonAdpterID + "_1";
+        var theBid_1 = null;
+        var adapterID_2 = commonAdpterID + "_2";
+        var theBid_2 = null;
+        var kgpv = commonKGPV;
+        var adapterEntry_1 = null;
+        var adapterEntry_2 = null;
+
+        beforeEach(function(done) {
+            adapterID = commonAdpterID;
+            adapterEntry = new AdapterEntry(adapterID);
+            keyValuePairs = {};
+            winningBid = null;
+            bidID = commonBidID;
+            theBidObject = theBid = new bid(commonAdpterID, commonKGPV);
+
+            sinon.stub(theBidObject, "getPostTimeoutStatus");
+            sinon.stub(theBidObject, "getKeyValuePairs");
+
+            adapterEntry_1 = new AdapterEntry(adapterID_1);
+            sinon.stub(adapterEntry_1, "getLastBidID");
+            theBid_1 = new bid(adapterID_1, kgpv);
+            
+            theBid_1.setKeyValuePair("k1", "v1");
+            theBid_1.setKeyValuePair("k2", "v2");
+            theBid_1.setKeyValuePair("k3", "v3");
+            adapterEntry_1.setNewBid(theBid_1);
+
+            sinon.stub(theBid_1, "getPostTimeoutStatus").returns(false);
+            sinon.stub(theBid_1, "getNetEcpm").returns(-1);
+
+            adapterEntry_2 = new AdapterEntry(adapterID_2);
+            theBid_2 = new bid(adapterID_2, kgpv);
+            theBid_2.setKeyValuePair("k2", "v2");
+            theBid_2.setKeyValuePair("k21", "v21");
+
+            sinon.stub(theBid_2, "getPostTimeoutStatus").returns(false);
+            sinon.stub(theBid_2, "getNetEcpm").returns(2);
+            sinon.spy(theBid_2, "getKeyValuePairs");
+            adapterEntry_2.setNewBid(theBid_2);
+
+            sinon.stub(adapterEntry, "getLastBidID").returns("");
+            sinon.spy(UTIL, "forEachOnObject");
+            sinon.stub(CONFIG, "getBidPassThroughStatus");
+            CONFIG.getBidPassThroughStatus.withArgs(adapterID_2).returns(2);
+
+            sinon.spy(UTIL, "copyKeyValueObject");
+            done();
+        });
+
+        afterEach(function(done) {
+            adapterEntry.getLastBidID.restore();
+            UTIL.forEachOnObject.restore();
+            UTIL.copyKeyValueObject.restore();
+
+            theBid_2.getPostTimeoutStatus.restore();
+            theBid_2.getNetEcpm.restore();
+            theBid_2.getKeyValuePairs.restore();
+
+            theBidObject.getPostTimeoutStatus.restore();
+            theBidObject.getKeyValuePairs.restore();
+
+            CONFIG.getBidPassThroughStatus.restore();
+            done();
+        });
+
+        it('is a function', function(done) {
+            BIDMgr.auctionBidsCallBack.should.be.a('function');
+            done();
+        });
+
+        it('should have returned proper key value pair', function (done) {
+            BIDMgr.auctionBidsCallBack(adapterID_1, adapterEntry_1, {}, null).keyValuePairs.should.deep.equal({ "k1": [ 'v1' ], "k2": [ 'v2' ], "k3": [ 'v3' ] });
+            done();
+        });
+
+        it('should have returned result with proper structure', function (done) {
+            BIDMgr.auctionBidsCallBack(adapterID_1, adapterEntry_1, {}, null).should.have.all.keys("winningBid", "keyValuePairs");
+            done()
+        });
+
+        it('should have returned result with proper structure', function (done) {
+            BIDMgr.auctionBidsCallBack(adapterID_2, adapterEntry_2, {}, theBid_2).should.have.all.keys("winningBid", "keyValuePairs");
+            done();
+        });
+
+        it('should have returned proper key value pair', function (done) {
+            BIDMgr.auctionBidsCallBack(adapterID_2, adapterEntry_2, {}, theBid_2).keyValuePairs.should.deep.equal({ "k2": [ 'v2' ], "k21": [ 'v21' ] });
+            done();
+        });
+
+        it('should return object containing winningBid and keyValuePairs passed', function(done) {
+            BIDMgr.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid).should.deep.equal({
+                winningBid: winningBid,
+                keyValuePairs: keyValuePairs
+            });
+            done();
+        });
+
+        it('should return while constructing outout object out of passed arguments when passed adapter entry\'s last bid id is empty ', function (done) {
+            adapterEntry_1.getLastBidID.returns("");
+            BIDMgr.auctionBidsCallBack(adapterID_1, adapterEntry_1, {}, theBid_2).should.have.all.keys("winningBid", "keyValuePairs");
+            theBid_2.getPostTimeoutStatus.called.should.be.false;
+            CONFIG.getBidPassThroughStatus.called.should.be.false;
+            theBid_2.getKeyValuePairs.called.should.be.false;
+            done();
+        });
+
+        it('should return if bid\'s has come post timeout ', function(done) {
+            theBidObject.getPostTimeoutStatus.returns(true);
+            adapterEntry.setNewBid(theBidObject);
+            adapterEntry.getLastBidID.returns("pubmatic");
+
+            BIDMgr.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
+            UTIL.forEachOnObject.called.should.be.true;
+            CONFIG.getBidPassThroughStatus.called.should.be.false;
+            done();
+        });
+
+
+        it('should elect the new winning bid whos net ECPM is greater than previous winning bid object', function (done) {
+            theBid_2.getPostTimeoutStatus.returns(false);
+            theBid_2.getNetEcpm.returns(3);
+            theBid_1.getNetEcpm.returns(1);
+            CONFIG.getBidPassThroughStatus.withArgs(adapterID_2).returns(0);
+            BIDMgr.auctionBidsCallBack(adapterID_2, adapterEntry_2, {}, theBid_1).winningBid.should.deep.equal(theBid_2);
+
+            done();
+        });
+    });
 
     describe('#getBid', function() {
         var divID = null;
         var keyValuePairs = null;
         var winningBidObj = null;
+
         beforeEach(function(done) {
             divID = commonDivID;
             window.PWT = {
                 bidMap: {}
             };
+
             window.PWT.bidMap[divID] = {
                 setAnalyticEnabled: function() {
                     return "setAnalyticEnabled";
                 }
             };
+
             keyValuePairs = {
                 "key_1": "value_1",
-                "key_2": "value2",
+                "key_2": "value2"
+            };
 
-
-            }
             sinon.spy(UTIL, 'isOwnProperty');
             sinon.stub(BIDMgr, 'auctionBids');
+
             winningBidObj = {
                 wb: {
                     getNetEcpm: function() {
@@ -598,10 +766,13 @@ describe('bidManager BIDMgr', function() {
                 },
                 kvp: keyValuePairs
             };
+
             BIDMgr.auctionBids.returns(winningBidObj);
+
             sinon.spy(winningBidObj.wb, 'setStatus');
             sinon.spy(winningBidObj.wb, 'setWinningBidStatus');
             sinon.spy(UTIL, 'vLogInfo');
+
             done();
         });
 
@@ -622,18 +793,15 @@ describe('bidManager BIDMgr', function() {
 
         it('should have called UTIL.isOwnProperty and return bid when bidMap doesnt have passed divID', function(done) {
             delete window.PWT.bidMap[divID];
-            var result = BIDMgr.getBid(divID);
-
-            result.should.deep.equal({ wb: null, kvp: null });
+            BIDMgr.getBid(divID).should.deep.equal({ wb: null, kvp: null });
             UTIL.isOwnProperty.called.should.be.true;
 
             done();
         });
 
         it('should have called UTIL.isOwnProperty and return bid when bidMap have passed divID', function(done) {
-            var result = BIDMgr.getBid(divID);
+            BIDMgr.getBid(divID).should.deep.equal({ wb: winningBidObj.wb, kvp: winningBidObj.kvp });
 
-            result.should.deep.equal({ wb: winningBidObj.wb, kvp: winningBidObj.kvp });
             UTIL.isOwnProperty.called.should.be.true;
 
             done();
@@ -643,7 +811,7 @@ describe('bidManager BIDMgr', function() {
             UTIL.isOwnProperty.restore();
             sinon.stub(UTIL, 'isOwnProperty');
             UTIL.isOwnProperty.withArgs(window.PWT.bidMap, divID).returns(true);
-            var result = BIDMgr.getBid(divID);
+            BIDMgr.getBid(divID).should.deep.equal({ wb: winningBidObj.wb, kvp: winningBidObj.kvp });;
             BIDMgr.auctionBids.calledOnce.should.be.true;
 
             winningBidObj.wb.setStatus.called.should.be.true;
@@ -654,7 +822,6 @@ describe('bidManager BIDMgr', function() {
                 bidDetails: winningBidObj.wb
             }).should.be.true;
 
-            result.should.deep.equal({ wb: winningBidObj.wb, kvp: winningBidObj.kvp });
             UTIL.isOwnProperty.called.should.be.true;
 
             done();
@@ -666,7 +833,7 @@ describe('bidManager BIDMgr', function() {
             winningBidObj.wb.getNetEcpm.returns(-1);
             sinon.stub(UTIL, 'isOwnProperty');
             UTIL.isOwnProperty.withArgs(window.PWT.bidMap, divID).returns(true);
-            var result = BIDMgr.getBid(divID);
+            BIDMgr.getBid(divID).should.deep.equal({ wb: winningBidObj.wb, kvp: winningBidObj.kvp });
             BIDMgr.auctionBids.calledOnce.should.be.true;
 
             winningBidObj.wb.setStatus.called.should.be.false;
@@ -676,9 +843,9 @@ describe('bidManager BIDMgr', function() {
                 type: "win-bid-fail",
             }).should.be.true;
 
-            result.should.deep.equal({ wb: winningBidObj.wb, kvp: winningBidObj.kvp });
             UTIL.isOwnProperty.called.should.be.true;
             winningBidObj.wb.getNetEcpm.restore();
+
             done();
         });
     });
@@ -728,8 +895,8 @@ describe('bidManager BIDMgr', function() {
             UTIL.isOwnProperty.withArgs(window.PWT.bidMap, divID).returns(true);
 
             sinon.stub(window.PWT.bidMap[divID], 'getBid');
-            window.PWT.bidMap[divID].getBid.withArgs(adapterID, bidID)
-                .onFirstCall().returns(theBid);
+            window.PWT.bidMap[divID].getBid.withArgs(adapterID, bidID).returns(theBid);
+                
 
             done();
         });
@@ -737,7 +904,9 @@ describe('bidManager BIDMgr', function() {
         afterEach(function(done) {
             UTIL.isOwnProperty.restore();
             UTIL.log.restore();
-            window.PWT.bidMap[divID].getBid.restore();
+            if (window.PWT.bidMap[divID].getBid.restore) {
+                window.PWT.bidMap[divID].getBid.restore();
+            }
             done();
         });
 
@@ -748,14 +917,14 @@ describe('bidManager BIDMgr', function() {
 
         it('should return null while logging it when bidIdMap doesnt contains passed bidID', function(done) {
             should.not.exist(BIDMgr.getBidById(nonExistingBidID));
-            UTIL.log.calledWith("Bid details not found for bidID: " + nonExistingBidID).should.be.true;
+            UTIL.log.calledWith(CONSTANTS.MESSAGES.M25 + nonExistingBidID).should.be.true;
             done();
         });
 
         it('should return null when bidIdMap contains passed bidID but bidMap doenst have bid\'s divID', function(done) {
             window.PWT.bidIdMap[bidID].s = nonExistingDivID;
             should.not.exist(BIDMgr.getBidById(bidID));
-            UTIL.log.calledWith("Bid details not found for bidID: " + bidID).should.be.true;
+            UTIL.log.calledWith(CONSTANTS.MESSAGES.M25 + bidID).should.be.true;
             done();
         });
 
@@ -764,8 +933,17 @@ describe('bidManager BIDMgr', function() {
             UTIL.log.calledWith("BidID: " + bidID + ", DivID: " + divID + CONSTANTS.MESSAGES.M19 + adapterID).should.be.true;
             done();
         });
-    });
 
+        it('returns resulting object as null when bid object for given divID is null', function (done) {
+            window.PWT.bidMap[divID].getBid =  function () {
+                return null;
+            };
+            should.not.exist(BIDMgr.getBidById(bidID));
+            UTIL.log.calledWith("BidID: " + bidID + ", DivID: " + divID + CONSTANTS.MESSAGES.M19 + adapterID).should.be.true;
+            UTIL.log.calledWith(CONSTANTS.MESSAGES.M25 + bidID).should.be.false;
+            done();
+        });
+    });
 
     describe('#displayCreative', function() {
         var bidID = null;
@@ -830,15 +1008,19 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.displayCreative(theDocument, bidID);
 
             BIDMgr.getBidById.calledOnce.should.be.true;
-            BIDMgr.executeMonetizationPixel.called.should.be.true;
-            UTIL.displayCreative.called.should.be.true;
-            UTIL.vLogInfo.called.should.be.true;
-            UTIL.vLogInfo.calledWith(divID, { type: 'disp', adapter: adapterID })
+
+            BIDMgr.executeMonetizationPixel.calledWith(bidDetails.slotid, bidDetails.bid).should.be.true;
+
+            UTIL.displayCreative.calledWith(theDocument ,bidDetails.bid).should.be.true;
+
+            UTIL.vLogInfo.calledWith(divID, { type: 'disp', adapter: adapterID }).should.be.true;
             done();
         });
     });
 
     describe('#executeAnalyticsPixel', function() {
+        var slotID_1 =  null, slotID_2 = null;
+        var bmEntryStub_1 = null, bmEntryStub_2 = null;
 
         beforeEach(function(done) {
             sinon.stub(CONFIG, "getAnalyticsPixelURL").returns("http://pb.analytics.com/dm/");
@@ -852,14 +1034,22 @@ describe('bidManager BIDMgr', function() {
             sinon.stub(UTIL, "getCurrentTimestamp").returns(timeNow);
 
             sinon.spy(UTIL, "forEachOnObject");
+
             window.PWT = {
                 bidMap: {
-                    "Slot_1": {
-
-                    }
                 }
             };
-            sinon.stub(BIDMgr, "analyticalPixelCallback").returns(true);
+
+            slotID_1 = "Slot_1";
+            bmEntryStub_1 = new bmEntryContstuctor(slotID_1);
+            slotID_2 = "Slot_2";
+            bmEntryStub_2 = new bmEntryContstuctor(slotID_2);
+
+            window.PWT.bidMap[slotID_1] = bmEntryStub_1;
+            window.PWT.bidMap[slotID_2] = bmEntryStub_2;
+
+            sinon.stub(BIDMgr, "analyticalPixelCallback");
+
             done();
         });
 
@@ -885,13 +1075,13 @@ describe('bidManager BIDMgr', function() {
         });
 
         it('should return if pixelURL is empty', function(done) {
-            CONFIG.getAnalyticsPixelURL.returns(null);
+            CONFIG.getAnalyticsPixelURL.returns("");
             BIDMgr.executeAnalyticsPixel();
             CONFIG.getPublisherId.called.should.be.false;
             done();
         });
 
-        it('should have caled CONFIG functions to generate output Object', function(done) {
+        it('should have called CONFIG functions to generate output Object', function(done) {
             BIDMgr.executeAnalyticsPixel();
 
             CONFIG.getPublisherId.called.should.be.true;
@@ -912,7 +1102,8 @@ describe('bidManager BIDMgr', function() {
 
         it('should have called analyticalPixelCallback', function(done) {
             BIDMgr.executeAnalyticsPixel();
-            BIDMgr.analyticalPixelCallback.called.should.be.true;
+            BIDMgr.analyticalPixelCallback.calledWith(slotID_1, bmEntryStub_1, {}).should.be.true;
+            BIDMgr.analyticalPixelCallback.calledWith(slotID_2, bmEntryStub_2, {}).should.be.true;
             done();
         });
 
@@ -923,71 +1114,6 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
-
-    describe('#auctionBidsCallBack', function() {
-        var adapterID = null,
-            adapterEntry = null,
-            keyValuePairs = null,
-            winningBid = null;
-        var bidID = null;
-        var theBidObject = null;
-
-        beforeEach(function(done) {
-            adapterID = commonAdpterID;
-            adapterEntry = new AdapterEntry(adapterID);
-            keyValuePairs = {};
-            winningBid = null;
-            bidID = commonBidID;
-            theBidObject = theBid = new bid(commonAdpterID, commonKGPV);
-
-            sinon.stub(theBidObject, "getPostTimeoutStatus");
-            sinon.stub(theBidObject, "getKeyValuePairs");
-            sinon.stub(adapterEntry, "getLastBidID").returns("");
-            sinon.spy(UTIL, "forEachOnObject");
-            sinon.stub(CONFIG, "getBidPassThroughStatus");
-
-            sinon.spy(UTIL, "copyKeyValueObject");
-            done();
-        });
-
-        afterEach(function(done) {
-            adapterEntry.getLastBidID.restore();
-            UTIL.forEachOnObject.restore();
-            UTIL.copyKeyValueObject.restore();
-
-            theBidObject.getPostTimeoutStatus.restore();
-            theBidObject.getKeyValuePairs.restore();
-
-            CONFIG.getBidPassThroughStatus.restore();
-            done();
-        });
-
-        it('is a function', function(done) {
-            BIDMgr.auctionBidsCallBack.should.be.a('function');
-            done();
-        });
-
-        it('should return object containing winningBid and keyValuePairs passed', function(done) {
-            BIDMgr.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid).should.deep.equal({
-                winningBid: winningBid,
-                keyValuePairs: keyValuePairs
-            });
-            done();
-        });
-
-        it('should return if bid\'s has come post timeout ', function(done) {
-            theBidObject.getPostTimeoutStatus.returns(true);
-            adapterEntry.setNewBid(theBidObject);
-            adapterEntry.getLastBidID.returns("pubmatic");
-
-            BIDMgr.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
-            UTIL.forEachOnObject.called.should.be.true;
-            CONFIG.getBidPassThroughStatus.called.should.be.false;
-            done();
-        });
-    });
-
-    // TODO : check for window.Image issue for phantomJS
     describe('#executeMonetizationPixel', function() {
         var slotID = null;
         var adapterID = null;
@@ -1014,7 +1140,6 @@ describe('bidManager BIDMgr', function() {
             origImage = window.Image;
             window.Image = sinon.stub();
             window.Image.returns({});
-            // sinon.stub(window, 'Image').returns({});
 
             window.PWT = {
                 bidMap: {}
@@ -1052,7 +1177,6 @@ describe('bidManager BIDMgr', function() {
             theBid.getKGPV.restore();
             theBid = null;
 
-            // window.Image.restore();
             window.Image = origImage;
 
             UTIL.getCurrentTimestamp.restore();
@@ -1068,7 +1192,7 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('should return when pixelURL is null, without calling any ', function(done) {
+        it('should return when pixelURL is null, without proceeding further ', function(done) {
             CONFIG.getMonetizationPixelURL.restore();
 
             sinon.stub(CONFIG, 'getMonetizationPixelURL');
@@ -1139,39 +1263,6 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;
 
             done();
-        });
-    });
-
-    // TODO : check for window.Image issue for phantomJS
-    describe('#setImageSrcToPixelURL', function() {
-        var pixelURL = null;
-        var origImage = null;
-        beforeEach(function(done) {
-            pixelURL = "t.pubmatic.com/wt?pubid=9999&purl=undefined&tst=1499332621&iid=123123&bidid=784b05cc03a84a&pid=46&pdvid=4&slot=Slot_1&pn=null&en=0&eg=0&kgpv=XYZ";
-            // sinon.stub(window, 'Image').returns({});
-            origImage = window.Image;
-            window.Image = sinon.stub();
-            window.Image.returns({});
-            done();
-        });
-
-        afterEach(function(done) {
-            pixelURL = null;
-            // window.Image.restore();
-            window.Image = origImage
-            done();
-        });
-
-        it('is a function', function(done) {
-            BIDMgr.setImageSrcToPixelURL.should.be.a('function');
-            done();
-        });
-
-        it('should have called window.Image while setting its src to the passed pixelURL', function(done) {
-            BIDMgr.setImageSrcToPixelURL(pixelURL);
-            window.Image.called.should.be.true;
-            done();
-
         });
     });
 
@@ -1330,6 +1421,43 @@ describe('bidManager BIDMgr', function() {
 
             impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb");
             done();
+        });
+    });
+
+    describe('#setImageSrcToPixelURL', function() {
+        var pixelURL = null;
+        var origImage = null;
+        var imageObjStub = null;
+
+        beforeEach(function(done) {
+            pixelURL = "t.pubmatic.com/wt?pubid=9999&purl=undefined&tst=1499332621&iid=123123&bidid=784b05cc03a84a&pid=46&pdvid=4&slot=Slot_1&pn=null&en=0&eg=0&kgpv=XYZ";
+            origImage = window.Image;
+            window.Image = sinon.stub();
+            imageObjStub = {
+                src: ""
+            };
+
+            window.Image.returns(imageObjStub);
+            done();
+        });
+
+        afterEach(function(done) {
+            pixelURL = null;
+            window.Image = origImage
+            done();
+        });
+
+        it('is a function', function(done) {
+            BIDMgr.setImageSrcToPixelURL.should.be.a('function');
+            done();
+        });
+
+        it('should have called window.Image while setting its src to the passed pixelURL', function(done) {
+            BIDMgr.setImageSrcToPixelURL(pixelURL);
+            window.Image.called.should.be.true;
+            imageObjStub.src.should.equal(UTIL.metaInfo.protocol + pixelURL);
+            done();
+
         });
     });
 });

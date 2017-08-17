@@ -1,1 +1,2 @@
-var pbjs = pbjs || {}; pbjs.que = pbjs.que || [];
+function pwtCreatePrebidNamespace(namespace) {
+	window[namespace] = namespace || {}; window[namespace].que = window[namespace].que || [];

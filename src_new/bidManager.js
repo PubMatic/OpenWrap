@@ -6,6 +6,7 @@ var bmEntry = require("./bmEntry.js");
 var refThis = this;
 
 function createBidEntry(divID){ // TDD, i/o : done
+	/* istanbul ignore else */
 	if(! util.isOwnProperty(window.PWT.bidMap, divID) ){
 		window.PWT.bidMap[divID] = bmEntry.createBMEntry(divID);
 	}
@@ -30,7 +31,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 	var bidderID = bidDetails.getAdapterID();
 	var bidID = bidDetails.getBidID();
 	var bidMapEntry = window.PWT.bidMap[divID];
-
+	/* istanbul ignore else */
 	if(!util.isOwnProperty(window.PWT.bidMap, divID)){
 		util.log("BidManager is not expecting bid for "+ divID +", from " + bidderID);
 		return;
@@ -42,7 +43,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 	refThis.createBidEntry(divID);
 
 	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", postTimeout: "+isPostTimeout);
-	
+	/* istanbul ignore else */
 	if(isPostTimeout === true){
 		bidDetails.setPostTimeoutStatus();
 	}
@@ -55,7 +56,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 			;
 
 		if( lastBidWasDefaultBid || !isPostTimeout){				
-
+			/* istanbul ignore else */
 			if(lastBidWasDefaultBid){
 				util.log(CONSTANTS.MESSAGES.M23);
 			}
@@ -104,7 +105,7 @@ exports.resetBid = function(divID, impressionID){ // TDD, i/o : done
 	window.PWT.bidMap[divID].setImpressionID(impressionID);
 };
 
-function auctionBids(bmEntry) {
+function auctionBids(bmEntry) { // TDD, i/o : done 
     var winningBid = null,
         keyValuePairs = {};
     
@@ -122,9 +123,8 @@ function auctionBids(bmEntry) {
 
 
 
-function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) {
+function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) { // TDD, i/o : done
     if (adapterEntry.getLastBidID() != "") {
-    	// console.log("Comming here and adapterEntry.bids ==>", adapterEntry.bids);
         util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
             // do not consider post-timeout bids
             /* istanbul ignore else */
@@ -168,11 +168,11 @@ exports.auctionBidsCallBack = auctionBidsCallBack;
 exports.auctionBids = auctionBids;
 /* end-test-block */
 
-exports.getBid = function(divID){ // TDD done
+exports.getBid = function(divID){ // TDD, i/o : done
 
 	var winningBid = null;
 	var keyValuePairs = null;
-
+	/* istanbul ignore else */
 	if( util.isOwnProperty(window.PWT.bidMap, divID) ){
 		var data = refThis.auctionBids(window.PWT.bidMap[divID]);
 		winningBid = data.wb;
@@ -197,8 +197,8 @@ exports.getBid = function(divID){ // TDD done
 	return {wb: winningBid, kvp: keyValuePairs};
 };
 
-exports.getBidById = function(bidID) { // TDD done
-
+exports.getBidById = function(bidID) { // TDD, i/o : done
+	/* istanbul ignore else */
     if (!util.isOwnProperty(window.PWT.bidIdMap, bidID)) {
         util.log(CONSTANTS.MESSAGES.M25 + bidID);
         return null;
@@ -207,11 +207,11 @@ exports.getBidById = function(bidID) { // TDD done
     var divID = window.PWT.bidIdMap[bidID].s;
     var adapterID = window.PWT.bidIdMap[bidID].a;
 
-
+    /* istanbul ignore else */
     if (util.isOwnProperty(window.PWT.bidMap, divID)) {
         util.log("BidID: " + bidID + ", DivID: " + divID + CONSTANTS.MESSAGES.M19 + adapterID);
         var theBid = window.PWT.bidMap[divID].getBid(adapterID, bidID);
-
+        /* istanbul ignore else */
         if (theBid == null) {
             return null;
         }
@@ -227,8 +227,9 @@ exports.getBidById = function(bidID) { // TDD done
 };
 
 
-exports.displayCreative = function(theDocument, bidID){ // TDD done
+exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 	var bidDetails = refThis.getBidById(bidID);
+	/* istanbul ignore else */
 	if(bidDetails){
 		var theBid = bidDetails.bid,
 			divID = bidDetails.slotid
@@ -239,14 +240,14 @@ exports.displayCreative = function(theDocument, bidID){ // TDD done
 	}
 };
 
-exports.executeAnalyticsPixel = function(){
+exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	var outputObj = {
 			s: []
 		},
 		pixelURL = CONFIG.getAnalyticsPixelURL(),
 		impressionIDMap = {} // impID => slots[]
 		;
-	
+	/* istanbul ignore else */
 	if(!pixelURL){
 		return;
 	}
@@ -264,7 +265,7 @@ exports.executeAnalyticsPixel = function(){
 		refThis.analyticalPixelCallback(slotID, bmEntry, impressionIDMap);
 	});
 
-	util.forEachOnObject(impressionIDMap, function(impressionID, slots){
+	util.forEachOnObject(impressionIDMap, function(impressionID, slots){ /* istanbul ignore next */
 		/* istanbul ignore else */
 		if(slots.length > 0){
 			outputObj.s = slots;
@@ -274,9 +275,10 @@ exports.executeAnalyticsPixel = function(){
 	});
 };
 
-exports.executeMonetizationPixel = function(slotID, theBid){ // TDD done
+exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	var pixelURL = CONFIG.getMonetizationPixelURL();
 	
+	/* istanbul ignore else */
 	if(!pixelURL){
 		return;
 	}
@@ -297,8 +299,9 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD done
 	refThis.setImageSrcToPixelURL(pixelURL);	
 };
 
-function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) {
+function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
     var startTime = bmEntry.getCreationTime();
+    /* istanbul ignore else */
     if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
         var slotObject = {
             "sn": slotID,
@@ -348,7 +351,7 @@ exports.analyticalPixelCallback = analyticalPixelCallback;
 
 
 
-exports.setImageSrcToPixelURL = function (pixelURL) { // TDD done
+exports.setImageSrcToPixelURL = function (pixelURL) { // TDD, i/o : done
 	var img = new window.Image();
 	img.src = util.metaInfo.protocol + pixelURL;
 };
