@@ -53,6 +53,28 @@ describe('Bid bidObject', function() {
             BID.should.be.a('function');
             done();
         });
+
+
+        it('should have set deafult values of the bidObject', function (done) {
+            bidObject.adapterID.should.be.equal(commonAdpterID);
+            bidObject.kgpv.should.be.equal(commonKGPV);
+            bidObject.grossEcpm.should.be.equal(0);
+            bidObject.netEcpm.should.be.equal(0);
+            bidObject.defaultBid.should.be.equal(0);
+            bidObject.adHtml.should.be.equal("");
+            bidObject.adUrl.should.be.equal("");
+            bidObject.height.should.be.equal(0);
+            bidObject.width.should.be.equal(0); 
+            bidObject.creativeID.should.be.equal("");
+            bidObject.keyValuePairs.should.be.deep.equal({});
+            bidObject.isPostTimeout.should.be.equal(false);
+            bidObject.receivedTime.should.be.equal(0);
+            bidObject.dealID.should.be.equal("");
+            bidObject.dealChannel.should.be.equal("");
+            bidObject.isWinningBid.should.be.equal(false);
+            bidObject.status.should.be.equal(0);
+            done();
+        });
     });
 
 
