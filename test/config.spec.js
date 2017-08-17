@@ -344,7 +344,6 @@ describe('Config', function() {
             obj.callback.called.should.be.true;
             done();
         });
-
     });
 
     describe('#addPrebidAdapter', function() {
@@ -379,8 +378,31 @@ describe('Config', function() {
 
     describe('#initConfig', function() {
 
+        beforeEach(function (done) {
+            sinon.spy(CONFIG, "addPrebidAdapter");
+            sinon.spy(UTIL, "forEachOnObject");
+            done();
+        });
+
+        afterEach(function (done) {
+            CONFIG.addPrebidAdapter.restore();
+            UTIL.forEachOnObject.restore();
+            done();
+        });
+
         it('is a function', function(done) {
             CONFIG.initConfig.should.be.a('function');
+            done();
+        });
+
+
+        it('should have initiated the config with all required internal function calls', function (done) {
+            CONFIG.initConfig();
+            UTIL.forEachOnObject.called.should.be.true;
+            UTIL.forEachOnObject.calledWith(CONSTANTS.CONFIG).should.be.true;
+            UTIL.forEachOnObject.calledWith(CONF.adapters).should.be.true;
+            UTIL.forEachOnObject.calledWith(CONF.adapters["pubmatic"]).should.be.true;
+            UTIL.forEachOnObject.calledWith(CONF.adapters["sekindoUM"]["klm"]).should.be.true;
             done();
         });
     });
