@@ -14,15 +14,30 @@ var conf = require('../src_new/conf');
 var commonAdapterID = "pubmatic";
 
 
+// TODO : remove as required during single TDD only
+// var jsdom = require('jsdom').jsdom;
+// var exposedProperties = ['window', 'navigator', 'document'];
+// global.document = jsdom('');
+// global.window = document.defaultView;
+// Object.keys(document.defaultView).forEach((property) => {
+//     if (typeof global[property] === 'undefined') {
+//         exposedProperties.push(property);
+//         global[property] = document.defaultView[property];
+//     }
+// });
+// global.navigator = {
+//     userAgent: 'node.js'
+// };
+
 describe("adapterManager : ADPTMgr", function() {
 
 
-    describe("#callAdapters()", function() {
+    describe("#callAdapters", function() {
 
         var activeSlots = null;
 
         beforeEach(function(done) {
-            sinon.stub(UTIL, 'generateUUID').returns(true);
+            sinon.spy(UTIL, 'generateUUID');
             sinon.spy(ADPTMgr, 'resetSlots');
             sinon.spy(ADPTMgr, 'callAdapter');
             activeSlots = {};
@@ -36,6 +51,7 @@ describe("adapterManager : ADPTMgr", function() {
             activeSlots = null;
             done();
         });
+
         it('is a function', function(done) {
             ADPTMgr.callAdapters.should.be.a('function');
             done();
@@ -56,7 +72,12 @@ describe("adapterManager : ADPTMgr", function() {
     /* start-test-block */
     describe('#getRandomNumberBelow100', function() {
 
-        it('return numeric value below 100', function(done) {
+        it('is a function', function (done) {
+            ADPTMgr.getRandomNumberBelow100.should.be.a('function');
+            done();
+        });
+
+        it('returns numeric value below 100', function(done) {
             var result = ADPTMgr.getRandomNumberBelow100();
 
             result.should.be.below(100);
@@ -67,7 +88,7 @@ describe("adapterManager : ADPTMgr", function() {
 
 
     /* start-test-block */
-    describe('#callAdapter()', function() {
+    describe('#callAdapter', function() {
 
         var adapters = null,
             slots = null,
@@ -124,12 +145,12 @@ describe("adapterManager : ADPTMgr", function() {
             throttleAdapterStub = null;
             done();
         });
-
     });
     /* end-test-block */
 
+
     /* start-test-block */
-    describe('#resetSlots()', function() {
+    describe('#resetSlots', function() {
         var slots = null;
         var divID_1 = "DIV_ID_1";
         var divID_2 = "DIV_ID_2";
@@ -180,10 +201,12 @@ describe("adapterManager : ADPTMgr", function() {
         });
     });
     /* end-test-block */
+    
 
     /* start-test-block */
-    describe('#throttleAdapter()', function() {
+    describe('#throttleAdapter', function() {
         var adapterID = null;
+
         beforeEach(function(done) {
             adapterID = commonAdapterID;
             sinon.stub(CONFIG, 'getAdapterThrottle');
@@ -225,14 +248,12 @@ describe("adapterManager : ADPTMgr", function() {
             ADPTMgr.throttleAdapter(99, adapterID).should.be.false;
             done();
         });
-
-
     });
     /* end-test-block */
 
 
     /* start-test-block */
-    describe('#setInitTimeForSlotsForAdapter()', function() {
+    describe('#setInitTimeForSlotsForAdapter', function() {
         var adapterID = null;
         var slots = null;
         var divID_1 = "DIV_ID_1";
@@ -346,12 +367,11 @@ describe("adapterManager : ADPTMgr", function() {
             done();
         });
     });
-
     /* end-test-block */
 
 
     /* start-test-block */
-    describe('#registerAdapters()', function() {
+    describe('#registerAdapters', function() {
 
 
         beforeEach(function(done) {
