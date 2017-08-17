@@ -15,7 +15,7 @@ var CONF = require("../conf.js");
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
 var pbNameSpace = "pbjs";
-var pbNameSpaceVersion = "";
+var pbNameSpaceVersion = 0;
 
 var onBidEventAdded = false;
 
@@ -174,7 +174,7 @@ exports.generatePbConf = generatePbConf;
 
 function fetchBids(activeSlots, impressionID){
 
-	var newPBNameSpace = pbNameSpace + pbNameSpaceVersion;
+	var newPBNameSpace = pbNameSpace + pbNameSpaceVersion++;
 	pwtCreatePrebidNamespace(newPBNameSpace);
 
 	if(! window[newPBNameSpace]){ // todo: move this code to initial state of adhooks
