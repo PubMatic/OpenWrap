@@ -126,10 +126,13 @@ var displayHookAdded = false,
 			sizeArray = currentGoogleSlot.getSizes();					
 			sizeArrayLength = sizeArray.length;			
 			for(index = 0; index < sizeArrayLength; index++){
-				sizeObj = sizeArray[ index ];				
-				//if(sizeObj.getWidth() != 1 && sizeObj.getHeight() != 1){
-				adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
-				//}
+				sizeObj = sizeArray[ index ];
+				if(sizeObj.getWidth && sizeObj.getHeight){
+					adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
+				}else{
+					utilLog(divID + ', size object does not have getWidth and getHeight method. Ignoring: ');
+					utilLog(sizeObj);
+				}
 			}
 		}
 		
@@ -341,12 +344,14 @@ var displayHookAdded = false,
 		
 		if(winningBid[constTargetingEcpm] > 0){
 			slotsMap[ divID ][pmSlots_key_status] = status_DM_Display_TargetingsAdded;			
-			//googleDefinedSlot.setTargeting(constTargetingBidID, divID);
 			googleDefinedSlot.setTargeting(constTargetingBidID, winningBid[constTargetingBidID]);
 			googleDefinedSlot.setTargeting(constTargetingBidStatus, winningBid[constTargetingBidStatus]);
 			googleDefinedSlot.setTargeting(constTargetingEcpm, (winningBid[constTargetingEcpm]).toFixed(bidPrecision));
 			winningBid[constTargetingDeal][constDealID] && googleDefinedSlot.setTargeting(constTargetingDealID, winningBid[constTargetingDeal][constDealID]);
 			googleDefinedSlot.setTargeting(constTargetingAdapterID, winningBid[constTargetingAdapterID]);
+			googleDefinedSlot.setTargeting(constTargetingPubID, bidManagerGetPublisherID());
+			googleDefinedSlot.setTargeting(constTargetingProfileID, bidManagerGetProfileID());
+			googleDefinedSlot.setTargeting(constTargetingProfileVersionID, bidManagerGetProfileDisplayVersionID());
 		}
 
 		// attaching keyValuePairs from adapters
@@ -443,6 +448,8 @@ var displayHookAdded = false,
 							}else{
 								utilLog('AdSlot already rendered');
 							}
+
+							bidManagerExecuteAnalyticsPixel();
 								
 						}, TIMEOUT);
 						break;
@@ -470,8 +477,7 @@ var displayHookAdded = false,
 
 				setTimeout(function(){
 					utilRealignVLogInfoPanel(arg[0]);
-					bidManagerExecuteAnalyticsPixel();
-				},2000+TIMEOUT);				
+				},2000+TIMEOUT);
 			}					
 		};					
 	},
@@ -662,6 +668,12 @@ var controllerInit = function(config){
 
 	try{
 
+		utilAddMessageEventListenerForSafeFrame(false);		
+
+		if(utilIsUndefined(config)){
+			return;
+		}
+
 		configObject = config;
 		bidManagerSetGlobalConfig(configObject);
 
@@ -672,6 +684,9 @@ var controllerInit = function(config){
 		DM_targetingKeys[constTargetingEcpm] = '';
 		DM_targetingKeys[constTargetingDealID] = '';
 		DM_targetingKeys[constTargetingAdapterID] = '';
+		DM_targetingKeys[constTargetingPubID] = '';
+		DM_targetingKeys[constTargetingProfileID] = '';
+		DM_targetingKeys[constTargetingProfileVersionID] = '';
 		
 		// define the command array if not already defined
 		win.googletag = win.googletag || {};
@@ -690,7 +705,7 @@ var controllerInit = function(config){
 		
 		if(utilIsFn(win.PWT.jsLoaded)){
 			win.PWT.jsLoaded();
-		}
+		}		
 
 	}catch(e){
 		console.log('OpenWrap: Something went wrong.');

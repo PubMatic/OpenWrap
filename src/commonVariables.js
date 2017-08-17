@@ -25,6 +25,9 @@ var win = window,
 	constTargetingHeight		= 'pwth',
 	constTargetingWidth			= 'pwtw',
 	constTargetingKvp			= 'kvp',
+	constTargetingPubID			= 'pwtpubid',
+	constTargetingProfileID		= 'pwtprofid',
+	constTargetingProfileVersionID	= 'pwtverid',
 
 	// ones used in PWT config
 	constConfigKeyGeneratigPattern = 'kgp',	
@@ -112,63 +115,47 @@ var win = window,
 	constBidInfoAdapter = 'adp',
 	constBidInfoNetEcpm = 'en',
 	constBidInfoGrossEcpm = 'eg',
-	constBidInfoTimestamp = 'tst'
+	constBidInfoTimestamp = 'tst',
+
+	safeFrameMessageListenerAdded = false,
+	inSafeFrame = false
 ;
 
 win.PWT = win.PWT || {};
 
-win.PWT.displayCreative = function(theDocument, divID){
-	utilLog('In displayCreative for: ' + divID);
-	bidManagerDisplayCreative(theDocument, divID);
+win.PWT.displayCreative = function(theDocument, bidID){
+	utilLog('In displayCreative for: ' + bidID);
+	bidManagerDisplayCreative(theDocument, bidID);
 };
 
 win.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
+	utilLog('In displayPMPCreative for: ' + values);	
+	var bidID = utilGetBididForPMP(values, priorityArray);
+	bidID && bidManagerDisplayCreative(theDocument, bidID);
+};
 
-	utilLog('In displayPMPCreative for: ' + values);
-	
-	values = values.split(',');
+win.PWT.sfDisplayCreative = function(theDocument, bidID){
+	utilLog('In sfDisplayCreative for: ' + bidID);
+	utilAddMessageEventListenerForSafeFrame(true);	
+	window.parent.postMessage(
+		JSON.stringify({
+			pwt_type: "1",
+			pwt_bidID: bidID,
+			pwt_origin: win.location.protocol+'//'+win.location.hostname
+		}), 
+		"*"
+	);
+};
 
-	var valuesLength = values.length,
-		priorityArrayLength = priorityArray.length,
-		selectedPMPDeal = '',
-		bidID = ''
-	;
-
-	if(valuesLength == 0){
-		utilLog('Error: Unable to find bidID as values array is empty.');
-		return;
-	}
-	
-	for(var i = 0; i < priorityArrayLength; i++){
-
-		for(var j = 0; j < valuesLength; j++){
-			if(values[j].indexOf(priorityArray[i]) >= 0){
-				selectedPMPDeal = values[j];
-				break;
-			}
-		}
-
-		if(selectedPMPDeal != ''){
-			break;
-		}
-	}
-	
-	if(selectedPMPDeal == ''){
-		selectedPMPDeal = values[0];
-		utilLog('No PMP-Deal was found matching PriorityArray, So Selecting first PMP-Deal: '+ selectedPMPDeal);		
-	}else{
-		utilLog('Selecting PMP-Deal: '+ selectedPMPDeal);	
-	}
-
-	var temp = selectedPMPDeal.split(constDealKeyValueSeparator);
-	if(temp.length == 3){
-		bidID = temp[2];
-	}
-
-	if(bidID == ''){
-		utilLog('Error: bidID not found in PMP-Deal: '+ selectedPMPDeal);
-		return;
-	}
-
-	bidManagerDisplayCreative(theDocument, bidID);
+win.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
+	utilLog('In sfDisplayPMPCreative for: ' + values);
+	utilAddMessageEventListenerForSafeFrame(true);
+	window.parent.postMessage(
+		JSON.stringify({
+			pwt_type: "1",
+			pwt_bidID: utilGetBididForPMP(values, priorityArray),
+			pwt_origin: win.location.protocol+'//'+win.location.hostname
+		}), 
+		"*"
+	);
 };
