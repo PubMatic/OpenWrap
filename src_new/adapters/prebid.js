@@ -14,6 +14,9 @@ var CONF = require("../conf.js");
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
+var pbNameSpace = "pbjs";
+var pbNameSpaceVersion = 0;
+
 var onBidEventAdded = false;
 
 /* start-test-block */
@@ -170,17 +173,21 @@ exports.generatePbConf = generatePbConf;
 /* end-test-block */
 
 function fetchBids(activeSlots, impressionID){
-	if(! window.pbjs){ // todo: move this code to initial state of adhooks
+
+	var newPBNameSpace = pbNameSpace + pbNameSpaceVersion++;
+	pwtCreatePrebidNamespace(newPBNameSpace);
+
+	if(! window[newPBNameSpace]){ // todo: move this code to initial state of adhooks
 		util.log("PreBid js is not loaded");	
 		return;
 	}
 
-	if(! onBidEventAdded){
-		if(util.isFunction(window.pbjs.onEvent)){
-			pbjs.onEvent('bidResponse', pbBidStreamHandler);
+	/*if(! onBidEventAdded){
+		if(util.isFunction(window[newPBNameSpace].onEvent)){
+			window[newPBNameSpace].onEvent('bidResponse', pbBidStreamHandler);
 		}
 		onBidEventAdded = true;
-	}
+	}*/
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
@@ -214,16 +221,16 @@ function fetchBids(activeSlots, impressionID){
 		try{
 			/* istanbul ignore else */
 			if(util.isFunction(window.pbjs.setBidderSequence)){
-				window.pbjs.setBidderSequence("random");
+				window[newPBNameSpace].setBidderSequence("random");
 			}
 			/* istanbul ignore else */
-			if(util.isFunction(window.pbjs.requestBids)){
-				window.pbjs.logging = false;//todo: enable optionally
-				window.pbjs.requestBids({
+			if(util.isFunction(window[newPBNameSpace].requestBids)){
+				window[newPBNameSpace].logging = false;//todo: enable optionally
+				window[newPBNameSpace].requestBids({
 					adUnits: adUnitsArray,
-					//bidsBackHandler: function(bidResponses) {
-					//	refThis.handleBidResponses(bidResponses);
-					//},
+					bidsBackHandler: function(bidResponses) {
+						refThis.handleBidResponses(bidResponses);
+					},
 					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
 				});
 			}

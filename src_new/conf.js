@@ -12,7 +12,7 @@ exports.adapters = {
 	pubmatic: {
 		rev_share: "0.0",
 		throttle: "100",
-		publisherId: "9999",
+		publisherId: "5890",
 		kgp: "_DIV_@_W_x_H_:_AUI_"
 	},
 	sekindoUM: {
