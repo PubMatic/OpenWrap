@@ -2,11 +2,7 @@
 	Note:
 		Whenever we support a new PB adapter, we need to check if it needs actual sizes to be passed, 
 			if so we will need to add special handling
-
-	TODO:
-		PubMatic special handliing
-		We are not doing mandatory param check as PB does it
-			does PB logs if mandatory param is missing		
+		PreBid does not do mandatory parameters checking		
 */
 var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
