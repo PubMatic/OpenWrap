@@ -17,8 +17,6 @@ var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 var pbNameSpace = "pbjs";
 var pbNameSpaceVersion = 0;
 
-//var onBidEventAdded = false;
-
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
 /* end-test-block */
@@ -182,12 +180,9 @@ function fetchBids(activeSlots, impressionID){
 		return;
 	}
 
-	//if(! onBidEventAdded){
-		if(util.isFunction(window[newPBNameSpace].onEvent)){
-			window[newPBNameSpace].onEvent('bidResponse', pbBidStreamHandler);
-		}
-		//onBidEventAdded = true;
-	//}
+	if(util.isFunction(window[newPBNameSpace].onEvent)){
+		window[newPBNameSpace].onEvent('bidResponse', pbBidStreamHandler);
+	}	
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
