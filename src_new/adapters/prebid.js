@@ -211,11 +211,11 @@ function fetchBids(activeSlots, impressionID){
 	}
 	
 	/* istanbul ignore else */
-	if(adUnitsArray.length > 0 && window.pbjs){
+	if(adUnitsArray.length > 0 && window[newPBNameSpace]){
 
 		try{
 			/* istanbul ignore else */
-			if(util.isFunction(window.pbjs.setBidderSequence)){
+			if(util.isFunction(window[newPBNameSpace].setBidderSequence)){
 				window[newPBNameSpace].setBidderSequence("random");
 			}
 			/* istanbul ignore else */
