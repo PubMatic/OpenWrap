@@ -17,7 +17,7 @@ var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 var pbNameSpace = "pbjs";
 var pbNameSpaceVersion = 0;
 
-var onBidEventAdded = false;
+//var onBidEventAdded = false;
 
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
@@ -182,12 +182,12 @@ function fetchBids(activeSlots, impressionID){
 		return;
 	}
 
-	/*if(! onBidEventAdded){
+	//if(! onBidEventAdded){
 		if(util.isFunction(window[newPBNameSpace].onEvent)){
 			window[newPBNameSpace].onEvent('bidResponse', pbBidStreamHandler);
 		}
-		onBidEventAdded = true;
-	}*/
+		//onBidEventAdded = true;
+	//}
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
@@ -229,7 +229,7 @@ function fetchBids(activeSlots, impressionID){
 				window[newPBNameSpace].requestBids({
 					adUnits: adUnitsArray,
 					bidsBackHandler: function(bidResponses) {
-						refThis.handleBidResponses(bidResponses);
+						//refThis.handleBidResponses(bidResponses);
 					},
 					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
 				});
