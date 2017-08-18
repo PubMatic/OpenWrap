@@ -220,7 +220,7 @@ function fetchBids(activeSlots, impressionID){
 			}
 			/* istanbul ignore else */
 			if(util.isFunction(window[newPBNameSpace].requestBids)){
-				window[newPBNameSpace].logging = false;//todo: enable optionally
+				window[newPBNameSpace].logging = util.debugLogIsEnabled;
 				window[newPBNameSpace].requestBids({
 					adUnits: adUnitsArray,
 					bidsBackHandler: function(bidResponses) {
