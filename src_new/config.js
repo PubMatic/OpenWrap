@@ -30,6 +30,14 @@ exports.getAdapterThrottle = function(adapterID){
 	return 0;
 };
 
+exports.getAdapterMaskBidsStatus = function(adapterID){
+	var adapterConfig = config.adapters;
+	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.MASK_BIDS)){
+		return window.parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.MASK_BIDS]) || 0;
+	}
+	return 0;	
+}
+
 exports.getBidPassThroughStatus = function(adapterID){
 	var adapterConfig = config.adapters;
 	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.BID_PASS_THROUGH)){
@@ -74,8 +82,20 @@ function addPrebidAdapter(){
 exports.addPrebidAdapter = addPrebidAdapter;
 /* end-test-block */
 
+function setMaskBidsFlagForAudienceNetwork(){
+	var fan = "audienceNetwork";
+	if(util.isOwnProperty(config.adapters, fan)){
+		config.adapters[fan][CONSTANTS.CONFIG.MASK_BIDS] = 1;
+	}
+}
+
+/* start-test-block */
+exports.setMaskBidsFlagForAudienceNetwork = setMaskBidsFlagForAudienceNetwork;
+/* end-test-block */
+
 exports.initConfig = function(){
 	refThis.addPrebidAdapter();
+	refThis.setMaskBidsFlagForAudienceNetwork();
 
 	var ignoreAdapterLevelParams = {};
 	util.forEachOnObject(CONSTANTS.CONFIG, function(key, value){
