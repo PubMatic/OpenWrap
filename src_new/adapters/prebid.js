@@ -46,6 +46,10 @@ function transformPBBidToBid(bid, kgpv){
 	return theBid;
 }
 
+/* start-test-block */
+exports.transformPBBidToBid = transformPBBidToBid;
+/* end-test-block */
+
 //todo: unit-test-case pending
 function pbBidStreamHandler(pbBid){
 	var responseID = pbBid.adUnitCode || "";
@@ -53,7 +57,7 @@ function pbBidStreamHandler(pbBid){
 		if(pbBid.bidderCode){
 			bidManager.setBidFromBidder(
 				refThis.kgpvMap[responseID].divID, 
-				transformPBBidToBid(pbBid, refThis.kgpvMap[responseID].kgpv)
+				refThis.transformPBBidToBid(pbBid, refThis.kgpvMap[responseID].kgpv)
 			);
 		}
 	}

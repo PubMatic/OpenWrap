@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-// var sinon = require("sinon");
+var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 
@@ -19,26 +19,81 @@ var commonDivID = "DIV_1";
 var commonKGPV = "XYZ";
 
 // TODO : remove as required during single TDD only
-// var jsdom = require('jsdom').jsdom;
-// var exposedProperties = ['window', 'navigator', 'document'];
-// global.document = jsdom('');
-// global.window = document.defaultView;
-// Object.keys(document.defaultView).forEach((property) => {
-//     if (typeof global[property] === 'undefined') {
-//         exposedProperties.push(property);
-//         global[property] = document.defaultView[property];
-//     }
-// });
-// global.navigator = {
-//     userAgent: 'node.js'
-// };
+var jsdom = require('jsdom').jsdom;
+var exposedProperties = ['window', 'navigator', 'document'];
+global.document = jsdom('');
+global.window = document.defaultView;
+Object.keys(document.defaultView).forEach((property) => {
+    if (typeof global[property] === 'undefined') {
+        exposedProperties.push(property);
+        global[property] = document.defaultView[property];
+    }
+});
+global.navigator = {
+    userAgent: 'node.js'
+};
 
-// global.window.pwtCreatePrebidNamespace = function(preBidNameSpace) {
-//     window[preBidNameSpace] = window[preBidNameSpace] || {}; window[preBidNameSpace].que = window[preBidNameSpace].que || [];
-// };
+global.window.pwtCreatePrebidNamespace = function(preBidNameSpace) {
+    window[preBidNameSpace] = window[preBidNameSpace] || {}; window[preBidNameSpace].que = window[preBidNameSpace].que || [];
+};
 
 
 describe('ADAPTER: Prebid', function() {
+
+    describe('#transformPBBidToBid', function () {
+        var bid = null, kgpv = null;
+
+        beforeEach(function (done) {
+            bid = {
+                bidderCode: "pubmatic",
+                cpm: 10,
+                dealId: "dealId" ,
+                dealChannel: "sale" ,
+                ad: "<body><h1>Ad goes here </h1></body>",
+                adUrl: "http://dummy.url.com",
+                width: 210,
+                height: 420,
+                responseTimestamp: 1503321091079,
+                adserverTargeting: {
+                    "k1": "v1"
+                },
+            };
+            kgpv = commonKGPV;
+            sinon.spy(UTIL, "forEachOnObject");
+            done();
+        });
+
+        afterEach(function (done) {
+            UTIL.forEachOnObject.restore();
+            done();
+        });
+
+        it('is a function', function (done) {
+            PREBID.transformPBBidToBid.should.be.a('function');
+            done();
+        });
+
+        it('should return the bid object having properties of input bid object', function (done) {
+            var theBid = PREBID.transformPBBidToBid(bid, kgpv);
+            theBid.getGrossEcpm().should.be.equal(bid.cpm);
+            theBid.getDealID().should.be.equal(bid.dealId);
+            theBid.getDealChannel().should.be.equal(bid.dealChannel);
+            theBid.getAdHtml().should.be.equal(bid.ad);
+            theBid.getAdUrl().should.be.equal(bid.adUrl);
+            theBid.getWidth().should.be.equal(bid.width);
+            theBid.getHeight().should.be.equal(bid.height);
+            theBid.getReceivedTime().should.be.equal(bid.responseTimestamp);
+            theBid.getKeyValuePairs().should.have.all.keys(["k1", "pwtdeal_pubmatic"]);
+            done();            
+        });
+    });
+
+    describe('#pbBidStreamHandler', function () {
+        it('if a function', function (done) {
+            PREBID.pbBidStreamHandler.should.be.a('function');
+            done();
+        });
+    });
 
     describe('#handleBidResponses', function() {
         var bidResponses = null,
