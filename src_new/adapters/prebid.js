@@ -17,8 +17,6 @@ var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 var pbNameSpace = "pbjs";
 var pbNameSpaceVersion = 0;
 
-var onBidEventAdded = false;
-
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
 /* end-test-block */
@@ -182,12 +180,9 @@ function fetchBids(activeSlots, impressionID){
 		return;
 	}
 
-	/*if(! onBidEventAdded){
-		if(util.isFunction(window[newPBNameSpace].onEvent)){
-			window[newPBNameSpace].onEvent('bidResponse', pbBidStreamHandler);
-		}
-		onBidEventAdded = true;
-	}*/
+	if(util.isFunction(window[newPBNameSpace].onEvent)){
+		window[newPBNameSpace].onEvent('bidResponse', pbBidStreamHandler);
+	}	
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
@@ -216,20 +211,20 @@ function fetchBids(activeSlots, impressionID){
 	}
 	
 	/* istanbul ignore else */
-	if(adUnitsArray.length > 0 && window.pbjs){
+	if(adUnitsArray.length > 0 && window[newPBNameSpace]){
 
 		try{
 			/* istanbul ignore else */
-			if(util.isFunction(window.pbjs.setBidderSequence)){
+			if(util.isFunction(window[newPBNameSpace].setBidderSequence)){
 				window[newPBNameSpace].setBidderSequence("random");
 			}
 			/* istanbul ignore else */
 			if(util.isFunction(window[newPBNameSpace].requestBids)){
-				window[newPBNameSpace].logging = false;//todo: enable optionally
+				window[newPBNameSpace].logging = util.debugLogIsEnabled;
 				window[newPBNameSpace].requestBids({
 					adUnits: adUnitsArray,
 					bidsBackHandler: function(bidResponses) {
-						refThis.handleBidResponses(bidResponses);
+						//refThis.handleBidResponses(bidResponses);
 					},
 					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
 				});
