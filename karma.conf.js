@@ -27,6 +27,7 @@ module.exports = function(config) {
 
         // list of files / patterns to load in the browser
         files: [
+            "test/globals.js",
             'test/**/*.spec.js',
             'test/helpers/karma-init.js'
         ],

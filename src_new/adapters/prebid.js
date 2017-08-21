@@ -59,6 +59,10 @@ function pbBidStreamHandler(pbBid){
 	}
 }
 
+/* start-test-block */
+exports.pbBidStreamHandler = pbBidStreamHandler;
+/* end-test-block */
+
 function handleBidResponses(bidResponses){
 	for(var responseID in bidResponses){
 		/* istanbul ignore else */
@@ -173,16 +177,21 @@ exports.generatePbConf = generatePbConf;
 function fetchBids(activeSlots, impressionID){
 
 	var newPBNameSpace = pbNameSpace + pbNameSpaceVersion++;
-	pwtCreatePrebidNamespace(newPBNameSpace);
+	window.pwtCreatePrebidNamespace(newPBNameSpace);
 
+	// console.log("coming here", newPBNameSpace, window[newPBNameSpace]);
 	if(! window[newPBNameSpace]){ // todo: move this code to initial state of adhooks
 		util.log("PreBid js is not loaded");	
 		return;
 	}
 
+
 	if(util.isFunction(window[newPBNameSpace].onEvent)){
-		window[newPBNameSpace].onEvent('bidResponse', pbBidStreamHandler);
-	}	
+		window[newPBNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
+	} else {
+		util.log("PreBid js onEvent method is not available");	
+		return;
+	}
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
@@ -228,6 +237,9 @@ function fetchBids(activeSlots, impressionID){
 					},
 					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
 				});
+			} else {
+				util.log("PreBid js requestBids function is not available");	
+				return;
 			}
 		} catch (e) {
 			util.log('Error occured in calling PreBid.');

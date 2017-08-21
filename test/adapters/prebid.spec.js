@@ -33,6 +33,10 @@ var commonKGPV = "XYZ";
 //     userAgent: 'node.js'
 // };
 
+// global.window.pwtCreatePrebidNamespace = function(preBidNameSpace) {
+//     window[preBidNameSpace] = window[preBidNameSpace] || {}; window[preBidNameSpace].que = window[preBidNameSpace].que || [];
+// };
+
 
 describe('ADAPTER: Prebid', function() {
 
@@ -365,7 +369,7 @@ describe('ADAPTER: Prebid', function() {
             impressionID = 123123123;
             sinon.spy(UTIL, 'log');
             sinon.stub(UTIL, 'isOwnProperty').returns(true);
-            sinon.spy(UTIL, 'isFunction');
+            sinon.stub(UTIL, 'isFunction');
 
             sinon.spy(CONFIG, 'forEachAdapter');
 
@@ -377,6 +381,13 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(AM, "getRandomNumberBelow100").returns(89);
             sinon.stub(AM, "throttleAdapter").returns(true);
             sinon.stub(AM, "setInitTimeForSlotsForAdapter").returns(true);
+            windowPbJS2Stub = { 
+                onEvent: function () {
+                    return "onEvent";
+                }
+            };
+            sinon.spy(windowPbJS2Stub, "onEvent");
+            window["pbjs2"] = windowPbJS2Stub;
             done();
         });
 
@@ -393,6 +404,8 @@ describe('ADAPTER: Prebid', function() {
             AM.getRandomNumberBelow100.restore();
             AM.throttleAdapter.restore();
             AM.setInitTimeForSlotsForAdapter.restore();
+
+            windowPbJS2Stub.onEvent.restore();
             delete window.pbjs;
             done();
         });
@@ -403,27 +416,75 @@ describe('ADAPTER: Prebid', function() {
         });
 
         it('returns while logging it when Prebid js is not loaded', function(done) {
-            window.pbjs = null;
+            sinon.stub(global.window || window, "pwtCreatePrebidNamespace").withArgs("pbjs0").returns(true);
             PREBID.fetchBids(activeSlots, impressionID);
             UTIL.log.calledWith("PreBid js is not loaded").should.be.true;
             CONFIG.forEachAdapter.called.should.be.false;
+            if (global.window) {
+                global.window.pwtCreatePrebidNamespace.restore();
+            } else {
+                window.pwtCreatePrebidNamespace.restore();
+            }
+            done();
+        });
+
+        it('returns while logging when newly created namespace doenst have onEvent method', function (done) {
+            UTIL.isFunction.returns(false);
+            PREBID.fetchBids(activeSlots, impressionID);
+            UTIL.log.calledWith("PreBid js onEvent method is not available").should.be.true;
+            done();
+        });
+
+        it('should have called onEvent with bidResponse and prebid bid handler', function (done) {
+            UTIL.isFunction.returns(true);
+            sinon.stub(global.window || window, "pwtCreatePrebidNamespace", function pwtCreatePrebidNamespace(preBidNameSpace) {
+                window["pbjs2"] = windowPbJS2Stub;
+                window["pbjs2"].que = [];
+            });
+            PREBID.fetchBids(activeSlots, impressionID);
+            windowPbJS2Stub.onEvent.calledWith('bidResponse', PREBID.pbBidStreamHandler).should.be.true;
+            if (global.window) {
+                global.window.pwtCreatePrebidNamespace.restore();
+            } else {
+                window.pwtCreatePrebidNamespace.restore();
+            }
             done();
         });
 
         it('should have called generatePbConf if adapterID for current adapterConfig is not parentAdapterID', function(done) {
+            UTIL.isFunction.returns(true);
+            sinon.stub(global.window || window, "pwtCreatePrebidNamespace", function pwtCreatePrebidNamespace(preBidNameSpace) {
+                window["pbjs3"] = windowPbJS2Stub;
+                window["pbjs3"].que = [];
+            });
             AM.throttleAdapter.returns(false);
             PREBID.fetchBids(activeSlots, impressionID);
             CONFIG.forEachAdapter.called.should.be.true;
             PREBID.generatePbConf.called.should.be.true;
+            if (global.window) {
+                global.window.pwtCreatePrebidNamespace.restore();
+            } else {
+                window.pwtCreatePrebidNamespace.restore();
+            }
             done();
         });
 
         it('should have logged when adapter is throttled', function(done) {
+            UTIL.isFunction.returns(true);
+            sinon.stub(global.window || window, "pwtCreatePrebidNamespace", function pwtCreatePrebidNamespace(preBidNameSpace) {
+                window["pbjs4"] = windowPbJS2Stub;
+                window["pbjs4"].que = [];
+            });
             AM.throttleAdapter.returns(true);
             PREBID.fetchBids(activeSlots, impressionID);
             CONFIG.forEachAdapter.called.should.be.true;
             PREBID.generatePbConf.called.should.be.false;
             UTIL.log.calledWith("pubmatic" + CONSTANTS.MESSAGES.M2).should.be.true;
+            if (global.window) {
+                global.window.pwtCreatePrebidNamespace.restore();
+            } else {
+                window.pwtCreatePrebidNamespace.restore();
+            }
             done();
         });
     });

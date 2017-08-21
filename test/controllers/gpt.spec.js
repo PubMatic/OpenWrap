@@ -2388,7 +2388,7 @@ describe("CONTROLLER: GPT", function() {
             qualifyingSlotNames = [];
             GPT.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
             window.setTimeout.called.should.be.false;
-            BM.executeAnalyticsPixel.called.should.be.true;
+            BM.executeAnalyticsPixel.called.should.be.false;
             GPT.callOriginalRefeshFunction.calledWith(false, theObject, originalFunction, arg).should.be.true;
             done();
         });
@@ -2404,7 +2404,7 @@ describe("CONTROLLER: GPT", function() {
             
             window.setTimeout.called.should.be.true;
             
-            BM.executeAnalyticsPixel.called.should.be.true;
+            BM.executeAnalyticsPixel.called.should.be.false;
             
             GPT.callOriginalRefeshFunction.calledWith(false, theObject, originalFunction, arg).should.be.true;
             
@@ -2417,7 +2417,7 @@ describe("CONTROLLER: GPT", function() {
             UTIL.log.calledWith(arg).should.be.true;
             UTIL.forEachOnArray.calledWith(qualifyingSlotNames).should.be.true;
             window.setTimeout.called.should.be.true;
-            BM.executeAnalyticsPixel.called.should.be.true;
+            BM.executeAnalyticsPixel.called.should.be.false;
             GPT.callOriginalRefeshFunction.calledWith(true, theObject, originalFunction, arg).should.be.true;
             done();
         });
