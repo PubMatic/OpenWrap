@@ -1,5 +1,5 @@
 /* global describe, it, xit, sinon, expect */
-var sinon = require("sinon");
+// var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
 
@@ -19,23 +19,23 @@ var commonDivID = "DIV_1";
 var commonKGPV = "XYZ";
 
 // TODO : remove as required during single TDD only
-var jsdom = require('jsdom').jsdom;
-var exposedProperties = ['window', 'navigator', 'document'];
-global.document = jsdom('');
-global.window = document.defaultView;
-Object.keys(document.defaultView).forEach((property) => {
-    if (typeof global[property] === 'undefined') {
-        exposedProperties.push(property);
-        global[property] = document.defaultView[property];
-    }
-});
-global.navigator = {
-    userAgent: 'node.js'
-};
+// var jsdom = require('jsdom').jsdom;
+// var exposedProperties = ['window', 'navigator', 'document'];
+// global.document = jsdom('');
+// global.window = document.defaultView;
+// Object.keys(document.defaultView).forEach((property) => {
+//     if (typeof global[property] === 'undefined') {
+//         exposedProperties.push(property);
+//         global[property] = document.defaultView[property];
+//     }
+// });
+// global.navigator = {
+//     userAgent: 'node.js'
+// };
 
-global.window.pwtCreatePrebidNamespace = function(preBidNameSpace) {
-    window[preBidNameSpace] = window[preBidNameSpace] || {}; window[preBidNameSpace].que = window[preBidNameSpace].que || [];
-};
+// global.window.pwtCreatePrebidNamespace = function(preBidNameSpace) {
+//     window[preBidNameSpace] = window[preBidNameSpace] || {}; window[preBidNameSpace].que = window[preBidNameSpace].que || [];
+// };
 
 
 describe('ADAPTER: Prebid', function() {
