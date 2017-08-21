@@ -677,10 +677,10 @@ function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFun
             /* istanbul ignore next */
             util.createVLogInfoPanel(divID, refThis.slotsMap[dmSlot].getSizes());
             /* istanbul ignore next */
-            util.realignVLogInfoPanel(divID);  
-        }, 2000 + CONFIG.getTimeout());
-    });
-    bidManager.executeAnalyticsPixel();
+            util.realignVLogInfoPanel(divID);
+            bidManager.executeAnalyticsPixel();
+        }, 2000);
+    });    
     this.callOriginalRefeshFunction(yesCallRefreshFunction, theObject, originalFunction, arg);
 }
 
