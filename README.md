@@ -162,7 +162,7 @@ Shell script to execute gulp job :
 *   For Unix: build.sh
 *   For Windows: build.cmd
 
-This particular shell script named "build.sh" or "build.cmd" can be triggered to generate OpenWrap distribution.
+This particular shell script named "build.sh" or "build.cmd" can be triggered to generate OpenWrap distribution. Output file will be at path /build/owt.js
 It accepts two parameters - 
 
 *   **mode**: Its value can be either "build" or "test-build" .
