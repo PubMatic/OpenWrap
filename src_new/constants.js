@@ -35,7 +35,8 @@ exports.CONFIG = {
 	"REV_SHARE": "rev_share",
 	"THROTTLE": "throttle",
 	"BID_PASS_THROUGH": "pt",
-	"GLOBAL_KEY_VALUE": "gkv"
+	"GLOBAL_KEY_VALUE": "gkv",
+	"MASK_BIDS": "maksBids"
 };
 
 exports.MACROS = {

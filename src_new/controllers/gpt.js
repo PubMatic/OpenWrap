@@ -524,12 +524,13 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
             window.setTimeout(function() {
 
                 util.log("PostTimeout.. back in display function");
-                util.forEachOnObject(refThis.slotsMap, function(key, slot) {
-                    refThis.findWinningBidIfRequired_Display(key, slot);
-                });
+                //util.forEachOnObject(refThis.slotsMap, function(key, slot) {
+                //    refThis.findWinningBidIfRequired_Display(key, slot);
+                //});
 
                 //move this into a function
                 if (refThis.getStatusOfSlotForDivId(arg[0]) != CONSTANTS.SLOT_STATUS.DISPLAYED) {
+                    refThis.findWinningBidAndApplyTargeting(arg[0]);
                     refThis.updateStatusAndCallOriginalFunction_Display(
                         "Calling original display function after timeout with arguments, ",
                         theObject,
