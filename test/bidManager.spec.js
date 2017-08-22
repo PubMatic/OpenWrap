@@ -1422,6 +1422,51 @@ describe('bidManager BIDMgr', function() {
             impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb");
             done();
         });
+
+            CONFIG.setMaskBidsFlagForAudienceNetwork();
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);            
+            bmEntryObj.setAdapterEntry("audienceNetwork");
+            theBid = new bid("audienceNetwork", commonKGPV);
+            sinon.spy(theBid, "getReceivedTime");
+            sinon.spy(theBid, "getDefaultBidStatus");
+            sinon.spy(theBid, "getKGPV");
+            sinon.spy(theBid, "getWidth");
+            sinon.spy(theBid, "getHeight");
+            sinon.spy(theBid, "getGrossEcpm");
+            sinon.spy(theBid, "getNetEcpm");
+            sinon.spy(theBid, "getDealID");
+            sinon.spy(theBid, "getDealChannel");
+            sinon.spy(theBid, "getPostTimeoutStatus");
+            sinon.spy(theBid, "getWinningBidStatus");
+            theBid.setWinningBidStatus();
+            bmEntryObj.setNewBid("audienceNetwork", theBid);
+            CONFIG.getBidPassThroughStatus.returns(2);
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb");
+            done();
+        });
+
+            CONFIG.setMaskBidsFlagForAudienceNetwork();
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);            
+            bmEntryObj.setAdapterEntry("audienceNetwork");
+            theBid = new bid("audienceNetwork", commonKGPV);
+            sinon.spy(theBid, "getReceivedTime");
+            sinon.spy(theBid, "getDefaultBidStatus");
+            sinon.spy(theBid, "getKGPV");
+            sinon.spy(theBid, "getWidth");
+            sinon.spy(theBid, "getHeight");
+            sinon.spy(theBid, "getGrossEcpm");
+            sinon.spy(theBid, "getNetEcpm");
+            sinon.spy(theBid, "getDealID");
+            sinon.spy(theBid, "getDealChannel");
+            sinon.spy(theBid, "getPostTimeoutStatus");
+            sinon.spy(theBid, "getWinningBidStatus");            
+            bmEntryObj.setNewBid("audienceNetwork", theBid);
+            CONFIG.getBidPassThroughStatus.returns(2);
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"].length.should.equal(0);
+            done();
+        });
     });
 
     describe('#setImageSrcToPixelURL', function() {
