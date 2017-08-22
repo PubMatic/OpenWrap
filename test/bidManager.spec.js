@@ -1423,6 +1423,7 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
+        it('audienceNetwork(maskBids=1) winning bid is logged', function(done) {
             CONFIG.setMaskBidsFlagForAudienceNetwork();
             bmEntryObj.getAnalyticEnabledStatus.returns(true);            
             bmEntryObj.setAdapterEntry("audienceNetwork");
@@ -1446,6 +1447,7 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
+        it('audienceNetwork(maskBids=1) winning bid is NOT logged', function(done) {
             CONFIG.setMaskBidsFlagForAudienceNetwork();
             bmEntryObj.getAnalyticEnabledStatus.returns(true);            
             bmEntryObj.setAdapterEntry("audienceNetwork");
