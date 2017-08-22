@@ -129,6 +129,30 @@ describe('Config', function() {
         });
     });
 
+    describe('#getAdapterMaskBidsStatus', function(){
+        it('is a function', function(done) {
+            CONFIG.getAdapterMaskBidsStatus.should.be.a('function');
+            done();
+        });
+
+        it('should return 0 for pubmatic adapter', function(done){
+            CONFIG.getAdapterMaskBidsStatus('pubmatic').should.equal(0);
+            done();
+        });
+
+        it('should return 0 for audienceNetwork adapter, if setMaskBidsFlagForAudienceNetwork is not called', function(done){
+            CONFIG.getAdapterMaskBidsStatus('audienceNetwork').should.equal(0);
+            done();
+        });
+
+        it('should return 1 for audienceNetwork adapter, if setMaskBidsFlagForAudienceNetwork is called', function(done){
+            CONFIG.setMaskBidsFlagForAudienceNetwork('audienceNetwork');
+            CONFIG.getAdapterMaskBidsStatus('audienceNetwork').should.equal(1);
+            done();
+        });
+
+    });
+
     describe('#getAdapterThrottle', function() {
         var adapterID = null;
 
@@ -154,7 +178,6 @@ describe('Config', function() {
             CONFIG.getAdapterThrottle.should.be.a('function');
             done();
         });
-
 
         it('returns throttle value as 0 when throttle value is not present in conf of given adapterID', function(done) {
             CONFIG.getAdapterThrottle("non_adapter").should.equal(0);
