@@ -376,6 +376,26 @@ describe('Config', function() {
         });
     });
 
+    describe('#setMaskBidsFlagForAudienceNetwork', function(){
+        it('is a function', function(done) {
+            CONFIG.setMaskBidsFlagForAudienceNetwork.should.be.a('function');
+            done();
+        });
+
+        it('should add MASK_BIDS flag to audienceNetwork Adapter', function (done) {
+            CONFIG.setMaskBidsFlagForAudienceNetwork();
+            expect(CONF.adapters['audienceNetwork'][CONSTANTS.CONFIG.MASK_BIDS]).to.be.equal(1);
+            done();
+        });
+
+        it('should not affect CONF if audienceNetwork Adapter is not present', function (done) {
+            delete CONF.adapters['audienceNetwork'];
+            CONFIG.setMaskBidsFlagForAudienceNetwork();
+            expect(CONF).to.be.deep.equal(CONF);
+            done();
+        });
+    });
+
     describe('#initConfig', function() {
 
         beforeEach(function (done) {
