@@ -466,6 +466,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.spy(UTIL, 'log');
             sinon.stub(UTIL, 'isOwnProperty').returns(true);
             sinon.stub(UTIL, 'isFunction');
+            sinon.stub(UTIL, 'isDebugLogEnabled');
 
             sinon.spy(CONFIG, 'forEachAdapter');
 
@@ -493,6 +494,7 @@ describe('ADAPTER: Prebid', function() {
             UTIL.log.restore();
             UTIL.isOwnProperty.restore();
             UTIL.isFunction.restore();
+            UTIL.isDebugLogEnabled.restore();
 
             CONFIG.forEachAdapter.restore();
             PREBID.generatePbConf.restore();
@@ -576,6 +578,43 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.forEachAdapter.called.should.be.true;
             PREBID.generatePbConf.called.should.be.false;
             UTIL.log.calledWith("pubmatic" + CONSTANTS.MESSAGES.M2).should.be.true;
+            if (global.window) {
+                global.window.pwtCreatePrebidNamespace.restore();
+            } else {
+                window.pwtCreatePrebidNamespace.restore();
+            }
+            done();
+        });
+
+        it('prebid logging is disabled by default', function(done) {
+            UTIL.isFunction.returns(true);
+            UTIL.isDebugLogEnabled.returns(false);
+            sinon.stub(global.window || window, "pwtCreatePrebidNamespace", function pwtCreatePrebidNamespace(preBidNameSpace) {
+                window["pbjs5"] = windowPbJS2Stub;
+                window["pbjs5"].que = [];
+                window["pbjs5"].logging = false;
+            });
+            PREBID.fetchBids(activeSlots, impressionID);
+            window["pbjs5"].logging.should.be.false;
+            if (global.window) {
+                global.window.pwtCreatePrebidNamespace.restore();
+            } else {
+                window.pwtCreatePrebidNamespace.restore();
+            }
+            done();
+        });
+
+        it('prebid logging is enabled when ', function(done) {
+            UTIL.isFunction.returns(true);
+            UTIL.isDebugLogEnabled.returns(true);
+            sinon.stub(global.window || window, "pwtCreatePrebidNamespace", function pwtCreatePrebidNamespace(preBidNameSpace) {
+                window["pbjs6"] = windowPbJS2Stub;
+                window["pbjs6"].que = [];
+                window["pbjs6"].logging = false;
+                window["pbjs6"].requestBids = function(){};
+            });
+            PREBID.fetchBids(activeSlots, impressionID);
+            window["pbjs6"].logging.should.be.true;
             if (global.window) {
                 global.window.pwtCreatePrebidNamespace.restore();
             } else {

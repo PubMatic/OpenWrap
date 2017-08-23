@@ -198,6 +198,8 @@ function fetchBids(activeSlots, impressionID){
 		return;
 	}
 
+	window[newPBNameSpace].logging = util.isDebugLogEnabled();
+
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
@@ -233,8 +235,7 @@ function fetchBids(activeSlots, impressionID){
 				window[newPBNameSpace].setBidderSequence("random");
 			}
 			/* istanbul ignore else */
-			if(util.isFunction(window[newPBNameSpace].requestBids)){
-				window[newPBNameSpace].logging = util.debugLogIsEnabled;
+			if(util.isFunction(window[newPBNameSpace].requestBids)){				
 				window[newPBNameSpace].requestBids({
 					adUnits: adUnitsArray,
 					bidsBackHandler: function(bidResponses) {
