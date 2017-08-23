@@ -28,7 +28,6 @@ exports.kgpvMap = kgpvMap;
 
 var refThis = this;
 
-//todo: unit-test-case pending
 function transformPBBidToBid(bid, kgpv){
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
 	theBid.setGrossEcpm(bid.cpm);
@@ -50,7 +49,6 @@ function transformPBBidToBid(bid, kgpv){
 exports.transformPBBidToBid = transformPBBidToBid;
 /* end-test-block */
 
-//todo: unit-test-case pending
 function pbBidStreamHandler(pbBid){
 	var responseID = pbBid.adUnitCode || "";
 	if(util.isOwnProperty(refThis.kgpvMap, responseID)){
