@@ -246,6 +246,28 @@ describe('UTIL', function() {
         });
     });
 
+    describe('#isDebugLogEnabled', function(){
+
+        it('is a function', function(done) {
+            UTIL.isDebugLogEnabled.should.be.a('function');
+            done();
+        });
+
+        it('should return same value as of debugLogIsEnabled: false', function(done) {
+            UTIL.debugLogIsEnabled = false;
+            UTIL.isDebugLogEnabled().should.be.false;
+            done();
+        });
+
+        it('should return true when enableDebugLog is called', function(done) {
+            UTIL.debugLogIsEnabled = false;
+            UTIL.enableDebugLog();
+            UTIL.isDebugLogEnabled().should.be.true;
+            done();
+        });
+
+    })
+
     describe('#enableVisualDebugLog', function() {
 
         it('is a function', function(done) {
