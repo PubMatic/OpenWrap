@@ -509,6 +509,24 @@ function findWinningBidIfRequired_Display(key, slot) { // TDD, i/o : done
 exports.findWinningBidIfRequired_Display = findWinningBidIfRequired_Display;
 /* end-test-block */
 
+function processDisplayCalledSlot(theObject, originalFunction, arg){
+    if (refThis.getStatusOfSlotForDivId(arg[0]) != CONSTANTS.SLOT_STATUS.DISPLAYED) {
+        refThis.findWinningBidAndApplyTargeting(arg[0]);
+        refThis.updateStatusAndCallOriginalFunction_Display(
+            "Calling original display function after timeout with arguments, ",
+            theObject,
+            originalFunction,
+            arg
+        );
+    } else {
+        util.log("AdSlot already rendered");
+    }
+}
+
+/* start-test-block */
+exports.processDisplayCalledSlot = processDisplayCalledSlot;
+/* end-test-block */
+
 function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg) { // TDD, i/o : done
     switch (oldStatus) {
         // display method was called for this slot
@@ -519,28 +537,12 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
             // eslint-disable-line no-fallthrough
         /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
-            // var refThis = this;
-            // TODO : ignore istanbul or extract function and add TDD ?
             window.setTimeout(function() {
-
                 util.log("PostTimeout.. back in display function");
                 //util.forEachOnObject(refThis.slotsMap, function(key, slot) {
                 //    refThis.findWinningBidIfRequired_Display(key, slot);
                 //});
-
-                //move this into a function
-                if (refThis.getStatusOfSlotForDivId(arg[0]) != CONSTANTS.SLOT_STATUS.DISPLAYED) {
-                    refThis.findWinningBidAndApplyTargeting(arg[0]);
-                    refThis.updateStatusAndCallOriginalFunction_Display(
-                        "Calling original display function after timeout with arguments, ",
-                        theObject,
-                        originalFunction,
-                        arg
-                    );
-                } else {
-                    util.log("AdSlot already rendered");
-                }
-
+                refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
             }, CONFIG.getTimeout());
             break;
             // call the original function now

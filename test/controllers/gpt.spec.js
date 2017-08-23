@@ -1930,6 +1930,94 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
+    describe('#processDisplayCalledSlot', function(){
+
+        beforeEach(function(done){
+            //sinon.stub(UTIL, 'log')
+            done();
+        });
+
+        afterEach(function(done){
+            //UTIL.log.restore()
+            done();
+        });
+
+        it('is function', function(done){
+            GPT.processDisplayCalledSlot.should.be.a('function');
+            done();            
+        });
+
+        it('do nothing if slot is invalid', function(done){
+            sinon.spy(UTIL, "log");
+            GPT.processDisplayCalledSlot({}, function(){}, ["div1"]);
+            UTIL.log.args[0][0].should.equal("AdSlot already rendered");
+            UTIL.log.restore();
+            done();
+        });
+
+        it('valid case', function(done){
+            
+            var sizeObj_1 = {
+                getWidth: function() {
+                    return 1024;
+                },
+                getHeight: function() {
+                    return 768;
+                },
+                "id": "sizeObj_1"
+            };
+
+            var sizeObj_2 = {
+                getWidth: function() {
+                    return 640;
+                },
+                getHeight: function() {
+                    return 480;
+                },
+                "id": "sizeObj_2"
+            };
+
+            currentGoogleSlotStub = {
+                getTargetingKeys: function () {
+                    return [ "k1", "k2"];
+                },
+                getTargeting: function (key) {
+                    return "v1";
+                },
+                getSizes: function() {
+                    return [sizeObj_1, sizeObj_2];
+                },
+                getAdUnitPath: function () {
+                    return "ad_unit_path";
+                }
+            };
+
+
+            sinon.stub(GPT, "findWinningBidAndApplyTargeting");
+            sinon.stub(GPT, "updateStatusAndCallOriginalFunction_Display");
+
+            var dmSlotName = "DIV_TEST";
+            delete GPT.slotsMap[dmSlotName];
+            GPT.storeInSlotsMap(dmSlotName, currentGoogleSlotStub, true);
+
+            var theObject = {};
+            var theOriginalFunction = function(){};
+            var args = [dmSlotName];
+
+            GPT.processDisplayCalledSlot(theObject, theOriginalFunction, args);
+            GPT.findWinningBidAndApplyTargeting.calledWith(dmSlotName);
+            GPT.updateStatusAndCallOriginalFunction_Display.calledWith(
+                "Calling original display function after timeout with arguments, ",
+                theObject,
+                theOriginalFunction,
+                args
+            );
+            GPT.findWinningBidAndApplyTargeting.restore();
+            GPT.updateStatusAndCallOriginalFunction_Display.restore();
+            done();
+        });
+    });
+
     describe('#displayFunctionStatusHandler', function() {
 
         var oldStatus = null,
