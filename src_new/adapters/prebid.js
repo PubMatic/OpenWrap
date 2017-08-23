@@ -51,7 +51,9 @@ exports.transformPBBidToBid = transformPBBidToBid;
 
 function pbBidStreamHandler(pbBid){
 	var responseID = pbBid.adUnitCode || "";
+	/* istanbul ignore else */
 	if(util.isOwnProperty(refThis.kgpvMap, responseID)){
+		/* istanbul ignore else */
 		if(pbBid.bidderCode){
 			bidManager.setBidFromBidder(
 				refThis.kgpvMap[responseID].divID, 
@@ -154,6 +156,7 @@ exports.generatedKeyCallback = generatedKeyCallback;
 function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID){
 	util.log(adapterID+CONSTANTS.MESSAGES.M1);
 	
+	/* istanbul ignore else */
 	if(!adapterConfig){
 		return;
 	}
@@ -181,7 +184,7 @@ function fetchBids(activeSlots, impressionID){
 	var newPBNameSpace = pbNameSpace + pbNameSpaceVersion++;
 	window.pwtCreatePrebidNamespace(newPBNameSpace);
 
-	// console.log("coming here", newPBNameSpace, window[newPBNameSpace]);
+	/* istanbul ignore else */
 	if(! window[newPBNameSpace]){ // todo: move this code to initial state of adhooks
 		util.log("PreBid js is not loaded");	
 		return;
