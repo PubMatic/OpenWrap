@@ -89,10 +89,51 @@ describe('ADAPTER: Prebid', function() {
     });
 
     describe('#pbBidStreamHandler', function () {
+
+        beforeEach(function(done){
+            sinon.stub(BM, "setBidFromBidder").returns(true);            
+            PREBID.kgpvMap = {};
+            PREBID.kgpvMap["DIV_1@pubmatic"] = {
+                "kgpv": "kgpv_value",
+                "divID": "DIV_1"
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            BM.setBidFromBidder.restore();
+            done(); 
+        });
+
         it('if a function', function (done) {
             PREBID.pbBidStreamHandler.should.be.a('function');
             done();
         });
+
+        it('BM.setBidFromBidder should not be called if argument pbBid does not have adUnitCode set', function(done){
+            PREBID.pbBidStreamHandler({});
+            BM.setBidFromBidder.called.should.be.false;
+            done();
+        });
+
+        it('BM.setBidFromBidder should not be called if argument pbBid.adUnitCode is not found in kgpvMap', function(done){
+            PREBID.pbBidStreamHandler({adUnitCode:'happy'});
+            BM.setBidFromBidder.called.should.be.false;
+            done();
+        });
+
+        it('BM.setBidFromBidder should not be called if argument pbBid.bidderCode is not set', function(done){
+            PREBID.pbBidStreamHandler({adUnitCode:'happy'});
+            BM.setBidFromBidder.called.should.be.false;
+            done();
+        });
+
+        it('BM.setBidFromBidder should be called with expected arguments for valid case', function(done){
+            PREBID.pbBidStreamHandler({adUnitCode:'DIV_1@pubmatic', bidderCode: 'pubmatic'});            
+            BM.setBidFromBidder.called.should.be.true;
+            done();
+        });
+
     });
 
     describe('#handleBidResponses', function() {
