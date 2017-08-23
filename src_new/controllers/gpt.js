@@ -667,6 +667,16 @@ function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue) { /
 exports.findWinningBidIfRequired_Refresh = findWinningBidIfRequired_Refresh;
 /* end-test-block */
 
+function postRederingChores(divID, dmSlot){
+    util.createVLogInfoPanel(divID, refThis.slotsMap[dmSlot].getSizes());
+    util.realignVLogInfoPanel(divID);
+    bidManager.executeAnalyticsPixel();   
+}
+
+/* start-test-block */
+exports.postRederingChores = postRederingChores;
+/* end-test-block */
+
 function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg) { // TDD, i/o : done
     util.log("Executing post timeout events, arguments: ");
     util.log(arg);
@@ -675,11 +685,7 @@ function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFun
         var divID = refThis.slotsMap[dmSlot].getDivID();
         yesCallRefreshFunction = refThis.findWinningBidIfRequired_Refresh(dmSlot, divID, yesCallRefreshFunction);
         window.setTimeout(function() {
-            /* istanbul ignore next */
-            util.createVLogInfoPanel(divID, refThis.slotsMap[dmSlot].getSizes());
-            /* istanbul ignore next */
-            util.realignVLogInfoPanel(divID);
-            bidManager.executeAnalyticsPixel();
+            refThis.postRederingChores(divID, dmSlot);
         }, 2000);
     });    
     this.callOriginalRefeshFunction(yesCallRefreshFunction, theObject, originalFunction, arg);
