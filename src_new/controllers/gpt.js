@@ -511,7 +511,7 @@ exports.findWinningBidIfRequired_Display = findWinningBidIfRequired_Display;
 
 function processDisplayCalledSlot(theObject, originalFunction, arg){
     if (refThis.getStatusOfSlotForDivId(arg[0]) != CONSTANTS.SLOT_STATUS.DISPLAYED) {
-        refThis.findWinningBidAndApplyTargeting(arg[0]);
+        //refThis.findWinningBidAndApplyTargeting(arg[0]);
         refThis.updateStatusAndCallOriginalFunction_Display(
             "Calling original display function after timeout with arguments, ",
             theObject,
@@ -539,9 +539,9 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
             window.setTimeout(function() {
                 util.log("PostTimeout.. back in display function");
-                //util.forEachOnObject(refThis.slotsMap, function(key, slot) {
-                //    refThis.findWinningBidIfRequired_Display(key, slot);
-                //});
+                util.forEachOnObject(refThis.slotsMap, function(key, slot) {
+                    refThis.findWinningBidIfRequired_Display(key, slot);
+                });
                 refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
             }, CONFIG.getTimeout());
             break;

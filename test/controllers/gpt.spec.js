@@ -2005,7 +2005,7 @@ describe("CONTROLLER: GPT", function() {
             var args = [dmSlotName];
 
             GPT.processDisplayCalledSlot(theObject, theOriginalFunction, args);
-            GPT.findWinningBidAndApplyTargeting.calledWith(dmSlotName);
+            //GPT.findWinningBidAndApplyTargeting.calledWith(dmSlotName);
             GPT.updateStatusAndCallOriginalFunction_Display.calledWith(
                 "Calling original display function after timeout with arguments, ",
                 theObject,
