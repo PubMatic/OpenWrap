@@ -32,6 +32,14 @@ exports.getAdapterThrottle = function(adapterID){
 
 exports.getAdapterMaskBidsStatus = function(adapterID){
 	var adapterConfig = config.adapters;
+	var tempSettings = {
+		'audienceNetwork': 1
+	};
+
+	if(util.isOwnProperty(tempSettings, adapterID)){
+		return tempSettings[adapterID];
+	}
+
 	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.MASK_BIDS)){
 		return window.parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.MASK_BIDS]) || 0;
 	}
