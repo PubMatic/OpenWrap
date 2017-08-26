@@ -240,6 +240,8 @@ function fetchBids(activeSlots, impressionID){
 					adUnits: adUnitsArray,
 					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid
 					bidsBackHandler: function(bidResponses) {
+						util.log("In PreBid bidsBackHandler with bidResponses: ");
+						util.log(bidResponses);
 						//refThis.handleBidResponses(bidResponses);
 					},
 					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
