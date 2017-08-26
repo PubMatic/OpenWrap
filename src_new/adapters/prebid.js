@@ -15,7 +15,7 @@ var CONF = require("../conf.js");
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
 var pbNameSpace = "pbjs";
-var pbNameSpaceVersion = 0;
+var pbNameSpaceCounter = 0;
 
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
@@ -28,7 +28,7 @@ exports.kgpvMap = kgpvMap;
 
 var refThis = this;
 
-function transformPBBidToBid(bid, kgpv){
+function transformPBBidToOWBid(bid, kgpv){
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
 	theBid.setGrossEcpm(bid.cpm);
 	theBid.setDealID(bid.dealId);
@@ -46,7 +46,7 @@ function transformPBBidToBid(bid, kgpv){
 }
 
 /* start-test-block */
-exports.transformPBBidToBid = transformPBBidToBid;
+exports.transformPBBidToOWBid = transformPBBidToOWBid;
 /* end-test-block */
 
 function pbBidStreamHandler(pbBid){
@@ -57,7 +57,7 @@ function pbBidStreamHandler(pbBid){
 		if(pbBid.bidderCode){
 			bidManager.setBidFromBidder(
 				refThis.kgpvMap[responseID].divID, 
-				refThis.transformPBBidToBid(pbBid, refThis.kgpvMap[responseID].kgpv)
+				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv)
 			);
 		}
 	}
@@ -78,7 +78,7 @@ function handleBidResponses(bidResponses){
 				var bid = bids[i];
 				/* istanbul ignore else */
 				if(bid.bidderCode){					
-					bidManager.setBidFromBidder(refThis.kgpvMap[responseID].divID, transformPBBidToBid(bid, refThis.kgpvMap[responseID].kgpv));
+					bidManager.setBidFromBidder(refThis.kgpvMap[responseID].divID, transformPBBidToOWBid(bid, refThis.kgpvMap[responseID].kgpv));
 				}
 			}
 		}
@@ -181,7 +181,7 @@ exports.generatePbConf = generatePbConf;
 
 function fetchBids(activeSlots, impressionID){
 
-	var newPBNameSpace = pbNameSpace + pbNameSpaceVersion++;
+	var newPBNameSpace = pbNameSpace + pbNameSpaceCounter++;
 	window.pwtCreatePrebidNamespace(newPBNameSpace);
 
 	/* istanbul ignore else */
@@ -238,6 +238,7 @@ function fetchBids(activeSlots, impressionID){
 			if(util.isFunction(window[newPBNameSpace].requestBids)){				
 				window[newPBNameSpace].requestBids({
 					adUnits: adUnitsArray,
+					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid
 					bidsBackHandler: function(bidResponses) {
 						//refThis.handleBidResponses(bidResponses);
 					},

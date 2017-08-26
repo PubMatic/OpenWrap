@@ -40,7 +40,7 @@ var commonKGPV = "XYZ";
 
 describe('ADAPTER: Prebid', function() {
 
-    describe('#transformPBBidToBid', function () {
+    describe('#transformPBBidToOWBid', function () {
         var bid = null, kgpv = null;
 
         beforeEach(function (done) {
@@ -69,12 +69,12 @@ describe('ADAPTER: Prebid', function() {
         });
 
         it('is a function', function (done) {
-            PREBID.transformPBBidToBid.should.be.a('function');
+            PREBID.transformPBBidToOWBid.should.be.a('function');
             done();
         });
 
         it('should return the bid object having properties of input bid object', function (done) {
-            var theBid = PREBID.transformPBBidToBid(bid, kgpv);
+            var theBid = PREBID.transformPBBidToOWBid(bid, kgpv);
             theBid.getGrossEcpm().should.be.equal(bid.cpm);
             theBid.getDealID().should.be.equal(bid.dealId);
             theBid.getDealChannel().should.be.equal(bid.dealChannel);
