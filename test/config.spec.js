@@ -138,15 +138,9 @@ describe('Config', function() {
         it('should return 0 for pubmatic adapter', function(done){
             CONFIG.getAdapterMaskBidsStatus('pubmatic').should.equal(0);
             done();
-        });
+        });        
 
-        it('should return 0 for audienceNetwork adapter, if setMaskBidsFlagForAudienceNetwork is not called', function(done){
-            CONFIG.getAdapterMaskBidsStatus('audienceNetwork').should.equal(0);
-            done();
-        });
-
-        it('should return 1 for audienceNetwork adapter, if setMaskBidsFlagForAudienceNetwork is called', function(done){
-            CONFIG.setMaskBidsFlagForAudienceNetwork('audienceNetwork');
+        it('should return 1 for audienceNetwork adapter, as we have hard-coded', function(done){
             CONFIG.getAdapterMaskBidsStatus('audienceNetwork').should.equal(1);
             done();
         });
@@ -395,26 +389,6 @@ describe('Config', function() {
                 kgp: "_DIV_",
                 klm: {}
             });
-            done();
-        });
-    });
-
-    describe('#setMaskBidsFlagForAudienceNetwork', function(){
-        it('is a function', function(done) {
-            CONFIG.setMaskBidsFlagForAudienceNetwork.should.be.a('function');
-            done();
-        });
-
-        it('should add MASK_BIDS flag to audienceNetwork Adapter', function (done) {
-            CONFIG.setMaskBidsFlagForAudienceNetwork();
-            expect(CONF.adapters['audienceNetwork'][CONSTANTS.CONFIG.MASK_BIDS]).to.be.equal(1);
-            done();
-        });
-
-        it('should not affect CONF if audienceNetwork Adapter is not present', function (done) {
-            delete CONF.adapters['audienceNetwork'];
-            CONFIG.setMaskBidsFlagForAudienceNetwork();
-            expect(CONF).to.be.deep.equal(CONF);
             done();
         });
     });

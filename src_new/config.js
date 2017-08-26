@@ -82,20 +82,8 @@ function addPrebidAdapter(){
 exports.addPrebidAdapter = addPrebidAdapter;
 /* end-test-block */
 
-function setMaskBidsFlagForAudienceNetwork(){
-	var fan = "audienceNetwork";
-	if(util.isOwnProperty(config.adapters, fan)){
-		config.adapters[fan][CONSTANTS.CONFIG.MASK_BIDS] = 1;
-	}
-}
-
-/* start-test-block */
-exports.setMaskBidsFlagForAudienceNetwork = setMaskBidsFlagForAudienceNetwork;
-/* end-test-block */
-
 exports.initConfig = function(){
 	refThis.addPrebidAdapter();
-	refThis.setMaskBidsFlagForAudienceNetwork();
 
 	var ignoreAdapterLevelParams = {};
 	util.forEachOnObject(CONSTANTS.CONFIG, function(key, value){
