@@ -1424,7 +1424,6 @@ describe('bidManager BIDMgr', function() {
         });
 
         it('audienceNetwork(maskBids=1) winning bid is logged', function(done) {
-            CONFIG.setMaskBidsFlagForAudienceNetwork();
             bmEntryObj.getAnalyticEnabledStatus.returns(true);            
             bmEntryObj.setAdapterEntry("audienceNetwork");
             theBid = new bid("audienceNetwork", commonKGPV);
@@ -1447,8 +1446,7 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('audienceNetwork(maskBids=1) winning bid is NOT logged', function(done) {
-            CONFIG.setMaskBidsFlagForAudienceNetwork();
+        it('audienceNetwork(maskBids=1) non-winning bid is NOT logged', function(done) {
             bmEntryObj.getAnalyticEnabledStatus.returns(true);            
             bmEntryObj.setAdapterEntry("audienceNetwork");
             theBid = new bid("audienceNetwork", commonKGPV);
