@@ -2,11 +2,7 @@
 	Note:
 		Whenever we support a new PB adapter, we need to check if it needs actual sizes to be passed, 
 			if so we will need to add special handling
-
-	TODO:
-		PubMatic special handliing
-		We are not doing mandatory param check as PB does it
-			does PB logs if mandatory param is missing		
+		PreBid does not do mandatory parameters checking		
 */
 var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
@@ -17,6 +13,9 @@ var adapterManager = require("../adapterManager.js");
 var CONF = require("../conf.js");
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
+
+var pbNameSpace = "pbjs";
+var pbNameSpaceCounter = 0;
 
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
@@ -29,6 +28,44 @@ exports.kgpvMap = kgpvMap;
 
 var refThis = this;
 
+function transformPBBidToOWBid(bid, kgpv){
+	var theBid = BID.createBid(bid.bidderCode, kgpv);
+	theBid.setGrossEcpm(bid.cpm);
+	theBid.setDealID(bid.dealId);
+	theBid.setDealChannel(bid.dealChannel);
+	theBid.setAdHtml(bid.ad || "");
+	theBid.setAdUrl(bid.adUrl || "");
+	theBid.setWidth(bid.width);
+	theBid.setHeight(bid.height);
+	theBid.setReceivedTime(bid.responseTimestamp);
+
+	util.forEachOnObject(bid.adserverTargeting, function(key, value){
+		theBid.setKeyValuePair(key, value);
+	});
+	return theBid;
+}
+
+/* start-test-block */
+exports.transformPBBidToOWBid = transformPBBidToOWBid;
+/* end-test-block */
+
+function pbBidStreamHandler(pbBid){
+	var responseID = pbBid.adUnitCode || "";
+	/* istanbul ignore else */
+	if(util.isOwnProperty(refThis.kgpvMap, responseID)){
+		/* istanbul ignore else */
+		if(pbBid.bidderCode){
+			bidManager.setBidFromBidder(
+				refThis.kgpvMap[responseID].divID, 
+				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv)
+			);
+		}
+	}
+}
+
+/* start-test-block */
+exports.pbBidStreamHandler = pbBidStreamHandler;
+/* end-test-block */
 
 function handleBidResponses(bidResponses){
 	for(var responseID in bidResponses){
@@ -40,22 +77,8 @@ function handleBidResponses(bidResponses){
 			for(var i = 0; i<bids.length; i++){
 				var bid = bids[i];
 				/* istanbul ignore else */
-				if(bid.bidderCode){
-
-					var theBid = BID.createBid(bid.bidderCode, refThis.kgpvMap[responseID].kgpv);
-					theBid.setGrossEcpm(bid.cpm);
-					theBid.setDealID(bid.dealId);
-					theBid.setDealChannel(bid.dealChannel);
-					theBid.setAdHtml(bid.ad || "");
-					theBid.setAdUrl(bid.adUrl || "");
-					theBid.setWidth(bid.width);
-					theBid.setHeight(bid.height);
-					theBid.setReceivedTime(bid.responseTimestamp);
-
-					util.forEachOnObject(bid.adserverTargeting, function(key, value){
-						theBid.setKeyValuePair(key, value);
-					});
-					bidManager.setBidFromBidder(refThis.kgpvMap[responseID].divID, theBid);
+				if(bid.bidderCode){					
+					bidManager.setBidFromBidder(refThis.kgpvMap[responseID].divID, transformPBBidToOWBid(bid, refThis.kgpvMap[responseID].kgpv));
 				}
 			}
 		}
@@ -133,6 +156,7 @@ exports.generatedKeyCallback = generatedKeyCallback;
 function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID){
 	util.log(adapterID+CONSTANTS.MESSAGES.M1);
 	
+	/* istanbul ignore else */
 	if(!adapterConfig){
 		return;
 	}
@@ -156,10 +180,25 @@ exports.generatePbConf = generatePbConf;
 /* end-test-block */
 
 function fetchBids(activeSlots, impressionID){
-	if(! window.pbjs){ // todo: move this code to initial state of adhooks
+
+	var newPBNameSpace = pbNameSpace + pbNameSpaceCounter++;
+	window.pwtCreatePrebidNamespace(newPBNameSpace);
+
+	/* istanbul ignore else */
+	if(! window[newPBNameSpace]){ // todo: move this code to initial state of adhooks
 		util.log("PreBid js is not loaded");	
 		return;
 	}
+
+
+	if(util.isFunction(window[newPBNameSpace].onEvent)){
+		window[newPBNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
+	} else {
+		util.log("PreBid js onEvent method is not available");	
+		return;
+	}
+
+	window[newPBNameSpace].logging = util.isDebugLogEnabled();
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
@@ -188,23 +227,28 @@ function fetchBids(activeSlots, impressionID){
 	}
 	
 	/* istanbul ignore else */
-	if(adUnitsArray.length > 0 && window.pbjs){
+	if(adUnitsArray.length > 0 && window[newPBNameSpace]){
 
 		try{
 			/* istanbul ignore else */
-			if(util.isFunction(window.pbjs.setBidderSequence)){
-				window.pbjs.setBidderSequence("random");
+			if(util.isFunction(window[newPBNameSpace].setBidderSequence)){
+				window[newPBNameSpace].setBidderSequence("random");
 			}
 			/* istanbul ignore else */
-			if(util.isFunction(window.pbjs.requestBids)){
-				window.pbjs.logging = false;//todo: enable optionally
-				window.pbjs.requestBids({
+			if(util.isFunction(window[newPBNameSpace].requestBids)){				
+				window[newPBNameSpace].requestBids({
 					adUnits: adUnitsArray,
+					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid
 					bidsBackHandler: function(bidResponses) {
-						refThis.handleBidResponses(bidResponses);
+						util.log("In PreBid bidsBackHandler with bidResponses: ");
+						util.log(bidResponses);
+						//refThis.handleBidResponses(bidResponses);
 					},
 					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
 				});
+			} else {
+				util.log("PreBid js requestBids function is not available");	
+				return;
 			}
 		} catch (e) {
 			util.log('Error occured in calling PreBid.');

@@ -39,6 +39,21 @@ describe('Slot slotObject', function() {
             SLOT.should.be.a('function');
             done();
         });
+
+        it('should have set deafult values of the slotObject', function (done) {
+            slotObject.name.should.equal(name);
+            slotObject.status.should.equal(CONSTANTS.SLOT_STATUS.CREATED);
+            slotObject.divID.should.equal("");
+            slotObject.adUnitID.should.equal("");
+            slotObject.adUnitIndex.should.equal(0);
+            slotObject.sizes.should.deep.equal([]);
+            slotObject.keyValues.should.deep.equal({});
+            slotObject.arguments.should.deep.equal([]);
+            should.not.exist(slotObject.pubAdServerObject);
+            slotObject.displayFunctionCalled.should.equal(false);
+            slotObject.refreshFunctionCalled.should.equal(false); 
+            done();
+        });
     });
 
 

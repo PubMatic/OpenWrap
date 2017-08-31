@@ -30,6 +30,22 @@ exports.getAdapterThrottle = function(adapterID){
 	return 0;
 };
 
+exports.getAdapterMaskBidsStatus = function(adapterID){
+	var adapterConfig = config.adapters;
+	var tempSettings = {
+		'audienceNetwork': 1
+	};
+
+	if(util.isOwnProperty(tempSettings, adapterID)){
+		return tempSettings[adapterID];
+	}
+
+	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.MASK_BIDS)){
+		return window.parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.MASK_BIDS]) || 0;
+	}
+	return 0;	
+}
+
 exports.getBidPassThroughStatus = function(adapterID){
 	var adapterConfig = config.adapters;
 	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.BID_PASS_THROUGH)){

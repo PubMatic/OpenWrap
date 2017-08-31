@@ -68,6 +68,10 @@ exports.enableDebugLog = function(){
 	refThis.debugLogIsEnabled = true;
 };
 
+exports.isDebugLogEnabled = function(){
+	return refThis.debugLogIsEnabled;
+};
+
 exports.enableVisualDebugLog = function(){
 	refThis.debugLogIsEnabled = true;
 	refThis.visualDebugLogIsEnabled = true;

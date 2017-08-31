@@ -12,8 +12,21 @@ exports.adapters = {
 	pubmatic: {
 		rev_share: "0.0",
 		throttle: "100",
-		publisherId: "9999",
+		publisherId: "5890",
 		kgp: "_DIV_@_W_x_H_:_AUI_"
+	},
+	audienceNetwork: {
+		rev_share: "0.0",
+		throttle: "100",
+		kgp: "_DIV_",
+		klm: {
+			"Div_1": {
+				placementId: "8801674"
+			},
+			"Div-2": {
+				placementId: "8801685"
+			}
+		}
 	},
 	sekindoUM: {
 		rev_share: "0.0",
