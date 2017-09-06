@@ -121,7 +121,9 @@ function auctionBids(bmEntry) { // TDD, i/o : done
     };
 }
 
-
+/* start-test-block */
+exports.auctionBids = auctionBids;
+/* end-test-block */
 
 function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) { // TDD, i/o : done
     if (adapterEntry.getLastBidID() != "") {
@@ -158,14 +160,8 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
     }
 }
 
-
-
 /* start-test-block */
 exports.auctionBidsCallBack = auctionBidsCallBack;
-/* end-test-block */
-
-/* start-test-block */
-exports.auctionBids = auctionBids;
 /* end-test-block */
 
 exports.getBid = function(divID){ // TDD, i/o : done
