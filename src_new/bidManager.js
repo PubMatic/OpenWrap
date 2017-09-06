@@ -105,6 +105,30 @@ exports.resetBid = function(divID, impressionID){ // TDD, i/o : done
 	window.PWT.bidMap[divID].setImpressionID(impressionID);
 };
 
+function createMetaDataKey(bmEntry, keyValuePairs){
+	var valueJson = {
+		c: 0,
+		b: []
+	};
+
+	util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {        
+        if (adapterEntry.getLastBidID() != "") {
+        	valueJson.c++;
+        	util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+        		valueJson.b.push({
+		        	n: adapterID,
+		        	w: theBid.getWidth(),
+		        	h: theBid.getHeight(),
+		        	eg: theBid.getGrossEcpm(),
+		        	en: theBid.getNetEcpm()
+		        });
+        	});	
+        }
+    });
+
+    keyValuePairs['pwtm'] = JSON.stringify(valueJson);
+}
+
 function auctionBids(bmEntry) { // TDD, i/o : done 
     var winningBid = null,
         keyValuePairs = {};
@@ -114,6 +138,8 @@ function auctionBids(bmEntry) { // TDD, i/o : done
         winningBid  = obj.winningBid;
         keyValuePairs = obj.keyValuePairs;
     });
+
+    createMetaDataKey(bmEntry, keyValuePairs);
 
     return {
         wb: winningBid,
