@@ -138,11 +138,11 @@ exports.adapters = {                            // St
 
 ## Supporting Advanced GPT setup
 Advanced GPT implementation where publishers define and display slot on the fly WAS NOT supported due to PreBid [limitation](https://github.com/prebid/Prebid.js/issues/914)
-Now we create Prebid namespaces at run time every time we need to call requestBids() API. As the requestBids() API method in two different namespace does not wait for call to complete execution. So for first call namespace would be pbjs0 , for second call namespace would be pbjs1 and so on.
+Now we create Prebid namespaces at run time every time we need to call requestBids() API. As the requestBids() API method in two different namespace does not wait for call to complete execution. So for first call namespace would be pbjs0 , for second call namespace would be pbjs1 and so on. Due to creating multiple namespaces, Prebid's debug script may not work. 
 
 ## Logging Post-timeout bids
 We use the event, bidResponse, provided by Prebid.
-pbjs.onEvent('bidResponse', function(bid){}); gets bid from every partner even it comes post timeout.
+pbjs.onEvent('bidResponse', function(bid){}); gets bid from every partner even it comes post timeout. Please note that only the bids coming before TIMEOUT + 2 seconds will be logged in logger pixel.
 
 
 ### Combinations of KGP to PreBid code:
