@@ -77,6 +77,11 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 };
 
 function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : done
+	/* istanbul ignore else */
+	if(CONFIG.getSendAllBidsStatus() == 1){
+		theBid.setSendAllBidsKeys();
+	}
+	
 	window.PWT.bidMap[slotID].setNewBid(adapterID, theBid);
 	window.PWT.bidIdMap[theBid.getBidID()] = {
 		s: slotID,
