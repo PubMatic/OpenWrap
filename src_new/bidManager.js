@@ -126,8 +126,12 @@ function createMetaDataKey(bmEntry, keyValuePairs){
         }
     });
 
-    keyValuePairs['pwtm'] = JSON.stringify(valueJson);
+    keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.META_DATA] = JSON.stringify(valueJson);
 }
+
+/* start-test-block */
+exports.createMetaDataKey = createMetaDataKey;
+/* end-test-block */
 
 function auctionBids(bmEntry) { // TDD, i/o : done 
     var winningBid = null,
@@ -139,7 +143,9 @@ function auctionBids(bmEntry) { // TDD, i/o : done
         keyValuePairs = obj.keyValuePairs;
     });
 
-    createMetaDataKey(bmEntry, keyValuePairs);
+    if(CONFIG.getSendMataDataStatus() == 1){
+    	createMetaDataKey(bmEntry, keyValuePairs);	
+    }    
 
     return {
         wb: winningBid,
