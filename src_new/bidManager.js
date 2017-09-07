@@ -132,6 +132,11 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
                 return { winningBid: winningBid , keyValuePairs: keyValuePairs };
             }
 
+            /* istanbul ignore else */
+			if(!theBid.getDefaultBidStatus() !== 1 && CONFIG.getSendAllBidsStatus() == 1){
+				theBid.setSendAllBidsKeys();
+			}
+
             //	if bidPassThrough is not enabled and ecpm > 0
             //		then only append the key value pairs from partner bid
             /* istanbul ignore else */
