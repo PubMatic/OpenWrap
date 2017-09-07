@@ -36,7 +36,8 @@ exports.CONFIG = {
 	"THROTTLE": "throttle",
 	"BID_PASS_THROUGH": "pt",
 	"GLOBAL_KEY_VALUE": "gkv",
-	"MASK_BIDS": "maksBids"
+	"MASK_BIDS": "maksBids",
+	"META_DATA": "metadata"
 };
 
 exports.MACROS = {
@@ -63,7 +64,8 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"BID_ADAPTER_ID": "pwtpid",
 	"PUBLISHER_ID": "pwtpubid",
 	"PROFILE_ID": "pwtprofid",
-	"PROFILE_VERSION_ID": "pwtverid"
+	"PROFILE_VERSION_ID": "pwtverid",
+	"META_DATA": "pwtm"
 };
 
 exports.IGNORE_PREBID_KEYS = {
