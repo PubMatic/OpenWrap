@@ -10,6 +10,10 @@ exports.getPublisherId = function(){
 	return util.trim(config.pwt.pubid) || "0";
 };
 
+exports.getSendAllBidsStatus = function(){
+	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SEND_ALL_BIDS]) || 0;
+};
+
 exports.getTimeout = function(){
 	return window.parseInt(config.pwt.t) || 1000;
 };

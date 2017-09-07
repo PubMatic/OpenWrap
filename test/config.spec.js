@@ -57,6 +57,27 @@ describe('Config', function() {
         });
     });
 
+    describe('#getSendAllBidsStatus', function() {
+
+        it('is a function', function(done) {
+            CONFIG.getSendAllBidsStatus.should.be.a('function');
+            done();
+        });
+
+        it('should return 1, as it is set to 1', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SEND_ALL_BIDS] = "1";
+            CONFIG.getSendAllBidsStatus().should.be.equal(1);
+            done();
+        });
+
+        it('should return 0, as it is NOT set', function(done) {
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SEND_ALL_BIDS];
+            CONFIG.getSendAllBidsStatus().should.be.equal(0);
+            done();
+        });        
+
+    });
+
     describe('#getTimeout', function() {
 
         beforeEach(function(done) {
