@@ -57,6 +57,27 @@ describe('Config', function() {
         });
     });
 
+    describe('#getSendMataDataStatus', function() {
+
+        it('is a function', function(done) {
+            CONFIG.getSendMataDataStatus.should.be.a('function');
+            done();
+        });
+
+        it('should return 1, as it is set to 1', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA] = "1";
+            CONFIG.getSendMataDataStatus().should.be.equal(1);
+            done();
+        });
+
+        it('should return 0, as it is NOT set', function(done) {
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA];
+            CONFIG.getSendMataDataStatus().should.be.equal(0);
+            done();
+        });        
+
+    });
+
     describe('#getTimeout', function() {
 
         beforeEach(function(done) {
