@@ -527,7 +527,7 @@ var hasOwnProperty = Object.prototype.hasOwnProperty,
 			kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(constCommonMacroForWidth) >= 0 && keyGenerationPattern.indexOf(constCommonMacroForHeight) >= 0;
 			for(i = 0; i < activeSlotsLength; i++){
 				generatedKeys = utilGenerateSlotNamesFromPattern( activeSlots[i], keyGenerationPattern );
-				generatedKeysLength = generatedKeys.length				
+				generatedKeysLength = generatedKeys.length;
 				for(j = 0; j < generatedKeysLength; j++){
 					var generatedKey = generatedKeys[j],
 						keyConfig = null,
