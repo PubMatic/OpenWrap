@@ -20,7 +20,7 @@ Apache License, Version 2.0.
 
 # Introduction
 
-OpenWrap as an extension of Prebid now (since version [6.1.0](https://github.com/PubMatic/OpenWrap/releases/tag/ExtPrebid_v6.1.0_NIGHTLY)) and uses Prebid as the core library for all partner integration.
+OpenWrap is an extension of Prebid now (since version [6.1.0](https://github.com/PubMatic/OpenWrap/releases/tag/ExtPrebid_v6.1.0_NIGHTLY)) and uses Prebid as the core library for all partner integration.
 
 Portions of OpenWrap contain code from Prebid.js licensed under the Apache License, Version 2.0.
 
