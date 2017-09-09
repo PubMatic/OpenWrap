@@ -20,7 +20,7 @@ Apache License, Version 2.0.
 
 # Introduction
 
-OpenWrap as an extension of Prebid is under development and not currently available on this Github page. The updated OpenWrap source code extending Prebid.js will be available mid August.
+OpenWrap as an extension of Prebid now (since version [6.1.0](https://github.com/PubMatic/OpenWrap/releases/tag/ExtPrebid_v6.1.0_NIGHTLY)) and uses Prebid as the core library for all partner integration.
 
 Portions of OpenWrap contain code from Prebid.js licensed under the Apache License, Version 2.0.
 
@@ -57,12 +57,12 @@ All the publisher has to do is push the wrapper script and partner configuration
 
 # Getting Started
 
-Please note that, OpenWrap extending PreBid code is in ***src_new*** folder of [ContinuousIntegration](https://github.com/PubMatic/OpenWrap/tree/ContinuousIntegration) branch. The changes will be merged into master branch soon.
+Please note that, OpenWrap extending PreBid code is in ***src_new*** folder the code in original src folder is deprecated now and will eventually will be removed and replaced with code in src_new folder.
 
 ## PreBid Fork:
 
-We have created a fork from PreBid repo: https://github.com/PubMatic-OpenWrap/Prebid.js
-The fork has PreBid Version [0.24.1](https://github.com/prebid/Prebid.js/releases/tag/0.24.1)
+We have created a fork from PreBid repo: https://github.com/PubMatic-OpenWrap/Prebid.js which OpenWrap uses as core and is used for building the library.
+The fork has PreBid Version [0.24.1](https://github.com/prebid/Prebid.js/releases/tag/0.24.1) which will be upgraded frquently to latest PreBid version. 
 
 ## Configuration Exchange between OpenWrap and Prebid
 
