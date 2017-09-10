@@ -1,3 +1,5 @@
+exports.controllerPath = "./controllers/gpt.js";
+
 exports.pwt = {
 	t: "3000",
 	pid: "46",
