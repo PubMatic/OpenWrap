@@ -1,4 +1,5 @@
-exports.controllerPath = "./controllers/gpt.js";
+exports.controllerPath = "./controllers/UAS/uas.js";
+//exports.controllerPath = "./controllers/gpt.js";
 
 exports.pwt = {
 	t: "3000",
