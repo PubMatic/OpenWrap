@@ -105,35 +105,49 @@ exports.resetBid = function(divID, impressionID){ // TDD, i/o : done
 	window.PWT.bidMap[divID].setImpressionID(impressionID);
 };
 
-function createMetaDataKey(bmEntry, keyValuePairs){
-	var valueJson = {
-		c: 0,
-		b: []
-	};
-
+function createMetaDataKey(pattern, bmEntry, keyValuePairs){
+	var output = "",
+		validBidCount = 0,
+		partnerCount = 0,
+		macros = CONSTANTS.METADATA_MACROS,
+		macroRegexFlag = "g"
+	;
 	util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {        
         if (adapterEntry.getLastBidID() != "") {
-        	valueJson.c++;
-        	// todo: does c means number of qualifying partners or # of partnrs with bids(not-default-bid) ?
-        	// todo: do we have to consider default bids check
+        	partnerCount++;
         	util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
-        		valueJson.b.push({
-		        	n: adapterID,
-		        	w: theBid.getWidth(),
-		        	h: theBid.getHeight(),
-		        	eg: theBid.getGrossEcpm(),
-		        	en: theBid.getNetEcpm()
-		        });
-        	});	
+        		if(theBid.getDefaultBidStatus() == 1){
+        			return;
+        		}
+		        validBidCount++;
+		        output += replaceMetaDataMacros(pattern, theBid);
+        	});
         }
     });
-
-    keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.META_DATA] = JSON.stringify(valueJson);
+    output = output.replace(new RegExp(macros.BID_COUNT, macroRegexFlag), validBidCount);
+    output = output.replace(new RegExp(macros.PARTNER_COUNT, macroRegexFlag), partnerCount);
+    keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.META_DATA] = output;
 }
 
 /* start-test-block */
 exports.createMetaDataKey = createMetaDataKey;
 /* end-test-block */
+
+function replaceMetaDataMacros(pattern, theBid){
+	var macros = CONSTANTS.METADATA_MACROS,
+		macroRegexFlag = "g"
+	;	
+	return pattern
+		.replace(new RegExp(macros.PARTNER, macroRegexFlag), theBid.getAdapterID())
+		.replace(new RegExp(macros.WIDTH, macroRegexFlag), theBid.getWidth())
+		.replace(new RegExp(macros.HEIGHT, macroRegexFlag), theBid.getHeight())
+		.replace(new RegExp(macros.GROSS_ECPM, macroRegexFlag), theBid.getGrossEcpm())
+		.replace(new RegExp(macros.NET_ECPM, macroRegexFlag), theBid.getNetEcpm());
+}
+/* start-test-block */
+exports.replaceMetaDataMacros = replaceMetaDataMacros;
+/* end-test-block */
+
 
 function auctionBids(bmEntry) { // TDD, i/o : done 
     var winningBid = null,
@@ -146,7 +160,7 @@ function auctionBids(bmEntry) { // TDD, i/o : done
     });
 
     if(CONFIG.getMataDataPattern() !== null){
-    	createMetaDataKey(bmEntry, keyValuePairs);	
+    	createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);	
     }    
 
     return {
