@@ -11,8 +11,8 @@ exports.getPublisherId = function(){
 };
 
 exports.getMataDataPattern = function(){
-	if(util.isString(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA])){
-		return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA];
+	if(util.isString(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN])){
+		return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN];
 	}
 	return null;
 };
