@@ -511,6 +511,26 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
+    describe('#replaceMetaDataMacros', function(){
+
+        it('is a function', function(done) {
+            BIDMgr.replaceMetaDataMacros.should.be.a('function');
+            done();
+        });
+
+        it('macro replacement', function(done){
+            var theBid = new bid("pubmatic", "div-1");
+            theBid.setGrossEcpm(1.2);
+            theBid.setDealID("DEALID123");
+            theBid.setDealChannel("PMPG");
+            theBid.setWidth(728);
+            theBid.setHeight(90);
+            var op = BIDMgr.replaceMetaDataMacros("_P_-_W_x_H_-_NE_(_GE_)", theBid);
+            expect(op).to.equal("pubmatic-728x90-1.2(1.2)");
+            done();
+        });
+    });
+
     describe('#auctionBids', function() {
         var bmEntryObj = null;
         var divID = null;
