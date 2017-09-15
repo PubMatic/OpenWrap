@@ -519,14 +519,15 @@ describe('bidManager BIDMgr', function() {
         });
 
         it('macro replacement', function(done){
+            conf.adapters.pubmatic.rev_share = "10.0";
             var theBid = new bid("pubmatic", "div-1");
             theBid.setGrossEcpm(1.2);
             theBid.setDealID("DEALID123");
             theBid.setDealChannel("PMPG");
             theBid.setWidth(728);
             theBid.setHeight(90);
-            var op = BIDMgr.replaceMetaDataMacros("_P_-_W_x_H_-_NE_(_GE_)", theBid);
-            expect(op).to.equal("pubmatic-728x90-1.2(1.2)");
+            var op = BIDMgr.replaceMetaDataMacros("_P_-_W_x_H_-_NE_(_GE_)", theBid);            
+            expect(op).to.equal("pubmatic-728x90-1.08(1.2)");
             done();
         });
     });
