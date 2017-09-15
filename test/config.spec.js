@@ -64,17 +64,23 @@ describe('Config', function() {
             done();
         });
 
-        it('should return TestMetaDataPattern, as it is set to 1', function(done) {
+        it('should return "TestMetaDataPattern", as it is set to "TestMetaDataPattern"', function(done) {
             CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA] = "TestMetaDataPattern";
-            CONFIG.getMataDataPattern().should.be.equal(1);
+            CONFIG.getMataDataPattern().should.be.equal("TestMetaDataPattern");
             done();
         });
 
         it('should return null, as it is NOT set', function(done) {
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA];
-            CONFIG.getMataDataPattern().should.be.equal(null);
+            expect(CONFIG.getMataDataPattern()).to.equal(null);
             done();
-        });        
+        });
+
+        it('should return null, as it is set to number 123', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA] = 123;
+            expect(CONFIG.getMataDataPattern()).to.equal(null);
+            done();
+        });
 
     });
 

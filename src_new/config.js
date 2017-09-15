@@ -11,7 +11,10 @@ exports.getPublisherId = function(){
 };
 
 exports.getMataDataPattern = function(){
-	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA]) || null;
+	if(util.isString(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA])){
+		return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA];
+	}
+	return null;
 };
 
 exports.getTimeout = function(){
