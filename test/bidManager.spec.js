@@ -511,6 +511,41 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
+    describe('#createMetaDataKey', function(){
+
+        it('is a function', function(done) {
+            BIDMgr.createMetaDataKey.should.be.a('function');
+            done();
+        });
+
+        it('output', function(done){
+            var divID = "DIV-1";
+            var bmEntryObj = bmEntry.createBMEntry(divID);
+            var theBid_1 = new bid("pubmatic", divID);
+            theBid_1.setGrossEcpm(1.2);
+            theBid_1.setDealID("DEALID123");
+            theBid_1.setDealChannel("PMPG");
+            theBid_1.setWidth(728);
+            theBid_1.setHeight(90);
+            bmEntryObj.setNewBid("pubmatic", theBid_1);
+            var theBid_2 = new bid("appnexus", divID);
+            theBid_2.setGrossEcpm(1.1);
+            theBid_2.setDealID("DEALID123");
+            theBid_2.setDealChannel("PMPG");
+            theBid_2.setWidth(300);
+            theBid_2.setHeight(250);
+            bmEntryObj.setNewBid("appnexus", theBid_2);
+            var theBid_3 = new bid("pulsepoint", divID);
+            theBid_3.setDefaultBidStatus(1);            
+            bmEntryObj.setNewBid("pulsepoint", theBid_3);
+            var keyValuePairs = {};
+            BIDMgr.createMetaDataKey("_PC_:_BC_::_P_-_W_x_H_-_NE_(_GE_)||", bmEntryObj, keyValuePairs);
+            expect(keyValuePairs['pwtm']).to.equal("3:2::pubmatic-728x90-1.2(1.2)||3:2::appnexus-300x250-1.1(1.1)||")
+            done();
+        });
+
+    });
+
     describe('#replaceMetaDataMacros', function(){
 
         it('is a function', function(done) {
