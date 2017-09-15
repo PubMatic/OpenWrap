@@ -37,7 +37,17 @@ exports.CONFIG = {
 	"BID_PASS_THROUGH": "pt",
 	"GLOBAL_KEY_VALUE": "gkv",
 	"MASK_BIDS": "maksBids",
-	"META_DATA": "metadata"
+	"META_DATA_PATTERN": "metaDataPattern"
+};
+
+exports.METADATA_MACROS = {
+	"WIDTH": "_W_",
+	"HEIGHT": "_H_",
+	"PARTNER": "_P_",
+	"GROSS_ECPM": "_GE_",
+	"NET_ECPM": "_NE_",
+	"BID_COUNT": "_BC_",
+	"PARTNER_COUNT": "_PC_"
 };
 
 exports.MACROS = {
