@@ -114,8 +114,8 @@ function createMetaDataKey(bmEntry, keyValuePairs){
 	util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {        
         if (adapterEntry.getLastBidID() != "") {
         	valueJson.c++;
-        	// does c means number of qualifying partners or # of partnrs with bids(not-default-bid) ?
-        	//todo: do we have to consider default bids check
+        	// todo: does c means number of qualifying partners or # of partnrs with bids(not-default-bid) ?
+        	// todo: do we have to consider default bids check
         	util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
         		valueJson.b.push({
 		        	n: adapterID,
