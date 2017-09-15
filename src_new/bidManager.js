@@ -145,7 +145,7 @@ function auctionBids(bmEntry) { // TDD, i/o : done
         keyValuePairs = obj.keyValuePairs;
     });
 
-    if(CONFIG.getSendMataDataStatus() == 1){
+    if(CONFIG.getMataDataPattern() !== null){
     	createMetaDataKey(bmEntry, keyValuePairs);	
     }    
 

@@ -10,8 +10,8 @@ exports.getPublisherId = function(){
 	return util.trim(config.pwt.pubid) || "0";
 };
 
-exports.getSendMataDataStatus = function(){
-	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA]) || 0;
+exports.getMataDataPattern = function(){
+	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA]) || null;
 };
 
 exports.getTimeout = function(){
