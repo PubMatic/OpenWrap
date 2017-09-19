@@ -122,7 +122,8 @@ Bid.prototype.getKGPV = function(){
 };
 
 Bid.prototype.setKeyValuePair = function(key, value){
-	this.keyValuePairs[key] = value;
+	// max length of key is restricted to 20 characters
+	this.keyValuePairs[key.substr(0, 20)] = value;
 	return this;
 };
 
