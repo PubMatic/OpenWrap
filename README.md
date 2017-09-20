@@ -181,10 +181,24 @@ It accepts two parameters -
 
 *   **prebidpath**: This should be the relative path of Prebid repo on local machine.
 
-Example:
+Tools Required to build:
 ```
-./build.sh --mode=test-build
+npm install gulp -g
+npm install gulp-cli -g
 ```
+
+Then chekout Prebid (currently fork of v0.24 is supported) on desired location:
+```
+git clone https://github.com/PubMatic-OpenWrap/Prebid.js
+```
+Run npm install in Prebid as well as OpenWrap Folder
+
+
+Build with test:
+```
+./build.sh --mode=test-build --prebidpath=../Prebid.js/
+```
+Build for production:
 ```
 ./build.sh --mode=build --prebidpath=../Prebid.js/
 ```
