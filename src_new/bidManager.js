@@ -124,6 +124,9 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
         	});
         }
     });
+    if(output.length == 0){
+    	output = pattern;
+    }
     output = output.replace(new RegExp(macros.BID_COUNT, macroRegexFlag), validBidCount);
     output = output.replace(new RegExp(macros.PARTNER_COUNT, macroRegexFlag), partnerCount);
     keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.META_DATA] = output;
