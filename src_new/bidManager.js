@@ -129,7 +129,7 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
     }
     output = output.replace(new RegExp(macros.BID_COUNT, macroRegexFlag), validBidCount);
     output = output.replace(new RegExp(macros.PARTNER_COUNT, macroRegexFlag), partnerCount);
-    keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.META_DATA] = output;
+    keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.META_DATA] = encodeURIComponent(output);
 }
 
 /* start-test-block */

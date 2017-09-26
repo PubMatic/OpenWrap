@@ -540,7 +540,8 @@ describe('bidManager BIDMgr', function() {
             bmEntryObj.setNewBid("pulsepoint", theBid_3);
             var keyValuePairs = {};
             BIDMgr.createMetaDataKey("_PC_:_BC_::_P_-_W_x_H_-_NE_(_GE_)||", bmEntryObj, keyValuePairs);
-            expect(keyValuePairs['pwtm']).to.equal("3:2::pubmatic-728x90-1.2(1.2)||3:2::appnexus-300x250-1.1(1.1)||")
+            var expectedOutput = "3:2::pubmatic-728x90-1.2(1.2)||3:2::appnexus-300x250-1.1(1.1)||";
+            expect(keyValuePairs['pwtm']).to.equal(encodeURIComponent(expectedOutput));
             done();
         });
 
