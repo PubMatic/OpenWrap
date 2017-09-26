@@ -116,7 +116,7 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
         if (adapterEntry.getLastBidID() != "") {
         	partnerCount++;
         	util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
-        		if(theBid.getDefaultBidStatus() == 1){
+        		if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1){
         			return;
         		}
 		        validBidCount++;
