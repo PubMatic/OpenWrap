@@ -133,7 +133,7 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
             }
 
             /* istanbul ignore else */
-			if(!theBid.getDefaultBidStatus() !== 1 && CONFIG.getSendAllBidsStatus() == 1){
+			if(theBid.getDefaultBidStatus() !== 1 && CONFIG.getSendAllBidsStatus() == 1){
 				theBid.setSendAllBidsKeys();
 			}
 
