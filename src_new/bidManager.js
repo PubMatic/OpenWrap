@@ -140,7 +140,7 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
             //	if bidPassThrough is not enabled and ecpm > 0
             //		then only append the key value pairs from partner bid
             /* istanbul ignore else */
-            if (CONFIG.getBidPassThroughStatus(adapterID) === 0 && theBid.getNetEcpm() > 0) {
+            if (CONFIG.getBidPassThroughStatus(adapterID) === 0 /*&& theBid.getNetEcpm() > 0*/) {
                 util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
             }
 

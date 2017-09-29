@@ -578,11 +578,14 @@ describe('bidManager BIDMgr', function() {
         });
 
         it('returns winning bid with key value pairs', function(done) {
-            BIDMgr.auctionBids(bmEntryObj).should.deep.equal({
+            var op = BIDMgr.auctionBids(bmEntryObj);
+            op.should.deep.equal({
                 "wb" : theBid_1,
                 "kvp": {
-                    "k2": [ "v2" ], 
-                    "k21": [ "v21" ] 
+                    "k1": [ "v1" ],
+                    "k2": [ "v2", "v2" ], 
+                    "k21": [ "v21" ] ,
+                    "k3": [ "v3" ]
                 } 
             });
             done();
