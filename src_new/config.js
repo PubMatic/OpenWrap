@@ -15,6 +15,10 @@ exports.getMataDataPattern = function(){
 		return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN];
 	}
 	return null;
+};	
+
+exports.getSendAllBidsStatus = function(){
+	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SEND_ALL_BIDS]) || 0;
 };
 
 exports.getTimeout = function(){
@@ -40,7 +44,8 @@ exports.getAdapterThrottle = function(adapterID){
 exports.getAdapterMaskBidsStatus = function(adapterID){
 	var adapterConfig = config.adapters;
 	var tempSettings = {
-		'audienceNetwork': 1
+		'audienceNetwork': 1,
+		'rubicon': 1
 	};
 
 	if(util.isOwnProperty(tempSettings, adapterID)){

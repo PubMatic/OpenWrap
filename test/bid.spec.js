@@ -77,7 +77,6 @@ describe('Bid bidObject', function() {
         });
     });
 
-
     describe('#getAdapterID', function() {
 
         it('is a function', function(done) {
@@ -378,6 +377,14 @@ describe('Bid bidObject', function() {
             bidObject.keyValuePairs[key].should.equal(value);
             done();
         });
+
+        it('key name longer than 20 chars should be truncated', function(done){
+            bidObject.setKeyValuePair('ThisKeyNameIsLongerThan20', 'LongKey');
+            var kvp = bidObject.getKeyValuePairs();
+            expect(kvp.hasOwnProperty('ThisKeyNameIsLongerT')).to.equal(true);
+            expect(kvp['ThisKeyNameIsLongerT']).to.equal('LongKey');
+            done();
+        });
     });
 
     describe('#getKeyValuePairs', function() {
@@ -638,5 +645,39 @@ describe('Bid bidObject', function() {
             bidObject.getStatus().should.equal(bidObject.status);
             done();
         });
+    });
+
+    describe('#setSendAllBidsKeys', function(done){
+        it('is a function', function(done){
+            bidObject.setSendAllBidsKeys.should.be.a('function')
+            done();
+        });
+
+        it('check generated key values', function(done){
+            bidObject.setWidth(728);
+            bidObject.setHeight(90);
+            bidObject.setGrossEcpm(1.23);
+            bidObject.setSendAllBidsKeys();
+            var kvp = bidObject.getKeyValuePairs();
+            
+            var bidIdKey = CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID+'_'+bidObject.getAdapterID();
+            expect(kvp.hasOwnProperty(bidIdKey)).to.equal(true);
+            expect(kvp[bidIdKey]).to.equal(bidObject.getBidID());
+
+            var bidStatusKey = CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS+'_'+bidObject.getAdapterID();
+            expect(kvp.hasOwnProperty(bidStatusKey)).to.equal(true);
+            expect(kvp[bidStatusKey]).to.equal(bidObject.getNetEcpm() > 0 ? 1 : 0);
+
+            var bidEcpmKey = CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM+'_'+bidObject.getAdapterID();
+            expect(kvp.hasOwnProperty(bidEcpmKey)).to.equal(true);
+            expect(kvp[bidEcpmKey]).to.equal(bidObject.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
+
+            var bidSizeKey = CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE+'_'+bidObject.getAdapterID();
+            expect(kvp.hasOwnProperty(bidSizeKey)).to.equal(true);
+            expect(kvp[bidSizeKey]).to.equal(bidObject.getWidth() + 'x' + bidObject.getHeight());
+
+            done();
+        });        
+
     });
 });
