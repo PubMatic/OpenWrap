@@ -10,6 +10,13 @@ exports.getPublisherId = function(){
 	return util.trim(config.pwt.pubid) || "0";
 };
 
+exports.getMataDataPattern = function(){
+	if(util.isString(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN])){
+		return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN];
+	}
+	return null;
+};
+
 exports.getTimeout = function(){
 	return window.parseInt(config.pwt.t) || 1000;
 };

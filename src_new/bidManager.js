@@ -105,6 +105,53 @@ exports.resetBid = function(divID, impressionID){ // TDD, i/o : done
 	window.PWT.bidMap[divID].setImpressionID(impressionID);
 };
 
+function createMetaDataKey(pattern, bmEntry, keyValuePairs){
+	var output = "",
+		validBidCount = 0,
+		partnerCount = 0,
+		macros = CONSTANTS.METADATA_MACROS,
+		macroRegexFlag = "g"
+	;
+	util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {        
+        if (adapterEntry.getLastBidID() != "") {
+        	partnerCount++;
+        	util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+        		if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1){
+        			return;
+        		}
+		        validBidCount++;
+		        output += replaceMetaDataMacros(pattern, theBid);
+        	});
+        }
+    });
+    if(output.length == 0){
+    	output = pattern;
+    }
+    output = output.replace(new RegExp(macros.BID_COUNT, macroRegexFlag), validBidCount);
+    output = output.replace(new RegExp(macros.PARTNER_COUNT, macroRegexFlag), partnerCount);
+    keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.META_DATA] = encodeURIComponent(output);
+}
+
+/* start-test-block */
+exports.createMetaDataKey = createMetaDataKey;
+/* end-test-block */
+
+function replaceMetaDataMacros(pattern, theBid){
+	var macros = CONSTANTS.METADATA_MACROS,
+		macroRegexFlag = "g"
+	;	
+	return pattern
+		.replace(new RegExp(macros.PARTNER, macroRegexFlag), theBid.getAdapterID())
+		.replace(new RegExp(macros.WIDTH, macroRegexFlag), theBid.getWidth())
+		.replace(new RegExp(macros.HEIGHT, macroRegexFlag), theBid.getHeight())
+		.replace(new RegExp(macros.GROSS_ECPM, macroRegexFlag), theBid.getGrossEcpm())
+		.replace(new RegExp(macros.NET_ECPM, macroRegexFlag), theBid.getNetEcpm());
+}
+/* start-test-block */
+exports.replaceMetaDataMacros = replaceMetaDataMacros;
+/* end-test-block */
+
+
 function auctionBids(bmEntry) { // TDD, i/o : done 
     var winningBid = null,
         keyValuePairs = {};
@@ -115,13 +162,19 @@ function auctionBids(bmEntry) { // TDD, i/o : done
         keyValuePairs = obj.keyValuePairs;
     });
 
+    if(CONFIG.getMataDataPattern() !== null){
+    	createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);	
+    }    
+
     return {
         wb: winningBid,
         kvp: keyValuePairs
     };
 }
 
-
+/* start-test-block */
+exports.auctionBids = auctionBids;
+/* end-test-block */
 
 function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) { // TDD, i/o : done
     if (adapterEntry.getLastBidID() != "") {
@@ -158,14 +211,8 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
     }
 }
 
-
-
 /* start-test-block */
 exports.auctionBidsCallBack = auctionBidsCallBack;
-/* end-test-block */
-
-/* start-test-block */
-exports.auctionBids = auctionBids;
 /* end-test-block */
 
 exports.getBid = function(divID){ // TDD, i/o : done
