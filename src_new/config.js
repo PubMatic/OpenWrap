@@ -43,7 +43,7 @@ exports.getAdapterMaskBidsStatus = function(adapterID){
 	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.MASK_BIDS)){
 		return window.parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.MASK_BIDS]) || 0;
 	}
-	return 0;	
+	return 0;
 }
 
 exports.getBidPassThroughStatus = function(adapterID){
@@ -74,6 +74,10 @@ exports.forEachAdapter = function(callback){
 	util.forEachOnObject(config.adapters, callback);
 };
 
+exports.getNumberOfAdapters = function() {
+	return Object.keys(config.adapters).length;
+};
+
 function addPrebidAdapter(){
 	var preBidAdapter = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 	if(!util.isOwnProperty(config.adapters, preBidAdapter)){
@@ -83,7 +87,7 @@ function addPrebidAdapter(){
 		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN]	= "_DIV_";
 		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = {};
 		config.adapters[preBidAdapter] = adapterConfig;
-	}	
+	}
 }
 
 /* start-test-block */
@@ -102,8 +106,8 @@ exports.initConfig = function(){
 		var adapterLevelParams = {};
 		util.forEachOnObject(adapterConfig, function(key, value){
 			if(!util.isOwnProperty(ignoreAdapterLevelParams, key)){
-				adapterLevelParams[ key ] = value;	
-			}				
+				adapterLevelParams[ key ] = value;
+			}
 		});
 		util.forEachOnObject(adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP], function(kgpv, slotLevelParams){
 			util.forEachOnObject(adapterLevelParams, function(key, value){
