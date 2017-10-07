@@ -212,7 +212,7 @@ exports.generateSlotName = generateSlotName;
 function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow) { // TDD, i/o : done
     util.log("Generating slotsMap");
 
-    util.setNumberOfSlots(googleSlotsArray.length);
+    /* Set Number of Bid Requested to 0 */
     util.setNumberOfBidReceived(0);
 
     util.forEachOnArray(googleSlotsArray, function(index, currentGoogleSlot) {
@@ -541,16 +541,15 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
             // eslint-disable-line no-fallthrough
         /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
-            util.notifyInternalBiddingComplete();
             var stopLoop = false;
 
-           var expectedNumofBids = CONFIG.getNumberOfAdapters() * util.getNumberOfSlots();
+           var expectedNumofBids = util.getNumberOfRequestedBids();
            console.log("Expected no of bids : "+expectedNumofBids);
 
            var executeDisplay = function() {
                var receivedNumberOfBids = util.getNumberOfReceivedBids();
                console.log("Received no of bids : "+receivedNumberOfBids);
-               if (util.getAllBiddersStatus() && expectedNumofBids == receivedNumberOfBids) {
+               if (util.getExternalBidderStatus() && expectedNumofBids == receivedNumberOfBids) {
                    util.log("PostTimeout.. back in display function");
                    util.forEachOnObject(refThis.slotsMap, function(key, slot) {
                        refThis.findWinningBidIfRequired_Display(key, slot);
@@ -776,16 +775,15 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
             /* istanbul ignore next */
             util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
 
-            util.notifyInternalBiddingComplete();
             var stopLoop = false;
+            var expectedNumofBids = util.getNumberOfRequestedBids();
 
-           var expectedNumofBids = CONFIG.getNumberOfAdapters() * util.getNumberOfSlots();
            console.log("Expected no of bids : "+expectedNumofBids);
 
            var executeDisplay = function() {
                var receivedNumberOfBids = util.getNumberOfReceivedBids();
                console.log("Received no of bids : "+receivedNumberOfBids);
-               if (util.getAllBiddersStatus() && expectedNumofBids == receivedNumberOfBids) {
+               if (util.getExternalBidderStatus() && expectedNumofBids == receivedNumberOfBids) {
                    util.log("PostTimeout.. back in refres function");
                    refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);
                } else {

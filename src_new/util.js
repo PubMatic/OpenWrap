@@ -25,7 +25,7 @@ var toString = Object.prototype.toString;
 var refThis = this;
 
 
-refThis.numOfSlots = 0;
+refThis.numOfRequestedBids = 0;
 refThis.numberOfReceivedBids = 0;
 
 function isA(object, testForType) {
@@ -308,6 +308,10 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 						bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
 						bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
 					}
+
+					console.log("util keyLookupMap:", keyLookupMap);
+					/* Updated the number of requested Bids */
+					refThis.updateRequestedBidNumber();
 
 					handlerFunction(
 						adapterID,
@@ -833,7 +837,7 @@ exports.vLogInfo = function(divID, infoObject){
 	}
 };
 
-exports.getAllBiddersStatus = function() {
+exports.getExternalBidderStatus = function() {
 	var status = true;
 	window.allBidders.map(function (bidder) {
 		status = status && bidder.status;
@@ -841,7 +845,7 @@ exports.getAllBiddersStatus = function() {
 	return status;
 };
 
-exports.resetAllBiddersStatus = function() {
+exports.resetExternalBidderStatus = function() {
 	window.allBidders = window.allBidders.map(function (bidder) {
 		return {
 			name: bidder.name,
@@ -862,12 +866,18 @@ exports.notifyInternalBiddingComplete = function() {
 	});
 };
 
-exports.setNumberOfSlots = function(numOfSlots) {
-	refThis.numOfSlots = numOfSlots;
+function updateRequestedBidNumber() {
+	refThis.numOfRequestedBids = refThis.numOfRequestedBids + 1;
+}
+
+exports.updateRequestedBidNumber = updateRequestedBidNumber;
+
+exports.setNumberOfBidRequested = function (num) {
+	refThis.numOfRequestedBids = num;
 };
 
-exports.getNumberOfSlots = function() {
-	return refThis.numOfSlots;
+exports.getNumberOfRequestedBids = function () {
+	return refThis.numOfRequestedBids;
 };
 
 exports.updateReceivedBidNumber = function () {

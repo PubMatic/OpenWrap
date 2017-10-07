@@ -16,10 +16,7 @@ window.PWT.safeFrameMessageListenerAdded = window.PWT.safeFrameMessageListenerAd
 // usingDifferentProfileVersion
 window.PWT.udpv = window.PWT.udpv || util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtv");
 
-window.allBidders = [{
-	name: "pwt",
-	status: false
-}];
+window.allBidders = [];
 
 
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
