@@ -1,71 +1,75 @@
 exports.pwt = {
-	t: "3000",
-	pid: "46",
-	gcv: "11",
-	pdvid: "4",
-	pubid: "9999",
-	dataURL: "t.test-domain.com/logger?",
-	winURL: "t.test-domain.com/tracker?"
+	t: "1000",
+	pid: "307",
+	gcv: "28",
+	pdvid: "10",
+	pubid: "103207",
+	dataURL: "t.pubmatic.com/wl?",
+	winURL: "t.pubmatic.com/wt?"
 };
 
 exports.adapters = {
-	pubmatic: {
-		rev_share: "0.0",
+	appnexus: {
+		rev_share: "-15.0",
+		timeout: "1500",
 		throttle: "100",
-		publisherId: "5890",
-		kgp: "_DIV_@_W_x_H_:_AUI_"
-	},
-	audienceNetwork: {
-		rev_share: "0.0",
-		throttle: "100",
-		kgp: "_DIV_",
+		pt: 0,
+		kgp: "_DIV_@_W_x_H_",
 		klm: {
-			"Div_1": {
-				placementId: "8801674"
-			},
-			"Div-2": {
-				placementId: "8801685"
+				"thesaurus_serp_atf_728x90@728x90": {
+						placementId: "11892097",
+						query: "",
+						member: "",
+						invCode: ""
+				},
+				"thesaurus_serp_atf_300x250@300x250": {
+						placementId: "11892095",
+						query: "",
+						member: "",
+						invCode: ""
+				},
+				"thesaurus_serp_btf_2@728x90": {
+						placementId: "11892081",
+						query: "",
+						member: "",
+						invCode: ""
+				}
 			}
-		}
 	},
 	sekindoUM: {
-		rev_share: "0.0",
+		rev_share: "-15.0",
+		timeout: "1500",
 		throttle: "100",
-		kgp: "_DIV_",
+		pt: 0,
+		kgp: "_DIV_@_W_x_H_",
 		klm: {
-			"Div_1": {
-				spaceId: 14071
-			},
-			"Div-2": {
-				spaceId: 14071
+				"tcomHomeBot-728x90@728x90": {
+						placementId: "11892097",
+						query: "",
+						member: "",
+						invCode: ""
+				},
+				"tcomHomeTop-300x250@300x250": {
+						placementId: "11892095",
+						query: "",
+						member: "",
+						invCode: ""
+				},
+				"tcomHomeTop-728x90@728x90": {
+						placementId: "11892081",
+						query: "",
+						member: "",
+						invCode: ""
+				}
 			}
-		}
 	},
-	appnexus: {
-		rev_share: "0.0",
-		throttle: "100",
-		kgp: "_DIV_",
-		klm: {
-			"Div_1": {
-				placementId: "8801674"
-			},
-			"Div-2": {
-				placementId: "8801685"
-			}
-		}
-	},
-	pulsepoint: {
-		cp: "521732",	
-		rev_share: "0.0",
-		throttle: "100",
-		kgp: "_DIV_",
-		klm: {
-			"Div_1": {
-				ct: "76835"
-			},
-			"Div-2": {
-				ct: "147007"
-			}
-		}
+	pubmatic: {
+			publisherId: "103207",
+			rev_share: "-15.0",
+			timeout: "1500",
+			throttle: "100",
+			pt: 0,
+			kgp: "_DIV_@_W_x_H_",
+			sk: "true"
 	}
 };
