@@ -839,6 +839,9 @@ exports.vLogInfo = function(divID, infoObject){
 
 exports.getExternalBidderStatus = function() {
 	var status = true;
+	if (window.allBidders.length === 0) {
+		return false;
+	}
 	window.allBidders.map(function (bidder) {
 		status = status && bidder.status;
 	});
@@ -851,18 +854,6 @@ exports.resetExternalBidderStatus = function() {
 			name: bidder.name,
 			status: false
 		};
-	});
-};
-
-exports.notifyInternalBiddingComplete = function() {
-	window.allBidders = window.allBidders.map(function (bidder) {
-		if ("pwt" === bidder.name) {
-			return {
-				name: bidder.name,
-				status: true
-			};
-		}
-		return bidder;
 	});
 };
 
