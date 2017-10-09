@@ -548,7 +548,7 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
 
            var executeDisplay = function() {
                var receivedNumberOfBids = util.getNumberOfReceivedBids();
-               console.log("Received no of bids : "+receivedNumberOfBids);
+               console.log("Received no of bids : ", receivedNumberOfBids, " external Bidder status:", util.getExternalBidderStatus());
                if (util.getExternalBidderStatus() && expectedNumofBids == receivedNumberOfBids) {
                    util.log("PostTimeout.. back in display function");
                    util.forEachOnObject(refThis.slotsMap, function(key, slot) {
@@ -782,7 +782,7 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
 
            var executeDisplay = function() {
                var receivedNumberOfBids = util.getNumberOfReceivedBids();
-               console.log("Received no of bids : "+receivedNumberOfBids);
+               console.log("Received no of bids : ", receivedNumberOfBids, " external Bidder status:", util.getExternalBidderStatus());
                if (util.getExternalBidderStatus() && expectedNumofBids == receivedNumberOfBids) {
                    util.log("PostTimeout.. back in refres function");
                    refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);

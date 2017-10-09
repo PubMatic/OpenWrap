@@ -16,7 +16,8 @@ window.PWT.safeFrameMessageListenerAdded = window.PWT.safeFrameMessageListenerAd
 // usingDifferentProfileVersion
 window.PWT.udpv = window.PWT.udpv || util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtv");
 
-window.allBidders = [];
+window.OWT = {};
+window.OWT.allBidders = [];
 
 
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
@@ -59,15 +60,15 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	);
 };
 
-window.registerExternalBidder = function() {
-	window.allBidders.push({
+window.OWT.registerExternalBidders = function() {
+	window.OWT.allBidders.push({
 		name: "external",
 		status: false
 	});
 };
 
-window.notifyExternalBiddingComplete = function() {
-	window.allBidders = window.allBidders.map(function (bidder) {
+window.OWT.notifyExternalBiddingComplete = function() {
+	window.OWT.allBidders = window.OWT.allBidders.map(function (bidder) {
 		if ("external" === bidder.name) {
 			return {
 				name: bidder.name,

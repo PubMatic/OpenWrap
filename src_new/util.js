@@ -839,17 +839,17 @@ exports.vLogInfo = function(divID, infoObject){
 
 exports.getExternalBidderStatus = function() {
 	var status = true;
-	if (window.allBidders.length === 0) {
+	if (window.OWT.allBidders.length === 0) {
 		return false;
 	}
-	window.allBidders.map(function (bidder) {
+	window.OWT.allBidders.map(function (bidder) {
 		status = status && bidder.status;
 	});
 	return status;
 };
 
 exports.resetExternalBidderStatus = function() {
-	window.allBidders = window.allBidders.map(function (bidder) {
+	window.OWT.allBidders = window.OWT.allBidders.map(function (bidder) {
 		return {
 			name: bidder.name,
 			status: false
