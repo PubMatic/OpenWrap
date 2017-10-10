@@ -844,7 +844,6 @@ exports.getPWTBidderStatus = function (bidMap) {
 					var bids = adapters[adapter].bids;
 					for (var bid in bids) {
 						if (bids.hasOwnProperty(bid)) {
-							console.log(bid, bids[bid].defaultBid);
 							status = status && (bids[bid].defaultBid === 0)
 						}
 					}
