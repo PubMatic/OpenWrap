@@ -55,7 +55,6 @@ function pbBidStreamHandler(pbBid){
 	if(util.isOwnProperty(refThis.kgpvMap, responseID)){
 		/* istanbul ignore else */
 		if(pbBid.bidderCode){
-			util.updateReceivedBidNumber();
 			bidManager.setBidFromBidder(
 				refThis.kgpvMap[responseID].divID,
 				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv)
@@ -204,10 +203,6 @@ function fetchBids(activeSlots, impressionID){
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
-
-
-	/* Set Number of Requested bids to 0 */
-	util.setNumberOfBidRequested(0);
 
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
 		// Assumption: all partners are running through PreBid,

@@ -212,9 +212,6 @@ exports.generateSlotName = generateSlotName;
 function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow) { // TDD, i/o : done
     util.log("Generating slotsMap");
 
-    /* Set Number of Bid Requested to 0 */
-    util.setNumberOfBidReceived(0);
-
     util.forEachOnArray(googleSlotsArray, function(index, currentGoogleSlot) {
         var dmSlotName = refThis.generateSlotName(currentGoogleSlot);
         refThis.storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow);
@@ -531,6 +528,22 @@ function processDisplayCalledSlot(theObject, originalFunction, arg){
 exports.processDisplayCalledSlot = processDisplayCalledSlot;
 /* end-test-block */
 
+
+function executeDisplay(timeout, callback) {
+    if (util.getExternalBidderStatus() && util.getPWTBidderStatus(window.PWT.bidMap)) {
+        callback();
+    } else {
+        (timeout > 0) && window.setTimeout(function() {
+          refThis.executeDisplay(timeout - 10, callback);
+        }, 10);
+    }
+}
+
+/* start-test-block */
+exports.executeDisplay = executeDisplay;
+/* end-test-block */
+
+
 function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg) { // TDD, i/o : done
     switch (oldStatus) {
         // display method was called for this slot
@@ -541,34 +554,22 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
             // eslint-disable-line no-fallthrough
         /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
-            var stopLoop = false;
 
-           var expectedNumofBids = util.getNumberOfRequestedBids();
-           console.log("Expected no of bids : "+expectedNumofBids);
-
-           var executeDisplay = function() {
-               var receivedNumberOfBids = util.getNumberOfReceivedBids();
-               console.log("Received no of bids : ", receivedNumberOfBids, " external Bidder status:", util.getExternalBidderStatus());
-               if (util.getExternalBidderStatus() && expectedNumofBids == receivedNumberOfBids) {
-                   util.log("PostTimeout.. back in display function");
-                   util.forEachOnObject(refThis.slotsMap, function(key, slot) {
-                       refThis.findWinningBidIfRequired_Display(key, slot);
-                   });
-                   refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
-               } else {
-                   !stopLoop && window.setTimeout(executeDisplay, 10);
-               }
-            };
+           refThis.executeDisplay(CONFIG.getTimeout(), function() {
+               util.forEachOnObject(refThis.slotsMap, function(key, slot) {
+                   refThis.findWinningBidIfRequired_Display(key, slot);
+               });
+               refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
+            });
 
             setTimeout(function() {
-              stopLoop = true;
+              util.log("PostTimeout.. back in display function");
               util.forEachOnObject(refThis.slotsMap, function(key, slot) {
                   refThis.findWinningBidIfRequired_Display(key, slot);
               });
               refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
             }, CONFIG.getTimeout());
 
-            executeDisplay();
             break;
             // call the original function now
         case CONSTANTS.SLOT_STATUS.TARGETING_ADDED:
@@ -775,28 +776,13 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
             /* istanbul ignore next */
             util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
 
-            var stopLoop = false;
-            var expectedNumofBids = util.getNumberOfRequestedBids();
-
-           console.log("Expected no of bids : "+expectedNumofBids);
-
-           var executeDisplay = function() {
-               var receivedNumberOfBids = util.getNumberOfReceivedBids();
-               console.log("Received no of bids : ", receivedNumberOfBids, " external Bidder status:", util.getExternalBidderStatus());
-               if (util.getExternalBidderStatus() && expectedNumofBids == receivedNumberOfBids) {
-                   util.log("PostTimeout.. back in refres function");
-                   refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);
-               } else {
-                   !stopLoop && window.setTimeout(executeDisplay, 10);
-               }
-            };
+            refThis.executeDisplay(CONFIG.getTimeout(), function() {
+              refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);
+            });
 
             setTimeout(function() {
-              stopLoop = true;
               refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);
             }, CONFIG.getTimeout());
-
-            executeDisplay();
         };
     } else {
         util.log("refresh: originalFunction is not a function");

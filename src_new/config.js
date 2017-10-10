@@ -15,7 +15,7 @@ exports.getMataDataPattern = function(){
 		return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN];
 	}
 	return null;
-};	
+};
 
 exports.getSendAllBidsStatus = function(){
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SEND_ALL_BIDS]) || 0;
@@ -84,10 +84,6 @@ exports.getMonetizationPixelURL = function(){
 
 exports.forEachAdapter = function(callback){
 	util.forEachOnObject(config.adapters, callback);
-};
-
-exports.getNumberOfAdapters = function() {
-	return Object.keys(config.adapters).length;
 };
 
 function addPrebidAdapter(){

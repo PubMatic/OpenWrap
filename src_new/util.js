@@ -25,9 +25,6 @@ var toString = Object.prototype.toString;
 var refThis = this;
 
 
-refThis.numOfRequestedBids = 0;
-refThis.numberOfReceivedBids = 0;
-
 function isA(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
 }
@@ -308,10 +305,6 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 						bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
 						bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
 					}
-
-					console.log("util keyLookupMap:", keyLookupMap);
-					/* Updated the number of requested Bids */
-					refThis.updateRequestedBidNumber();
 
 					handlerFunction(
 						adapterID,
@@ -838,47 +831,27 @@ exports.vLogInfo = function(divID, infoObject){
 };
 
 exports.getExternalBidderStatus = function() {
+	return window.OWT.externalBidderStatus;
+};
+
+exports.getPWTBidderStatus = function (bidMap) {
 	var status = true;
-	if (window.OWT.allBidders.length === 0) {
-		return false;
-	}
-	window.OWT.allBidders.map(function (bidder) {
-		status = status && bidder.status;
-	});
+	for (var key in bidMap) {
+    if (bidMap.hasOwnProperty(key)) {
+      var adapters = bidMap[key].adapters;
+			for (var adapter in adapters) {
+				if (adapters.hasOwnProperty(adapter)) {
+					var bids = adapters[adapter].bids;
+					for (var bid in bids) {
+						if (bids.hasOwnProperty(bid)) {
+							console.log(bid, bids[bid].defaultBid);
+							status = status && (bids[bid].defaultBid === 0)
+						}
+					}
+				}
+			}
+    }
+  }
+
 	return status;
-};
-
-exports.resetExternalBidderStatus = function() {
-	window.OWT.allBidders = window.OWT.allBidders.map(function (bidder) {
-		return {
-			name: bidder.name,
-			status: false
-		};
-	});
-};
-
-function updateRequestedBidNumber() {
-	refThis.numOfRequestedBids = refThis.numOfRequestedBids + 1;
-}
-
-exports.updateRequestedBidNumber = updateRequestedBidNumber;
-
-exports.setNumberOfBidRequested = function (num) {
-	refThis.numOfRequestedBids = num;
-};
-
-exports.getNumberOfRequestedBids = function () {
-	return refThis.numOfRequestedBids;
-};
-
-exports.updateReceivedBidNumber = function () {
-	refThis.numberOfReceivedBids = refThis.numberOfReceivedBids + 1;
-};
-
-exports.setNumberOfBidReceived = function (num) {
-	refThis.numberOfReceivedBids = num;
-};
-
-exports.getNumberOfReceivedBids = function () {
-	return refThis.numberOfReceivedBids;
 };
