@@ -530,7 +530,7 @@ exports.processDisplayCalledSlot = processDisplayCalledSlot;
 
 
 function executeDisplay(timeout, callback) {
-    if (util.getExternalBidderStatus() && util.getPWTBidderStatus(window.PWT.bidMap)) {
+    if (util.getExternalBidderStatus() && util.getAllPartnersBidStatuses(window.PWT.bidMap)) {
         callback();
     } else {
         (timeout > 0) && window.setTimeout(function() {
@@ -555,12 +555,14 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
         /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
 
-           refThis.executeDisplay(CONFIG.getTimeout(), function() {
-               util.forEachOnObject(refThis.slotsMap, function(key, slot) {
-                   refThis.findWinningBidIfRequired_Display(key, slot);
-               });
-               refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
-            });
+            if ((typeof window.OWT.externalBidderStatus) === "boolean") {
+               refThis.executeDisplay(CONFIG.getTimeout(), function() {
+                   util.forEachOnObject(refThis.slotsMap, function(key, slot) {
+                       refThis.findWinningBidIfRequired_Display(key, slot);
+                   });
+                   refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
+                });
+            }
 
             setTimeout(function() {
               util.log("PostTimeout.. back in display function");
@@ -776,9 +778,11 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
             /* istanbul ignore next */
             util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
 
-            refThis.executeDisplay(CONFIG.getTimeout(), function() {
-              refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);
-            });
+            if ((typeof window.OWT.externalBidderStatus) === "boolean") {
+              refThis.executeDisplay(CONFIG.getTimeout(), function() {
+                refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);
+              });
+            }
 
             setTimeout(function() {
               refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);

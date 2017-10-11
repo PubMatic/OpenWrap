@@ -834,23 +834,16 @@ exports.getExternalBidderStatus = function() {
 	return window.OWT.externalBidderStatus;
 };
 
-exports.getPWTBidderStatus = function (bidMap) {
+exports.getAllPartnersBidStatuses = function (bidMaps) {
 	var status = true;
-	for (var key in bidMap) {
-    if (bidMap.hasOwnProperty(key)) {
-      var adapters = bidMap[key].adapters;
-			for (var adapter in adapters) {
-				if (adapters.hasOwnProperty(adapter)) {
-					var bids = adapters[adapter].bids;
-					for (var bid in bids) {
-						if (bids.hasOwnProperty(bid)) {
-							status = status && (bids[bid].defaultBid === 0)
-						}
-					}
-				}
-			}
-    }
-  }
+
+	refThis.forEachOnObject(bidMaps, function (bidMapId, bidMap) {
+		refThis.forEachOnObject(bidMap.adapters, function (adapterID, adapter) {
+			refThis.forEachOnObject(adapter.bids, function (bidId, theBid) {
+				status = status && (theBid.getDefaultBidStatus() === 0);
+			});
+		});
+	});
 
 	return status;
 };
