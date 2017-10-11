@@ -778,14 +778,16 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
             /* istanbul ignore next */
             util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
 
+            var arg = arguments;
+
             if ((typeof window.OWT.externalBidderStatus) === "boolean") {
               refThis.executeDisplay(CONFIG.getTimeout(), function() {
-                refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);
+                refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
               });
             }
 
             setTimeout(function() {
-              refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);
+              refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
             }, CONFIG.getTimeout());
         };
     } else {
