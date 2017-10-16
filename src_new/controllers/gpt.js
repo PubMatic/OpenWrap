@@ -531,6 +531,7 @@ exports.processDisplayCalledSlot = processDisplayCalledSlot;
 
 function executeDisplay(timeout, callback) {
     if (util.getExternalBidderStatus() && util.getAllPartnersBidStatuses(window.PWT.bidMap)) {
+	window.OWT.externalBidderStatus=undefined; //Quick fix to reset flag so that the notification flow happens only once per page load
         callback();
     } else {
         (timeout > 0) && window.setTimeout(function() {
