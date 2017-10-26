@@ -369,6 +369,20 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
+        it('ADG: should have created bid object using sizes passed', function(done) {
+            adapterID = "adg";
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            UTIL.forEachOnArray.calledWith([
+                [currentWidth, currentHeight]
+            ]).should.be.true;
+            CONFIG.getProfileID.called.should.be.false;
+            CONFIG.getProfileDisplayVersionID.called.should.be.false;
+            adUnits["DIV_1@adg@340X210"].bids[0].bidder.should.be.equal("adg");
+            adUnits["DIV_1@adg@340X210"].bids[0].params.width.should.be.equal(340);
+            adUnits["DIV_1@adg@340X210"].bids[0].params.height.should.be.equal(210);
+            done();
+        });
+
         it('should have constructed proper slotParams', function(done) {
             kgpConsistsWidthAndHeight = false;
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);

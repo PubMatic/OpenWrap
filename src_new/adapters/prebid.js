@@ -142,6 +142,14 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			});
 			break;
 
+		case "adg":
+			util.forEachOnArray(sizes, function(index, size){
+				slotParams["width"] = size[0];
+				slotParams["height"] = size[1];
+				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			});
+			break;				
+
 		default:
 			adUnits[code].bids.push({ bidder: adapterID, params: slotParams });
 			break;	 
