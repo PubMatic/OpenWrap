@@ -135,8 +135,13 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			break;
 
-		case "pulsepoint":					
+		case "pulsepoint":
 			util.forEachOnArray(sizes, function(index, size){
+				var slotParams = {};
+				util.forEachOnObject(keyConfig, function(key, value){
+					/* istanbul ignore next */
+					slotParams[key] = value;
+				});				
 				slotParams["cf"] = size[0] + "x" + size[1];
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			});
@@ -144,6 +149,11 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 
 		case "adg":
 			util.forEachOnArray(sizes, function(index, size){
+				var slotParams = {};
+				util.forEachOnObject(keyConfig, function(key, value){
+					/* istanbul ignore next */
+					slotParams[key] = value;
+				});
 				slotParams["width"] = size[0];
 				slotParams["height"] = size[1];
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
