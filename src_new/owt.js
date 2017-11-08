@@ -57,16 +57,35 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 };
 
 
-window.OWT = {};
-
-window.OWT.registerExternalBidders = function() {
-	window.OWT.externalBidderStatus = false;
+window.OWT = {
+	notifyCount: 0, // To maintain the id which should be return after externalBidder registered
+	externalBidderStatuses: {}
 };
 
-window.OWT.notifyExternalBiddingComplete = function() {
-	if ((typeof window.OWT.externalBidderStatus) === "boolean") {
-		window.OWT.externalBidderStatus = true;
-	}
+window.OWT.registerExternalBidders = function(divIds) {
+	window.OWT.notifyCount++;
+
+	util.forEachOnArray(divIds, function (key, divId) {
+		console.log("registerExternalBidders: ", divId);
+		window.OWT.externalBidderStatuses[divId] = {
+			id: window.OWT.notifyCount,
+			status: false
+		};
+	});
+
+	return window.OWT.notifyCount;
+};
+
+window.OWT.notifyExternalBiddingComplete = function(notifyId) {
+	util.forEachOnObject(window.OWT.externalBidderStatuses, function (key, obj) {
+		if(obj && (obj.id === notifyId)) {
+			console.log("notify externalBidding complete: ", key);
+			window.OWT.externalBidderStatuses[key] = {
+				id: obj.id,
+				status: true
+			};
+		}
+	});
 };
 
 controller.init(window);

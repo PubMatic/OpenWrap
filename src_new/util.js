@@ -830,15 +830,31 @@ exports.vLogInfo = function(divID, infoObject){
 	}
 };
 
-exports.getExternalBidderStatus = function() {
-	return window.OWT.externalBidderStatus;
+exports.getExternalBidderStatus = function(divIds) {
+	var status = true;
+	refThis.forEachOnArray(divIds, function (key, divId) {
+		status =  window.OWT.externalBidderStatuses[divId]
+							? status && window.OWT.externalBidderStatuses[divId].status
+							: status;
+	});
+	return status;
 };
 
-exports.getAllPartnersBidStatuses = function (bidMaps) {
+exports.resetExternalBidderStatus = function(divIds) {
+	refThis.forEachOnArray(divIds, function (key, divId) {
+		console.log("resetExternalBidderStatus: ", divId);
+		window.OWT.externalBidderStatuses[divId] = undefined;
+	});
+};
+
+exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 	var status = true;
 
-	refThis.forEachOnObject(bidMaps, function (bidMapId, bidMap) {
-		refThis.forEachOnObject(bidMap.adapters, function (adapterID, adapter) {
+	console.log("divIds: ", divIds, " bidMaps: ", bidMaps);
+
+	refThis.forEachOnArray(divIds, function (key, divId) {
+		console.log(divId, bidMaps[divId]);
+		bidMaps[divId] && refThis.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
 			refThis.forEachOnObject(adapter.bids, function (bidId, theBid) {
 				status = status && (theBid.getDefaultBidStatus() === 0);
 			});
