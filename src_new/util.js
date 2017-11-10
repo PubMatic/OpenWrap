@@ -850,10 +850,7 @@ exports.resetExternalBidderStatus = function(divIds) {
 exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 	var status = true;
 
-	console.log("divIds: ", divIds, " bidMaps: ", bidMaps);
-
 	refThis.forEachOnArray(divIds, function (key, divId) {
-		console.log(divId, bidMaps[divId]);
 		bidMaps[divId] && refThis.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
 			refThis.forEachOnObject(adapter.bids, function (bidId, theBid) {
 				status = status && (theBid.getDefaultBidStatus() === 0);
