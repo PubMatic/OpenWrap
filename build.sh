@@ -21,13 +21,13 @@ var openwrapWebpackTaskName = "";
 
 if ( argv.mode && argv.mode == "test-build") {
 	console.log("Executing test-build");
-	prebidTaskName = "devpack";
+	prebidTaskName = "build-bundle-dev --modules=modules.json";
 	openwrapBuildTaskName = "devbundle";
 	openwrapWebpackTaskName = "devpack";
 
 } else if ( argv.mode && argv.mode == "build" ) {
 	console.log("Executing build");
-	prebidTaskName = "webpack";
+	prebidTaskName = "build --modules=modules.json";
 	openwrapBuildTaskName = "bundle";
 	openwrapWebpackTaskName = "webpack";
 } else {
