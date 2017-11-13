@@ -14,25 +14,29 @@ if(shell.cd(prebidRepoPath).code !== 0) {
 	shell.exit(1);
 }
 
-var buildTaskName = "bundle";
-var webpackTaskName = "pack";
+var prebidTaskName = "";
+var openwrapBuildTaskName = "";
+var openwrapWebpackTaskName = "";
 
 
 if ( argv.mode && argv.mode == "test-build") {
 	console.log("Executing test-build");
-	buildTaskName = "dev" + buildTaskName;
-	webpackTaskName = "dev" + webpackTaskName;
+	prebidTaskName = "devpack";
+	openwrapBuildTaskName = "devbundle";
+	openwrapWebpackTaskName = "devpack";
 
 } else if ( argv.mode && argv.mode == "build" ) {
 	console.log("Executing build");
-	webpackTaskName = "web" + webpackTaskName;
+	prebidTaskName = "webpack";
+	openwrapBuildTaskName = "bundle";
+	openwrapWebpackTaskName = "webpack";
 } else {
 	console.log("No mode supplied, Too few arguments");
 	shell.exit(1);
 }
  
 
-if(shell.exec("gulp " + webpackTaskName + " --mode=" + argv.mode).code !== 0) {
+if(shell.exec("gulp " + prebidTaskName + " --mode=" + argv.mode).code !== 0) {
 	shell.echo('Error: buidlinng of project failed');
   	shell.exit(1);
 }
@@ -45,13 +49,13 @@ if (argv.mode == "test-build") {
 	}
 }
 
-if(shell.exec("gulp " + webpackTaskName + " --mode=" + argv.mode).code !== 0) {
+if(shell.exec("gulp " + openwrapWebpackTaskName + " --mode=" + argv.mode).code !== 0) {
 	shell.echo('Error: webpack task failed');
 	shell.exit(1);
 }
 
 
-if(shell.exec("gulp " + buildTaskName + " --mode=" + argv.mode).code !== 0) {
+if(shell.exec("gulp " + openwrapBuildTaskName + " --mode=" + argv.mode).code !== 0) {
 	shell.echo('Error: build task failed');
 	shell.exit(1);
 }
