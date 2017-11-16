@@ -530,8 +530,8 @@ exports.processDisplayCalledSlot = processDisplayCalledSlot;
 
 
 function executeDisplay(timeout, divIds, callback) {
-    console.log("Inside executeDisplay: ", util.getExternalBidderStatus(divIds), util.getAllPartnersBidStatuses(window.PWT.bidMap, divIds));
-    if (util.getExternalBidderStatus(divIds) && util.getAllPartnersBidStatuses(window.PWT.bidMap, divIds)) {
+    console.log("Inside executeDisplay: ", util.getExternalBidderStatus(divIds), bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds));
+    if (util.getExternalBidderStatus(divIds) && bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds)) {
         util.resetExternalBidderStatus(divIds); //Quick fix to reset flag so that the notification flow happens only once per page load
         callback();
     } else {
@@ -558,7 +558,7 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
             var divIds = Object.keys(refThis.slotsMap);
 
-            if (window.OWT.externalBidderStatuses[arg[0]]) {
+            if (typeof window.OWT.externalBidderStatuses[arg[0]] === "object" && window.OWT.externalBidderStatuses[arg[0]]) {
                refThis.executeDisplay(CONFIG.getTimeout(), divIds, function() {
                    util.forEachOnObject(refThis.slotsMap, function(key, slot) {
                        refThis.findWinningBidIfRequired_Display(key, slot);
@@ -786,7 +786,7 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
 
             console.log("qualifyingSlotNames: ", qualifyingSlotNames);
 
-            if (window.OWT.externalBidderStatuses[qualifyingSlotNames[0]]) {
+            if (typeof window.OWT.externalBidderStatuses[qualifyingSlotNames[0]] === "object" && window.OWT.externalBidderStatuses[qualifyingSlotNames[0]]) {
               refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
                 refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
               });

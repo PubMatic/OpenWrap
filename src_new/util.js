@@ -846,17 +846,3 @@ exports.resetExternalBidderStatus = function(divIds) {
 		window.OWT.externalBidderStatuses[divId] = undefined;
 	});
 };
-
-exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
-	var status = true;
-
-	refThis.forEachOnArray(divIds, function (key, divId) {
-		bidMaps[divId] && refThis.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
-			refThis.forEachOnObject(adapter.bids, function (bidId, theBid) {
-				status = status && (theBid.getDefaultBidStatus() === 0);
-			});
-		});
-	});
-
-	return status;
-};

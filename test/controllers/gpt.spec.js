@@ -2048,18 +2048,22 @@ describe("CONTROLLER: GPT", function() {
         });
 
         it('should recall executeDisplay as partners not responded for given slot', function (done) {
+            var isTriggered = false;
             GPT.executeDisplay(100, ["Div1"], function() {
-              UTIL.log("Execute Display fired me")
+              isTriggered = true;
             });
             window.setTimeout.called.should.be.true;
+            isTriggered.should.be.false;
             done();
         });
-        
+
         it('should execute callback as partners responded for given slot', function (done) {
+            var isTriggered = false;
             GPT.executeDisplay(100, ["Div2"], function() {
-              UTIL.log("Execute Display fired me")
+              isTriggered = true;
             });
             window.setTimeout.called.should.be.false;
+            isTriggered.should.be.true;
             done();
         });
     });
