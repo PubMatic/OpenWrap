@@ -66,7 +66,7 @@ window.OWT.registerExternalBidders = function(divIds) {
 	window.OWT.notifyCount++;
 
 	util.forEachOnArray(divIds, function (key, divId) {
-		console.log("registerExternalBidders: ", divId);
+		util.log("registerExternalBidders: " + divId);
 		window.OWT.externalBidderStatuses[divId] = {
 			id: window.OWT.notifyCount,
 			status: false
@@ -79,7 +79,7 @@ window.OWT.registerExternalBidders = function(divIds) {
 window.OWT.notifyExternalBiddingComplete = function(notifyId) {
 	util.forEachOnObject(window.OWT.externalBidderStatuses, function (key, obj) {
 		if(obj && (obj.id === notifyId)) {
-			console.log("notify externalBidding complete: ", key);
+			util.log("notify externalBidding complete: " + key);
 			window.OWT.externalBidderStatuses[key] = {
 				id: obj.id,
 				status: true

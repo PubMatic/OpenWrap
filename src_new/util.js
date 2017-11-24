@@ -842,7 +842,7 @@ exports.getExternalBidderStatus = function(divIds) {
 
 exports.resetExternalBidderStatus = function(divIds) {
 	refThis.forEachOnArray(divIds, function (key, divId) {
-		console.log("resetExternalBidderStatus: ", divId);
+		refThis.log("resetExternalBidderStatus: " + divId);
 		window.OWT.externalBidderStatuses[divId] = undefined;
 	});
 };

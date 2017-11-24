@@ -530,7 +530,6 @@ exports.processDisplayCalledSlot = processDisplayCalledSlot;
 
 
 function executeDisplay(timeout, divIds, callback) {
-    console.log("Inside executeDisplay: ", util.getExternalBidderStatus(divIds), bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds));
     if (util.getExternalBidderStatus(divIds) && bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds)) {
         util.resetExternalBidderStatus(divIds); //Quick fix to reset flag so that the notification flow happens only once per page load
         callback();
@@ -566,7 +565,6 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
                    refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
                 });
             }
-            console.log("inside display:", arg, divIds);
 
             setTimeout(function() {
               util.log("PostTimeout.. back in display function");
@@ -783,8 +781,6 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
             util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
 
             var arg = arguments;
-
-            console.log("qualifyingSlotNames: ", qualifyingSlotNames);
 
             if (typeof window.OWT.externalBidderStatuses[qualifyingSlotNames[0]] === "object" && window.OWT.externalBidderStatuses[qualifyingSlotNames[0]]) {
               refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
