@@ -529,13 +529,13 @@ exports.processDisplayCalledSlot = processDisplayCalledSlot;
 /* end-test-block */
 
 
-function executeDisplay(timeout, callback) {
-    if (util.getExternalBidderStatus() && util.getAllPartnersBidStatuses(window.PWT.bidMap)) {
-	window.OWT.externalBidderStatus=undefined; //Quick fix to reset flag so that the notification flow happens only once per page load
+function executeDisplay(timeout, divIds, callback) {
+    if (util.getExternalBidderStatus(divIds) && bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds)) {
+        util.resetExternalBidderStatus(divIds); //Quick fix to reset flag so that the notification flow happens only once per page load
         callback();
     } else {
         (timeout > 0) && window.setTimeout(function() {
-          refThis.executeDisplay(timeout - 10, callback);
+          refThis.executeDisplay(timeout - 10, divIds, callback);
         }, 10);
     }
 }
@@ -555,9 +555,10 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
             // eslint-disable-line no-fallthrough
         /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
+            var divIds = Object.keys(refThis.slotsMap);
 
-            if ((typeof window.OWT.externalBidderStatus) === "boolean") {
-               refThis.executeDisplay(CONFIG.getTimeout(), function() {
+            if (typeof window.OWT.externalBidderStatuses[arg[0]] === "object" && window.OWT.externalBidderStatuses[arg[0]]) {
+               refThis.executeDisplay(CONFIG.getTimeout(), divIds, function() {
                    util.forEachOnObject(refThis.slotsMap, function(key, slot) {
                        refThis.findWinningBidIfRequired_Display(key, slot);
                    });
@@ -781,8 +782,8 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
 
             var arg = arguments;
 
-            if ((typeof window.OWT.externalBidderStatus) === "boolean") {
-              refThis.executeDisplay(CONFIG.getTimeout(), function() {
+            if (typeof window.OWT.externalBidderStatuses[qualifyingSlotNames[0]] === "object" && window.OWT.externalBidderStatuses[qualifyingSlotNames[0]]) {
+              refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
                 refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
               });
             }

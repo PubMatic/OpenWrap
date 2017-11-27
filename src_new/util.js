@@ -830,20 +830,19 @@ exports.vLogInfo = function(divID, infoObject){
 	}
 };
 
-exports.getExternalBidderStatus = function() {
-	return window.OWT.externalBidderStatus;
+exports.getExternalBidderStatus = function(divIds) {
+	var status = true;
+	refThis.forEachOnArray(divIds, function (key, divId) {
+		status =  window.OWT.externalBidderStatuses[divId]
+							? status && window.OWT.externalBidderStatuses[divId].status
+							: status;
+	});
+	return status;
 };
 
-exports.getAllPartnersBidStatuses = function (bidMaps) {
-	var status = true;
-
-	refThis.forEachOnObject(bidMaps, function (bidMapId, bidMap) {
-		refThis.forEachOnObject(bidMap.adapters, function (adapterID, adapter) {
-			refThis.forEachOnObject(adapter.bids, function (bidId, theBid) {
-				status = status && (theBid.getDefaultBidStatus() === 0);
-			});
-		});
+exports.resetExternalBidderStatus = function(divIds) {
+	refThis.forEachOnArray(divIds, function (key, divId) {
+		refThis.log("resetExternalBidderStatus: " + divId);
+		window.OWT.externalBidderStatuses[divId] = undefined;
 	});
-
-	return status;
 };

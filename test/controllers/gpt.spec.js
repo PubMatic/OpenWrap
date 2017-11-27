@@ -2018,6 +2018,56 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
+    describe("#executeDisplay", function() {
+        beforeEach(function(done) {
+            sinon.spy(window, "setTimeout");
+            window.OWT = {
+              externalBidderStatuses: {
+                Div1: {
+                  id: 0,
+                  status: false
+                },
+                Div2: {
+                  id: 1,
+                  status: true
+                }
+              }
+            };
+            done();
+        });
+
+        afterEach(function(done) {
+            window.OWT = undefined;
+            window.setTimeout.restore();
+            done();
+        });
+
+        it('should be a function', function(done) {
+            GPT.executeDisplay.should.be.a('function');
+            done();
+        });
+
+        it('should recall executeDisplay as partners not responded for given slot', function (done) {
+            var isTriggered = false;
+            GPT.executeDisplay(100, ["Div1"], function() {
+              isTriggered = true;
+            });
+            window.setTimeout.called.should.be.true;
+            isTriggered.should.be.false;
+            done();
+        });
+
+        it('should execute callback as partners responded for given slot', function (done) {
+            var isTriggered = false;
+            GPT.executeDisplay(100, ["Div2"], function() {
+              isTriggered = true;
+            });
+            window.setTimeout.called.should.be.false;
+            isTriggered.should.be.true;
+            done();
+        });
+    });
+
     describe('#displayFunctionStatusHandler', function() {
 
         var oldStatus = null,
@@ -2031,6 +2081,9 @@ describe("CONTROLLER: GPT", function() {
                 return "originalFunction"
             };
             arg = {};
+            window.OWT = {
+              externalBidderStatuses: {}
+            };
             sinon.stub(GPT, "updateStatusAndCallOriginalFunction_Display").returns(true);
             sinon.spy(window, "setTimeout");
             sinon.spy(CONFIG, "getTimeout");
@@ -2042,6 +2095,7 @@ describe("CONTROLLER: GPT", function() {
             theObject = null;
             originalFunction = null;
             arg = null;
+            window.OWT = null;
             GPT.updateStatusAndCallOriginalFunction_Display.restore();
             window.setTimeout.restore();
             CONFIG.getTimeout.restore();
@@ -2053,21 +2107,21 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        // it('should have fall through and called setTimeout with function to fire post timeout to handle slot rendering', function (done) {
-        //     oldStatus = CONSTANTS.SLOT_STATUS.CREATED;
-        //     GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
-        //     window.setTimeout.called.should.be.true;
-        //     CONFIG.getTimeout.called.should.be.true;
-        //     done();
-        // });
+        it('should have fall through and called setTimeout with function to fire post timeout to handle slot rendering', function (done) {
+            oldStatus = CONSTANTS.SLOT_STATUS.CREATED;
+            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
+            window.setTimeout.called.should.be.true;
+            CONFIG.getTimeout.called.should.be.true;
+            done();
+        });
 
-        // it('should have called setTimeout with function to fire post timeout to handle slot rendering', function (done) {
-        //     oldStatus = CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
-        //     GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
-        //     window.setTimeout.called.should.be.true;
-        //     CONFIG.getTimeout.called.should.be.true;
-        //     done();
-        // });
+        it('should have called setTimeout with function to fire post timeout to handle slot rendering', function (done) {
+            oldStatus = CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
+            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
+            window.setTimeout.called.should.be.true;
+            CONFIG.getTimeout.called.should.be.true;
+            done();
+        });
 
         it('should have called updateStatusAndCallOriginalFunction_Display with proper arguments when oldStatus is  TARGETING_ADDED', function(done) {
             oldStatus = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
@@ -2715,6 +2769,9 @@ describe("CONTROLLER: GPT", function() {
                     return "getSlots";
                 }
             };
+            window.OWT = {
+                externalBidderStatuses: {}
+            };
             done();
         });
 
@@ -2726,6 +2783,7 @@ describe("CONTROLLER: GPT", function() {
             GPT.updateSlotsMapFromGoogleSlots.restore();
             GPT.forQualifyingSlotNamesCallAdapters.restore();
             theObject = null;
+            window.OWT = null;
             done();
         });
 
@@ -2759,19 +2817,19 @@ describe("CONTROLLER: GPT", function() {
         });
 
 
-        // it('the returned function when called should call refersh functionality', function (done) {
-        //     var returnedFn = GPT.newRefreshFuncton(theObject, function() {
-        //         console.log("inside function");
-        //     });
-        //     UTIL.isObject.calledOnce.should.be.true;
-        //     UTIL.isFunction.calledOnce.should.be.true;
-        //     returnedFn();
-        //     UTIL.log.calledWith("In Refresh function").should.be.true;
-        //     UTIL.log.calledWith("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms").should.be.true;
-        //     GPT.updateSlotsMapFromGoogleSlots.called.should.be.true;
-        //     GPT.forQualifyingSlotNamesCallAdapters.called.should.be.true;
-        //     done();
-        // });
+        it('the returned function when called should call refersh functionality', function (done) {
+            var returnedFn = GPT.newRefreshFuncton(theObject, function() {
+                console.log("inside function");
+            });
+            UTIL.isObject.calledOnce.should.be.true;
+            UTIL.isFunction.calledOnce.should.be.true;
+            returnedFn();
+            UTIL.log.calledWith("In Refresh function").should.be.true;
+            UTIL.log.calledWith("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms").should.be.true;
+            GPT.updateSlotsMapFromGoogleSlots.called.should.be.true;
+            GPT.forQualifyingSlotNamesCallAdapters.called.should.be.true;
+            done();
+        });
     });
 
     describe('#newSizeMappingFunction', function() {

@@ -178,7 +178,6 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 	if(!adapterConfig){
 		return;
 	}
-	console.log("prebid: ", adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP]);
 
 	util.forEachGeneratedKey(
 		adapterID,
