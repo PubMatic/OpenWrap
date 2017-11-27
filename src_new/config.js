@@ -15,7 +15,7 @@ exports.getMataDataPattern = function(){
 		return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN];
 	}
 	return null;
-};	
+};
 
 exports.getSendAllBidsStatus = function(){
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SEND_ALL_BIDS]) || 0;
@@ -55,7 +55,7 @@ exports.getAdapterMaskBidsStatus = function(adapterID){
 	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.MASK_BIDS)){
 		return window.parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.MASK_BIDS]) || 0;
 	}
-	return 0;	
+	return 0;
 }
 
 exports.getBidPassThroughStatus = function(adapterID){
@@ -95,7 +95,7 @@ function addPrebidAdapter(){
 		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN]	= "_DIV_";
 		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = {};
 		config.adapters[preBidAdapter] = adapterConfig;
-	}	
+	}
 }
 
 /* start-test-block */
@@ -114,8 +114,8 @@ exports.initConfig = function(){
 		var adapterLevelParams = {};
 		util.forEachOnObject(adapterConfig, function(key, value){
 			if(!util.isOwnProperty(ignoreAdapterLevelParams, key)){
-				adapterLevelParams[ key ] = value;	
-			}				
+				adapterLevelParams[ key ] = value;
+			}
 		});
 		util.forEachOnObject(adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP], function(kgpv, slotLevelParams){
 			util.forEachOnObject(adapterLevelParams, function(key, value){
