@@ -55,7 +55,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 			lastBidWasDefaultBid = lastBid.getDefaultBidStatus() === 1
 			;
 
-		if( lastBidWasDefaultBid || !isPostTimeout){				
+		if( lastBidWasDefaultBid || !isPostTimeout){
 			/* istanbul ignore else */
 			if(lastBidWasDefaultBid){
 				util.log(CONSTANTS.MESSAGES.M23);
@@ -63,17 +63,17 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 
 			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14);
-				refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);				
+				refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 			}else{
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16);
-			}				
+			}
 		}else{
 			util.log(CONSTANTS.MESSAGES.M17);
 		}
 	}else{
 		util.log(CONSTANTS.MESSAGES.M18);
-		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);		
-	}		
+		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
+	}
 };
 
 function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : done
@@ -112,7 +112,7 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
 		macros = CONSTANTS.METADATA_MACROS,
 		macroRegexFlag = "g"
 	;
-	util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {        
+	util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
         if (adapterEntry.getLastBidID() != "") {
         	partnerCount++;
         	util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
@@ -139,7 +139,7 @@ exports.createMetaDataKey = createMetaDataKey;
 function replaceMetaDataMacros(pattern, theBid){
 	var macros = CONSTANTS.METADATA_MACROS,
 		macroRegexFlag = "g"
-	;	
+	;
 	return pattern
 		.replace(new RegExp(macros.PARTNER, macroRegexFlag), theBid.getAdapterID())
 		.replace(new RegExp(macros.WIDTH, macroRegexFlag), theBid.getWidth())
@@ -152,10 +152,10 @@ exports.replaceMetaDataMacros = replaceMetaDataMacros;
 /* end-test-block */
 
 
-function auctionBids(bmEntry) { // TDD, i/o : done 
+function auctionBids(bmEntry) { // TDD, i/o : done
     var winningBid = null,
         keyValuePairs = {};
-    
+
     util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
         var obj = refThis.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
         winningBid  = obj.winningBid;
@@ -163,8 +163,8 @@ function auctionBids(bmEntry) { // TDD, i/o : done
     });
 
     if(CONFIG.getMataDataPattern() !== null){
-    	createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);	
-    }    
+    	createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);
+    }
 
     return {
         wb: winningBid,
@@ -329,7 +329,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 
 exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	var pixelURL = CONFIG.getMonetizationPixelURL();
-	
+
 	/* istanbul ignore else */
 	if(!pixelURL){
 		return;
@@ -348,7 +348,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
 	pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
 
-	refThis.setImageSrcToPixelURL(pixelURL);	
+	refThis.setImageSrcToPixelURL(pixelURL);
 };
 
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
@@ -364,7 +364,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
         bmEntry.setExpired();
         var impressionID = bmEntry.getImpressionID();
         impressionIDMap[impressionID] = impressionIDMap[impressionID] || [];
-        
+
         util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
         	/* istanbul ignore else */
             if (CONFIG.getBidPassThroughStatus(adapterID) == 1) {
@@ -372,7 +372,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
             }
 
             util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
-           
+
             	if(CONFIG.getAdapterMaskBidsStatus(adapterID) == 1){
 		        	if(theBid.getWinningBidStatus() === false){
 		        		return;
@@ -412,4 +412,19 @@ exports.analyticalPixelCallback = analyticalPixelCallback;
 exports.setImageSrcToPixelURL = function (pixelURL) { // TDD, i/o : done
 	var img = new window.Image();
 	img.src = util.metaInfo.protocol + pixelURL;
+};
+
+
+exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
+	var status = true;
+
+	util.forEachOnArray(divIds, function (key, divId) {
+		bidMaps[divId] && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
+			util.forEachOnObject(adapter.bids, function (bidId, theBid) {
+				status = status && (theBid.getDefaultBidStatus() === 0);
+			});
+		});
+	});
+
+	return status;
 };
