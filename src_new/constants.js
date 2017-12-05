@@ -2,7 +2,7 @@
 // remove unnecessary constants
 
 exports.COMMON = {
-	"BID_PRECISION": 4,
+	"BID_PRECISION": 2,
 	"DEAL_KEY_FIRST_PART": "pwtdeal_",
 	"DEAL_KEY_VALUE_SEPARATOR": "_-_",
 	"PREBID_PREFIX": "PB_",

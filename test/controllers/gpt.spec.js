@@ -204,53 +204,53 @@ describe("CONTROLLER: GPT", function() {
         });
 
         it('should have logged in case of unsupported mapping template', function (done) {
-            slotSizeMapping[divID] = 
-            [ 
-                [ 
-                    [ 1024, 768 ], 
-                    [ 
-                        "X970X", 250 
-                    ] 
+            slotSizeMapping[divID] =
+            [
+                [
+                    [ 1024, 768 ],
+                    [
+                        "X970X", 250
+                    ]
                 ],
 
-                [ 
-                    [ 980, 600 ], 
-                    [ 
-                        [ 728, 90 ], 
-                        [ 640, 480 ] 
-                    ] 
-                ] 
+                [
+                    [ 980, 600 ],
+                    [
+                        [ 728, 90 ],
+                        [ 640, 480 ]
+                    ]
+                ]
             ];
             GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.an('array');
             UTIL.isNumber.called.should.be.true;
             UTIL.log.calledWith(divID + ": Unsupported mapping template.").should.be.true;
             UTIL.log.calledWith(slotSizeMapping[divID]).should.be.true;
-            done(); 
+            done();
         });
 
         it('should have logged in case of unsupported mapping template', function (done) {
-            slotSizeMapping[divID] = 
-            [ 
-                [ 
-                    [ 1024, 768 ], 
-                    [ 
-                        250, "X970X" 
-                    ] 
+            slotSizeMapping[divID] =
+            [
+                [
+                    [ 1024, 768 ],
+                    [
+                        250, "X970X"
+                    ]
                 ],
 
-                [ 
-                    [ 980, 600 ], 
-                    [ 
-                        [ 728, 90 ], 
-                        [ 640, 480 ] 
-                    ] 
-                ] 
+                [
+                    [ 980, 600 ],
+                    [
+                        [ 728, 90 ],
+                        [ 640, 480 ]
+                    ]
+                ]
             ];
             GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.an('array');
             UTIL.isNumber.calledTwice.should.be.true;
             UTIL.log.calledWith(divID + ": Unsupported mapping template.").should.be.true;
             UTIL.log.calledWith(slotSizeMapping[divID]).should.be.true;
-            done(); 
+            done();
         });
     });
 
@@ -295,21 +295,21 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(sizeObj_2, 'getWidth');
 
             sinon.stub(GPT, 'getSizeFromSizeMapping');
-            slotSizeMapping = [ 
-                [ 
-                    [ 1024, 768 ], 
-                    [ 
-                        970, 250 
-                    ] 
+            slotSizeMapping = [
+                [
+                    [ 1024, 768 ],
+                    [
+                        970, 250
+                    ]
                 ],
 
-                [ 
-                    [ 980, 600 ], 
-                    [ 
-                        [ 728, 90 ], 
-                        [ 640, 480 ] 
-                    ] 
-                ] 
+                [
+                    [ 980, 600 ],
+                    [
+                        [ 728, 90 ],
+                        [ 640, 480 ]
+                    ]
+                ]
             ];
             GPT.getSizeFromSizeMapping.returns(slotSizeMapping);
             sinon.spy(UTIL, 'log');
@@ -486,14 +486,14 @@ describe("CONTROLLER: GPT", function() {
         var slotStub = null, sizeObj_1 = null, sizeObj_2 = null;
 
         beforeEach(function (done) {
-            dmSlotName = "DIV_1"; // note: here dmSlotName is actually the DivID // please refer source code 
+            dmSlotName = "DIV_1"; // note: here dmSlotName is actually the DivID // please refer source code
 
             sinon.spy(UTIL, "isOwnProperty");
             sinon.spy(UTIL, "isObject");
             sinon.spy(UTIL, "isFunction");
             sinon.spy(UTIL, "createVLogInfoPanel");
             sinon.spy(UTIL, "forEachOnArray");
-            
+
 
             slotStub = SLOT.createSlot(dmSlotName);
 
@@ -505,8 +505,8 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(slotStub, "setStatus");
             sinon.spy(slotStub, "setKeyValue");
             sinon.spy(slotStub, "getSizes");
-            
-            
+
+
 
             sinon.stub(SLOT, "createSlot").returns(slotStub);
 
@@ -572,16 +572,16 @@ describe("CONTROLLER: GPT", function() {
             // slotStub.setSizes.restore();
             slotStub.setStatus.restore();
             slotStub.setKeyValue.restore();
-            slotStub.getSizes.restore();            
+            slotStub.getSizes.restore();
 
             slotStub = null;
 
             currentGoogleSlotStub.getTargeting.restore();
 
             currentGoogleSlotStub = null;
-            
+
             if (GPT.slotsMap[dmSlotName].setSizes) {
-                GPT.slotsMap[dmSlotName].setSizes.restore(); 
+                GPT.slotsMap[dmSlotName].setSizes.restore();
             }
 
             if (GPT.slotsMap[dmSlotName]) {
@@ -590,7 +590,7 @@ describe("CONTROLLER: GPT", function() {
             }
 
             isDisplayFlow = null;
-            
+
             done();
         });
 
@@ -722,7 +722,7 @@ describe("CONTROLLER: GPT", function() {
                     "k1": "v1",
                     "k2": "v2",
                     "pk1": "pv1",
-                    "pk2": "pv2",                    
+                    "pk2": "pv2",
                 },
                 getTargetingKeys: function() {
                     return Object.keys(this.keyValuePairs);
@@ -752,7 +752,7 @@ describe("CONTROLLER: GPT", function() {
                     "k11": "v11",
                     "k22": "v22",
                     "pk11": "pv11",
-                    "pk22": "pv22",                    
+                    "pk22": "pv22",
                 },
                 getTargetingKeys: function() {
                     return Object.keys(this.keyValuePairs);
@@ -1021,7 +1021,7 @@ describe("CONTROLLER: GPT", function() {
 
         it('should have called UTIL functions and slot\'s getStatus', function(done) {
             GPT.getSlotNamesByStatus(statusObject);
-            
+
             UTIL.isOwnProperty.called.should.be.true;
             UTIL.forEachOnObject.called.should.be.true;
 
@@ -1056,7 +1056,7 @@ describe("CONTROLLER: GPT", function() {
                     "k1": "v1",
                     "k2": "v2",
                     "pk1": "pv1",
-                    "pk2": "pv2",                    
+                    "pk2": "pv2",
                 },
                 getTargetingKeys: function() {
                     return Object.keys(this.keyValuePairs);
@@ -1071,7 +1071,7 @@ describe("CONTROLLER: GPT", function() {
                     return this.keyValuePairs[key] = value;
                 },
             };
-            
+
             GPT.wrapperTargetingKeys = {
                 "pk1": "pv1",
                 "pk2": "pv2",
@@ -1268,9 +1268,9 @@ describe("CONTROLLER: GPT", function() {
             GPT.slotsMap = {};
 
             GPT.slotsMap["slot_1"] = slot_1;
-            GPT.slotsMap["slot_2"] = slot_2; 
+            GPT.slotsMap["slot_2"] = slot_2;
             GPT.slotsMap["slot_3"] = slot_3;
-            
+
             sinon.spy(UTIL, "forEachOnArray");
             done();
         });
@@ -1514,7 +1514,7 @@ describe("CONTROLLER: GPT", function() {
             googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID, winningBidStub.getBidID()).should.be.true;
             googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS, winningBidStub.getStatus()).should.be.true;
             googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, winningBidStub.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION)).should.be.true;
-            
+
             googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID, winningBidStub.getDealID()).should.be.false;
 
             googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID, winningBidStub.getAdapterID()).should.be.true;
@@ -1532,7 +1532,7 @@ describe("CONTROLLER: GPT", function() {
             googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID, winningBidStub.getBidID()).should.be.true;
             googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS, winningBidStub.getStatus()).should.be.true;
             googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, winningBidStub.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION)).should.be.true;
-            
+
             googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID, winningBidStub.getDealID()).should.be.true;
 
             googleDefinedSlotStub.setTargeting.calledWith(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID, winningBidStub.getAdapterID()).should.be.true;
@@ -1944,7 +1944,7 @@ describe("CONTROLLER: GPT", function() {
 
         it('is function', function(done){
             GPT.processDisplayCalledSlot.should.be.a('function');
-            done();            
+            done();
         });
 
         it('do nothing if slot is invalid', function(done){
@@ -1956,7 +1956,7 @@ describe("CONTROLLER: GPT", function() {
         });
 
         it('valid case', function(done){
-            
+
             var sizeObj_1 = {
                 getWidth: function() {
                     return 1024;
@@ -2053,21 +2053,21 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should have fall through and called setTimeout with function to fire post timeout to handle slot rendering', function (done) {
-            oldStatus = CONSTANTS.SLOT_STATUS.CREATED;
-            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
-            window.setTimeout.called.should.be.true;
-            CONFIG.getTimeout.called.should.be.true;
-            done();
-        });
+        // it('should have fall through and called setTimeout with function to fire post timeout to handle slot rendering', function (done) {
+        //     oldStatus = CONSTANTS.SLOT_STATUS.CREATED;
+        //     GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
+        //     window.setTimeout.called.should.be.true;
+        //     CONFIG.getTimeout.called.should.be.true;
+        //     done();
+        // });
 
-        it('should have called setTimeout with function to fire post timeout to handle slot rendering', function (done) {
-            oldStatus = CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
-            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
-            window.setTimeout.called.should.be.true;
-            CONFIG.getTimeout.called.should.be.true;
-            done();
-        });
+        // it('should have called setTimeout with function to fire post timeout to handle slot rendering', function (done) {
+        //     oldStatus = CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
+        //     GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
+        //     window.setTimeout.called.should.be.true;
+        //     CONFIG.getTimeout.called.should.be.true;
+        //     done();
+        // });
 
         it('should have called updateStatusAndCallOriginalFunction_Display with proper arguments when oldStatus is  TARGETING_ADDED', function(done) {
             oldStatus = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
@@ -2173,7 +2173,7 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(UTIL, "log");
             sinon.spy(UTIL, "isObject");
             sinon.spy(UTIL, "isFunction");
-            
+
             pubadsStub = {
                 getSlots: function () {
                     return ["slot_1", "slot_2"];
@@ -2196,7 +2196,7 @@ describe("CONTROLLER: GPT", function() {
             sinon.stub(GPT, "displayFunctionStatusHandler").returns(true);
             sinon.stub(GPT, "forQualifyingSlotNamesCallAdapters").returns(true);
             // sinon.stub(GPT, "getSlotNamesByStatus").returns(true);
-            
+
             done();
         });
 
@@ -2222,7 +2222,7 @@ describe("CONTROLLER: GPT", function() {
 
             pubadsStub = null;
             theObject = null
-            
+
             done();
         });
 
@@ -2515,13 +2515,13 @@ describe("CONTROLLER: GPT", function() {
             GPT.findWinningBidIfRequired_Refresh.returns(false);
 
             GPT.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
-            
+
             UTIL.log.calledWith("Executing post timeout events, arguments: ").should.be.true;
             UTIL.log.calledWith(arg).should.be.true;
-            UTIL.forEachOnArray.calledWith(qualifyingSlotNames).should.be.true;            
-            window.setTimeout.called.should.be.true;                        
+            UTIL.forEachOnArray.calledWith(qualifyingSlotNames).should.be.true;
+            window.setTimeout.called.should.be.true;
             GPT.callOriginalRefeshFunction.calledWith(false, theObject, originalFunction, arg).should.be.true;
-            
+
             done();
         });
 
@@ -2759,19 +2759,19 @@ describe("CONTROLLER: GPT", function() {
         });
 
 
-        it('the returned function when called should call refersh functionality', function (done) {
-            var returnedFn = GPT.newRefreshFuncton(theObject, function() {
-                console.log("inside function");
-            });
-            UTIL.isObject.calledOnce.should.be.true;
-            UTIL.isFunction.calledOnce.should.be.true;
-            returnedFn();
-            UTIL.log.calledWith("In Refresh function").should.be.true;
-            UTIL.log.calledWith("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms").should.be.true;
-            GPT.updateSlotsMapFromGoogleSlots.called.should.be.true;
-            GPT.forQualifyingSlotNamesCallAdapters.called.should.be.true;
-            done();
-        });
+        // it('the returned function when called should call refersh functionality', function (done) {
+        //     var returnedFn = GPT.newRefreshFuncton(theObject, function() {
+        //         console.log("inside function");
+        //     });
+        //     UTIL.isObject.calledOnce.should.be.true;
+        //     UTIL.isFunction.calledOnce.should.be.true;
+        //     returnedFn();
+        //     UTIL.log.calledWith("In Refresh function").should.be.true;
+        //     UTIL.log.calledWith("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms").should.be.true;
+        //     GPT.updateSlotsMapFromGoogleSlots.called.should.be.true;
+        //     GPT.forQualifyingSlotNamesCallAdapters.called.should.be.true;
+        //     done();
+        // });
     });
 
     describe('#newSizeMappingFunction', function() {
@@ -2886,7 +2886,7 @@ describe("CONTROLLER: GPT", function() {
                     googleTagStub.destroySlots.restore();
                 }
             }
-            
+
 
             UTIL.isFunction.restore();
             UTIL.isObject.restore();
@@ -3285,7 +3285,7 @@ describe("CONTROLLER: GPT", function() {
     });
 
     describe("#init", function() {
-        
+
         beforeEach(function(done) {
             sinon.spy(UTIL, "isObject");
             sinon.spy(GPT, "setWindowReference");
@@ -3344,7 +3344,7 @@ describe("CONTROLLER: GPT", function() {
             AM.registerAdapters.called.should.be.false;
             GPT.addHooksIfPossible.called.should.be.false;
             GPT.callJsLoadedIfRequired.called.should.be.false;
-            done(); 
+            done();
         });
     });
 

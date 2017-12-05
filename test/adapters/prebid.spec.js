@@ -309,8 +309,8 @@ describe('ADAPTER: Prebid', function() {
             impressionID = 123123123;
             adUnits = {};
 
-            sinon.stub(UTIL, "isOwnProperty").returns(false);
-            sinon.spy(UTIL, "forEachOnObject");
+            //sinon.stub(UTIL, "isOwnProperty").returns(false);
+            //sinon.spy(UTIL, "forEachOnObject");
             sinon.spy(UTIL, "forEachOnArray");
 
             sinon.stub(CONFIG, "getProfileID").returns("profId");
@@ -327,10 +327,9 @@ describe('ADAPTER: Prebid', function() {
 
         afterEach(function(done) {
 
-            UTIL.isOwnProperty.restore();
-            UTIL.forEachOnObject.restore();
+            //UTIL.isOwnProperty.restore();
+            //UTIL.forEachOnObject.restore();
             UTIL.forEachOnArray.restore();
-
 
             currentSlot.getDivID.restore();
             currentSlot.getSizes.restore();
@@ -366,6 +365,28 @@ describe('ADAPTER: Prebid', function() {
             ]).should.be.true;
             CONFIG.getProfileID.called.should.be.false;
             CONFIG.getProfileDisplayVersionID.called.should.be.false;
+            done();
+        });
+
+        it('ADG: should have created bid object using sizes passed', function(done) {
+            adapterID = "adg";
+            var adapterConfig = null;
+            var keyConfig = {
+                id: '1234567'
+            };
+            var kgpConsistsWidthAndHeight = false;
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            adUnits["DIV_1@adg"].bids[0].bidder.should.be.equal("adg");
+            adUnits["DIV_1@adg"].bids[0].params.should.be.deep.equal({
+                id: '1234567',
+                width: 340,
+                height: 210
+            });
+            adUnits["DIV_1@adg"].bids[1].params.should.be.deep.equal({
+                id: '1234567',
+                width: 1024,
+                height: 768
+            });
             done();
         });
 

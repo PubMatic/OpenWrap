@@ -32,7 +32,7 @@ exports.slotsMap = slotsMap;
 var GPT_targetingMap = {};
 var windowReference = null;
 
-var refThis = this; 
+var refThis = this;
 
 function setWindowReference(win) { // TDD, i/o: done
     if (util.isObject(win)) {
@@ -66,10 +66,10 @@ exports.getAdUnitIndex = getAdUnitIndex;
 function getSizeFromSizeMapping(divID, slotSizeMapping) { // TDD, i/o : done
     /*
         Ref: https://support.google.com/dfp_premium/answer/3423562?hl=en
-        The adslot.defineSizeMapping() method will receive an array of mappings in the following form: 
-            [ [ [ 1024, 768 ], [ [ 970, 250 ] ] ], [ [ 980, 600 ], [ [ 728, 90 ], [ 640, 480 ] ] ], ...],  
-            which should be ordered from highest to lowest priority. 
-        The builder syntax is a more readable way of defining the mappings that orders them automatically. 
+        The adslot.defineSizeMapping() method will receive an array of mappings in the following form:
+            [ [ [ 1024, 768 ], [ [ 970, 250 ] ] ], [ [ 980, 600 ], [ [ 728, 90 ], [ 640, 480 ] ] ], ...],
+            which should be ordered from highest to lowest priority.
+        The builder syntax is a more readable way of defining the mappings that orders them automatically.
         However, you have the option of using different priority ordering by bypassing the builder and constructing the array of mappings manually.
     */
 
@@ -211,6 +211,7 @@ exports.generateSlotName = generateSlotName;
 
 function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow) { // TDD, i/o : done
     util.log("Generating slotsMap");
+
     util.forEachOnArray(googleSlotsArray, function(index, currentGoogleSlot) {
         var dmSlotName = refThis.generateSlotName(currentGoogleSlot);
         refThis.storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow);
@@ -338,15 +339,15 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     var googleDefinedSlot = refThis.slotsMap[divID].getPubAdServerObject();
     var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
 
-    util.log("DIV: " + divID + " winningBid: ");    
+    util.log("DIV: " + divID + " winningBid: ");
     util.log(winningBid);
-    
+
     /* istanbul ignore else*/
     if (winningBid && winningBid.getNetEcpm() > 0) {
         refThis.slotsMap[divID].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID, winningBid.getBidID());
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS, winningBid.getStatus());
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));        
+        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
         var dealID = winningBid.getDealID();
         if(dealID){
             googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID, dealID);
@@ -356,8 +357,8 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID());
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID, CONFIG.getProfileDisplayVersionID());
     }
-    
-    // attaching keyValuePairs from adapters    
+
+    // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
         /* istanbul ignore else*/
         if (!util.isOwnProperty(ignoreTheseKeys, key)) {
@@ -427,7 +428,7 @@ function newEnableSingleRequestFunction(theObject, originalFunction) { // TDD, i
 exports.newEnableSingleRequestFunction = newEnableSingleRequestFunction;
 /* end-test-block */
 
-/*  
+/*
     setTargeting is implemented by
         googletag.pubads().setTargeting(key, value);
             we are only intresetd in this one
@@ -527,6 +528,23 @@ function processDisplayCalledSlot(theObject, originalFunction, arg){
 exports.processDisplayCalledSlot = processDisplayCalledSlot;
 /* end-test-block */
 
+
+function executeDisplay(timeout, callback) {
+    if (util.getExternalBidderStatus() && util.getAllPartnersBidStatuses(window.PWT.bidMap)) {
+	window.OWT.externalBidderStatus=undefined; //Quick fix to reset flag so that the notification flow happens only once per page load
+        callback();
+    } else {
+        (timeout > 0) && window.setTimeout(function() {
+          refThis.executeDisplay(timeout - 10, callback);
+        }, 10);
+    }
+}
+
+/* start-test-block */
+exports.executeDisplay = executeDisplay;
+/* end-test-block */
+
+
 function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg) { // TDD, i/o : done
     switch (oldStatus) {
         // display method was called for this slot
@@ -537,13 +555,24 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
             // eslint-disable-line no-fallthrough
         /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
-            window.setTimeout(function() {
-                util.log("PostTimeout.. back in display function");
-                util.forEachOnObject(refThis.slotsMap, function(key, slot) {
-                    refThis.findWinningBidIfRequired_Display(key, slot);
+
+            if ((typeof window.OWT.externalBidderStatus) === "boolean") {
+               refThis.executeDisplay(CONFIG.getTimeout(), function() {
+                   util.forEachOnObject(refThis.slotsMap, function(key, slot) {
+                       refThis.findWinningBidIfRequired_Display(key, slot);
+                   });
+                   refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
                 });
-                refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
+            }
+
+            setTimeout(function() {
+              util.log("PostTimeout.. back in display function");
+              util.forEachOnObject(refThis.slotsMap, function(key, slot) {
+                  refThis.findWinningBidIfRequired_Display(key, slot);
+              });
+              refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
             }, CONFIG.getTimeout());
+
             break;
             // call the original function now
         case CONSTANTS.SLOT_STATUS.TARGETING_ADDED:
@@ -582,7 +611,7 @@ function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshC
 exports.forQualifyingSlotNamesCallAdapters = forQualifyingSlotNamesCallAdapters;
 /* end-test-block */
 
-function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done 
+function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         // Todo : change structure to take out the anonymous function for better unit test cases
         return function() {
@@ -598,7 +627,7 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
             }
             /* istanbul ignore next */
             refThis.updateSlotsMapFromGoogleSlots(theObject.pubads().getSlots(), arguments, true);
-                        
+
             /* istanbul ignore next */
             refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
             var statusObj = {};
@@ -630,14 +659,14 @@ exports.newDisplayFunction  = newDisplayFunction;
     there are many types of display methods
         1. googletag.display('div-1');
             this one is only covered
-            
-        // following approach can be re-written as 1st                  
-        2. googletag.pubads().display('/1234567/sports', [728, 90], 'div-1');                       
-            we can not support this as, above methode will generate adslot object internally and then displays, 
+
+        // following approach can be re-written as 1st
+        2. googletag.pubads().display('/1234567/sports', [728, 90], 'div-1');
+            we can not support this as, above methode will generate adslot object internally and then displays,
             btw it does not supports single reqest approach
             also slot level targeting can not be set on it
             https://developers.google.com/doubleclick-gpt/reference#googletag.PubAdsService_display
-                                
+
         3. googletag.pubads().definePassback('/1234567/sports', [468, 60]).display();
             we are not going to support this one as well as third-party partners use this and they wont have setup required to render our bids
 */
@@ -672,7 +701,7 @@ exports.findWinningBidIfRequired_Refresh = findWinningBidIfRequired_Refresh;
 function postRederingChores(divID, dmSlot){
     util.createVLogInfoPanel(divID, refThis.slotsMap[dmSlot].getSizes());
     util.realignVLogInfoPanel(divID);
-    bidManager.executeAnalyticsPixel();   
+    bidManager.executeAnalyticsPixel();
 }
 
 /* start-test-block */
@@ -689,7 +718,7 @@ function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFun
         window.setTimeout(function() {
             refThis.postRederingChores(divID, dmSlot);
         }, 2000);
-    });    
+    });
     this.callOriginalRefeshFunction(yesCallRefreshFunction, theObject, originalFunction, arg);
 }
 
@@ -719,7 +748,7 @@ function getQualifyingSlotNamesForRefresh(arg, theObject) { // TDD, i/o : done
         var slotName = refThis.generateSlotName(slot);
         if(slotName.length>0){
             qualifyingSlotNames = qualifyingSlotNames.concat(slotName);
-        }        
+        }
     });
     return qualifyingSlotNames;
 }
@@ -732,8 +761,8 @@ exports.getQualifyingSlotNamesForRefresh = getQualifyingSlotNamesForRefresh;
     there are many ways of calling refresh
         1. googletag.pubads().refresh([slot1]);
         2. googletag.pubads().refresh([slot1, slot2]);
-        3. googletag.pubads().refresh();                    
-        4. googletag.pubads().refresh(null, {changeCorrelator: false});     
+        3. googletag.pubads().refresh();
+        4. googletag.pubads().refresh(null, {changeCorrelator: false});
 */
 function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // Note : not covering the function currying atm , if need be will add istanbul ignore
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
@@ -749,13 +778,18 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
             refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
             /* istanbul ignore next */
             util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
-            
+
             var arg = arguments;
-            /* istanbul ignore next */
-            setTimeout(function() {
+
+            if ((typeof window.OWT.externalBidderStatus) === "boolean") {
+              refThis.executeDisplay(CONFIG.getTimeout(), function() {
                 refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
+              });
+            }
+
+            setTimeout(function() {
+              refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
             }, CONFIG.getTimeout());
-            //return originalFunction.apply(theObject, arguments);
         };
     } else {
         util.log("refresh: originalFunction is not a function");
@@ -809,9 +843,9 @@ function addHooks(win) { // TDD, i/o : done
 
     if (util.isObject(win) && util.isObject(win.googletag) && util.isFunction(win.googletag.pubads)) {
         var localGoogletag = win.googletag;
-        
+
         var localPubAdsObj = localGoogletag.pubads();
-        
+
         if (!util.isObject(localPubAdsObj)) {
             return false;
         }

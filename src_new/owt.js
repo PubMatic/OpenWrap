@@ -25,7 +25,7 @@ window.PWT.displayCreative = function(theDocument, bidID){
 };
 
 window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
-	util.log("In displayPMPCreative for: " + values);	
+	util.log("In displayPMPCreative for: " + values);
 	var bidID = util.getBididForPMP(values, priorityArray);
 	bidID && bidManager.displayCreative(theDocument, bidID);
 };
@@ -51,9 +51,22 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 			pwt_type: "1",
 			pwt_bidID: util.getBididForPMP(values, priorityArray),
 			pwt_origin: window.location.protocol+"//"+window.location.hostname
-		}), 
+		}),
 		"*"
 	);
+};
+
+
+window.OWT = {};
+
+window.OWT.registerExternalBidders = function() {
+	window.OWT.externalBidderStatus = false;
+};
+
+window.OWT.notifyExternalBiddingComplete = function() {
+	if ((typeof window.OWT.externalBidderStatus) === "boolean") {
+		window.OWT.externalBidderStatus = true;
+	}
 };
 
 controller.init(window);
