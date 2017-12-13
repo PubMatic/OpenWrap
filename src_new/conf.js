@@ -55,7 +55,7 @@ exports.adapters = {
 		}
 	},
 	pulsepoint: {
-		cp: "521732",	
+		cp: "521732",
 		rev_share: "0.0",
 		throttle: "100",
 		kgp: "_DIV_",

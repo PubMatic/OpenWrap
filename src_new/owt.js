@@ -25,7 +25,7 @@ window.PWT.displayCreative = function(theDocument, bidID){
 };
 
 window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
-	util.log("In displayPMPCreative for: " + values);	
+	util.log("In displayPMPCreative for: " + values);
 	var bidID = util.getBididForPMP(values, priorityArray);
 	bidID && bidManager.displayCreative(theDocument, bidID);
 };
@@ -51,9 +51,41 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 			pwt_type: "1",
 			pwt_bidID: util.getBididForPMP(values, priorityArray),
 			pwt_origin: window.location.protocol+"//"+window.location.hostname
-		}), 
+		}),
 		"*"
 	);
+};
+
+
+window.OWT = {
+	notifyCount: 0, // To maintain the id which should be return after externalBidder registered
+	externalBidderStatuses: {}
+};
+
+window.OWT.registerExternalBidders = function(divIds) {
+	window.OWT.notifyCount++;
+
+	util.forEachOnArray(divIds, function (key, divId) {
+		util.log("registerExternalBidders: " + divId);
+		window.OWT.externalBidderStatuses[divId] = {
+			id: window.OWT.notifyCount,
+			status: false
+		};
+	});
+
+	return window.OWT.notifyCount;
+};
+
+window.OWT.notifyExternalBiddingComplete = function(notifyId) {
+	util.forEachOnObject(window.OWT.externalBidderStatuses, function (key, obj) {
+		if(obj && (obj.id === notifyId)) {
+			util.log("notify externalBidding complete: " + key);
+			window.OWT.externalBidderStatuses[key] = {
+				id: obj.id,
+				status: true
+			};
+		}
+	});
 };
 
 controller.init(window);

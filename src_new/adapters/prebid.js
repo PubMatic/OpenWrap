@@ -1,8 +1,8 @@
 /*
 	Note:
-		Whenever we support a new PB adapter, we need to check if it needs actual sizes to be passed, 
+		Whenever we support a new PB adapter, we need to check if it needs actual sizes to be passed,
 			if so we will need to add special handling
-		PreBid does not do mandatory parameters checking		
+		PreBid does not do mandatory parameters checking
 */
 var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
@@ -56,7 +56,7 @@ function pbBidStreamHandler(pbBid){
 		/* istanbul ignore else */
 		if(pbBid.bidderCode){
 			bidManager.setBidFromBidder(
-				refThis.kgpvMap[responseID].divID, 
+				refThis.kgpvMap[responseID].divID,
 				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv)
 			);
 		}
@@ -77,7 +77,7 @@ function handleBidResponses(bidResponses){
 			for(var i = 0; i<bids.length; i++){
 				var bid = bids[i];
 				/* istanbul ignore else */
-				if(bid.bidderCode){					
+				if(bid.bidderCode){
 					bidManager.setBidFromBidder(refThis.kgpvMap[responseID].divID, transformPBBidToOWBid(bid, refThis.kgpvMap[responseID].kgpv));
 				}
 			}
@@ -89,8 +89,8 @@ function handleBidResponses(bidResponses){
 exports.handleBidResponses = handleBidResponses;
 /* end-test-block */
 
-function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){					
-			
+function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
+
 	var code, sizes, divID = currentSlot.getDivID();
 
 	if(kgpConsistsWidthAndHeight){
@@ -103,7 +103,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 
 	refThis.kgpvMap [ code ] = {
 		kgpv: generatedKey,
-		divID: divID	
+		divID: divID
 	};
 
 	/* istanbul ignore else */
@@ -114,13 +114,13 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			bids: []
 		};
 	}
-	
+
 	var slotParams = {};
 	util.forEachOnObject(keyConfig, function(key, value){
 		/* istanbul ignore next */
 		slotParams[key] = value;
-	});			
-	
+	});
+
 	// processing for each partner
 	switch(adapterID){
 		case "pubmatic":
@@ -135,16 +135,34 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			break;
 
-		case "pulsepoint":					
+		case "pulsepoint":
 			util.forEachOnArray(sizes, function(index, size){
+				var slotParams = {};
+				util.forEachOnObject(keyConfig, function(key, value){
+					/* istanbul ignore next */
+					slotParams[key] = value;
+				});				
 				slotParams["cf"] = size[0] + "x" + size[1];
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			});
 			break;
 
+		case "adg":
+			util.forEachOnArray(sizes, function(index, size){
+				var slotParams = {};
+				util.forEachOnObject(keyConfig, function(key, value){
+					/* istanbul ignore next */
+					slotParams[key] = value;
+				});
+				slotParams["width"] = size[0];
+				slotParams["height"] = size[1];
+				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			});
+			break;				
+
 		default:
 			adUnits[code].bids.push({ bidder: adapterID, params: slotParams });
-			break;	 
+			break;
 	}
 };
 
@@ -155,7 +173,7 @@ exports.generatedKeyCallback = generatedKeyCallback;
 
 function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID){
 	util.log(adapterID+CONSTANTS.MESSAGES.M1);
-	
+
 	/* istanbul ignore else */
 	if(!adapterConfig){
 		return;
@@ -167,9 +185,9 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 		adapterConfig,
 		impressionID,
 		[],
-		activeSlots, 
-		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN], 
-		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null, 
+		activeSlots,
+		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
+		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
 		refThis.generatedKeyCallback,
 		true
 	);
@@ -186,7 +204,7 @@ function fetchBids(activeSlots, impressionID){
 
 	/* istanbul ignore else */
 	if(! window[newPBNameSpace]){ // todo: move this code to initial state of adhooks
-		util.log("PreBid js is not loaded");	
+		util.log("PreBid js is not loaded");
 		return;
 	}
 
@@ -194,7 +212,7 @@ function fetchBids(activeSlots, impressionID){
 	if(util.isFunction(window[newPBNameSpace].onEvent)){
 		window[newPBNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
 	} else {
-		util.log("PreBid js onEvent method is not available");	
+		util.log("PreBid js onEvent method is not available");
 		return;
 	}
 
@@ -202,6 +220,7 @@ function fetchBids(activeSlots, impressionID){
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
+
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
 		// Assumption: all partners are running through PreBid,
 		//				if we add any new parent-adapter, then code changes will be required
@@ -225,7 +244,7 @@ function fetchBids(activeSlots, impressionID){
 			adUnitsArray.push(adUnits[code]);
 		}
 	}
-	
+
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window[newPBNameSpace]){
 
@@ -235,7 +254,7 @@ function fetchBids(activeSlots, impressionID){
 				window[newPBNameSpace].setBidderSequence("random");
 			}
 			/* istanbul ignore else */
-			if(util.isFunction(window[newPBNameSpace].requestBids)){				
+			if(util.isFunction(window[newPBNameSpace].requestBids)){
 				window[newPBNameSpace].requestBids({
 					adUnits: adUnitsArray,
 					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid
@@ -244,10 +263,10 @@ function fetchBids(activeSlots, impressionID){
 						util.log(bidResponses);
 						//refThis.handleBidResponses(bidResponses);
 					},
-					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then 
+					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then
 				});
 			} else {
-				util.log("PreBid js requestBids function is not available");	
+				util.log("PreBid js requestBids function is not available");
 				return;
 			}
 		} catch (e) {
