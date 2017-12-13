@@ -175,6 +175,26 @@ describe('Config', function() {
         });
     });
 
+    describe('#isServerSideAdapter', function(){
+        it('is a function', function(done) {
+            CONFIG.isServerSideAdapter.should.be.a('function');
+            done();
+        });
+
+        it('by default, status should be returned false', function(done){
+            delete CONF.adapters["pubmatic"][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
+            CONFIG.isServerSideAdapter("pubmatic").should.equal(false);
+            done();
+        });
+
+        it('if set, status should be returned true', function(done){
+            CONF.adapters["pubmatic"][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED] = '1';
+            CONFIG.isServerSideAdapter("pubmatic").should.equal(true);
+            delete CONF.adapters["pubmatic"][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
+            done();
+        });
+    });
+
     describe('#getAdapterMaskBidsStatus', function(){
         it('is a function', function(done) {
             CONFIG.getAdapterMaskBidsStatus.should.be.a('function');
