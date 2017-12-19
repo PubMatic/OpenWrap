@@ -198,7 +198,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		//todo: unit-test cases pending
 		case "pubmaticServer":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
-			slotParams["adUnitIndex"] = currentSlot.getAdUnitIndex();
+			slotParams["adUnitIndex"] = ''+currentSlot.getAdUnitIndex();
 			slotParams["adUnitId"] = currentSlot.getAdUnitID();
 			slotParams["divId"] = currentSlot.getDivID();
 			slotParams["adSlot"] = generatedKey;
