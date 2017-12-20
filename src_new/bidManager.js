@@ -42,7 +42,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 
 	refThis.createBidEntry(divID);
 
-	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", postTimeout: "+isPostTimeout);
+	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", postTimeout: "+isPostTimeout + ", defaultBid: " + bidDetails.getDefaultBidStatus());
 	/* istanbul ignore else */
 	if(isPostTimeout === true){
 		bidDetails.setPostTimeoutStatus();
