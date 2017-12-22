@@ -311,7 +311,7 @@ function fetchBids(activeSlots, impressionID){
 		return;
 	}
 
-	window[newPBNameSpace].logging = util.isDebugLogEnabled();
+	//window[newPBNameSpace].logging = util.isDebugLogEnabled();
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
@@ -347,9 +347,29 @@ function fetchBids(activeSlots, impressionID){
 
 		try{
 			/* istanbul ignore else */
-			if(util.isFunction(window[newPBNameSpace].setBidderSequence)){
-				window[newPBNameSpace].setBidderSequence("random");
+			//if(util.isFunction(window[newPBNameSpace].setBidderSequence)){
+			//	window[newPBNameSpace].setBidderSequence("random");
+			//}
+
+			if(util.isFunction(window[newPBNameSpace].setConfig)){
+				window[newPBNameSpace].setConfig({
+					debug: util.isDebugLogEnabled(),
+					bidderSequence: "random",
+					userSync: {
+						iframeEnabled: true,
+						pixelEnabled: true,
+						enabledBidders: (function(){
+							var arr = [];
+							CONFIG.forEachAdapter(function(adapterID){
+								arr.push(adapterID);
+							});
+							return arr;
+						})(),
+				    	syncDelay: 2000 //todo: default is 3000 write image pixels 5 seconds after the auction
+				    }
+				});
 			}
+
 			/* istanbul ignore else */
 			if(util.isFunction(window[newPBNameSpace].requestBids)){
 				window[newPBNameSpace].requestBids({
