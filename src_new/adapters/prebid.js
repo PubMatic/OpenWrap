@@ -39,6 +39,10 @@ function transformPBBidToOWBid(bid, kgpv){
 	theBid.setHeight(bid.height);
 	theBid.setReceivedTime(bid.responseTimestamp);
 
+	if(bid.pubmaticServerErrorCode){
+		theBid.setDefaultBidStatus(1);
+	}
+
 	util.forEachOnObject(bid.adserverTargeting, function(key, value){
 		theBid.setKeyValuePair(key, value);
 	});
