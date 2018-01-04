@@ -87,7 +87,7 @@ function pbBidStreamHandler(pbBid){
 				no need of divid and kgpv to be returned in bid from prebid
 					no need to add custom keys in Prebid bid object, they might standerdize it in future
 		*/
-		
+
 		/* istanbul ignore else */
 		if(pbBid.bidderCode === 'pubmaticServer'){
 			pbBid.bidderCode = pbBid.originalBidder;
@@ -95,7 +95,7 @@ function pbBidStreamHandler(pbBid){
 
 		/* istanbul ignore else */
 		if(pbBid.bidderCode && CONFIG.isServerSideAdapter(pbBid.bidderCode)){
-			var divID = refThis.kgpvMap[responseID].divID;			
+			var divID = refThis.kgpvMap[responseID].divID;
 			var temp1 = refThis.getPBCodeWithWidthAndHeight(divID, pbBid.bidderCode, pbBid.width, pbBid.height);
 			var temp2 = refThis.getPBCodeWithoutWidthAndHeight(divID, pbBid.bidderCode);
 
@@ -221,7 +221,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			break;
 
-		case "pubmatic":		
+		case "pubmatic":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
 			slotParams["adSlot"] = generatedKey;
 			slotParams["wiid"] = impressionID;
@@ -239,7 +239,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				util.forEachOnObject(keyConfig, function(key, value){
 					/* istanbul ignore next */
 					slotParams[key] = value;
-				});				
+				});
 				slotParams["cf"] = size[0] + "x" + size[1];
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			});
@@ -256,7 +256,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				slotParams["height"] = size[1];
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			});
-			break;				
+			break;
 
 		default:
 			adUnits[code].bids.push({ bidder: adapterID, params: slotParams });
@@ -315,7 +315,7 @@ function fetchBids(activeSlots, impressionID){
 		return;
 	}
 
-	//window[newPBNameSpace].logging = util.isDebugLogEnabled();
+	window[newPBNameSpace].logging = util.isDebugLogEnabled();
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
