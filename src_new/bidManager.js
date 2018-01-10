@@ -371,13 +371,17 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                 return;
             }
 
+						if (adapterID === "pubmaticServer") {
+								return;
+						}
+
             util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
 
-            	if(CONFIG.getAdapterMaskBidsStatus(adapterID) == 1){
-		        	if(theBid.getWinningBidStatus() === false){
-		        		return;
-		        	}
-		        }
+            		if(CONFIG.getAdapterMaskBidsStatus(adapterID) == 1){
+					        	if(theBid.getWinningBidStatus() === false){
+					        			return;
+					        	}
+			        	}
 
                 var endTime = theBid.getReceivedTime();
                 //todo: take all these key names from constants
