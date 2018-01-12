@@ -1981,6 +1981,7 @@ describe('UTIL', function() {
                 latency: 100,
                 bidder: "pubmatic",
                 adapter: "",
+                s2s: false,
                 bidDetails: {
                     getNetEcpm: function() {
                         return 4.0;

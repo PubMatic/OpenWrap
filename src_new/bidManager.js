@@ -89,7 +89,8 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 			type: "bid",
 			bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(Passthrough)' : ''),
 			bidDetails: theBid,
-			latency: latency
+			latency: latency,
+			s2s: CONFIG.isServerSideAdapter(adapterID)
 		});
 	}
 }
