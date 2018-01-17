@@ -111,10 +111,10 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
 		validBidCount = 0,
 		partnerCount = 0,
 		macros = CONSTANTS.METADATA_MACROS,
-		macroRegexFlag = "g"
-	;
-	util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
-        if (adapterEntry.getLastBidID() != "") {
+		macroRegexFlag = "g";
+
+		util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
+        if (adapterEntry.getLastBidID() != "" && !CONFIG.isServerSideAdapter(adapterID)) {
         	partnerCount++;
         	util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
         		if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1){
@@ -125,7 +125,8 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
         	});
         }
     });
-    if(output.length == 0){
+
+		if(output.length == 0){
     	output = pattern;
     }
     output = output.replace(new RegExp(macros.BID_COUNT, macroRegexFlag), validBidCount);

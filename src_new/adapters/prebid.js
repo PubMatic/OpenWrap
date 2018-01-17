@@ -30,6 +30,8 @@ var refThis = this;
 
 function transformPBBidToOWBid(bid, kgpv){
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
+	var pubmaticServerErrorCode = parseInt(bid.pubmaticServerErrorCode);
+
 	theBid.setGrossEcpm(bid.cpm);
 	theBid.setDealID(bid.dealId);
 	theBid.setDealChannel(bid.dealChannel);
@@ -39,8 +41,15 @@ function transformPBBidToOWBid(bid, kgpv){
 	theBid.setHeight(bid.height);
 	theBid.setReceivedTime(bid.responseTimestamp);
 
-	if(bid.pubmaticServerErrorCode){
+	if(pubmaticServerErrorCode === 1 || pubmaticServerErrorCode === 2) {
+		theBid.setDefaultBidStatus(0);
+		theBid.setWidth(0);
+		theBid.setHeight(0);
+	} else if (pubmaticServerErrorCode === 3 || pubmaticServerErrorCode === 5) {
 		theBid.setDefaultBidStatus(1);
+		theBid.setPostTimeoutStatus();
+	} else { // handle errorCode = 4 & any other if present
+		pubmaticServerErrorCode && theBid.setDefaultBidStatus(1);
 	}
 
 	util.forEachOnObject(bid.adserverTargeting, function(key, value){
