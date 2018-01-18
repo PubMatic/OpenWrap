@@ -114,9 +114,11 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
 		macroRegexFlag = "g";
 
 		util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
-        if (adapterEntry.getLastBidID() != "" && !CONFIG.isServerSideAdapter(adapterID)) {
-        	partnerCount++;
-        	util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+        if (adapterEntry.getLastBidID() != "") {
+					// If pubmaticServerBidAdapter then don't increase partnerCount
+					!CONFIG.isServerSideAdapter(adapterID) && partnerCount++;
+
+					util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
         		if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1){
         			return;
         		}
