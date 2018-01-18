@@ -297,7 +297,7 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
 		refThis.generatedKeyCallback,
 		// serverSideEabled: do not set default bids as we do not want to throttle them at client-side
-		!CONFIG.isServerSideAdapter(adapterID)
+		true // !CONFIG.isServerSideAdapter(adapterID)
 	);
 }
 
