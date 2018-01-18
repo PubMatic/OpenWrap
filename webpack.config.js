@@ -1,6 +1,11 @@
 var conf = require('./src_new/conf.js');
 var StringReplacePlugin = require('string-replace-webpack-plugin');
 
+var controllerPaths = {
+	UAS: "./controllers/UAS/uas.js",
+	DFP: "./controllers/gpt.js"
+};
+
 module.exports = {
     output: {
         filename: 'owt.js'
@@ -22,7 +27,7 @@ module.exports = {
                     {
                       pattern: /%%PATH_TO_CONTROLLER%%/g,
                       replacement: function (match, p1, offset, string) {
-                        return conf.controllerPath;
+                        return controllerPaths[conf.pwt.adServer];
                       }
                     }
                   ]

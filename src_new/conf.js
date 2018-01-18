@@ -1,6 +1,3 @@
-exports.controllerPath = "./controllers/UAS/uas.js";
-//exports.controllerPath = "./controllers/gpt.js";
-
 exports.pwt = {
 	t: "3000",
 	pid: "46",
@@ -8,7 +5,8 @@ exports.pwt = {
 	pdvid: "4",
 	pubid: "9999",
 	dataURL: "t.test-domain.com/logger?",
-	winURL: "t.test-domain.com/tracker?"
+	winURL: "t.test-domain.com/tracker?",
+	adServer: "UAS"
 };
 
 exports.adapters = {
@@ -58,7 +56,7 @@ exports.adapters = {
 		}
 	},
 	pulsepoint: {
-		cp: "521732",	
+		cp: "521732",
 		rev_share: "0.0",
 		throttle: "100",
 		kgp: "_DIV_",
