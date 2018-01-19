@@ -84,14 +84,14 @@ describe('ADAPTER: Prebid', function() {
             theBid.getHeight().should.be.equal(bid.height);
             theBid.getReceivedTime().should.be.equal(bid.responseTimestamp);
             theBid.getKeyValuePairs().should.have.all.keys(["k1", "pwtdeal_pubmatic"]);
-            done();            
+            done();
         });
     });
 
     describe('#pbBidStreamHandler', function () {
 
         beforeEach(function(done){
-            sinon.stub(BM, "setBidFromBidder").returns(true);            
+            sinon.stub(BM, "setBidFromBidder").returns(true);
             PREBID.kgpvMap = {};
             PREBID.kgpvMap["DIV_1@pubmatic"] = {
                 "kgpv": "kgpv_value",
@@ -102,7 +102,7 @@ describe('ADAPTER: Prebid', function() {
 
         afterEach(function(done){
             BM.setBidFromBidder.restore();
-            done(); 
+            done();
         });
 
         it('if a function', function (done) {
@@ -129,7 +129,7 @@ describe('ADAPTER: Prebid', function() {
         });
 
         it('BM.setBidFromBidder should be called with expected arguments for valid case', function(done){
-            PREBID.pbBidStreamHandler({adUnitCode:'DIV_1@pubmatic', bidderCode: 'pubmatic'});            
+            PREBID.pbBidStreamHandler({adUnitCode:'DIV_1@pubmatic', bidderCode: 'pubmatic'});
             BM.setBidFromBidder.called.should.be.true;
             done();
         });
@@ -468,12 +468,12 @@ describe('ADAPTER: Prebid', function() {
             adUnits[commonDivID + "@" + adapterID].bids[0].should.be.deep.equal({ bidder: adapterID, params: {} });
             done();
         });
-		
-		it('for serverSideEnabled, adUnits should be unchanged', function(done){            
+
+		it('for serverSideEnabled, adUnits should be unchanged', function(done){
 			CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED] = '1';
-			kgpConsistsWidthAndHeight = false;            
+			kgpConsistsWidthAndHeight = false;
 			PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
-			// sizes => [[340, 210], [1024, 768]]            
+			// sizes => [[340, 210], [1024, 768]]
 			adUnits.should.be.deep.equal({});
 			delete CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
 			done();
@@ -542,7 +542,7 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('for serverSideEnabled adpater, should have called UTIL.forEachGeneratedKey with last param set to false', function(done) {
+        it('for serverSideEnabled adpater, should have called UTIL.forEachGeneratedKey with last param set to true', function(done) {
             CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED] = '1';
             adapterConfig = {};
             adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] = "value_1",
@@ -558,10 +558,31 @@ describe('ADAPTER: Prebid', function() {
                 adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
                 adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
                 PREBID.generatedKeyCallback,
-                false).should.be.true;
+                true).should.be.true;
             delete CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
             done();
         });
+
+        // it('for serverSideEnabled adpater, should have called UTIL.forEachGeneratedKey with last param set to false', function(done) {
+        //     CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED] = '1';
+        //     adapterConfig = {};
+        //     adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] = "value_1",
+        //         adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = "value_2",
+        //         PREBID.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+        //     UTIL.log.calledWith(adapterID + CONSTANTS.MESSAGES.M1);
+        //     UTIL.forEachGeneratedKey.called.should.be.true;
+        //     UTIL.forEachGeneratedKey.calledWith(adapterID,
+        //         adUnits,
+        //         adapterConfig,
+        //         impressionID, [],
+        //         activeSlots,
+        //         adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
+        //         adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
+        //         PREBID.generatedKeyCallback,
+        //         false).should.be.true;
+        //     delete CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
+        //     done();
+        // });
     });
 
     describe('#fetchBids', function() {
@@ -586,7 +607,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(AM, "getRandomNumberBelow100").returns(89);
             sinon.stub(AM, "throttleAdapter").returns(true);
             sinon.stub(AM, "setInitTimeForSlotsForAdapter").returns(true);
-            windowPbJS2Stub = { 
+            windowPbJS2Stub = {
                 onEvent: function () {
                     return "onEvent";
                 }
