@@ -800,7 +800,7 @@ exports.vLogInfo = function(divID, infoObject){
 					if(latency < 0){
 						latency = 0;
 					}
-					message = "Bid: " + infoObject.bidder + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + "): " + latency + "ms";
+					message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + "): " + latency + "ms";
 					/* istanbul ignore else */
 					if(bidDetails.getPostTimeoutStatus()){
 						message += ": POST-TIMEOUT";

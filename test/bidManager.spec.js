@@ -447,7 +447,8 @@ describe('bidManager BIDMgr', function() {
                 type: "bid",
                 bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(Passthrough)' : ''),
                 bidDetails: theBid,
-                latency: latency
+                latency: latency,
+                s2s: CONFIG.isServerSideAdapter(adapterID)
             }).should.be.true;
 
             done();

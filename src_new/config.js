@@ -41,6 +41,15 @@ exports.getAdapterThrottle = function(adapterID){
 	return 0;
 };
 
+exports.isServerSideAdapter = function(adapterID){
+	var adapterConfig = config.adapters;
+	/* istanbul ignore else */
+	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.SERVER_SIDE_ENABLED)){
+		return window.parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED]) === 1;
+	}
+	return false;
+};
+
 exports.getAdapterMaskBidsStatus = function(adapterID){
 	var adapterConfig = config.adapters;
 	var tempSettings = {

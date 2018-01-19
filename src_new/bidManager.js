@@ -42,7 +42,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 
 	refThis.createBidEntry(divID);
 
-	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", postTimeout: "+isPostTimeout);
+	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", postTimeout: "+isPostTimeout + ", defaultBid: " + bidDetails.getDefaultBidStatus());
 	/* istanbul ignore else */
 	if(isPostTimeout === true){
 		bidDetails.setPostTimeoutStatus();
@@ -89,7 +89,8 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 			type: "bid",
 			bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(Passthrough)' : ''),
 			bidDetails: theBid,
-			latency: latency
+			latency: latency,
+			s2s: CONFIG.isServerSideAdapter(adapterID)
 		});
 	}
 }
@@ -110,12 +111,14 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
 		validBidCount = 0,
 		partnerCount = 0,
 		macros = CONSTANTS.METADATA_MACROS,
-		macroRegexFlag = "g"
-	;
-	util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
+		macroRegexFlag = "g";
+
+		util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
         if (adapterEntry.getLastBidID() != "") {
-        	partnerCount++;
-        	util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+					// If pubmaticServerBidAdapter then don't increase partnerCount
+					(adapterID !== "pubmaticServer") && partnerCount++;
+
+					util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
         		if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1){
         			return;
         		}
@@ -124,7 +127,8 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
         	});
         }
     });
-    if(output.length == 0){
+
+		if(output.length == 0){
     	output = pattern;
     }
     output = output.replace(new RegExp(macros.BID_COUNT, macroRegexFlag), validBidCount);
@@ -371,13 +375,17 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                 return;
             }
 
+						if (adapterID === "pubmaticServer") {
+								return;
+						}
+
             util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
 
-            	if(CONFIG.getAdapterMaskBidsStatus(adapterID) == 1){
-		        	if(theBid.getWinningBidStatus() === false){
-		        		return;
-		        	}
-		        }
+            		if(CONFIG.getAdapterMaskBidsStatus(adapterID) == 1){
+					        	if(theBid.getWinningBidStatus() === false){
+					        			return;
+					        	}
+			        	}
 
                 var endTime = theBid.getReceivedTime();
                 //todo: take all these key names from constants

@@ -38,7 +38,8 @@ exports.CONFIG = {
 	"GLOBAL_KEY_VALUE": "gkv",
 	"MASK_BIDS": "maksBids",
 	"META_DATA_PATTERN": "metaDataPattern",
-	"SEND_ALL_BIDS": "sendAllBids"
+	"SEND_ALL_BIDS": "sendAllBids",
+	"SERVER_SIDE_ENABLED": "serverSideEnabled"
 };
 
 exports.METADATA_MACROS = {
