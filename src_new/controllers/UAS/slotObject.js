@@ -61,14 +61,14 @@ SlotObject.prototype.getDivElement = function(){
 	return this.divElement;
 };
 
-// sets common targeting applicable to all slots			
+// sets common targeting applicable to all slots
 SlotObject.prototype.setTargeting = function(key, value){
 	var i, len;
 	// check type of value , always maintain an array of values against a key
 	if( ! this.slotTargetings.hasOwnProperty(key) ){
 		this.slotTargetings[key] = [];
 	}
-	
+
 	if(UTIL.isArray(value)){
 		len = value.length;
 		for(i=0; i<len; i++){
@@ -76,13 +76,13 @@ SlotObject.prototype.setTargeting = function(key, value){
 		}
 	}else{
 		this.slotTargetings[key].push( value );
-	}			
+	}
 };
 
 // return array of all common targeting keys
 SlotObject.prototype.getTargetingKeys = function(){
 	var returnArray = [];
-	
+
 	for(var key in this.slotTargetings){
 		if( !UTIL.isUndefined(key) ){
 			returnArray.push(key);
@@ -94,11 +94,11 @@ SlotObject.prototype.getTargetingKeys = function(){
 // return the common targeting values set against the given key
 SlotObject.prototype.getTargeting = function(key){
 	var returnValue = '';
-	
+
 	if( this.slotTargetings.hasOwnProperty(key) ){
 		returnValue = this.slotTargetings[key];
 	}
-	
+
 	return returnValue;
 };
 

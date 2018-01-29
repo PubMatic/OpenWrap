@@ -12,7 +12,7 @@ exports.wrapperTargetingKeys = wrapperTargetingKeys;
 
 //todo: we might need to move this into Phoenix class as well
 var windowReference = null;
-var refThis = this; 
+var refThis = this;
 
 function setWindowReference(win) { // TDD, i/o: done
     if (UTIL.isObject(win)) {
@@ -52,8 +52,8 @@ function callJsLoadedIfRequired(win) { // TDD, i/o : done
 exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
 /* end-test-block */
 
-function createPhoenixNamespace(win){	
-	// if Phoenix.isJSLoaded is undefined then it means, 
+function createPhoenixNamespace(win){
+	// if Phoenix.isJSLoaded is undefined then it means,
 	// this is first time our JS is loaded on page
 	var Phoenix = win.Phoenix;
 	if( UTIL.isUndefined(Phoenix) || UTIL.isUndefined(Phoenix.isJSLoaded) ){
@@ -81,7 +81,7 @@ function initPhoenix(win){
 exports.initPhoenix = initPhoenix;
 /* end-test-block */
 
-function createPubMaticNamespace(win){	
+function createPubMaticNamespace(win){
 	win.PubMatic = win.PubMatic || {};
 	//todo: break the function
 	win.PubMatic._uidCB = function(response){
