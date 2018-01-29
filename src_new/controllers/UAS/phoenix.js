@@ -7,7 +7,7 @@ exports.PhoenixClass = function(){
 	var singleRequestCall = false,
 		isSingleRequestCallAlreadyFired = false, // not used
 		req_type = 219,
-		// some common data-storages					
+		// some common data-storages
 		commonKeywordsAnding = 0,
 		commonTargetings = {},
 		commonKeywords = [],

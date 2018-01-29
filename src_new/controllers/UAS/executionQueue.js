@@ -8,7 +8,7 @@ exports.EexecutionQueue = function(){
 	if( ! UTIL.isUndefined(Phoenix) && ! UTIL.isUndefined(Phoenix.EQ) ){
 		internalQ = Phoenix.EQ;
 	}
-	
+
 	this.push = function( theFunction ){
 		var Phoenix = window.Phoenix;
 		if(typeof theFunction === 'function'){
