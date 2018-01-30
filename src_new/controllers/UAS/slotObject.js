@@ -5,6 +5,7 @@ function SlotObject(adUnit, dimensionArray, divElement){
 	this.dimensionArray = dimensionArray;
 	this.divElement = divElement;
 	this.slotTargetings = {};
+	this.slotExtraParameters = {};
 	this.slotKeywords = []; // new
 	this.keywordsOperation = 0;// new but is it required ?
 	this.status = 0;
@@ -63,32 +64,12 @@ SlotObject.prototype.getDivElement = function(){
 
 // sets common targeting applicable to all slots
 SlotObject.prototype.setTargeting = function(key, value){
-	var i, len;
-	// check type of value , always maintain an array of values against a key
-	if( ! this.slotTargetings.hasOwnProperty(key) ){
-		this.slotTargetings[key] = [];
-	}
-
-	if(UTIL.isArray(value)){
-		len = value.length;
-		for(i=0; i<len; i++){
-			this.slotTargetings[key].push( value[i] );
-		}
-	}else{
-		this.slotTargetings[key].push( value );
-	}
+	return this.setSlotPairs(this.slotTargetings, key, value);
 };
 
 // return array of all common targeting keys
 SlotObject.prototype.getTargetingKeys = function(){
-	var returnArray = [];
-
-	for(var key in this.slotTargetings){
-		if( !UTIL.isUndefined(key) ){
-			returnArray.push(key);
-		}
-	}
-	return returnArray;
+	return this.getKeysFromSlotPairs(this.slotTargetings);
 };
 
 // return the common targeting values set against the given key
@@ -165,5 +146,62 @@ SlotObject.prototype.setVisibility = function(value){
 SlotObject.prototype.getVisibility = function(){
 	return this.visibility;
 };
+
+
+// sets xtra parameters applicable to specific slots
+SlotObject.prototype.setExtraParameters = function(key, value){
+	return this.setSlotPairs(this.slotExtraParameters, key, value);
+};
+
+// return the slot specific values set against the given parameter
+SlotObject.prototype.getExtraParameters = function(key){
+	return this.getKeysFromSlotPairs(this.slotExtraParameters, key);
+};
+
+// return array of all common targeting keys
+SlotObject.prototype.getExtraPatameterKeys = function(){
+	return this.getKeysFromSlotPairs(this.slotExtraParameters);
+};
+
+// common function - set key value at slots level
+SlotObject.prototype.setSlotPairs = function(slotVar, key, value){
+	var i, len;
+
+	// check type of value , always maintain an array of values against a key
+	if( ! slotVar.hasOwnProperty(key) ){
+		slotVar[key] = [];
+	}
+
+	if(UTIL.isArray(value)){
+		len = value.length;
+		for(i=0; i<len; i++){
+			slotVar[key].push( value[i] );
+		}
+	}else{
+		slotVar[key].push( value );
+	}
+};
+
+SlotObject.prototype.getKeyValuesFromSlotPairs = function(slotVar, key){
+	var returnValue = "";
+
+	if( slotVar.hasOwnProperty(key) ){
+		returnValue = slotVar[key];
+	}
+
+	return returnValue;
+};
+
+SlotObject.prototype.getKeysFromSlotPairs = function(slotVar){
+	var returnArray = [];
+
+	for(var key in slotVar){
+		if( !UTIL.isUndefined(key) ){
+			returnArray.push(key);
+		}
+	}
+	return returnArray;
+};
+
 
 exports.SlotObject = SlotObject;

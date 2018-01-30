@@ -39,25 +39,18 @@ exports.PhoenixClass = function(){
 			//combineSlotsData = function(dataAttribute, divId){
 			combineSlotsData = function(dataAttribute, arrayOfSlots){
 				var theSlot,
-					output = '',
+					output = "",
 					index,
 					aSlot,
-					//todo: we can have a default setting, and mention only exceptions
+					defaultDataAttributeCombiner = "|",
+					//mention only exceptions for different dataAttributeCombiner
 					dataAttributeCombiner = {
-						//'adUnit'	: ',',
-						'adUnit'	: '|',
-						//'adDiv'		: ',',
-						'adDiv'		: '|',
-						'adSizes'	: '|', //todo: this one need not be here as it is default
-						'keywords'	: '|', //todo: this one need not be here as it is default
-						'keywords_operation': '|',
-						'visibility': '|'
-					}
-				;
+						//'adUnit'	: '-'  //example: as it's different from default
+					};
 
 				for(index in arrayOfSlots){
 					aSlot = arrayOfSlots[ index ];
-					output += combineSlotSpecificData(dataAttribute, aSlot) + (dataAttributeCombiner.hasOwnProperty(dataAttribute) ? dataAttributeCombiner[dataAttribute]: '|');
+					output += combineSlotSpecificData(dataAttribute, aSlot) + (dataAttributeCombiner.hasOwnProperty(dataAttribute) ? dataAttributeCombiner[dataAttribute]: defaultDataAttributeCombiner);
 					aSlot.setStatus( CONSTANTS.SLOT_STATUS.DISPLAYED );
 				}
 				output = output.substr(0, output.length -1 );
@@ -80,7 +73,9 @@ exports.PhoenixClass = function(){
 						'targetings'		: 'getTargetingKeys',
 						'targetingByKey'	: 'getTargeting',
 						'nativeTemplateID'	: 'getNativeTemplateID',
-						'visibility':	'getVisibility'
+						'visibility':	'getVisibility',
+						'extraParameters': 'getExtraPatameterKeys',
+						'extraPatameterByKey': 'getExtraParameters'
 					}
 				;
 
@@ -124,18 +119,29 @@ exports.PhoenixClass = function(){
 							}
 							break;
 
-						case 'targetings':
-							if( dataAttributeFunctionMap.hasOwnProperty( dataAttribute ) ){
+							case 'targetings':
+							case 'extraParameters':
+								if( dataAttributeFunctionMap.hasOwnProperty( dataAttribute ) ){
 
-								// temp will contain list of keys first
-								temp = theSlot[ dataAttributeFunctionMap[ dataAttribute ] ]();
-								len = temp.length;
-								for(i=0; i<len; i++){
-									output += temp[i] + '=' + (theSlot[ dataAttributeFunctionMap[ 'targetingByKey' ] ]( temp[i] )).join() + '&';
+									// temp will contain list of keys first
+									temp = theSlot[ dataAttributeFunctionMap[ dataAttribute ] ]();
+									len = temp.length;
+									for(i=0; i<len; i++){
+
+										switch(dataAttribute) {
+											case 'targetings':
+												output += temp[i] + '=' + (theSlot[ dataAttributeFunctionMap[ 'targetingByKey' ] ]( temp[i] )).join() + '&';
+												break;
+
+											case 'extraParameters':
+												output += temp[i] + '=' + (theSlot[ dataAttributeFunctionMap[ 'extraPatameterByKey' ] ]( temp[i] )).join() + '&';
+												break;
+										}
+
+									}
+									output = output.substr(0, output.length -1 );
 								}
-								output = output.substr(0, output.length -1 );
-							}
-							break;
+								break;
 					}
 
 				return output;
@@ -199,7 +205,9 @@ exports.PhoenixClass = function(){
 			//'g_kwd_op='		+ commonKeywordsAnding,
 
 			//Global Targetings / key-values
-			'gkv='			+ encodeURIComponent( combineGlobalTargetings() )// temporary code
+			'gkv='			+ encodeURIComponent( combineGlobalTargetings() ), // temporary code
+			//Slot(s) extra parameters
+			'slt_param=' + encodeURIComponent( combineSlotsData('extraParameters', arrayOfSlots) )
 		);
 
 		// also adding customInfo
