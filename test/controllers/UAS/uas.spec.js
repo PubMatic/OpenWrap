@@ -4,9 +4,9 @@ var should = require("chai").should();
 var expect = require("chai").expect;
 
 var UTIL = require("../../../src_new/util");
-var CONFIG = require("../../../src_new/config");
-var CONSTANTS = require("../../../src_new/constants");
-var PHOENIX = require("../../../src_new/controllers/UAS/phoenix");
+// var CONFIG = require("../../../src_new/config");
+// var CONSTANTS = require("../../../src_new/constants");
+var Phoenix  = require("../../../src_new/controllers/UAS/phoenix.js");
 var UAS = require("../../../src_new/controllers/UAS/uas");
 var AM = require("../../../src_new/adapterManager");
 
@@ -162,39 +162,6 @@ describe("CONTROLLER: UAS", function() {
             flag.should.equal(true);
         });
     });
-
-    // describe("#createPhoenixNamespace", function () {
-        // var windowObj = null;
-        //
-        // beforeEach(function(done) {
-        //     sinon.spy(UTIL, "isUndefined");
-        //     sinon.spy(PHOENIX, "PhoenixClass");
-        //     windowObj = {
-        //       Phoenix: {
-        //         isJSLoaded: false
-        //       }
-        //     };
-        //     done();
-        // });
-        //
-        // afterEach(function(done) {
-        //     UTIL.isUndefined.restore();
-        //     PHOENIX.PhoenixClass.restore();
-        //     windowObj = null;
-        //     done();
-        // });
-
-        // it("should return null when window object is null", function () {
-        //     expect(UAS.createPhoenixNamespace({ Phoenix: undefined })).to.be.a("object");
-        //     // done();
-        // });
-        //
-        // it("should return same obj when window object is present", function () {
-        //     // UAS.createPhoenixNamespace(windowObj).to.be.a("object");
-        //     UAS.createPhoenixNamespace(windowObj).should.deep.equal(windowObj.Phoenix);
-        //     // done();
-        // });
-    // });
 
     describe("#init", function() {
 
