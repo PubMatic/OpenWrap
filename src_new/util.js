@@ -24,6 +24,7 @@ var toString = Object.prototype.toString;
 
 var refThis = this;
 
+
 function isA(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
 }
@@ -55,7 +56,7 @@ exports.isObject = function(object){
 exports.isOwnProperty = function(theObject, proertyName){
 	/* istanbul ignore else */
 	if(theObject.hasOwnProperty){
-		return theObject.hasOwnProperty(proertyName);	
+		return theObject.hasOwnProperty(proertyName);
 	}
 	return false;
 };
@@ -187,7 +188,7 @@ var constCommonMacroForAdUnitIndexRegExp = new RegExp(CONSTANTS.MACROS.AD_UNIT_I
 var constCommonMacroForIntegerRegExp = new RegExp(CONSTANTS.MACROS.INTEGER, macroRegexFlag);
 var constCommonMacroForDivRegExp = new RegExp(CONSTANTS.MACROS.DIV, macroRegexFlag);
 
-exports.generateSlotNamesFromPattern = function(activeSlot, pattern){  
+exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 	var slotNames = [],
 		slotName,
 		slotNamesObj = {},
@@ -311,10 +312,10 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 						adapterConfig,
 						impressionID,
 						generatedKey,
-						kgpConsistsWidthAndHeight, 
-						activeSlot, 
-						keyLookupMap ? keyLookupMap[generatedKey] : null, 
-						sizeArray[j][0], 
+						kgpConsistsWidthAndHeight,
+						activeSlot,
+						keyLookupMap ? keyLookupMap[generatedKey] : null,
+						sizeArray[j][0],
 						sizeArray[j][1]
 					);
 				}
@@ -334,13 +335,13 @@ exports.resizeWindow = function(theDocument, width, height){
 	}
 };
 
-exports.writeIframe = function(theDocument, src, width, height, style){     
-	theDocument.write("<iframe"                   
+exports.writeIframe = function(theDocument, src, width, height, style){
+	theDocument.write("<iframe"
     + " frameborder=\"0\" allowtransparency=\"true\" marginheight=\"0\" marginwidth=\"0\" scrolling=\"no\" width=\""
     + width  + "\" hspace=\"0\" vspace=\"0\" height=\""
-    + height + "\"" 
+    + height + "\""
     + (style ?  " style=\""+ style+"\"" : "" )
-    + " src=\"" + src + "\""        
+    + " src=\"" + src + "\""
     + "></ifr" + "ame>");
 };
 
@@ -419,7 +420,7 @@ exports.getTopFrameOfSameDomain = function(cWin) {
 		  return refThis.getTopFrameOfSameDomain(cWin.parent);
 		}
 	} catch(e) {}
-	return cWin;		
+	return cWin;
 };
 
 exports.metaInfo = {};
@@ -429,18 +430,18 @@ exports.getMetaInfo = function(cWin){
 		, MAX_PAGE_URL_LEN = 512
 		, frame
 	;
-	
+
 	obj.pageURL = "";
 	obj.refURL = "";
 	obj.protocol = "https://";
 	obj.secure = 1;
 	obj.isInIframe = refThis.isIframe(cWin);
-	
+
 	try{
-		frame = refThis.getTopFrameOfSameDomain(cWin);				
+		frame = refThis.getTopFrameOfSameDomain(cWin);
 		obj.refURL = ( frame.refurl || frame.document.referrer || '' ).substr( 0, MAX_PAGE_URL_LEN );
 		obj.pageURL = ( frame !== window.top && frame.document.referrer != ""  ? frame.document.referrer : frame.location.href).substr(0, MAX_PAGE_URL_LEN );
-		
+
 		obj.protocol = (function(frame){
 			/* istanbul ignore else */
 			if(frame.location.protocol ===  "http:"){
@@ -450,8 +451,8 @@ exports.getMetaInfo = function(cWin){
 			obj.secure = 1;
 			return "https://";
 		})(frame);
-		
-	}catch(e){}		
+
+	}catch(e){}
 
 	refThis.metaInfo = obj;
 
@@ -494,7 +495,7 @@ exports.parseQueryParams = function(url){
 	return params;
 };
 
-exports.addHookOnFunction = function(theObject, useProto, functionName, newFunction){  
+exports.addHookOnFunction = function(theObject, useProto, functionName, newFunction){
 	var callMethodOn = theObject;
 	theObject = useProto ? theObject.__proto__ : theObject;
 	if(refThis.isObject(theObject) && refThis.isFunction(theObject[functionName])){
@@ -519,7 +520,7 @@ exports.getBididForPMP = function(values, priorityArray){
 		this.log('Error: Unable to find bidID as values array is empty.');
 		return;
 	}
-	
+
 	for(var i = 0; i < priorityArrayLength; i++){
 
 		for(var j = 0; j < valuesLength; j++){
@@ -534,12 +535,12 @@ exports.getBididForPMP = function(values, priorityArray){
 			break;
 		}
 	}
-	
+
 	if(selectedPMPDeal == ''){
 		selectedPMPDeal = values[0];
-		this.log('No PMP-Deal was found matching PriorityArray, So Selecting first PMP-Deal: '+ selectedPMPDeal);		
+		this.log('No PMP-Deal was found matching PriorityArray, So Selecting first PMP-Deal: '+ selectedPMPDeal);
 	}else{
-		this.log('Selecting PMP-Deal: '+ selectedPMPDeal);	
+		this.log('Selecting PMP-Deal: '+ selectedPMPDeal);
 	}
 
 	var temp = selectedPMPDeal.split(CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR);
@@ -605,7 +606,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 				if(window.PWT.isSafeFrame){
 					return;
 				}
-				
+
 				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
 				if(bidDetails){
@@ -629,7 +630,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 				if(!window.PWT.isSafeFrame){
 					return;
 				}
-				
+
 				/* istanbul ignore else */
 				if(msgData.pwt_bid){
 					var theBid = msgData.pwt_bid;
@@ -669,7 +670,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 
 							iframeDoc.write(content);
 							iframeDoc.close();
-							
+
 						}catch(e){
 							refThis.log('Error in rendering creative in safe frame.');
 							refThis.log(e);
@@ -678,11 +679,11 @@ exports.safeFrameCommunicationProtocol = function(msg){
 						}
 
 					}else if(theBid.adUrl){
-						refThis.writeIframe(window.document, theBid.adUrl, theBid.width, theBid.height, "");						
+						refThis.writeIframe(window.document, theBid.adUrl, theBid.width, theBid.height, "");
 					}else{
 						refThis.log("creative details are not found");
 						refThis.log(theBid);
-					}											
+					}
 				}
 				break;
 		}
@@ -699,7 +700,7 @@ exports.getElementLocation = function( el ) {
 		y = 0
 	;
 
-	if(refThis.isFunction(el.getBoundingClientRect)) {		
+	if(refThis.isFunction(el.getBoundingClientRect)) {
 		rect = el.getBoundingClientRect();
 		x 	 = Math.floor(rect.left);
 		y 	 = Math.floor(rect.top);
@@ -718,7 +719,7 @@ exports.createVLogInfoPanel = function(divID, dimensionArray){
 		infoPanelElement,
 		infoPanelElementID,
 		doc = window.document
-	;	
+	;
 
 	/* istanbul ignore else */
 	if(refThis.visualDebugLogIsEnabled){
@@ -786,7 +787,7 @@ exports.vLogInfo = function(divID, infoObject){
 		doc = window.document
 	;
 	/* istanbul ignore else */
-	if(refThis.visualDebugLogIsEnabled){		
+	if(refThis.visualDebugLogIsEnabled){
 		var infoPanelElementID = divID + "-pwtc-info";
 		infoPanelElement = doc.getElementById(infoPanelElementID);
 		/* istanbul ignore else */
@@ -799,7 +800,7 @@ exports.vLogInfo = function(divID, infoObject){
 					if(latency < 0){
 						latency = 0;
 					}
-					message = "Bid: " + infoObject.bidder + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + "): " + latency + "ms";
+					message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + "): " + latency + "ms";
 					/* istanbul ignore else */
 					if(bidDetails.getPostTimeoutStatus()){
 						message += ": POST-TIMEOUT";
@@ -827,4 +828,21 @@ exports.vLogInfo = function(divID, infoObject){
 			infoPanelElement.appendChild(doc.createElement("br"));
 		}
 	}
+};
+
+exports.getExternalBidderStatus = function(divIds) {
+	var status = true;
+	refThis.forEachOnArray(divIds, function (key, divId) {
+		status =  window.OWT.externalBidderStatuses[divId]
+							? status && window.OWT.externalBidderStatuses[divId].status
+							: status;
+	});
+	return status;
+};
+
+exports.resetExternalBidderStatus = function(divIds) {
+	refThis.forEachOnArray(divIds, function (key, divId) {
+		refThis.log("resetExternalBidderStatus: " + divId);
+		window.OWT.externalBidderStatuses[divId] = undefined;
+	});
 };

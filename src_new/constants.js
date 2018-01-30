@@ -2,7 +2,7 @@
 // remove unnecessary constants
 
 exports.COMMON = {
-	"BID_PRECISION": 4,
+	"BID_PRECISION": 2,
 	"DEAL_KEY_FIRST_PART": "pwtdeal_",
 	"DEAL_KEY_VALUE_SEPARATOR": "_-_",
 	"PREBID_PREFIX": "PB_",
@@ -36,7 +36,20 @@ exports.CONFIG = {
 	"THROTTLE": "throttle",
 	"BID_PASS_THROUGH": "pt",
 	"GLOBAL_KEY_VALUE": "gkv",
-	"MASK_BIDS": "maksBids"
+	"MASK_BIDS": "maksBids",
+	"META_DATA_PATTERN": "metaDataPattern",
+	"SEND_ALL_BIDS": "sendAllBids",
+	"SERVER_SIDE_ENABLED": "serverSideEnabled"
+};
+
+exports.METADATA_MACROS = {
+	"WIDTH": "_W_",
+	"HEIGHT": "_H_",
+	"PARTNER": "_P_",
+	"GROSS_ECPM": "_GE_",
+	"NET_ECPM": "_NE_",
+	"BID_COUNT": "_BC_",
+	"PARTNER_COUNT": "_PC_"
 };
 
 exports.MACROS = {
@@ -61,9 +74,11 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"BID_ECPM": "pwtecp",
 	"BID_DEAL_ID": "pwtdid",
 	"BID_ADAPTER_ID": "pwtpid",
+	"BID_SIZE": "pwtsz",
 	"PUBLISHER_ID": "pwtpubid",
 	"PROFILE_ID": "pwtprofid",
-	"PROFILE_VERSION_ID": "pwtverid"
+	"PROFILE_VERSION_ID": "pwtverid",
+	"META_DATA": "pwtm"
 };
 
 exports.IGNORE_PREBID_KEYS = {

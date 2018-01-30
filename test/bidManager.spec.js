@@ -181,7 +181,7 @@ describe('bidManager BIDMgr', function() {
             divID = commonDivID;
             adapterID = commonAdpterID;
             kgpv = commonKGPV;
-            
+
             bidDetails = new bid(adapterID, kgpv);
 
             window.PWT = {
@@ -447,7 +447,8 @@ describe('bidManager BIDMgr', function() {
                 type: "bid",
                 bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(Passthrough)' : ''),
                 bidDetails: theBid,
-                latency: latency
+                latency: latency,
+                s2s: CONFIG.isServerSideAdapter(adapterID)
             }).should.be.true;
 
             done();
@@ -466,7 +467,7 @@ describe('bidManager BIDMgr', function() {
 
             window.PWT = {
                 bidMap: {
-                    
+
                 }
             };
 
@@ -511,6 +512,63 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
+    describe('#createMetaDataKey', function(){
+
+        it('is a function', function(done) {
+            BIDMgr.createMetaDataKey.should.be.a('function');
+            done();
+        });
+
+        it('output', function(done){
+            var divID = "DIV-1";
+            var bmEntryObj = bmEntry.createBMEntry(divID);
+            var theBid_1 = new bid("pubmatic", divID);
+            theBid_1.setGrossEcpm(1.2);
+            theBid_1.setDealID("DEALID123");
+            theBid_1.setDealChannel("PMPG");
+            theBid_1.setWidth(728);
+            theBid_1.setHeight(90);
+            bmEntryObj.setNewBid("pubmatic", theBid_1);
+            var theBid_2 = new bid("appnexus", divID);
+            theBid_2.setGrossEcpm(1.1);
+            theBid_2.setDealID("DEALID123");
+            theBid_2.setDealChannel("PMPG");
+            theBid_2.setWidth(300);
+            theBid_2.setHeight(250);
+            bmEntryObj.setNewBid("appnexus", theBid_2);
+            var theBid_3 = new bid("pulsepoint", divID);
+            theBid_3.setDefaultBidStatus(1);
+            bmEntryObj.setNewBid("pulsepoint", theBid_3);
+            var keyValuePairs = {};
+            BIDMgr.createMetaDataKey("_PC_:_BC_::_P_-_W_x_H_-_NE_(_GE_)||", bmEntryObj, keyValuePairs);
+            var expectedOutput = "3:2::pubmatic-728x90-1.2(1.2)||3:2::appnexus-300x250-1.1(1.1)||";
+            expect(keyValuePairs['pwtm']).to.equal(encodeURIComponent(expectedOutput));
+            done();
+        });
+
+    });
+
+    describe('#replaceMetaDataMacros', function(){
+
+        it('is a function', function(done) {
+            BIDMgr.replaceMetaDataMacros.should.be.a('function');
+            done();
+        });
+
+        it('macro replacement', function(done){
+            conf.adapters.pubmatic.rev_share = "10.0";
+            var theBid = new bid("pubmatic", "div-1");
+            theBid.setGrossEcpm(1.2);
+            theBid.setDealID("DEALID123");
+            theBid.setDealChannel("PMPG");
+            theBid.setWidth(728);
+            theBid.setHeight(90);
+            var op = BIDMgr.replaceMetaDataMacros("_P_-_W_x_H_-_NE_(_GE_)", theBid);
+            expect(op).to.equal("pubmatic-728x90-1.08(1.2)");
+            done();
+        });
+    });
+
     describe('#auctionBids', function() {
         var bmEntryObj = null;
         var divID = null;
@@ -538,7 +596,7 @@ describe('bidManager BIDMgr', function() {
 
             theBid_2.setKeyValuePair("k2", "v2");
             theBid_2.setKeyValuePair("k21", "v21");
-            
+
             sinon.stub(theBid_2, "getPostTimeoutStatus").returns(false);
             sinon.stub(theBid_2, "getNetEcpm").returns(2);
             bmEntryObj.setNewBid(adapterID_2, theBid_2);
@@ -578,12 +636,15 @@ describe('bidManager BIDMgr', function() {
         });
 
         it('returns winning bid with key value pairs', function(done) {
-            BIDMgr.auctionBids(bmEntryObj).should.deep.equal({
+            var op = BIDMgr.auctionBids(bmEntryObj);
+            op.should.deep.equal({
                 "wb" : theBid_1,
                 "kvp": {
-                    "k2": [ "v2" ], 
-                    "k21": [ "v21" ] 
-                } 
+                    "k1": [ "v1" ],
+                    "k2": [ "v2", "v2" ],
+                    "k21": [ "v21" ] ,
+                    "k3": [ "v3" ]
+                }
             });
             done();
         });
@@ -618,7 +679,7 @@ describe('bidManager BIDMgr', function() {
             adapterEntry_1 = new AdapterEntry(adapterID_1);
             sinon.stub(adapterEntry_1, "getLastBidID");
             theBid_1 = new bid(adapterID_1, kgpv);
-            
+
             theBid_1.setKeyValuePair("k1", "v1");
             theBid_1.setKeyValuePair("k2", "v2");
             theBid_1.setKeyValuePair("k3", "v3");
@@ -896,7 +957,7 @@ describe('bidManager BIDMgr', function() {
 
             sinon.stub(window.PWT.bidMap[divID], 'getBid');
             window.PWT.bidMap[divID].getBid.withArgs(adapterID, bidID).returns(theBid);
-                
+
 
             done();
         });
@@ -1149,7 +1210,7 @@ describe('bidManager BIDMgr', function() {
                     return impressionID;
                 }
             };
-            
+
             sinon.spy(window, 'encodeURIComponent');
 
             sinon.stub(UTIL, 'getCurrentTimestamp');
@@ -1424,7 +1485,7 @@ describe('bidManager BIDMgr', function() {
         });
 
         it('audienceNetwork(maskBids=1) winning bid is logged', function(done) {
-            bmEntryObj.getAnalyticEnabledStatus.returns(true);            
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
             bmEntryObj.setAdapterEntry("audienceNetwork");
             theBid = new bid("audienceNetwork", commonKGPV);
             sinon.spy(theBid, "getReceivedTime");
@@ -1447,7 +1508,7 @@ describe('bidManager BIDMgr', function() {
         });
 
         it('audienceNetwork(maskBids=1) non-winning bid is NOT logged', function(done) {
-            bmEntryObj.getAnalyticEnabledStatus.returns(true);            
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
             bmEntryObj.setAdapterEntry("audienceNetwork");
             theBid = new bid("audienceNetwork", commonKGPV);
             sinon.spy(theBid, "getReceivedTime");
@@ -1460,7 +1521,7 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, "getDealID");
             sinon.spy(theBid, "getDealChannel");
             sinon.spy(theBid, "getPostTimeoutStatus");
-            sinon.spy(theBid, "getWinningBidStatus");            
+            sinon.spy(theBid, "getWinningBidStatus");
             bmEntryObj.setNewBid("audienceNetwork", theBid);
             CONFIG.getBidPassThroughStatus.returns(2);
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
@@ -1503,6 +1564,64 @@ describe('bidManager BIDMgr', function() {
             imageObjStub.src.should.equal(UTIL.metaInfo.protocol + pixelURL);
             done();
 
+        });
+    });
+
+    describe('#getAllPartnersBidStatuses', function() {
+        var bidMaps = null;
+        beforeEach(function(done) {
+            bidMaps = {
+            	Div1: {
+                adapters: {
+                  prebid: {
+                    bids: {
+                      wfw21321wedfwe: {
+                        defaultBid: 1,
+                        getDefaultBidStatus: function () {
+                          return 1;
+                        }
+                      }
+                    }
+                  },
+                  pubmatic: {
+                    bids: {
+                      wfw21321wedfwe: {
+                        defaultBid: 0,
+                        getDefaultBidStatus: function () {
+                          return 0;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            };
+            done();
+        });
+
+        afterEach(function(done) {
+            bidMaps = undefined;
+            done();
+        });
+
+        it('is a function', function(done) {
+            BIDMgr.getAllPartnersBidStatuses.should.be.a('function');
+            done();
+        });
+
+        it('should return true if empty array of divIds is passed', function(done) {
+            BIDMgr.getAllPartnersBidStatuses(bidMaps, []).should.be.true;
+            done();
+        });
+
+        it('should return false if internal partners not responded', function(done) {
+            BIDMgr.getAllPartnersBidStatuses(bidMaps, ["Div1"]).should.be.false;
+            done();
+        });
+
+        it('should return true if for divId no bids are send', function(done) {
+            BIDMgr.getAllPartnersBidStatuses(bidMaps, ["Div2"]).should.be.true;
+            done();
         });
     });
 });

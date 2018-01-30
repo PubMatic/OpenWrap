@@ -211,6 +211,7 @@ exports.generateSlotName = generateSlotName;
 
 function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow) { // TDD, i/o : done
     util.log("Generating slotsMap");
+
     util.forEachOnArray(googleSlotsArray, function(index, currentGoogleSlot) {
         var dmSlotName = refThis.generateSlotName(currentGoogleSlot);
         refThis.storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow);
@@ -527,6 +528,23 @@ function processDisplayCalledSlot(theObject, originalFunction, arg){
 exports.processDisplayCalledSlot = processDisplayCalledSlot;
 /* end-test-block */
 
+
+function executeDisplay(timeout, divIds, callback) {
+    if (util.getExternalBidderStatus(divIds) && bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds)) {
+        util.resetExternalBidderStatus(divIds); //Quick fix to reset flag so that the notification flow happens only once per page load
+        callback();
+    } else {
+        (timeout > 0) && window.setTimeout(function() {
+          refThis.executeDisplay(timeout - 10, divIds, callback);
+        }, 10);
+    }
+}
+
+/* start-test-block */
+exports.executeDisplay = executeDisplay;
+/* end-test-block */
+
+
 function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg) { // TDD, i/o : done
     switch (oldStatus) {
         // display method was called for this slot
@@ -537,13 +555,25 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
             // eslint-disable-line no-fallthrough
         /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
-            window.setTimeout(function() {
-                util.log("PostTimeout.. back in display function");
-                util.forEachOnObject(refThis.slotsMap, function(key, slot) {
-                    refThis.findWinningBidIfRequired_Display(key, slot);
+            var divIds = Object.keys(refThis.slotsMap);
+
+            if (typeof window.OWT.externalBidderStatuses[arg[0]] === "object" && window.OWT.externalBidderStatuses[arg[0]]) {
+               refThis.executeDisplay(CONFIG.getTimeout(), divIds, function() {
+                   util.forEachOnObject(refThis.slotsMap, function(key, slot) {
+                       refThis.findWinningBidIfRequired_Display(key, slot);
+                   });
+                   refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
                 });
-                refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
+            }
+
+            setTimeout(function() {
+              util.log("PostTimeout.. back in display function");
+              util.forEachOnObject(refThis.slotsMap, function(key, slot) {
+                  refThis.findWinningBidIfRequired_Display(key, slot);
+              });
+              refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
             }, CONFIG.getTimeout());
+
             break;
             // call the original function now
         case CONSTANTS.SLOT_STATUS.TARGETING_ADDED:
@@ -751,11 +781,16 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
             util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
 
             var arg = arguments;
-            /* istanbul ignore next */
-            setTimeout(function() {
+
+            if (typeof window.OWT.externalBidderStatuses[qualifyingSlotNames[0]] === "object" && window.OWT.externalBidderStatuses[qualifyingSlotNames[0]]) {
+              refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
                 refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
+              });
+            }
+
+            setTimeout(function() {
+              refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
             }, CONFIG.getTimeout());
-            //return originalFunction.apply(theObject, arguments);
         };
     } else {
         util.log("refresh: originalFunction is not a function");

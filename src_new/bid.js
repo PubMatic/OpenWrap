@@ -122,7 +122,8 @@ Bid.prototype.getKGPV = function(){
 };
 
 Bid.prototype.setKeyValuePair = function(key, value){
-	this.keyValuePairs[key] = value;
+	// max length of key is restricted to 20 characters
+	this.keyValuePairs[key.substr(0, 20)] = value;
 	return this;
 };
 
@@ -197,6 +198,13 @@ Bid.prototype.setStatus = function(status){
 
 Bid.prototype.getStatus = function(){
 	return this.status;
+};
+
+Bid.prototype.setSendAllBidsKeys = function(){
+	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID+'_'+this.adapterID, this.bidID);
+	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS+'_'+this.adapterID, this.getNetEcpm() > 0 ? 1 : 0);
+	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM+'_'+this.adapterID, this.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
+	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE+'_'+this.adapterID, this.width + 'x' + this.height);
 };
 
 

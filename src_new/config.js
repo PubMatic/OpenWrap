@@ -10,6 +10,17 @@ exports.getPublisherId = function(){
 	return util.trim(config.pwt.pubid) || "0";
 };
 
+exports.getMataDataPattern = function(){
+	if(util.isString(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN])){
+		return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN];
+	}
+	return null;
+};
+
+exports.getSendAllBidsStatus = function(){
+	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SEND_ALL_BIDS]) || 0;
+};
+
 exports.getTimeout = function(){
 	return window.parseInt(config.pwt.t) || 1000;
 };
@@ -30,10 +41,20 @@ exports.getAdapterThrottle = function(adapterID){
 	return 0;
 };
 
+exports.isServerSideAdapter = function(adapterID){
+	var adapterConfig = config.adapters;
+	/* istanbul ignore else */
+	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.SERVER_SIDE_ENABLED)){
+		return window.parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED]) === 1;
+	}
+	return false;
+};
+
 exports.getAdapterMaskBidsStatus = function(adapterID){
 	var adapterConfig = config.adapters;
 	var tempSettings = {
-		'audienceNetwork': 1
+		'audienceNetwork': 1,
+		'rubicon': 1
 	};
 
 	if(util.isOwnProperty(tempSettings, adapterID)){
@@ -43,7 +64,7 @@ exports.getAdapterMaskBidsStatus = function(adapterID){
 	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.MASK_BIDS)){
 		return window.parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.MASK_BIDS]) || 0;
 	}
-	return 0;	
+	return 0;
 }
 
 exports.getBidPassThroughStatus = function(adapterID){
@@ -83,7 +104,7 @@ function addPrebidAdapter(){
 		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN]	= "_DIV_";
 		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = {};
 		config.adapters[preBidAdapter] = adapterConfig;
-	}	
+	}
 }
 
 /* start-test-block */
@@ -102,8 +123,8 @@ exports.initConfig = function(){
 		var adapterLevelParams = {};
 		util.forEachOnObject(adapterConfig, function(key, value){
 			if(!util.isOwnProperty(ignoreAdapterLevelParams, key)){
-				adapterLevelParams[ key ] = value;	
-			}				
+				adapterLevelParams[ key ] = value;
+			}
 		});
 		util.forEachOnObject(adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP], function(kgpv, slotLevelParams){
 			util.forEachOnObject(adapterLevelParams, function(key, value){
