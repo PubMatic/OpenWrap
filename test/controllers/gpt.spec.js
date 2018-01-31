@@ -2019,19 +2019,18 @@ describe("CONTROLLER: GPT", function() {
     });
 
     describe("#executeDisplay", function() {
+
         // beforeEach(function(done) {
-        //     window = {
-        //         setTimeout: sinon.stub(),
-        //         OWT: {
-        //             externalBidderStatuses: {
-        //                 Div1: {
-        //                     id: 0,
-        //                     status: false
-        //                 },
-        //                 Div2: {
-        //                     id: 1,
-        //                     status: true
-        //                 }
+        //     sinon.spy(window, "setTimeout");
+        //     window.OWT = {
+        //         externalBidderStatuses: {
+        //             Div1: {
+        //                 id: 0,
+        //                 status: false
+        //             },
+        //             Div2: {
+        //                 id: 1,
+        //                 status: true
         //             }
         //         }
         //     };
@@ -2039,7 +2038,8 @@ describe("CONTROLLER: GPT", function() {
         // });
         //
         // afterEach(function(done) {
-        //     window = {};
+        //     window.OWT = undefined;
+        //     window.setTimeout.restore();
         //     done();
         // });
 

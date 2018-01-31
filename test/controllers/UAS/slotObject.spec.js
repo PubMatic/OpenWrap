@@ -397,4 +397,131 @@ describe("Bid slotObject", function() {
         });
     });
 
+    describe("#getKeysFromSlotPairs", function() {
+
+        it("is a function", function(done) {
+            slotObject.getKeysFromSlotPairs.should.be.a("function");
+            done();
+        });
+
+        it("return empty array for empty object", function(done) {
+            slotObject.getKeysFromSlotPairs({}).should.be.deep.equal([]);
+            done();
+        });
+
+        it("return keys from slot pairs", function(done) {
+            slotObject.getKeysFromSlotPairs({
+              a: 1,
+              b: 2,
+              c: 3
+            }).should.be.deep.equal(["a", "b", "c"]);
+            done();
+        });
+    });
+
+    describe("#getKeyValuesFromSlotPairs", function() {
+
+        it("is a function", function(done) {
+            slotObject.getKeyValuesFromSlotPairs.should.be.a("function");
+            done();
+        });
+
+        it("return value for key", function(done) {
+            slotObject.getKeyValuesFromSlotPairs({
+              a: 1,
+              b: 2,
+              c: 3
+            }, "b").should.be.equal(2);
+            done();
+        });
+
+        it("return empty string if key dosen't exist", function(done) {
+            slotObject.getKeyValuesFromSlotPairs({
+              a: 1,
+              b: 2,
+              c: 3
+            }, "d").should.be.equal("");
+            done();
+        });
+    });
+
+    describe("#setSlotPairs", function() {
+
+        it("is a function", function(done) {
+            slotObject.setSlotPairs.should.be.a("function");
+            done();
+        });
+
+        it("set key value in slotPair", function(done) {
+            var slotPair = {};
+            slotObject.setSlotPairs(slotPair, "a", 1);
+            slotPair.should.be.deep.equal({ a: [1] });
+            done();
+        });
+
+        it("set key value in slotPair where value is array", function(done) {
+            var slotPair = {};
+            slotObject.setSlotPairs(slotPair, "a", [1, 2, 3]);
+            slotPair.should.be.deep.equal({ a: [1, 2, 3] });
+            done();
+        });
+    });
+
+    describe("#setExtraParameters", function() {
+
+        it("is a function", function(done) {
+            slotObject.setExtraParameters.should.be.a("function");
+            done();
+        });
+
+        it("return value for key", function(done) {
+            slotObject.setExtraParameters("a", 2);
+            slotObject.slotExtraParameters.should.be.deep.equal({ a: [2] });
+            done();
+        });
+    });
+
+    describe("#setExtraParameters", function() {
+
+        it("is a function", function(done) {
+            slotObject.setExtraParameters.should.be.a("function");
+            done();
+        });
+
+        it("return value for key", function(done) {
+            slotObject.setExtraParameters("a", 2);
+            slotObject.slotExtraParameters.should.be.deep.equal({ a: [2] });
+            done();
+        });
+    });
+
+    describe("#getExtraParameters", function() {
+
+        it("is a function", function(done) {
+            slotObject.getExtraParameters.should.be.a("function");
+            done();
+        });
+
+        it("return array of values for key", function(done) {
+            slotObject.setExtraParameters("a", [2, 45, 4]);
+            slotObject.setExtraParameters("b", 32);
+            slotObject.getExtraParameters("a").should.be.deep.equal(["a", "b"]);
+            done();
+        });
+    });
+
+    describe("#getExtraPatameterKeys", function() {
+
+        it("is a function", function(done) {
+            slotObject.getExtraPatameterKeys.should.be.a("function");
+            done();
+        });
+
+        it("return array of values for key", function(done) {
+            slotObject.setExtraParameters("a", [2, 45, 4]);
+            slotObject.setExtraParameters("b", 32);
+            slotObject.getExtraPatameterKeys().should.be.deep.equal(["a", "b"]);
+            done();
+        });
+    });
 });

@@ -11,6 +11,12 @@ var UAS = require("../../../src_new/controllers/UAS/uas");
 var AM = require("../../../src_new/adapterManager");
 
 describe("CONTROLLER: UAS", function() {
+
+    beforeEach(function (done) {
+        window.Phoenix = {};
+        done();
+    });
+
     describe("#setWindowReference()", function() {
         var nonObject = 0;
 
