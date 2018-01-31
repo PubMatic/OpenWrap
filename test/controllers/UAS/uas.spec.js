@@ -6,7 +6,7 @@ var expect = require("chai").expect;
 var UTIL = require("../../../src_new/util");
 // var CONFIG = require("../../../src_new/config");
 // var CONSTANTS = require("../../../src_new/constants");
-var Phoenix  = require("../../../src_new/controllers/UAS/phoenix.js");
+var PHOENIX  = require("../../../src_new/controllers/UAS/phoenix.js");
 var UAS = require("../../../src_new/controllers/UAS/uas");
 var AM = require("../../../src_new/adapterManager");
 

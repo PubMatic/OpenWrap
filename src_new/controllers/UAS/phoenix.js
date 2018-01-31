@@ -14,8 +14,7 @@ exports.PhoenixClass = function(){
 		customInfo = {},
 		slotStorage = {}, // will store map of divid ==> slotObject
 		queryParams = {}, // todo can we use util function here ?
-		serevr_path = "ae.pubmatic.com/ad?"
-	;
+		serevr_path = "ae.pubmatic.com/ad?";
 
 	// todo: public
 	var generateAdServerCall = function(arrayOfSlots){
@@ -25,8 +24,7 @@ exports.PhoenixClass = function(){
 
 			combineGlobalTargetings = function(){
 				var targetinKey,
-					output = ''
-				;
+					output = '';
 
 				for(targetingKey in commonTargetings){
 					output += targetingKey + '=' + commonTargetings[ targetingKey ].join() + '&'
@@ -76,8 +74,7 @@ exports.PhoenixClass = function(){
 						'visibility':	'getVisibility',
 						'extraParameters': 'getExtraPatameterKeys',
 						'extraPatameterByKey': 'getExtraParameters'
-					}
-				;
+					};
 
 					switch(dataAttribute){
 						case 'adUnit':
@@ -145,8 +142,7 @@ exports.PhoenixClass = function(){
 					}
 
 				return output;
-			}
-		;
+			};
 
 		queryString.push(
 
@@ -235,8 +231,7 @@ exports.PhoenixClass = function(){
 	// todo: split in smaller parts
 	var createFriendlyIframeAndTriggerAdServerCall = function( addIframeToElementID, adServerRequestCall ){
 		var addIframeToElement,
-			iframeElement
-		;
+			iframeElement;
 
 		addIframeToElement = window.document.getElementById( addIframeToElementID );
 		if(addIframeToElement){
@@ -277,8 +272,7 @@ exports.PhoenixClass = function(){
 			content,
 			trackers,
 			trackersLength,
-			i
-		;
+			i;
 
 		addIframeToElement = window.document.getElementById( addIframeToElementID );
 		if(addIframeToElement){
@@ -301,7 +295,7 @@ exports.PhoenixClass = function(){
 				content = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><base target="_top" /><scr' + 'ipt>inDapIF=true;</scr' + 'ipt></head>';
 				content += '<body><style>body{margin:0px;padding:0px;}</style>';
 				content += '<scr' + 'ipt>';
-				content += 'document.write(decodeURIComponent("'+responseObject.ct+'"));';
+				content += 'document.write(decodeURIComponent("' + responseObject.ct + '"));';
 				if(responseObject.tr){
 				trackers = responseObject.tr;
 				trackersLength = trackers.length;
@@ -323,8 +317,7 @@ exports.PhoenixClass = function(){
 	var getSlotsFilteredByStatus = function(statusObject){
 		var tempArray = [],
 			iid,
-			theSlot
-		;
+			theSlot;
 
 		for(iid in slotStorage){
 			theSlot = slotStorage[ iid ];
@@ -387,8 +380,8 @@ exports.PhoenixClass = function(){
 	this.getCommonTargetingKeys = function(){
 		var returnArray = [];
 
-		for(key in commonTargetings){
-			if( !isUndefined(key) ){
+		for(var key in commonTargetings){
+			if( !UTIL.isUndefined(key) ){
 				returnArray.push(key);
 			}
 		}
@@ -425,8 +418,7 @@ exports.PhoenixClass = function(){
 	//Useful to set custom params
 	this.setInfo = function(key, value){
 		var newKey = '',
-			tempValue = '' // use this variable if you need to process value variable
-		;
+			tempValue = ''; // use this variable if you need to process value variable
 
 		//todo: we should have "_" used in words
 		switch(key){
@@ -450,7 +442,7 @@ exports.PhoenixClass = function(){
 			case 'LOC_SRC':
 				newKey = 'lsrc';
 				break;
-		};
+		}
 
 		if(newKey != "" && value != ""){
 			customInfo[newKey] = encodeURIComponent(value);
@@ -487,8 +479,7 @@ exports.PhoenixClass = function(){
 		var adServerRequestCall,
 			element,
 			filterSlotsByStaus = {},
-			arrayOfSlots = []
-		;
+			arrayOfSlots = [];
 
 		/*
 			get slots with status zero
@@ -511,9 +502,12 @@ exports.PhoenixClass = function(){
 					createFriendlyIframeAndRenderCreative(DivID, response);
 					currentSlot.setResponse(null);
 					currentSlot.setDisplayFunctionCalled(false);
+					UTIL.log('Rendering the creative for the slot '+ DivID);
 				}else{
-					console.log('No cached response found for the slot '+ DivID);
+					UTIL.log('No cached response found for the slot '+ DivID);
 				}
+			} else {
+				UTIL.log('Already displayed the slot: '+ DivID);
 			}
 		}
 
@@ -549,12 +543,12 @@ exports.PhoenixClass = function(){
 
 				if(eachBid.isNative == 1 ){
 					// special treatment calls 58:c1ee99e0-b26a-46a1-bc77-8913f0cfe732
-					console.log('Native creative found...');
+					UTIL.log('Native creative found...');
 					continue;
 				}
 
 				if(eachBid.ct && eachBid.ct.length != 0 /*&& eachBid.h != 0 && eachBid.w != 0*/){
-					console.log('Creative found for ' + eachBid.id);
+					UTIL.log('Creative found for ' + eachBid.id);
 					var currentSlot = getSlotByDivId(eachBid.id);
 
 					if(currentSlot !== null){
@@ -566,10 +560,10 @@ exports.PhoenixClass = function(){
 							currentSlot.setResponse(eachBid);
 						}
 					}else{
-						console.log('Invalid slot, no slot found defined for div: '+ eachBid.id);
+						UTIL.log('Invalid slot, no slot found defined for div: '+ eachBid.id);
 					}
 				}else{
-					console.log('Creative NOT found for ' + eachBid.id)
+					UTIL.log('Creative NOT found for ' + eachBid.id)
 				}
 			}
 		}

@@ -71,6 +71,7 @@ function initPhoenix(win){
 	}
 	Phoenix = refThis.createPhoenixNamespace(win);
 	Phoenix.isJSLoaded = true;
+  UTIL.log("Phoenix.js is loaded successfully.")
 	//setURLs();
 	Phoenix.EQ.executeQ();
 	//if(!userSyncupInitiated){
