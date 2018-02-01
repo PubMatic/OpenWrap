@@ -100,10 +100,10 @@ exports.createPubMaticNamespace = createPubMaticNamespace;
 
 //todo: change variable names
 function generateBCUID(win){
-	var c = win.document.createElement("script"),
-		e = win.document.getElementsByTagName("script")[0]
-	;
-	c.type = "text/javascript";
+	var c = UTIL.createDocElement(win, "script"),
+		e = win.document.getElementsByTagName("script")[0];
+
+  c.type = "text/javascript";
 	c.async = true;
 	c.src = win.PWT.protocol + "image6.pubmatic.com/AdServer/UCookieSetPug?oid=2&cb=PubMatic._uidCB";
 	e.parentNode.insertBefore(c,e);

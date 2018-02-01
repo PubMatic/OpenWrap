@@ -179,7 +179,7 @@ function createFriendlyIframeAndTriggerAdServerCall( addIframeToElementID, adSer
 
   addIframeToElement = window.document.getElementById( addIframeToElementID );
   if(addIframeToElement){
-    iframeElement = window.document.createElement('iframe');
+    iframeElement = UTIL.createDocElement(window, 'iframe');
     iframeElement.id = addIframeToElementID + '_adCall';
 
     iframeElement.src = 'javascript:document.open();';
@@ -204,7 +204,7 @@ function createFriendlyIframeAndRenderCreative( addIframeToElementID, responseOb
 
   addIframeToElement = window.document.getElementById( addIframeToElementID );
   if(addIframeToElement){
-    iframeElement = window.document.createElement('iframe');
+    iframeElement = UTIL.createDocElement(window, 'iframe');
     iframeElement.id = addIframeToElementID + '_adDisplay';
     iframeElement.height = responseObject.h;
     iframeElement.width = responseObject.w;
@@ -270,7 +270,7 @@ function PhoenixClass() {
     this.slotStorage = {}; // will store map of divid ==> slotObject
     this.queryParams = {}; // todo can we use util function here ?
 
-    this.EQ = new EQ.EexecutionQueue();
+    this.EQ = new EQ.EexecutionQueue(window);
 
   	this.setRequestType = function(value){
   		if(! isNaN(value)){

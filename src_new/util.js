@@ -476,7 +476,7 @@ exports.findQueryParamInURL = function(url, name){
 };
 
 exports.parseQueryParams = function(url){
-	var parser = window.document.createElement('a');
+	var parser = refThis.createDocElement(window, 'a');
 	parser.href = url;
 	var params = {};
 
@@ -493,6 +493,10 @@ exports.parseQueryParams = function(url){
 	}
 
 	return params;
+};
+
+exports.createDocElement = function(win, elementName) {
+	return win.document.createElement(elementName);
 };
 
 exports.addHookOnFunction = function(theObject, useProto, functionName, newFunction){
@@ -559,7 +563,7 @@ exports.getBididForPMP = function(values, priorityArray){
 };
 
 exports.createInvisibleIframe = function() {
-	var f = window.document.createElement('iframe');
+	var f = refThis.createDocElement(window, 'iframe');
 	f.id = refThis.getUniqueIdentifierStr();
 	f.height = 0;
 	f.width = 0;

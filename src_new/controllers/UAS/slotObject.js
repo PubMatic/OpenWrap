@@ -201,13 +201,3 @@ SlotObject.prototype.getKeysFromSlotPairs = function(slotVar){
 };
 
 exports.SlotObject = SlotObject;
-
-
-// SlotObject.prototype.setKeywords = function(arrayOfKeywords){
-// 	if( UTIL.isArray(arrayOfKeywords) ){
-// 		UTIL.forEachOnArray(arrayOfKeywords, function (index, keyword) {
-// 			this.slotKeywords.push(keyword);
-// 		});
-// 	}
-// 	return this;
-// };

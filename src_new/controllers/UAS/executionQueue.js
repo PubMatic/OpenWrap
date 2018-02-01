@@ -1,19 +1,20 @@
 var UTIL = require("../../util.js");
 
-exports.EexecutionQueue = function(){
-	var Phoenix = window.Phoenix;
+exports.EexecutionQueue = function(win){
+	this.Phoenix = win.Phoenix;
 	this.internalQ = [];
 
-	if(!UTIL.isUndefined(Phoenix) && !UTIL.isUndefined(Phoenix.EQ)){
-		this.internalQ = Phoenix.EQ;
+	if(!UTIL.isUndefined(this.Phoenix) && !UTIL.isUndefined(this.Phoenix.EQ)){
+		this.internalQ = this.Phoenix.EQ;
 	}
 
 	this.push = function( theFunction ){
-		var Phoenix = window.Phoenix;
+		var oThis = this;
+
 		if(UTIL.isFunction(theFunction)){
-			if(UTIL.isUndefined(Phoenix) && UTIL.isUndefined(Phoenix.isJSLoaded)){
+			if(UTIL.isUndefined(oThis.Phoenix) && UTIL.isUndefined(oThis.Phoenix.isJSLoaded)){
 				// async case
-				this.internalQ.push( theFunction );
+				oThis.internalQ.push( theFunction );
 			} else {
 				//sync case
 				theFunction();

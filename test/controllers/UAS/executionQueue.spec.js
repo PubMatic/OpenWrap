@@ -10,17 +10,17 @@ var Phoenix  = require("../../../src_new/controllers/UAS/phoenix.js");
 describe("EXECUTION QUEUE", function () {
 
     var executionQueue = null;
-    var window = {};
+    var winObj = {
+      Phoenix: {}
+    };
 
     beforeEach(function(done) {
-        executionQueue = new EXECUTION_QUEUE();
-        window.Phoenix = new Phoenix.PhoenixClass();
+        executionQueue = new EXECUTION_QUEUE(winObj);
         done();
     });
 
     afterEach(function(done) {
         executionQueue = null;
-        window = {};
         done();
     });
 
@@ -44,8 +44,9 @@ describe("EXECUTION QUEUE", function () {
         });
 
         // it("should add functions in queue", function (done) {
-        //     var funct = sinon.spy();
-        //     executionQueue.push(funct);
+        //     executionQueue.push(function () {
+        //       console.log("Executed me XXXXXXXXXX");
+        //     });
         //     executionQueue.internalQ.length.should.be.equal(1);
         //     done();
         // });
