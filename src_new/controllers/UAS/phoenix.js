@@ -6,22 +6,18 @@ var SO = require("./slotObject.js");
 var serevr_path = "ae.pubmatic.com/ad?";
 
 function combineGlobalTargetings(commonTargetings) {
-  var targetinKey,
-    output = '';
+	var output = "";
 
-  for(targetingKey in commonTargetings){
-    output += targetingKey + '=' + commonTargetings[ targetingKey ].join() + '&'
-  }
-  output = output.substr(0, output.length -1 );
+	UTIL.forEachOnObject(commonTargetings, function(targetingKey, value) {
+		output += targetingKey + "=" + value.join() + "&";
+	});
+	output = output.substr(0, output.length -1 );
 
-  return output;
+	return output;
 }
 
 function combineSlotSpecificData(dataAttribute, theSlot){
-  var //theSlot,
-    temp,
-    i,
-    len,
+	var temp,
     output = '',
     dataAttributeFunctionMap = {
       'adUnit'			: 'getAdUnit',
@@ -54,14 +50,14 @@ function combineSlotSpecificData(dataAttribute, theSlot){
       if( dataAttributeFunctionMap.hasOwnProperty( dataAttribute ) ){
         // temp will contain an array of sizes
         temp = theSlot[ dataAttributeFunctionMap[ dataAttribute ] ]();
-        len = temp.length;
-        for(i=0; i<len; i++){
-          if(temp[i][0] && temp[i][1]){
-            output += temp[i][0] + 'x' + temp[i][1] + ','
+				UTIL.forEachOnArray(temp, function(key, val) {
+					if(val[0] && val[1]){
+            output += val[0] + 'x' + val[1] + ',';
           }
-        }
-        output = output.substr(0, output.length -1 );
-      }
+				});
+
+				output = output.substr(0, output.length -1 );
+			}
       break;
 
     case 'keywords':
@@ -77,29 +73,30 @@ function combineSlotSpecificData(dataAttribute, theSlot){
       }
       break;
 
-      case 'targetings':
-      case 'extraParameters':
-        if( dataAttributeFunctionMap.hasOwnProperty( dataAttribute ) ){
+    case 'targetings':
+    case 'extraParameters':
+      if( dataAttributeFunctionMap.hasOwnProperty( dataAttribute ) ){
+        // temp will contain list of keys first
+        temp = theSlot[ dataAttributeFunctionMap[ dataAttribute ] ]();
 
-          // temp will contain list of keys first
-          temp = theSlot[ dataAttributeFunctionMap[ dataAttribute ] ]();
-          len = temp.length;
-          for(i=0; i<len; i++){
+				UTIL.forEachOnArray(temp, function(key, val){
+					var dataAttributeVal = "";
 
-            switch(dataAttribute) {
-              case 'targetings':
-                output += temp[i] + '=' + (theSlot[ dataAttributeFunctionMap[ 'targetingByKey' ] ]( temp[i] )).join() + '&';
-                break;
+          switch(dataAttribute) {
+            case 'targetings':
+              dataAttributeVal = 'targetingByKey';
+              break;
 
-              case 'extraParameters':
-                output += temp[i] + '=' + (theSlot[ dataAttributeFunctionMap[ 'extraPatameterByKey' ] ]( temp[i] )).join() + '&';
-                break;
-            }
-
+            case 'extraParameters':
+              dataAttributeVal = 'extraPatameterByKey';
+              break;
           }
-          output = output.substr(0, output.length -1 );
-        }
-        break;
+					output += val + '=' + (theSlot[ dataAttributeFunctionMap[dataAttributeVal] ](val)).join() + '&';
+				});
+
+				output = output.substr(0, output.length -1 );
+      }
+      break;
   }
 
   return output;
@@ -108,26 +105,20 @@ function combineSlotSpecificData(dataAttribute, theSlot){
 function combineSlotsData(dataAttribute, arrayOfSlots) {
   var theSlot,
     output = "",
-    index,
-    aSlot,
     defaultDataAttributeCombiner = "|",
-    //mention only exceptions for different dataAttributeCombiner
-    dataAttributeCombiner = {};
+    dataAttributeCombiner = {}; //mention only exceptions for different dataAttributeCombiner
 
-  for(index in arrayOfSlots){
-    aSlot = arrayOfSlots[ index ];
+	UTIL.forEachOnArray(arrayOfSlots, function (key, aSlot) {
     output += combineSlotSpecificData(dataAttribute, aSlot) + (dataAttributeCombiner.hasOwnProperty(dataAttribute) ? dataAttributeCombiner[dataAttribute]: defaultDataAttributeCombiner);
     aSlot.setStatus( CONSTANTS.SLOT_STATUS.DISPLAYED );
-  }
-  output = output.substr(0, output.length -1 );
+	});
 
-  return output;
+	return output.substr(0, output.length -1 );
 }
 
 function generateAdServerCall(arrayOfSlots, req_type, customInfo, queryParams){
   var queryString = [],
-    currTime = new Date(),
-    key;
+    currTime = new Date();
 
   queryString.push(
     'req_type=' + req_type,
@@ -149,22 +140,14 @@ function generateAdServerCall(arrayOfSlots, req_type, customInfo, queryParams){
     'kltstamp='		+ encodeURIComponent( currTime.getFullYear() + "-" + (currTime.getMonth() + 1) + "-" + currTime.getDate() + " " + currTime.getHours() + ":" + currTime.getMinutes() + ":" + currTime.getSeconds() ),
     //Slot(s) adUnit Id
     'au='			+ encodeURIComponent( combineSlotsData('adUnit', arrayOfSlots) ),
-    //getDivElement
     // Slot(s) adDiv
     'iid='		+ encodeURIComponent( combineSlotsData('adDiv', arrayOfSlots) ),
     // Slot(s) adSize(s)
     'asz='		+ encodeURIComponent( combineSlotsData('adSizes', arrayOfSlots) ),
-    //Slot(s) keywords
-    //'slt_kwd='		+ encodeURIComponent( combineSlotsData('keywords', arrayOfSlots) ),
-    //'slt_kwd_op='	+ encodeURIComponent( combineSlotsData('keywordsOperation', arrayOfSlots) ),
     //Slot(s) targetings
     'slt_kv='		+ encodeURIComponent( combineSlotsData('targetings', arrayOfSlots) ),
     'ntid='			+ encodeURIComponent( combineSlotsData('nativeTemplateID', arrayOfSlots) ),
     'visi='			+ encodeURIComponent( combineSlotsData('visibility', arrayOfSlots) ),
-    //Global Keywords
-    //'g_kwd='		+ encodeURIComponent( commonKeywords.join() ),
-    //Global Keywords Operation
-    //'g_kwd_op='		+ commonKeywordsAnding,
     //Global Targetings / key-values
     'gkv='			+ encodeURIComponent( combineGlobalTargetings() ), // temporary code
     //Slot(s) extra parameters
@@ -172,22 +155,20 @@ function generateAdServerCall(arrayOfSlots, req_type, customInfo, queryParams){
   );
 
   // also adding customInfo
-  for(key in customInfo){
-    if(customInfo.hasOwnProperty(key)){
-      queryString.push(key + '=' + customInfo[key]);
+	UTIL.forEachOnObject(customInfo, function (key, val) {
+		if(customInfo.hasOwnProperty(key)){
+      queryString.push(key + '=' + val);
     }
-  }
+	});
 
-  if(PubMatic.pm_uid_bc){
-    queryString.push('bcuid=' + PubMatic.pm_uid_bc);
-  }
+  PubMatic.pm_uid_bc && queryString.push('bcuid=' + PubMatic.pm_uid_bc);
 
   // add Test Params
-  for(key in queryParams){
-    if(queryParams.hasOwnProperty(key) && testParams.hasOwnProperty(key)){
-      queryString.push(key + '=' + queryParams[key]);
+	UTIL.forEachOnObject(queryParams, function (key, val) {
+		if(queryParams.hasOwnProperty(key) && testParams.hasOwnProperty(key)){
+      queryString.push(key + '=' + val);
     }
-  }
+	});
 
   return window.PWT.protocol + serevr_path + queryString.join('&');
 }
@@ -208,11 +189,7 @@ function createFriendlyIframeAndTriggerAdServerCall( addIframeToElementID, adSer
     iframeElement.height = 0;
     iframeElement.width = 0;
     iframeElement.scrolling="no";
-    //iframeElement.marginwidth="0";
-    //iframeElement.marginheight="0";
     iframeElement.frameborder="0";
-    //todo: check about src
-    //iframeElement.src="javascript:<html><body style='background:transparent'></body></html>";
     iframeElement.style.cssText="border: 0px; vertical-align: bottom; visibility: hidden; display: none;";
 
     addIframeToElement.appendChild( iframeElement );
@@ -223,10 +200,7 @@ function createFriendlyIframeAndRenderCreative( addIframeToElementID, responseOb
   var addIframeToElement,
     iframeDoc,
     iframeElement,
-    content,
-    trackers,
-    trackersLength,
-    i;
+    content;
 
   addIframeToElement = window.document.getElementById( addIframeToElementID );
   if(addIframeToElement){
@@ -238,46 +212,40 @@ function createFriendlyIframeAndRenderCreative( addIframeToElementID, responseOb
     iframeElement.marginwidth="0";
     iframeElement.marginheight="0";
     iframeElement.frameborder="0";
-    //iframeElement.src="javascript:<html><body style='background:transparent'><\/body><\/html>";
     iframeElement.style.cssText="border: 0px; vertical-align: bottom;";
 
-    addIframeToElement.appendChild( iframeElement );
+    addIframeToElement.appendChild(iframeElement);
 
-    iframeElement = window.document.getElementById( addIframeToElementID + '_adDisplay' );
+    iframeElement = window.document.getElementById(addIframeToElementID + '_adDisplay');
     if(iframeElement){
 
       content = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><base target="_top" /><scr' + 'ipt>inDapIF=true;</scr' + 'ipt></head>';
       content += '<body><style>body{margin:0px;padding:0px;}</style>';
       content += '<scr' + 'ipt>';
       content += 'document.write(decodeURIComponent("' + responseObject.ct + '"));';
-      if(responseObject.tr){
-      trackers = responseObject.tr;
-      trackersLength = trackers.length;
-      for(i=0; i<trackersLength; i++){
-          content += 'document.write("<iframe src=\''+ trackers[i] +'\' style=\'border: 0px; vertical-align: bottom;visibility: hidden; display: none;\'></iframe>");';
-        }
-      }
-      content += '</script>';
-      content += '</body></html>';
+      if(responseObject.tr) {
+					UTIL.forEachOnArray(responseObject.tr, function (key, val) {
+							content += 'document.write("<iframe src=\''+ val +'\' style=\'border: 0px; vertical-align: bottom;visibility: hidden; display: none;\'></iframe>");';
+					});
+		      content += '</script>';
+		      content += '</body></html>';
 
-      iframeDoc = iframeElement.contentWindow.document;
-      iframeDoc.write(content);
-      iframeDoc.close();
+		      iframeDoc = iframeElement.contentWindow.document;
+		      iframeDoc.write(content);
+		      iframeDoc.close();
+    	}
     }
   }
 }
 
 function getSlotsFilteredByStatus(statusObject, slotStorage){
-  var tempArray = [],
-    iid,
-    theSlot;
+  var tempArray = [];
 
-  for(iid in slotStorage){
-    theSlot = slotStorage[ iid ];
-    if( statusObject.hasOwnProperty( theSlot.getStatus() ) ){
-      tempArray.push( theSlot );
+	UTIL.forEachOnObject(slotStorage, function(key, theSlot) {
+		if(statusObject.hasOwnProperty(theSlot.getStatus())){
+      tempArray.push(theSlot);
     }
-  }
+	});
 
   return tempArray;
 }
@@ -319,20 +287,20 @@ function PhoenixClass() {
   	};
 
   	// sets common targeting applicable to all slots
-  	this.setCommonTargeting = function(key, value){
-  		var i, len;
-  		// check type of value , always maintain an array of values against a key
-  		if( ! this.commonTargetings.hasOwnProperty(key) ){
-  			this.commonTargetings[key] = [];
+  	this.setCommonTargeting = function(key, value) {
+      var oThis = this;
+
+      // check type of value , always maintain an array of values against a key
+  		if(!oThis.commonTargetings.hasOwnProperty(key)){
+  			oThis.commonTargetings[key] = [];
   		}
 
   		if(UTIL.isArray(value)){
-  			len = value.length;
-  			for(i=0; i<len; i++){
-  				this.commonTargetings[key].push( value[i] );
-  			}
-  		}else{
-  			this.commonTargetings[key].push( value );
+				UTIL.forEachOnArray(value, function(index, val) {
+					oThis.commonTargetings[key].push(val);
+				});
+  		} else {
+  			oThis.commonTargetings[key].push( value );
   		}
   	};
 
@@ -340,32 +308,28 @@ function PhoenixClass() {
   	this.getCommonTargetingKeys = function(){
   		var returnArray = [];
 
-  		for(var key in this.commonTargetings){
-  			if( !UTIL.isUndefined(key) ){
+			UTIL.forEachOnObject(this.commonTargetings, function(key, val) {
+				if(!UTIL.isUndefined(key)){
   				returnArray.push(key);
   			}
-  		}
-  		return returnArray;
+			});
+
+			return returnArray;
   	};
 
   	// return the common targeting values set against the given key
   	this.getCommonTargeting = function(key){
-  		var returnValue = '';
-
-  		if( this.commonTargetings.hasOwnProperty(key) ){
-  			returnValue = this.commonTargetings[key];
-  		}
-  		return returnValue;
+  		return this.commonTargetings.hasOwnProperty(key) ? this.commonTargetings[key] : "";
   	};
 
   	// set the common keywords , always pass array of keywords
   	this.setCommonKeywords = function(arrayOfKeywords){
-  		var i, len;
-  		if( UTIL.isArray(arrayOfKeywords) ){
-  			len = arrayOfKeywords.length;
-  			for(i=0; i<len; i++){
-  				this.commonKeywords.push( arrayOfKeywords[i] );
-  			}
+      var oThis = this;
+
+      if(UTIL.isArray(arrayOfKeywords)) {
+				UTIL.forEachOnArray(arrayOfKeywords, function(key, val) {
+					oThis.commonKeywords.push(val);
+				});
   		}
   	};
 
@@ -420,15 +384,13 @@ function PhoenixClass() {
   		return newSlotObject;
   	};
 
-  	this.getSlots = function(){
-  		var tempArray = [],
-  			iid;
+  	this.getSlots = function() {
+			var tempArray = [];
 
-  		for(iid in this.slotStorage){
-  			tempArray.push( this.slotStorage[ iid ] );
-  		}
-
-  		return tempArray;
+			UTIL.forEachOnObject(this.slotStorage, function(key, val) {
+				tempArray.push(val);
+			});
+			return tempArray;
   	};
 
   	this.display = function(DivID){
@@ -436,17 +398,6 @@ function PhoenixClass() {
   			element,
   			filterSlotsByStaus = {},
   			arrayOfSlots = [];
-
-  		/*
-  			get slots with status zero
-  			send the array to generateAdServerCall
-  			set status to 1 in generateAdServerCall
-
-  			remove functionality of isSingleRequestCallAlreadyFired
-
-  			todo: how to differentiate a refresh call from display call ?
-  				which was last line-item served ...
-  		*/
 
   		var currentSlot = getSlotByDivId(DivID, this.slotStorage);
   		if(currentSlot !== null){
@@ -459,7 +410,7 @@ function PhoenixClass() {
   					currentSlot.setResponse(null);
   					currentSlot.setDisplayFunctionCalled(false);
   					UTIL.log('Rendering the creative for the slot '+ DivID);
-  				}else{
+  				} else {
   					UTIL.log('No cached response found for the slot '+ DivID);
   				}
   			} else {
@@ -467,63 +418,59 @@ function PhoenixClass() {
   			}
   		}
 
-  		if(this.singleRequestCall){
-
+  		if(this.singleRequestCall) {
   			filterSlotsByStaus[ CONSTANTS.SLOT_STATUS.CREATED ] = '';
   			arrayOfSlots = getSlotsFilteredByStatus(filterSlotsByStaus, this.slotStorage);
 
-  			if(arrayOfSlots.length > 0){
+  			if(arrayOfSlots.length > 0) {
   				adServerRequestCall = generateAdServerCall(arrayOfSlots, this.req_type, this.customInfo, this.queryParams);
   				createFriendlyIframeAndTriggerAdServerCall( DivID, adServerRequestCall );
   			}
-
-  		}else{
+  		} else {
   			//todo: following check may be problem for out of page slot
   			//element = window.document.getElementById( DivID );
   			// only if element exists
-  			if( slotStorage.hasOwnProperty(DivID) ){
-  				arrayOfSlots.push( slotStorage[ DivID ] );
+  			if(slotStorage.hasOwnProperty(DivID)) {
+  				arrayOfSlots.push(slotStorage[DivID]);
   				adServerRequestCall = generateAdServerCall(arrayOfSlots, this.req_type, this.customInfo, this.queryParams);
-  				createFriendlyIframeAndTriggerAdServerCall( DivID, adServerRequestCall );
+  				createFriendlyIframeAndTriggerAdServerCall(DivID, adServerRequestCall);
   			}
   		}
   	};
 
 	  this.callback = function(response){
-    		//todo: response requires the div-id as key , need to define new key too
-    		//		problem with out-of page, can there be case where div-id is not passed
-    		var eachBid, index;
-    		if(response.bids){
-    			for(index in response.bids){
-    				eachBid = response.bids[index];
+      var oThis = this;
+  		//todo: response requires the div-id as key , need to define new key too
+  		// problem with out-of page, can there be case where div-id is not passed
+  		if(response.bids) {
+  			UTIL.forEachOnObject(response.bids, function(key, eachBid) {
+  				if(eachBid.isNative == 1 ){
+  					// special treatment calls 58:c1ee99e0-b26a-46a1-bc77-8913f0cfe732
+  					UTIL.log('Native creative found...');
+  					return;
+  				}
 
-    				if(eachBid.isNative == 1 ){
-    					// special treatment calls 58:c1ee99e0-b26a-46a1-bc77-8913f0cfe732
-    					UTIL.log('Native creative found...');
-    					continue;
-    				}
+  				if(eachBid.ct && eachBid.ct.length != 0 /*&& eachBid.h != 0 && eachBid.w != 0*/) {
+  					UTIL.log('Creative found for ' + eachBid.id);
+  					var currentSlot = getSlotByDivId(eachBid.id, oThis.slotStorage);
 
-    				if(eachBid.ct && eachBid.ct.length != 0 /*&& eachBid.h != 0 && eachBid.w != 0*/){
-    					UTIL.log('Creative found for ' + eachBid.id);
-    					var currentSlot = getSlotByDivId(eachBid.id, this.slotStorage);
-
-    					if(currentSlot !== null){
-    						if(currentSlot.getDisplayFunctionCalled() === true){
-    							createFriendlyIframeAndRenderCreative(eachBid.id, eachBid);
-    							currentSlot.setDisplayFunctionCalled(false);
-    						}else{
-    							// store the response for slot
-    							currentSlot.setResponse(eachBid);
-    						}
-    					}else{
-    						UTIL.log('Invalid slot, no slot found defined for div: '+ eachBid.id);
-    					}
-    				}else{
-    					UTIL.log('Creative NOT found for ' + eachBid.id)
-    				}
-    			}
-    		}
-    	};
+  					if(currentSlot !== null) {
+  						if(currentSlot.getDisplayFunctionCalled() === true) {
+  							createFriendlyIframeAndRenderCreative(eachBid.id, eachBid);
+  							currentSlot.setDisplayFunctionCalled(false);
+  						} else {
+  							// store the response for slot
+  							currentSlot.setResponse(eachBid);
+  						}
+  					} else {
+  						UTIL.log('Invalid slot, no slot found defined for div: '+ eachBid.id);
+  					}
+  				} else {
+  					UTIL.log('Creative NOT found for ' + eachBid.id);
+  				}
+  			});
+  		}
+  	};
 }
 
 exports.PhoenixClass = PhoenixClass;

@@ -84,12 +84,11 @@ SlotObject.prototype.getTargeting = function(key){
 };
 
 SlotObject.prototype.setKeywords = function(arrayOfKeywords){
-	var i, len;
+	var oThis = this;
 	if( UTIL.isArray(arrayOfKeywords) ){
-		len = arrayOfKeywords.length;
-		for(i=0; i<len; i++){
-			this.slotKeywords.push( arrayOfKeywords[i] );
-		}
+		UTIL.forEachOnArray(arrayOfKeywords, function (index, keyword) {
+			oThis.slotKeywords.push(keyword);
+		});
 	}
 	return this;
 };
@@ -165,20 +164,17 @@ SlotObject.prototype.getExtraPatameterKeys = function(){
 
 // common function - set key value at slots level
 SlotObject.prototype.setSlotPairs = function(slotVar, key, value){
-	var i, len;
-
 	// check type of value , always maintain an array of values against a key
-	if( ! slotVar.hasOwnProperty(key) ){
+	if(!slotVar.hasOwnProperty(key)){
 		slotVar[key] = [];
 	}
 
-	if(UTIL.isArray(value)){
-		len = value.length;
-		for(i=0; i<len; i++){
-			slotVar[key].push( value[i] );
-		}
-	}else{
-		slotVar[key].push( value );
+	if(UTIL.isArray(value)) {
+		UTIL.forEachOnArray(value, function(index, val) {
+			slotVar[key].push(val);
+		});
+	} else {
+		slotVar[key].push(value);
 	}
 };
 
@@ -195,13 +191,23 @@ SlotObject.prototype.getKeyValuesFromSlotPairs = function(slotVar, key){
 SlotObject.prototype.getKeysFromSlotPairs = function(slotVar){
 	var returnArray = [];
 
-	for(var key in slotVar){
-		if( !UTIL.isUndefined(key) ){
+	UTIL.forEachOnObject(slotVar, function(key, val) {
+		if(!UTIL.isUndefined(key)){
 			returnArray.push(key);
 		}
-	}
+	});
+
 	return returnArray;
 };
 
-
 exports.SlotObject = SlotObject;
+
+
+// SlotObject.prototype.setKeywords = function(arrayOfKeywords){
+// 	if( UTIL.isArray(arrayOfKeywords) ){
+// 		UTIL.forEachOnArray(arrayOfKeywords, function (index, keyword) {
+// 			this.slotKeywords.push(keyword);
+// 		});
+// 	}
+// 	return this;
+// };
