@@ -430,8 +430,8 @@ function PhoenixClass() {
   			//todo: following check may be problem for out of page slot
   			//element = window.document.getElementById( DivID );
   			// only if element exists
-  			if(slotStorage.hasOwnProperty(DivID)) {
-  				arrayOfSlots.push(slotStorage[DivID]);
+  			if(this.slotStorage.hasOwnProperty(DivID)) {
+  				arrayOfSlots.push(this.slotStorage[DivID]);
   				adServerRequestCall = generateAdServerCall(arrayOfSlots, this.req_type, this.customInfo, this.queryParams);
   				createFriendlyIframeAndTriggerAdServerCall(DivID, adServerRequestCall);
   			}
