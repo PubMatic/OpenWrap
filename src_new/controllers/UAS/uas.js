@@ -1,14 +1,6 @@
 var CONFIG = require("../../config.js");
-var CONSTANTS = require("../../constants.js");
 var UTIL = require("../../util.js");
 var PHOENIX = require("./phoenix.js");
-var adapterManager = require("../../adapterManager.js");
-
-//todo: we might need to move this into Phoenix class
-var wrapperTargetingKeys = {}; // key is div id
-/* start-test-block */
-exports.wrapperTargetingKeys = wrapperTargetingKeys;
-/* end-test-block */
 
 //todo: we might need to move this into Phoenix class as well
 var windowReference = null;
@@ -28,17 +20,6 @@ function getWindowReference() { // TDD, i/o: done
 }
 /* start-test-block */
 exports.getWindowReference = getWindowReference;
-/* end-test-block */
-
-function defineWrapperTargetingKeys(object) { // TDD, i/o : done
-    var output = {};
-    UTIL.forEachOnObject(object, function(key, value) {
-        output[value] = "";
-    });
-    return output;
-}
-/* start-test-block */
-exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
 function callJsLoadedIfRequired(win) { // TDD, i/o : done
@@ -116,9 +97,6 @@ exports.init = function(win) { // TDD, i/o : done
 	CONFIG.initConfig();
     if (UTIL.isObject(win)) {
         refThis.setWindowReference(win);
-        //refThis.initSafeFrameListener(win);// todo document
-        refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
-        adapterManager.registerAdapters();
         refThis.createPubMaticNamespace(win);
         refThis.generateBCUID(win);
         refThis.callJsLoadedIfRequired(win);

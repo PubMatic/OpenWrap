@@ -2,7 +2,7 @@ var conf = require('./src_new/conf.js');
 var StringReplacePlugin = require('string-replace-webpack-plugin');
 
 var controllerPaths = {
-	UAS: "./controllers/UAS/uas.js",
+	UAS: "./controllers/uas.js",
 	DFP: "./controllers/gpt.js"
 };
 
