@@ -20,11 +20,10 @@ var slotsMap = {}; // key is div id, stores the mapping of divID ==> googletag.s
 exports.slotsMap = slotsMap;
 /* end-test-block */
 
-//todo: we might need to move this into Phoenix class as well
 var windowReference = null;
 var refThis = this;
 
-function setWindowReference(win) { // TDD, i/o: done
+function setWindowReference(win) {
     if (UTIL.isObject(win)) {
         windowReference = win;
     }
@@ -33,14 +32,14 @@ function setWindowReference(win) { // TDD, i/o: done
 exports.setWindowReference = setWindowReference;
 /* end-test-block */
 
-function getWindowReference() { // TDD, i/o: done
+function getWindowReference() {
     return windowReference;
 }
 /* start-test-block */
 exports.getWindowReference = getWindowReference;
 /* end-test-block */
 
-function defineWrapperTargetingKeys(object) { // TDD, i/o : done
+function defineWrapperTargetingKeys(object) {
     var output = {};
     UTIL.forEachOnObject(object, function(key, value) {
         output[value] = "";
@@ -51,7 +50,6 @@ function defineWrapperTargetingKeys(object) { // TDD, i/o : done
 exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
-// --------------------------------------New Code Added------------------------------------------------------
 function setDisplayFunctionCalledIfRequired(slot, arg) { // TDD, i/o : done
     /* istanbul ignore else */
     if (UTIL.isObject(slot) && UTIL.isFunction(slot.getDivID)) {
@@ -67,26 +65,16 @@ function setDisplayFunctionCalledIfRequired(slot, arg) { // TDD, i/o : done
 exports.setDisplayFunctionCalledIfRequired = setDisplayFunctionCalledIfRequired;
 /* end-test-block */
 
-function storeInSlotsMap(dmSlotName, currentPhoenixSlot, isDisplayFlow) { // TDD, i/o : done
+function storeInSlotsMap(dmSlotName, currentPhoenixSlot, isDisplayFlow) {
     // note: here dmSlotName is actually the DivID
     if (!UTIL.isOwnProperty(refThis.slotsMap, dmSlotName)) {
         var slot = SLOT.createSlot(dmSlotName);
         slot.setDivID(dmSlotName);
         slot.setPubAdServerObject(currentPhoenixSlot);
         slot.setAdUnitID(currentPhoenixSlot.getAdUnit());
-        slot.setAdUnitIndex(0); // TODO: refThis.getAdUnitIndex(currentPhoenixSlot)
-        slot.setSizes(currentPhoenixSlot.getDimensions()); // TODO: refThis.getAdSlotSizesArray(dmSlotName, currentPhoenixSlot)
+        slot.setAdUnitIndex(0);
+        slot.setSizes(currentPhoenixSlot.getDimensions());
         slot.setStatus(CONSTANTS.SLOT_STATUS.CREATED);
-
-				// todo: find and set position
-				// Removing sendTargetingInfoIsSet as its just set once to true
-        /* istanbul ignore else */
-				// NOTE: Don't need this as we are not adding hook on "setTargeting"
-        // if (UTIL.isObject(JSON) && UTIL.isFunction(JSON.stringify)) {
-        //     UTIL.forEachOnArray(currentPhoenixSlot.getTargetingKeys(), function(index, value) {
-        //         slot.setKeyValue(value, currentPhoenixSlot.getTargeting(value));
-        //     });
-        // }
 
         refThis.slotsMap[dmSlotName] = slot;
         UTIL.createVLogInfoPanel(dmSlotName, slot.getSizes());
@@ -142,13 +130,10 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     var winningBid = data.wb || null;
     var keyValuePairs = data.kvp || null;
     var phoenixDefinedSlot = refThis.slotsMap[divID].getPubAdServerObject();
-    // var phoenixDefinedSlot = refThis.slotsMap[divID];
     var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
 
     UTIL.log("DIV: " + divID + " winningBid: ");
     UTIL.log(winningBid);
-
-    console.log("phoenixDefinedSlot:", phoenixDefinedSlot, " bid-ecpm: ", winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
 
     /* istanbul ignore else*/
     if (winningBid && winningBid.getNetEcpm() > 0) {
@@ -172,7 +157,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
         if (!UTIL.isOwnProperty(ignoreTheseKeys, key)) {
             phoenixDefinedSlot.setTargeting(key, value);
             // adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
-            refThis.defineWrapperTargetingKey(key);
+            refThis.defineWrapperTargetingKeys(key);
         }
     });
 }
@@ -254,12 +239,6 @@ function updateStatusOfQualifyingSlotsBeforeCallingAdapters(slotNames, arguments
         if (UTIL.isOwnProperty(refThis.slotsMap, slotName)) {
             var slot = refThis.slotsMap[slotName];
             slot.setStatus(CONSTANTS.SLOT_STATUS.PARTNERS_CALLED);
-            /* istanbul ignore else */
-            // if (isRefreshCall) {
-            //     refThis.removeDMTargetingFromSlot(slotName);
-            //     slot.setRefreshFunctionCalled(true);
-            //     slot.setArguments(argumentsFromCallingFunction);
-            // }
         }
     });
 }
@@ -282,7 +261,7 @@ exports.forQualifyingSlotNamesCallAdapters = forQualifyingSlotNamesCallAdapters;
 
 function executeDisplay(timeout, divIds, callback) {
     if (UTIL.getExternalBidderStatus(divIds) && bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds)) {
-        UTIL.resetExternalBidderStatus(divIds); //Quick fix to reset flag so that the notification flow happens only once per page load
+        UTIL.resetExternalBidderStatus(divIds);
         callback();
     } else {
         (timeout > 0) && window.setTimeout(function() {
@@ -295,14 +274,14 @@ function executeDisplay(timeout, divIds, callback) {
 exports.executeDisplay = executeDisplay;
 /* end-test-block */
 
-function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg) { // TDD, i/o : done
+function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg) {
     switch (oldStatus) {
         // display method was called for this slot
         /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.CREATED:
-            // dm flow is already intiated for this slot
-            // just intitate the CONFIG.getTimeout() now
-            // eslint-disable-line no-fallthrough
+        // dm flow is already intiated for this slot
+        // just intitate the CONFIG.getTimeout() now
+        // eslint-disable-line no-fallthrough
         /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
             var divIds = Object.keys(refThis.slotsMap);
@@ -350,42 +329,32 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
 exports.displayFunctionStatusHandler = displayFunctionStatusHandler;
 /* end-test-block */
 
-// ---------------------------------End New Code----------------------------------------------------
-
-PHOENIX.prototype.preDisplay = function (divId) {
-  // Inside OpenWrap, Adding hederbidding stuff
-  console.log("Inside before Display");
-
-  var phoenixObj = window.Phoenix || {};
-
-  var p1 = new Promise(function(resolve, reject) {
-    // setTimeout(function () {
-    //   console.log("executing")
-    //   resolve();
-    // }, 10000);
+function initiateDisplay(win) {
+  win.Phoenix.registerPreDisplayHandler(function(originalDisplay, divId){
+    var phoenixObj = window.Phoenix || {};
 
     /* istanbul ignore next */
     refThis.updateSlotsMapFromPhoenixSlots(phoenixObj.getSlots(), [divId], true);
 
     /* istanbul ignore next */
-    refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(divId), {}, resolve, [divId]);
+    refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(divId), {}, originalDisplay, [divId]);
+
     var statusObj = {};
     statusObj[CONSTANTS.SLOT_STATUS.CREATED] = "";
-    /* istanbul ignore next */
-    // Todo: need to add reThis whilwe calling getSlotNamesByStatus
+
     refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus(statusObj), [divId], false);
 
     /* istanbul ignore next */
     setTimeout(function() {
-        UTIL.realignVLogInfoPanel(divId);
-        bidManager.executeAnalyticsPixel();
+      UTIL.realignVLogInfoPanel(divId);
+      bidManager.executeAnalyticsPixel();
     }, 2000 + CONFIG.getTimeout());
 
   });
-
-  return p1;
-};
-
+}
+/* start-test-block */
+exports.initiateDisplay = initiateDisplay;
+/* end-test-block */
 
 function callJsLoadedIfRequired(win) { // TDD, i/o : done
     if (UTIL.isObject(win) && UTIL.isObject(win.PWT) && UTIL.isFunction(win.PWT.jsLoaded)) {
@@ -404,6 +373,7 @@ function createPhoenixNamespace(win){
 	var Phoenix = win.Phoenix;
 	if( UTIL.isUndefined(Phoenix) || UTIL.isUndefined(Phoenix.isJSLoaded) ){
 		win.Phoenix = new PHOENIX(CONFIG.getTimeout());
+    refThis.initiateDisplay(win);
 	}
 	return win.Phoenix;
 }
@@ -459,7 +429,6 @@ exports.init = function(win) { // TDD, i/o : done
 	CONFIG.initConfig();
     if (UTIL.isObject(win)) {
         refThis.setWindowReference(win);
-        //refThis.initSafeFrameListener(win);// todo document
         refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
         adapterManager.registerAdapters();
         refThis.createPubMaticNamespace(win);
