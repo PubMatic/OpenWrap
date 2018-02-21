@@ -309,14 +309,14 @@ exports.displayFunctionStatusHandler = displayFunctionStatusHandler;
 /* end-test-block */
 
 function initiateDisplay(win) {
-  win.Phoenix.registerPreDisplayHandler(function(originalDisplay, divId){
+  win.Phoenix.registerPreDisplayHandler(function(taskDone, divId){
     var phoenixObj = window.Phoenix || {};
 
     /* istanbul ignore next */
     refThis.updateSlotsMapFromPhoenixSlots(phoenixObj.getSlots(), [divId], true);
 
     /* istanbul ignore next */
-    refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(divId), {}, originalDisplay, [divId]);
+    refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(divId), {}, taskDone, [divId]);
 
     var statusObj = {};
     statusObj[CONSTANTS.SLOT_STATUS.CREATED] = "";
@@ -346,62 +346,29 @@ function callJsLoadedIfRequired(win) { // TDD, i/o : done
 exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
 /* end-test-block */
 
-function createPhoenixNamespace(win){
-	// if Phoenix.isJSLoaded is undefined then it means,
-	// this is first time our JS is loaded on page
-	var Phoenix = win.Phoenix;
-	if( UTIL.isUndefined(Phoenix) || UTIL.isUndefined(Phoenix.isJSLoaded) ){
-		win.Phoenix = new PHOENIX(CONFIG.getTimeout());
-    refThis.initiateDisplay(win);
-	}
-	return win.Phoenix;
+
+function initPhoenixScript(win) {
+    if (UTIL.isUndefined(win.Phoenix.isJSLoaded) && UTIL.isObject(win.Phoenix) && UTIL.isArray(win.Phoenix.EQ)) {
+        UTIL.log("Succeeded to load before UAS");
+        var refThis = this;
+
+        win.Phoenix.EQ.unshift(function () {
+            /* istanbul ignore next */
+            UTIL.log("OpenWrap initialization started");
+            /* istanbul ignore next */
+            refThis.initiateDisplay(win);
+            /* istanbul ignore next */
+            UTIL.log("OpenWrap initialization completed");
+        });
+        PHOENIX.init(win);
+        return true;
+    } else {
+        UTIL.log("Failed to load before UAS");
+        return false;
+    }
 }
 /* start-test-block */
-exports.createPhoenixNamespace = createPhoenixNamespace;
-/* end-test-block */
-
-function initPhoenix(win){
-	if(Phoenix.isJSLoaded == true){
-		return;
-	}
-	Phoenix = refThis.createPhoenixNamespace(win);
-	Phoenix.isJSLoaded = true;
-  UTIL.log("Phoenix.js is loaded successfully.")
-	//setURLs();
-	Phoenix.EQ.executeQ();
-}
-/* start-test-block */
-exports.initPhoenix = initPhoenix;
-/* end-test-block */
-
-function createPubMaticNamespace(win){
-	win.PubMatic = win.PubMatic || {};
-
-  win.PubMatic._uidCB = function(response){
-		PubMatic.pm_uid_bc = response.u;
-		initPhoenix(win);
-	};
-
-	setTimeout(function(){
-		initPhoenix(win);
-	}, 500);
-}
-/* start-test-block */
-exports.createPubMaticNamespace = createPubMaticNamespace;
-/* end-test-block */
-
-// todo: change variable names
-function generateBCUID(win){
-	var c = UTIL.createDocElement(win, "script"),
-		e = win.document.getElementsByTagName("script")[0];
-
-  c.type = "text/javascript";
-	c.async = true;
-	c.src = win.PWT.protocol + "image6.pubmatic.com/AdServer/UCookieSetPug?oid=2&cb=PubMatic._uidCB";
-	e.parentNode.insertBefore(c,e);
-}
-/* start-test-block */
-exports.generateBCUID = generateBCUID;
+exports.initPhoenixScript = initPhoenixScript;
 /* end-test-block */
 
 exports.init = function(win) { // TDD, i/o : done
@@ -409,8 +376,7 @@ exports.init = function(win) { // TDD, i/o : done
     if (UTIL.isObject(win)) {
         refThis.setWindowReference(win);
         adapterManager.registerAdapters();
-        refThis.createPubMaticNamespace(win);
-        refThis.generateBCUID(win);
+        refThis.initPhoenixScript(win);
         refThis.callJsLoadedIfRequired(win);
         return true;
     } else {

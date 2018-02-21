@@ -887,51 +887,14 @@ describe("CONTROLLER: UAS", function() {
         });
     });
 
-    describe("#createPhoenixNamespace", function () {
-        beforeEach(function(done) {
-            sinon.spy(UTIL, "isUndefined");
-            sinon.spy(UAS, "initiateDisplay");
-            sinon.spy(CONFIG, "getTimeout");
-            done();
-        });
-
-        afterEach(function(done) {
-            UTIL.isUndefined.restore();
-            UAS.initiateDisplay.restore();
-            CONFIG.getTimeout.restore();
-            done();
-        });
-
-        it("should have called all internal functions", function(done) {
-            UAS.createPhoenixNamespace(window);
-            UTIL.isUndefined.called.should.be.true;
-            UAS.initiateDisplay.called.should.be.true;
-            CONFIG.getTimeout.called.should.be.true;
-            done();
-        });
-
-        it("should not call all internal functions if namespace already present", function(done) {
-            window.Phoenix = {
-              isJSLoaded: true
-            };
-
-            UAS.createPhoenixNamespace(window);
-            UTIL.isUndefined.called.should.be.true;
-            UAS.initiateDisplay.called.should.be.false;
-            CONFIG.getTimeout.called.should.be.false;
-            done();
-        });
-    });
-
     describe("#init", function() {
 
         beforeEach(function(done) {
             sinon.spy(UTIL, "isObject");
             sinon.spy(UAS, "setWindowReference");
             sinon.spy(AM, "registerAdapters");
-            sinon.spy(UAS, "createPubMaticNamespace");
+            sinon.spy(UAS, "initPhoenixScript");
             sinon.spy(UAS, "callJsLoadedIfRequired");
-            sinon.spy(UAS, "generateBCUID");
             done();
         });
 
@@ -939,9 +902,8 @@ describe("CONTROLLER: UAS", function() {
             UTIL.isObject.restore();
             UAS.setWindowReference.restore();
             AM.registerAdapters.restore();
-            UAS.createPubMaticNamespace.restore();
+            UAS.initPhoenixScript.restore();
             UAS.callJsLoadedIfRequired.restore();
-            UAS.generateBCUID.restore();
             done();
         });
 
@@ -952,6 +914,9 @@ describe("CONTROLLER: UAS", function() {
 
         it("should have called respective internal functions ", function(done) {
             window.PWT = {};
+            window.Phoenix ={
+              isJSLoaded: false
+            };
             UAS.init(window).should.equal(true);
 
             UTIL.isObject.called.should.be.true;
@@ -959,9 +924,8 @@ describe("CONTROLLER: UAS", function() {
 
             UAS.setWindowReference.called.should.be.true;
             AM.registerAdapters.called.should.be.true;
-            UAS.createPubMaticNamespace.called.should.be.true;
+            UAS.initPhoenixScript.called.should.be.true;
             UAS.callJsLoadedIfRequired.called.should.be.true;
-            UAS.generateBCUID.called.should.be.true;
             done();
         });
 
@@ -974,9 +938,8 @@ describe("CONTROLLER: UAS", function() {
             UTIL.isObject.calledWith("NonObject").should.be.true;
             UAS.setWindowReference.called.should.be.false;
             AM.registerAdapters.called.should.be.false;
-            UAS.createPubMaticNamespace.called.should.be.false;
+            UAS.initPhoenixScript.called.should.be.false;
             UAS.callJsLoadedIfRequired.called.should.be.false;
-            UAS.generateBCUID.called.should.be.false;
             done();
         });
     });
