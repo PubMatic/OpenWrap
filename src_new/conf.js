@@ -6,7 +6,7 @@ exports.pwt = {
 	pubid: "9999",
 	dataURL: "t.test-domain.com/logger?",
 	winURL: "t.test-domain.com/tracker?",
-	adserver: "UAS"
+	adserver: "DFP"
 };
 
 exports.adapters = {

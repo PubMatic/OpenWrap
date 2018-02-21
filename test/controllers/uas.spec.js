@@ -58,52 +58,6 @@ describe("CONTROLLER: UAS", function() {
         });
     });
 
-    describe("#defineWrapperTargetingKeys()", function() {
-
-        it("should return empty object when empty object is passed", function(done) {
-            UAS.defineWrapperTargetingKeys({}).should.deep.equal({});
-            done();
-        });
-
-        describe("When object with keys n values is passed", function() {
-            beforeEach(function(done) {
-                sinon.spy(UTIL, "forEachOnObject");
-                done();
-            });
-
-            afterEach(function(done) {
-                UTIL.forEachOnObject.restore();
-                done();
-            });
-
-            var inputObject = {
-                "key1": "value1",
-                "key2": "value2"
-            };
-
-            var outputObject = {
-                "value1": "",
-                "value2": ""
-            };
-
-            it('should return empty object when given input object doesnt have any key value pairs', function (done) {
-                UAS.defineWrapperTargetingKeys({}).should.deep.equal({});
-                done();
-            });
-
-            it("should return object with values as keys and respective value should be empty strings", function(done) {
-                UAS.defineWrapperTargetingKeys(inputObject).should.deep.equal(outputObject);
-                done();
-            });
-
-            it("should have called util.forEachOnObject", function(done) {
-                UAS.defineWrapperTargetingKeys(inputObject).should.deep.equal(outputObject);
-                UTIL.forEachOnObject.calledOnce.should.equal(true);
-                done();
-            });
-        });
-    });
-
     describe('#setDisplayFunctionCalledIfRequired', function() {
 
         var slot = null,
@@ -974,7 +928,6 @@ describe("CONTROLLER: UAS", function() {
         beforeEach(function(done) {
             sinon.spy(UTIL, "isObject");
             sinon.spy(UAS, "setWindowReference");
-            sinon.spy(UAS, "defineWrapperTargetingKeys");
             sinon.spy(AM, "registerAdapters");
             sinon.spy(UAS, "createPubMaticNamespace");
             sinon.spy(UAS, "callJsLoadedIfRequired");
@@ -985,7 +938,6 @@ describe("CONTROLLER: UAS", function() {
         afterEach(function(done) {
             UTIL.isObject.restore();
             UAS.setWindowReference.restore();
-            UAS.defineWrapperTargetingKeys.restore();
             AM.registerAdapters.restore();
             UAS.createPubMaticNamespace.restore();
             UAS.callJsLoadedIfRequired.restore();
@@ -1006,7 +958,6 @@ describe("CONTROLLER: UAS", function() {
             UTIL.isObject.returned(true).should.to.be.true;
 
             UAS.setWindowReference.called.should.be.true;
-            UAS.defineWrapperTargetingKeys.called.should.be.true;
             AM.registerAdapters.called.should.be.true;
             UAS.createPubMaticNamespace.called.should.be.true;
             UAS.callJsLoadedIfRequired.called.should.be.true;
@@ -1022,7 +973,6 @@ describe("CONTROLLER: UAS", function() {
 
             UTIL.isObject.calledWith("NonObject").should.be.true;
             UAS.setWindowReference.called.should.be.false;
-            UAS.defineWrapperTargetingKeys.called.should.be.false;
             AM.registerAdapters.called.should.be.false;
             UAS.createPubMaticNamespace.called.should.be.false;
             UAS.callJsLoadedIfRequired.called.should.be.false;

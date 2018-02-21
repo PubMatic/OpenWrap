@@ -13,7 +13,6 @@ module.exports = {
     },
     devtool: 'source-map',
     resolve: {
-        // modulesDirectories: ['', 'node_modules', 'src_new']
 				modules: [path.resolve('./node_modules'), path.resolve('./src_new')]
     },
     resolveLoader: {
@@ -38,12 +37,12 @@ module.exports = {
         ],
 				rules: [
 		      {
-		        test: /(\.jsx|\.js)$/,
+		        test: /(\.js)$/,
 		        loader: 'babel-loader',
-		        exclude: /(node_modules|bower_components)/
+		        exclude: /(node_modules)/
 		      },
 		      {
-		        test: /(\.jsx|\.js)$/,
+		        test: /(\.js)$/,
 		        loader: 'eslint-loader',
 		        exclude: /node_modules/
 		      }

@@ -6,16 +6,7 @@ var bidManager = require("../bidManager.js");
 var SLOT = require("../slot.js");
 var PHOENIX = require("uas-adclient");
 
-var wrapperTargetingKeys = {}; // key is div id
-/* start-test-block */
-exports.wrapperTargetingKeys = wrapperTargetingKeys;
-/* end-test-block */
-var slotSizeMapping = {}; // key is div id
-/* start-test-block */
-exports.slotSizeMapping = slotSizeMapping;
-/* end-test-block */
 var slotsMap = {}; // key is div id, stores the mapping of divID ==> googletag.slot
-
 /* start-test-block */
 exports.slotsMap = slotsMap;
 /* end-test-block */
@@ -37,17 +28,6 @@ function getWindowReference() {
 }
 /* start-test-block */
 exports.getWindowReference = getWindowReference;
-/* end-test-block */
-
-function defineWrapperTargetingKeys(object) {
-    var output = {};
-    UTIL.forEachOnObject(object, function(key, value) {
-        output[value] = "";
-    });
-    return output;
-}
-/* start-test-block */
-exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
 function setDisplayFunctionCalledIfRequired(slot, arg) { // TDD, i/o : done
@@ -141,6 +121,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
         phoenixDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID, winningBid.getBidID());
         phoenixDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS, winningBid.getStatus());
         phoenixDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
+        phoenixDefinedSlot.setEcpm(winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
         var dealID = winningBid.getDealID();
         if(dealID){
             phoenixDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID, dealID);
@@ -156,8 +137,6 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
         /* istanbul ignore else*/
         if (!UTIL.isOwnProperty(ignoreTheseKeys, key)) {
             phoenixDefinedSlot.setTargeting(key, value);
-            // adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
-            refThis.defineWrapperTargetingKeys(key);
         }
     });
 }
@@ -411,7 +390,7 @@ function createPubMaticNamespace(win){
 exports.createPubMaticNamespace = createPubMaticNamespace;
 /* end-test-block */
 
-//todo: change variable names
+// todo: change variable names
 function generateBCUID(win){
 	var c = UTIL.createDocElement(win, "script"),
 		e = win.document.getElementsByTagName("script")[0];
@@ -429,7 +408,6 @@ exports.init = function(win) { // TDD, i/o : done
 	CONFIG.initConfig();
     if (UTIL.isObject(win)) {
         refThis.setWindowReference(win);
-        refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
         adapterManager.registerAdapters();
         refThis.createPubMaticNamespace(win);
         refThis.generateBCUID(win);
