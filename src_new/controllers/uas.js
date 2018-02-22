@@ -121,7 +121,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
         phoenixDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID, winningBid.getBidID());
         phoenixDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS, winningBid.getStatus());
         phoenixDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
-        phoenixDefinedSlot.setEcpm(winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
+        phoenixDefinedSlot.setWrapperEcpm(winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
         var dealID = winningBid.getDealID();
         if(dealID){
             phoenixDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID, dealID);
