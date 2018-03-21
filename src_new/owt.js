@@ -4,6 +4,7 @@ var bidManager = require("./bidManager.js");
 
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
+window.PWT.bidBank = window.PWT.bidBank || {};
 window.PWT.bidMap = window.PWT.bidMap || {};
 window.PWT.bidIdMap = window.PWT.bidIdMap || {};
 window.PWT.isIframe = window.PWT.isIframe || metaInfo.isInIframe;

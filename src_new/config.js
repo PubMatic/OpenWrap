@@ -6,6 +6,10 @@ var refThis = null;
 
 refThis = this;
 
+exports.getBidExpiryTimeStamp = function () {
+	return parseInt(config.pwt.bidet);
+};
+
 exports.getPublisherId = function(){
 	return util.trim(config.pwt.pubid) || "0";
 };

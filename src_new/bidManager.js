@@ -64,6 +64,9 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14);
 				refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
+				if (bidDetails.defaultBid === 0) {
+					refThis.storeBidInBidBank(divID, bidderID, bidDetails);
+				}
 			}else{
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16);
 			}
@@ -73,6 +76,9 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 	}else{
 		util.log(CONSTANTS.MESSAGES.M18);
 		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
+		if (bidDetails.defaultBid === 0) {
+			refThis.storeBidInBidBank(divID, bidderID, bidDetails);
+		}
 	}
 };
 
@@ -97,6 +103,20 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 
 /* start-test-block */
 exports.storeBidInBidMap = storeBidInBidMap;
+/* end-test-block */
+
+function storeBidInBidBank(slotID, adapterID, theBid){
+	var slotName = slotID + "@" + adapterID;// + "@" + theBid.width + "x" + theBid.height;
+
+	if (window.PWT.bidBank[slotName]) {
+		window.PWT.bidBank[slotName].push(theBid);
+	} else {
+		window.PWT.bidBank[slotName] = [theBid];
+	}
+}
+
+/* start-test-block */
+exports.storeBidInBidBank = storeBidInBidBank;
 /* end-test-block */
 
 exports.resetBid = function(divID, impressionID){ // TDD, i/o : done
@@ -224,6 +244,136 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
 exports.auctionBidsCallBack = auctionBidsCallBack;
 /* end-test-block */
 
+function auctionCachedBidsCallBack(allBids, keyValuePairs, winningBid) { // TDD, i/o : done
+  util.forEachOnArray(allBids, function(key, theBid) {
+    // do not consider post-timeout bids
+    /* istanbul ignore else */
+    if (theBid.getPostTimeoutStatus() === true) {
+        return { winningBid: winningBid , keyValuePairs: keyValuePairs };
+    }
+
+    /* istanbul ignore else */
+		if(theBid.getDefaultBidStatus() !== 1 && CONFIG.getSendAllBidsStatus() == 1){
+			theBid.setSendAllBidsKeys();
+		}
+
+    if (winningBid == null) {
+        winningBid = theBid;
+    } else if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
+				console.log(theBid.bidID);
+        winningBid = theBid;
+    }
+  });
+  return { winningBid: winningBid , keyValuePairs: keyValuePairs };
+}
+
+/* start-test-block */
+exports.auctionCachedBidsCallBack = auctionCachedBidsCallBack;
+/* end-test-block */
+
+function auctionBidsCached(bidBank, divID) {
+	var allBids = [],
+		data = null;
+
+	util.forEachOnObject(bidBank, function (bidKey, divBids) {
+		if (bidKey.startsWith(divID)) {
+			allBids = allBids.concat(divBids);
+		}
+	});
+
+	data = refThis.auctionCachedBidsCallBack(allBids, {}, null);
+
+	return {
+		wb: data.winningBid,
+		kvp: data.keyValuePairs
+	};
+}
+
+/* start-test-block */
+exports.auctionBidsCached = auctionBidsCached;
+/* end-test-block */
+
+exports.getBidFromBidBank = function(divID){ // TDD, i/o : done
+
+	var winningBid = null;
+	var keyValuePairs = null;
+	/* istanbul ignore else */
+	if( util.isOwnProperty(window.PWT.bidMap, divID) ){
+		var data = refThis.auctionBidsCached(window.PWT.bidBank, divID);
+		winningBid = data.wb;
+		keyValuePairs = data.kvp;
+
+		window.PWT.bidMap[divID].setAnalyticEnabled();//Analytics Enabled
+
+		if(winningBid && winningBid.getNetEcpm() > 0){
+			winningBid.setStatus(1);
+			winningBid.setWinningBidStatus();
+			util.vLogInfo(divID, {
+				type: "win-bid",
+				bidDetails: winningBid
+			});
+		}else{
+			util.vLogInfo(divID, {
+				type: "win-bid-fail",
+			});
+		}
+	}
+
+	return {wb: winningBid, kvp: keyValuePairs};
+};
+
+exports.deleteCachedBid = function (divID, winningBid) {
+	var slotname = divID + "@" + winningBid.adapterID,
+		bidBank = window.PWT.bidBank[slotname];
+
+	window.PWT.bidBank[slotname] = bidBank.filter(function (bid) {
+		if (bid.bidID === winningBid.bidID){
+			return false;
+		}
+		return true;
+	});
+};
+
+function deleteCachedBidObjects() {
+	var bidBank = window.PWT.bidBank,
+		expiryTime = CONFIG.getBidExpiryTimeStamp(),
+		currentTime = (new Date()).getTime();
+
+	util.forEachOnObject(bidBank, function (bidKey, bidArray) {
+		window.PWT.bidBank[bidKey] = bidArray.filter(function (bid) {
+			if ((bid.receivedTime + expiryTime) <= currentTime) {
+				return false;
+			}
+			return true;
+		});
+	});
+}
+
+/* start-test-block */
+exports.deleteCachedBidObjects = deleteCachedBidObjects;
+/* end-test-block */
+
+
+function getCachedBidById(bidID) {
+	var bidBank = window.PWT.bidBank,
+		selectedBid = null;
+
+	util.forEachOnObject(bidBank, function (bidKey, bidArray) {
+		util.forEachOnArray(bidArray, function (key, bid) {
+			console.log(bidID, "===", bid.bidID);
+			if (bidID == bid.bidID) {
+				selectedBid = bid;
+			}
+		});
+	});
+	return selectedBid;
+}
+
+/* start-test-block */
+exports.getCachedBidById = getCachedBidById;
+/* end-test-block */
+
+
 exports.getBid = function(divID){ // TDD, i/o : done
 
 	var winningBid = null;
@@ -284,15 +434,32 @@ exports.getBidById = function(bidID) { // TDD, i/o : done
 
 
 exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
-	var bidDetails = refThis.getBidById(bidID);
+	var bidDetails = refThis.getBidById(bidID),
+		isCached = false;
+
+	if (!bidDetails) {
+		var cachedBid = refThis.getCachedBidById(bidID);
+
+		if (cachedBid) {
+			bidDetails = {
+				bid: cachedBid,
+				slotid: cachedBid.kgpv.split("@")[0]
+			};
+			isCached = true;
+		}
+	}
+
+	console.log("XXXXXXXXXXXXXX", isCached, bidDetails, "ZZZZZZZZZZZZZZZZZ");
 	/* istanbul ignore else */
 	if(bidDetails){
 		var theBid = bidDetails.bid,
-			divID = bidDetails.slotid
-		;
+			divID = bidDetails.slotid;
+
 		util.displayCreative(theDocument, theBid);
-		util.vLogInfo(divID, {type: 'disp', adapter: theBid.getAdapterID()});
+		util.vLogInfo(divID, {type: 'disp', adapter: (isCached ? "Cached bid for " + theBid.getAdapterID() : theBid.getAdapterID())});
 		refThis.executeMonetizationPixel(divID, theBid);
+
+    theBid && refThis.deleteCachedBid(divID, theBid);
 	}
 };
 
@@ -414,8 +581,6 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 /* start-test-block */
 exports.analyticalPixelCallback = analyticalPixelCallback;
 /* end-test-block */
-
-
 
 exports.setImageSrcToPixelURL = function (pixelURL) { // TDD, i/o : done
 	var img = new window.Image();

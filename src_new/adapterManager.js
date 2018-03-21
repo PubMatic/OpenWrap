@@ -13,7 +13,7 @@ exports.registeredAdapters = registeredAdapters;
 
 var refThis = this;
 
-exports.callAdapters = function(activeSlots){	
+exports.callAdapters = function(activeSlots){
 	var impressionID = util.generateUUID();
 	refThis.resetSlots(activeSlots, impressionID);
 	refThis.callAdapter(registeredAdapters, activeSlots, impressionID);
@@ -27,8 +27,8 @@ exports.getRandomNumberBelow100 = getRandomNumberBelow100;
 
 function callAdapter(adapters, slots, impressionID){
 	util.forEachOnObject(adapters, function(adapterID, theAdapter){
-		//Note: if you have any other parent-adapter like prebid, and 
-		//		want to add throttling on the parent-adapters then 
+		//Note: if you have any other parent-adapter like prebid, and
+		//		want to add throttling on the parent-adapters then
 		//		you will need to add throttling logic here as well
 		refThis.setInitTimeForSlotsForAdapter(slots, adapterID);
 		theAdapter.fB(slots, impressionID);
@@ -40,6 +40,7 @@ exports.callAdapter = callAdapter;
 /* end-test-block */
 
 function resetSlots(slots, impressionID){
+	// bidManager.deleteCachedBidObjects();
 	util.forEachOnArray(slots, function(key, slot){
 		var divID = slot.getDivID();
 		bidManager.resetBid(divID, impressionID);

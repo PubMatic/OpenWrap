@@ -333,7 +333,7 @@ exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
 function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
-    var data = bidManager.getBid(divID);
+    var data = bidManager.getBidFromBidBank(divID); //bidManager.getBid(divID);
     var winningBid = data.wb || null;
     var keyValuePairs = data.kvp || null;
     var googleDefinedSlot = refThis.slotsMap[divID].getPubAdServerObject();
