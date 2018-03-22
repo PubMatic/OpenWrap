@@ -31,9 +31,10 @@ var refThis = this;
 function transformPBBidToOWBid(bid, kgpv){
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
 	var pubmaticServerErrorCode = parseInt(bid.pubmaticServerErrorCode);
-	var randomBid = Math.random(0, 100);
+	// var randomBid = Math.random(0, 100);
 
-	theBid.setGrossEcpm(randomBid); // theBid.setGrossEcpm(bid.cpm);
+	// theBid.setGrossEcpm(randomBid);
+	theBid.setGrossEcpm(bid.cpm);
 	theBid.setDealID(bid.dealId);
 	theBid.setDealChannel(bid.dealChannel);
 	theBid.setAdHtml(bid.ad || "");

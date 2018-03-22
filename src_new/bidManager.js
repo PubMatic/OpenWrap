@@ -65,7 +65,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14);
 				refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 				if (bidDetails.defaultBid === 0) {
-					refThis.storeBidInBidBank(divID, bidderID, bidDetails);
+					refThis.storeBidInBidBank(bidDetails);
 				}
 			}else{
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16);
@@ -77,7 +77,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 		util.log(CONSTANTS.MESSAGES.M18);
 		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 		if (bidDetails.defaultBid === 0) {
-			refThis.storeBidInBidBank(divID, bidderID, bidDetails);
+			refThis.storeBidInBidBank(bidDetails);
 		}
 	}
 };
@@ -105,8 +105,13 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 exports.storeBidInBidMap = storeBidInBidMap;
 /* end-test-block */
 
-function storeBidInBidBank(slotID, adapterID, theBid){
-	var slotName = slotID + "@" + adapterID;// + "@" + theBid.width + "x" + theBid.height;
+function storeBidInBidBank(theBid){
+	var slotName = theBid.width + "x" + theBid.height + "@" + theBid.adapterID; // slotID + "@" + adapterID;// + "@"
+	console.log(slotName, theBid);
+
+	if (theBid.getNetEcpm() <= 0) {
+		return;
+	}
 
 	if (window.PWT.bidBank[slotName]) {
 		window.PWT.bidBank[slotName].push(theBid);
@@ -206,15 +211,16 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
             // do not consider post-timeout bids
             /* istanbul ignore else */
             if (theBid.getPostTimeoutStatus() === true) {
+								// refThis.storeBidInBidBank(theBid);
                 return { winningBid: winningBid , keyValuePairs: keyValuePairs };
             }
 
             /* istanbul ignore else */
-			if(theBid.getDefaultBidStatus() !== 1 && CONFIG.getSendAllBidsStatus() == 1){
-				theBid.setSendAllBidsKeys();
-			}
+						if(theBid.getDefaultBidStatus() !== 1 && CONFIG.getSendAllBidsStatus() == 1){
+							theBid.setSendAllBidsKeys();
+						}
 
-            //	if bidPassThrough is not enabled and ecpm > 0
+            // if bidPassThrough is not enabled and ecpm > 0
             //		then only append the key value pairs from partner bid
             /* istanbul ignore else */
             if (CONFIG.getBidPassThroughStatus(adapterID) === 0 /*&& theBid.getNetEcpm() > 0*/) {
@@ -231,8 +237,11 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
             if (winningBid == null) {
                 winningBid = theBid;
             } else if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
+								// refThis.storeBidInBidBank(winningBid);
                 winningBid = theBid;
-            }
+            }// else {
+            // 	refThis.storeBidInBidBank(theBid);
+            // }
         });
         return { winningBid: winningBid , keyValuePairs: keyValuePairs };
     } else {
@@ -248,7 +257,7 @@ function auctionCachedBidsCallBack(allBids, keyValuePairs, winningBid) { // TDD,
   util.forEachOnArray(allBids, function(key, theBid) {
     // do not consider post-timeout bids
     /* istanbul ignore else */
-    if (theBid.getPostTimeoutStatus() === true) {
+    if (theBid.isUsed === true || theBid.getPostTimeoutStatus() === true) {
         return { winningBid: winningBid , keyValuePairs: keyValuePairs };
     }
 
@@ -273,10 +282,14 @@ exports.auctionCachedBidsCallBack = auctionCachedBidsCallBack;
 
 function auctionBidsCached(bidBank, divID) {
 	var allBids = [],
-		data = null;
+		data = null,
+		sizes = window.PWT.bidMap[divID] && window.PWT.bidMap[divID].sizes;
+
+	console.log("sizes for ", divID, " is", sizes);
 
 	util.forEachOnObject(bidBank, function (bidKey, divBids) {
-		if (bidKey.startsWith(divID)) {
+		var size = bidKey.split("@")[0];
+		if (sizes.indexOf(size) >= 0) {
 			allBids = allBids.concat(divBids);
 		}
 	});
@@ -304,6 +317,7 @@ exports.getBidFromBidBank = function(divID){ // TDD, i/o : done
 		keyValuePairs = data.kvp;
 
 		window.PWT.bidMap[divID].setAnalyticEnabled();//Analytics Enabled
+		winningBid && refThis.deleteCachedBid(winningBid);
 
 		if(winningBid && winningBid.getNetEcpm() > 0){
 			winningBid.setStatus(1);
@@ -322,15 +336,15 @@ exports.getBidFromBidBank = function(divID){ // TDD, i/o : done
 	return {wb: winningBid, kvp: keyValuePairs};
 };
 
-exports.deleteCachedBid = function (divID, winningBid) {
-	var slotname = divID + "@" + winningBid.adapterID,
+exports.deleteCachedBid = function (winningBid) {
+	var slotname = winningBid.width + "x" + winningBid.height + "@" + winningBid.adapterID,
 		bidBank = window.PWT.bidBank[slotname];
 
-	window.PWT.bidBank[slotname] = bidBank.filter(function (bid) {
-		if (bid.bidID === winningBid.bidID){
-			return false;
+	window.PWT.bidBank[slotname] = bidBank.map(function (bid) {
+		if (bid.bidID === winningBid.bidID) {
+			bid.isUsed = true;
 		}
-		return true;
+		return bid;
 	});
 };
 
@@ -383,6 +397,8 @@ exports.getBid = function(divID){ // TDD, i/o : done
 		var data = refThis.auctionBids(window.PWT.bidMap[divID]);
 		winningBid = data.wb;
 		keyValuePairs = data.kvp;
+		// delete the winningBid from bidBank
+		// winningBid && refThis.deleteCachedBid(winningBid)
 
 		window.PWT.bidMap[divID].setAnalyticEnabled();//Analytics Enabled
 
@@ -433,7 +449,7 @@ exports.getBidById = function(bidID) { // TDD, i/o : done
 };
 
 
-exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
+exports.displayCreative = function(theDocument, bidID) { // TDD, i/o : done
 	var bidDetails = refThis.getBidById(bidID),
 		isCached = false;
 
@@ -459,7 +475,7 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 		util.vLogInfo(divID, {type: 'disp', adapter: (isCached ? "Cached bid for " + theBid.getAdapterID() : theBid.getAdapterID())});
 		refThis.executeMonetizationPixel(divID, theBid);
 
-    theBid && refThis.deleteCachedBid(divID, theBid);
+    // theBid && refThis.deleteCachedBid(theBid);
 	}
 };
 
