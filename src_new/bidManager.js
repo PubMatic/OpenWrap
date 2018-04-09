@@ -375,9 +375,9 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                 return;
             }
 
-						if (adapterID === "pubmaticServer") {
-								return;
-						}
+						// if (adapterID === "pubmaticServer") {
+						// 		return;
+						// }
 
             util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
 
@@ -401,6 +401,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "dc": theBid.getDealChannel(),
                     "l1": endTime - startTime,
                     "l2": 0,
+										"ss": theBid.getServerSideStatus(),
                     "t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
                     "wb": theBid.getWinningBidStatus() === true ? 1 : 0
                 });
