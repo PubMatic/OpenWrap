@@ -107,6 +107,25 @@ function addPrebidAdapter(){
 	}
 }
 
+exports.getGdpr = function () {
+	var gdpr = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT];
+	return gdpr ? window.parseInt(gdpr) : CONSTANTS.config.DEFAULT_GDPR_CONSENT;
+}
+
+exports.getCmpApi = function () {
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CMPAPI] || CONSTANTS.config.DEFAULT_GDPR_CMPAPI;
+}
+
+exports.getGdprTimeout = function() {
+	var gdprTimeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_TIMEOUT];
+	return gdprTimeout ? window.parseInt(gdprTimeout) : CONSTANTS.config.DEFAULT_GDPR_TIMEOUT;
+}
+
+exports.getAwc = function () {
+	var awc = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_AWC];
+	return awc ? window.parseInt(awc) : ONSTANTS.config.DEFAULT_GDPR_AWC;
+}
+
 /* start-test-block */
 exports.addPrebidAdapter = addPrebidAdapter;
 /* end-test-block */
