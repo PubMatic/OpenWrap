@@ -105,26 +105,26 @@ function addPrebidAdapter(){
 		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = {};
 		config.adapters[preBidAdapter] = adapterConfig;
 	}
-}
+};
 
 exports.getGdpr = function () {
-	var gdpr = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT];
-	return gdpr ? window.parseInt(gdpr) : CONSTANTS.config.DEFAULT_GDPR_CONSENT;
-}
+	var gdpr = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT] || CONSTANTS.config.DEFAULT_GDPR_CONSENT;
+	return gdpr === "1";
+};
 
 exports.getCmpApi = function () {
 	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CMPAPI] || CONSTANTS.config.DEFAULT_GDPR_CMPAPI;
-}
+};
 
 exports.getGdprTimeout = function() {
 	var gdprTimeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_TIMEOUT];
 	return gdprTimeout ? window.parseInt(gdprTimeout) : CONSTANTS.config.DEFAULT_GDPR_TIMEOUT;
-}
+};
 
 exports.getAwc = function () {
-	var awc = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_AWC];
-	return awc ? window.parseInt(awc) : ONSTANTS.config.DEFAULT_GDPR_AWC;
-}
+	var awc = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_AWC] || CONSTANTS.config.DEFAULT_GDPR_AWC;
+	return awc === "1" ;
+};
 
 /* start-test-block */
 exports.addPrebidAdapter = addPrebidAdapter;

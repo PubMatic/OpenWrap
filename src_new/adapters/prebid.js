@@ -382,7 +382,7 @@ function fetchBids(activeSlots, impressionID){
 						cmpApi: CONFIG.getCmpApi(),
 						timeout: CONFIG.getGdprTimeout(),
 						allowAuctionWithoutConsent: CONFIG.getAwc(),
-						consentRequired: true
+						consentRequired: CONFIG.getGdpr()
 					}
 				});
 			}

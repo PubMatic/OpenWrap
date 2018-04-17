@@ -7,10 +7,10 @@ exports.pwt = {
 	dataURL: "t.test-domain.com/logger?",
 	winURL: "t.test-domain.com/tracker?",
 	adserver: "DFP",
-	gdpr: "0",
+	gdpr: "1",
 	cmpApi: "iab",
 	gdprTimeout: "10000",
-	awc: true
+	awc: "1"
 };
 
 exports.adapters = {
