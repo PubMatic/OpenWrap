@@ -496,15 +496,15 @@ describe('Config', function() {
             done();
         });
 
-        it('should return 1, as it is set to 1', function(done) {
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT] = 1;
-            CONFIG.getGdpr().should.be.equal(1);
+        it('should return true, as it is set to "1"', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT] = "1";
+            CONFIG.getGdpr().should.be.true;
             done();
         });
 
-        it('should return default value for gdpr which is '+CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.DEFAULT_GDPR_CONSENT]+', as it is NOT set', function(done) {
+        it('should return default value for gdpr which is '+(CONSTANTS.CONFIG.DEFAULT_GDPR_CONSENT === "1")+', as it is NOT set', function(done) {
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT];
-            CONFIG.getGdpr().should.be.equal(CONSTANTS.CONFIG.DEFAULT_GDPR_CONSENT);
+            CONFIG.getGdpr().should.be.equal((CONSTANTS.CONFIG.DEFAULT_GDPR_CONSENT === "1"));
             done();
         });
     });
@@ -521,9 +521,9 @@ describe('Config', function() {
             done();
         });
 
-        it('should return default cpm which is '+CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.DEFAULT_GDPR_CMPAPI]+', as it is NOT set', function(done) {
+        it('should return default cpm which is '+CONSTANTS.CONFIG.DEFAULT_GDPR_CMPAPI+', as it is NOT set', function(done) {
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CMPAPI];
-            CONFIG.getCmpApi().should.be.equal(CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.DEFAULT_GDPR_CMPAPI]);
+            CONFIG.getCmpApi().should.be.equal(CONSTANTS.CONFIG.DEFAULT_GDPR_CMPAPI);
             done();
         });
     });
@@ -540,9 +540,9 @@ describe('Config', function() {
             done();
         });
 
-        it('should return default value for gdpr timeout which is '+CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.DEFAULT_GDPR_TIMEOUT]+', as it is NOT set', function(done) {
+        it('should return default value for gdpr timeout which is '+CONSTANTS.CONFIG.DEFAULT_GDPR_TIMEOUT+', as it is NOT set', function(done) {
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_TIMEOUT];
-            CONFIG.getGdprTimeout().should.be.equal(CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.DEFAULT_GDPR_TIMEOUT]);
+            CONFIG.getGdprTimeout().should.be.equal(CONSTANTS.CONFIG.DEFAULT_GDPR_TIMEOUT);
             done();
         });
     });
@@ -554,14 +554,14 @@ describe('Config', function() {
         });
 
         it('should return 1, as it is set to 1', function(done) {
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_AWC] = 1;
-            CONFIG.getAwc().should.be.equal(0);
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_AWC] = "1";
+            CONFIG.getAwc().should.be.true;
             done();
         });
 
-        it('should return default value which is '+CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.DEFAULT_GDPR_AWC]+', as it is NOT set', function(done) {
+        it('should return default value which is '+(CONSTANTS.CONFIG.DEFAULT_GDPR_AWC === "1")+', as it is NOT set', function(done) {
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_AWC];
-            CONFIG.getAwc().should.be.equal(CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.DEFAULT_GDPR_AWC]);
+            CONFIG.getAwc().should.be.equal((CONSTANTS.CONFIG.DEFAULT_GDPR_AWC === "1"));
             done();
         });
     });

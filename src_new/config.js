@@ -108,21 +108,21 @@ function addPrebidAdapter(){
 };
 
 exports.getGdpr = function () {
-	var gdpr = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT] || CONSTANTS.config.DEFAULT_GDPR_CONSENT;
+	var gdpr = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT] || CONSTANTS.CONFIG.DEFAULT_GDPR_CONSENT;
 	return gdpr === "1";
 };
 
 exports.getCmpApi = function () {
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CMPAPI] || CONSTANTS.config.DEFAULT_GDPR_CMPAPI;
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CMPAPI] || CONSTANTS.CONFIG.DEFAULT_GDPR_CMPAPI;
 };
 
 exports.getGdprTimeout = function() {
 	var gdprTimeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_TIMEOUT];
-	return gdprTimeout ? window.parseInt(gdprTimeout) : CONSTANTS.config.DEFAULT_GDPR_TIMEOUT;
+	return gdprTimeout ? window.parseInt(gdprTimeout) : CONSTANTS.CONFIG.DEFAULT_GDPR_TIMEOUT;
 };
 
 exports.getAwc = function () {
-	var awc = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_AWC] || CONSTANTS.config.DEFAULT_GDPR_AWC;
+	var awc = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_AWC] || CONSTANTS.CONFIG.DEFAULT_GDPR_AWC;
 	return awc === "1" ;
 };
 
