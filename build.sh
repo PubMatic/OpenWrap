@@ -18,7 +18,6 @@ var prebidTaskName = "";
 var openwrapBuildTaskName = "";
 var openwrapWebpackTaskName = "";
 
-
 if ( argv.mode && argv.mode == "test-build") {
 	console.log("Executing test-build");
 	prebidTaskName = "build-bundle-dev --modules=modules.json";
@@ -33,8 +32,7 @@ if ( argv.mode && argv.mode == "test-build") {
 } else {
 	console.log("No mode supplied, Too few arguments");
 	shell.exit(1);
-}
- 
+} 
 
 if(shell.exec("gulp " + prebidTaskName + " --mode=" + argv.mode).code !== 0) {
 	shell.echo('Error: buidlinng of project failed');
@@ -54,9 +52,7 @@ if(shell.exec("gulp " + openwrapWebpackTaskName + " --mode=" + argv.mode).code !
 	shell.exit(1);
 }
 
-
 if(shell.exec("gulp " + openwrapBuildTaskName + " --mode=" + argv.mode).code !== 0) {
 	shell.echo('Error: build task failed');
 	shell.exit(1);
 }
-
