@@ -5,6 +5,7 @@
 var CONSTANTS = require("./constants.js");
 var BID = require("./bid.js");
 var bidManager = require("./bidManager.js");
+var CONFIG = require("./config.js");
 
 var debugLogIsEnabled = false;
 
@@ -849,4 +850,126 @@ exports.resetExternalBidderStatus = function(divIds) {
 		refThis.log("resetExternalBidderStatus: " + divId);
 		window.OWT.externalBidderStatuses[divId] = undefined;
 	});
+};
+
+/* ------------------------------------------------------------------------
+	GDPR Module
+------------------------------------------------------------------------ */
+
+var localStorageKey = "PubMatic";
+var isLocalStoreEnabled = (function (isFunction) {
+	try {
+		return window.localStorage && isFunction(window.localStorage.getItem) && isFunction(window.localStorage.setItem);
+	} catch (e) {
+		return false;
+	}
+})(refThis.isFunction);
+
+
+var setConsentDataInLS = function (pubId, dataType, data) {
+	var pm;
+
+	if (!isLocalStoreEnabled) {
+		return;
+	}
+	try {
+		pm = window.localStorage.getItem(localStorageKey);
+	} catch (e) {}
+	if (pm && refThis.isString(pm)) {
+		try {
+			pm = JSON.parse(pm);
+		} catch (e) {
+			pm = {};
+		}
+	} else {
+		pm = {};
+	}
+	if (pm) {
+		if (!pm.hasOwnProperty(pubId)) {
+			pm[pubId] = {};
+		}
+		pm[pubId].t = (new Date()).getTime();
+		pm[pubId][dataType] = data;
+		if (dataType == "c") {
+			pm[pubId]["g"] = 1;
+		}
+	}
+	try {
+		window.localStorage.setItem(localStorageKey, JSON.stringify(pm));
+	} catch (e) {}
+};
+
+exports.isCmpFound = function () {
+	return !!window.__cmp;
+};
+
+exports.getUserConsentDataFromCMP = function () {
+  var pubId = CONFIG.getPublisherId();
+  console.log("GDPR: pubId", pubId);
+  function receiveMessage(event) {
+		if (event && event.data && event.data.__cmp && event.data.__cmp.result) {
+			setConsentDataInLS(pubId, "c", event.data.__cmp.result);
+		}
+	}
+
+	var callId = 0;
+	var getConsentDataReq = {
+		__cmp: {
+			callId: "iframe:" + (++callId),
+			command: "getConsentData"
+		}
+	};
+
+	if (window.__cmp) {
+		window.__cmp("getConsentData", "vendorConsents", function (result) {
+
+      if (refThis.isObject(result)) {
+        console.log("GDPR: consentData,", result.consentData, result.gdprApplies);
+        // CMP JS API 1.1 found
+        setConsentDataInLS(pubId, "c", result.consentData, result.gdprApplies);
+      } else {
+        console.log("GDPR: consentData", result);
+        // CMP JS API 1.0 found
+        setConsentDataInLS(pubId, "c", result);
+      }
+		});
+	} else {
+		// we may be inside an iframe and CMP may exist outside, so we"ll use postMessage to interact with CMP
+		window.top.postMessage(getConsentDataReq, "*");
+		window.addEventListener("message", receiveMessage);
+	}
+};
+
+exports.getUserConsentDataFromLS = function (pubId) {
+	var data = {c: "", g: {}};
+
+  console.log("getUserConsentDataFromLS:", pubId);
+	if (!isLocalStoreEnabled) {
+		return data;
+	}
+	var pm;
+
+	try {
+		pm = window.localStorage.getItem(localStorageKey);
+	} catch (e) {}
+	if (pm && refThis.isString(pm)) {
+		try {
+			pm = JSON.parse(pm);
+		} catch (e) {
+			pm = {};
+		}
+		if (pm.hasOwnProperty(pubId)) {
+			var pmRecord = pm[pubId];
+
+			if (pmRecord && pmRecord.c && pmRecord.g) {
+				// check timestamp of data and current; if older than a day do not use it
+				// if (pmRecord.t && parseInt(pmRecord.t, 10) < ((new Date()).getTime() - (24 * 60 * 60 * 1000))) {
+					data.c = pmRecord.c;
+					data.g = pmRecord.g;
+				// }
+			}
+		}
+	}
+  console.log("data:", data);
+	return data;
 };

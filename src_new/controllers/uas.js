@@ -310,6 +310,9 @@ exports.displayFunctionStatusHandler = displayFunctionStatusHandler;
 
 function initiateDisplay(win) {
   win.Phoenix.registerPreDisplayHandler(function(taskDone, divId){
+    // Initiating getUserConsentDataFromCMP method to get the updated consentData
+    util.getUserConsentDataFromCMP();
+
     var phoenixObj = window.Phoenix || {};
 
     /* istanbul ignore next */

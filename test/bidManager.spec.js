@@ -1093,7 +1093,7 @@ describe('bidManager BIDMgr', function() {
 
             var timeNow = new Date().getTime();
             sinon.stub(UTIL, "getCurrentTimestamp").returns(timeNow);
-
+            sinon.spy(UTIL, "getUserConsentDataFromLS");
             sinon.spy(UTIL, "forEachOnObject");
 
             window.PWT = {
@@ -1124,6 +1124,7 @@ describe('bidManager BIDMgr', function() {
 
             UTIL.getCurrentTimestamp.restore();
             UTIL.forEachOnObject.restore();
+            UTIL.getUserConsentDataFromLS.restore();
             window.PWT = null;
 
             BIDMgr.analyticalPixelCallback.restore();
@@ -1138,7 +1139,8 @@ describe('bidManager BIDMgr', function() {
         it('should return if pixelURL is empty', function(done) {
             CONFIG.getAnalyticsPixelURL.returns("");
             BIDMgr.executeAnalyticsPixel();
-            CONFIG.getPublisherId.called.should.be.false;
+            CONFIG.getPublisherId.called.should.be.true;
+            UTIL.getUserConsentDataFromLS.called.should.be.true;
             done();
         });
 
@@ -1150,6 +1152,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getProfileID.called.should.be.true;
             CONFIG.getProfileDisplayVersionID.called.should.be.true;
 
+            UTIL.getUserConsentDataFromLS.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
             done();
         });
@@ -1191,12 +1194,14 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(CONFIG, 'getPublisherId');
             sinon.spy(CONFIG, 'getProfileID');
             sinon.spy(CONFIG, 'getProfileDisplayVersionID');
+            sinon.spy(CONFIG, 'getGdpr');
             sinon.stub(theBid, 'getBidID');
             theBid.getBidID.returns('784b05cc03a84a');
             sinon.spy(theBid, 'getAdapterID');
             sinon.spy(theBid, 'getNetEcpm');
             sinon.spy(theBid, 'getGrossEcpm');
             sinon.spy(theBid, 'getKGPV');
+            sinon.spy(UTIL, 'getUserConsentDataFromLS');
 
             origImage = window.Image;
             window.Image = sinon.stub();
@@ -1229,6 +1234,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getPublisherId.restore();
             CONFIG.getProfileID.restore();
             CONFIG.getProfileDisplayVersionID.restore();
+            CONFIG.getGdpr.restore();
             window.encodeURIComponent.restore();
 
             theBid.getBidID.restore();
@@ -1241,6 +1247,7 @@ describe('bidManager BIDMgr', function() {
             window.Image = origImage;
 
             UTIL.getCurrentTimestamp.restore();
+            UTIL.getUserConsentDataFromLS.restore();
 
             BIDMgr.setImageSrcToPixelURL.restore();
 
@@ -1262,8 +1269,9 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.executeMonetizationPixel(slotID, theBid);
 
             CONFIG.getMonetizationPixelURL.called.should.be.true;
+            UTIL.getUserConsentDataFromLS.called.should.be.true;
 
-            CONFIG.getPublisherId.called.should.be.false;
+            CONFIG.getPublisherId.called.should.be.true;
             CONFIG.getProfileID.called.should.be.false;
 
             theBid.getBidID.called.should.be.false;
@@ -1288,6 +1296,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getPublisherId.called.should.be.true;
             CONFIG.getProfileID.called.should.be.true;
             CONFIG.getProfileDisplayVersionID.called.should.be.true;
+            // CONFIG.get
 
             theBid.getBidID.called.should.be.true;
             theBid.getAdapterID.called.should.be.true;
@@ -1297,6 +1306,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
+            UTIL.getUserConsentDataFromLS.called.should.be.true;
             window.encodeURIComponent.callCount.should.be.equal(10);
 
             done();
@@ -1317,6 +1327,8 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
+          	pixelURL += "&gdpr=" + (CONFIG.getGdpr() ? 1 : 0);
+          	pixelURL += "&cns=" + "";
 
 
             BIDMgr.executeMonetizationPixel(slotID, theBid);

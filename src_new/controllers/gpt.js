@@ -613,6 +613,9 @@ exports.forQualifyingSlotNamesCallAdapters = forQualifyingSlotNamesCallAdapters;
 /* end-test-block */
 
 function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
+    // Initiating getUserConsentDataFromCMP method to get the updated consentData
+    util.getUserConsentDataFromCMP();
+
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         // Todo : change structure to take out the anonymous function for better unit test cases
         return function() {
@@ -766,6 +769,9 @@ exports.getQualifyingSlotNamesForRefresh = getQualifyingSlotNamesForRefresh;
         4. googletag.pubads().refresh(null, {changeCorrelator: false});
 */
 function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // Note : not covering the function currying atm , if need be will add istanbul ignore
+    // Initiating getUserConsentDataFromCMP method to get the updated consentData
+    util.getUserConsentDataFromCMP();
+
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         // var refThis = this;
         return function() {
