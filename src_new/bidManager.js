@@ -314,11 +314,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 
 	consentString = gdprData && gdprData.c ? encodeURIComponent(gdprData.c) : "";
 
-	pixelURL = util.metaInfo.protocol + pixelURL;
-	pixelURL += "pubid=" + pubId;
-	pixelURL += "&gdpr=" + (CONFIG.getGdpr() ? 1 : 0);
-	pixelURL += "&cns=" + consentString;
-	pixelURL += "&json=";
+	pixelURL = util.metaInfo.protocol + pixelURL + "pubid=" + pubId + "&json=";
 
 	outputObj[CONSTANTS.CONFIG.PUBLISHER_ID] = CONFIG.getPublisherId();
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMEOUT] = ""+CONFIG.getTimeout();
@@ -326,6 +322,8 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
+	outputObj[CONSTANTS.CONFIG.GDPR_CONSENT] = CONFIG.getGdpr() ? 1 : 0;
+	outputObj[CONSTANTS.CONFIG.CONSENT_STRING] = consentString;
 
 	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {
 		refThis.analyticalPixelCallback(slotID, bmEntry, impressionIDMap);
@@ -343,16 +341,12 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 
 exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
-		pubId = CONFIG.getPublisherId(),
-		gdprData = GDPR.getUserConsentDataFromLS(pubId),
-		consentString = "";
+		pubId = CONFIG.getPublisherId();
 
 	/* istanbul ignore else */
 	if(!pixelURL){
 		return;
 	}
-
-	consentString = gdprData && gdprData.c ? encodeURIComponent(gdprData.c) : "";
 
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(util.metaInfo.pageURL);
@@ -366,8 +360,6 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
 	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
 	pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
-	pixelURL += "&gdpr=" + (CONFIG.getGdpr() ? 1 : 0);
-	pixelURL += "&cns=" + consentString;
 
 	refThis.setImageSrcToPixelURL(pixelURL);
 };

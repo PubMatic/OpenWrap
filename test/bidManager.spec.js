@@ -1195,14 +1195,12 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(CONFIG, 'getPublisherId');
             sinon.spy(CONFIG, 'getProfileID');
             sinon.spy(CONFIG, 'getProfileDisplayVersionID');
-            sinon.spy(CONFIG, 'getGdpr');
             sinon.stub(theBid, 'getBidID');
             theBid.getBidID.returns('784b05cc03a84a');
             sinon.spy(theBid, 'getAdapterID');
             sinon.spy(theBid, 'getNetEcpm');
             sinon.spy(theBid, 'getGrossEcpm');
             sinon.spy(theBid, 'getKGPV');
-            sinon.spy(GDPR, 'getUserConsentDataFromLS');
 
             origImage = window.Image;
             window.Image = sinon.stub();
@@ -1235,7 +1233,6 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getPublisherId.restore();
             CONFIG.getProfileID.restore();
             CONFIG.getProfileDisplayVersionID.restore();
-            CONFIG.getGdpr.restore();
             window.encodeURIComponent.restore();
 
             theBid.getBidID.restore();
@@ -1248,7 +1245,6 @@ describe('bidManager BIDMgr', function() {
             window.Image = origImage;
 
             UTIL.getCurrentTimestamp.restore();
-            GDPR.getUserConsentDataFromLS.restore();
 
             BIDMgr.setImageSrcToPixelURL.restore();
 
@@ -1270,7 +1266,6 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.executeMonetizationPixel(slotID, theBid);
 
             CONFIG.getMonetizationPixelURL.called.should.be.true;
-            GDPR.getUserConsentDataFromLS.called.should.be.true;
 
             CONFIG.getPublisherId.called.should.be.true;
             CONFIG.getProfileID.called.should.be.false;
@@ -1297,7 +1292,6 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getPublisherId.called.should.be.true;
             CONFIG.getProfileID.called.should.be.true;
             CONFIG.getProfileDisplayVersionID.called.should.be.true;
-            // CONFIG.get
 
             theBid.getBidID.called.should.be.true;
             theBid.getAdapterID.called.should.be.true;
@@ -1307,7 +1301,6 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            GDPR.getUserConsentDataFromLS.called.should.be.true;
             window.encodeURIComponent.callCount.should.be.equal(10);
 
             done();
@@ -1328,9 +1321,6 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
-          	pixelURL += "&gdpr=" + (CONFIG.getGdpr() ? 1 : 0);
-          	pixelURL += "&cns=" + "";
-
 
             BIDMgr.executeMonetizationPixel(slotID, theBid);
 
