@@ -1,5 +1,6 @@
 var CONFIG = require("./config.js");
 
+// Adding util here creating cyclic dependecies between the modules so avoided it & added two util function manually
 function isA(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
 }
@@ -60,6 +61,10 @@ var setConsentDataInLS = function (pubId, dataType, data) {
 		window.localStorage.setItem(localStorageKey, JSON.stringify(pm));
 	} catch (e) {}
 };
+
+/* start-test-block */
+exports.setConsentDataInLS = setConsentDataInLS;
+/* end-test-block */
 
 exports.isCmpFound = function () {
 	return !!window.__cmp;
