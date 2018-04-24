@@ -1,6 +1,7 @@
 var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
+var GDPR = require("./gdpr.js");
 var bmEntry = require("./bmEntry.js");
 
 var refThis = this;
@@ -301,7 +302,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 			s: []
 		},
 		pubId = CONFIG.getPublisherId(),
-		gdprData = util.getUserConsentDataFromLS(pubId),
+		gdprData = GDPR.getUserConsentDataFromLS(pubId),
 		consentString = "",
 		pixelURL = CONFIG.getAnalyticsPixelURL(),
 		impressionIDMap = {} // impID => slots[]
@@ -343,7 +344,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId(),
-		gdprData = util.getUserConsentDataFromLS(pubId),
+		gdprData = GDPR.getUserConsentDataFromLS(pubId),
 		consentString = "";
 
 	/* istanbul ignore else */

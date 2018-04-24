@@ -7,6 +7,7 @@ var BIDMgr = require('../src_new/bidManager');
 var CONFIG = require("../src_new/config.js");
 var CONSTANTS = require("../src_new/constants.js");
 var UTIL = require("../src_new/util.js");
+var GDPR = require("../src_new/gdpr.js");
 var bmEntry = require("../src_new/bmEntry.js");
 var bmEntryContstuctor = require("../src_new/bmEntry.js").BMEntry;
 var AdapterEntry = require("../src_new/adapterEntry").AdapterEntry;
@@ -1093,7 +1094,7 @@ describe('bidManager BIDMgr', function() {
 
             var timeNow = new Date().getTime();
             sinon.stub(UTIL, "getCurrentTimestamp").returns(timeNow);
-            sinon.spy(UTIL, "getUserConsentDataFromLS");
+            sinon.spy(GDPR, "getUserConsentDataFromLS");
             sinon.spy(UTIL, "forEachOnObject");
 
             window.PWT = {
@@ -1124,7 +1125,7 @@ describe('bidManager BIDMgr', function() {
 
             UTIL.getCurrentTimestamp.restore();
             UTIL.forEachOnObject.restore();
-            UTIL.getUserConsentDataFromLS.restore();
+            GDPR.getUserConsentDataFromLS.restore();
             window.PWT = null;
 
             BIDMgr.analyticalPixelCallback.restore();
@@ -1140,7 +1141,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getAnalyticsPixelURL.returns("");
             BIDMgr.executeAnalyticsPixel();
             CONFIG.getPublisherId.called.should.be.true;
-            UTIL.getUserConsentDataFromLS.called.should.be.true;
+            GDPR.getUserConsentDataFromLS.called.should.be.true;
             done();
         });
 
@@ -1152,7 +1153,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getProfileID.called.should.be.true;
             CONFIG.getProfileDisplayVersionID.called.should.be.true;
 
-            UTIL.getUserConsentDataFromLS.called.should.be.true;
+            GDPR.getUserConsentDataFromLS.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
             done();
         });
@@ -1201,7 +1202,7 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, 'getNetEcpm');
             sinon.spy(theBid, 'getGrossEcpm');
             sinon.spy(theBid, 'getKGPV');
-            sinon.spy(UTIL, 'getUserConsentDataFromLS');
+            sinon.spy(GDPR, 'getUserConsentDataFromLS');
 
             origImage = window.Image;
             window.Image = sinon.stub();
@@ -1247,7 +1248,7 @@ describe('bidManager BIDMgr', function() {
             window.Image = origImage;
 
             UTIL.getCurrentTimestamp.restore();
-            UTIL.getUserConsentDataFromLS.restore();
+            GDPR.getUserConsentDataFromLS.restore();
 
             BIDMgr.setImageSrcToPixelURL.restore();
 
@@ -1269,7 +1270,7 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.executeMonetizationPixel(slotID, theBid);
 
             CONFIG.getMonetizationPixelURL.called.should.be.true;
-            UTIL.getUserConsentDataFromLS.called.should.be.true;
+            GDPR.getUserConsentDataFromLS.called.should.be.true;
 
             CONFIG.getPublisherId.called.should.be.true;
             CONFIG.getProfileID.called.should.be.false;
@@ -1306,7 +1307,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            UTIL.getUserConsentDataFromLS.called.should.be.true;
+            GDPR.getUserConsentDataFromLS.called.should.be.true;
             window.encodeURIComponent.callCount.should.be.equal(10);
 
             done();
