@@ -55,7 +55,9 @@ describe('ADAPTER: Prebid', function() {
                 height: 420,
                 responseTimestamp: 1503321091079,
                 adserverTargeting: {
-                    "k1": "v1"
+                    "k1": "v1",
+                    "hb_format": "native",
+                    "hb_source": "client"
                 },
             };
             kgpv = commonKGPV;

@@ -52,7 +52,9 @@ function transformPBBidToOWBid(bid, kgpv){
 	}
 
 	util.forEachOnObject(bid.adserverTargeting, function(key, value){
-		theBid.setKeyValuePair(key, value);
+		if (key !== "hb_format" && key !== "hb_source") {
+			theBid.setKeyValuePair(key, value);
+		}
 	});
 	return theBid;
 }
