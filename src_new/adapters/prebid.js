@@ -362,8 +362,8 @@ function fetchBids(activeSlots, impressionID){
 			//	window[pbNameSpace].setBidderSequence("random");
 			//}
 
-			if(util.isFunction(window[pbNameSpace].setConfig)){
-				window[pbNameSpace].setConfig({
+			if(util.isFunction(window[pbNameSpace].setConfig)) {
+				var prebidConfig = {
 					debug: util.isDebugLogEnabled(),
 					bidderSequence: "random",
 					userSync: {
@@ -376,15 +376,19 @@ function fetchBids(activeSlots, impressionID){
 							});
 							return arr;
 						})(),
-				    	syncDelay: 2000 //todo: default is 3000 write image pixels 5 seconds after the auction
-				    },
-					consentManagement: {
+						syncDelay: 2000 //todo: default is 3000 write image pixels 5 seconds after the auction
+					}
+				};
+
+				if (CONFIG.getGdpr()) {
+					prebidConfig["consentManagement"] = {
 						cmpApi: CONFIG.getCmpApi(),
 						timeout: CONFIG.getGdprTimeout(),
-						allowAuctionWithoutConsent: CONFIG.getAwc(),
-						consentRequired: CONFIG.getGdpr()
-					}
-				});
+						allowAuctionWithoutConsent: CONFIG.getAwc()
+					};
+				}
+
+				window[pbNameSpace].setConfig(prebidConfig);
 			}
 
 			/* istanbul ignore else */

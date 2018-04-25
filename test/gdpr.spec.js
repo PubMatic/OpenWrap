@@ -58,7 +58,7 @@ describe('GDPR', function() {
                 }
               }
             };
-            var x = GDPR.setConsentDataInLS(CONFIG.getPublisherId(), "c", "MOCK_DATA");
+            var x = GDPR.setConsentDataInLS(CONFIG.getPublisherId(), "c", "MOCK_DATA", true);
             window.localStorage.getItem.should.not.be.called;
             done();
         });
@@ -66,7 +66,7 @@ describe('GDPR', function() {
         it("should save data in localStorage", function(done) {
             var window = win;
             var pubId = CONFIG.getPublisherId();
-            var x = GDPR.setConsentDataInLS(pubId, "c", "");
+            var x = GDPR.setConsentDataInLS(pubId, "c", "", false);
             window.localStorage.getItem.should.be.called;
             window.localStorage.setItem.should.be.called;
             done();
@@ -137,17 +137,17 @@ describe('GDPR', function() {
             };
             var consentData = GDPR.getUserConsentDataFromLS(CONFIG.getPublisherId());
             window.localStorage.getItem.should.not.be.called;
-            consentData.should.deep.equal({ c: "" });
+            consentData.should.deep.equal({ c: "", g: 0 });
             done();
         });
 
         it("should return expected value", function(done) {
             var window = win;
             var pubId = CONFIG.getPublisherId();
-            GDPR.setConsentDataInLS(pubId, "c", "MOCK_DATA")
+            GDPR.setConsentDataInLS(pubId, "c", "MOCK_DATA", true)
             var consentData = GDPR.getUserConsentDataFromLS(pubId);
             window.localStorage.getItem.should.be.called;
-            consentData.should.deep.equal({ c: "MOCK_DATA" });
+            consentData.should.deep.equal({ c: "MOCK_DATA", g: 1 });
             done();
         });
     });

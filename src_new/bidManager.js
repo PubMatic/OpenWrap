@@ -322,7 +322,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
-	outputObj[CONSTANTS.CONFIG.GDPR_CONSENT] = CONFIG.getGdpr() ? 1 : 0;
+	outputObj[CONSTANTS.CONFIG.GDPR_CONSENT] = gdprData ? gdprData.g : (CONFIG.getGdpr() ? 1 : 0);
 	outputObj[CONSTANTS.CONFIG.CONSENT_STRING] = consentString;
 
 	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {

@@ -29,7 +29,7 @@ var isLocalStoreEnabled = (function () {
 	}
 */
 
-var setConsentDataInLS = function (pubId, dataType, data) {
+var setConsentDataInLS = function (pubId, dataType, data, gdprApplies) {
 	var pm;
 
 	if (!isLocalStoreEnabled) {
@@ -54,7 +54,7 @@ var setConsentDataInLS = function (pubId, dataType, data) {
 		pm[pubId].t = (new Date()).getTime();
 		pm[pubId][dataType] = data;
 		if (dataType == "c") {
-			pm[pubId]["g"] = 1;
+			pm[pubId]["g"] = gdprApplies ? 1 : 0;
 		}
 	}
 	try {
@@ -86,21 +86,33 @@ exports.getUserConsentDataFromCMP = function () {
 			var result = event.data.__cmp.result;
 
 			if (result.consentData) {
-				setConsentDataInLS(pubId, "c", result.consentData);
+				setConsentDataInLS(pubId, "c", result.consentData, result.gdprApplies);
 			} else if (typeof result === "string") {
 				setConsentDataInLS(pubId, "c", result);
 			}
 		}
 	}
 
-	if (window.__cmp) {
+	function callCMP() {
 		window.__cmp("getConsentData", "vendorConsents", function (result) {
 			if (result.consentData) {
-				setConsentDataInLS(pubId, "c", result.consentData);
+				setConsentDataInLS(pubId, "c", result.consentData, result.gdprApplies);
 			} else if (typeof result === "string") {
 				setConsentDataInLS(pubId, "c", result);
 			}
 		});
+	}
+
+	if (window.__cmp) {
+		if (typeof window.__cmp === "function") {
+			callCMP();
+		} else {
+			setTimeout(function () {
+				if (typeof window.__cmp === "function") {
+					callCMP();
+				}
+			}, 500);
+		}
 	} else {
 		// we may be inside an iframe and CMP may exist outside, so we"ll use postMessage to interact with CMP
 		window.top.postMessage(getConsentDataReq, "*");
@@ -109,7 +121,7 @@ exports.getUserConsentDataFromCMP = function () {
 };
 
 exports.getUserConsentDataFromLS = function (pubId) {
-	var data = {c: ""};
+	var data = {c: "", g: 0};
 
 	if (!isLocalStoreEnabled) {
 		return data;
@@ -132,6 +144,7 @@ exports.getUserConsentDataFromLS = function (pubId) {
 				// check timestamp of data and current; if older than a day do not use it
 				if (pmRecord.t && parseInt(pmRecord.t, 10) > ((new Date()).getTime() - (24 * 60 * 60 * 1000))) {
 					data.c = pmRecord.c;
+					data.g = pmRecord.g;
 				}
 			}
 		}
