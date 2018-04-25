@@ -312,8 +312,6 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		return;
 	}
 
-	consentString = gdprData && gdprData.c ? encodeURIComponent(gdprData.c) : "";
-
 	pixelURL = util.metaInfo.protocol + pixelURL + "pubid=" + pubId + "&json=";
 
 	outputObj[CONSTANTS.CONFIG.PUBLISHER_ID] = CONFIG.getPublisherId();
@@ -322,8 +320,13 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
-	outputObj[CONSTANTS.CONFIG.GDPR_CONSENT] = gdprData ? gdprData.g : (CONFIG.getGdpr() ? 1 : 0);
-	outputObj[CONSTANTS.CONFIG.CONSENT_STRING] = consentString;
+
+	if (CONFIG.getGdpr()) {
+		consentString = gdprData && gdprData.c ? encodeURIComponent(gdprData.c) : "";
+
+		outputObj[CONSTANTS.CONFIG.GDPR_CONSENT] = gdprData && gdprData.g;
+		outputObj[CONSTANTS.CONFIG.CONSENT_STRING] = consentString;
+	}
 
 	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {
 		refThis.analyticalPixelCallback(slotID, bmEntry, impressionIDMap);
