@@ -69,6 +69,12 @@ exports.isCmpFound = function () {
 	return !!window.__cmp;
 };
 
+/**
+	* getUserConsentDataFromCMP() method return nothing
+	* Here, We try to call get the ConsentData for vendorConsents from CMP using getConsentData() method
+	* Once, We get that we will this data in Local Storage againg a dummy ID
+	* If CMP is not detected in current document we try to look into upper iframe & fetch the infoa
+	*/
 exports.getUserConsentDataFromCMP = function () {
 	// Adding dummy pubId to store data against
 	var pubId = DUMMY_PUB_ID; //CONFIG.getPublisherId();
@@ -85,8 +91,16 @@ exports.getUserConsentDataFromCMP = function () {
 			var result = event.data.__cmp.result;
 
 			if (result.consentData) {
+				/**
+					*	CMP API 1.1 - result is object which includes
+					*	  {
+					*	     consentData: base64 string,
+					*	     gdprApplies: boolean
+					*	  }
+					*/
 				setConsentDataInLS(pubId, "c", result.consentData, result.gdprApplies);
 			} else if (typeof result === "string") {
+				// CMP API 1.0 - result is base64 consent string
 				setConsentDataInLS(pubId, "c", result);
 			}
 		}
@@ -119,9 +133,16 @@ exports.getUserConsentDataFromCMP = function () {
 	}
 };
 
+/**
+	* getUserConsentDataFromLS() method return the object { c: "XXX", g: 0/1 }
+	* Here c is Consent String We got from CMP APIs
+	* & g is gdpr flag i.e. gdprApplies in terms of CMP 1.1 API
+	* @return {object} { c: String, g: Number 0/1 }
+	*/
+
 exports.getUserConsentDataFromLS = function () {
 	// Adding dummy pubId to store data against
-	var pubId = DUMMY_PUB_ID; //CONFIG.getPublisherId();
+	var pubId = DUMMY_PUB_ID;
 	var data = {c: "", g: 0};
 
 	if (!isLocalStoreEnabled) {
