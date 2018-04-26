@@ -41,6 +41,7 @@ exports.CONFIG = {
 	"SEND_ALL_BIDS": "sendAllBids",
 	"SERVER_SIDE_ENABLED": "serverSideEnabled",
 	"GDPR_CONSENT": "gdpr",
+	"CONSENT_STRING": "cns",
 	"GDPR_CMPAPI": "cmpApi",
 	"GDPR_TIMEOUT": "gdprTimeout",
 	"GDPR_AWC": "awc",

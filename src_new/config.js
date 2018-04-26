@@ -105,7 +105,7 @@ function addPrebidAdapter(){
 		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = {};
 		config.adapters[preBidAdapter] = adapterConfig;
 	}
-};
+}
 
 exports.getGdpr = function () {
 	var gdpr = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT] || CONSTANTS.CONFIG.DEFAULT_GDPR_CONSENT;

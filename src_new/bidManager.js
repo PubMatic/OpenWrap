@@ -1,6 +1,7 @@
 var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
+var GDPR = require("./gdpr.js");
 var bmEntry = require("./bmEntry.js");
 
 var refThis = this;
@@ -300,6 +301,9 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	var outputObj = {
 			s: []
 		},
+		pubId = CONFIG.getPublisherId(),
+		gdprData = GDPR.getUserConsentDataFromLS(),
+		consentString = "",
 		pixelURL = CONFIG.getAnalyticsPixelURL(),
 		impressionIDMap = {} // impID => slots[]
 		;
@@ -308,7 +312,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		return;
 	}
 
-	pixelURL = util.metaInfo.protocol + pixelURL + 'pubid=' + CONFIG.getPublisherId() +'&json=';
+	pixelURL = util.metaInfo.protocol + pixelURL + "pubid=" + pubId + "&json=";
 
 	outputObj[CONSTANTS.CONFIG.PUBLISHER_ID] = CONFIG.getPublisherId();
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMEOUT] = ""+CONFIG.getTimeout();
@@ -316,6 +320,13 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
+
+	if (CONFIG.getGdpr()) {
+		consentString = gdprData && gdprData.c ? encodeURIComponent(gdprData.c) : "";
+
+		outputObj[CONSTANTS.CONFIG.GDPR_CONSENT] = gdprData && gdprData.g;
+		outputObj[CONSTANTS.CONFIG.CONSENT_STRING] = consentString;
+	}
 
 	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {
 		refThis.analyticalPixelCallback(slotID, bmEntry, impressionIDMap);
@@ -332,14 +343,15 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 };
 
 exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
-	var pixelURL = CONFIG.getMonetizationPixelURL();
+	var pixelURL = CONFIG.getMonetizationPixelURL(),
+		pubId = CONFIG.getPublisherId();
 
 	/* istanbul ignore else */
 	if(!pixelURL){
 		return;
 	}
 
-	pixelURL += "pubid=" + CONFIG.getPublisherId();
+	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(util.metaInfo.pageURL);
 	pixelURL += "&tst=" + util.getCurrentTimestamp();
 	pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());

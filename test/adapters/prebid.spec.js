@@ -55,7 +55,9 @@ describe('ADAPTER: Prebid', function() {
                 height: 420,
                 responseTimestamp: 1503321091079,
                 adserverTargeting: {
-                    "k1": "v1"
+                    "k1": "v1",
+                    "hb_format": "native",
+                    "hb_source": "client"
                 },
             };
             kgpv = commonKGPV;
@@ -598,6 +600,10 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(UTIL, 'isDebugLogEnabled');
 
             sinon.spy(CONFIG, 'forEachAdapter');
+            sinon.spy(CONFIG, 'getCmpApi');
+            sinon.spy(CONFIG, 'getGdprTimeout');
+            sinon.spy(CONFIG, 'getAwc');
+            sinon.stub(CONFIG, 'getGdpr').returns(true);
 
             sinon.stub(PREBID, 'generatePbConf');
             PREBID.generatePbConf.returns(true);
@@ -618,6 +624,9 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(global.window || window, "pwtCreatePrebidNamespace", function pwtCreatePrebidNamespace(preBidNameSpace) {
                 window["pbjs"] = windowPbJS2Stub;
                 window["pbjs"].que = [];
+                window["pbjs"].setConfig = function () {
+                  return true;
+                };
             });
             done();
         });
@@ -631,6 +640,10 @@ describe('ADAPTER: Prebid', function() {
             UTIL.isDebugLogEnabled.restore();
 
             CONFIG.forEachAdapter.restore();
+            CONFIG.getGdpr.restore();
+            CONFIG.getCmpApi.restore();
+						CONFIG.getGdprTimeout.restore();
+						CONFIG.getAwc.restore();
             PREBID.generatePbConf.restore();
 
             AM.getRandomNumberBelow100.restore();
@@ -667,6 +680,16 @@ describe('ADAPTER: Prebid', function() {
             UTIL.isFunction.returns(false);
             PREBID.fetchBids(activeSlots, impressionID);
             UTIL.log.calledWith("PreBid js onEvent method is not available").should.be.true;
+            done();
+        });
+
+        it('should have called setConfig method', function (done) {
+            PREBID.fetchBids(activeSlots, impressionID);
+            window["pbjs"].setConfig.should.be.called;
+            CONFIG.getGdpr().should.be.true;
+            CONFIG.getCmpApi().should.be.called;
+						CONFIG.getGdprTimeout().should.be.called;
+						CONFIG.getAwc().should.be.called;
             done();
         });
 
