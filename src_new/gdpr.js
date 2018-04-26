@@ -1,4 +1,5 @@
-var CONFIG = require("./config.js");
+var localStorageKey = "PubMatic";
+var DUMMY_PUB_ID = 909090;
 
 // Adding util here creating cyclic dependecies between the modules so avoided it & added two util function manually
 function isA(object, testForType) {
@@ -8,8 +9,6 @@ function isA(object, testForType) {
 var isFunction = function (object) {
 	return isA(object, "Function");
 };
-
-var localStorageKey = "PubMatic";
 
 var isLocalStoreEnabled = (function () {
 	try {
@@ -71,7 +70,8 @@ exports.isCmpFound = function () {
 };
 
 exports.getUserConsentDataFromCMP = function () {
-	var pubId = CONFIG.getPublisherId();
+	// Adding dummy pubId to store data against
+	var pubId = DUMMY_PUB_ID; //CONFIG.getPublisherId();
 	var callId = 0;
 	var getConsentDataReq = {
 		__cmp: {
@@ -82,7 +82,6 @@ exports.getUserConsentDataFromCMP = function () {
 
 	function receiveMessage(event) {
 		if (event && event.data && event.data.__cmp && event.data.__cmp.result) {
-			// setConsentDataInLS(pubId, "c", event.data.__cmp.result);
 			var result = event.data.__cmp.result;
 
 			if (result.consentData) {
@@ -120,7 +119,9 @@ exports.getUserConsentDataFromCMP = function () {
 	}
 };
 
-exports.getUserConsentDataFromLS = function (pubId) {
+exports.getUserConsentDataFromLS = function () {
+	// Adding dummy pubId to store data against
+	var pubId = DUMMY_PUB_ID; //CONFIG.getPublisherId();
 	var data = {c: "", g: 0};
 
 	if (!isLocalStoreEnabled) {

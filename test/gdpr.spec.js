@@ -3,9 +3,9 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-var CONFIG = require("../src_new/config.js");
 var GDPR = require("../src_new/gdpr.js");
 
+var DUMMY_PUB_ID = 909090;
 var win = {
     __cmp: function (a, b, c) {
         c({
@@ -19,7 +19,7 @@ var win = {
     },
     localStorage: {
       getItem: function (key) {
-        return '{"9999":{"t":4524546538377,"c":"MOCK_DATA_STRING","g":1}}';
+        return '{"909090":{"t":94524546538377,"c":"MOCK_DATA_STRING","g":1}}';
       },
       setItem: function () {
 
@@ -58,15 +58,14 @@ describe('GDPR', function() {
                 }
               }
             };
-            var x = GDPR.setConsentDataInLS(CONFIG.getPublisherId(), "c", "MOCK_DATA", true);
+            var x = GDPR.setConsentDataInLS(DUMMY_PUB_ID, "c", "MOCK_DATA", true);
             window.localStorage.getItem.should.not.be.called;
             done();
         });
 
         it("should save data in localStorage", function(done) {
             var window = win;
-            var pubId = CONFIG.getPublisherId();
-            var x = GDPR.setConsentDataInLS(pubId, "c", "", false);
+            var x = GDPR.setConsentDataInLS(DUMMY_PUB_ID, "c", "", false);
             window.localStorage.getItem.should.be.called;
             window.localStorage.setItem.should.be.called;
             done();
@@ -74,15 +73,6 @@ describe('GDPR', function() {
     });
 
     describe('#getUserConsentDataFromCMP', function() {
-        beforeEach(function(done) {
-            sinon.spy(CONFIG, "getPublisherId");
-            done();
-        });
-
-        afterEach(function(done) {
-            CONFIG.getPublisherId.restore();
-            done();
-        });
 
         it("is a function", function(done) {
             GDPR.getUserConsentDataFromCMP.should.be.a("function");
@@ -93,7 +83,6 @@ describe('GDPR', function() {
             var window = win;
             GDPR.getUserConsentDataFromCMP();
             window.__cmp.should.be.called;
-            CONFIG.getPublisherId.should.be.called;
             window.addEventListener.should.not.be.called;
             GDPR.setConsentDataInLS.should.be.called;
             done();
@@ -104,7 +93,6 @@ describe('GDPR', function() {
               __cmp: null
             };
             GDPR.getUserConsentDataFromCMP();
-            CONFIG.getPublisherId.should.be.called;
             window.addEventListener.should.be.called;
             GDPR.setConsentDataInLS.should.be.called;
             done();
@@ -112,16 +100,6 @@ describe('GDPR', function() {
     });
 
     describe('#getUserConsentDataFromLS', function() {
-        beforeEach(function(done) {
-            sinon.spy(CONFIG, "getPublisherId");
-            done();
-        });
-
-        afterEach(function(done) {
-            CONFIG.getPublisherId.restore();
-            done();
-        });
-
         it("is a function", function(done) {
             GDPR.getUserConsentDataFromLS.should.be.a("function");
             done();
@@ -135,7 +113,7 @@ describe('GDPR', function() {
                 }
               }
             };
-            var consentData = GDPR.getUserConsentDataFromLS(CONFIG.getPublisherId());
+            var consentData = GDPR.getUserConsentDataFromLS();
             window.localStorage.getItem.should.not.be.called;
             consentData.should.deep.equal({ c: "", g: 0 });
             done();
@@ -143,9 +121,8 @@ describe('GDPR', function() {
 
         it("should return expected value", function(done) {
             var window = win;
-            var pubId = CONFIG.getPublisherId();
-            GDPR.setConsentDataInLS(pubId, "c", "MOCK_DATA", true)
-            var consentData = GDPR.getUserConsentDataFromLS(pubId);
+            GDPR.setConsentDataInLS(DUMMY_PUB_ID, "c", "MOCK_DATA", true)
+            var consentData = GDPR.getUserConsentDataFromLS();
             window.localStorage.getItem.should.be.called;
             consentData.should.deep.equal({ c: "MOCK_DATA", g: 1 });
             done();

@@ -302,7 +302,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 			s: []
 		},
 		pubId = CONFIG.getPublisherId(),
-		gdprData = GDPR.getUserConsentDataFromLS(pubId),
+		gdprData = GDPR.getUserConsentDataFromLS(),
 		consentString = "",
 		pixelURL = CONFIG.getAnalyticsPixelURL(),
 		impressionIDMap = {} // impID => slots[]
