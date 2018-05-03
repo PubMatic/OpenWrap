@@ -312,7 +312,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		return;
 	}
 
-	pixelURL = util.metaInfo.protocol + pixelURL + "pubid=" + pubId + "&json=";
+	pixelURL = util.metaInfo.protocol + pixelURL + "pubid=" + pubId;
 
 	outputObj[CONSTANTS.CONFIG.PUBLISHER_ID] = CONFIG.getPublisherId();
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMEOUT] = ""+CONFIG.getTimeout();
@@ -326,6 +326,8 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 
 		outputObj[CONSTANTS.CONFIG.GDPR_CONSENT] = gdprData && gdprData.g;
 		outputObj[CONSTANTS.CONFIG.CONSENT_STRING] = consentString;
+
+		pixelURL += "&gdpr=" + (gdprData && gdprData.g);
 	}
 
 	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {
@@ -337,7 +339,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		if(slots.length > 0){
 			outputObj.s = slots;
 			outputObj[CONSTANTS.COMMON.IMPRESSION_ID] = window.encodeURIComponent(impressionID);
-			(new window.Image()).src = pixelURL + window.encodeURIComponent(JSON.stringify(outputObj));
+			(new window.Image()).src = pixelURL + "&json=" + window.encodeURIComponent(JSON.stringify(outputObj));
 		}
 	});
 };
