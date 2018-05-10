@@ -54,7 +54,7 @@ function prebidNpmInstall() {
 
   ln -s "$PrebidJSNodeModules" "./node_modules"
 
-  npm install
+#  npm install
 
   cd ../OpenWrap/
 }
@@ -66,10 +66,10 @@ function prebidNpmInstall() {
 
 ln -s "$OpenWrapNodeModules" "./node_modules"
 
-echo //ci.pubmatic.com:4873/:_authToken=WeepY06w3S9VfbF4gdm42piZepf9+95zj7dd1AEtAVcfuW0S9u5COPSVS5K39CSF > .npmrc
-npm install uas-adclient@0.0.1-master.13 --registry=http://ci.pubmatic.com:4873 --save
+#echo //ci.pubmatic.com:4873/:_authToken=WeepY06w3S9VfbF4gdm42piZepf9+95zj7dd1AEtAVcfuW0S9u5COPSVS5K39CSF > .npmrc
+#npm install uas-adclient@0.0.1-master.13 --registry=http://ci.pubmatic.com:4873 --save
 
-npm install
+#npm install
 
 prebidNpmInstall $prebid_path
 
