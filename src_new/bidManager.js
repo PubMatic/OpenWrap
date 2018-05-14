@@ -327,7 +327,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		outputObj[CONSTANTS.CONFIG.GDPR_CONSENT] = gdprData && gdprData.g;
 		outputObj[CONSTANTS.CONFIG.CONSENT_STRING] = consentString;
 
-		pixelURL += "&gdEn=" + (gdprData && gdprData.g);
+		pixelURL += "&gdEn=" + (CONFIG.getGdpr() ? 1 : 0);
 	}
 
 	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {

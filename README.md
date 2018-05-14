@@ -62,7 +62,7 @@ Please note that, OpenWrap extending PreBid code is in ***src_new*** folder the 
 ## PreBid Fork:
 
 We have created a fork from PreBid repo: https://github.com/PubMatic-OpenWrap/Prebid.js which OpenWrap uses as core and is used for building the library.
-The fork has PreBid Version [0.24.1](https://github.com/prebid/Prebid.js/releases/tag/0.24.1) which will be upgraded frquently to latest PreBid version.
+The fork has PreBid Version [1.9.0](https://github.com/prebid/Prebid.js/releases/tag/1.9.0) which will be upgraded frquently to latest PreBid version.
 
 ## Configuration Exchange between OpenWrap and Prebid
 
@@ -187,7 +187,7 @@ npm install gulp -g
 npm install gulp-cli -g
 ```
 
-Then chekout Prebid (currently fork of v0.24 is supported) on desired location:
+Then chekout Prebid (currently fork of v1.9.0 is supported) on desired location:
 ```
 git clone https://github.com/PubMatic-OpenWrap/Prebid.js
 ```
