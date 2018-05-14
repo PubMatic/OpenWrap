@@ -25,11 +25,18 @@ if ( argv.mode && argv.mode == "test-build") {
 	openwrapBuildTaskName = "devbundle";
 	openwrapWebpackTaskName = "devpack";
 
+} else if ( argv.mode && argv.mode == "dev-build" ) {
+	console.log("Executing build");
+	prebidTaskName = "build --modules=modules.json";
+	openwrapBuildTaskName = "bundle";
+	openwrapWebpackTaskName = "webpack";
+
 } else if ( argv.mode && argv.mode == "build" ) {
 	console.log("Executing build");
 	prebidTaskName = "bundle --modules=modules.json";
 	openwrapBuildTaskName = "bundle";
 	openwrapWebpackTaskName = "webpack";
+
 } else {
 	console.log("No mode supplied, Too few arguments");
 	shell.exit(1);
