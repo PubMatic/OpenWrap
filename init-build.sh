@@ -54,7 +54,7 @@ function prebidNpmInstall() {
 
   ln -s "$PrebidJSNodeModules" "./node_modules"
 
- # npm install
+ npm install
 
   cd ../OpenWrap/
 }
