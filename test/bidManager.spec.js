@@ -7,6 +7,7 @@ var BIDMgr = require('../src_new/bidManager');
 var CONFIG = require("../src_new/config.js");
 var CONSTANTS = require("../src_new/constants.js");
 var UTIL = require("../src_new/util.js");
+var GDPR = require("../src_new/gdpr.js");
 var bmEntry = require("../src_new/bmEntry.js");
 var bmEntryContstuctor = require("../src_new/bmEntry.js").BMEntry;
 var AdapterEntry = require("../src_new/adapterEntry").AdapterEntry;
@@ -1093,7 +1094,7 @@ describe('bidManager BIDMgr', function() {
 
             var timeNow = new Date().getTime();
             sinon.stub(UTIL, "getCurrentTimestamp").returns(timeNow);
-
+            sinon.spy(GDPR, "getUserConsentDataFromLS");
             sinon.spy(UTIL, "forEachOnObject");
 
             window.PWT = {
@@ -1124,6 +1125,7 @@ describe('bidManager BIDMgr', function() {
 
             UTIL.getCurrentTimestamp.restore();
             UTIL.forEachOnObject.restore();
+            GDPR.getUserConsentDataFromLS.restore();
             window.PWT = null;
 
             BIDMgr.analyticalPixelCallback.restore();
@@ -1138,7 +1140,8 @@ describe('bidManager BIDMgr', function() {
         it('should return if pixelURL is empty', function(done) {
             CONFIG.getAnalyticsPixelURL.returns("");
             BIDMgr.executeAnalyticsPixel();
-            CONFIG.getPublisherId.called.should.be.false;
+            CONFIG.getPublisherId.called.should.be.true;
+            GDPR.getUserConsentDataFromLS.called.should.be.true;
             done();
         });
 
@@ -1150,6 +1153,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getProfileID.called.should.be.true;
             CONFIG.getProfileDisplayVersionID.called.should.be.true;
 
+            GDPR.getUserConsentDataFromLS.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
             done();
         });
@@ -1263,7 +1267,7 @@ describe('bidManager BIDMgr', function() {
 
             CONFIG.getMonetizationPixelURL.called.should.be.true;
 
-            CONFIG.getPublisherId.called.should.be.false;
+            CONFIG.getPublisherId.called.should.be.true;
             CONFIG.getProfileID.called.should.be.false;
 
             theBid.getBidID.called.should.be.false;
@@ -1317,7 +1321,6 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
-
 
             BIDMgr.executeMonetizationPixel(slotID, theBid);
 

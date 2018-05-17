@@ -3,6 +3,7 @@ var CONSTANTS = require("../constants.js");
 var UTIL = require("../util.js");
 var adapterManager = require("../adapterManager.js");
 var bidManager = require("../bidManager.js");
+var GDPR = require("../gdpr.js");
 var SLOT = require("../slot.js");
 var PHOENIX = require("uas-adclient");
 
@@ -310,6 +311,9 @@ exports.displayFunctionStatusHandler = displayFunctionStatusHandler;
 
 function initiateDisplay(win) {
   win.Phoenix.registerPreDisplayHandler(function(taskDone, divId){
+    // Initiating getUserConsentDataFromCMP method to get the updated consentData
+    GDPR.getUserConsentDataFromCMP();
+
     var phoenixObj = window.Phoenix || {};
 
     /* istanbul ignore next */

@@ -15,7 +15,6 @@ var CONF = require("../conf.js");
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
 var pbNameSpace = "pbjs";
-var pbNameSpaceCounter = 0;
 
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
@@ -53,7 +52,9 @@ function transformPBBidToOWBid(bid, kgpv){
 	}
 
 	util.forEachOnObject(bid.adserverTargeting, function(key, value){
-		theBid.setKeyValuePair(key, value);
+		if (key !== "hb_format" && key !== "hb_source") {
+			theBid.setKeyValuePair(key, value);
+		}
 	});
 	return theBid;
 }
@@ -307,24 +308,23 @@ exports.generatePbConf = generatePbConf;
 
 function fetchBids(activeSlots, impressionID){
 
-	var newPBNameSpace = pbNameSpace + pbNameSpaceCounter++;
-	window.pwtCreatePrebidNamespace(newPBNameSpace);
+	window.pwtCreatePrebidNamespace(pbNameSpace);
 
 	/* istanbul ignore else */
-	if(! window[newPBNameSpace]){ // todo: move this code to initial state of adhooks
+	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
 		util.log("PreBid js is not loaded");
 		return;
 	}
 
 
-	if(util.isFunction(window[newPBNameSpace].onEvent)){
-		window[newPBNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
+	if(util.isFunction(window[pbNameSpace].onEvent)){
+		window[pbNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
 	} else {
 		util.log("PreBid js onEvent method is not available");
 		return;
 	}
 
-	window[newPBNameSpace].logging = util.isDebugLogEnabled();
+	window[pbNameSpace].logging = util.isDebugLogEnabled();
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
@@ -356,16 +356,16 @@ function fetchBids(activeSlots, impressionID){
 	}
 
 	/* istanbul ignore else */
-	if(adUnitsArray.length > 0 && window[newPBNameSpace]){
+	if(adUnitsArray.length > 0 && window[pbNameSpace]){
 
 		try{
 			/* istanbul ignore else */
-			//if(util.isFunction(window[newPBNameSpace].setBidderSequence)){
-			//	window[newPBNameSpace].setBidderSequence("random");
+			//if(util.isFunction(window[pbNameSpace].setBidderSequence)){
+			//	window[pbNameSpace].setBidderSequence("random");
 			//}
 
-			if(util.isFunction(window[newPBNameSpace].setConfig)){
-				window[newPBNameSpace].setConfig({
+			if(util.isFunction(window[pbNameSpace].setConfig)) {
+				var prebidConfig = {
 					debug: util.isDebugLogEnabled(),
 					bidderSequence: "random",
 					userSync: {
@@ -378,14 +378,24 @@ function fetchBids(activeSlots, impressionID){
 							});
 							return arr;
 						})(),
-				    	syncDelay: 2000 //todo: default is 3000 write image pixels 5 seconds after the auction
-				    }
-				});
+						syncDelay: 2000 //todo: default is 3000 write image pixels 5 seconds after the auction
+					}
+				};
+
+				if (CONFIG.getGdpr()) {
+					prebidConfig["consentManagement"] = {
+						cmpApi: CONFIG.getCmpApi(),
+						timeout: CONFIG.getGdprTimeout(),
+						allowAuctionWithoutConsent: CONFIG.getAwc()
+					};
+				}
+
+				window[pbNameSpace].setConfig(prebidConfig);
 			}
 
 			/* istanbul ignore else */
-			if(util.isFunction(window[newPBNameSpace].requestBids)){
-				window[newPBNameSpace].requestBids({
+			if(util.isFunction(window[pbNameSpace].requestBids)){
+				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
 					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid
 					bidsBackHandler: function(bidResponses) {
