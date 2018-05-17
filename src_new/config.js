@@ -53,8 +53,7 @@ exports.isServerSideAdapter = function(adapterID){
 exports.getAdapterMaskBidsStatus = function(adapterID){
 	var adapterConfig = config.adapters;
 	var tempSettings = {
-		'audienceNetwork': 1,
-		'rubicon': 1
+		'audienceNetwork': 1
 	};
 
 	if(util.isOwnProperty(tempSettings, adapterID)){
