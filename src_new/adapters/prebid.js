@@ -268,6 +268,18 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			});
 			break;
 
+		case "indexExchange":
+			util.forEachOnArray(sizes, function(index, size) {
+				var slotParams = {};
+
+				if (keyConfig["siteID"]) {
+					slotParams["siteId"] = keyConfig["siteID"];
+					slotParams["size"] = size;
+					adUnits [code].bids.push({bidder: adapterID, params: slotParams});
+				}
+			});
+			break;
+
 		default:
 			adUnits[code].bids.push({ bidder: adapterID, params: slotParams });
 			break;
