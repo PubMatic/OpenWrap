@@ -274,9 +274,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 
 				if (keyConfig["siteID"]) {
 					slotParams["siteId"] = keyConfig["siteID"];
-					slotParams["size"] = size;
-					adUnits [code].bids.push({bidder: adapterID, params: slotParams});
 				}
+				slotParams["size"] = size;
+				adUnits [code].bids.push({bidder: adapterID, params: slotParams});
 			});
 			break;
 
