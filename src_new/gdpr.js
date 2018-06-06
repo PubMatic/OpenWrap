@@ -1,4 +1,4 @@
-var localStorageKey = "PubMatic";
+var localStorageKey = "OpenWrap";
 var DUMMY_PUB_ID = 909090;
 
 // Adding util here creating cyclic dependecies between the modules so avoided it & added two util function manually
