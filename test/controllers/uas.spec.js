@@ -8,7 +8,6 @@ var UTIL = require("../../src_new/util.js");
 var AM = require("../../src_new/adapterManager.js");
 var CONSTANTS = require("../../src_new/constants.js");
 var CONFIG = require("../../src_new/config.js");
-var BM = require("../../src_new/bidManager.js");
 var SLOT = require("../../src_new/slot.js");
 
 var commonDivID = "DIV_1";
@@ -883,6 +882,16 @@ describe("CONTROLLER: UAS", function() {
             UAS.updateStatusOfQualifyingSlotsBeforeCallingAdapters.called.should.be.false;
             UAS.arrayOfSelectedSlots.called.should.be.false;
             AM.callAdapters.called.should.be.false;
+            done();
+        });
+    });
+
+    describe("#initPhoenixScript", function () {
+        it("should return false if Phoenix is not loaded", function(done) {
+            window.Phoenix = {
+                isJSLoaded: true
+            };
+            UAS.initPhoenixScript(window).should.equal(false);
             done();
         });
     });
