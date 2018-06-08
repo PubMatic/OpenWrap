@@ -201,6 +201,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	if(!util.isOwnProperty(adUnits, code)){
 		adUnits[code] = {
 			code: code,
+			mediaType: "banner",
 			sizes: sizes,
 			bids: []
 		};
