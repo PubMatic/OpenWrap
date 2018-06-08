@@ -38,14 +38,14 @@ if [ -z $mode ]
         exit 1
 fi
 
-OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR_V32}/node_modules/"
+OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR_V1_11}/node_modules/"
 
 
 function prebidNpmInstall() {
 
   cd $1
 
-  PrebidJSNodeModules="${GLOBAL_PREBID_PKG_JSON_DIR_V32}/node_modules/"
+  PrebidJSNodeModules="${GLOBAL_PREBID_PKG_JSON_DIR_V1_11}/node_modules/"
 
   symLinkForPrebidNodeModules=node_modules
   if [ -L $symLinkForPrebidNodeModules ]; then
@@ -54,7 +54,7 @@ function prebidNpmInstall() {
 
   ln -s "$PrebidJSNodeModules" "./node_modules"
 
-  npm install
+ # npm install
 
   cd ../OpenWrap/
 }
@@ -66,10 +66,10 @@ function prebidNpmInstall() {
 
 ln -s "$OpenWrapNodeModules" "./node_modules"
 
-echo //ci.pubmatic.com:4873/:_authToken=WeepY06w3S9VfbF4gdm42piZepf9+95zj7dd1AEtAVcfuW0S9u5COPSVS5K39CSF > .npmrc
-npm install uas-adclient@0.0.1-master.12 --registry=http://ci.pubmatic.com:4873 --save
-
-npm install
+# echo //ci.pubmatic.com:4873/:_authToken=WeepY06w3S9VfbF4gdm42piZepf9+95zj7dd1AEtAVcfuW0S9u5COPSVS5K39CSF > .npmrc
+# npm install uas-adclient@0.0.1-master.13 --registry=http://ci.pubmatic.com:4873 --save
+#
+# npm install
 
 prebidNpmInstall $prebid_path
 
