@@ -17,7 +17,7 @@ function Bid(adapterID, kgpv){
 	this.keyValuePairs = {};
 	this.isPostTimeout = false;
 	this.receivedTime = 0;
-	this.isServerSide = CONFIG.isServerSideAdapter(adapterID) ? 0 : 1;
+	this.isServerSide = CONFIG.isServerSideAdapter(adapterID) ? 1 : 0;
 	this.dealID = "";
 	this.dealChannel = "";
 	this.isWinningBid = false;

@@ -126,7 +126,7 @@ function pbBidStreamHandler(pbBid){
 			}
 			// TODO: Change this with original individual reposne times
 			pbBid.responseTime = 900000000;
-			pbBid.isServerSide = 0;
+			pbBid.ss = 0;
 		}
 
 		/* istanbul ignore else */
