@@ -124,9 +124,7 @@ function pbBidStreamHandler(pbBid){
 				util.log('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
 				return;
 			}
-			// TODO: Change this with original individual reposne times
-			pbBid.responseTime = 900000000;
-			pbBid.ss = 0;
+			pbBid.ss = CONFIG.isServerSideAdapter(adapterID) ? 1 : 0;
 		}
 
 		/* istanbul ignore else */
