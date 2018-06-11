@@ -1,5 +1,5 @@
 var util = require("./util.js");
-var controller = require("./controllers/gpt.js");//todo: configer how to select controller, may be from config
+var controller = require("./controllers/gpt.js");//todo: configure how to select controller, may be from config
 var bidManager = require("./bidManager.js");
 
 var metaInfo = util.getMetaInfo(window);
