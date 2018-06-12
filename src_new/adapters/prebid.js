@@ -39,13 +39,8 @@ function transformPBBidToOWBid(bid, kgpv){
 	theBid.setWidth(bid.width);
 	theBid.setHeight(bid.height);
 
-	if (theBid.getServerSideStatus() === 0) {
-		// TODO: Need to update this logic or send responseTime as responseTimestamp
-		theBid.setReceivedTime(bid.responseTime + bid.responseTimestamp);
-	} else {
-		theBid.setServerSideResponseTime(bid.ttl);
-	}
-
+	theBid.setReceivedTime(bid.responseTime + bid.responseTimestamp);
+	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
 
 	if(pubmaticServerErrorCode === 1 || pubmaticServerErrorCode === 2) {
 		theBid.setDefaultBidStatus(0);

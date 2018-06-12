@@ -59,6 +59,8 @@ describe('ADAPTER: Prebid', function() {
                     "hb_format": "native",
                     "hb_source": "client"
                 },
+                responseTime: 10,
+                serverSideResponseTime: 5
             };
             kgpv = commonKGPV;
             sinon.spy(UTIL, "forEachOnObject");
@@ -84,7 +86,9 @@ describe('ADAPTER: Prebid', function() {
             theBid.getAdUrl().should.be.equal(bid.adUrl);
             theBid.getWidth().should.be.equal(bid.width);
             theBid.getHeight().should.be.equal(bid.height);
-            theBid.getReceivedTime().should.be.equal(bid.responseTimestamp);
+
+            theBid.getReceivedTime().should.be.equal(bid.responseTime + bid.responseTimestamp);
+            theBid.getServerSideResponseTime().should.be.equal(bid.serverSideResponseTime);
             theBid.getKeyValuePairs().should.have.all.keys(["k1", "pwtdeal_pubmatic"]);
             done();
         });
