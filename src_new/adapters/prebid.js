@@ -43,7 +43,7 @@ function transformPBBidToOWBid(bid, kgpv){
 		// TODO: Need to update this logic or send responseTime as responseTimestamp
 		theBid.setReceivedTime(bid.responseTime + bid.responseTimestamp);
 	} else {
-		theBid.setReceivedTime(bid.responseTimestamp);
+		theBid.setServerSideResponseTime(bid.ttl);
 	}
 
 
@@ -124,7 +124,7 @@ function pbBidStreamHandler(pbBid){
 				util.log('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
 				return;
 			}
-			pbBid.ss = CONFIG.isServerSideAdapter(adapterID) ? 1 : 0;
+			pbBid.ss = CONFIG.isServerSideAdapter(pbBid.bidderCode) ? 1 : 0;
 		}
 
 		/* istanbul ignore else */

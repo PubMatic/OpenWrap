@@ -22,6 +22,15 @@ function Bid(adapterID, kgpv){
 	this.dealChannel = "";
 	this.isWinningBid = false;
 	this.status = 0;
+	this.serverSideResponseTime = 0;
+}
+
+Bid.prototype.setServerSideResponseTime = function (ssResponseTime) {
+	this.serverSideResponseTime = ssResponseTime;
+}
+
+Bid.prototype.getServerSideResponseTime = function () {
+	return this.serverSideResponseTime;
 }
 
 Bid.prototype.getServerSideStatus = function () {
