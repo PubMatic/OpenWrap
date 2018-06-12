@@ -209,6 +209,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	if(!util.isOwnProperty(adUnits, code)){
 		adUnits[code] = {
 			code: code,
+			mediaType: "banner",
 			sizes: sizes,
 			bids: []
 		};
@@ -273,6 +274,18 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				slotParams["width"] = size[0];
 				slotParams["height"] = size[1];
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			});
+			break;
+
+		case "indexExchange":
+			util.forEachOnArray(sizes, function(index, size) {
+				var slotParams = {};
+
+				if (keyConfig["siteID"]) {
+					slotParams["siteId"] = keyConfig["siteID"];
+				}
+				slotParams["size"] = size;
+				adUnits [code].bids.push({bidder: adapterID, params: slotParams});
 			});
 			break;
 
