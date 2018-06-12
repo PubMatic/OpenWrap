@@ -741,7 +741,7 @@ exports.callOriginalRefeshFunction = callOriginalRefeshFunction;
 function getQualifyingSlotNamesForRefresh(arg, theObject) { // TDD, i/o : done
     var qualifyingSlotNames = [],
         slotsToConsider = [];
-    // handeling case googletag.pubads().refresh(null, {changeCorrelator: false});
+    // handling case googletag.pubads().refresh(null, {changeCorrelator: false});
     slotsToConsider = arg.length == 0 || arg[0] == null ? theObject.getSlots() : arg[0];
     util.forEachOnArray(slotsToConsider, function(index, slot) {
         var slotName = refThis.generateSlotName(slot);
@@ -757,7 +757,7 @@ exports.getQualifyingSlotNamesForRefresh = getQualifyingSlotNamesForRefresh;
 /* end-test-block */
 
 /*
-    there are many ways of calling refresh
+    Multiple ways of calling refresh():
         1. googletag.pubads().refresh([slot1]);
         2. googletag.pubads().refresh([slot1, slot2]);
         3. googletag.pubads().refresh();
