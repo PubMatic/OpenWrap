@@ -27,11 +27,11 @@ function Bid(adapterID, kgpv){
 
 Bid.prototype.setServerSideResponseTime = function (ssResponseTime) {
 	this.serverSideResponseTime = ssResponseTime;
-}
+};
 
 Bid.prototype.getServerSideResponseTime = function () {
 	return this.serverSideResponseTime;
-}
+};
 
 Bid.prototype.getServerSideStatus = function () {
 	return this.isServerSide;

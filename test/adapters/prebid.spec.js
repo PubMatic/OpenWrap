@@ -59,7 +59,6 @@ describe('ADAPTER: Prebid', function() {
                     "hb_format": "native",
                     "hb_source": "client"
                 },
-                responseTime: 10,
                 serverSideResponseTime: 5
             };
             kgpv = commonKGPV;
@@ -87,7 +86,7 @@ describe('ADAPTER: Prebid', function() {
             theBid.getWidth().should.be.equal(bid.width);
             theBid.getHeight().should.be.equal(bid.height);
 
-            theBid.getReceivedTime().should.be.equal(bid.responseTime + bid.responseTimestamp);
+            theBid.getReceivedTime().should.be.equal(bid.responseTimestamp);
             theBid.getServerSideResponseTime().should.be.equal(bid.serverSideResponseTime);
             theBid.getKeyValuePairs().should.have.all.keys(["k1", "pwtdeal_pubmatic"]);
             done();
@@ -187,6 +186,7 @@ describe('ADAPTER: Prebid', function() {
                         width: "728",
                         height: "90:0",
                         responseTimestamp: 1500286874559,
+                        serverSideResponseTime: 5,
                         adserverTargeting: {
                             "hb_adid": "34c5f7266bb81a6",
                             "hb_bidder": "pubmatic",
@@ -225,7 +225,11 @@ describe('ADAPTER: Prebid', function() {
                 },
                 setAdUrl: function() {
                     return "setAdUrl";
+                },
+                setServerSideResponseTime: function() {
+                    return 5;
                 }
+
             };
             sinon.stub(UTIL, "isOwnProperty").returns(true);
             sinon.spy(UTIL, "forEachOnObject");
@@ -241,7 +245,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.spy(theBid, "setKeyValuePair");
 
             sinon.spy(theBid, "setAdUrl");
-
+            sinon.spy(theBid, "setServerSideResponseTime");
 
             sinon.stub(BM, "setBidFromBidder").returns(true);
 
@@ -269,6 +273,7 @@ describe('ADAPTER: Prebid', function() {
             theBid.setReceivedTime.restore();
 
             theBid.setKeyValuePair.restore();
+            theBid.setServerSideResponseTime.restore();
 
             theBid.setAdUrl.restore();
 

@@ -39,7 +39,7 @@ function transformPBBidToOWBid(bid, kgpv){
 	theBid.setWidth(bid.width);
 	theBid.setHeight(bid.height);
 
-	theBid.setReceivedTime(bid.responseTime + bid.responseTimestamp);
+	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
 
 	if(pubmaticServerErrorCode === 1 || pubmaticServerErrorCode === 2) {
