@@ -232,6 +232,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			break;
 
+		case "pubmaticdirect":
 		case "pubmatic":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
 			slotParams["adSlot"] = generatedKey;
