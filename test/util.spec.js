@@ -62,20 +62,20 @@ describe('UTIL', function() {
         });
 
         it('should have called toString object\'s call method', function (done) {
-            var number = 1234; 
+            var number = 1234;
 
             UTIL.isA(number, typeNumber).should.be.true;
             Object.prototype.toString.call.called.should.be.true;
             done();
-            
+
         });
 
         it('should return either true or false depending on the type check result', function (done) {
-            var number = 1234; 
+            var number = 1234;
             UTIL.isA(number, typeNumber).should.be.true;
             Object.prototype.toString.call.called.should.be.true;
 
-            var arrayOfNum = [1234, 5678]; 
+            var arrayOfNum = [1234, 5678];
             UTIL.isA(arrayOfNum, typeNumber).should.be.false;
             Object.prototype.toString.call.called.should.be.true;
             done();
@@ -88,7 +88,7 @@ describe('UTIL', function() {
             UTIL.isFunction.should.be.a('function');
             done();
         });
-        
+
         it('should have returned false when non function is passed', function (done) {
             var obj = {};
             UTIL.isFunction(obj).should.be.false;
@@ -1298,7 +1298,7 @@ describe('UTIL', function() {
         });
     });
 
-    // TODO ? 
+    // TODO ?
     describe('#addHookOnFunction', function() {
         var theObject = null,
             useProto = null,
@@ -1399,7 +1399,7 @@ describe('UTIL', function() {
             done();
         });
 
-        // TODO: fix as it fails with phantomjs as test environment  
+        // TODO: fix as it fails with phantomjs as test environment
         xit('should have created an iframe object with proper attributes', function(done) {
             UTIL.createInvisibleIframe().should.have.all.keys([
                 "border",
@@ -1981,6 +1981,7 @@ describe('UTIL', function() {
                 latency: 100,
                 bidder: "pubmatic",
                 adapter: "",
+                s2s: false,
                 bidDetails: {
                     getNetEcpm: function() {
                         return 4.0;
@@ -2105,4 +2106,105 @@ describe('UTIL', function() {
             done();
         });
     });
+
+    describe('#getExternalBidderStatus', function() {
+        beforeEach(function(done) {
+            window.OWT = {
+            	notifyCount: 0,
+            	externalBidderStatuses: {
+                Div1: {
+                  id: 0,
+                  status: false
+                },
+                Div2: {
+                  id: 1,
+                  status: true
+                }
+              }
+            };
+            done();
+        });
+
+        afterEach(function(done) {
+            window.OWT = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.getExternalBidderStatus.should.be.a('function');
+            done();
+        });
+
+        it('should return true if empty array of divIds is passed', function(done) {
+            UTIL.getExternalBidderStatus([]).should.be.true;
+            done();
+        });
+
+        it('should return false if external bidder not responded', function(done) {
+            UTIL.getExternalBidderStatus(["Div1"]).should.be.false;
+            done();
+        });
+
+        it('should return true if external bidder already responded', function(done) {
+            UTIL.getExternalBidderStatus(["Div2"]).should.be.true;
+            done();
+        });
+    });
+
+    describe('#resetExternalBidderStatus', function() {
+        beforeEach(function(done) {
+            window.OWT = {
+            	notifyCount: 0,
+            	externalBidderStatuses: {
+                Div1: {
+                  id: 0,
+                  status: false
+                },
+                Div2: {
+                  id: 1,
+                  status: true
+                }
+              }
+            };
+            done();
+        });
+
+        afterEach(function(done) {
+            window.OWT = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.resetExternalBidderStatus.should.be.a('function');
+            done();
+        });
+
+        it('should not update externalBidderStatuses obj if array of empty div is passed', function(done) {
+            UTIL.resetExternalBidderStatus([]);
+            window.OWT.externalBidderStatuses.should.deep.equal({
+              Div1: { id: 0, status: false },
+              Div2: { id: 1, status: true },
+            });
+            done();
+        });
+
+        it('should update externalBidderStatuses.Div1 obj if Div1 is passed', function(done) {
+            UTIL.resetExternalBidderStatus(["Div1"]);
+            window.OWT.externalBidderStatuses.should.deep.equal({
+              "Div1": undefined,
+              "Div2": { id: 1, status: true },
+            });
+            done();
+        });
+
+        it('should update externalBidderStatuses obj if Div1, Div2 is passed', function(done) {
+            UTIL.resetExternalBidderStatus(["Div1", "Div2"]);
+            window.OWT.externalBidderStatuses.should.deep.equal({
+              "Div1": undefined,
+              "Div2": undefined,
+            });
+            done();
+        });
+    });
+
 });
