@@ -373,17 +373,15 @@ var displayHookAdded = false,
 		/*
 			there are many types of display methods
 				1. googletag.display('div-1');
-					this one is only covered
+					Only the above tag is supported.
 					
 				// following approach can be re-written as 1st					
 				2. googletag.pubads().display('/1234567/sports', [728, 90], 'div-1');						
-					we can not support this as, above methode will generate adslot object internally and then displays, 
-					btw it does not supports single reqest approach
-					also slot level targeting can not be set on it
-					https://developers.google.com/doubleclick-gpt/reference#googletag.PubAdsService_display
+					We do NOT support this(The above method will generate an adslot object internally and display without intervention from OpenWrap).
+					Also does not support SR(single request) mode(ref:https://developers.google.com/doubleclick-gpt/reference#googletag.PubAdsService_display)
 										
 				3. googletag.pubads().definePassback('/1234567/sports', [468, 60]).display();
-					we are not going to support this one as well as third-party partners use this and they wont have setup required to render our bids
+					We do NOT support this.
 		*/			
 		
 		displayHookAdded = true;
@@ -542,7 +540,7 @@ var displayHookAdded = false,
 			there are many ways of calling refresh
 				1. googletag.pubads().refresh([slot1]);
 				2. googletag.pubads().refresh([slot1, slot2]);
-				3. googletag.pubads().refresh();					
+				3. googletag.pubads().refresh();
 				4. googletag.pubads().refresh(null, {changeCorrelator: false});		
 		*/		
 		if( original_refresh = (localPubAdsObj && localPubAdsObj.refresh) ){
@@ -564,7 +562,7 @@ var displayHookAdded = false,
 				if( arg.length == 0){
 					slotsToConsider = win.googletag.pubads().getSlots();
 				}else{				
-					// handeling case googletag.pubads().refresh(null, {changeCorrelator: false});
+					// handling case googletag.pubads().refresh(null, {changeCorrelator: false});
 					slotsToConsider = arg[0] == null ? win.googletag.pubads().getSlots() : arg[0];
 				}
 						
@@ -654,7 +652,7 @@ var displayHookAdded = false,
 		addHookOnGooglePubAdsRefresh();				
 		//	setTargeting is implemented by
 		//		googletag.pubads().setTargeting(key, value);
-		//			we are only intresetd in this one
+		//			we are only interested in this one
 		//		googletag.PassbackSlot.setTargeting(key, value);
 		//			we do not care about it
 		//		slot.setTargeting(key, value);
@@ -688,7 +686,6 @@ var controllerInit = function(config){
 		DM_targetingKeys[constTargetingProfileID] = '';
 		DM_targetingKeys[constTargetingProfileVersionID] = '';
 		
-		// define the command array if not already defined
 		win.googletag = win.googletag || {};
 		win.googletag.cmd = win.googletag.cmd || [];
 

@@ -62,7 +62,7 @@ Please note that, OpenWrap extending PreBid code is in ***src_new*** folder the 
 ## PreBid Fork:
 
 We have created a fork from PreBid repo: https://github.com/PubMatic-OpenWrap/Prebid.js which OpenWrap uses as core and is used for building the library.
-The fork has PreBid Version [0.24.1](https://github.com/prebid/Prebid.js/releases/tag/0.24.1) which will be upgraded frquently to latest PreBid version. 
+The fork has PreBid Version [0.24.1](https://github.com/prebid/Prebid.js/releases/tag/0.24.1) which will be upgraded frequently to latest PreBid version. 
 
 ## Configuration Exchange between OpenWrap and Prebid
 
