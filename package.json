@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/PubMatic/OpenWrap#readme",
   "dependencies": {
+    "prebid-universal-creative": "^0.3.0",
     "uas-adclient": "0.0.1-master.17"
   },
   "devDependencies": {
