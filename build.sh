@@ -6,7 +6,7 @@ var argv = require('yargs').argv;
 shell.exec("gulp clean");
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
-var codeType = argv.codeType || "wrapper";
+var task = argv.task || "wrapper";
 
 console.log("ARGV ==>", argv);
 
@@ -14,7 +14,7 @@ var prebidTaskName = "";
 var openwrapBuildTaskName = "";
 var openwrapWebpackTaskName = "";
 
-if (codeType == "creative") {
+if (task == "creative") {
 		console.log("inside creative");
 		if (shell.exec("gulp webpack-creative --mode=" + argv.mode).code !== 0) {
 			shell.echo('Error: webpack task failed');
