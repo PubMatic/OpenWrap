@@ -40,13 +40,7 @@ if [ -z $mode ]
         exit 1
 fi
 
-if [ -z $platform ]
-  then
-        echo "Please provide appropriate platform argument "
-        exit 1
-fi
-
-if [ "$platform" = "display" ]
+if [ "$platform" = "display" ] || [ -z $platform ]
   then
 OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR_V1_11}/node_modules/"
 
