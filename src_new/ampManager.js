@@ -57,7 +57,7 @@ var refThis = this;
 // };
 
 exports.renderCreative = function(cacheUrl,uuid){
-	window.pbjs.renderAd(document,"dd", {
+	window.pbjs.renderAd(document,"", {
 		cacheHost: cacheUrl,
 		cachePath: "/cache",
 		uuid: uuid,

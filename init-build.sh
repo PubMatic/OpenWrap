@@ -15,6 +15,8 @@ if [ $# -eq 0 ]
     exit 1
 fi
 
+
+
 while getopts ":p:m:t:" opt; do
   case $opt in
     p) prebid_path="$OPTARG"
@@ -28,11 +30,6 @@ while getopts ":p:m:t:" opt; do
   esac
 done
 
-if [ -z $prebid_path ]
-  then
-        echo "Please provide appropriate Prebid.js repo path "
-        exit 1
-fi
 
 if [ -z $mode ]
   then
@@ -42,6 +39,12 @@ fi
 
 if [ "$platform" = "display" ] || [ -z $platform ]
   then
+  if [ -z $prebid_path ]
+  then
+        echo "Please provide appropriate Prebid.js repo path "
+        exit 1
+  fi
+
 OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR_V1_11}/node_modules/"
 
 
@@ -82,7 +85,7 @@ prebidNpmInstall $prebid_path
 elif [ "$platform" = "amp" ]
    then
       echo "Building for AMP"
-      ./build.sh --codeType=creative
+      ./build.sh --task=creative
 else 
   echo "None"
 fi
