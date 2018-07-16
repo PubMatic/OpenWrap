@@ -65,11 +65,8 @@ exports.renderCreative = function(cacheUrl,uuid){
 	});
 };
 
-window.PWT.renderAMPAd = function (targetingKeys) {
-	var pwtecp = targetingKeys.pwtecp;
-	var pwtbst = targetingKeys.pwtbst;
-	var pwtdid = targetingKeys.pwtdid;
-	var pwtpid = targetingKeys.pwtpid;
+/// TODO : Change name to general render function : renderOWCreative
+window.PWT.renderOWCreative = function (targetingKeys) {
 	var cacheid = targetingKeys.cacheid;
 	var cacheURL = targetingKeys.cacheURL;
     // refThis.getCreative(cacheURL,cacheid);
