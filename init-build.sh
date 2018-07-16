@@ -11,19 +11,25 @@ if [ $# -eq 0 ]
     echo " No arguments supplied"
     echo " Provide prebid repo path using -p flag"
     echo " Provide build mode using -m flag"
-    echo " Example: ./init-build.sh -p \"../Prebid.js\" -m \"build\" -t amp"
+    echo " Provide type of build using -t flag"
+    echo " Provide what to build using -w flag"
+    echo " Example: ./init-build.sh -p \"../Prebid.js\" -m \"build\" -t amp -w creative" # One more parameter to be introduced for creative
+    # ./init-build.sh -p \""
     exit 1
 fi
 
+PLATFORM_DISPLAY="display"
+PLATFORM_AMP="amp"
 
-
-while getopts ":p:m:t:" opt; do
+while getopts ":p:m:t:w:" opt; do
   case $opt in
     p) prebid_path="$OPTARG"
     ;;
     m) mode="$OPTARG"
     ;;
     t) platform="$OPTARG"
+    ;;
+    w) task="$OPTARG"
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     ;;
@@ -37,7 +43,7 @@ if [ -z $mode ]
         exit 1
 fi
 
-if [ "$platform" = "display" ] || [ -z $platform ]
+if [ "$platform" = "$PLATFORM_DISPLAY" ] || [ -z $platform ]
   then
   if [ -z $prebid_path ]
   then
@@ -82,10 +88,16 @@ prebidNpmInstall $prebid_path
 
 ./build.sh --prebidpath=$prebid_path --mode=$mode
 
-elif [ "$platform" = "amp" ]
+elif [ "$platform" = "$PLATFORM_AMP" ]
    then
+   if [ -z $task ]
+    then
+        echo "Please provide appropriate task argument."
+        exit 1
+    fi
+
       echo "Building for AMP"
-      ./build.sh --task=creative
+      ./build.sh --task=$task --mode=$mode
 else 
   echo "None"
 fi

@@ -56,7 +56,7 @@ gulp.task('webpack-creative', ['clean'], function() {
 
     webpackConfig.devtool = null;
 
-    return gulp.src('src_new/ampManager.js')
+    return gulp.src('src_new/creative/owCreativeRenderer.js')
         .pipe(webpack(webpackConfig))
         .pipe(uglify())
         .pipe(optimizejs())

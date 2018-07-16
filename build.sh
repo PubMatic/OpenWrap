@@ -13,8 +13,9 @@ console.log("ARGV ==>", argv);
 var prebidTaskName = "";
 var openwrapBuildTaskName = "";
 var openwrapWebpackTaskName = "";
+var CREATIVE_TASK = "creative"
 
-if (task == "creative") {
+if (task == CREATIVE_TASK) {
 		console.log("inside creative");
 		if (shell.exec("gulp webpack-creative --mode=" + argv.mode).code !== 0) {
 			shell.echo('Error: webpack task failed');
