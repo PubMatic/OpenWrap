@@ -19,12 +19,12 @@ exports.renderCreative = function (cacheUrl, cachePath, uuid) {
 };
 
 exports.removeProtocolFromUrl = function(url){
-	var outPuturl = url || "";
+	var outputUrl = url || "";
 	if(url && url.length > 0){
-		outPuturl = url.replace(/^http:\/\//i, "");
-		outPuturl = url.replace(/^https:\/\//i, "");
+		outputUrl = url.replace(/^http:\/\//i, "");
+		outputUrl = url.replace(/^https:\/\//i, "");
 	}
-	return outPuturl;
+	return outputUrl;
 }
 
 ///  Change name to general render function : renderOWCreative
@@ -34,7 +34,7 @@ window.PWT.renderOWCreative = function (targetingKeys) {
 		var cacheURL = targetingKeys.cacheURL || "";
 		var cachePath = targetingKeys.cachePath || "/cache";
 		if (cacheURL.length > 0 && cacheid.length > 0) {
-		    cacheUrl = refThis.removeProtocolFromUrl(cacheURL); // removes protocol from url if present and returns host only
+		    cacheURL = refThis.removeProtocolFromUrl(cacheURL); // removes protocol from url if present and returns host only
 			refThis.renderCreative(cacheURL, cachePath, cacheid);
 		}
 	} else {
