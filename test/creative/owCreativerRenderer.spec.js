@@ -2,8 +2,9 @@
 // var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
+var typeString = "String";
 
-var AMPMgr = require('../src_new/creative/owCreativeRenderer.js');
+var OWCren = require('../src_new/creative/owCreativeRenderer.js');
 
 describe("owCreativeRenderer : OWCren", function() {
 
@@ -53,6 +54,29 @@ describe("owCreativeRenderer : OWCren", function() {
             var outputUrl = "amptestapi.com"
             var outputStr = OWCren.removeProtocolFromUrl(cacheUrl);
             expect(outputStr).should.be.equal(outputUrl).to.be.true;
+            done();
+        });
+    });
+    /* end-test-block */
+
+     /* start-test-block */
+    describe('#isString', function() {
+
+        it('is a function', function(done) {
+            OWCren.isString.should.be.a('function');
+            done();
+        });
+
+        it('should have returned false when non string is passed', function (done) {
+            var obj = {};
+            OWCren.isFunction(obj).should.be.false;
+            done();
+        });
+
+        it('should have called isA with proper arguments and return true in case of string being passed', function(done) {
+            var str = "string_value";
+            OWCren.isString(str).should.be.true;
+            OWCren.isA.calledWith(str, typeString).should.be.true;
             done();
         });
     });
