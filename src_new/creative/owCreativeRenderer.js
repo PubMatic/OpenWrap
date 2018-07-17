@@ -7,16 +7,12 @@ var refThis = this;
 
 var typeString = "String";
 
-/* start-test-block */
-exports.isA = isA;
-/* end-test-block */
-
 exports.isString = function (object) {
 	return toString.call(object) === "[object " + typeString + "]";
 };
 
 // Desc: Uses prebid js render ad function to call cache and render ad based on the params from response.
-// Param Defination 
+// Param Definition 
 exports.renderCreative = function (theDocument, params) {
 	if (params && params.cacheUrl && params.uuid) {
 		try {
