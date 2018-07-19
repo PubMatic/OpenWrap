@@ -14,10 +14,10 @@ exports.isString = function (object) {
 // Desc: Uses prebid js render ad function to call cache and render ad based on the params from response.
 // Param Definition 
 exports.renderCreative = function (theDocument, params) {
-	if (params && params.cacheUrl && params.uuid) {
+	if (params && params.cacheURL && params.uuid) {
 		try {
 			window.pbjs.renderAd(theDocument, "", {
-				cacheHost: params.cacheUrl,
+				cacheHost: params.cacheURL,
 				cachePath: params.cachePath,
 				uuid: params.uuid,
 				mediaType: "banner",
@@ -30,10 +30,10 @@ exports.renderCreative = function (theDocument, params) {
 };
 
 exports.removeProtocolFromUrl = function (url) {
-	if (isString(url)) {
+	if (refThis.isString(url)) {
 		var outputUrl = url || "";
 		if (url && url.length > 0) {
-			url.replace(/^https{0,1}:\/\//i, "");
+			outputUrl= url.replace(/^https{0,1}:\/\//i, "");
 		}
 		return outputUrl;
 	}
