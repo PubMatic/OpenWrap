@@ -37,6 +37,7 @@ exports.removeProtocolFromUrl = function (url) {
 		}
 		return outputUrl;
 	}
+	return "";
 }
 
 ///  Change name to general render function : renderOWCreative
