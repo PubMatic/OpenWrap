@@ -57,5 +57,6 @@ window.PWT.renderOWCreative = function (theDocument, targetingKeys) {
 	} else {
 		// Condition : Although the creative has won but it does not contain targeting keys required to render ad
 		// error at dfp configuration.
+		console.warn("Warning: No Targeting keys returned from adserver");
 	}
 };

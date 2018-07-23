@@ -13,8 +13,7 @@ if [ $# -eq 0 ]
     echo " Provide build mode using -m flag"
     echo " Provide type of build using -t flag"
     echo " Provide what to build using -w flag"
-    echo " Example: ./init-build.sh -p \"../Prebid.js\" -m \"build\" -t amp -w creative" # One more parameter to be introduced for creative
-    # ./init-build.sh -p \""
+    echo " Example: ./init-build.sh -p \"../Prebid.js\" -m \"build\" -t amp -w creative" 
     exit 1
 fi
 

@@ -18,12 +18,12 @@ var CREATIVE_TASK = "creative"
 if (task == CREATIVE_TASK) {
 		console.log("inside creative");
 		if (shell.exec("gulp webpack-creative --mode=" + argv.mode).code !== 0) {
-			shell.echo('Error: webpack task failed');
+			shell.echo('Error: webpack bundle and dist creative task failed');
 			shell.exit(1);
 		}
 
 		if (shell.exec("gulp bundle-creative --mode=" + argv.mode).code !== 0) {
-			shell.echo('Error: build task failed');
+			shell.echo('Error:creative build task failed');
 			shell.exit(1);
 		}
 } else {
@@ -70,13 +70,13 @@ if (task == CREATIVE_TASK) {
 		}
 
 		if(shell.exec("gulp " + openwrapWebpackTaskName + " --mode=" + argv.mode).code !== 0) {
-			shell.echo('Error: webpack task failed');
+			shell.echo('Error: webpack wrapper task failed');
 			shell.exit(1);
 		}
 
 
 		if(shell.exec("gulp " + openwrapBuildTaskName + " --mode=" + argv.mode).code !== 0) {
-			shell.echo('Error: build task failed');
+			shell.echo('Error: wrapper build task failed');
 			shell.exit(1);
 		}
 }

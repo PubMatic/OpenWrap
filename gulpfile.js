@@ -51,7 +51,7 @@ gulp.task('webpack', ['clean'], function() {
     ;
 });
 
-// What all processing needs to be done ?
+// Run below task to create owt.js for creative
 gulp.task('webpack-creative', ['clean'], function() {
 
     webpackConfig.devtool = null;
