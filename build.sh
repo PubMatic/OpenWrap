@@ -31,28 +31,35 @@ if (task == CREATIVE_TASK) {
 			shell.echo("Couldnt change the dir to Prebid repo");
 			shell.exit(1);
 		}
-
-		if ( argv.mode && argv.mode == "test-build") {
-			console.log("Executing test-build");
-			prebidTaskName = "build-bundle-dev --modules=modules.json";
-			openwrapBuildTaskName = "devbundle";
-			openwrapWebpackTaskName = "devpack";
-
-		} else if ( argv.mode && argv.mode == "dev-build" ) {
-			console.log("Executing build");
-			prebidTaskName = "build --modules=modules.json";
-			openwrapBuildTaskName = "bundle";
-			openwrapWebpackTaskName = "webpack";
-
-		} else if ( argv.mode && argv.mode == "build" ) {
-			console.log("Executing build");
-			prebidTaskName = "bundle --modules=modules.json";
-			openwrapBuildTaskName = "bundle";
-			openwrapWebpackTaskName = "webpack";
-
-		} else {
-			console.log("No mode supplied, Too few arguments");
-			shell.exit(1);
+		if (argv.mode){
+		 switch (argv.mode) {
+			 case "test-build":
+				console.log("Executing test-build");
+				prebidTaskName = "build-bundle-dev --modules=modules.json";
+				openwrapBuildTaskName = "devbundle";
+				openwrapWebpackTaskName = "devpack";
+				break;
+		 	case  "dev-build":
+				console.log("Executing build");
+				prebidTaskName = "build --modules=modules.json";
+				openwrapBuildTaskName = "bundle";
+				openwrapWebpackTaskName = "webpack";
+				break;
+		 	case "build" :
+				console.log("Executing build");
+				prebidTaskName = "bundle --modules=modules.json";
+				openwrapBuildTaskName = "bundle";
+				openwrapWebpackTaskName = "webpack";
+				break;	
+			default:
+				console.log("No mode supplied, Too few arguments");
+				shell.exit(1);
+				break;
+			}
+		}
+		else {
+				console.log("No mode supplied, Too few arguments");
+				shell.exit(1);
 		}
 
 
