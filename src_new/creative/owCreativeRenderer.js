@@ -43,9 +43,9 @@ exports.removeProtocolFromUrl = function (url) {
 ///  Change name to general render function : renderOWCreative
 window.PWT.renderOWCreative = function (theDocument, targetingKeys) {
 	if (targetingKeys) {
-		var cacheid = targetingKeys.cacheid || "";
-		var cacheURL = targetingKeys.cacheURL || "";
-		var cachePath = targetingKeys.cachePath || "/cache";
+		var cacheid = targetingKeys.pwtcid || "";
+		var cacheURL = targetingKeys.pwtcurl || "";
+		var cachePath = targetingKeys.pwtcpath || "/cache";
 		if (cacheURL.length > 0 && cacheid.length > 0) {
 			cacheURL = refThis.removeProtocolFromUrl(cacheURL); // removes protocol from url if present and returns host only
 			refThis.renderCreative(theDocument, {
