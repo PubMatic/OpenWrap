@@ -13,7 +13,7 @@ if [ $# -eq 0 ]
     echo " Provide build mode using -m flag"
     echo " Provide type of build using -t flag"
     echo " Provide what to build using -w flag"
-    echo " Example: ./init-build.sh -p \"../Prebid.js\" -m \"build\" -t amp -w creative" 
+    echo " Example: ./init-build.sh -p \"../Prebid.js\" -m \"build\" -t amp -w creative"
     exit 1
 fi
 
@@ -42,13 +42,12 @@ if [ -z $mode ]
         exit 1
 fi
 
-if [ "$platform" = "$PLATFORM_DISPLAY" ] || [ -z $platform ]
-  then
-  if [ -z $prebid_path ]
-  then
-        echo "Please provide appropriate Prebid.js repo path "
-        exit 1
-  fi
+
+if [ -z $prebid_path ]
+then
+      echo "Please provide appropriate Prebid.js repo path "
+      exit 1
+fi
 
 OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR_V1_11}/node_modules/"
 
@@ -85,7 +84,11 @@ ln -s "$OpenWrapNodeModules" "./node_modules"
 
 prebidNpmInstall $prebid_path
 
-./build.sh --prebidpath=$prebid_path --mode=$mode
+
+if [ "$platform" = "$PLATFORM_DISPLAY" ] || [ -z $platform ]
+  then
+    echo "Building for Display"
+    ./build.sh --prebidpath=$prebid_path --mode=$mode
 
 elif [ "$platform" = "$PLATFORM_AMP" ]
    then
@@ -94,9 +97,8 @@ elif [ "$platform" = "$PLATFORM_AMP" ]
         echo "Please provide appropriate task argument."
         exit 1
     fi
-
       echo "Building for AMP"
       ./build.sh --task=$task --mode=$mode
-else 
+else
   echo "None"
 fi
