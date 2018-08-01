@@ -10,7 +10,8 @@ exports.pwt = {
 	gdpr: "0",
 	cmpApi: "iab",
 	gdprTimeout: "10000",
-	awc: "1"
+	awc: "1",
+	disbaleTimeout:true
 };
 
 exports.adapters = {
