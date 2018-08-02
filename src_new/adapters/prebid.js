@@ -404,8 +404,8 @@ function fetchBids(activeSlots, impressionID){
 							return arr;
 						})(),
 						syncDelay: 2000, //todo: default is 3000 write image pixels 5 seconds after the auction
-						disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
-					}
+					},
+					disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
 				};
 
 				if (CONFIG.getGdpr()) {
