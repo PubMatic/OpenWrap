@@ -26,7 +26,11 @@ exports.getTimeout = function(){
 };
 
 exports.getDisableAjaxTimeout = function(){
-	return true ==  (config.pwt.disbaleTimeout || true);
+	var pwt =config.pwt;
+	if(util.isOwnProperty(pwt,CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT)){
+	    return true ==  config.pwt.disableAjaxTimeout;
+	}
+	return true;
 };
 
 exports.getAdapterRevShare = function(adapterID){
