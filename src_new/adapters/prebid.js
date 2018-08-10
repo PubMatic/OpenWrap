@@ -269,6 +269,18 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			});
 			break;
 
+		case "yieldlab":
+			util.forEachOnArray(sizes, function(index, size){
+				var slotParams = {};
+				util.forEachOnObject(keyConfig, function(key, value){
+					/* istanbul ignore next */
+					slotParams[key] = value;
+				});
+				slotParams["adSize"] = size[0] + "x" + size[1];
+				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			});
+			break;
+
 		case "indexExchange":
 			util.forEachOnArray(sizes, function(index, size) {
 				var slotParams = {};
