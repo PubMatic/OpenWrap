@@ -11,31 +11,42 @@ if [ $# -eq 0 ]
     echo " No arguments supplied"
     echo " Provide prebid repo path using -p flag"
     echo " Provide build mode using -m flag"
-    echo " Example: ./init-build.sh -p \"../Prebid.js\" -m \"build\" "
+    echo " Provide type of build using -t flag"
+    echo " Provide what to build using -w flag"
+    echo " Example: ./init-build.sh -p \"../Prebid.js\" -m \"build\" -t amp -w creative"
     exit 1
 fi
 
-while getopts ":p:m:" opt; do
+PLATFORM_DISPLAY="display"
+PLATFORM_AMP="amp"
+
+while getopts ":p:m:t:w:" opt; do
   case $opt in
     p) prebid_path="$OPTARG"
     ;;
     m) mode="$OPTARG"
+    ;;
+    t) platform="$OPTARG"
+    ;;
+    w) task="$OPTARG"
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     ;;
   esac
 done
 
-if [ -z $prebid_path ]
-  then
-        echo "Please provide appropriate Prebid.js repo path "
-        exit 1
-fi
 
 if [ -z $mode ]
   then
         echo "Please provide appropriate mode argument "
         exit 1
+fi
+
+
+if [ -z $prebid_path ]
+then
+      echo "Please provide appropriate Prebid.js repo path "
+      exit 1
 fi
 
 OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR_V1_11}/node_modules/"
@@ -73,4 +84,21 @@ ln -s "$OpenWrapNodeModules" "./node_modules"
 
 prebidNpmInstall $prebid_path
 
-./build.sh --prebidpath=$prebid_path --mode=$mode
+
+if [ "$platform" = "$PLATFORM_DISPLAY" ] || [ -z $platform ]
+  then
+    echo "Building for Display"
+    ./build.sh --prebidpath=$prebid_path --mode=$mode
+
+elif [ "$platform" = "$PLATFORM_AMP" ]
+   then
+   if [ -z $task ]
+    then
+        echo "Please provide appropriate task argument."
+        exit 1
+    fi
+      echo "Building for AMP"
+      ./build.sh --task=$task --mode=$mode
+else
+  echo "None"
+fi
