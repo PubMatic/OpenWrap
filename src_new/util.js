@@ -324,11 +324,14 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 	}
 };
 
-exports.resizeWindow = function(theDocument, width, height){
+exports.resizeWindow = function(theDocument, width, height,divId){
 	/* istanbul ignore else */
 	if(height && width){
 		try{
 			var fr = theDocument.defaultView.frameElement;
+			if(divId){
+			 	 fr = document.getElementById(divId).querySelector('iframe')
+			}
 			fr.width = width;
 			fr.height = height;
 		}catch(e){} // eslint-disable-line no-empty
@@ -597,7 +600,7 @@ exports.addMessageEventListener = function(theWindow, eventHandler){
 
 exports.safeFrameCommunicationProtocol = function(msg){
 	try{
-		msgData = window.JSON.parse(msg.data);
+		var msgData = window.JSON.parse(msg.data);
 		/* istanbul ignore else */
 		if(!msgData.pwt_type){
 			return;
@@ -624,6 +627,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					;
 					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
+					refThis.resizeWindow(window.document,thebid.height,thebid.width,divID);
 					msg.source.postMessage(window.JSON.stringify(newMsgData), msgData.pwt_origin);
 				}
 
@@ -638,8 +642,6 @@ exports.safeFrameCommunicationProtocol = function(msg){
 				/* istanbul ignore else */
 				if(msgData.pwt_bid){
 					var theBid = msgData.pwt_bid;
-					refThis.resizeWindow(window.document, theBid.height, theBid.width);
-
 					if(theBid.adHtml){
 						try{
 							var iframe = refThis.createInvisibleIframe(window.document);
