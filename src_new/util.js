@@ -330,11 +330,16 @@ exports.resizeWindow = function(theDocument, width, height,divId){
 		try{
 			var fr = theDocument.defaultView.frameElement;
 			if(divId){
-			 	 fr = document.getElementById(divId).querySelector('iframe')
+				 var ele = document.getElementById(divId);
+				 ele.height = ''+ height;
+				 ele.width = ''+ width;
+			 	 fr = ele.querySelector('iframe')
 			}
-			fr.width = width;
-			fr.height = height;
-		}catch(e){} // eslint-disable-line no-empty
+			fr.width ='' +  width;
+			fr.height ='' + height;
+		}catch(e){
+			refThis.log("Creative-Resize; Error in resizing creative");
+		} // eslint-disable-line no-empty
 	}
 };
 
