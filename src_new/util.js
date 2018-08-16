@@ -600,7 +600,7 @@ exports.addMessageEventListener = function(theWindow, eventHandler){
 
 exports.safeFrameCommunicationProtocol = function(msg){
 	try{
-		var msgData = window.JSON.parse(msg.data);
+		msgData = window.JSON.parse(msg.data);
 		/* istanbul ignore else */
 		if(!msgData.pwt_type){
 			return;
