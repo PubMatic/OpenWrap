@@ -1588,20 +1588,20 @@ describe('UTIL', function() {
                 done();
             });
 
-            // it('should have called vLogInfo and should have executed Monetization Pixel', function(done) {
-            //     window.PWT.isSafeFrame = false;
-            //     UTIL.safeFrameCommunicationProtocol(msg);
-            //     BIDMgr.getBidById.calledWith(1).should.be.true;
-            //     bidDetailsStub.bid.getAdapterID.called.should.be.true;
-            //     UTIL.vLogInfo.calledWith(bidDetailsStub.slotid, { type: 'disp', adapter: commonAdapterID }).should.be.true;
-            //     BIDMgr.executeMonetizationPixel.calledWith(bidDetailsStub.slotid, bidDetailsStub.bid).should.be.true;
-            //     // UTIL.resizeWindow.calledWith(window.document, 200, 400,bidDetailsStub.slotid).should.be.true;
-            //     msg.source.postMessage.calledWith(window.JSON.stringify({
-            //         pwt_type: 2,
-            //         pwt_bid: bidDetailsStub.bid
-            //     }), 1).should.be.true;
-            //     done();
-            // });
+            it('should have called vLogInfo and should have executed Monetization Pixel', function(done) {
+                window.PWT.isSafeFrame = false;
+                UTIL.safeFrameCommunicationProtocol(msg);
+                BIDMgr.getBidById.calledWith(1).should.be.true;
+                bidDetailsStub.bid.getAdapterID.called.should.be.true;
+                UTIL.vLogInfo.calledWith(bidDetailsStub.slotid, { type: 'disp', adapter: commonAdapterID }).should.be.true;
+                BIDMgr.executeMonetizationPixel.calledWith(bidDetailsStub.slotid, bidDetailsStub.bid).should.be.true;
+                UTIL.resizeWindow.calledWith(window.document, bidDetailsStub.bid.width, bidDetailsStub.bid.height, bidDetailsStub.slotid).should.be.true;
+                msg.source.postMessage.calledWith(window.JSON.stringify({
+                    pwt_type: 2,
+                    pwt_bid: bidDetailsStub.bid
+                }), 1).should.be.true;
+                done();
+            });
         });
 
         describe('##when pwt_type is 2', function() {
