@@ -324,7 +324,7 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 	}
 };
 
-exports.resizeWindow = function(theDocument, width, height,divId){
+exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
 	if(height && width){
 		try{
@@ -632,10 +632,9 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					;
 					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
-					refThis.resizeWindow(window.document, thebid.height, thebid.width, divID);
+					refThis.resizeWindow(window.document, theBid.width, theBid.height, divID);
 					msg.source.postMessage(window.JSON.stringify(newMsgData), msgData.pwt_origin);
 				}
-
 				break;
 
 			case 2:
