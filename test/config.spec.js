@@ -132,6 +132,38 @@ describe('Config', function() {
         });
     });
 
+    describe('#getDisableAjaxTimeout', function(){
+        it('is a function', function(done) {
+            CONFIG.getDisableAjaxTimeout.should.be.a('function');
+            done();
+        });
+
+        it('by default, it should  return true', function(done){
+            if(undefined !== CONF.pwt[CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT]){
+                delete CONF.pwt[CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT];            
+            };
+            CONFIG.getDisableAjaxTimeout().should.equal(true);
+            done();
+        });
+
+        it('if set false, disableAjaxTimeout should return false', function(done){
+            CONF.pwt[CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT] = false;
+            CONFIG.getDisableAjaxTimeout().should.equal(false);
+            delete CONF.pwt[CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT];
+            done();
+        });
+
+        it('if set true, disableAjaxTimeout should return true', function(done){
+            CONF.pwt[CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT] = true;
+            CONFIG.getDisableAjaxTimeout().should.equal(true);
+            if(CONF.pwt[CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT]){
+            delete CONF.pwt[CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT];
+            }
+            done();
+        });
+    });
+
+
     describe('#getAdapterRevShare', function() {
         var adapterID = null;
 
