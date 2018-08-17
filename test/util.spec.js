@@ -1544,7 +1544,6 @@ describe('UTIL', function() {
             sinon.spy(UTIL, "log");
             sinon.stub(UTIL, "writeIframe").returns(true);
             sinon.stub(window.document.body, "appendChild").returns(true);
-
             sinon.spy(window, "parseInt");
             done();
         });
@@ -1589,19 +1588,20 @@ describe('UTIL', function() {
                 done();
             });
 
-            it('should have called vLogInfo and should have executed Monetization Pixel', function(done) {
-                window.PWT.isSafeFrame = false;
-                UTIL.safeFrameCommunicationProtocol(msg);
-                BIDMgr.getBidById.calledWith(1).should.be.true;
-                bidDetailsStub.bid.getAdapterID.called.should.be.true;
-                UTIL.vLogInfo.calledWith(bidDetailsStub.slotid, { type: 'disp', adapter: commonAdapterID }).should.be.true;
-                BIDMgr.executeMonetizationPixel.calledWith(bidDetailsStub.slotid, bidDetailsStub.bid).should.be.true;
-                msg.source.postMessage.calledWith(window.JSON.stringify({
-                    pwt_type: 2,
-                    pwt_bid: bidDetailsStub.bid
-                }), 1).should.be.true;
-                done();
-            });
+            // it('should have called vLogInfo and should have executed Monetization Pixel', function(done) {
+            //     window.PWT.isSafeFrame = false;
+            //     UTIL.safeFrameCommunicationProtocol(msg);
+            //     BIDMgr.getBidById.calledWith(1).should.be.true;
+            //     bidDetailsStub.bid.getAdapterID.called.should.be.true;
+            //     UTIL.vLogInfo.calledWith(bidDetailsStub.slotid, { type: 'disp', adapter: commonAdapterID }).should.be.true;
+            //     BIDMgr.executeMonetizationPixel.calledWith(bidDetailsStub.slotid, bidDetailsStub.bid).should.be.true;
+            //     // UTIL.resizeWindow.calledWith(window.document, 200, 400,bidDetailsStub.slotid).should.be.true;
+            //     msg.source.postMessage.calledWith(window.JSON.stringify({
+            //         pwt_type: 2,
+            //         pwt_bid: bidDetailsStub.bid
+            //     }), 1).should.be.true;
+            //     done();
+            // });
         });
 
         describe('##when pwt_type is 2', function() {
@@ -1613,14 +1613,6 @@ describe('UTIL', function() {
             it('should return if isSafeFrame flag is not set', function(done) {
                 window.PWT.isSafeFrame = false;
                 UTIL.safeFrameCommunicationProtocol(msg);
-                UTIL.resizeWindow.called.should.be.false;
-                done();
-            });
-
-            it('should have called resizeWindow', function(done) {
-                window.PWT.isSafeFrame = true;
-                UTIL.safeFrameCommunicationProtocol(msg);
-                UTIL.resizeWindow.calledWith(window.document, 200, 400).should.be.true;
                 done();
             });
 

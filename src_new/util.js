@@ -632,7 +632,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					;
 					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
-					refThis.resizeWindow(window.document,thebid.height,thebid.width,divID);
+					refThis.resizeWindow(window.document, thebid.height, thebid.width, divID);
 					msg.source.postMessage(window.JSON.stringify(newMsgData), msgData.pwt_origin);
 				}
 
