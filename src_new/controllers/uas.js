@@ -266,14 +266,14 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
             var divIds = Object.keys(refThis.slotsMap);
 
-            if (typeof window.OWT.externalBidderStatuses[arg[0]] === "object" && window.OWT.externalBidderStatuses[arg[0]]) {
+            // if (typeof window.OWT.externalBidderStatuses[arg[0]] === "object" && window.OWT.externalBidderStatuses[arg[0]]) {
                refThis.executeDisplay(CONFIG.getTimeout(), divIds, function() {
                    UTIL.forEachOnObject(refThis.slotsMap, function(key, slot) {
                        refThis.findWinningBidIfRequired_Display(key, slot);
                    });
                    refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
                 });
-            }
+            // }
 
             setTimeout(function() {
               UTIL.log("PostTimeout.. back in display function");
