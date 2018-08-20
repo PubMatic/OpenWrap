@@ -534,6 +534,7 @@ exports.processDisplayCalledSlot = processDisplayCalledSlot;
 function executeDisplay(timeout, divIds, callback) {
     if (util.getExternalBidderStatus(divIds) && bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds)) {
         util.log('Resuming DFP flow at ' + new Date().getTime() + ' time');
+        util.log("DFP call executed " +(timeout / 1000)+ " sec before global timeout");
         util.resetExternalBidderStatus(divIds); //Quick fix to reset flag so that the notification flow happens only once per page load
         callback();
     } else {
