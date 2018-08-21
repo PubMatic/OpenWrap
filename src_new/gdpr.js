@@ -90,7 +90,7 @@ exports.getUserConsentDataFromCMP = function () {
 		if (event && event.data && event.data.__cmp && event.data.__cmp.result) {
 			var result = event.data.__cmp.result;
 
-			if (result.consentData) {
+			if (result && result.consentData) {
 				/**
 					*	CMP API 1.1 - result is object which includes
 					*	  {
@@ -108,7 +108,7 @@ exports.getUserConsentDataFromCMP = function () {
 
 	function callCMP() {
 		window.__cmp("getConsentData", "vendorConsents", function (result) {
-			if (result.consentData) {
+			if (result && result.consentData) {
 				setConsentDataInLS(pubId, "c", result.consentData, result.gdprApplies);
 			} else if (typeof result === "string") {
 				setConsentDataInLS(pubId, "c", result);
