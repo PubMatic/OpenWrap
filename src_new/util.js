@@ -324,14 +324,22 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 	}
 };
 
-exports.resizeWindow = function(theDocument, width, height){
+exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
 	if(height && width){
 		try{
 			var fr = theDocument.defaultView.frameElement;
-			fr.width = width;
-			fr.height = height;
-		}catch(e){} // eslint-disable-line no-empty
+			if(divId){
+				 var ele = document.getElementById(divId);
+				 ele.height = ''+ height;
+				 ele.width = ''+ width;
+			 	 fr = ele.querySelector('iframe')
+			}
+			fr.width ='' +  width;
+			fr.height ='' + height;
+		}catch(e){
+			refThis.log("Creative-Resize; Error in resizing creative");
+		} // eslint-disable-line no-empty
 	}
 };
 
@@ -624,9 +632,9 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					;
 					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
+					refThis.resizeWindow(window.document, theBid.width, theBid.height, divID);
 					msg.source.postMessage(window.JSON.stringify(newMsgData), msgData.pwt_origin);
 				}
-
 				break;
 
 			case 2:
@@ -638,8 +646,6 @@ exports.safeFrameCommunicationProtocol = function(msg){
 				/* istanbul ignore else */
 				if(msgData.pwt_bid){
 					var theBid = msgData.pwt_bid;
-					refThis.resizeWindow(window.document, theBid.height, theBid.width);
-
 					if(theBid.adHtml){
 						try{
 							var iframe = refThis.createInvisibleIframe(window.document);
