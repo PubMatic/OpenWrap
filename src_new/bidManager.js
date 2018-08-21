@@ -230,7 +230,7 @@ exports.getBid = function(divID){ // TDD, i/o : done
 	var winningBid = null;
 	var keyValuePairs = null;
 	/* istanbul ignore else */
-	if( util.isOwnProperty(window.PWT.bidMap, divID) ){
+	if(window.PWT.bidMap && util.isOwnProperty(window.PWT.bidMap, divID) ){
 		var data = refThis.auctionBids(window.PWT.bidMap[divID]);
 		winningBid = data.wb;
 		keyValuePairs = data.kvp;
@@ -441,7 +441,7 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 	var status = true;
 
 	util.forEachOnArray(divIds, function (key, divId) {
-		bidMaps[divId] && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
+		(bidMaps && bidMaps[divId]) && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
 			util.forEachOnObject(adapter.bids, function (bidId, theBid) {
 				status = status && (theBid.getDefaultBidStatus() === 0);
 			});

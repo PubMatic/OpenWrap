@@ -255,8 +255,10 @@ function getSlotNamesByStatus(statusObject) { // TDD, i/o : done
     var slots = [];
     util.forEachOnObject(refThis.slotsMap, function(key, slot) {
         /* istanbul ignore else */
-        if (util.isOwnProperty(statusObject, slot.getStatus())) {
-            slots.push(key);
+        if (typeof slot.getStatus === 'function') {
+            if (util.isOwnProperty(statusObject, slot.getStatus())) {
+                slots.push(key);
+            }
         }
     });
     return slots;
@@ -501,9 +503,11 @@ exports.updateStatusAndCallOriginalFunction_Display = updateStatusAndCallOrigina
 /* end-test-block */
 
 function findWinningBidIfRequired_Display(key, slot) { // TDD, i/o : done
-    var status = slot.getStatus();
-    if (status != CONSTANTS.SLOT_STATUS.DISPLAYED && status != CONSTANTS.SLOT_STATUS.TARGETING_ADDED) {
-        refThis.findWinningBidAndApplyTargeting(key);
+    if(slot.getStatus && typeof slot.getStatus === 'function') {
+        var status = slot.getStatus();
+        if (status != CONSTANTS.SLOT_STATUS.DISPLAYED && status != CONSTANTS.SLOT_STATUS.TARGETING_ADDED) {
+            refThis.findWinningBidAndApplyTargeting(key);
+        }
     }
 }
 
@@ -532,6 +536,7 @@ exports.processDisplayCalledSlot = processDisplayCalledSlot;
 
 
 function executeDisplay(timeout, divIds, callback) {
+    //util.log("time:" + t + " getExternalBidderStatus: " + q.getExternalBidderStatus(e) + " getAllPartnersBidStatuses:" + Q.getAllPartnersBidStatuses(window.PWT.bidMap, e));
     if (util.getExternalBidderStatus(divIds) && bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds)) {
         util.log('Resuming DFP flow at ' + new Date().getTime() + ' time');
         util.log("DFP call executed " +(timeout / 1000)+ " sec before global timeout");

@@ -243,7 +243,6 @@ describe("CONTROLLER: UAS", function() {
             }
 
             if (UAS.slotsMap[dmSlotName]) {
-
                 delete UAS.slotsMap[dmSlotName];
             }
 
@@ -261,6 +260,7 @@ describe("CONTROLLER: UAS", function() {
         it('should called proper methods to create and add slot for given dmSlotName in slotsMap, if not present already ', function (done) {
             delete UAS.slotsMap[dmSlotName];
             UAS.storeInSlotsMap(dmSlotName, currentPhoenixSlotStub, isDisplayFlow);
+
             UTIL.isOwnProperty.returned(false).should.be.true;
             slotStub.setDivID.calledWith(dmSlotName).should.be.true;
             slotStub.setPubAdServerObject.calledWith(currentPhoenixSlotStub).should.be.true;
@@ -272,6 +272,7 @@ describe("CONTROLLER: UAS", function() {
         it('should create and add slot for given dmSlotName in slotsMap, if not present already ', function (done) {
             delete UAS.slotsMap[dmSlotName];
             UAS.storeInSlotsMap(dmSlotName, currentPhoenixSlotStub, isDisplayFlow);
+
             UTIL.isOwnProperty.returned(false).should.be.true;
             slotStub.setDivID.calledWith(dmSlotName).should.be.true;
             slotStub.setPubAdServerObject.calledWith(currentPhoenixSlotStub).should.be.true;
@@ -707,7 +708,9 @@ describe("CONTROLLER: UAS", function() {
             sinon.stub(UAS, "updateStatusAndCallOriginalFunction_Display");
 
             var dmSlotName = "DIV_TEST";
-            delete UAS.slotsMap[dmSlotName];
+            if (UAS.slotsMap.hasOwnProperty(dmSlotName)) {
+                delete UAS.slotsMap[dmSlotName];
+            }
             UAS.storeInSlotsMap(dmSlotName, currentPhoenixSlotStub, true);
 
             var theObject = {};
