@@ -331,12 +331,14 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 			var fr = theDocument.defaultView.frameElement;
 			if(divId){
 				 var ele = document.getElementById(divId);
-				 ele.height = ''+ height;
-				 ele.width = ''+ width;
-			 	 fr = ele.querySelector('iframe')
+				 ele.style.height = ""+ height + "px";
+				 ele.style.width = ""+ width+ "px";
+				 fr = ele.querySelector("iframe");
 			}
-			fr.width ='' +  width;
-			fr.height ='' + height;
+			fr.width ="" +  width;
+			fr.height ="" + height;
+			fr.style.width = "" + width + "px";
+			fr.style.height = "" + height + "px";
 		}catch(e){
 			refThis.log("Creative-Resize; Error in resizing creative");
 		} // eslint-disable-line no-empty
