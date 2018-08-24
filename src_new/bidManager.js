@@ -389,9 +389,9 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                 return;
             }
 
-						// if (adapterID === "pubmaticServer") {
-						// 		return;
-						// }
+						if (adapterID === "pubmaticServer") {
+								return;
+						}
 
             util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
 
