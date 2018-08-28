@@ -330,7 +330,8 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 		try{
 			var fr = theDocument.defaultView.frameElement;
 			if(divId){
-				 var ele = document.getElementById(divId);
+				 var element = document.getElementById(divId);
+				 var ele = element.querySelector("div");
 				 ele.style.height = ""+ height + "px";
 				 ele.style.width = ""+ width+ "px";
 				 fr = ele.querySelector("iframe");
