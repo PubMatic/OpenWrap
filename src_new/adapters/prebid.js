@@ -103,8 +103,10 @@ function pbBidStreamHandler(pbBid){
 			pbBid.bidderCode = pbBid.originalBidder;
 		}
 
+		/* check for pubmaticServerErrorCode. if undefined proceed with kgpv check. if not, it means server responded with error. 
+		   hence proceed without kgpv check. */
 		/* istanbul ignore else */
-		if(pbBid.bidderCode && CONFIG.isServerSideAdapter(pbBid.bidderCode)){
+		if(pbBid.pubmaticServerErrorCode === undefined && pbBid.bidderCode && CONFIG.isServerSideAdapter(pbBid.bidderCode)){
 			var divID = refThis.kgpvMap[responseID].divID;
 			var temp1 = refThis.getPBCodeWithWidthAndHeight(divID, pbBid.bidderCode, pbBid.width, pbBid.height);
 			var temp2 = refThis.getPBCodeWithoutWidthAndHeight(divID, pbBid.bidderCode);
