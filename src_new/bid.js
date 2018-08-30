@@ -12,16 +12,34 @@ function Bid(adapterID, kgpv){
 	this.adHtml = "";
 	this.adUrl = "";
 	this.height = 0;
-	this.width = 0;	
+	this.width = 0;
 	this.creativeID = ""; //todo, is it needed ?
 	this.keyValuePairs = {};
 	this.isPostTimeout = false;
 	this.receivedTime = 0;
+	this.isServerSide = CONFIG.isServerSideAdapter(adapterID) ? 1 : 0;
 	this.dealID = "";
 	this.dealChannel = "";
 	this.isWinningBid = false;
 	this.status = 0;
+	this.serverSideResponseTime = 0;
 }
+
+Bid.prototype.setServerSideResponseTime = function (ssResponseTime) {
+	this.serverSideResponseTime = ssResponseTime;
+};
+
+Bid.prototype.getServerSideResponseTime = function () {
+	return this.serverSideResponseTime;
+};
+
+Bid.prototype.getServerSideStatus = function () {
+	return this.isServerSide;
+};
+
+Bid.prototype.setServerSideStatus = function (isServerSide) {
+	this.isServerSide = isServerSide;
+};
 
 Bid.prototype.getAdapterID = function(){
 	return this.adapterID;
@@ -43,7 +61,7 @@ Bid.prototype.setGrossEcpm = function(ecpm){
 		ecpm = ecpm.replace(/\s/g, "");
 		/* istanbul ignore else */
 		if(ecpm.length === 0){
-			UTIL.log(CONSTANTS.MESSAGES.M20);			
+			UTIL.log(CONSTANTS.MESSAGES.M20);
 			UTIL.log(this);
 			return this;
 		}
@@ -51,7 +69,7 @@ Bid.prototype.setGrossEcpm = function(ecpm){
 
 	/* istanbul ignore else */
 	if(window.isNaN(ecpm)){
-		UTIL.log(CONSTANTS.MESSAGES.M11+ecpm);		
+		UTIL.log(CONSTANTS.MESSAGES.M11+ecpm);
 		UTIL.log(this);
 		return this;
 	}
@@ -155,7 +173,7 @@ Bid.prototype.setDealID = function(dealID){
 		this.dealID = dealID;
 		this.dealChannel = this.dealChannel || "PMP";
 		this.setKeyValuePair(
-			CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+this.adapterID, 
+			CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+this.adapterID,
 			this.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + this.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + this.bidID
 		);
 	}
@@ -171,10 +189,10 @@ Bid.prototype.setDealChannel = function(dealChannel){
 	if(this.dealID && dealChannel){
 		this.dealChannel = dealChannel;
 		this.setKeyValuePair(
-			CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+this.adapterID, 
+			CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+this.adapterID,
 			this.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + this.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + this.bidID
 		);
-	}	
+	}
 	return this;
 };
 
