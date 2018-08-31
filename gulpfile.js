@@ -51,10 +51,24 @@ gulp.task('webpack', ['clean'], function() {
     ;
 });
 
+// Run below task to create owt.js for creative
+gulp.task('webpack-creative', ['clean'], function() {
+
+    webpackConfig.devtool = null;
+
+    return gulp.src('src_new/creative/owCreativeRenderer.js')
+        .pipe(webpack(webpackConfig))
+        .pipe(uglify())
+        .pipe(optimizejs())
+        .pipe(gulp.dest('build/dist'))
+        .pipe(connect.reload())
+    ;
+});
+
 
 gulp.task('devpack', function () {
   webpackConfig.devtool = 'source-map';
-  
+
   return gulp.src('src_new/owt.js')
     .pipe(webpack(webpackConfig))
     .pipe(gulp.dest('build/dev'))
@@ -78,7 +92,7 @@ gulp.task('test', ['unexpose'], function (done) {
         .pipe(clean())
         .pipe(function () {
             if (exitCode != 0) {
-                process.exit(exitCode);                
+                process.exit(exitCode);
             }
         });
     }).start();
@@ -95,8 +109,8 @@ gulp.task('testall', function (done) {
     }, function (exitCode) {
         console.log("exitCode ==>", exitCode);
         if (exitCode != 0) {
-            process.exit(exitCode);                
-        }   
+            process.exit(exitCode);
+        }
     }).start();
 });
 
@@ -118,7 +132,7 @@ gulp.task('coverage', function (done) {
 gulp.task('unexpose', function() {
     return gulp
         .src([
-            'src_new/**/*.js', 
+            'src_new/**/*.js',
             'test/**/*.js'
             ],
             { base: './' }
@@ -145,8 +159,16 @@ gulp.task('lint', () => {
 
 // Task to build minified version of owt.js
 gulp.task('bundle', function () {
-    console.log("Executing build"); 
+    console.log("Executing build");
     return gulp.src(['prebid-header.js', prebidRepoPath + '/build/dist/prebid.js','prebid-footer.js','./build/dist/owt.js'])
+        .pipe(concat('owt.min.js'))
+        .pipe(gulp.dest('build'));
+});
+
+// Task to build minified version of owt.js
+gulp.task('bundle-creative', function () {
+    console.log("Executing creative-build");
+    return gulp.src(['./build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 });
