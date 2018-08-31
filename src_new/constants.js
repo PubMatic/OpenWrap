@@ -39,7 +39,17 @@ exports.CONFIG = {
 	"MASK_BIDS": "maksBids",
 	"META_DATA_PATTERN": "metaDataPattern",
 	"SEND_ALL_BIDS": "sendAllBids",
-	"SERVER_SIDE_ENABLED": "serverSideEnabled"
+	"SERVER_SIDE_ENABLED": "serverSideEnabled",
+	"GDPR_CONSENT": "gdpr",
+	"CONSENT_STRING": "cns",
+	"GDPR_CMPAPI": "cmpApi",
+	"GDPR_TIMEOUT": "gdprTimeout",
+	"GDPR_AWC": "awc",
+	"DEFAULT_GDPR_CMPAPI": "iab",
+	"DEFAULT_GDPR_TIMEOUT": 10000,
+	"DEFAULT_GDPR_AWC": "0",
+	"DEFAULT_GDPR_CONSENT": "0",
+	"DISABLE_AJAX_TIMEOUT":"disableAjaxTimeout"
 };
 
 exports.METADATA_MACROS = {

@@ -324,14 +324,25 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 	}
 };
 
-exports.resizeWindow = function(theDocument, width, height){
+exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
 	if(height && width){
 		try{
 			var fr = theDocument.defaultView.frameElement;
-			fr.width = width;
-			fr.height = height;
-		}catch(e){} // eslint-disable-line no-empty
+			if(divId){
+				 var element = document.getElementById(divId);
+				 var ele = element.querySelector("div");
+				 ele.style.height = ""+ height + "px";
+				 ele.style.width = ""+ width+ "px";
+				 fr = element.querySelector("iframe");
+			}
+			fr.width ="" +  width;
+			fr.height ="" + height;
+			fr.style.width = "" + width + "px";
+			fr.style.height = "" + height + "px";
+		}catch(e){
+			refThis.log("Creative-Resize; Error in resizing creative");
+		} // eslint-disable-line no-empty
 	}
 };
 
@@ -476,7 +487,7 @@ exports.findQueryParamInURL = function(url, name){
 };
 
 exports.parseQueryParams = function(url){
-	var parser = window.document.createElement('a');
+	var parser = refThis.createDocElement(window, 'a');
 	parser.href = url;
 	var params = {};
 
@@ -493,6 +504,10 @@ exports.parseQueryParams = function(url){
 	}
 
 	return params;
+};
+
+exports.createDocElement = function(win, elementName) {
+	return win.document.createElement(elementName);
 };
 
 exports.addHookOnFunction = function(theObject, useProto, functionName, newFunction){
@@ -559,7 +574,7 @@ exports.getBididForPMP = function(values, priorityArray){
 };
 
 exports.createInvisibleIframe = function() {
-	var f = window.document.createElement('iframe');
+	var f = refThis.createDocElement(window, 'iframe');
 	f.id = refThis.getUniqueIdentifierStr();
 	f.height = 0;
 	f.width = 0;
@@ -620,9 +635,9 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					;
 					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
+					refThis.resizeWindow(window.document, theBid.width, theBid.height, divID);
 					msg.source.postMessage(window.JSON.stringify(newMsgData), msgData.pwt_origin);
 				}
-
 				break;
 
 			case 2:
@@ -634,8 +649,6 @@ exports.safeFrameCommunicationProtocol = function(msg){
 				/* istanbul ignore else */
 				if(msgData.pwt_bid){
 					var theBid = msgData.pwt_bid;
-					refThis.resizeWindow(window.document, theBid.height, theBid.width);
-
 					if(theBid.adHtml){
 						try{
 							var iframe = refThis.createInvisibleIframe(window.document);
