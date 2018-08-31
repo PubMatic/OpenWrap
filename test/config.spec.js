@@ -132,6 +132,38 @@ describe('Config', function() {
         });
     });
 
+    describe('#getDisableAjaxTimeout', function(){
+        it('is a function', function(done) {
+            CONFIG.getDisableAjaxTimeout.should.be.a('function');
+            done();
+        });
+
+        it('by default, it should  return true', function(done){
+            if(undefined !== CONF.pwt[CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT]){
+                delete CONF.pwt[CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT];            
+            };
+            CONFIG.getDisableAjaxTimeout().should.equal(true);
+            done();
+        });
+
+        it('if set false, disableAjaxTimeout should return false', function(done){
+            CONF.pwt[CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT] = false;
+            CONFIG.getDisableAjaxTimeout().should.equal(false);
+            delete CONF.pwt[CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT];
+            done();
+        });
+
+        it('if set true, disableAjaxTimeout should return true', function(done){
+            CONF.pwt[CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT] = true;
+            CONFIG.getDisableAjaxTimeout().should.equal(true);
+            if(CONF.pwt[CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT]){
+            delete CONF.pwt[CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT];
+            }
+            done();
+        });
+    });
+
+
     describe('#getAdapterRevShare', function() {
         var adapterID = null;
 
@@ -486,6 +518,82 @@ describe('Config', function() {
             UTIL.forEachOnObject.calledWith(CONF.adapters).should.be.true;
             UTIL.forEachOnObject.calledWith(CONF.adapters["pubmatic"]).should.be.true;
             UTIL.forEachOnObject.calledWith(CONF.adapters["sekindoUM"]["klm"]).should.be.true;
+            done();
+        });
+    });
+
+    describe('#getGdpr', function() {
+        it('is a function', function(done) {
+            CONFIG.getGdpr.should.be.a('function');
+            done();
+        });
+
+        it('should return true, as it is set to "1"', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT] = "1";
+            CONFIG.getGdpr().should.be.true;
+            done();
+        });
+
+        it('should return default value for gdpr which is '+(CONSTANTS.CONFIG.DEFAULT_GDPR_CONSENT === "1")+', as it is NOT set', function(done) {
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT];
+            CONFIG.getGdpr().should.be.equal((CONSTANTS.CONFIG.DEFAULT_GDPR_CONSENT === "1"));
+            done();
+        });
+    });
+
+    describe('#getCmpApi', function() {
+        it('is a function', function(done) {
+            CONFIG.getCmpApi.should.be.a('function');
+            done();
+        });
+
+        it('should return iab, as it is set to iab', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CMPAPI] = 'iab';
+            CONFIG.getCmpApi().should.be.equal('iab');
+            done();
+        });
+
+        it('should return default cpm which is '+CONSTANTS.CONFIG.DEFAULT_GDPR_CMPAPI+', as it is NOT set', function(done) {
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CMPAPI];
+            CONFIG.getCmpApi().should.be.equal(CONSTANTS.CONFIG.DEFAULT_GDPR_CMPAPI);
+            done();
+        });
+    });
+
+    describe('#getGdprTimeout', function() {
+        it('is a function', function(done) {
+            CONFIG.getGdprTimeout.should.be.a('function');
+            done();
+        });
+
+        it('should return 5000, as it is set to 5000', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_TIMEOUT] = 5000;
+            CONFIG.getGdprTimeout().should.be.equal(5000);
+            done();
+        });
+
+        it('should return default value for gdpr timeout which is '+CONSTANTS.CONFIG.DEFAULT_GDPR_TIMEOUT+', as it is NOT set', function(done) {
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_TIMEOUT];
+            CONFIG.getGdprTimeout().should.be.equal(CONSTANTS.CONFIG.DEFAULT_GDPR_TIMEOUT);
+            done();
+        });
+    });
+
+    describe('#getAwc', function() {
+        it('is a function', function(done) {
+            CONFIG.getAwc.should.be.a('function');
+            done();
+        });
+
+        it('should return 1, as it is set to 1', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_AWC] = "1";
+            CONFIG.getAwc().should.be.true;
+            done();
+        });
+
+        it('should return default value which is '+(CONSTANTS.CONFIG.DEFAULT_GDPR_AWC === "1")+', as it is NOT set', function(done) {
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_AWC];
+            CONFIG.getAwc().should.be.equal((CONSTANTS.CONFIG.DEFAULT_GDPR_AWC === "1"));
             done();
         });
     });

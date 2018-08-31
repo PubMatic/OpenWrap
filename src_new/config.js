@@ -25,6 +25,14 @@ exports.getTimeout = function(){
 	return window.parseInt(config.pwt.t) || 1000;
 };
 
+exports.getDisableAjaxTimeout = function(){
+	var pwt =config.pwt;
+	if(util.isOwnProperty(pwt,CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT)){
+	    return true ==  config.pwt.disableAjaxTimeout;
+	}
+	return true;
+};
+
 exports.getAdapterRevShare = function(adapterID){
 	var adapterConfig = config.adapters;
 	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.REV_SHARE)){
@@ -53,8 +61,7 @@ exports.isServerSideAdapter = function(adapterID){
 exports.getAdapterMaskBidsStatus = function(adapterID){
 	var adapterConfig = config.adapters;
 	var tempSettings = {
-		'audienceNetwork': 1,
-		'rubicon': 1
+		'audienceNetwork': 1
 	};
 
 	if(util.isOwnProperty(tempSettings, adapterID)){
@@ -106,6 +113,25 @@ function addPrebidAdapter(){
 		config.adapters[preBidAdapter] = adapterConfig;
 	}
 }
+
+exports.getGdpr = function () {
+	var gdpr = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT] || CONSTANTS.CONFIG.DEFAULT_GDPR_CONSENT;
+	return gdpr === "1";
+};
+
+exports.getCmpApi = function () {
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CMPAPI] || CONSTANTS.CONFIG.DEFAULT_GDPR_CMPAPI;
+};
+
+exports.getGdprTimeout = function() {
+	var gdprTimeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_TIMEOUT];
+	return gdprTimeout ? window.parseInt(gdprTimeout) : CONSTANTS.CONFIG.DEFAULT_GDPR_TIMEOUT;
+};
+
+exports.getAwc = function () {
+	var awc = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_AWC] || CONSTANTS.CONFIG.DEFAULT_GDPR_AWC;
+	return awc === "1" ;
+};
 
 /* start-test-block */
 exports.addPrebidAdapter = addPrebidAdapter;

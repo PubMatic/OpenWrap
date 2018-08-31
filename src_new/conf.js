@@ -5,14 +5,20 @@ exports.pwt = {
 	pdvid: "4",
 	pubid: "9999",
 	dataURL: "t.test-domain.com/logger?",
-	winURL: "t.test-domain.com/tracker?"
+	winURL: "t.test-domain.com/tracker?",
+	adserver: "DFP",
+	gdpr: "0",
+	cmpApi: "iab",
+	gdprTimeout: "10000",
+	awc: "1",
+	disableAjaxTimeout:true
 };
 
 exports.adapters = {
 	pubmatic: {
 		rev_share: "0.0",
 		throttle: "100",
-		publisherId: "5890",
+		publisherId: "156209",
 		kgp: "_DIV_@_W_x_H_:_AUI_"
 	},
 	audienceNetwork: {
