@@ -334,7 +334,7 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 				 var ele = element.querySelector("div");
 				 ele.style.height = ""+ height + "px";
 				 ele.style.width = ""+ width+ "px";
-				 fr = ele.querySelector("iframe");
+				 fr = element.querySelector("iframe");
 			}
 			fr.width ="" +  width;
 			fr.height ="" + height;
