@@ -335,6 +335,13 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 				 ele.style.height = ""+ height + "px";
 				 ele.style.width = ""+ width+ "px";
 				 fr = element.querySelector("iframe");
+				 var internalFr = ele.querySelector("iframe");
+				 if(internalFr){
+					internalFr.width ="" +  width;
+					internalFr.height ="" + height;
+					internalFr.style.width = "" + width + "px";
+					internalFr.style.height = "" + height + "px";
+				 }
 			}
 			fr.width ="" +  width;
 			fr.height ="" + height;
