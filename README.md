@@ -34,7 +34,7 @@ The main areas of concern are:
 *   Lack of holistic insights and analytics
 *   Changing the page and tag structure to accommodate for header tag.
 
-We came up with a simple way to use wrapper tags which solves for all the issues above and most importantly, was specifically designed to be plug-and-play with the GPT tags. 
+We came up with a simple way to use wrapper tags which solves for all the issues above and most importantly, was specifically designed to be plug-and-play with the GPT tags.
 
 What this means for publishers:
 
@@ -62,7 +62,7 @@ Please note that, OpenWrap extending PreBid code is in ***src_new*** folder the 
 ## PreBid Fork:
 
 We have created a fork from PreBid repo: https://github.com/PubMatic-OpenWrap/Prebid.js which OpenWrap uses as core and is used for building the library.
-The fork has PreBid Version [0.24.1](https://github.com/prebid/Prebid.js/releases/tag/0.24.1) which will be upgraded frquently to latest PreBid version. 
+The fork has PreBid Version [1.9.0](https://github.com/prebid/Prebid.js/releases/tag/1.9.0) which will be upgraded frquently to latest PreBid version.
 
 ## Configuration Exchange between OpenWrap and Prebid
 
@@ -138,7 +138,7 @@ exports.adapters = {                            // St
 
 ## Supporting Advanced GPT setup
 Advanced GPT implementation where publishers define and display slot on the fly WAS NOT supported due to PreBid [limitation](https://github.com/prebid/Prebid.js/issues/914)
-Now we create Prebid namespaces at run time every time we need to call requestBids() API. As the requestBids() API method in two different namespace does not wait for call to complete execution. So for first call namespace would be pbjs0 , for second call namespace would be pbjs1 and so on. Due to creating multiple namespaces, Prebid's debug script may not work. 
+Now we create Prebid namespaces at run time every time we need to call requestBids() API. As the requestBids() API method in two different namespace does not wait for call to complete execution. So for first call namespace would be pbjs0 , for second call namespace would be pbjs1 and so on. Due to creating multiple namespaces, Prebid's debug script may not work.
 
 ## Logging Post-timeout bids
 We use the event, bidResponse, provided by Prebid.
@@ -173,7 +173,7 @@ Shell script to execute gulp job :
 *   For Windows: build.cmd
 
 This particular shell script named "build.sh" or "build.cmd" can be triggered to generate OpenWrap distribution. Output file will be at path /build/owt.js
-It accepts two parameters - 
+It accepts two parameters -
 
 *   **mode**: Its value can be either "build" or "test-build" .
     On passing the mode parameter with value "build", the shell script will generate production ready code , without running tests.
@@ -187,7 +187,7 @@ npm install gulp -g
 npm install gulp-cli -g
 ```
 
-Then chekout Prebid (currently fork of v0.24 is supported) on desired location:
+Then chekout Prebid (currently fork of v1.9.0 is supported) on desired location:
 ```
 git clone https://github.com/PubMatic-OpenWrap/Prebid.js
 ```
@@ -197,6 +197,10 @@ Run npm install in Prebid as well as OpenWrap Folder
 Build with test:
 ```
 ./build.sh --mode=test-build --prebidpath=../Prebid.js/
+```
+Build for dev(Use this for local builds):
+```
+./build.sh --mode=dev-build --prebidpath=../Prebid.js/
 ```
 Build for production:
 ```
@@ -265,7 +269,7 @@ These are the parameters which will be part of the standard wrapper configuratio
 
 ### Wrapper Keys Sent to DFP
 
-|Key Name| Explanation | Sample Value 
+|Key Name| Explanation | Sample Value
 ------ | ------|-----------
 |pwtecp | The eCPM of bid in USD up to 4 decimal places | 1.4356 |
 |pwtbst | Bid Status Flag, will be 1 in case of positive bid | 1 |
@@ -273,7 +277,7 @@ These are the parameters which will be part of the standard wrapper configuratio
 |pwtsid | The slot/bid id of the highest or winning bid | e7424477d70315b8a4bae5cff1887edf |
 |pwtpid | All partner data organized by partner name.<br>A filter can be added to retrieve data for a specific partner.<br><br>Examples:<br> pwtpid - to retrieve all partner data by partner name<br>pwtpid=pubmatic - to retrieve data only for PubMatic<br><br>For partner names, refer ***bidder code*** used in [PreBid bidders documnetation](http://prebid.org/dev-docs/bidders.html)| pubmatic |
 |pwtdeal_&lt;BidderCode&gt;|Paertner specific dealID and dealChannel based targeting can be done using this key.<br>Format of the value is: `<DealChannel>_-_<DealId>_-_<BidId>` |Key: pwtdeal_pubmatic<br>Value: `PMPG_-_dealxyz_-_123456` |
-
+|pwtsz | The size of the highest/winning bid | WxH: 300x250 |
 
 # Partner Adapters and Auction Logic
 
@@ -311,12 +315,12 @@ This step is required so the ad server, based on actual bid price, can allocate 
 
 
 ![New Order](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/New%20Order.jpg)
-  
-  
+
+
 **Step 2:** Set the price and priority of the line items.  
 
 ![Step 2](https://raw.githubusercontent.com/PubMatic/OpenWrap/master/images/LineItem.jpg)
-  
+
 
 **Step 3:** Set targeting on the “pwtbst” value as 1 from the. In addition to  “pwtbst”,  you will also need to set targeting on “pwtecp”.  For more information, please refer to the [Best Practices to Create Line Items]
 
@@ -456,5 +460,5 @@ To change the configuration and check bid responses use following JSFiddles :
 
 ## Safe Frame
 Expandable creative will not work correctly after rendering inside safe frame on Safari, IE11/Edge
- 
+
 </a>

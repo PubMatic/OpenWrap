@@ -1544,7 +1544,6 @@ describe('UTIL', function() {
             sinon.spy(UTIL, "log");
             sinon.stub(UTIL, "writeIframe").returns(true);
             sinon.stub(window.document.body, "appendChild").returns(true);
-
             sinon.spy(window, "parseInt");
             done();
         });
@@ -1596,6 +1595,7 @@ describe('UTIL', function() {
                 bidDetailsStub.bid.getAdapterID.called.should.be.true;
                 UTIL.vLogInfo.calledWith(bidDetailsStub.slotid, { type: 'disp', adapter: commonAdapterID }).should.be.true;
                 BIDMgr.executeMonetizationPixel.calledWith(bidDetailsStub.slotid, bidDetailsStub.bid).should.be.true;
+                UTIL.resizeWindow.calledWith(window.document, bidDetailsStub.bid.width, bidDetailsStub.bid.height, bidDetailsStub.slotid).should.be.true;
                 msg.source.postMessage.calledWith(window.JSON.stringify({
                     pwt_type: 2,
                     pwt_bid: bidDetailsStub.bid
@@ -1613,14 +1613,6 @@ describe('UTIL', function() {
             it('should return if isSafeFrame flag is not set', function(done) {
                 window.PWT.isSafeFrame = false;
                 UTIL.safeFrameCommunicationProtocol(msg);
-                UTIL.resizeWindow.called.should.be.false;
-                done();
-            });
-
-            it('should have called resizeWindow', function(done) {
-                window.PWT.isSafeFrame = true;
-                UTIL.safeFrameCommunicationProtocol(msg);
-                UTIL.resizeWindow.calledWith(window.document, 200, 400).should.be.true;
                 done();
             });
 

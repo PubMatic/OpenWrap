@@ -2,6 +2,7 @@ var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
+var GDPR = require("../gdpr.js");
 var adapterManager = require("../adapterManager.js");
 var SLOT = require("../slot.js");
 
@@ -356,6 +357,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID, CONFIG.getPublisherId());
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID());
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID, CONFIG.getProfileDisplayVersionID());
+        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE, winningBid.width + 'x' + winningBid.height);
     }
 
     // attaching keyValuePairs from adapters
@@ -613,6 +615,9 @@ exports.forQualifyingSlotNamesCallAdapters = forQualifyingSlotNamesCallAdapters;
 /* end-test-block */
 
 function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
+    // Initiating getUserConsentDataFromCMP method to get the updated consentData
+    GDPR.getUserConsentDataFromCMP();
+
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         // Todo : change structure to take out the anonymous function for better unit test cases
         return function() {
@@ -766,6 +771,9 @@ exports.getQualifyingSlotNamesForRefresh = getQualifyingSlotNamesForRefresh;
         4. googletag.pubads().refresh(null, {changeCorrelator: false});
 */
 function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // Note : not covering the function currying atm , if need be will add istanbul ignore
+    // Initiating getUserConsentDataFromCMP method to get the updated consentData
+    GDPR.getUserConsentDataFromCMP();
+
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         // var refThis = this;
         return function() {
