@@ -42,7 +42,18 @@ function transformPBBidToOWBid(bid, kgpv){
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
 
-	if(pubmaticServerErrorCode === 1 || pubmaticServerErrorCode === 2) {
+	/*
+		errorCodes meaning:
+		1 = GADS_UNMAPPED_SLOT_ERROR
+		2 = GADS_MISSING_CONF_ERROR
+		3 = TIMEOUT_ERROR
+		4 = NO_BID_PREBID_ERROR
+		5 = PARTNER_TIMEDOUT_ERROR
+		6 = INVALID_CONFIGURATION_ERROR
+		7 = NO_GDPR_CONSENT_ERROR
+		500 = API_RESPONSE_ERROR
+	*/
+	if(pubmaticServerErrorCode === 1 || pubmaticServerErrorCode === 2 || pubmaticServerErrorCode === 4) {
 		theBid.setDefaultBidStatus(0);
 		theBid.setWidth(0);
 		theBid.setHeight(0);
