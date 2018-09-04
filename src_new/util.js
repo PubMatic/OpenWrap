@@ -329,19 +329,19 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 	if(height && width){
 		try{
 			var defaultViewFrame = theDocument.defaultView.frameElement;
-			if(adSlot){
-				 var adSlot = document.getElementById(divId);
-				 var adSlot_Div = adSlot.querySelector("div");
-				 adSlot_Div.style.height = ""+ height + "px";
-				 adSlot_Div.style.width = ""+ width+ "px";
-				 var adSlot_Div_iframe = adSlot_Div.querySelector("iframe");
-				 if(adSlot_Div_iframe){
-					adSlot_Div_iframe.width ="" +  width;
-					adSlot_Div_iframe.height ="" + height;
-					adSlot_Div_iframe.style.width = "" + width + "px";
-					adSlot_Div_iframe.style.height = "" + height + "px";
-				 }
-				 defaultViewFrame = adSlot.querySelector("iframe");
+			if(divId){
+				var adSlot = document.getElementById(divId);
+				var adSlot_Div = adSlot.querySelector("div");
+				var adSlot_Div_iframe = adSlot_Div.querySelector("iframe");
+				[adSlot_Div,adSlot_Div_iframe].forEach(function(ele){
+					if(ele){
+						ele.width ="" +  width;
+						ele.height ="" + height;
+						ele.style.width = "" + width + "px";
+						ele.style.height = "" + height + "px";
+					}
+				});
+				defaultViewFrame = adSlot.querySelector("iframe");
 			}
 			defaultViewFrame.width ="" +  width;
 			defaultViewFrame.height ="" + height;
