@@ -196,7 +196,7 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 		sizeArrayLength,
 		i
 		;
-  	/* istanbul ignore else */
+	/* istanbul ignore else */
 	if(refThis.isObject(activeSlot) && refThis.isFunction(activeSlot.getSizes)){
 		sizeArray = activeSlot.getSizes();
 		sizeArrayLength = sizeArray.length;
@@ -417,7 +417,7 @@ exports.getTopFrameOfSameDomain = function(cWin) {
 	try {
 		/* istanbul ignore else */
 		if (cWin.parent.document != cWin.document){
-		  return refThis.getTopFrameOfSameDomain(cWin.parent);
+			return refThis.getTopFrameOfSameDomain(cWin.parent);
 		}
 	} catch(e) {}
 	return cWin;
@@ -439,7 +439,7 @@ exports.getMetaInfo = function(cWin){
 
 	try{
 		frame = refThis.getTopFrameOfSameDomain(cWin);
-		obj.refURL = ( frame.refurl || frame.document.referrer || '' ).substr( 0, MAX_PAGE_URL_LEN );
+		obj.refURL = ( frame.refurl || frame.document.referrer || "" ).substr( 0, MAX_PAGE_URL_LEN );
 		obj.pageURL = ( frame !== window.top && frame.document.referrer != ""  ? frame.document.referrer : frame.location.href).substr(0, MAX_PAGE_URL_LEN );
 
 		obj.protocol = (function(frame){
@@ -476,18 +476,18 @@ exports.findQueryParamInURL = function(url, name){
 };
 
 exports.parseQueryParams = function(url){
-	var parser = window.document.createElement('a');
+	var parser = window.document.createElement("a");
 	parser.href = url;
 	var params = {};
 
 	/* istanbul ignore else */
 	if(parser.search){
-		var queryString = parser.search.replace('?', '');
-		queryString = queryString.split('&');
+		var queryString = parser.search.replace("?", "");
+		queryString = queryString.split("&");
 		refThis.forEachOnArray(queryString, function(index, keyValue){
-			var keyValue = keyValue.split('=');
-			var key = keyValue[0] || '';
-			var value = keyValue [1] || '';
+			var keyValue = keyValue.split("=");
+			var key = keyValue[0] || "";
+			var value = keyValue [1] || "";
 			params[key] = value;
 		});
 	}
@@ -507,17 +507,17 @@ exports.addHookOnFunction = function(theObject, useProto, functionName, newFunct
 };
 
 exports.getBididForPMP = function(values, priorityArray){
-	values = values.split(',');
+	values = values.split(",");
 
 	var valuesLength = values.length,
 		priorityArrayLength = priorityArray.length,
-		selectedPMPDeal = '',
-		bidID = ''
+		selectedPMPDeal = "",
+		bidID = ""
 	;
 
 	/* istanbul ignore else */
 	if(valuesLength == 0){
-		this.log('Error: Unable to find bidID as values array is empty.');
+		this.log("Error: Unable to find bidID as values array is empty.");
 		return;
 	}
 
@@ -531,16 +531,16 @@ exports.getBididForPMP = function(values, priorityArray){
 		}
 
 		/* istanbul ignore else */
-		if(selectedPMPDeal != ''){
+		if(selectedPMPDeal != ""){
 			break;
 		}
 	}
 
-	if(selectedPMPDeal == ''){
+	if(selectedPMPDeal == ""){
 		selectedPMPDeal = values[0];
-		this.log('No PMP-Deal was found matching PriorityArray, So Selecting first PMP-Deal: '+ selectedPMPDeal);
+		this.log("No PMP-Deal was found matching PriorityArray, So Selecting first PMP-Deal: "+ selectedPMPDeal);
 	}else{
-		this.log('Selecting PMP-Deal: '+ selectedPMPDeal);
+		this.log("Selecting PMP-Deal: "+ selectedPMPDeal);
 	}
 
 	var temp = selectedPMPDeal.split(CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR);
@@ -551,7 +551,7 @@ exports.getBididForPMP = function(values, priorityArray){
 
 	/* istanbul ignore else */
 	if(!bidID){
-		this.log('Error: bidID not found in PMP-Deal: '+ selectedPMPDeal);
+		this.log("Error: bidID not found in PMP-Deal: "+ selectedPMPDeal);
 		return;
 	}
 
@@ -559,20 +559,20 @@ exports.getBididForPMP = function(values, priorityArray){
 };
 
 exports.createInvisibleIframe = function() {
-	var f = window.document.createElement('iframe');
+	var f = window.document.createElement("iframe");
 	f.id = refThis.getUniqueIdentifierStr();
 	f.height = 0;
 	f.width = 0;
-	f.border = '0px';
-	f.hspace = '0';
-	f.vspace = '0';
-	f.marginWidth = '0';
-	f.marginHeight = '0';
-	f.style.border = '0';
-	f.scrolling = 'no';
-	f.frameBorder = '0';
-	f.src = 'about:self';//todo: test by setting empty src on safari
-	f.style = 'display:none';
+	f.border = "0px";
+	f.hspace = "0";
+	f.vspace = "0";
+	f.marginWidth = "0";
+	f.marginHeight = "0";
+	f.style.border = "0";
+	f.scrolling = "no";
+	f.frameBorder = "0";
+	f.src = "about:self";//todo: test by setting empty src on safari
+	f.style = "display:none";
 	return f;
 }
 
@@ -618,7 +618,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 							pwt_bid: theBid
 						}
 					;
-					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
+					refThis.vLogInfo(divID, {type: "disp", adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
 					msg.source.postMessage(window.JSON.stringify(newMsgData), msgData.pwt_origin);
 				}
@@ -641,40 +641,40 @@ exports.safeFrameCommunicationProtocol = function(msg){
 							var iframe = refThis.createInvisibleIframe(window.document);
 							/* istanbul ignore else */
 							if(!iframe){
-								throw {message: 'Failed to create invisible frame.', name:""};
+								throw {message: "Failed to create invisible frame.", name:""};
 							}
 
-							iframe.setAttribute('width', theBid.width);
-        					iframe.setAttribute('height', theBid.height);
-        					iframe.style = '';
+							iframe.setAttribute("width", theBid.width);
+        					iframe.setAttribute("height", theBid.height);
+        					iframe.style = "";
 
 							window.document.body.appendChild(iframe);
 
 							/* istanbul ignore else */
 							if(!iframe.contentWindow){
-								throw {message: 'Unable to access frame window.', name:""};
+								throw {message: "Unable to access frame window.", name:""};
 							}
 
 							var iframeDoc = iframe.contentWindow.document;
 							/* istanbul ignore else */
 							if(!iframeDoc){
-								throw {message: 'Unable to access frame window document.', name:""};
+								throw {message: "Unable to access frame window document.", name:""};
 							}
 
-							var content = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><base target="_top" /><scr' + 'ipt>inDapIF=true;</scr' + 'ipt></head>';
-								content += '<body>';
+							var content = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"><html><head><base target=\"_top\" /><scr" + "ipt>inDapIF=true;</scr" + "ipt></head>";
+								content += "<body>";
 								content += "<script>var $sf = window.parent.$sf;<\/script>";
 								content += "<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>";
 								content += theBid.adHtml;
-								content += '</body></html>';
+								content += "</body></html>";
 
 							iframeDoc.write(content);
 							iframeDoc.close();
 
 						}catch(e){
-							refThis.log('Error in rendering creative in safe frame.');
+							refThis.log("Error in rendering creative in safe frame.");
 							refThis.log(e);
-							refThis.log('Rendering synchronously.');
+							refThis.log("Rendering synchronously.");
 							refThis.displayCreative(window.document, msgData.pwt_bid);
 						}
 
@@ -726,30 +726,30 @@ exports.createVLogInfoPanel = function(divID, dimensionArray){
 		element = doc.getElementById(divID);
 		/* istanbul ignore else */
 		if(element && dimensionArray.length && dimensionArray[0][0] && dimensionArray[0][1]){
-			infoPanelElementID = divID + '-pwtc-info';
+			infoPanelElementID = divID + "-pwtc-info";
 			/* istanbul ignore else */
 			if(!refThis.isUndefined(doc.getElementById(infoPanelElementID))){
 				var pos = refThis.getElementLocation(element);
-				infoPanelElement = doc.createElement('div');
+				infoPanelElement = doc.createElement("div");
 				infoPanelElement.id = infoPanelElementID;
-				infoPanelElement.style = 'position: absolute; /*top: '+pos.y+'px;*/ left: '+pos.x+'px; width: '+dimensionArray[0][0]+'px; height: '+dimensionArray[0][1]+'px; border: 1px solid rgb(255, 204, 52); padding-left: 11px; background: rgb(247, 248, 224) none repeat scroll 0% 0%; overflow: auto; z-index: 9999997; visibility: hidden;opacity:0.9;font-size:13px;font-family:monospace;';
+				infoPanelElement.style = "position: absolute; /*top: "+pos.y+"px;*/ left: "+pos.x+"px; width: "+dimensionArray[0][0]+"px; height: "+dimensionArray[0][1]+"px; border: 1px solid rgb(255, 204, 52); padding-left: 11px; background: rgb(247, 248, 224) none repeat scroll 0% 0%; overflow: auto; z-index: 9999997; visibility: hidden;opacity:0.9;font-size:13px;font-family:monospace;";
 
-				var closeImage = doc.createElement('img');
+				var closeImage = doc.createElement("img");
 				closeImage.src = refThis.metaInfo.protocol+"ads.pubmatic.com/AdServer/js/pwt/close.png";
-				closeImage.style = 'cursor:pointer; position: absolute; top: 2px; left: '+(pos.x+dimensionArray[0][0]-16-15)+'px; z-index: 9999998;';
-				closeImage.title = 'close';
+				closeImage.style = "cursor:pointer; position: absolute; top: 2px; left: "+(pos.x+dimensionArray[0][0]-16-15)+"px; z-index: 9999998;";
+				closeImage.title = "close";
 				closeImage.onclick = function(){
 					infoPanelElement.style.display = "none";
 				};
 				infoPanelElement.appendChild(closeImage);
-				infoPanelElement.appendChild(doc.createElement('br'));
+				infoPanelElement.appendChild(doc.createElement("br"));
 
-				var text = 'Slot: '+divID+' | ';
+				var text = "Slot: "+divID+" | ";
 				for(var i=0; i<dimensionArray.length; i++){
-					text += (i != 0 ? ', ' : '') + dimensionArray[i][0] + 'x' + dimensionArray[i][1];
+					text += (i != 0 ? ", " : "") + dimensionArray[i][0] + "x" + dimensionArray[i][1];
 				}
 				infoPanelElement.appendChild(doc.createTextNode(text));
-				infoPanelElement.appendChild(doc.createElement('br'));
+				infoPanelElement.appendChild(doc.createElement("br"));
 				element.parentNode.insertBefore(infoPanelElement, element);
 			}
 		}
@@ -768,14 +768,14 @@ exports.realignVLogInfoPanel = function(divID){
 		element = doc.getElementById(divID);
 		/* istanbul ignore else */
 		if(element){
-			infoPanelElementID = divID + '-pwtc-info';
+			infoPanelElementID = divID + "-pwtc-info";
 			infoPanelElement = doc.getElementById(infoPanelElementID);
 			/* istanbul ignore else */
 			if(infoPanelElement){
 				var pos = refThis.getElementLocation(element);
-				infoPanelElement.style.visibility = 'visible';
-				infoPanelElement.style.left = pos.x + 'px';
-				infoPanelElement.style.height = element.clientHeight + 'px';
+				infoPanelElement.style.visibility = "visible";
+				infoPanelElement.style.left = pos.x + "px";
+				infoPanelElement.style.height = element.clientHeight + "px";
 			}
 		}
 	}
