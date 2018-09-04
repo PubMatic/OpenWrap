@@ -328,25 +328,25 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
 	if(height && width){
 		try{
-			var fr = theDocument.defaultView.frameElement;
-			if(divId){
-				 var element = document.getElementById(divId);
-				 var ele = element.querySelector("div");
-				 ele.style.height = ""+ height + "px";
-				 ele.style.width = ""+ width+ "px";
-				 fr = element.querySelector("iframe");
-				 var internalFr = ele.querySelector("iframe");
-				 if(internalFr){
-					internalFr.width ="" +  width;
-					internalFr.height ="" + height;
-					internalFr.style.width = "" + width + "px";
-					internalFr.style.height = "" + height + "px";
+			var defaultViewFrame = theDocument.defaultView.frameElement;
+			if(adSlot){
+				 var adSlot = document.getElementById(divId);
+				 var adSlot_Div = adSlot.querySelector("div");
+				 adSlot_Div.style.height = ""+ height + "px";
+				 adSlot_Div.style.width = ""+ width+ "px";
+				 defaultViewFrame = adSlot.querySelector("iframe");
+				 var adSlot_Div_iframe = adSlot_Div.querySelector("iframe");
+				 if(adSlot_Div_iframe){
+					adSlot_Div_iframe.width ="" +  width;
+					adSlot_Div_iframe.height ="" + height;
+					adSlot_Div_iframe.style.width = "" + width + "px";
+					adSlot_Div_iframe.style.height = "" + height + "px";
 				 }
 			}
-			fr.width ="" +  width;
-			fr.height ="" + height;
-			fr.style.width = "" + width + "px";
-			fr.style.height = "" + height + "px";
+			defaultViewFrame.width ="" +  width;
+			defaultViewFrame.height ="" + height;
+			defaultViewFrame.style.width = "" + width + "px";
+			defaultViewFrame.style.height = "" + height + "px";
 		}catch(e){
 			refThis.log("Creative-Resize; Error in resizing creative");
 		} // eslint-disable-line no-empty
