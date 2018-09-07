@@ -105,7 +105,12 @@ function pbBidStreamHandler(pbBid){
 
 		/* istanbul ignore else */
 		if(pbBid.bidderCode && CONFIG.isServerSideAdapter(pbBid.bidderCode)){
-			var divID = refThis.kgpvMap[responseID].divID;
+			//	we want to change the way we create prebid request adUnits,
+			//		we are using code as a key in adUnits
+			//		now we want to change key for adUnits to divID
+			//		so simply changing code = divID
+			var divID = responseID;
+			//var divID = refThis.kgpvMap[responseID].divID;//old
 			var temp1 = refThis.getPBCodeWithWidthAndHeight(divID, pbBid.bidderCode, pbBid.width, pbBid.height);
 			var temp2 = refThis.getPBCodeWithoutWidthAndHeight(divID, pbBid.bidderCode);
 
@@ -196,6 +201,12 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
 		return;
 	}
+
+	//	we want to change the way we create prebid request adUnits,
+	//		we are using code as a key in adUnits
+	//		now we want to change key for adUnits to divID
+	//		so simply changing code = divID
+	code = divID;
 
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(adUnits, code)){
