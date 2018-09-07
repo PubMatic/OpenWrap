@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/PubMatic/OpenWrap#readme",
   "dependencies": {
-    "prebid-universal-creative": "^0.4.0",
-    "uas-adclient": "0.0.1-master.17"
+    "prebid-universal-creative": "0.4.0",
+    "uas-adclient": "0.0.1-master.24"
   },
   "devDependencies": {
     "babel-core": "6.22.0",
