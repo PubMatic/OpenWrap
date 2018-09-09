@@ -41,7 +41,7 @@ var commonKGPV = "XYZ";
 describe('ADAPTER: Prebid', function() {
 
     describe('#transformPBBidToOWBid', function () {
-        var bid = null, kgpv = null;
+        var bid = null, kgpv = null, errorBid = null;
 
         beforeEach(function (done) {
             bid = {
@@ -60,6 +60,24 @@ describe('ADAPTER: Prebid', function() {
                     "hb_source": "client"
                 },
                 serverSideResponseTime: 5
+            };
+            errorBid = {
+                bidderCode: "pubmatic",
+                cpm: 0,
+                dealId: "dealId" ,
+                dealChannel: "sale" ,
+                ad: "",
+                adUrl: "",
+                width: 210,
+                height: 420,
+                responseTimestamp: 1503321091079,
+                adserverTargeting: {
+                    "k1": "v1",
+                    "hb_format": "native",
+                    "hb_source": "client"
+                },
+                serverSideResponseTime: 5,
+                pubmaticServerErrorCode: 1
             };
             kgpv = commonKGPV;
             sinon.spy(UTIL, "forEachOnObject");
@@ -89,6 +107,36 @@ describe('ADAPTER: Prebid', function() {
             theBid.getReceivedTime().should.be.equal(bid.responseTimestamp);
             theBid.getServerSideResponseTime().should.be.equal(bid.serverSideResponseTime);
             theBid.getKeyValuePairs().should.have.all.keys(["k1", "pwtdeal_pubmatic"]);
+            done();
+        });
+
+        it('should handle pubmaticServerErrorCode correctly', function(done) {
+            var theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
+            theBid.getDefaultBidStatus().should.be.equal(0);
+            theBid.getWidth().should.be.equal(0);
+            theBid.getHeight().should.be.equal(0);
+
+            errorBid.pubmaticServerErrorCode = 2;
+            theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
+            theBid.getDefaultBidStatus().should.be.equal(0);
+            theBid.getWidth().should.be.equal(0);
+            theBid.getHeight().should.be.equal(0);
+
+            errorBid.pubmaticServerErrorCode = 4;
+            theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
+            theBid.getDefaultBidStatus().should.be.equal(0);
+            theBid.getWidth().should.be.equal(0);
+            theBid.getHeight().should.be.equal(0);
+
+            errorBid.pubmaticServerErrorCode = 3;
+            theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
+            theBid.getDefaultBidStatus().should.be.equal(1);
+            theBid.getPostTimeoutStatus().should.be.true;
+
+            errorBid.pubmaticServerErrorCode = 5;
+            theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
+            theBid.getDefaultBidStatus().should.be.equal(1);
+            theBid.getPostTimeoutStatus().should.be.true;
             done();
         });
     });

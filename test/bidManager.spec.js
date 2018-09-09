@@ -1364,6 +1364,8 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, "getDealChannel");
             sinon.spy(theBid, "getPostTimeoutStatus");
             sinon.spy(theBid, "getWinningBidStatus");
+            sinon.spy(theBid, "getServerSideStatus");
+            sinon.spy(theBid, "getServerSideResponseTime");
             impressionIDMap = {};
             done();
         });
@@ -1529,6 +1531,32 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getBidPassThroughStatus.returns(2);
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
             impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"].length.should.equal(0);
+            done();
+        });
+
+        it('slotObject should not be populated with bid if adapter is serverside, latency is 0 and default status is 0', function(done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry(commonAdpterID);
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+            CONFIG.getBidPassThroughStatus.returns(2);
+            theBid.setServerSideStatus(1);
+
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+
+            theBid.getDefaultBidStatus.calledOnce.should.be.true;
+            theBid.getServerSideStatus.calledOnce.should.be.true;
+            theBid.getServerSideResponseTime.calledOnce.should.be.true;
+
+            theBid.getKGPV.calledOnce.should.be.false;
+            theBid.getWidth.calledOnce.should.be.false;
+            theBid.getHeight.calledOnce.should.be.false;
+            theBid.getGrossEcpm.calledOnce.should.be.false;
+            theBid.getNetEcpm.calledOnce.should.be.false;
+            theBid.getDealID.calledOnce.should.be.false;
+            theBid.getDealChannel.calledOnce.should.be.false;
+            theBid.getPostTimeoutStatus.calledOnce.should.be.false;
+            theBid.getWinningBidStatus.calledOnce.should.be.false;
+
             done();
         });
     });
