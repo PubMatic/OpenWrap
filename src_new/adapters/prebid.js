@@ -53,7 +53,7 @@ function transformPBBidToOWBid(bid, kgpv){
 		7 = NO_GDPR_CONSENT_ERROR
 		500 = API_RESPONSE_ERROR
 	*/
-	if(pubmaticServerErrorCode === 1 || pubmaticServerErrorCode === 2 || pubmaticServerErrorCode === 4) {
+	if(pubmaticServerErrorCode === 1 || pubmaticServerErrorCode === 2 || pubmaticServerErrorCode === 4 || pubmaticServerErrorCode === 6) {
 		theBid.setDefaultBidStatus(0);
 		theBid.setWidth(0);
 		theBid.setHeight(0);
