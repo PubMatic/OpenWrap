@@ -328,17 +328,24 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
 	if(height && width){
 		try{
-			var fr = theDocument.defaultView.frameElement;
+			var defaultViewFrame = theDocument.defaultView.frameElement;
+			var elementArray=[];
 			if(divId){
-				 var ele = document.getElementById(divId);
-				 ele.style.height = ""+ height + "px";
-				 ele.style.width = ""+ width+ "px";
-				 fr = ele.querySelector("iframe");
+				var adSlot = document.getElementById(divId);
+				var adSlot_Div = adSlot.querySelector("div");
+				elementArray.push(adSlot_Div);
+				elementArray.push(adSlot_Div.querySelector("iframe"));
+				defaultViewFrame = adSlot.querySelector("iframe");
 			}
-			fr.width ="" +  width;
-			fr.height ="" + height;
-			fr.style.width = "" + width + "px";
-			fr.style.height = "" + height + "px";
+			elementArray.push(defaultViewFrame);
+			elementArray.forEach(function(ele){
+				if(ele){
+					ele.width ="" +  width;
+					ele.height ="" + height;
+					ele.style.width = "" + width + "px";
+					ele.style.height = "" + height + "px";
+				}
+			});
 		}catch(e){
 			refThis.log("Creative-Resize; Error in resizing creative");
 		} // eslint-disable-line no-empty

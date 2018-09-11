@@ -1483,7 +1483,7 @@ describe('bidManager BIDMgr', function() {
 
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
 
-            impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb");
+            impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb", "ss");
             done();
         });
 
@@ -1506,7 +1506,7 @@ describe('bidManager BIDMgr', function() {
             bmEntryObj.setNewBid("audienceNetwork", theBid);
             CONFIG.getBidPassThroughStatus.returns(2);
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
-            impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb");
+            impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb", "ss");
             done();
         });
 

@@ -52,7 +52,7 @@ exports.getAdapterThrottle = function(adapterID){
 exports.isServerSideAdapter = function(adapterID){
 	var adapterConfig = config.adapters;
 	/* istanbul ignore else */
-	if(util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.SERVER_SIDE_ENABLED)){
+	if(adapterConfig[adapterID] && util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.SERVER_SIDE_ENABLED)){
 		return window.parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED]) === 1;
 	}
 	return false;
