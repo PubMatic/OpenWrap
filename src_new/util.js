@@ -858,3 +858,34 @@ exports.resetExternalBidderStatus = function(divIds) {
 		window.OWT.externalBidderStatuses[divId] = undefined;
 	});
 };
+
+
+// This common function can be used add hooks for publishers to make changes in flows
+exports.handleHook(hookName, arrayOfDataToPass){
+	// Adding a hook for publishers to modify the data we have
+
+	if(refThis.isFunction(window.pwt[hookName])){
+
+		// Keep a backup of data we have made to use in case of exeception
+		var backupData = [];
+		refThis.forEachOnArray(arrayOfDataToPass, function(index, data){
+			var backup;
+			if(refThis.isObject()){
+				backup = {};
+				refThis.copyKeyValueObject(backup, data);
+				
+			}else{
+				backup = data;
+			}
+			backupData.push(backup);
+		});
+
+		try{
+			window.pwt[hookName].apply(window.pwt, arrayOfDataToPass);
+		}catch(e){
+			refThis.log('Something went wrong with '+hookName+', moving ahead with original config.');
+			refThis.log(e);
+			arrayOfDataToPass = backupData;
+		}
+	}
+};
