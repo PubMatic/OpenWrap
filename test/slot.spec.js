@@ -3,8 +3,8 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-var CONSTANTS = require("../src_new/constants.js");
-var SLOT = require("../src_new/slot.js").Slot;
+var CONSTANTS = require("../src/constants.js");
+var SLOT = require("../src/slot.js").Slot;
 
 var commonSlotName = "Slot_1";
 var commonDivID = "DIV_1";

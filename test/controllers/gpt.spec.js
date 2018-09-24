@@ -3,13 +3,13 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-var GPT = require("../../src_new/controllers/gpt.js");
-var UTIL = require("../../src_new/util.js");
-var AM = require("../../src_new/adapterManager.js");
-var CONSTANTS = require("../../src_new/constants.js");
-var CONFIG = require("../../src_new/config.js");
-var BM = require("../../src_new/bidManager.js");
-var SLOT = require("../../src_new/slot.js");
+var GPT = require("../../src/controllers/gpt.js");
+var UTIL = require("../../src/util.js");
+var AM = require("../../src/adapterManager.js");
+var CONSTANTS = require("../../src/constants.js");
+var CONFIG = require("../../src/config.js");
+var BM = require("../../src/bidManager.js");
+var SLOT = require("../../src/slot.js");
 
 var commonDivID = "DIV_1";
 

@@ -3,7 +3,7 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-var GDPR = require("../src_new/gdpr.js");
+var GDPR = require("../src/gdpr.js");
 
 var DUMMY_PUB_ID = 909090;
 var win = {

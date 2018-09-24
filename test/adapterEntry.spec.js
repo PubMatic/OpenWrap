@@ -3,9 +3,9 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-var UTIL = require("../src_new/util.js");
-var AdapterEntry = require("../src_new/adapterEntry.js").AdapterEntry;
-var BID = require("../src_new/bid.js").Bid;
+var UTIL = require("../src/util.js");
+var AdapterEntry = require("../src/adapterEntry.js").AdapterEntry;
+var BID = require("../src/bid.js").Bid;
 
 var commonAdpterID = 'pubmatic';
 var commonBidID = '9886ade8a';

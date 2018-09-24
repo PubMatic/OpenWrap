@@ -4,7 +4,7 @@ var should = require("chai").should();
 var expect = require("chai").expect;
 var typeString = "String";
 
-var OWCren = require('../../src_new/creative/owCreativeRenderer.js');
+var OWCren = require('../../src/creative/owCreativeRenderer.js');
 
 describe("owCreativeRenderer : OWCren", function() {
 

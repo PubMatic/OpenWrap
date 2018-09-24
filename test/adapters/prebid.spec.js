@@ -3,15 +3,15 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-var CONFIG = require("../../src_new/config.js");
-var CONSTANTS = require("../../src_new/constants.js");
-var BID = require("../../src_new/bid.js");
-var UTIL = require("../../src_new/util.js");
-var BM = require("../../src_new/bidManager.js");
-var CONF = require("../../src_new/conf.js");
-var AM = require("../../src_new/adapterManager.js");
-var SLOT = require("../../src_new/slot.js").Slot;
-var PREBID = require("../../src_new/adapters/prebid.js");
+var CONFIG = require("../../src/config.js");
+var CONSTANTS = require("../../src/constants.js");
+var BID = require("../../src/bid.js");
+var UTIL = require("../../src/util.js");
+var BM = require("../../src/bidManager.js");
+var CONF = require("../../src/conf.js");
+var AM = require("../../src/adapterManager.js");
+var SLOT = require("../../src/slot.js").Slot;
+var PREBID = require("../../src/adapters/prebid.js");
 
 var parentAdapterID = "prebid";
 var commonAdpterID = "pubmatic";

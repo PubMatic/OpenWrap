@@ -1,4 +1,4 @@
-var conf = require('./src_new/conf.js');
+var conf = require('./src/conf.js');
 var StringReplacePlugin = require('string-replace-webpack-plugin');
 var path = require('path');
 
@@ -13,7 +13,7 @@ module.exports = {
     },
     devtool: 'source-map',
     resolve: {
-				modules: [path.resolve('./node_modules'), path.resolve('./src_new')]
+				modules: [path.resolve('./node_modules'), path.resolve('./src')]
     },
     resolveLoader: {
         modulesDirectories: ['node_modules']
@@ -22,7 +22,7 @@ module.exports = {
         loaders: [
             {
                 test: /owt.js$/,
-                include: /(src_new)/,
+                include: /(src)/,
                 loader: StringReplacePlugin.replace({
                   replacements: [
                     {

@@ -8,11 +8,11 @@ var typeString = "String";
 var typeFunction = "Function";
 var typeNumber = "Number";
 
-var UTIL = require("../src_new/util");
+var UTIL = require("../src/util");
 
-var SLOT = require("../src_new/slot.js").Slot;
+var SLOT = require("../src/slot.js").Slot;
 
-var BIDMgr = require("../src_new/bidManager.js");
+var BIDMgr = require("../src/bidManager.js");
 
 var commonAdapterID = "pubmatic";
 var commonDivID = "DIV_1";

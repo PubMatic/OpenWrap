@@ -3,13 +3,13 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-var ADPTMgr = require('../src_new/adapterManager');
-var CONFIG = require("../src_new/config.js");
-var CONSTANTS = require("../src_new/constants.js");
-var UTIL = require("../src_new/util.js");
-var BIDMANAGER = require("../src_new/bidManager.js");
-var prebid = require("../src_new/adapters/prebid.js");
-var conf = require('../src_new/conf');
+var ADPTMgr = require('../src/adapterManager');
+var CONFIG = require("../src/config.js");
+var CONSTANTS = require("../src/constants.js");
+var UTIL = require("../src/util.js");
+var BIDMANAGER = require("../src/bidManager.js");
+var prebid = require("../src/adapters/prebid.js");
+var conf = require('../src/conf');
 
 var commonAdapterID = "pubmatic";
 

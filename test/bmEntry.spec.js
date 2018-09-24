@@ -3,10 +3,10 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-var CONSTANTS = require("../src_new/constants.js");
-var UTIL = require("../src_new/util.js");
-var AE = require("../src_new/adapterEntry");
-var BMEntry = require("../src_new/bmEntry.js").BMEntry;
+var CONSTANTS = require("../src/constants.js");
+var UTIL = require("../src/util.js");
+var AE = require("../src/adapterEntry");
+var BMEntry = require("../src/bmEntry.js").BMEntry;
 
 var commonAdpterID = 'pubmatic';
 var commonBidID = "bid_id";

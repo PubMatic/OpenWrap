@@ -3,12 +3,12 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-var UAS = require("../../src_new/controllers/uas.js");
-var UTIL = require("../../src_new/util.js");
-var AM = require("../../src_new/adapterManager.js");
-var CONSTANTS = require("../../src_new/constants.js");
-var CONFIG = require("../../src_new/config.js");
-var SLOT = require("../../src_new/slot.js");
+var UAS = require("../../src/controllers/uas.js");
+var UTIL = require("../../src/util.js");
+var AM = require("../../src/adapterManager.js");
+var CONSTANTS = require("../../src/constants.js");
+var CONFIG = require("../../src/config.js");
+var SLOT = require("../../src/slot.js");
 
 var commonDivID = "DIV_1";
 

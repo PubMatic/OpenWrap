@@ -3,16 +3,16 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-var BIDMgr = require('../src_new/bidManager');
-var CONFIG = require("../src_new/config.js");
-var CONSTANTS = require("../src_new/constants.js");
-var UTIL = require("../src_new/util.js");
-var GDPR = require("../src_new/gdpr.js");
-var bmEntry = require("../src_new/bmEntry.js");
-var bmEntryContstuctor = require("../src_new/bmEntry.js").BMEntry;
-var AdapterEntry = require("../src_new/adapterEntry").AdapterEntry;
-var bid = require('../src_new/bid.js').Bid;
-var conf = require("../src_new/conf");
+var BIDMgr = require('../src/bidManager');
+var CONFIG = require("../src/config.js");
+var CONSTANTS = require("../src/constants.js");
+var UTIL = require("../src/util.js");
+var GDPR = require("../src/gdpr.js");
+var bmEntry = require("../src/bmEntry.js");
+var bmEntryContstuctor = require("../src/bmEntry.js").BMEntry;
+var AdapterEntry = require("../src/adapterEntry").AdapterEntry;
+var bid = require('../src/bid.js').Bid;
+var conf = require("../src/conf");
 
 var commonAdpterID = 'pubmatic';
 var commonDivID = "DIV_1";

@@ -3,10 +3,10 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-var CONF = require("../src_new/conf.js");
-var CONSTANTS = require("../src_new/constants.js");
-var UTIL = require("../src_new/util.js");
-var CONFIG = require("../src_new/config.js");
+var CONF = require("../src/conf.js");
+var CONSTANTS = require("../src/constants.js");
+var UTIL = require("../src/util.js");
+var CONFIG = require("../src/config.js");
 
 var commonAdapterID = "pubmatic";
 

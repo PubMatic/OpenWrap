@@ -3,10 +3,10 @@
 var should = require("chai").should();
 var expect = require("chai").expect;
 
-var CONFIG = require("../src_new/config.js");
-var CONSTANTS = require("../src_new/constants.js");
-var UTIL = require("../src_new/util.js");
-var BID = require("../src_new/bid.js").Bid;
+var CONFIG = require("../src/config.js");
+var CONSTANTS = require("../src/constants.js");
+var UTIL = require("../src/util.js");
+var BID = require("../src/bid.js").Bid;
 
 var commonAdpterID = 'pubmatic';
 var commonDivID = "DIV_1";
