@@ -78,6 +78,7 @@ exports.transformPBBidToOWBid = transformPBBidToOWBid;
 
 function pbBidStreamHandler(pbBid){
 	var responseID = pbBid.adUnitCode || "";
+	var kgpv = "";
 
 	//OLD APPROACH
 	//serverSideEnabled: bid will contain the kgpv, divId, adapterId
@@ -119,18 +120,27 @@ function pbBidStreamHandler(pbBid){
 		/* check for pubmaticServerErrorCode. if undefined proceed with kgpv check. if not, it means server responded with error. 
 		   hence proceed without kgpv check. */
 		/* istanbul ignore else */
-		if(pbBid.pubmaticServerErrorCode === undefined && pbBid.bidderCode && CONFIG.isServerSideAdapter(pbBid.bidderCode)){
+		if(pbBid.bidderCode && CONFIG.isServerSideAdapter(pbBid.bidderCode)){
 			var divID = refThis.kgpvMap[responseID].divID;
 			var temp1 = refThis.getPBCodeWithWidthAndHeight(divID, pbBid.bidderCode, pbBid.width, pbBid.height);
 			var temp2 = refThis.getPBCodeWithoutWidthAndHeight(divID, pbBid.bidderCode);
 
 			if(util.isOwnProperty(refThis.kgpvMap, temp1)){
 				responseID = temp1;
+				kgpv = refThis.kgpvMap[responseID].kgpv;
 			}else if(util.isOwnProperty(refThis.kgpvMap, temp2)){
 				responseID = temp2;
+				kgpv = refThis.kgpvMap[responseID].kgpv;
 			}else{
-				util.log('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
-				return;
+				if (pbBid.pubmaticServerErrorCode === undefined) {
+					util.log('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
+					return;
+				}
+				/*  setting kgpv to blank here. Control has reached here, means pbBid.pubmaticServerErrorCode has some error code. 
+					In error condition, we do not have height and width in pbBid, hence set kgpv to "", so as to retain the original 
+					value of kgpv in bid object.
+				*/
+				kgpv = "";
 			}
 			pbBid.ss = CONFIG.isServerSideAdapter(pbBid.bidderCode) ? 1 : 0;
 		}
@@ -139,7 +149,7 @@ function pbBidStreamHandler(pbBid){
 		if(pbBid.bidderCode){
 			bidManager.setBidFromBidder(
 				refThis.kgpvMap[responseID].divID,
-				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv)
+				refThis.transformPBBidToOWBid(pbBid, kgpv)
 			);
 		}
 	}else{

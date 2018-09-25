@@ -24,6 +24,9 @@ AdapterEntry.prototype.getBid = function(bidID){
 };
 
 AdapterEntry.prototype.setNewBid = function(theBid){
+	if (theBid.kgpv === "") {
+		theBid.kgpv = this.bids[this.lastBidID].kgpv;
+	}
 	delete this.bids[this.lastBidID];
 	var bidID = theBid.getBidID();
 	this.bids[bidID] = theBid;
