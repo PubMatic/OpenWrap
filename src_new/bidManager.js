@@ -403,7 +403,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 
 			    /* if serverside adapter and 
                      db == 0 and
-                     getServerSideResponseTime returns 0, i means that server responded with error code 1/2/3/6
+                     getServerSideResponseTime returns 0, it means that server responded with error code 1/2/3/6
                      hence do not add entry in logger. 
                   */
 

@@ -1485,7 +1485,20 @@ describe('bidManager BIDMgr', function() {
 
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
 
-            impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb", "ss");
+            if (theBid.getServerSideStatus() && theBid.getDefaultBidStatus() === 0 && theBid.getServerSideResponseTime() === 0) {
+                /* if serverside adapter and
+                     db == 0 and
+                     getServerSideResponseTime returns 0, it means that server responded with error code 1/2/3/6
+                     hence do not add entry in logger.
+                */
+
+                expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+                expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
+                expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(0);
+
+            } else {
+                impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb", "ss");
+            }
             done();
         });
 
