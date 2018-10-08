@@ -340,7 +340,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 			outputObj.s = slots;
 			outputObj[CONSTANTS.COMMON.IMPRESSION_ID] = window.encodeURIComponent(impressionID);
 			// (new window.Image()).src = pixelURL + "&json=" + window.encodeURIComponent(JSON.stringify(outputObj));
-			util.utilAjaxCall(pixelURL,function(){},outputObj);
+			util.ajaxRequest(pixelURL, function(){}, JSON.stringify(outputObj));
 		}
 	});
 };

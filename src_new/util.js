@@ -866,7 +866,7 @@ exports.resetExternalBidderStatus = function(divIds) {
 	});
 };
 
-exports.utilAjaxCall = function(url, callback, data, options) {
+exports.ajaxRequest = function(url, callback, data, options) {
 	try {
 
 		options = options || {};
