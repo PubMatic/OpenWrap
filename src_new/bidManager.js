@@ -230,7 +230,7 @@ exports.getBid = function(divID){ // TDD, i/o : done
 	var winningBid = null;
 	var keyValuePairs = null;
 	/* istanbul ignore else */
-	if(window.PWT.bidMap && util.isOwnProperty(window.PWT.bidMap, divID) ){
+	if(util.isOwnProperty(window.PWT.bidMap, divID) ){
 		var data = refThis.auctionBids(window.PWT.bidMap[divID]);
 		winningBid = data.wb;
 		keyValuePairs = data.kvp;
@@ -437,11 +437,12 @@ exports.setImageSrcToPixelURL = function (pixelURL) { // TDD, i/o : done
 };
 
 
-exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
+/* exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
+	// earlier implementation. keeping it commented for reference. 
 	var status = true;
 
 	util.forEachOnArray(divIds, function (key, divId) {
-		(bidMaps && bidMaps[divId]) && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
+		bidMaps[divId] && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
 			util.forEachOnObject(adapter.bids, function (bidId, theBid) {
 				status = status && (theBid.getDefaultBidStatus() === 0);
 			});
@@ -449,4 +450,49 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 	});
 
 	return status;
+};*/ 
+
+exports.checkifBidsAvailable = function(bids) {
+    var retVal = false;
+    util.forEachOnObject(bids, function (bidId, theBid) {
+ 	   retVal = true;
+    });
+    return retVal;
+ }
+
+exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
+    /* updated logic:
+    return true when, for all partners, all slots return bids
+    in all other cases return false;
+    for each partner, check all slots, if all have bids, add value of 'status' variable to statusArray.
+    && all values in statusArray and return
+    */
+    var status = undefined;
+    var statusArray = [];
+    var refThis = this;
+    if (divIds.length === 0) {
+      return true; //based on the test case in bidManager.spec.js - "should return true if empty array of divIds is passed"
+    }
+    
+    util.forEachOnArray(divIds, function (key, divId) {
+      bidMaps[divId] && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
+        if (refThis.checkifBidsAvailable(adapter.bids)) {
+          util.forEachOnObject(adapter.bids, function (bidId, theBid) {
+            status = (status === undefined) ? (theBid.getDefaultBidStatus() === 0) : (status && (theBid.getDefaultBidStatus() === 0));
+          });
+        } else {
+          status = false;
+        }
+        //statusArray.push(status);
+        //status = undefined;
+      });
+    });
+    /*if (statusArray.length > 0) {
+      status = statusArray[0];
+      statusArray = statusArray.splice(1, statusArray.length);
+      util.forEachOnArray(statusArray, function(key, st) {
+        status = status && st;
+      });
+    }*/
+    return status;
 };

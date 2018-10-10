@@ -536,7 +536,7 @@ exports.processDisplayCalledSlot = processDisplayCalledSlot;
 
 
 function executeDisplay(timeout, divIds, callback) {
-    //util.log("time:" + t + " getExternalBidderStatus: " + q.getExternalBidderStatus(e) + " getAllPartnersBidStatuses:" + Q.getAllPartnersBidStatuses(window.PWT.bidMap, e));
+    util.log("time:" + timeout + " getExternalBidderStatus: " + util.getExternalBidderStatus(divIds) + " getAllPartnersBidStatuses:" + bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds));
     if (util.getExternalBidderStatus(divIds) && bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds)) {
         util.log('Resuming DFP flow at ' + new Date().getTime() + ' time');
         util.log("DFP call executed " +(timeout / 1000)+ " sec before global timeout");

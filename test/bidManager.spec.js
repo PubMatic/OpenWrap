@@ -1622,9 +1622,28 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('should return true if for divId no bids are send', function(done) {
-            BIDMgr.getAllPartnersBidStatuses(bidMaps, ["Div2"]).should.be.true;
+        // - revisit this test case based on recent discussion regarding external bidder issue
+         it('should return undefined if for divId no bids are send', function(done) {
+            var retVal = BIDMgr.getAllPartnersBidStatuses(bidMaps, ["Div2"])
+            expect(retVal).to.be.equal(undefined);
             done();
         });
+
+        it('should return true if for divId none of the bids are default bids', function(done) {
+            bidMaps['Div1'].adapters.prebid.bids['wfw21321wedfwe'].getDefaultBidStatus = function () {
+              return 0;
+            }
+            BIDMgr.getAllPartnersBidStatuses(bidMaps, ["Div1"]).should.be.true;
+            done();
+        });
+
+        // Is this test case valid
+        /*it('should return true if for divId all the bids are default bids', function(done) {
+            bidMaps['Div1'].adapters.pubmatic.bids['wfw21321wedfwe'].getDefaultBidStatus = function () {
+              return 1;
+            }
+            BIDMgr.getAllPartnersBidStatuses(bidMaps, ["Div1"]).should.be.true;
+            done();
+        });*/
     });
 });
