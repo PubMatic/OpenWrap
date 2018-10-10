@@ -333,7 +333,10 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {
 		refThis.analyticalPixelCallback(slotID, bmEntry, impressionIDMap);
 	});
-
+	if (util.isOwnProperty(impressionIDMap, 'psl')) {
+      outputObj.psl = impressionIDMap.psl;
+      delete impressionIDMap.psl;  
+    }
 	util.forEachOnObject(impressionIDMap, function(impressionID, slots){ /* istanbul ignore next */
 		/* istanbul ignore else */
 		if(slots.length > 0){
@@ -371,6 +374,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
     var startTime = bmEntry.getCreationTime();
+    var pslTime = impressionIDMap.psl;
     /* istanbul ignore else */
     if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
         var slotObject = {
@@ -389,11 +393,15 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                 return;
             }
 
-						if (adapterID === "pubmaticServer") {
-								return;
-						}
-
             util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+
+				var endTime = theBid.getReceivedTime();
+				if (adapterID === "pubmaticServer") {
+					var latency = (endTime - startTime);
+					pslTime = (pslTime === undefined) ? latency :
+							  (latency > pslTime ? latency : pslTime);
+					return;
+				}
 
             		if(CONFIG.getAdapterMaskBidsStatus(adapterID) == 1){
 					        	if(theBid.getWinningBidStatus() === false){
@@ -401,7 +409,6 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					        	}
 			        	}
 
-                var endTime = theBid.getReceivedTime();
                 //todo: take all these key names from constants
                 slotObject["ps"].push({
                     "pn": adapterID,
@@ -423,6 +430,9 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
         });
 
         impressionIDMap[impressionID].push(slotObject);
+		if (pslTime !== undefined) {
+			impressionIDMap.psl = pslTime;
+		}
     }
 }
 
