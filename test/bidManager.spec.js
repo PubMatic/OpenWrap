@@ -1084,8 +1084,6 @@ describe('bidManager BIDMgr', function() {
     describe('#executeAnalyticsPixel', function() {
         var slotID_1 =  null, slotID_2 = null;
         var bmEntryStub_1 = null, bmEntryStub_2 = null;
-        var impressionIDMap = null, theBid = null;
-        var impressionID = 123123;
 
         beforeEach(function(done) {
             sinon.stub(CONFIG, "getAnalyticsPixelURL").returns("http://pb.analytics.com/dm/");
@@ -1114,9 +1112,6 @@ describe('bidManager BIDMgr', function() {
             window.PWT.bidMap[slotID_2] = bmEntryStub_2;
 
             sinon.stub(BIDMgr, "analyticalPixelCallback");
-
-            impressionIDMap = {};
-            theBid = new bid(commonAdpterID, commonKGPV);
 
             done();
         });
