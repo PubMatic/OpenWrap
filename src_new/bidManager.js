@@ -394,20 +394,19 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
             }
 
             util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
-
 				var endTime = theBid.getReceivedTime();
 				if (adapterID === "pubmaticServer") {
 					var latency = (endTime - startTime);
 					pslTime = (pslTime === undefined) ? latency :
-							  (latency > pslTime ? latency : pslTime);
+							(latency > pslTime ? latency : pslTime);
 					return;
 				}
 
-            		if(CONFIG.getAdapterMaskBidsStatus(adapterID) == 1){
-					        	if(theBid.getWinningBidStatus() === false){
-					        			return;
-					        	}
-			        	}
+				if(CONFIG.getAdapterMaskBidsStatus(adapterID) == 1){
+					if(theBid.getWinningBidStatus() === false){
+						return;
+					}
+				}
 
                 //todo: take all these key names from constants
                 slotObject["ps"].push({
