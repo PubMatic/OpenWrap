@@ -1374,18 +1374,6 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, "getWinningBidStatus");
 
             serverSideBid = new bid(serverAdapterID, commonKGPV);
-            sinon.spy(serverSideBid, "getReceivedTime");
-            sinon.spy(serverSideBid, "getDefaultBidStatus");
-            sinon.spy(serverSideBid, "getKGPV");
-            sinon.spy(serverSideBid, "getWidth");
-            sinon.spy(serverSideBid, "getHeight");
-            sinon.spy(serverSideBid, "getGrossEcpm");
-            sinon.spy(serverSideBid, "getNetEcpm");
-            sinon.spy(serverSideBid, "getDealID");
-            sinon.spy(serverSideBid, "getDealChannel");
-            sinon.spy(serverSideBid, "getPostTimeoutStatus");
-            sinon.spy(serverSideBid, "getWinningBidStatus");
-
             impressionIDMap = {};
             done();
         });
