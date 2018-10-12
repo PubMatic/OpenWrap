@@ -15,8 +15,8 @@ LAWS AND INTERNATIONAL TREATIES.  THE RECEIPT OR POSSESSION OF  THIS SOURCE CODE
 TO REPRODUCE, DISCLOSE OR DISTRIBUTE ITS CONTENTS, OR TO MANUFACTURE, USE, OR SELL ANYTHING THAT IT  MAY DESCRIBE, IN WHOLE OR IN PART.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-3.3.9.xsd">
+    <modelVersion>3.3.9</modelVersion>
 
     <groupId>com.pubmatic</groupId>
     <artifactId>OpenWrap</artifactId>
@@ -26,10 +26,10 @@ TO REPRODUCE, DISCLOSE OR DISTRIBUTE ITS CONTENTS, OR TO MANUFACTURE, USE, OR SE
         <sonar.projectKey>OpenWrap</sonar.projectKey>
         <sonar.projectName>OpenWrap</sonar.projectName>
         <sonar.projectVersion>13.3.0</sonar.projectVersion>
-        <sonar.sources>app</sonar.sources>
-        <sonar.exclusions>app/jspm_packages/**/*,app/bower_components/**/*,**/*.test.js,**/*.spec.js,**/*.protractor.js,app/test-helpers/**/*,app/test-helpers/**/*</sonar.exclusions>
+        <sonar.sources>src_new</sonar.sources>
+        <sonar.exclusions>app/jspm_packages/**/*,app/bower_components/**/*,app/node_modules/**/*,**/*.test.js,**/*.spec.js,**/*.protractor.js,app/test-helpers/**/*,app/test-helpers/**/*</sonar.exclusions>
         <sonar.language>js</sonar.language>
         <sonar.javascript.lcov.reportPath>reports/coverage/lcov/lcov.info</sonar.javascript.lcov.reportPath>
-        <sonar.jira.project.key>DM</sonar.jira.project.key>
+        <sonar.jira.project.key>UOE</sonar.jira.project.key>
     </properties>
 </project>
