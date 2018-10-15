@@ -396,9 +396,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 			util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
 				var endTime = theBid.getReceivedTime();
 				if (adapterID === "pubmaticServer") {
-					var latency = (endTime - startTime);
-					pslTime = (pslTime === undefined) ? latency :
-							(latency > pslTime ? latency : pslTime);
+					pslTime = window.owResponseTime;
 					return;
 				}
 
