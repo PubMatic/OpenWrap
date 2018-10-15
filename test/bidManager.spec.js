@@ -1370,6 +1370,7 @@ describe('bidManager BIDMgr', function() {
 
             serverSideBid = new bid(serverAdapterID, commonKGPV);
             impressionIDMap = {};
+            window.PWT.owLatency = 25;
             done();
         });
 
