@@ -399,6 +399,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 						pslTime = (window.PWT.owLatency[impressionID].endTime - window.PWT.owLatency[impressionID].startTime);
 					} else {
 						pslTime = 0;
+						util.log("Logging pubmaticServer latency as 0 for impressionID: " + impressionID);
 					}
 					util.log("PSL logging: time logged for id " +impressionID+ " is " + pslTime);
 					return;
