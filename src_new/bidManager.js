@@ -451,3 +451,47 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 
 	return status;
 };
+
+exports.getAllPartnersBidStatuses1 = function (bidMaps, divIds) {
+	var status = true;
+
+	util.forEachOnArray(divIds, function (key, divId) {
+		bidMaps[divId] && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
+			util.forEachOnObject(adapter.bids, function (bidId, theBid) {
+				status = status && (theBid.getDefaultBidStatus() === 0);
+			});
+		});
+	});
+
+	return status;
+};
+
+
+exports.getAllPartnersBidStatuses2 = function (bidMaps, divIds) {
+	var status = true;
+
+	util.forEachOnArray(divIds, function (key, divId) {
+		bidMaps[divId] && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
+			util.forEachOnObject(adapter.bids, function (bidId, theBid) {
+				status = status && (theBid.getDefaultBidStatus() === 0);
+			});
+		});
+	});
+
+	return status;
+};
+
+
+exports.getAllPartnersBidStatuses3 = function (bidMaps, divIds) {
+	var status = true;
+
+	util.forEachOnArray(divIds, function (key, divId) {
+		bidMaps[divId] && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
+			util.forEachOnObject(adapter.bids, function (bidId, theBid) {
+				status = status && (theBid.getDefaultBidStatus() === 0);
+			});
+		});
+	});
+
+	return status;
+};
