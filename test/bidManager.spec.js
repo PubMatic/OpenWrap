@@ -1370,7 +1370,12 @@ describe('bidManager BIDMgr', function() {
 
             serverSideBid = new bid(serverAdapterID, commonKGPV);
             impressionIDMap = {};
-            window.PWT.owLatency = 25;
+            window.PWT.owLatency = {
+             impressionID: {
+                startTime: 30,
+                endTime: 25
+             }
+            }
             done();
         });
 
@@ -1505,7 +1510,7 @@ describe('bidManager BIDMgr', function() {
 
             CONFIG.getBidPassThroughStatus.returns(2);
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
-            expect(impressionIDMap.psl).exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()].psl).exist;
             done();
         });
 
