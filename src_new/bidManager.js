@@ -333,12 +333,12 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {
 		refThis.analyticalPixelCallback(slotID, bmEntry, impressionIDMap);
 	});
-
 	util.forEachOnObject(impressionIDMap, function(impressionID, slots){ /* istanbul ignore next */
 		/* istanbul ignore else */
 		if(slots.length > 0){
 			outputObj.s = slots;
 			outputObj[CONSTANTS.COMMON.IMPRESSION_ID] = window.encodeURIComponent(impressionID);
+			outputObj.psl = slots.psl;
 			(new window.Image()).src = pixelURL + "&json=" + window.encodeURIComponent(JSON.stringify(outputObj));
 		}
 	});
@@ -370,7 +370,9 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 };
 
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
-    var startTime = bmEntry.getCreationTime();
+	var startTime = bmEntry.getCreationTime();
+	var pslTime = undefined;
+	var impressionID = bmEntry.getImpressionID();
     /* istanbul ignore else */
     if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
         var slotObject = {
@@ -380,7 +382,6 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
         };
 
         bmEntry.setExpired();
-        var impressionID = bmEntry.getImpressionID();
         impressionIDMap[impressionID] = impressionIDMap[impressionID] || [];
 
         util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
@@ -389,19 +390,27 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                 return;
             }
 
-						if (adapterID === "pubmaticServer") {
-								return;
-						}
+			util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+				var endTime = theBid.getReceivedTime();
+				if (adapterID === "pubmaticServer") {
+					if ((util.isOwnProperty(window.PWT.owLatency, impressionID)) &&
+						(util.isOwnProperty(window.PWT.owLatency[impressionID], "startTime")) &&
+							(util.isOwnProperty(window.PWT.owLatency[impressionID], "endTime"))) {
+						pslTime = (window.PWT.owLatency[impressionID].endTime - window.PWT.owLatency[impressionID].startTime);
+					} else {
+						pslTime = 0;
+						util.log("Logging pubmaticServer latency as 0 for impressionID: " + impressionID);
+					}
+					util.log("PSL logging: time logged for id " +impressionID+ " is " + pslTime);
+					return;
+				}
 
-            util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+				if(CONFIG.getAdapterMaskBidsStatus(adapterID) == 1){
+					if(theBid.getWinningBidStatus() === false){
+						return;
+					}
+				}
 
-            		if(CONFIG.getAdapterMaskBidsStatus(adapterID) == 1){
-					        	if(theBid.getWinningBidStatus() === false){
-					        			return;
-					        	}
-			        	}
-
-                var endTime = theBid.getReceivedTime();
                 //todo: take all these key names from constants
                 slotObject["ps"].push({
                     "pn": adapterID,
@@ -423,6 +432,9 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
         });
 
         impressionIDMap[impressionID].push(slotObject);
+		if (pslTime !== undefined) {
+			impressionIDMap[impressionID].psl = pslTime;
+		}
     }
 }
 

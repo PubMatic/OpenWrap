@@ -15,6 +15,7 @@ var bid = require('../src_new/bid.js').Bid;
 var conf = require("../src_new/conf");
 
 var commonAdpterID = 'pubmatic';
+var serverAdapterID = "pubmaticServer";
 var commonDivID = "DIV_1";
 var commonKGPV = "XYZ";
 var commonBidID = '9886ade8a';
@@ -1335,11 +1336,13 @@ describe('bidManager BIDMgr', function() {
             bmEntryObj = null,
             impressionIDMap = null;
         var theBid = null;
+        var impressionID = null;
+        var serverSideBid = null;
 
         beforeEach(function(done) {
             slotID = "Slot_1";
             bmEntryObj = new bmEntryContstuctor("pubmatic");
-
+            impressionID = "12345";
 
             sinon.stub(bmEntryObj, "getCreationTime");
             sinon.stub(bmEntryObj, "getAnalyticEnabledStatus");
@@ -1364,7 +1367,15 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, "getDealChannel");
             sinon.spy(theBid, "getPostTimeoutStatus");
             sinon.spy(theBid, "getWinningBidStatus");
+
+            serverSideBid = new bid(serverAdapterID, commonKGPV);
             impressionIDMap = {};
+            window.PWT.owLatency = {
+             impressionID: {
+                startTime: 30,
+                endTime: 25
+             }
+            }
             done();
         });
 
@@ -1484,6 +1495,33 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
 
             impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb", "ss");
+            done();
+        });
+
+        it('should log PubMatic server side latency in psl field for serverside partners', function(done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry(commonAdpterID);
+            theBid.setServerSideStatus(1);
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+
+            bmEntryObj.setAdapterEntry(serverAdapterID);
+            serverSideBid.setServerSideStatus(0);
+            bmEntryObj.setNewBid(serverAdapterID, serverSideBid);
+
+            CONFIG.getBidPassThroughStatus.returns(2);
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            expect(impressionIDMap[bmEntryObj.getImpressionID()].psl).exist;
+            done();
+        });
+
+        it('should not log PubMatic server side latency in psl field is pubmaticServer partner is not present', function(done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry(commonAdpterID);
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+            CONFIG.getBidPassThroughStatus.returns(2);
+
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            expect(impressionIDMap.psl).to.not.exist;
             done();
         });
 
