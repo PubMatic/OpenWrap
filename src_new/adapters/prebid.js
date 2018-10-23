@@ -38,6 +38,7 @@ function transformPBBidToOWBid(bid, kgpv){
 	theBid.setAdUrl(bid.adUrl || "");
 	theBid.setWidth(bid.width);
 	theBid.setHeight(bid.height);
+	theBid.setMi(bid.mi);
 
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
@@ -116,8 +117,10 @@ function pbBidStreamHandler(pbBid){
 			}else if(util.isOwnProperty(refThis.kgpvMap, temp2)){
 				responseID = temp2;
 			}else{
-				util.log('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
-				return;
+				if (pbBid.pubmaticServerErrorCode === undefined) {
+					util.log('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
+		        	return;
+		        } 
 			}
 			pbBid.ss = CONFIG.isServerSideAdapter(pbBid.bidderCode) ? 1 : 0;
 		}
