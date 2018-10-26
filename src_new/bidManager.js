@@ -118,7 +118,6 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
         if (adapterEntry.getLastBidID() != "") {
 					// If pubmaticServerBidAdapter then don't increase partnerCount
 					(adapterID !== "pubmaticServer") && partnerCount++;
-
 					util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
         		if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1){
         			return;
@@ -374,7 +373,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 };
 
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
-	var startTime = bmEntry.getCreationTime();
+	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = undefined;
 	var impressionID = bmEntry.getImpressionID();
     /* istanbul ignore else */
@@ -414,7 +413,17 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 						return;
 					}
 				}
-
+				/* if serverside adapter and
+                     db == 0 and
+                     getServerSideResponseTime returns -1, it means that server responded with error code 1/2/6
+                     hence do not add entry in logger.
+                  */
+	            if (theBid.getServerSideStatus()) {
+	              if (theBid.getDefaultBidStatus() === 0 &&
+	                theBid.getServerSideResponseTime() === -1) {
+	                return;
+	              }
+	            }
                 //todo: take all these key names from constants
                 slotObject["ps"].push({
                     "pn": adapterID,
