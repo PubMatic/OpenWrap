@@ -865,3 +865,53 @@ exports.resetExternalBidderStatus = function(divIds) {
 		window.OWT.externalBidderStatuses[divId] = undefined;
 	});
 };
+
+exports.ajaxRequest = function(url, callback, data, options) {
+	try {
+
+		options = options || {};
+
+		var x,
+			XHR_DONE = 4,				
+			ajaxSupport = true,
+			method = options.method || (data ? "POST" : "GET")
+			;
+
+		if(!window.XMLHttpRequest){
+			ajaxSupport = false;
+		}else{
+			x = new window.XMLHttpRequest();
+			if(refThis.isUndefined(x.responseType)){
+				ajaxSupport = false;
+			}
+		}
+
+		if(!ajaxSupport){
+			refThis.log("Ajax is not supported");
+			return;
+		}
+
+		x.onreadystatechange = function (){
+			if(x.readyState === XHR_DONE && callback){
+				callback(x.responseText, x);
+			}
+		};
+
+		x.open(method, url);
+		
+		if(options.withCredentials){
+			x.withCredentials = true;
+		}
+
+		if(options.preflight){
+			x.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+		}
+
+		x.setRequestHeader("Content-Type", options.contentType || "text/plain");		
+		x.send(method === "POST" && data);
+
+	}catch(error){
+		refThis.log("Failed in Ajax");
+		refThis.log(error);
+	}
+};
