@@ -60,8 +60,10 @@ function transformPBBidToOWBid(bid, kgpv){
 		theBid.setHeight(0);
 	} else if (pubmaticServerErrorCode === 3 || pubmaticServerErrorCode === 5) {
 		theBid.setDefaultBidStatus(1);
-		theBid.setPostTimeoutStatus();
-	} else { // handle errorCode = 4 & any other if present
+		if (theBid.isServerSide === 0) {
+			theBid.setPostTimeoutStatus();
+		}
+	} else {
 		pubmaticServerErrorCode && theBid.setDefaultBidStatus(1);
 	}
 
@@ -128,10 +130,8 @@ function pbBidStreamHandler(pbBid){
 			}else if(util.isOwnProperty(refThis.kgpvMap, temp2)){
 				responseID = temp2;
 			}else{
-				if (pbBid.pubmaticServerErrorCode === undefined) {
 					util.log('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
 		        	return;
-		        } 
 			}
 			pbBid.ss = CONFIG.isServerSideAdapter(pbBid.bidderCode) ? 1 : 0;
 		}

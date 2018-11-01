@@ -85,7 +85,7 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 	};
 
 	/* istanbul ignore else */
-	if(theBid.getDefaultBidStatus() === 0){
+	if(theBid.getDefaultBidStatus() === 0 && theBid.adapterID !== "pubmaticServer"){
 		util.vLogInfo(slotID, {
 			type: "bid",
 			bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(Passthrough)' : ''),
@@ -417,6 +417,9 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                      db == 0 and
                      getServerSideResponseTime returns -1, it means that server responded with error code 1/2/6
                      hence do not add entry in logger.
+                     keeping the check for responseTime on -1 since there could be a case where:
+						ss status = 1, db status = 0, and responseTime is 0, but error code is 4, i,e. no bid. And for error code 4, 
+						we want to log the data not skip it.
                   */
 	            if (theBid.getServerSideStatus()) {
 	              if (theBid.getDefaultBidStatus() === 0 &&

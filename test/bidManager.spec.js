@@ -1518,7 +1518,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getBidPassThroughStatus.returns(2);
 
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
-            if (theBid.getServerSideStatus() && theBid.getDefaultBidStatus() === 0 && theBid.getServerSideResponseTime() === 0) {
+            if (theBid.getServerSideStatus() && theBid.getDefaultBidStatus() === 0 && theBid.getServerSideResponseTime() === -1) {
                 /* if serverside adapter and
                      db == 0 and
                      getServerSideResponseTime returns 0, it means that server responded with error code 1/2/3/6
