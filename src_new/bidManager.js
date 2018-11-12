@@ -45,7 +45,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 
 	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", postTimeout: "+isPostTimeout + ", defaultBid: " + bidDetails.getDefaultBidStatus());
 	/* istanbul ignore else */
-	if(isPostTimeout === true){
+	if(isPostTimeout === true && !bidDetails.isServerSide){
 		bidDetails.setPostTimeoutStatus();
 	}
 
