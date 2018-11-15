@@ -1619,13 +1619,14 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('slotObject should not be populated with bid if adapter is serverside, latency is -1 and default status is 0', function(done) {
+        it('slotObject should not be populated with bid if adapter is serverside, latency is -1 and default status is -1', function(done) {
             bmEntryObj.getAnalyticEnabledStatus.returns(true);
             bmEntryObj.setAdapterEntry(commonAdpterID);
             bmEntryObj.setNewBid(commonAdpterID, theBid);
             CONFIG.getBidPassThroughStatus.returns(2);
             theBid.setServerSideStatus(1);
             theBid.setServerSideResponseTime(-1);
+            theBid.setDefaultBidStatus(-1);
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
 
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0].sn).to.equal("Slot_1");

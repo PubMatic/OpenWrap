@@ -112,30 +112,30 @@ describe('ADAPTER: Prebid', function() {
 
         it('should handle pubmaticServerErrorCode correctly', function(done) {
             var theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
-            theBid.getDefaultBidStatus().should.be.equal(0);
+            theBid.getDefaultBidStatus().should.be.equal(-1);
             theBid.getWidth().should.be.equal(0);
             theBid.getHeight().should.be.equal(0);
 
             errorBid.pubmaticServerErrorCode = 2;
             theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
-            theBid.getDefaultBidStatus().should.be.equal(0);
+            theBid.getDefaultBidStatus().should.be.equal(-1);
             theBid.getWidth().should.be.equal(0);
             theBid.getHeight().should.be.equal(0);
 
             errorBid.pubmaticServerErrorCode = 4;
             theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
             theBid.getDefaultBidStatus().should.be.equal(0);
-            theBid.getWidth().should.be.equal(0);
-            theBid.getHeight().should.be.equal(0);
+            theBid.getWidth().should.be.equal(210);
+            theBid.getHeight().should.be.equal(420);
 
             errorBid.pubmaticServerErrorCode = 3;
             theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
-            theBid.getDefaultBidStatus().should.be.equal(1);
+            theBid.getDefaultBidStatus().should.be.equal(0);
             theBid.getPostTimeoutStatus().should.be.true;
 
             errorBid.pubmaticServerErrorCode = 5;
             theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
-            theBid.getDefaultBidStatus().should.be.equal(1);
+            theBid.getDefaultBidStatus().should.be.equal(0);
             theBid.getPostTimeoutStatus().should.be.true;
             done();
         });

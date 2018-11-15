@@ -422,7 +422,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 						we want to log the data not skip it.
                   */
 	            if (theBid.getServerSideStatus()) {
-	              if (theBid.getDefaultBidStatus() === 0 &&
+	              if (theBid.getDefaultBidStatus() === -1 &&
 	                theBid.getServerSideResponseTime() === -1) {
 	                return;
 	              }

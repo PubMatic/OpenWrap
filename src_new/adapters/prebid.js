@@ -54,12 +54,12 @@ function transformPBBidToOWBid(bid, kgpv){
 		7 = NO_GDPR_CONSENT_ERROR
 		500 = API_RESPONSE_ERROR
 	*/
-	if(pubmaticServerErrorCode === 1 || pubmaticServerErrorCode === 2 || pubmaticServerErrorCode === 4 || pubmaticServerErrorCode === 6) {
-		theBid.setDefaultBidStatus(0);
+	if(pubmaticServerErrorCode === 1 || pubmaticServerErrorCode === 2 || pubmaticServerErrorCode === 6) {
+		theBid.setDefaultBidStatus(-1);
 		theBid.setWidth(0);
 		theBid.setHeight(0);
-	} else if (pubmaticServerErrorCode === 3 || pubmaticServerErrorCode === 5) {
-		theBid.setDefaultBidStatus(1);
+	} else if (pubmaticServerErrorCode === 3 || pubmaticServerErrorCode === 4 || pubmaticServerErrorCode === 5) {
+		theBid.setDefaultBidStatus(0);
 		if (theBid.isServerSide === 0) {
 			theBid.setPostTimeoutStatus();
 		}
