@@ -120,7 +120,7 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
 					(adapterID !== "pubmaticServer") && partnerCount++;
 
 					util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
-        		if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1){
+        		if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1 || (adapterID == "pubmatic" && theBid.netEcpm == 0)){
         			return;
         		}
 		        validBidCount++;
