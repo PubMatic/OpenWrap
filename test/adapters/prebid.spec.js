@@ -616,7 +616,7 @@ describe('ADAPTER: Prebid', function() {
 
             sinon.stub(PREBID, 'generatePbConf');
             PREBID.generatePbConf.returns(true);
-            window.pbjs = {
+            window.owpbjs = {
 
             };
             sinon.stub(AM, "getRandomNumberBelow100").returns(89);
@@ -628,12 +628,12 @@ describe('ADAPTER: Prebid', function() {
                 }
             };
             sinon.spy(windowPbJS2Stub, "onEvent");
-            window["pbjs"] = windowPbJS2Stub;
+            window["owpbjs"] = windowPbJS2Stub;
 
             sinon.stub(global.window || window, "pwtCreatePrebidNamespace", function pwtCreatePrebidNamespace(preBidNameSpace) {
-                window["pbjs"] = windowPbJS2Stub;
-                window["pbjs"].que = [];
-                window["pbjs"].setConfig = function () {
+                window["owpbjs"] = windowPbJS2Stub;
+                window["owpbjs"].que = [];
+                window["owpbjs"].setConfig = function () {
                   return true;
                 };
             });
@@ -667,7 +667,7 @@ describe('ADAPTER: Prebid', function() {
                 window.pwtCreatePrebidNamespace.restore();
             }
 
-            delete window.pbjs;
+            delete window.owpbjs;
             done();
         });
 
@@ -678,7 +678,7 @@ describe('ADAPTER: Prebid', function() {
 
         // TODO: Need to fix this testcase somehow
         it('returns while logging it when Prebid js is not loaded', function(done) {
-            // sinon.stub(global.window || window, "pwtCreatePrebidNamespace").withArgs("pbjs").returns(true);
+            // sinon.stub(global.window || window, "pwtCreatePrebidNamespace").withArgs("owpbjs").returns(true);
             PREBID.fetchBids(activeSlots, impressionID);
             // UTIL.log.calledWith("PreBid js is not loaded").should.be.true;
             CONFIG.forEachAdapter.called.should.be.false;
@@ -694,7 +694,7 @@ describe('ADAPTER: Prebid', function() {
 
         it('should have called setConfig method', function (done) {
             PREBID.fetchBids(activeSlots, impressionID);
-            window["pbjs"].setConfig.should.be.called;
+            window["owpbjs"].setConfig.should.be.called;
             CONFIG.getGdpr().should.be.true;
             CONFIG.getCmpApi().should.be.called;
 						CONFIG.getGdprTimeout().should.be.called;
@@ -731,19 +731,19 @@ describe('ADAPTER: Prebid', function() {
         it('prebid logging is disabled by default', function(done) {
             UTIL.isFunction.returns(true);
             UTIL.isDebugLogEnabled.returns(false);
-            window["pbjs"].logging = false;
+            window["owpbjs"].logging = false;
             PREBID.fetchBids(activeSlots, impressionID);
-            window["pbjs"].logging.should.be.false;
+            window["owpbjs"].logging.should.be.false;
             done();
         });
 
         it('prebid logging is enabled when ', function(done) {
             UTIL.isFunction.returns(true);
             UTIL.isDebugLogEnabled.returns(true);
-            window["pbjs"].logging = false;
-            window["pbjs"].requestBids = function(){};
+            window["owpbjs"].logging = false;
+            window["owpbjs"].requestBids = function(){};
             PREBID.fetchBids(activeSlots, impressionID);
-            window["pbjs"].logging.should.be.true;
+            window["owpbjs"].logging.should.be.true;
             done();
         });
 

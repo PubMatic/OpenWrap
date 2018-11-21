@@ -14,7 +14,7 @@ var CONF = require("../conf.js");
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
-var pbNameSpace = "pbjs";
+var pbNameSpace = "owpbjs";
 
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
