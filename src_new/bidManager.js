@@ -45,7 +45,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 
 	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", postTimeout: "+isPostTimeout + ", defaultBid: " + bidDetails.getDefaultBidStatus());
 	/* istanbul ignore else */
-	if(isPostTimeout === true){
+	if(isPostTimeout === true /*&& !bidDetails.isServerSide*/){
 		bidDetails.setPostTimeoutStatus();
 	}
 
@@ -85,7 +85,7 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 	};
 
 	/* istanbul ignore else */
-	if(theBid.getDefaultBidStatus() === 0){
+	if(theBid.getDefaultBidStatus() === 0 && theBid.adapterID !== "pubmaticServer"){
 		util.vLogInfo(slotID, {
 			type: "bid",
 			bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(Passthrough)' : ''),
@@ -118,7 +118,6 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
         if (adapterEntry.getLastBidID() != "") {
 					// If pubmaticServerBidAdapter then don't increase partnerCount
 					(adapterID !== "pubmaticServer") && partnerCount++;
-
 					util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
         		if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1){
         			return;
@@ -374,7 +373,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 };
 
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
-	var startTime = bmEntry.getCreationTime();
+	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = undefined;
 	var impressionID = bmEntry.getImpressionID();
     /* istanbul ignore else */
@@ -414,7 +413,20 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 						return;
 					}
 				}
-
+				/* if serverside adapter and
+                     db == 0 and
+                     getServerSideResponseTime returns -1, it means that server responded with error code 1/2/6
+                     hence do not add entry in logger.
+                     keeping the check for responseTime on -1 since there could be a case where:
+						ss status = 1, db status = 0, and responseTime is 0, but error code is 4, i,e. no bid. And for error code 4, 
+						we want to log the data not skip it.
+                  */
+	            if (theBid.getServerSideStatus()) {
+	              if (theBid.getDefaultBidStatus() === -1 &&
+	                theBid.getServerSideResponseTime() === -1) {
+	                return;
+	              }
+	            }
                 //todo: take all these key names from constants
                 slotObject["ps"].push({
                     "pn": adapterID,
@@ -430,7 +442,8 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "l2": 0,
 					"ss": theBid.getServerSideStatus(),
                     "t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
-                    "wb": theBid.getWinningBidStatus() === true ? 1 : 0
+                    "wb": theBid.getWinningBidStatus() === true ? 1 : 0,
+                    "mi": theBid.getServerSideStatus() ? theBid.getMi() : undefined
                 });
             })
         });

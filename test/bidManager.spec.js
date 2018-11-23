@@ -1491,10 +1491,45 @@ describe('bidManager BIDMgr', function() {
             bmEntryObj.setAdapterEntry(commonAdpterID);
             bmEntryObj.setNewBid(commonAdpterID, theBid);
             CONFIG.getBidPassThroughStatus.returns(2);
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            //impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "ss", "t", "wb");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].pn).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].bidid).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].db).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].kgpv).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].psz).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].eg).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].en).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].di).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].dc).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].l1).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].l2).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].t).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].wb).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].ss).to.exist;
+            
+			done()
+        });
+
+        it('should not log any entry in logger for serverside adapter, server responds with error codes 1/2/3/6', function(done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry(commonAdpterID);
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+            CONFIG.getBidPassThroughStatus.returns(2);
 
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            if (theBid.getServerSideStatus() && theBid.getDefaultBidStatus() === 0 && theBid.getServerSideResponseTime() === -1) {
+                /* if serverside adapter and
+                     db == 0 and
+                     getServerSideResponseTime returns 0, it means that server responded with error code 1/2/3/6
+                     hence do not add entry in logger.
+                */
 
-            impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb", "ss");
+                expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+                expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
+                expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(0);
+
+            } 
             done();
         });
 
@@ -1544,7 +1579,21 @@ describe('bidManager BIDMgr', function() {
             bmEntryObj.setNewBid("audienceNetwork", theBid);
             CONFIG.getBidPassThroughStatus.returns(2);
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
-            impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb", "ss");
+            //impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb", "ss");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].pn).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].bidid).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].db).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].kgpv).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].psz).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].eg).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].en).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].di).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].dc).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].l1).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].l2).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].t).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].wb).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].ss).to.exist;
             done();
         });
 
@@ -1567,6 +1616,22 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getBidPassThroughStatus.returns(2);
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
             impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"].length.should.equal(0);
+            done();
+        });
+
+        it('slotObject should not be populated with bid if adapter is serverside, latency is -1 and default status is -1', function(done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry(commonAdpterID);
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+            CONFIG.getBidPassThroughStatus.returns(2);
+            theBid.setServerSideStatus(1);
+            theBid.setServerSideResponseTime(-1);
+            theBid.setDefaultBidStatus(-1);
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].sn).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].ps).to.be.an('array').that.is.empty;
+
             done();
         });
     });
