@@ -123,7 +123,7 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
 				// Description-> adapterID == "pubmatic" && theBid.netEcpm == 0 this check is put because from pubmaticBidAdapter in prebid we are 
 				// passing zero bid when there are no bid under timout for latency reports and this caused issue to have zero bids in pwtm key 
 				// so put this check which will not log zero bids for pubmatic. Note : From prebid 1.x onwards we do not get zero bids in case of no bids.
-				if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1 || (adapterID == "pubmatic" && theBid.netEcpm == 0)){
+				if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1 || theBid.getGrossEcpm() == 0){
         			return;
         		}
 		        validBidCount++;
