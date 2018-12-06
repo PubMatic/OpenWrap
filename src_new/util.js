@@ -861,7 +861,7 @@ exports.resetExternalBidderStatus = function(divIds) {
 
 
 // This common function can be used add hooks for publishers to make changes in flows
-exports.handleHook(hookName, arrayOfDataToPass){
+exports.handleHook = function(hookName, arrayOfDataToPass) {
 	// Adding a hook for publishers to modify the data we have
 
 	if(refThis.isFunction(window.pwt[hookName])){
