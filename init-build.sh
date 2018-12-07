@@ -49,14 +49,14 @@ then
       exit 1
 fi
 
-OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR_V1_21}/node_modules/"
+OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR_V1_35_0}/node_modules/"
 
 
 function prebidNpmInstall() {
 
   cd $1
 
-  PrebidJSNodeModules="${GLOBAL_PREBID_PKG_JSON_DIR_V1_21}/node_modules/"
+  PrebidJSNodeModules="${GLOBAL_PREBID_PKG_JSON_DIR_V1_35_0}/node_modules/"
 
   symLinkForPrebidNodeModules=node_modules
   if [ -L $symLinkForPrebidNodeModules ]; then
