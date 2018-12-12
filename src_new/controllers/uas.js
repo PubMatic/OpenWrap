@@ -131,6 +131,8 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
         phoenixDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID, CONFIG.getPublisherId());
         phoenixDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID());
         phoenixDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID, CONFIG.getProfileDisplayVersionID());
+        phoenixDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_PLATFORM_KEY, CONSTANTS.PLATFORM_VALUES.DISPLAY); 
+
     }
 
     // attaching keyValuePairs from adapters
