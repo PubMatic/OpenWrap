@@ -29,7 +29,7 @@ TO REPRODUCE, DISCLOSE OR DISTRIBUTE ITS CONTENTS, OR TO MANUFACTURE, USE, OR SE
         <sonar.sources>src_new</sonar.sources>
         <sonar.exclusions>app/jspm_packages/**/*,app/bower_components/**/*,app/node_modules/**/*,**/*.test.js,**/*.spec.js,**/*.protractor.js,app/test-helpers/**/*,app/test-helpers/**/*</sonar.exclusions>
         <sonar.language>js</sonar.language>
-        <sonar.javascript.lcov.reportPath>reports/coverage/lcov/lcov.info</sonar.javascript.lcov.reportPath>
+        <sonar.javascript.lcov.reportPath>build/coverage/lcov/lcov.info</sonar.javascript.lcov.reportPath>
         <sonar.jira.project.key>UOE</sonar.jira.project.key>
     </properties>
 </project>

@@ -23,6 +23,7 @@ function Bid(adapterID, kgpv){
 	this.isWinningBid = false;
 	this.status = 0;
 	this.serverSideResponseTime = 0;
+	this.mi = undefined;
 }
 
 Bid.prototype.setServerSideResponseTime = function (ssResponseTime) {
@@ -225,6 +226,14 @@ Bid.prototype.setSendAllBidsKeys = function(){
 	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE+'_'+this.adapterID, this.width + 'x' + this.height);
 };
 
+Bid.prototype.setMi = function(mi){
+	this.mi = mi;
+	return this;
+};
+
+Bid.prototype.getMi = function(){
+	return this.mi;
+};
 
 /* start-test-block */
 module.exports.Bid = Bid;
