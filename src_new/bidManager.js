@@ -299,6 +299,19 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 	}
 };
 
+exports.displayNewCreativeByPM = function(theDocument, bidID){ // TDD, i/o : done
+	var bidDetails = refThis.getBidById(bidID);
+	/* istanbul ignore else */
+	if(bidDetails){
+		var theBid = bidDetails.bid,
+			divID = bidDetails.slotid
+		;
+		util.displayCreative(theDocument, theBid);
+		util.vLogInfo(divID, {type: 'disp', adapter: theBid.getAdapterID()});
+		refThis.executeMonetizationPixel(divID, theBid);
+	}
+};
+
 exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	var outputObj = {
 			s: []
