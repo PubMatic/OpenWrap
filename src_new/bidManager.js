@@ -45,7 +45,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 
 	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", postTimeout: "+isPostTimeout + ", defaultBid: " + bidDetails.getDefaultBidStatus());
 	/* istanbul ignore else */
-	if(isPostTimeout === true){
+	if(isPostTimeout === true /*&& !bidDetails.isServerSide*/){
 		bidDetails.setPostTimeoutStatus();
 	}
 
@@ -85,7 +85,7 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 	};
 
 	/* istanbul ignore else */
-	if(theBid.getDefaultBidStatus() === 0){
+	if(theBid.getDefaultBidStatus() === 0 && theBid.adapterID !== "pubmaticServer"){
 		util.vLogInfo(slotID, {
 			type: "bid",
 			bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(Passthrough)' : ''),
@@ -118,9 +118,11 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
         if (adapterEntry.getLastBidID() != "") {
 					// If pubmaticServerBidAdapter then don't increase partnerCount
 					(adapterID !== "pubmaticServer") && partnerCount++;
-
 					util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
-        		if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1){
+				// Description-> adapterID == "pubmatic" && theBid.netEcpm == 0 this check is put because from pubmaticBidAdapter in prebid we are 
+				// passing zero bid when there are no bid under timout for latency reports and this caused issue to have zero bids in pwtm key 
+				// so put this check which will not log zero bids for pubmatic. Note : From prebid 1.x onwards we do not get zero bids in case of no bids.
+				if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1 || theBid.getGrossEcpm() == 0){
         			return;
         		}
 		        validBidCount++;
@@ -333,13 +335,17 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {
 		refThis.analyticalPixelCallback(slotID, bmEntry, impressionIDMap);
 	});
-
 	util.forEachOnObject(impressionIDMap, function(impressionID, slots){ /* istanbul ignore next */
 		/* istanbul ignore else */
 		if(slots.length > 0){
 			outputObj.s = slots;
 			outputObj[CONSTANTS.COMMON.IMPRESSION_ID] = window.encodeURIComponent(impressionID);
-			(new window.Image()).src = pixelURL + "&json=" + window.encodeURIComponent(JSON.stringify(outputObj));
+			outputObj.psl = slots.psl;
+			// (new window.Image()).src = pixelURL + "&json=" + window.encodeURIComponent(JSON.stringify(outputObj));
+			util.ajaxRequest(pixelURL, function(){}, "json=" + window.encodeURIComponent(JSON.stringify(outputObj)), {
+				contentType : "application/x-www-form-urlencoded", // as per https://inside.pubmatic.com:8443/confluence/pages/viewpage.action?spaceKey=Products&title=POST+support+for+logger+in+Wrapper-tracker
+				withCredentials : true
+			});
 		}
 	});
 };
@@ -370,7 +376,9 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 };
 
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
-    var startTime = bmEntry.getCreationTime();
+	var startTime = bmEntry.getCreationTime() || 0;
+	var pslTime = undefined;
+	var impressionID = bmEntry.getImpressionID();
     /* istanbul ignore else */
     if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
         var slotObject = {
@@ -380,7 +388,6 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
         };
 
         bmEntry.setExpired();
-        var impressionID = bmEntry.getImpressionID();
         impressionIDMap[impressionID] = impressionIDMap[impressionID] || [];
 
         util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
@@ -389,19 +396,40 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                 return;
             }
 
-						if (adapterID === "pubmaticServer") {
-								return;
-						}
+			util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+				var endTime = theBid.getReceivedTime();
+				if (adapterID === "pubmaticServer") {
+					if ((util.isOwnProperty(window.PWT.owLatency, impressionID)) &&
+						(util.isOwnProperty(window.PWT.owLatency[impressionID], "startTime")) &&
+							(util.isOwnProperty(window.PWT.owLatency[impressionID], "endTime"))) {
+						pslTime = (window.PWT.owLatency[impressionID].endTime - window.PWT.owLatency[impressionID].startTime);
+					} else {
+						pslTime = 0;
+						util.log("Logging pubmaticServer latency as 0 for impressionID: " + impressionID);
+					}
+					util.log("PSL logging: time logged for id " +impressionID+ " is " + pslTime);
+					return;
+				}
 
-            util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
-
-            		if(CONFIG.getAdapterMaskBidsStatus(adapterID) == 1){
-					        	if(theBid.getWinningBidStatus() === false){
-					        			return;
-					        	}
-			        	}
-
-                var endTime = theBid.getReceivedTime();
+				if(CONFIG.getAdapterMaskBidsStatus(adapterID) == 1){
+					if(theBid.getWinningBidStatus() === false){
+						return;
+					}
+				}
+				/* if serverside adapter and
+                     db == 0 and
+                     getServerSideResponseTime returns -1, it means that server responded with error code 1/2/6
+                     hence do not add entry in logger.
+                     keeping the check for responseTime on -1 since there could be a case where:
+						ss status = 1, db status = 0, and responseTime is 0, but error code is 4, i,e. no bid. And for error code 4, 
+						we want to log the data not skip it.
+                  */
+	            if (theBid.getServerSideStatus()) {
+	              if (theBid.getDefaultBidStatus() === -1 &&
+	                theBid.getServerSideResponseTime() === -1) {
+	                return;
+	              }
+	            }
                 //todo: take all these key names from constants
                 slotObject["ps"].push({
                     "pn": adapterID,
@@ -413,15 +441,20 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "en": theBid.getNetEcpm(),
                     "di": theBid.getDealID(),
                     "dc": theBid.getDealChannel(),
-                    "l1": endTime - startTime,
+                    "l1": theBid.getServerSideStatus() ? theBid.getServerSideResponseTime() : (endTime - startTime),
                     "l2": 0,
+					"ss": theBid.getServerSideStatus(),
                     "t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
-                    "wb": theBid.getWinningBidStatus() === true ? 1 : 0
+                    "wb": theBid.getWinningBidStatus() === true ? 1 : 0,
+                    "mi": theBid.getServerSideStatus() ? theBid.getMi() : undefined
                 });
             })
         });
 
         impressionIDMap[impressionID].push(slotObject);
+		if (pslTime !== undefined) {
+			impressionIDMap[impressionID].psl = pslTime;
+		}
     }
 }
 
