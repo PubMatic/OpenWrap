@@ -514,8 +514,15 @@ describe('UTIL', function() {
             done();
         });
 
+        // it('should return Array of slot names', function(done) {
+        //     // UTIL.generateSlotNamesFromPattern(activeSlot, pattern).should.be.a('array');
+        //     UTIL.isOwnProperty.called.should.be.true;
+        //     UTIL.getIncrementalInteger.called.should.be.true;
+        //     done();
+        // });
+
         it('should return Array of slot names', function(done) {
-            UTIL.generateSlotNamesFromPattern(activeSlot, pattern).should.be.a('array');
+            UTIL.generateSlotNamesFromPattern(activeSlot, pattern).should.be.a('string');
             UTIL.isOwnProperty.called.should.be.true;
             UTIL.getIncrementalInteger.called.should.be.true;
             done();
@@ -676,7 +683,6 @@ describe('UTIL', function() {
 
         it('should check whther activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
             UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids);
-
             done();
         });
     });

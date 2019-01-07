@@ -191,18 +191,17 @@ function getPBCodeWithoutWidthAndHeight(divID, adapterID){
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
 
-function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
+function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight, banner_sizes){
 
 	var code, sizes, divID = currentSlot.getDivID();
-
+	
 	if(kgpConsistsWidthAndHeight){
 		code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
-		sizes = [[currentWidth, currentHeight]];
+		sizes = banner_sizes && banner_sizes.length > 1 ? banner_sizes :  [[currentWidth, currentHeight]];		
 	}else{
 		code = refThis.getPBCodeWithoutWidthAndHeight(divID, adapterID);
 		sizes = currentSlot.getSizes();
 	}
-
 	refThis.kgpvMap [ code ] = {
 		kgpv: generatedKey,
 		divID: divID
