@@ -401,7 +401,7 @@ describe('ADAPTER: Prebid', function() {
             keyConfig = null,
             currentWidth = null,
             currentHeight = null,
-            banner_sizes = null;
+            bannerSizes = null;
 
         beforeEach(function(done) {
             currentSlot = {
@@ -439,7 +439,7 @@ describe('ADAPTER: Prebid', function() {
             };
             currentWidth = 340;
             currentHeight = 210;
-            banner_sizes = [[340,210],[1024, 768]]
+            bannerSizes = [[340,210],[1024, 768]]
             done();
         });
 
@@ -456,7 +456,7 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.getProfileDisplayVersionID.restore();
 
             currentSlot = null;
-            banner_sizes = null;
+            bannerSizes = null;
             kgpConsistsWidthAndHeight = null;
             done();
         });
@@ -486,21 +486,10 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should have created bid object using banner_sizes if passed', function(done) {
+        it('should have created bid object using bannerSizes if passed', function(done) {
             adapterID = "pulsepoint";
-            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight, banner_sizes);
-            UTIL.forEachOnArray.calledWith(banner_sizes).should.be.true;
-            CONFIG.getProfileID.called.should.be.false;
-            CONFIG.getProfileDisplayVersionID.called.should.be.false;
-            done();
-        });
-
-        it('should not have created bid object using sizes if bnner_sizes passed', function(done) {
-            adapterID = "pulsepoint";
-            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight, banner_sizes);
-            UTIL.forEachOnArray.calledWith([
-                [currentWidth, currentHeight]
-            ]).should.be.true;
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight, bannerSizes);
+            UTIL.forEachOnArray.calledWith(bannerSizes).should.be.true;
             CONFIG.getProfileID.called.should.be.false;
             CONFIG.getProfileDisplayVersionID.called.should.be.false;
             done();
