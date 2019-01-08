@@ -159,16 +159,20 @@ function generateSlotName(adUnitObject) { // TDD, i/o : done
 exports.generateSlotName = generateSlotName;
 /* end-test-block */
 
-// storeInSlotsMap
-    // store against code
-// postRederingChores 
+// todo: postRederingChores 
     // do it post auction + some time , may be post returning callback  
 
+function getAdSlotSizesArray(dmSlotName, anAdUnitObject){
+    //todo: need to habdle fluid sizes
+    return [];
+}
+/* start-test-block */
+exports.getAdSlotSizesArray = getAdSlotSizesArray;
+/* end-test-block */
 
 
-function storeInSlotsMap(anAdUnitObject) { // TDD, i/o : done
-    // note: here dmSlotName is actually the code
-    var dmSlotName = refThis.generateSlotName(anAdUnitObject);
+
+function storeInSlotsMap(dmSlotName, anAdUnitObject) {
     if (!util.isOwnProperty(refThis.slotsMap, dmSlotName)) {
         var slot = SLOT.createSlot(dmSlotName);
         slot.setDivID(anAdUnitObject.divId || "");
@@ -196,21 +200,24 @@ exports.storeInSlotsMap = storeInSlotsMap;
 /* end-test-block */
 
 /*
-    arrayOfAdUnits
-    [
-        anAdUnitObject
-        {
-            code: "some-pub-friendly-unique-name", // mandatory
-            divId: "div-id-where-slot-will-render", // mandatory
-            adUnitId: "ad_unit-id-from-DFP", // mandatory
-            adUnitIndex: "ad-unit-index", // necessary in case of PubMatic, can be derrived by our code by simply incrementing used adUnitIds
-            mediaTypes: { // mandatory
-                banner: { // mandatory in first phase? or atleast one type of mediaTypes should be present
-                    sizes: [ [300, 250], [300, 300] ] // array of sizes
+    Input: 
+        arrayOfAdUnits
+            [
+                anAdUnitObject
+                {
+                    code: "some-pub-friendly-unique-name", // mandatory
+                    divId: "div-id-where-slot-will-render", // mandatory
+                    adUnitId: "ad_unit-id-from-DFP", // mandatory
+                    adUnitIndex: "ad-unit-index", // necessary in case of PubMatic, can be derrived by our code by simply incrementing used adUnitIds
+                    mediaTypes: { // mandatory
+                        banner: { // mandatory in first phase? or atleast one type of mediaTypes should be present
+                            sizes: [ [300, 250], [300, 300] ] // array of sizes
+                        }
+                    }
                 }
-            }
-        }
-    ]
+            ]
+        callbackFunction
+            a function that accepts response
 */
 function customServerExposedAPI(arrayOfAdUnits, callbackFunction){
 	if(!util.isArray(arrayOfAdUnits)){
@@ -218,17 +225,139 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction){
 		return;
 	}
 
+    var qualifyingSlotNames = [];
     util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject){
         if(refThis.validateAdUnit(anAdUnitObject)){ // returns true for valid adUnit
-            // // generate slots
-            refThis.storeInSlotsMap(anAdUnitObject);
+            var dmSlotName = refThis.generateSlotName(anAdUnitObject);            
+            refThis.storeInSlotsMap(dmSlotName, anAdUnitObject);
+            qualifyingSlotNames.push(dmSlotName);
         }
     });
-    // call adapter-manager for valid slots
+
+    /*
+        todo:
+            - No need to handle external bidders       
+            - are we considering all the flags?                  
+    */
+
+    var qualifyingSlots = refThis.arrayOfSelectedSlots(qualifyingSlotNames);
+    if(qualifyingSlots.length > 0){
+        // calling adapters
+        adapterManager.callAdapters(qualifyingSlots);
+        // after some time call fire the analytics pixel
+        setTimeout(function() {
+            bidManager.executeAnalyticsPixel();
+        }, 2000 + CONFIG.getTimeout());
+
+
+        var intervalId = window.setInterval(function(){
+
+            if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotNames)) {
+
+                clearInterval(intervalId);
+
+                var winningBids = {}; // object:: { code : response bid or just key value pairs }
+                util.forEachOnObject(refThis.slotsMap, function(code, slot) {
+                    winningBids[ code ] = refThis.findWinningBidAndGenerateTargeting(code);                    
+                });
+
+                // for each adUnit in arrayOfAdUnits find the winningBids, we need to return this updated arrayOfAdUnits
+                util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject){
+                    if(winningBids.hasOwnProperty(anAdUnitObject.code)){
+                        anAdUnitObject.bidData = winningBids[ anAdUnitObject.code ];
+                    }
+                });
+
+                callbackFunction(arrayOfAdUnits);
+            }
+
+        }, 10);
+
+        // refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
+
+        //    var winningBids = {}; // object:: { code : response bid or just key value pairs }
+        //    util.forEachOnObject(refThis.slotsMap, function(code, slot) {
+        //        winningBids[ code ] = refThis.findWinningBidAndGenerateTargeting(code);                    
+        //    });
+
+        //    // for each adUnit in arrayOfAdUnits find the winningBids, we need to return this updated arrayOfAdUnits
+        //    util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject){
+        //         if(winningBids.hasOwnProperty(anAdUnitObject.code)){
+        //             anAdUnitObject.bidData = winningBids[ anAdUnitObject.code ];
+        //         }
+        //    });
+
+        //    callbackFunction(arrayOfAdUnits);
+        // });
+
+    } else {
+        util.error("There are no qualifyingSlots, so not calling bidders.");
+    }    
 }
 /* start-test-block */
 exports.customServerExposedAPI = customServerExposedAPI;
 /* end-test-block */
+
+
+function executeDisplay(timeout, qualifyingSlotNames, callback) {
+    if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotNames)) {        
+        callback();
+    } else {
+        (timeout > 0) && window.setTimeout(function() {
+          refThis.executeDisplay(timeout - 10, qualifyingSlotNames, callback);
+        }, 10);
+    }
+}
+/* start-test-block */
+exports.executeDisplay = executeDisplay;
+/* end-test-block */
+
+function findWinningBidAndGenerateTargeting(code) { // TDD, i/o : done
+    var data = bidManager.getBid(code);
+    var winningBid = data.wb || null;
+    var keyValuePairs = data.kvp || null;
+    var googleDefinedSlot = refThis.slotsMap[code].getPubAdServerObject();
+    var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
+
+    util.log("Code: " + code + " winningBid: ");
+    util.log(winningBid);
+
+    /* istanbul ignore else*/
+    if (winningBid && winningBid.getNetEcpm() > 0) {
+        refThis.slotsMap[code].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ] = winningBid.getBidID();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS ] = winningBid.getStatus();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM ] = winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION);
+        var dealID = winningBid.getDealID();
+        if(dealID){
+            keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID ] =  dealID;
+        }
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID ] = winningBid.getAdapterID();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID ] = CONFIG.getPublisherId();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID ] = CONFIG.getProfileID();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID ] = CONFIG.getProfileDisplayVersionID();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ] = winningBid.width + 'x' + winningBid.height;
+    }
+
+    // attaching keyValuePairs from adapters
+    util.forEachOnObject(keyValuePairs, function(key, value) {
+        /* istanbul ignore else*/
+        if (util.isOwnProperty(ignoreTheseKeys, key)) {            
+            delete keyValuePairs[key];
+        }
+        refThis.defineWrapperTargetingKey(key);
+    });
+
+    return {
+        wb: winningBid,
+        kvp: keyValuePairs
+    };
+}
+
+/* start-test-block */
+exports.findWinningBidAndApplyTargeting = findWinningBidAndApplyTargeting;
+/* end-test-block */
+
 
 exports.init = function(win) { // TDD, i/o : done
 	CONFIG.initConfig();
