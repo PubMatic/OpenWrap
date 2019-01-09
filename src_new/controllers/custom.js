@@ -89,7 +89,7 @@ exports.initSafeFrameListener = initSafeFrameListener;
 /* end-test-block */
 
 
-function validateSizeArray = function(sizeArray){
+function validateSizeArray(sizeArray){
     //todo: we need to support fluid sizes as well
     return true; // if valid
 }
@@ -98,45 +98,45 @@ exports.validateSizeArray = validateSizeArray;
 /* end-test-block */
 
 function validateAdUnitObject(anAdUnitObject){
-    if(!utils.isObject(anAdUnitObject)){
-        utils.error('An AdUnitObject should be an object', anAdUnitObject);
+    if(!util.isObject(anAdUnitObject)){
+        util.error('An AdUnitObject should be an object', anAdUnitObject);
         return false;
     }
 
-    if(!utils.isString(anAdUnitObject.code)){
-        utils.error('An AdUnitObject should have a property named code and it should be a string', anAdUnitObject);
+    if(!util.isString(anAdUnitObject.code)){
+        util.error('An AdUnitObject should have a property named code and it should be a string', anAdUnitObject);
         return false;
     }
 
-    if(!utils.isString(anAdUnitObject.divId)){
-        utils.error('An AdUnitObject should have a property named divId and it should be a string', anAdUnitObject);
+    if(!util.isString(anAdUnitObject.divId)){
+        util.error('An AdUnitObject should have a property named divId and it should be a string', anAdUnitObject);
         return false;
     }
 
-    if(!utils.isString(anAdUnitObject.adUnitId)){
-        utils.error('An AdUnitObject should have a property named adUnitId and it should be a string', anAdUnitObject);
+    if(!util.isString(anAdUnitObject.adUnitId)){
+        util.error('An AdUnitObject should have a property named adUnitId and it should be a string', anAdUnitObject);
         return false;
     }
 
-    if(!utils.isString(anAdUnitObject.adUnitIndex)){
-        utils.error('An AdUnitObject should have a property named adUnitIndex and it should be a string', anAdUnitObject);
-        return false;
-    }
+    //if(!util.isString(anAdUnitObject.adUnitIndex)){
+    //    util.error('An AdUnitObject should have a property named adUnitIndex and it should be a string', anAdUnitObject);
+    //    return false;
+    //}
 
-    if(!utils.isObject(anAdUnitObject.mediaTypes)){
-        utils.error('An AdUnitObject should have a property named mediaTypes and it should be an object', anAdUnitObject);
+    if(!util.isObject(anAdUnitObject.mediaTypes)){
+        util.error('An AdUnitObject should have a property named mediaTypes and it should be an object', anAdUnitObject);
         return false;
     }
 
     // todo: in future we need to support native as well
 
-    if(!utils.isObject(anAdUnitObject.mediaTypes.banner)){
-        utils.error('An anAdUnitObject.mediaTypes should have a property named banner and it should be an object', anAdUnitObject);
+    if(!util.isObject(anAdUnitObject.mediaTypes.banner)){
+        util.error('An anAdUnitObject.mediaTypes should have a property named banner and it should be an object', anAdUnitObject);
         return false;
     }
 
-    if(!utils.isArray(anAdUnitObject.mediaTypes.banner.sizes)){
-        utils.error('An anAdUnitObject.mediaTypes.banner should have a property named sizes and it should be an array', anAdUnitObject);
+    if(!util.isArray(anAdUnitObject.mediaTypes.banner.sizes)){
+        util.error('An anAdUnitObject.mediaTypes.banner should have a property named sizes and it should be an array', anAdUnitObject);
         return false;
     }    
 
@@ -164,6 +164,10 @@ exports.generateSlotName = generateSlotName;
 
 function getAdSlotSizesArray(dmSlotName, anAdUnitObject){
     //todo: need to habdle fluid sizes
+    // todo: for now supporting only banner sizes
+    if(anAdUnitObject.mediaTypes && anAdUnitObject.mediaTypes.banner && util.isArray(anAdUnitObject.mediaTypes.banner.sizes) ){
+        return anAdUnitObject.mediaTypes.banner.sizes;
+    }
     return [];
 }
 /* start-test-block */
@@ -175,7 +179,10 @@ exports.getAdSlotSizesArray = getAdSlotSizesArray;
 function storeInSlotsMap(dmSlotName, anAdUnitObject) {
     if (!util.isOwnProperty(refThis.slotsMap, dmSlotName)) {
         var slot = SLOT.createSlot(dmSlotName);
-        slot.setDivID(anAdUnitObject.divId || "");
+        // IMPORTANT:: bidManager stores all data at divId level but in custom controller, divId is not mandatory.
+        // so we woll set value of code to divId if divId is not present
+        // also we will pass array of divId to the bidManager.getAllPartnersBidStatuses API 
+        slot.setDivID(anAdUnitObject.divId || dmSlotName); 
         slot.setPubAdServerObject(anAdUnitObject);
         slot.setAdUnitID(anAdUnitObject.adUnitId || "");
         slot.setAdUnitIndex(anAdUnitObject.adUnitIndex || 0);
@@ -221,102 +228,83 @@ exports.storeInSlotsMap = storeInSlotsMap;
 */
 function customServerExposedAPI(arrayOfAdUnits, callbackFunction){
 	if(!util.isArray(arrayOfAdUnits)){
-		util.error("arrayOfAdUnits should be an array.");
+		util.error("First argument to PWT.requestBids API, arrayOfAdUnits is mandatory and it should be an array.");
 		return;
 	}
 
-    var qualifyingSlotNames = [];
+    if(!util.isFunction(callbackFunction)){
+        util.error("Second argument to PWT.requestBids API, callBackFunction is mandatory and it should be a function.");
+        return; 
+    }
+
+    var qualifyingSlots = [];
+    var mapOfDivToCode = {};
+    var qualifyingSlotDivIds = [];
     util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject){
-        if(refThis.validateAdUnit(anAdUnitObject)){ // returns true for valid adUnit
+        if(refThis.validateAdUnitObject(anAdUnitObject)){ // returns true for valid adUnit
             var dmSlotName = refThis.generateSlotName(anAdUnitObject);            
-            refThis.storeInSlotsMap(dmSlotName, anAdUnitObject);
-            qualifyingSlotNames.push(dmSlotName);
+            refThis.storeInSlotsMap(dmSlotName, anAdUnitObject);            
+            var theSlot = refThis.slotsMap[dmSlotName];
+            qualifyingSlots.push(qualifyingSlots);
+            mapOfDivToCode[ theSlot.getDivID() ] = theSlot.getName();
+            qualifyingSlotDivIds.push( theSlot.getDivID() );
         }
     });
 
     /*
         todo:
             - No need to handle external bidders       
-            - are we considering all the flags?                  
+            - check if we have considered all the flags?                  
+            - GDPR
     */
 
-    var qualifyingSlots = refThis.arrayOfSelectedSlots(qualifyingSlotNames);
-    if(qualifyingSlots.length > 0){
-        // calling adapters
-        adapterManager.callAdapters(qualifyingSlots);
-        // after some time call fire the analytics pixel
-        setTimeout(function() {
-            bidManager.executeAnalyticsPixel();
-        }, 2000 + CONFIG.getTimeout());
-
-
-        var intervalId = window.setInterval(function(){
-
-            if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotNames)) {
-
-                clearInterval(intervalId);
-
-                var winningBids = {}; // object:: { code : response bid or just key value pairs }
-                util.forEachOnObject(refThis.slotsMap, function(code, slot) {
-                    winningBids[ code ] = refThis.findWinningBidAndGenerateTargeting(code);                    
-                });
-
-                // for each adUnit in arrayOfAdUnits find the winningBids, we need to return this updated arrayOfAdUnits
-                util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject){
-                    if(winningBids.hasOwnProperty(anAdUnitObject.code)){
-                        anAdUnitObject.bidData = winningBids[ anAdUnitObject.code ];
-                    }
-                });
-
-                callbackFunction(arrayOfAdUnits);
-            }
-
-        }, 10);
-
-        // refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
-
-        //    var winningBids = {}; // object:: { code : response bid or just key value pairs }
-        //    util.forEachOnObject(refThis.slotsMap, function(code, slot) {
-        //        winningBids[ code ] = refThis.findWinningBidAndGenerateTargeting(code);                    
-        //    });
-
-        //    // for each adUnit in arrayOfAdUnits find the winningBids, we need to return this updated arrayOfAdUnits
-        //    util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject){
-        //         if(winningBids.hasOwnProperty(anAdUnitObject.code)){
-        //             anAdUnitObject.bidData = winningBids[ anAdUnitObject.code ];
-        //         }
-        //    });
-
-        //    callbackFunction(arrayOfAdUnits);
-        // });
-
-    } else {
+    if(qualifyingSlots.length == 0){
         util.error("There are no qualifyingSlots, so not calling bidders.");
-    }    
+        return;
+    }
+
+    // calling adapters
+    adapterManager.callAdapters(qualifyingSlots);
+
+    var timeoutTicker = 0; // here we will calculate time elapsed
+    var timeoutIncrementer = 10; // in ms
+    var intervalId = window.setInterval(function(){
+        console.log("bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds)", bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds));
+        if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || timeoutTicker >= CONFIG.getTimeout()) {
+            console.log("I am in: ", timeoutTicker);
+            clearInterval(intervalId);
+            // after some time call fire the analytics pixel
+            setTimeout(function() {
+                bidManager.executeAnalyticsPixel();
+            }, 2000);
+
+            var winningBids = {}; // object:: { code : response bid or just key value pairs }
+            // we should loop on qualifyingSlotDivIds to avoid confusion if two parallel calls are fired to our PWT.requestBids 
+            util.forEachOnArray(qualifyingSlotDivIds, function(index, divId) {
+                var code = mapOfDivToCode[divId];
+                winningBids[ code ] = refThis.findWinningBidAndGenerateTargeting(divId, code); //todo: need to convert divId to codeId
+            });
+
+            // for each adUnit in arrayOfAdUnits find the winningBids, we need to return this updated arrayOfAdUnits
+            util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject){
+                if(winningBids.hasOwnProperty(anAdUnitObject.code)){
+                    anAdUnitObject.bidData = winningBids[ anAdUnitObject.code ];
+                }
+            });
+            
+            callbackFunction(arrayOfAdUnits);
+        }
+        timeoutTicker += timeoutIncrementer;
+    }, timeoutIncrementer);    
 }
 /* start-test-block */
 exports.customServerExposedAPI = customServerExposedAPI;
 /* end-test-block */
 
-
-function executeDisplay(timeout, qualifyingSlotNames, callback) {
-    if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotNames)) {        
-        callback();
-    } else {
-        (timeout > 0) && window.setTimeout(function() {
-          refThis.executeDisplay(timeout - 10, qualifyingSlotNames, callback);
-        }, 10);
-    }
-}
-/* start-test-block */
-exports.executeDisplay = executeDisplay;
-/* end-test-block */
-
-function findWinningBidAndGenerateTargeting(code) { // TDD, i/o : done
-    var data = bidManager.getBid(code);
+function findWinningBidAndGenerateTargeting(divId, code) { // TDD, i/o : done
+    var data = bidManager.getBid(divId);
     var winningBid = data.wb || null;
     var keyValuePairs = data.kvp || null;
-    var googleDefinedSlot = refThis.slotsMap[code].getPubAdServerObject();
     var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
 
     util.log("Code: " + code + " winningBid: ");
@@ -355,7 +343,7 @@ function findWinningBidAndGenerateTargeting(code) { // TDD, i/o : done
 }
 
 /* start-test-block */
-exports.findWinningBidAndApplyTargeting = findWinningBidAndApplyTargeting;
+exports.findWinningBidAndGenerateTargeting = findWinningBidAndGenerateTargeting;
 /* end-test-block */
 
 
