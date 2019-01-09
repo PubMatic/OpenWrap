@@ -6,7 +6,6 @@ var GDPR = require("../gdpr.js");
 var adapterManager = require("../adapterManager.js");
 var SLOT = require("../slot.js");
 
-//todo: combine these maps
 var wrapperTargetingKeys = {}; // key is div id
 /* start-test-block */
 exports.wrapperTargetingKeys = wrapperTargetingKeys;
@@ -159,12 +158,9 @@ function generateSlotName(adUnitObject) { // TDD, i/o : done
 exports.generateSlotName = generateSlotName;
 /* end-test-block */
 
-// todo: postRederingChores 
-    // do it post auction + some time , may be post returning callback  
-
 function getAdSlotSizesArray(dmSlotName, anAdUnitObject){
     //todo: need to habdle fluid sizes
-    // todo: for now supporting only banner sizes
+    // todo: for now supporting only banner sizes, need to support native as well
     if(anAdUnitObject.mediaTypes && anAdUnitObject.mediaTypes.banner && util.isArray(anAdUnitObject.mediaTypes.banner.sizes) ){
         return anAdUnitObject.mediaTypes.banner.sizes;
     }
@@ -173,8 +169,6 @@ function getAdSlotSizesArray(dmSlotName, anAdUnitObject){
 /* start-test-block */
 exports.getAdSlotSizesArray = getAdSlotSizesArray;
 /* end-test-block */
-
-
 
 function storeInSlotsMap(dmSlotName, anAdUnitObject) {
     if (!util.isOwnProperty(refThis.slotsMap, dmSlotName)) {
@@ -245,15 +239,17 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction){
             var dmSlotName = refThis.generateSlotName(anAdUnitObject);            
             refThis.storeInSlotsMap(dmSlotName, anAdUnitObject);            
             var theSlot = refThis.slotsMap[dmSlotName];
-            qualifyingSlots.push(qualifyingSlots);
+            qualifyingSlots.push(theSlot);
             mapOfDivToCode[ theSlot.getDivID() ] = theSlot.getName();
             qualifyingSlotDivIds.push( theSlot.getDivID() );
         }
     });
 
     /*
-        todo:
-            - No need to handle external bidders       
+        Note:
+            - No need to handle external bidders
+
+        Todo:
             - check if we have considered all the flags?                  
             - GDPR
     */
@@ -267,11 +263,12 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction){
     adapterManager.callAdapters(qualifyingSlots);
 
     var timeoutTicker = 0; // here we will calculate time elapsed
+    // Note: some time has already elapsed since we started 
     var timeoutIncrementer = 10; // in ms
     var intervalId = window.setInterval(function(){
-        console.log("bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds)", bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds));
+        //console.log("bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds)", bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds));
         if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || timeoutTicker >= CONFIG.getTimeout()) {
-            console.log("I am in: ", timeoutTicker);
+            //util.log("Received all responses after: " + (timeoutTicker+timeoutIncrementer) + "ms");
             clearInterval(intervalId);
             // after some time call fire the analytics pixel
             setTimeout(function() {
@@ -282,7 +279,7 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction){
             // we should loop on qualifyingSlotDivIds to avoid confusion if two parallel calls are fired to our PWT.requestBids 
             util.forEachOnArray(qualifyingSlotDivIds, function(index, divId) {
                 var code = mapOfDivToCode[divId];
-                winningBids[ code ] = refThis.findWinningBidAndGenerateTargeting(divId, code); //todo: need to convert divId to codeId
+                winningBids[ code ] = refThis.findWinningBidAndGenerateTargeting(divId, code);
             });
 
             // for each adUnit in arrayOfAdUnits find the winningBids, we need to return this updated arrayOfAdUnits
@@ -291,11 +288,14 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction){
                     anAdUnitObject.bidData = winningBids[ anAdUnitObject.code ];
                 }
             });
-            
+
             callbackFunction(arrayOfAdUnits);
         }
         timeoutTicker += timeoutIncrementer;
-    }, timeoutIncrementer);    
+    }, timeoutIncrementer);
+
+    // calling adapters
+    //adapterManager.callAdapters(qualifyingSlots);
 }
 /* start-test-block */
 exports.customServerExposedAPI = customServerExposedAPI;
@@ -336,8 +336,18 @@ function findWinningBidAndGenerateTargeting(divId, code) { // TDD, i/o : done
         refThis.defineWrapperTargetingKey(key);
     });
 
+    var wb = {};
+    if(winningBid){
+        wb.adHtml = winningBid.adHtml;
+        wb.adapterID = winningBid.adapterID;
+        wb.grossEcpm = winningBid.grossEcpm;
+        wb.netEcpm = winningBid.netEcpm;
+        wb.height = winningBid.height;
+        wb.width = winningBid.width;
+    }
+
     return {
-        wb: winningBid,
+        wb: wb,
         kvp: keyValuePairs
     };
 }
@@ -345,7 +355,6 @@ function findWinningBidAndGenerateTargeting(divId, code) { // TDD, i/o : done
 /* start-test-block */
 exports.findWinningBidAndGenerateTargeting = findWinningBidAndGenerateTargeting;
 /* end-test-block */
-
 
 exports.init = function(win) { // TDD, i/o : done
 	CONFIG.initConfig();
@@ -359,7 +368,6 @@ exports.init = function(win) { // TDD, i/o : done
         refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);        
         adapterManager.registerAdapters();        
         refThis.callJsLoadedIfRequired(win);
-
         return true;
     } else {
         return false;
