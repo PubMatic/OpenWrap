@@ -527,7 +527,7 @@ describe('ADAPTER: Prebid', function() {
                 "adSlot": generatedKey,
                 "wiid": impressionID,
                 "profId": "profId",
-                "verId": "verId",
+                "verId": "verId"
             };
             adUnits[commonDivID + "@" + adapterID].bids[0].should.be.deep.equal({ bidder: adapterID, params: slotParams });
             done();

@@ -187,6 +187,17 @@ function getPBCodeWithoutWidthAndHeight(divID, adapterID){
 	return divID + "@" + adapterID;
 }
 
+function divSlotNotPresent(adUnits, divID){
+	for(var key in adUnits) {
+		if(adUnits.hasOwnProperty(key)){
+			if(adUnits[key].divID == divID){
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 /* start-test-block */
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
@@ -214,12 +225,23 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(adUnits, code)){
-		adUnits[code] = {
-			code: code,
-			mediaType: "banner",
-			sizes: sizes,
-			bids: []
-		};
+		if(adapterID == "pubmatic" && divSlotNotPresent(adUnits,divID)) {
+			adUnits[code] = {
+				code: code,
+				mediaType: "banner",
+				sizes: sizes,
+				bids: [],
+				divID : divID
+			};
+	    } else if (adapterID != "pubmatic"){
+			adUnits[code] = {
+				code: code,
+				mediaType: "banner",
+				sizes: sizes,
+				bids: [],
+				divID : divID
+			};
+	   }
 	}
 
 	var slotParams = {};
@@ -248,6 +270,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			break;
 
 		case "pubmatic":
+		
 			slotParams["publisherId"] = adapterConfig["publisherId"];
 			slotParams["adSlot"] = generatedKey;
 			slotParams["wiid"] = impressionID;
@@ -256,7 +279,10 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			if(window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
-			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			/* istanbul ignore else*/
+			if(util.isOwnProperty(adUnits, code)){
+				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			}
 			break;
 
 		case "pulsepoint":

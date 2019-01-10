@@ -224,9 +224,10 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 		}
 	}
 	//returning first slot name in case their are multiple sizes
-	if(slotNames && slotNames.length > 0){
-		return slotNames[0];
-	}
+	// Commenting below lines to find and alternative way 
+	// if(slotNames && slotNames.length > 0){
+	// 	return slotNames[0];
+	// }
 	return slotNames;
 };
 

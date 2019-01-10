@@ -514,8 +514,8 @@ describe('UTIL', function() {
             done();
         });
 
-        it('should return string of slot names', function(done) {
-            UTIL.generateSlotNamesFromPattern(activeSlot, pattern).should.be.a('string');
+        it('should return array of slot names', function(done) {
+            UTIL.generateSlotNamesFromPattern(activeSlot, pattern).should.be.a('array');
             UTIL.isOwnProperty.called.should.be.true;
             UTIL.getIncrementalInteger.called.should.be.true;
             done();
