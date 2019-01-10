@@ -233,7 +233,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				bids: [],
 				divID : divID
 			};
-	    } else if (adapterID != "pubmatic"){
+		} else if (adapterID != "pubmatic") {
 			adUnits[code] = {
 				code: code,
 				mediaType: "banner",
@@ -241,7 +241,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				bids: [],
 				divID : divID
 			};
-	   }
+		}
 	}
 
 	var slotParams = {};
@@ -280,9 +280,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
 			/* istanbul ignore else*/
-			if(util.isOwnProperty(adUnits, code)){
-				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
-			}
+		if(util.isOwnProperty(adUnits, code)) {
+			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+		}
 			break;
 
 		case "pulsepoint":
