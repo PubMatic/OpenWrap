@@ -5,7 +5,7 @@ var path = require('path');
 var controllerPaths = {
 	UAS: "./controllers/uas.js",
 	DFP: "./controllers/gpt.js",
-    CUSTOM: "./controllers/custom.js"
+	CUSTOM: "./controllers/custom.js"
 };
 
 module.exports = {
