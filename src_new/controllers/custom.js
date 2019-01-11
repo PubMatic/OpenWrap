@@ -11,7 +11,9 @@ var wrapperTargetingKeys = {}; // key is div id
 exports.wrapperTargetingKeys = wrapperTargetingKeys;
 /* end-test-block */
 
-//todo: is this required in first phase?
+//ToDo: add a functionality / API to remove extra added wrpper keys
+
+//ToDo: is this required in first phase?
 var slotSizeMapping = {}; // key is div id
 /* start-test-block */
 exports.slotSizeMapping = slotSizeMapping;
@@ -42,7 +44,7 @@ function getWindowReference() { // TDD, i/o: done
 exports.getWindowReference = getWindowReference;
 /* end-test-block */
 
-// todo: this function may not be needed
+// ToDo: this function may not be needed
 function defineWrapperTargetingKey(key) { // TDD, i/o : done
     /* istanbul ignore else */
     if (!util.isObject(refThis.wrapperTargetingKeys)) {
@@ -89,7 +91,7 @@ exports.initSafeFrameListener = initSafeFrameListener;
 
 
 function validateSizeArray(sizeArray){
-    //todo: we need to support fluid sizes as well
+    //ToDo: we need to support fluid sizes as well
     return true; // if valid
 }
 /* start-test-block */
@@ -117,17 +119,17 @@ function validateAdUnitObject(anAdUnitObject){
         return false;
     }
 
-    //if(!util.isString(anAdUnitObject.adUnitIndex)){
-    //    util.error('An AdUnitObject should have a property named adUnitIndex and it should be a string', anAdUnitObject);
-    //    return false;
-    //}
+    if(!util.isString(anAdUnitObject.adUnitIndex)){
+        util.error('An AdUnitObject should have a property named adUnitIndex and it should be a string', anAdUnitObject);
+        return false;
+    }
 
     if(!util.isObject(anAdUnitObject.mediaTypes)){
         util.error('An AdUnitObject should have a property named mediaTypes and it should be an object', anAdUnitObject);
         return false;
     }
 
-    // todo: in future we need to support native as well
+    // ToDo: in future we need to support native as well
 
     if(!util.isObject(anAdUnitObject.mediaTypes.banner)){
         util.error('An anAdUnitObject.mediaTypes should have a property named banner and it should be an object', anAdUnitObject);
@@ -159,8 +161,8 @@ exports.generateSlotName = generateSlotName;
 /* end-test-block */
 
 function getAdSlotSizesArray(dmSlotName, anAdUnitObject){
-    //todo: need to habdle fluid sizes
-    // todo: for now supporting only banner sizes, need to support native as well
+    //ToDo: need to habdle fluid sizes
+    // ToDo: for now supporting only banner sizes, need to support native as well
     if(anAdUnitObject.mediaTypes && anAdUnitObject.mediaTypes.banner && util.isArray(anAdUnitObject.mediaTypes.banner.sizes) ){
         return anAdUnitObject.mediaTypes.banner.sizes;
     }
@@ -182,8 +184,8 @@ function storeInSlotsMap(dmSlotName, anAdUnitObject) {
         slot.setAdUnitIndex(anAdUnitObject.adUnitIndex || 0);
         slot.setSizes(refThis.getAdSlotSizesArray(dmSlotName, anAdUnitObject));
         slot.setStatus(CONSTANTS.SLOT_STATUS.CREATED);
-        // todo: find and set position
-        //todo: we do not have a way to accept and pass key-value pairs ; we may add support later
+        // ToDo: find and set position
+        //ToDo: we do not have a way to accept and pass key-value pairs ; we may add support later
         //      even in GPT controller we are not passing this information to and adapter that consumes it
         /* istanbul ignore else */
         /*if (sendTargetingInfoIsSet && util.isObject(JSON) && util.isFunction(JSON.stringify)) {
@@ -192,12 +194,68 @@ function storeInSlotsMap(dmSlotName, anAdUnitObject) {
             });
         }*/
         refThis.slotsMap[dmSlotName] = slot;
-        //util.createVLogInfoPanel(dmSlotName, slot.getSizes()); //todo: do we need support for this?
+        //util.createVLogInfoPanel(dmSlotName, slot.getSizes()); //ToDo: do we need support for this?
     }
 }
 
 /* start-test-block */
 exports.storeInSlotsMap = storeInSlotsMap;
+/* end-test-block */
+
+
+function findWinningBidAndGenerateTargeting(divId, code) { // TDD, i/o : done
+    var data = bidManager.getBid(divId);
+    var winningBid = data.wb || null;
+    var keyValuePairs = data.kvp || null;
+    var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
+
+    util.log("Code: " + code + " winningBid: ");
+    util.log(winningBid);
+
+    /* istanbul ignore else*/
+    if (winningBid && winningBid.getNetEcpm() > 0) {
+        //refThis.slotsMap[code].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ] = winningBid.getBidID();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS ] = winningBid.getStatus();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM ] = winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION);
+        var dealID = winningBid.getDealID();
+        if(dealID){
+            keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID ] =  dealID;
+        }
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID ] = winningBid.getAdapterID();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID ] = CONFIG.getPublisherId();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID ] = CONFIG.getProfileID();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID ] = CONFIG.getProfileDisplayVersionID();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ] = winningBid.width + 'x' + winningBid.height;
+    }
+
+    // attaching keyValuePairs from adapters
+    util.forEachOnObject(keyValuePairs, function(key, value) {
+        /* istanbul ignore else*/
+        if (util.isOwnProperty(ignoreTheseKeys, key)) {            
+            delete keyValuePairs[key];
+        }
+        refThis.defineWrapperTargetingKey(key);
+    });
+
+    var wb = {};
+    if(winningBid){
+        wb.adHtml = winningBid.adHtml;
+        wb.adapterID = winningBid.adapterID;
+        wb.grossEcpm = winningBid.grossEcpm;
+        wb.netEcpm = winningBid.netEcpm;
+        wb.height = winningBid.height;
+        wb.width = winningBid.width;
+    }
+
+    return {
+        wb: wb,
+        kvp: keyValuePairs
+    };
+}
+
+/* start-test-block */
+exports.findWinningBidAndGenerateTargeting = findWinningBidAndGenerateTargeting;
 /* end-test-block */
 
 /*
@@ -236,12 +294,19 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction){
     var qualifyingSlotDivIds = [];
     util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject){
         if(refThis.validateAdUnitObject(anAdUnitObject)){ // returns true for valid adUnit
-            var dmSlotName = refThis.generateSlotName(anAdUnitObject);            
-            refThis.storeInSlotsMap(dmSlotName, anAdUnitObject);            
-            var theSlot = refThis.slotsMap[dmSlotName];
-            qualifyingSlots.push(theSlot);
-            mapOfDivToCode[ theSlot.getDivID() ] = theSlot.getName();
-            qualifyingSlotDivIds.push( theSlot.getDivID() );
+            var dmSlotName = refThis.generateSlotName(anAdUnitObject);
+            var slot = SLOT.createSlot(dmSlotName);
+            // IMPORTANT:: bidManager stores all data at divId level but in custom controller, divId is not mandatory.
+            // so we woll set value of code to divId if divId is not present
+            // also we will pass array of divId to the bidManager.getAllPartnersBidStatuses API 
+            slot.setDivID(anAdUnitObject.divId || dmSlotName); 
+            slot.setPubAdServerObject(anAdUnitObject);
+            slot.setAdUnitID(anAdUnitObject.adUnitId || "");
+            slot.setAdUnitIndex(anAdUnitObject.adUnitIndex || 0);
+            slot.setSizes(refThis.getAdSlotSizesArray(dmSlotName, anAdUnitObject));
+            qualifyingSlots.push(slot);
+            mapOfDivToCode[ slot.getDivID() ] = slot.getName();
+            qualifyingSlotDivIds.push( slot.getDivID() );
         }
     });
 
@@ -249,7 +314,7 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction){
         Note:
             - No need to handle external bidders
 
-        Todo:
+        ToDo:
             - check if we have considered all the flags?                  
             - GDPR
     */
@@ -301,59 +366,115 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction){
 exports.customServerExposedAPI = customServerExposedAPI;
 /* end-test-block */
 
-function findWinningBidAndGenerateTargeting(divId, code) { // TDD, i/o : done
-    var data = bidManager.getBid(divId);
-    var winningBid = data.wb || null;
-    var keyValuePairs = data.kvp || null;
-    var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
 
-    util.log("Code: " + code + " winningBid: ");
-    util.log(winningBid);
+/*
+    this function will generate the required config for our APIs
+    Input:
+        Expects an array of GoogleTagSlots
+    Output:
+        array of object in required format
+*/
+function generateConfForGPT(arrayOfGPTSlots){
+    var gptConfArray = [];
 
-    /* istanbul ignore else*/
-    if (winningBid && winningBid.getNetEcpm() > 0) {
-        refThis.slotsMap[code].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ] = winningBid.getBidID();
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS ] = winningBid.getStatus();
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM ] = winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION);
-        var dealID = winningBid.getDealID();
-        if(dealID){
-            keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID ] =  dealID;
-        }
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID ] = winningBid.getAdapterID();
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID ] = CONFIG.getPublisherId();
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID ] = CONFIG.getProfileID();
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID ] = CONFIG.getProfileDisplayVersionID();
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ] = winningBid.width + 'x' + winningBid.height;
+    if(!util.isArray(arrayOfGPTSlots)){
+        util.error("first argument to generateConfForGPT should be an array");
+        return gptConfArray;
     }
 
-    // attaching keyValuePairs from adapters
-    util.forEachOnObject(keyValuePairs, function(key, value) {
-        /* istanbul ignore else*/
-        if (util.isOwnProperty(ignoreTheseKeys, key)) {            
-            delete keyValuePairs[key];
+    util.forEachOnArray(arrayOfGPTSlots, function(index, googleSlot){
+        var adUnitId = '';
+        var adUnitIndex = '';
+        var divId = '';
+        var sizes = [];
+        var code = '';
+
+        if (util.isObject(googleSlot)){
+
+            if(util.isFunction(googleSlot.getAdUnitPath)){
+                setAdUnitId = googleSlot.getAdUnitPath();
+            }
+
+            if(util.isFunction(googleSlot.getSlotId)) {
+                var slotID = googleSlot.getSlotId();
+                var adUnitIndexString = slotID.getId().split("_");
+                adUnitIndex = (adUnitIndexString[adUnitIndexString.length - 1]);
+
+                /* istanbul ignore else */
+                if (slotID && util.isFunction(slotID.getDomId)) {
+                    divId = slotID.getDomId();
+                    code = divId;
+                }            
+            }
+
+            if (util.isFunction(googleSlot.getSizes)) {
+                util.forEachOnArray(googleSlot.getSizes(), function(index, sizeObj) {
+                    /* istanbul ignore else  */
+                    if (util.isFunction(sizeObj.getWidth) && util.isFunction(sizeObj.getHeight)) {
+                        sizes.push([sizeObj.getWidth(), sizeObj.getHeight()]);
+                    } else {
+                        util.log(divId + ", size object does not have getWidth and getHeight method. Ignoring: ");
+                        util.log(sizeObj);
+                    }
+                });
+            }
         }
-        refThis.defineWrapperTargetingKey(key);
+
+        gptConfArray.push({
+            code: code,
+            divId: divId,
+            adUnitId: setAdUnitId,
+            adUnitIndex: adUnitIndex,
+            mediaTypes: {
+                banner: {
+                    sizes: sizes
+                }
+            }
+        });
     });
 
-    var wb = {};
-    if(winningBid){
-        wb.adHtml = winningBid.adHtml;
-        wb.adapterID = winningBid.adapterID;
-        wb.grossEcpm = winningBid.grossEcpm;
-        wb.netEcpm = winningBid.netEcpm;
-        wb.height = winningBid.height;
-        wb.width = winningBid.width;
+    return gptConfArray;
+}
+/* start-test-block */
+exports.generateConfForGPT = generateConfForGPT;
+/* end-test-block */
+
+
+function addKeyValuePairsOnSlotsForGPT(arrayOfAdUnits){
+    if(!util.isArray(arrayOfAdUnits)){
+        util.error("array is expected");
     }
 
-    return {
-        wb: wb,
-        kvp: keyValuePairs
-    };
-}
+    // ToDo: add check
+    var arrayOfGPTSlots = googletag.pubads().getSlots();
 
+    var mapOfDivIdToGoogleSlot = {};
+    util.forEachOnArray(arrayOfGPTSlots, function(index, googleSlot){
+        if(util.isFunction(googleSlot.getSlotId)) {
+            var slotID = googleSlot.getSlotId();
+            if (slotID && util.isFunction(slotID.getDomId)) {
+                mapOfDivIdToGoogleSlot[ slotID.getDomId() ] = googleSlot;
+            } else {
+                util.error("slotID.getDomId is not a function");
+            }
+        } else {
+            util.error("googleSlot.getSlotId is not a function");
+        }
+    });
+
+    util.forEachOnArray(arrayOfAdUnits, function(index, adUnit){    
+        if(util.isOwnProperty(mapOfDivIdToGoogleSlot, adUnit.divId)){
+            var googleSlot = mapOfDivIdToGoogleSlot[ adUnit.divId ];
+            util.forEachOnObject(adUnit.bidData.kvp, function(key, value){
+                googleSlot.setTargeting(key, [value]);
+            })
+        } else {
+            util.error("GPT-Slot not found for divId: " + adUnit.divId);
+        }
+    });
+}
 /* start-test-block */
-exports.findWinningBidAndGenerateTargeting = findWinningBidAndGenerateTargeting;
+exports.addKeyValuePairsOnSlotsForGPT = addKeyValuePairsOnSlotsForGPT;
 /* end-test-block */
 
 exports.init = function(win) { // TDD, i/o : done
@@ -363,7 +484,9 @@ exports.init = function(win) { // TDD, i/o : done
         refThis.initSafeFrameListener(win);
         // define and init new method here 
         win.PWT.requestBids = refThis.customServerExposedAPI;
-        //todo: shall we call GDPR.getUserConsentDataFromCMP(); here or from the new mwthod we will define?
+        win.PWT.generateConfForGPT = refThis.generateConfForGPT;
+        win.PWT.addKeyValuePairsOnSlotsForGPT = addKeyValuePairsOnSlotsForGPT;
+        //ToDo: shall we call GDPR.getUserConsentDataFromCMP(); here or from the new mwthod we will define?
         	// i think init is fine and it needs to be called only once, then why is it called twice in gpt.js controller?
         refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);        
         adapterManager.registerAdapters();        
