@@ -6,12 +6,11 @@ var GDPR = require("../gdpr.js");
 var adapterManager = require("../adapterManager.js");
 var SLOT = require("../slot.js");
 
+//ToDo: add a functionality / API to remove extra added wrpper keys
 var wrapperTargetingKeys = {}; // key is div id
 /* start-test-block */
 exports.wrapperTargetingKeys = wrapperTargetingKeys;
 /* end-test-block */
-
-//ToDo: add a functionality / API to remove extra added wrpper keys
 
 //ToDo: is this required in first phase?
 var slotSizeMapping = {}; // key is div id
@@ -19,16 +18,11 @@ var slotSizeMapping = {}; // key is div id
 exports.slotSizeMapping = slotSizeMapping;
 /* end-test-block */
 
-var slotsMap = {}; // key is div id, stores the mapping of divID ==> googletag.slot
-/* start-test-block */
-exports.slotsMap = slotsMap;
-/* end-test-block */
-
 var windowReference = null;
 var refThis = this;
 
 
-function setWindowReference(win) { // TDD, i/o: done
+function setWindowReference(win) { 
     if (util.isObject(win)) {
         windowReference = win;
     }
@@ -37,7 +31,7 @@ function setWindowReference(win) { // TDD, i/o: done
 exports.setWindowReference = setWindowReference;
 /* end-test-block */
 
-function getWindowReference() { // TDD, i/o: done
+function getWindowReference() { 
     return windowReference;
 }
 /* start-test-block */
@@ -45,7 +39,7 @@ exports.getWindowReference = getWindowReference;
 /* end-test-block */
 
 // ToDo: this function may not be needed
-function defineWrapperTargetingKey(key) { // TDD, i/o : done
+function defineWrapperTargetingKey(key) { 
     /* istanbul ignore else */
     if (!util.isObject(refThis.wrapperTargetingKeys)) {
         refThis.wrapperTargetingKeys = {};
@@ -57,7 +51,7 @@ function defineWrapperTargetingKey(key) { // TDD, i/o : done
 exports.defineWrapperTargetingKey = defineWrapperTargetingKey;
 /* end-test-block */
 
-function defineWrapperTargetingKeys(object) { // TDD, i/o : done
+function defineWrapperTargetingKeys(object) { 
     var output = {};
     util.forEachOnObject(object, function(key, value) {
         output[value] = "";
@@ -68,7 +62,7 @@ function defineWrapperTargetingKeys(object) { // TDD, i/o : done
 exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
-function callJsLoadedIfRequired(win) { // TDD, i/o : done
+function callJsLoadedIfRequired(win) { 
     if (util.isObject(win) && util.isObject(win.PWT) && util.isFunction(win.PWT.jsLoaded)) {
         win.PWT.jsLoaded();
         return true;
@@ -79,7 +73,7 @@ function callJsLoadedIfRequired(win) { // TDD, i/o : done
 exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
 /* end-test-block */
 
-function initSafeFrameListener(theWindow){ // TDD, i/o : done
+function initSafeFrameListener(theWindow){ 
     if(!theWindow.PWT.safeFrameMessageListenerAdded){
         util.addMessageEventListenerForSafeFrame(theWindow);
         theWindow.PWT.safeFrameMessageListenerAdded = true;
@@ -89,55 +83,46 @@ function initSafeFrameListener(theWindow){ // TDD, i/o : done
 exports.initSafeFrameListener = initSafeFrameListener;
 /* end-test-block */
 
-
-function validateSizeArray(sizeArray){
-    //ToDo: we need to support fluid sizes as well
-    return true; // if valid
-}
-/* start-test-block */
-exports.validateSizeArray = validateSizeArray;
-/* end-test-block */
-
 function validateAdUnitObject(anAdUnitObject){
     if(!util.isObject(anAdUnitObject)){
-        util.error('An AdUnitObject should be an object', anAdUnitObject);
+        util.error("An AdUnitObject should be an object", anAdUnitObject);
         return false;
     }
 
     if(!util.isString(anAdUnitObject.code)){
-        util.error('An AdUnitObject should have a property named code and it should be a string', anAdUnitObject);
+        util.error("An AdUnitObject should have a property named code and it should be a string", anAdUnitObject);
         return false;
     }
 
     if(!util.isString(anAdUnitObject.divId)){
-        util.error('An AdUnitObject should have a property named divId and it should be a string', anAdUnitObject);
+        util.error("An AdUnitObject should have a property named divId and it should be a string", anAdUnitObject);
         return false;
     }
 
     if(!util.isString(anAdUnitObject.adUnitId)){
-        util.error('An AdUnitObject should have a property named adUnitId and it should be a string', anAdUnitObject);
+        util.error("An AdUnitObject should have a property named adUnitId and it should be a string", anAdUnitObject);
         return false;
     }
 
     if(!util.isString(anAdUnitObject.adUnitIndex)){
-        util.error('An AdUnitObject should have a property named adUnitIndex and it should be a string', anAdUnitObject);
+        util.error("An AdUnitObject should have a property named adUnitIndex and it should be a string", anAdUnitObject);
         return false;
     }
 
     if(!util.isObject(anAdUnitObject.mediaTypes)){
-        util.error('An AdUnitObject should have a property named mediaTypes and it should be an object', anAdUnitObject);
+        util.error("An AdUnitObject should have a property named mediaTypes and it should be an object", anAdUnitObject);
         return false;
     }
 
     // ToDo: in future we need to support native as well
 
     if(!util.isObject(anAdUnitObject.mediaTypes.banner)){
-        util.error('An anAdUnitObject.mediaTypes should have a property named banner and it should be an object', anAdUnitObject);
+        util.error("An anAdUnitObject.mediaTypes should have a property named banner and it should be an object", anAdUnitObject);
         return false;
     }
 
     if(!util.isArray(anAdUnitObject.mediaTypes.banner.sizes)){
-        util.error('An anAdUnitObject.mediaTypes.banner should have a property named sizes and it should be an array', anAdUnitObject);
+        util.error("An anAdUnitObject.mediaTypes.banner should have a property named sizes and it should be an array", anAdUnitObject);
         return false;
     }    
 
@@ -145,19 +130,6 @@ function validateAdUnitObject(anAdUnitObject){
 }
 /* start-test-block */
 exports.validateAdUnitObject = validateAdUnitObject;
-/* end-test-block */
-
-// getAdUnitIndex
-    // input , just like divID and adUnit
-
-function generateSlotName(adUnitObject) { // TDD, i/o : done
-    if (util.isObject(adUnitObject) && util.isString(adUnitObject.code)) {
-        return adUnitObject.code;
-    }
-    return "";
-}
-/* start-test-block */
-exports.generateSlotName = generateSlotName;
 /* end-test-block */
 
 function getAdSlotSizesArray(dmSlotName, anAdUnitObject){
@@ -172,49 +144,14 @@ function getAdSlotSizesArray(dmSlotName, anAdUnitObject){
 exports.getAdSlotSizesArray = getAdSlotSizesArray;
 /* end-test-block */
 
-function storeInSlotsMap(dmSlotName, anAdUnitObject) {
-    if (!util.isOwnProperty(refThis.slotsMap, dmSlotName)) {
-        var slot = SLOT.createSlot(dmSlotName);
-        // IMPORTANT:: bidManager stores all data at divId level but in custom controller, divId is not mandatory.
-        // so we woll set value of code to divId if divId is not present
-        // also we will pass array of divId to the bidManager.getAllPartnersBidStatuses API 
-        slot.setDivID(anAdUnitObject.divId || dmSlotName); 
-        slot.setPubAdServerObject(anAdUnitObject);
-        slot.setAdUnitID(anAdUnitObject.adUnitId || "");
-        slot.setAdUnitIndex(anAdUnitObject.adUnitIndex || 0);
-        slot.setSizes(refThis.getAdSlotSizesArray(dmSlotName, anAdUnitObject));
-        slot.setStatus(CONSTANTS.SLOT_STATUS.CREATED);
-        // ToDo: find and set position
-        //ToDo: we do not have a way to accept and pass key-value pairs ; we may add support later
-        //      even in GPT controller we are not passing this information to and adapter that consumes it
-        /* istanbul ignore else */
-        /*if (sendTargetingInfoIsSet && util.isObject(JSON) && util.isFunction(JSON.stringify)) {
-            util.forEachOnArray(anAdUnitObject.getTargetingKeys(), function(index, value) {
-                slot.setKeyValue(value, anAdUnitObject.getTargeting(value));
-            });
-        }*/
-        refThis.slotsMap[dmSlotName] = slot;
-        //util.createVLogInfoPanel(dmSlotName, slot.getSizes()); //ToDo: do we need support for this?
-    }
-}
-
-/* start-test-block */
-exports.storeInSlotsMap = storeInSlotsMap;
-/* end-test-block */
-
-
-function findWinningBidAndGenerateTargeting(divId, code) { // TDD, i/o : done
+function findWinningBidAndGenerateTargeting(divId, code) { 
     var data = bidManager.getBid(divId);
     var winningBid = data.wb || null;
     var keyValuePairs = data.kvp || null;
     var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
 
-    util.log("Code: " + code + " winningBid: ");
-    util.log(winningBid);
-
     /* istanbul ignore else*/
     if (winningBid && winningBid.getNetEcpm() > 0) {
-        //refThis.slotsMap[code].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ] = winningBid.getBidID();
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS ] = winningBid.getStatus();
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM ] = winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION);
@@ -279,6 +216,9 @@ exports.findWinningBidAndGenerateTargeting = findWinningBidAndGenerateTargeting;
             a function that accepts response
 */
 function customServerExposedAPI(arrayOfAdUnits, callbackFunction){
+
+    GDPR.getUserConsentDataFromCMP();
+
 	if(!util.isArray(arrayOfAdUnits)){
 		util.error("First argument to PWT.requestBids API, arrayOfAdUnits is mandatory and it should be an array.");
 		return;
@@ -294,7 +234,7 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction){
     var qualifyingSlotDivIds = [];
     util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject){
         if(refThis.validateAdUnitObject(anAdUnitObject)){ // returns true for valid adUnit
-            var dmSlotName = refThis.generateSlotName(anAdUnitObject);
+            var dmSlotName = anAdUnitObject.code;
             var slot = SLOT.createSlot(dmSlotName);
             // IMPORTANT:: bidManager stores all data at divId level but in custom controller, divId is not mandatory.
             // so we woll set value of code to divId if divId is not present
@@ -400,6 +340,7 @@ function generateConfForGPT(arrayOfGPTSlots){
                 var adUnitIndexString = slotID.getId().split("_");
                 adUnitIndex = (adUnitIndexString[adUnitIndexString.length - 1]);
 
+                // TODO: move to GPT specific code to small functions
                 /* istanbul ignore else */
                 if (slotID && util.isFunction(slotID.getDomId)) {
                     divId = slotID.getDomId();
@@ -477,17 +418,14 @@ function addKeyValuePairsOnSlotsForGPT(arrayOfAdUnits){
 exports.addKeyValuePairsOnSlotsForGPT = addKeyValuePairsOnSlotsForGPT;
 /* end-test-block */
 
-exports.init = function(win) { // TDD, i/o : done
+exports.init = function(win) {
 	CONFIG.initConfig();
     if (util.isObject(win)) {
         refThis.setWindowReference(win);
         refThis.initSafeFrameListener(win);
-        // define and init new method here 
         win.PWT.requestBids = refThis.customServerExposedAPI;
         win.PWT.generateConfForGPT = refThis.generateConfForGPT;
         win.PWT.addKeyValuePairsOnSlotsForGPT = addKeyValuePairsOnSlotsForGPT;
-        //ToDo: shall we call GDPR.getUserConsentDataFromCMP(); here or from the new mwthod we will define?
-        	// i think init is fine and it needs to be called only once, then why is it called twice in gpt.js controller?
         refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);        
         adapterManager.registerAdapters();        
         refThis.callJsLoadedIfRequired(win);
@@ -495,4 +433,4 @@ exports.init = function(win) { // TDD, i/o : done
     } else {
         return false;
     }
-};		
+};
