@@ -144,7 +144,7 @@ function getAdSlotSizesArray(dmSlotName, anAdUnitObject) {
 exports.getAdSlotSizesArray = getAdSlotSizesArray;
 /* end-test-block */
 
-function findWinningBidAndGenerateTargeting(divId, code) {
+function findWinningBidAndGenerateTargeting(divId) {
 	var data = bidManager.getBid(divId);
 	var winningBid = data.wb || null;
 	var keyValuePairs = data.kvp || null;
@@ -163,11 +163,11 @@ function findWinningBidAndGenerateTargeting(divId, code) {
 		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID] = CONFIG.getPublisherId();
 		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID] = CONFIG.getProfileID();
 		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
-		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE] = winningBid.width + 'x' + winningBid.height;
+		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE] = winningBid.width + "x" + winningBid.height;
 	}
 
 	// attaching keyValuePairs from adapters
-	util.forEachOnObject(keyValuePairs, function(key, value) {
+	util.forEachOnObject(keyValuePairs, function(key) {
 		/* istanbul ignore else*/
 		if (util.isOwnProperty(ignoreTheseKeys, key)) {
 			delete keyValuePairs[key];
@@ -323,16 +323,16 @@ function generateConfForGPT(arrayOfGPTSlots) {
 	}
 
 	util.forEachOnArray(arrayOfGPTSlots, function(index, googleSlot) {
-		var adUnitId = '';
-		var adUnitIndex = '';
-		var divId = '';
+		var adUnitId = "";
+		var adUnitIndex = "";
+		var divId = "";
 		var sizes = [];
-		var code = '';
+		var code = "";
 
 		if (util.isObject(googleSlot)) {
 
 			if (util.isFunction(googleSlot.getAdUnitPath)) {
-				setAdUnitId = googleSlot.getAdUnitPath();
+				adUnitId = googleSlot.getAdUnitPath();
 			}
 
 			if (util.isFunction(googleSlot.getSlotId)) {
@@ -364,7 +364,7 @@ function generateConfForGPT(arrayOfGPTSlots) {
 		gptConfArray.push({
 			code: code,
 			divId: divId,
-			adUnitId: setAdUnitId,
+			adUnitId: adUnitId,
 			adUnitIndex: adUnitIndex,
 			mediaTypes: {
 				banner: {
@@ -387,7 +387,7 @@ function addKeyValuePairsOnSlotsForGPT(arrayOfAdUnits) {
 	}
 
 	// ToDo: add check
-	var arrayOfGPTSlots = googletag.pubads().getSlots();
+	var arrayOfGPTSlots = window.googletag.pubads().getSlots();
 
 	var mapOfDivIdToGoogleSlot = {};
 	util.forEachOnArray(arrayOfGPTSlots, function(index, googleSlot) {
@@ -408,7 +408,7 @@ function addKeyValuePairsOnSlotsForGPT(arrayOfAdUnits) {
 			var googleSlot = mapOfDivIdToGoogleSlot[adUnit.divId];
 			util.forEachOnObject(adUnit.bidData.kvp, function(key, value) {
 				googleSlot.setTargeting(key, [value]);
-			})
+			});
 		} else {
 			util.error("GPT-Slot not found for divId: " + adUnit.divId);
 		}
