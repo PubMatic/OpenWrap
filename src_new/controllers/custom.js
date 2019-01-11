@@ -306,7 +306,6 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 exports.customServerExposedAPI = customServerExposedAPI;
 /* end-test-block */
 
-
 /*
 	this function will generate the required config for our APIs
 	Input:
@@ -418,6 +417,29 @@ function addKeyValuePairsOnSlotsForGPT(arrayOfAdUnits) {
 exports.addKeyValuePairsOnSlotsForGPT = addKeyValuePairsOnSlotsForGPT;
 /* end-test-block */
 
+function removeOpenWrapKeyValuePairsFromSlotsForGPT(arrayOfGPTSlots) {    
+    //ToDo: need some fail-safe validations/checks
+    /* istanbul ignore else */
+    util.forEachOnArray(arrayOfGPTSlots, function(index, currentGoogleSlot){
+    	var targetingMap = {};
+        util.forEachOnArray(currentGoogleSlot.getTargetingKeys(), function(index, key) {
+            targetingMap[key] = currentGoogleSlot.getTargeting(key);
+        });
+        // now clear all targetings
+        currentGoogleSlot.clearTargeting();
+        // now set all settings from backup
+        util.forEachOnObject(targetingMap, function(key, value) {
+            if (!util.isOwnProperty(refThis.wrapperTargetingKeys, key)) {
+                currentGoogleSlot.setTargeting(key, value);
+            }
+        });
+    });
+}
+
+/* start-test-block */
+exports.removeOpenWrapKeyValuePairsFromSlotsForGPT = removeOpenWrapKeyValuePairsFromSlotsForGPT;
+/* end-test-block */
+
 exports.init = function(win) {
 	CONFIG.initConfig();
 	if (util.isObject(win)) {
@@ -426,6 +448,7 @@ exports.init = function(win) {
 		win.PWT.requestBids = refThis.customServerExposedAPI;
 		win.PWT.generateConfForGPT = refThis.generateConfForGPT;
 		win.PWT.addKeyValuePairsOnSlotsForGPT = addKeyValuePairsOnSlotsForGPT;
+		win.PWT.removeOpenWrapKeyValuePairsFromSlotsForGPT = removeOpenWrapKeyValuePairsFromSlotsForGPT;
 		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
 		adapterManager.registerAdapters();
 		refThis.callJsLoadedIfRequired(win);
