@@ -271,9 +271,9 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 	// Note: some time has already elapsed since we started 
 	var timeoutIncrementer = 10; // in ms
 	var intervalId = window.setInterval(function() {
-		//console.log("bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds)", bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds));
+		// todo: can we move this code to a function?
 		if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || timeoutTicker >= CONFIG.getTimeout()) {
-			//util.log("Received all responses after: " + (timeoutTicker+timeoutIncrementer) + "ms");
+
 			clearInterval(intervalId);
 			// after some time call fire the analytics pixel
 			setTimeout(function() {
@@ -378,7 +378,6 @@ function generateConfForGPT(arrayOfGPTSlots) {
 /* start-test-block */
 exports.generateConfForGPT = generateConfForGPT;
 /* end-test-block */
-
 
 function addKeyValuePairsOnSlotsForGPT(arrayOfAdUnits) {
 	if (!util.isArray(arrayOfAdUnits)) {
