@@ -88,7 +88,8 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"PUBLISHER_ID": "pwtpubid",
 	"PROFILE_ID": "pwtprofid",
 	"PROFILE_VERSION_ID": "pwtverid",
-	"META_DATA": "pwtm"
+	"META_DATA": "pwtm",
+	"PLATFORM_KEY": "pwtplt"
 };
 
 exports.IGNORE_PREBID_KEYS = {
@@ -132,4 +133,8 @@ exports.MESSAGES = {
 	"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner.",
 	"M24": "Passsed argument is not a bidAdaptor",
 	"M25": "Bid details not found for bidID: "
+};
+
+exports.PLATFORM_VALUES = {
+	"DISPLAY": "display"
 };

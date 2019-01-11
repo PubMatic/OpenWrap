@@ -328,17 +328,24 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
 	if(height && width){
 		try{
-			var fr = theDocument.defaultView.frameElement;
+			var defaultViewFrame = theDocument.defaultView.frameElement;
+			var elementArray=[];
 			if(divId){
-				 var ele = document.getElementById(divId);
-				 ele.style.height = ""+ height + "px";
-				 ele.style.width = ""+ width+ "px";
-				 fr = ele.querySelector("iframe");
+				var adSlot = document.getElementById(divId);
+				var adSlot_Div = adSlot.querySelector("div");
+				elementArray.push(adSlot_Div);
+				elementArray.push(adSlot_Div.querySelector("iframe"));
+				defaultViewFrame = adSlot.querySelector("iframe");
 			}
-			fr.width ="" +  width;
-			fr.height ="" + height;
-			fr.style.width = "" + width + "px";
-			fr.style.height = "" + height + "px";
+			elementArray.push(defaultViewFrame);
+			elementArray.forEach(function(ele){
+				if(ele){
+					ele.width ="" +  width;
+					ele.height ="" + height;
+					ele.style.width = "" + width + "px";
+					ele.style.height = "" + height + "px";
+				}
+			});
 		}catch(e){
 			refThis.log("Creative-Resize; Error in resizing creative");
 		} // eslint-disable-line no-empty
@@ -857,4 +864,54 @@ exports.resetExternalBidderStatus = function(divIds) {
 		refThis.log("resetExternalBidderStatus: " + divId);
 		window.OWT.externalBidderStatuses[divId] = undefined;
 	});
+};
+
+exports.ajaxRequest = function(url, callback, data, options) {
+	try {
+
+		options = options || {};
+
+		var x,
+			XHR_DONE = 4,				
+			ajaxSupport = true,
+			method = options.method || (data ? "POST" : "GET")
+			;
+
+		if(!window.XMLHttpRequest){
+			ajaxSupport = false;
+		}else{
+			x = new window.XMLHttpRequest();
+			if(refThis.isUndefined(x.responseType)){
+				ajaxSupport = false;
+			}
+		}
+
+		if(!ajaxSupport){
+			refThis.log("Ajax is not supported");
+			return;
+		}
+
+		x.onreadystatechange = function (){
+			if(x.readyState === XHR_DONE && callback){
+				callback(x.responseText, x);
+			}
+		};
+
+		x.open(method, url);
+		
+		if(options.withCredentials){
+			x.withCredentials = true;
+		}
+
+		if(options.preflight){
+			x.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+		}
+
+		x.setRequestHeader("Content-Type", options.contentType || "text/plain");		
+		x.send(method === "POST" && data);
+
+	}catch(error){
+		refThis.log("Failed in Ajax");
+		refThis.log(error);
+	}
 };
