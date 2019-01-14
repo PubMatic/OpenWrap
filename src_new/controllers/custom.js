@@ -38,6 +38,18 @@ function getWindowReference() {
 exports.getWindowReference = getWindowReference;
 /* end-test-block */
 
+function getAdUnitIndex(currentGoogleSlot) { // TDD, i/o : done
+    var index = 0;
+    try {
+        var adUnitIndexString = currentGoogleSlot.getSlotId().getId().split("_");
+        index = parseInt(adUnitIndexString[adUnitIndexString.length - 1]);
+    } catch (ex) {} // eslint-disable-line no-empty
+    return index;
+}
+/* start-test-block */
+exports.getAdUnitIndex = getAdUnitIndex;
+/* end-test-block */
+
 // ToDo: this function may not be needed
 function defineWrapperTargetingKey(key) {
 	/* istanbul ignore else */
@@ -336,8 +348,7 @@ function generateConfForGPT(arrayOfGPTSlots) {
 
 			if (util.isFunction(googleSlot.getSlotId)) {
 				var slotID = googleSlot.getSlotId();
-				var adUnitIndexString = slotID.getId().split("_");
-				adUnitIndex = (adUnitIndexString[adUnitIndexString.length - 1]);
+				adUnitIndex = refThis.getAdUnitIndex(googleSlot);
 
 				// TODO: move to GPT specific code to small functions
 				/* istanbul ignore else */
