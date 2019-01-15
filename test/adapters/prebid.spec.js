@@ -475,21 +475,12 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should have created bid object using sizes passed', function(done) {
+        it('should have created bid object using currentSlot sizes', function(done) {
             adapterID = "pulsepoint";
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
-            UTIL.forEachOnArray.calledWith([
-                [currentWidth, currentHeight]
-            ]).should.be.true;
-            CONFIG.getProfileID.called.should.be.false;
-            CONFIG.getProfileDisplayVersionID.called.should.be.false;
-            done();
-        });
-
-        it('should have created bid object using bannerSizes if passed', function(done) {
-            adapterID = "pulsepoint";
-            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight, bannerSizes);
-            UTIL.forEachOnArray.calledWith(bannerSizes).should.be.true;
+            UTIL.forEachOnArray.calledWith(
+                currentSlot.getSizes()
+            ).should.be.true;
             CONFIG.getProfileID.called.should.be.false;
             CONFIG.getProfileDisplayVersionID.called.should.be.false;
             done();

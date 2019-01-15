@@ -79,9 +79,23 @@ function transformPBBidToOWBid(bid, kgpv){
 exports.transformPBBidToOWBid = transformPBBidToOWBid;
 /* end-test-block */
 
+function checkAndModifySizeIfRequired(bid, responseId){
+	var responeID = responseId;
+	var responseIdArray = responseId.split("@");
+	if(responseIdArray &&  responseIdArray.length == 3){
+		var responseIdSize = responseIdArray[2];
+		if(bid.size != responseIdSize){
+			responeID = responseIdArray[0] + "@" + responseIdArray[1] + "@" +  bid.size.toUpperCase();
+		}
+	}
+	return responeID;
+}
+
 function pbBidStreamHandler(pbBid){
 	var responseID = pbBid.adUnitCode || "";
-
+	if(responseID){
+		responseID = checkAndModifySizeIfRequired(pbBid,responseID);
+	}
 	//OLD APPROACH
 	//serverSideEnabled: bid will contain the kgpv, divId, adapterId
 	/* istanbul ignore else */
@@ -202,13 +216,13 @@ function divSlotNotPresent(adUnits, divID){
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
 
-function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight, bannerSizes){
+function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
 
 	var code, sizes, divID = currentSlot.getDivID();
 	
 	if(kgpConsistsWidthAndHeight){
 		code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
-		sizes = bannerSizes && bannerSizes.length > 1 ? bannerSizes :  [[currentWidth, currentHeight]];		
+		sizes = currentSlot.getSizes();	
 	}else{
 		code = refThis.getPBCodeWithoutWidthAndHeight(divID, adapterID);
 		sizes = currentSlot.getSizes();
@@ -228,7 +242,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		if(adapterID == "pubmatic" && divSlotNotPresent(adUnits,divID)) {
 			adUnits[code] = {
 				code: code,
-				mediaType: "banner",
+				mediaType: {"banner":{sizes:sizes}},
 				sizes: sizes,
 				bids: [],
 				divID : divID
@@ -236,7 +250,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		} else if (adapterID != "pubmatic") {
 			adUnits[code] = {
 				code: code,
-				mediaType: "banner",
+				mediaType: {"banner":{sizes:sizes}},
 				sizes: sizes,
 				bids: [],
 				divID : divID
