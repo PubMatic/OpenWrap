@@ -84,7 +84,7 @@ function checkAndModifySizeIfRequired(bid, responseId){
 	var responseIdArray = responseId.split("@");
 	if(responseIdArray &&  responseIdArray.length == 3){
 		var responseIdSize = responseIdArray[2];
-		if(bid.size != responseIdSize){
+		if(bid.size && bid.size != responseIdSize && bid.size != "0x0"){
 			responeID = responseIdArray[0] + "@" + responseIdArray[1] + "@" +  bid.size.toUpperCase();
 		}
 	}
