@@ -475,9 +475,10 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should have created bid object using currentSlot sizes for pubmatic', function(done) {
+        it('should have created bid object for pubmatic', function(done) {
             adapterID = "pubmatic";
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            expect(adUnits["DIV_1@pubmatic@340X210"]).to.exist;
             adUnits["DIV_1@pubmatic@340X210"].bids[0].bidder.should.be.equal("pubmatic");
             done();
         });
@@ -496,6 +497,29 @@ describe('ADAPTER: Prebid', function() {
             adapterID = "pubmatic";
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             should.equal(adUnits["DIV_1@pubmatic@1024X768"],undefined)       
+            done();
+        });
+
+        it('should create adunit even if adUnits have different adapter code for same div',function(done){
+            adapterID = "pubmatic";
+            adUnits["DIV_1@appnexus@160X600"] = {
+                "code":"DIV_1@appnexus@160X600",
+                "mediaTypes":{"banner":{"sizes":[[728,90],[300,250],[160,600]]}},
+                "sizes":[[728,90],[300,250],[160,600]],
+                "bids":[{
+                    "bidder":"appnexus",
+                    "params":{
+                        "placementId":"9880618",
+                        "timeout":"5000",
+                        "amp":0,
+                        "video":0,
+                        "in-app":0
+                    }}],
+                    "divID":"DIV_1"
+            };
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            expect(adUnits["DIV_1@pubmatic@340X210"]).to.exist;
+            adUnits["DIV_1@pubmatic@340X210"].mediaTypes.should.be.an.object;
             done();
         });
 
