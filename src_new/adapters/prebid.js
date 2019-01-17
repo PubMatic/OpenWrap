@@ -204,7 +204,7 @@ function getPBCodeWithoutWidthAndHeight(divID, adapterID){
 function divSlotNotPresent(adUnits, divID){
 	for(var key in adUnits) {
 		if(adUnits.hasOwnProperty(key)){
-			if(adUnits[key].divID == divID){
+			if(key.indexOf("pubmatic") > 0 && adUnits[key].divID == divID){
 				return false;
 			}
 		}
