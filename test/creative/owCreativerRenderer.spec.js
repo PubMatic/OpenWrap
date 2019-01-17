@@ -24,7 +24,7 @@ describe("owCreativeRenderer : OWCren", function() {
 
         it('should return url without protocol if url is passed as argument',function(done){
             var cacheUrl = "https://amptestapi.com";
-            var outputUrl = "amptestapi.com"
+            var outputUrl = "amptestapi.com";
             var outputStr = OWCren.removeProtocolFromUrl(cacheUrl);
             outputStr.should.be.equal(outputUrl);
             done();
@@ -54,4 +54,10 @@ describe("owCreativeRenderer : OWCren", function() {
     });
     /* end-test-block */
 
+    /* start-test-block */
+    describe("renderCreative", function(){
+        it('should be a function',function(){
+           OWCren.renderCreative.should.be.a('function')
+        })
+    });
 });

@@ -21,6 +21,7 @@ exports.renderCreative = function (theDocument, params) {
 				cachePath: params.cachePath,
 				uuid: params.uuid,
 				mediaType: "banner",
+				size: params.size
 			});
 		}
 		catch(e){
@@ -46,12 +47,14 @@ window.PWT.renderOWCreative = function (theDocument, targetingKeys) {
 		var cacheid = targetingKeys.pwtcid || "";
 		var cacheURL = targetingKeys.pwtcurl || "";
 		var cachePath = targetingKeys.pwtcpath || "/cache";
+		var size = targetingKeys.pwtsz ;
 		if (cacheURL.length > 0 && cacheid.length > 0) {
 			cacheURL = refThis.removeProtocolFromUrl(cacheURL); // removes protocol from url if present and returns host only
 			refThis.renderCreative(theDocument, {
 				cacheURL: cacheURL,
 				cachePath: cachePath,
-				uuid: cacheid
+				uuid: cacheid,
+				size: size
 			});
 		}
 	} else {
