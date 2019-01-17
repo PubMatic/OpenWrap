@@ -400,7 +400,7 @@ describe('ADAPTER: Prebid', function() {
             currentSlot = null,
             keyConfig = null,
             currentWidth = null,
-            currentHeight = null
+            currentHeight = null;
 
         beforeEach(function(done) {
             currentSlot = {
