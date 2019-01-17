@@ -400,8 +400,7 @@ describe('ADAPTER: Prebid', function() {
             currentSlot = null,
             keyConfig = null,
             currentWidth = null,
-            currentHeight = null,
-            bannerSizes = null;
+            currentHeight = null
 
         beforeEach(function(done) {
             currentSlot = {
@@ -439,7 +438,6 @@ describe('ADAPTER: Prebid', function() {
             };
             currentWidth = 340;
             currentHeight = 210;
-            bannerSizes = [[340,210],[1024, 768]]
             done();
         });
 
@@ -456,7 +454,6 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.getProfileDisplayVersionID.restore();
 
             currentSlot = null;
-            bannerSizes = null;
             kgpConsistsWidthAndHeight = null;
             done();
         });
@@ -489,7 +486,7 @@ describe('ADAPTER: Prebid', function() {
             adUnits["DIV_1@pubmatic@340X210"].mediaTypes.should.be.an.object;
             should.exist(adUnits["DIV_1@pubmatic@340X210"].mediaTypes.banner.sizes);
             expect(adUnits["DIV_1@pubmatic@340X210"].mediaTypes.banner.sizes).to.be.an('array');
-            expect(adUnits["DIV_1@pubmatic@340X210"].mediaTypes.banner.sizes.length).to.equal(2);
+            expect(adUnits["DIV_1@pubmatic@340X210"].mediaTypes.banner.sizes.length).to.equal(currentSlot.getSizes().length);
             done();
         });
 
