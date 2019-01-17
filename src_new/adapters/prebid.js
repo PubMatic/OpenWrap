@@ -239,18 +239,10 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(adUnits, code)){
-		if(adapterID == "pubmatic" && divSlotNotPresent(adUnits,divID)) {
+		if(adapterID != "pubmatic" || (adapterID == "pubmatic" && divSlotNotPresent(adUnits,divID))) {
 			adUnits[code] = {
 				code: code,
-				mediaType: {"banner":{sizes:sizes}},
-				sizes: sizes,
-				bids: [],
-				divID : divID
-			};
-		} else if (adapterID != "pubmatic") {
-			adUnits[code] = {
-				code: code,
-				mediaType: {"banner":{sizes:sizes}},
+				mediaTypes: {"banner":{sizes:sizes}},
 				sizes: sizes,
 				bids: [],
 				divID : divID

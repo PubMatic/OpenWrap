@@ -475,6 +475,30 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
+        it('should have created bid object using currentSlot sizes for pubmatic', function(done) {
+            adapterID = "pubmatic";
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            adUnits["DIV_1@pubmatic@340X210"].bids[0].bidder.should.be.equal("pubmatic");
+            done();
+        });
+
+        it('should have adUnit with multiple sizes in mediatype', function(done) {
+            adapterID = "pubmatic";
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            adUnits["DIV_1@pubmatic@340X210"].mediaTypes.should.be.an.object;
+            should.exist(adUnits["DIV_1@pubmatic@340X210"].mediaTypes.banner.sizes);
+            expect(adUnits["DIV_1@pubmatic@340X210"].mediaTypes.banner.sizes).to.be.an('array');
+            expect(adUnits["DIV_1@pubmatic@340X210"].mediaTypes.banner.sizes.length).to.equal(2);
+            done();
+        });
+
+        it('should not have created multiple adunits for same adslot and different sizes for pubmatic', function(done) {
+            adapterID = "pubmatic";
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            should.equal(adUnits["DIV_1@pubmatic@1024X768"],undefined)       
+            done();
+        });
+
         it('should have created bid object using currentSlot sizes', function(done) {
             adapterID = "pulsepoint";
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
