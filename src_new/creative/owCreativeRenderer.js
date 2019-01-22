@@ -25,7 +25,7 @@ exports.renderCreative = function (theDocument, params) {
 			});
 		}
 		catch(e){
-
+			console.warn("OpenWrap Warning: There's an error rendering the ad.");
 		}
 	}
 };
@@ -39,15 +39,16 @@ exports.removeProtocolFromUrl = function (url) {
 		return outputUrl;
 	}
 	return "";
-}
+};
 
-///  Change name to general render function : renderOWCreative
+/// Change name to general render function : renderOWCreative
 window.PWT.renderOWCreative = function (theDocument, targetingKeys) {
 	if (targetingKeys) {
 		var cacheid = targetingKeys.pwtcid || "";
 		var cacheURL = targetingKeys.pwtcurl || "";
 		var cachePath = targetingKeys.pwtcpath || "/cache";
-		var size = targetingKeys.pwtsz ;
+		var size = targetingKeys.pwtsz;
+		/* istanbul ignore else */
 		if (cacheURL.length > 0 && cacheid.length > 0) {
 			cacheURL = refThis.removeProtocolFromUrl(cacheURL); // removes protocol from url if present and returns host only
 			refThis.renderCreative(theDocument, {
@@ -60,6 +61,10 @@ window.PWT.renderOWCreative = function (theDocument, targetingKeys) {
 	} else {
 		// Condition : Although the creative has won but it does not contain targeting keys required to render ad
 		// error at dfp configuration.
-		console.warn("Warning: No Targeting keys returned from adserver");
+		console.warn("OpenWrap Warning: No Targeting keys returned from adserver");
 	}
 };
+
+/* start-test-block */
+exports.renderOWCreative = window.PWT.renderOWCreative;
+/* end-test-block */
