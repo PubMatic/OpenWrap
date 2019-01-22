@@ -304,153 +304,108 @@ describe("CONTROLLER: CUSTOM", function() {
         });
     });
 
-    xdescribe('#getAdSlotSizesArray()', function() {
-        var divID = null;
-        var currentGoogleSlots = null;
-        var sizeObj_1 = null;
-        var sizeObj_2 = null;
-        var slotSizeMapping = null;
-
-        beforeEach(function(done) {
-            divID = commonDivID;
-            sizeObj_1 = {
-                getWidth: function() {
-                    return 1024;
-                },
-                getHeight: function() {
-                    return 768;
-                },
-                "id": "sizeObj_1"
-            };
-
-            sizeObj_2 = {
-                getWidth: function() {
-                    return 640;
-                },
-                getHeight: function() {
-                    return 480;
-                },
-                "id": "sizeObj_2"
-            };
-            currentGoogleSlots = {
-                getSizes: function() {
-                    return [sizeObj_1, sizeObj_2];
-                }
-            };
-
-            sinon.spy(currentGoogleSlots, 'getSizes');
-            sinon.spy(sizeObj_1, 'getHeight');
-            sinon.spy(sizeObj_1, 'getWidth');
-            sinon.spy(sizeObj_2, 'getHeight');
-            sinon.spy(sizeObj_2, 'getWidth');
-
-            sinon.stub(CUSTOM, 'getSizeFromSizeMapping');
-            slotSizeMapping = [
-                [
-                    [ 1024, 768 ],
-                    [
-                        970, 250
-                    ]
-                ],
-
-                [
-                    [ 980, 600 ],
-                    [
-                        [ 728, 90 ],
-                        [ 640, 480 ]
-                    ]
-                ]
-            ];
-            CUSTOM.getSizeFromSizeMapping.returns(slotSizeMapping);
-            sinon.spy(UTIL, 'log');
-            sinon.stub(UTIL, 'isFunction');
-            UTIL.isFunction.withArgs(sizeObj_1.getWidth).onSecondCall().returns(false);
-            UTIL.isFunction.returns(true);
-            sinon.spy(UTIL, 'forEachOnArray');
+    describe('#validateAdUnitObject', function () {
+    	it('is a function', function(done) {
+            CUSTOM.validateAdUnitObject.should.be.a('function');
             done();
         });
+    });
 
-        afterEach(function(done) {
-            CUSTOM.getSizeFromSizeMapping.restore();
-            UTIL.log.restore();
-            UTIL.isFunction.restore();
-            UTIL.forEachOnArray.restore();
-
-            currentGoogleSlots.getSizes.restore();
-            if (sizeObj_1.getHeight) {
-                sizeObj_1.getHeight.restore();
-            }
-
-            if (sizeObj_1.getWidth) {
-                sizeObj_1.getWidth.restore();
-            }
-
-            if (sizeObj_2.getHeight) {
-                sizeObj_2.getHeight.restore();
-            }
-
-            if (sizeObj_2.getWidth) {
-                sizeObj_2.getWidth.restore();
-            }
-
-
-            sizeObj_1 = null;
-            sizeObj_2 = null;
-            currentGoogleSlots = null;
-            slotSizeMapping = null;
-            done();
-        });
-
-
+    describe('#getAdSlotSizesArray()', function() {
         it('is a function', function(done) {
             CUSTOM.getAdSlotSizesArray.should.be.a('function');
             done();
         });
+    });
 
-        it('should have called getSizeFromSizeMapping', function(done) {
-            CUSTOM.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.deep.equal(slotSizeMapping);
-            UTIL.log.calledWith(divID + ": responsiveSizeMapping applied: ").should.be.true;
-            UTIL.log.calledWith(slotSizeMapping).should.be.true;
+    describe('#findWinningBidAndGenerateTargeting', function () {
+    	it('is a function', function(done) {
+            CUSTOM.findWinningBidAndGenerateTargeting.should.be.a('function');
+            done();
+        });
+    });
+
+    describe('#customServerExposedAPI', function () {
+    	it('is a function', function(done) {
+            CUSTOM.customServerExposedAPI.should.be.a('function');
+            done();
+        });
+    });
+
+    describe('#generateConfForGPT', function () {
+    	it('is a function', function(done) {
+            CUSTOM.generateConfForGPT.should.be.a('function');
+            done();
+        });
+    });
+
+    describe('#addKeyValuePairsOnSlotsForGPT', function () {
+    	it('is a function', function(done) {
+            CUSTOM.addKeyValuePairsOnSlotsForGPT.should.be.a('function');
+            done();
+        });
+    });
+
+    describe('#removeOpenWrapKeyValuePairsFromSlotsForGPT', function () {
+    	it('is a function', function(done) {
+            CUSTOM.removeOpenWrapKeyValuePairsFromSlotsForGPT.should.be.a('function');
+            done();
+        });
+    });
+
+    describe("#init", function() {
+
+        beforeEach(function(done) {
+            sinon.spy(UTIL, "isObject");
+            sinon.spy(CUSTOM, "setWindowReference");
+            sinon.spy(CUSTOM, "defineWrapperTargetingKeys");
+            sinon.spy(AM, "registerAdapters");
+            sinon.spy(CUSTOM, "callJsLoadedIfRequired");
+            sinon.spy(CUSTOM, "initSafeFrameListener");
             done();
         });
 
-        it('should have created adSlotSizesArray when proper currentGoogleSlots is passed ', function(done) {
-            CUSTOM.getSizeFromSizeMapping.restore();
-            sinon.stub(CUSTOM, 'getSizeFromSizeMapping');
-            CUSTOM.getSizeFromSizeMapping.returns(false);
-
-            CUSTOM.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.deep.equal([[1024, 768], [640, 480]]);
-
-            UTIL.isFunction.called.should.be.true;
-            UTIL.forEachOnArray.called.should.be.true;
-
-            currentGoogleSlots.getSizes.called.should.be.true;
-            sizeObj_1.getHeight.called.should.be.true;
-            sizeObj_1.getWidth.called.should.be.true;
-            sizeObj_2.getHeight.called.should.be.true;
-            sizeObj_2.getWidth.called.should.be.true;
-
+        afterEach(function(done) {
+            UTIL.isObject.restore();
+            CUSTOM.setWindowReference.restore();
+            CUSTOM.defineWrapperTargetingKeys.restore();
+            AM.registerAdapters.restore();
+            CUSTOM.callJsLoadedIfRequired.restore();
+            CUSTOM.initSafeFrameListener.restore();
             done();
         });
 
-        // Todo : check error case
-        xit('should have logged when size object doesnt have either of the getWidth or getHeight methods', function (done) {
-            currentGoogleSlots.getSizes()[0].getWidth.restore();
-            delete currentGoogleSlots.getSizes()[0].getWidth;
-
-            CUSTOM.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.an('array');
-            UTIL.log.calledWith(divID + ", size object does not have getWidth and getHeight method. Ignoring: ").should.be.true;
-            UTIL.log.calledWith(sizeObj_1).should.be.true;
+        it('is a function', function(done) {
+            CUSTOM.init.should.be.a('function');
             done();
         });
 
-        // Todo : check error case
-        xit('should have logged when size object doesnt have either of the getWidth or getHeight methods', function (done) {
-            delete sizeObj_2.getHeight;
-            currentGoogleSlots.getSizes()[1].getHeight = null;
-            CUSTOM.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.an('array');
-            UTIL.log.calledWith(divID + ", size object does not have getWidth and getHeight method. Ignoring: ").should.be.true;
-            UTIL.log.calledWith(sizeObj_2).should.be.true;
+        it("should return false when window object is null", function(done) {
+            CUSTOM.init(null).should.equal(false);
+            done();
+        });
+
+        it("should have called respective internal functions ", function(done) {
+            window.PWT = {};
+            CUSTOM.init(window).should.equal(true);
+            UTIL.isObject.called.should.be.true;
+            UTIL.isObject.returned(true).should.to.be.true;
+            CUSTOM.setWindowReference.called.should.be.true;
+            CUSTOM.defineWrapperTargetingKeys.called.should.be.true;
+            AM.registerAdapters.called.should.be.true;
+            CUSTOM.callJsLoadedIfRequired.called.should.be.true;
+            done();
+        });
+
+        it('should not proceed if passed window object is invalid', function (done) {
+            CUSTOM.init("NonObject").should.be.false;
+            UTIL.isObject.called.should.be.true;
+            UTIL.isObject.returned(false).should.be.true;
+            UTIL.isObject.calledWith("NonObject").should.be.true;
+            CUSTOM.setWindowReference.called.should.be.false;
+            CUSTOM.defineWrapperTargetingKeys.called.should.be.false;
+            AM.registerAdapters.called.should.be.false;
+            CUSTOM.callJsLoadedIfRequired.called.should.be.false;
             done();
         });
     });
