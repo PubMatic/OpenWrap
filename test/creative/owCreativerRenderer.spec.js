@@ -60,7 +60,7 @@ describe("owCreativeRenderer : OWCren", function() {
 			theDocument = window;
 			window.ucTag = {
 				renderAd: function(){
-                    //renderAd
+                    
 				}
 			};
 			params = {
