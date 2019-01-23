@@ -1,8 +1,5 @@
-/* global describe, it, xit, sinon, beforeEach, afterEach */
+/* global describe, it, sinon, beforeEach, afterEach */
 // var sinon = require("sinon");
-var should = require("chai").should();
-var expect = require("chai").expect;
-var typeString = "String";
 
 var OWCren = require("../../src_new/creative/owCreativeRenderer.js");
 
@@ -63,7 +60,7 @@ describe("owCreativeRenderer : OWCren", function() {
 			theDocument = window;
 			window.ucTag = {
 				renderAd: function(){
-                    // renderAd
+                    //renderAd
 				}
 			};
 			params = {
