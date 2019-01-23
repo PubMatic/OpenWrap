@@ -1,4 +1,4 @@
-/* global describe, it, xit, sinon, expect */
+/* global describe, it, xit, sinon, expect, beforeEach, afterEach */
 // var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
@@ -56,8 +56,8 @@ describe("owCreativeRenderer : OWCren", function() {
 
     /* start-test-block */
 	describe("renderCreative", function(){
-		var theDocument =null;
-		var params = null;
+		var theDocument=null;
+		var params=null;
 
 		beforeEach(function(done){
 			theDocument = window;
@@ -114,13 +114,12 @@ describe("owCreativeRenderer : OWCren", function() {
 				pwtcpath: "",
 				pwtsz: ""
 			};
-            // sinon.spy(OWCren, 'renderCreative');
 			done();
 		});
 
 		afterEach(function(done){
 			theDocument =null;
-			params = null;
+			targetingKeys = null;
 			done();
 		});
 

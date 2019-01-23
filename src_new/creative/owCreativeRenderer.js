@@ -48,7 +48,7 @@ window.PWT.renderOWCreative = function (theDocument, targetingKeys) {
 		var cacheid = targetingKeys.pwtcid || "";
 		var cacheURL = targetingKeys.pwtcurl || "";
 		var cachePath = targetingKeys.pwtcpath || "/cache";
-		var size = targetingKeys.pwtsz;
+		var size = targetingKeys.pwtsz || ""; // Assigning it empty string as per code review
 		/* istanbul ignore else */
 		if (cacheURL.length > 0 && cacheid.length > 0) {
 			cacheURL = refThis.removeProtocolFromUrl(cacheURL); // removes protocol from url if present and returns host only
