@@ -61,7 +61,7 @@ describe("owCreativeRenderer : OWCren", function() {
 
         beforeEach(function(done){
             theDocument = window;
-            window.pbjs = {
+            window.ucTag = {
                 renderAd: function(){
                     //renders ad
                 }
@@ -72,7 +72,7 @@ describe("owCreativeRenderer : OWCren", function() {
                 cachePath : "/cache",
                 size : "300x250"
             }
-            this.renderAd = sinon.spy(window.pbjs, 'renderAd');
+            this.renderAd = sinon.spy(window.ucTag, 'renderAd');
             done();
         });
 
@@ -90,14 +90,14 @@ describe("owCreativeRenderer : OWCren", function() {
         
 		it("should call prebidMethod if correct configuration is passed",function(done){
             OWCren.renderCreative(theDocument,params); 
-            window.pbjs.renderAd.should.be.callled;
+            window.ucTag.renderAd.should.be.callled;
             done();
         });
         
         it("should not call prebidMethod if incorrect configuration is passed",function(done){
             params = undefined;
             OWCren.renderCreative(theDocument,params); 
-            window.pbjs.renderAd.should.not.be.callled;
+            window.ucTag.renderAd.should.not.be.callled;
             done();
         }); 
     });
