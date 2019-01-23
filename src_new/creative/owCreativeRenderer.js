@@ -1,7 +1,7 @@
 require("prebid-universal-creative");
 
 window.PWT = window.PWT || {};
-window.pbjs = window.pbjs || {};
+window.ucTag = window.ucTag || {};
 
 var refThis = this;
 
@@ -16,7 +16,7 @@ exports.isString = function (object) {
 exports.renderCreative = function (theDocument, params) {
 	if (params && params.cacheURL && params.uuid) {
 		try {
-			window.pbjs.renderAd(theDocument, "", {
+			window.ucTag.renderAd(theDocument, {
 				cacheHost: params.cacheURL,
 				cachePath: params.cachePath,
 				uuid: params.uuid,
