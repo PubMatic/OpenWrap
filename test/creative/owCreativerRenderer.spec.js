@@ -56,32 +56,32 @@ describe("owCreativeRenderer : OWCren", function() {
 
     /* start-test-block */
 	describe("renderCreative", function(){
-        var theDocument =null;
-        var params = null;
+		var theDocument =null;
+		var params = null;
 
-        beforeEach(function(done){
-            theDocument = window;
-            window.ucTag = {
-                renderAd: function(){
+		beforeEach(function(done){
+			theDocument = window;
+			window.ucTag = {
+				renderAd: function(){
                     //renders ad
-                }
-            };
-            params = {
-                cacheURL : "someUrl",
-                uuid : "someId",
-                cachePath : "/cache",
-                size : "300x250"
-            }
-            this.renderAd = sinon.spy(window.ucTag, 'renderAd');
-            done();
-        });
+				}
+			};
+			params = {
+				cacheURL : "someUrl",
+				uuid : "someId",
+				cachePath : "/cache",
+				size : "300x250"
+			};
+			this.renderAd = sinon.spy(window.ucTag, "renderAd");
+			done();
+		});
 
-        afterEach(function(done){
-             theDocument =null;
-             params = null;
-             this.renderAd.restore();
-             done();
-        });
+		afterEach(function(done){
+			theDocument =null;
+			params = null;
+			this.renderAd.restore();
+			done();
+		});
 
 		it("should be a function",function(done){
 			OWCren.renderCreative.should.be.a("function");
@@ -89,68 +89,68 @@ describe("owCreativeRenderer : OWCren", function() {
 		});
         
 		it("should call prebidMethod if correct configuration is passed",function(done){
-            OWCren.renderCreative(theDocument,params); 
-            window.ucTag.renderAd.should.be.callled;
-            done();
-        });
+			OWCren.renderCreative(theDocument,params); 
+			window.ucTag.renderAd.should.be.callled;
+			done();
+		});
         
-        it("should not call prebidMethod if incorrect configuration is passed",function(done){
-            params = undefined;
-            OWCren.renderCreative(theDocument,params); 
-            window.ucTag.renderAd.should.not.be.callled;
-            done();
-        }); 
-    });
+		it("should not call prebidMethod if incorrect configuration is passed",function(done){
+			params = undefined;
+			OWCren.renderCreative(theDocument,params); 
+			window.ucTag.renderAd.should.not.be.callled;
+			done();
+		}); 
+	});
     
-    describe("renderOWCreative",function(){
-        var theDocument =null;
-        var targetingKeys = null;
+	describe("renderOWCreative",function(){
+		var theDocument =null;
+		var targetingKeys = null;
 
-        beforeEach(function(done){
-            theDocument = window;
-            targetingKeys = {
-                pwtcid : "",
-                pwtcurl: "",
-                pwtcpath: "",
-                pwtsz: ""
-            }
+		beforeEach(function(done){
+			theDocument = window;
+			targetingKeys = {
+				pwtcid : "",
+				pwtcurl: "",
+				pwtcpath: "",
+				pwtsz: ""
+			};
             // sinon.spy(OWCren, 'renderCreative');
-            done();
-        });
+			done();
+		});
 
-        afterEach(function(done){
-             theDocument =null;
-             params = null;
-             done();
-        });
+		afterEach(function(done){
+			theDocument =null;
+			params = null;
+			done();
+		});
 
-        it("should be a function",function(done){
-            OWCren.renderOWCreative.should.be.a("function");
-            done();
-        });
+		it("should be a function",function(done){
+			OWCren.renderOWCreative.should.be.a("function");
+			done();
+		});
 
-        it("should call renderCreative if targetingkeys are defined",function(done){
-            OWCren.renderOWCreative(theDocument,targetingKeys);
-            OWCren.removeProtocolFromUrl.should.be.callled;
-            OWCren.renderCreative.should.be.callled;
-            done();
-        });
+		it("should call renderCreative if targetingkeys are defined",function(done){
+			OWCren.renderOWCreative(theDocument,targetingKeys);
+			OWCren.removeProtocolFromUrl.should.be.callled;
+			OWCren.renderCreative.should.be.callled;
+			done();
+		});
 
-        it("should not call renderCreative if targetingkeys are undefined",function(done){
-            targetingKeys = null;
-            OWCren.renderOWCreative(theDocument,targetingKeys);
-            OWCren.removeProtocolFromUrl.should.not.be.callled;
-            OWCren.renderCreative.should.not.be.callled;
-            done();
-        });
+		it("should not call renderCreative if targetingkeys are undefined",function(done){
+			targetingKeys = null;
+			OWCren.renderOWCreative(theDocument,targetingKeys);
+			OWCren.removeProtocolFromUrl.should.not.be.callled;
+			OWCren.renderCreative.should.not.be.callled;
+			done();
+		});
 
-        it("should not call renderCreative if targetingkeys are defined but cache or cache id is empty",function(done){
-            targetingKeys.pwtcid = "";
-            targetingKeys.cacheid = "";
-            OWCren.renderOWCreative(theDocument,targetingKeys);
-            OWCren.removeProtocolFromUrl.should.not.be.callled;
-            OWCren.renderCreative.should.not.be.callled;
-            done();
-        })
-    })
+		it("should not call renderCreative if targetingkeys are defined but cache or cache id is empty",function(done){
+			targetingKeys.pwtcid = "";
+			targetingKeys.cacheid = "";
+			OWCren.renderOWCreative(theDocument,targetingKeys);
+			OWCren.removeProtocolFromUrl.should.not.be.callled;
+			OWCren.renderCreative.should.not.be.callled;
+			done();
+		});
+	});
 });

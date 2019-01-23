@@ -25,7 +25,8 @@ exports.renderCreative = function (theDocument, params) {
 			});
 		}
 		catch(e){
-			console.warn("OpenWrap Warning: There's an error rendering the ad.");
+			// Commenting below line due to es lint issue . TODO : Will have to check for rule to allow console.warn message
+			// console.warn("OpenWrap Warning: There's an error rendering the ad.");
 		}
 	}
 };
@@ -61,7 +62,8 @@ window.PWT.renderOWCreative = function (theDocument, targetingKeys) {
 	} else {
 		// Condition : Although the creative has won but it does not contain targeting keys required to render ad
 		// error at dfp configuration.
-		console.warn("OpenWrap Warning: No Targeting keys returned from adserver");
+		// Commenting below line due to es lint issue . TODO : Will have to check for rule to allow console.warn message
+		// console.warn("OpenWrap Warning: No Targeting keys returned from adserver");
 	}
 };
 
