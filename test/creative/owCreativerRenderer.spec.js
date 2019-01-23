@@ -1,4 +1,4 @@
-/* global describe, it, xit, sinon, expect, beforeEach, afterEach */
+/* global describe, it, xit, sinon, beforeEach, afterEach */
 // var sinon = require("sinon");
 var should = require("chai").should();
 var expect = require("chai").expect;
@@ -63,7 +63,7 @@ describe("owCreativeRenderer : OWCren", function() {
 			theDocument = window;
 			window.ucTag = {
 				renderAd: function(){
-                    //renders ad
+                    // renderAd
 				}
 			};
 			params = {
