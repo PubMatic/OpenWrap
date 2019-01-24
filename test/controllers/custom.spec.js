@@ -44,13 +44,13 @@ describe("CONTROLLER: CUSTOM", function() {
         });
     });
 
-    describe('#getWindowReference', function () {
-        it('is a function', function (done) {
-            CUSTOM.getWindowReference.should.be.a('function');
+    describe("#getWindowReference", function () {
+        it("is a function", function (done) {
+            CUSTOM.getWindowReference.should.be.a("function");
             done();
         });
 
-        it('should return the window object reference', function (done) {
+        it("should return the window object reference", function (done) {
             CUSTOM.setWindowReference(window);
             CUSTOM.getWindowReference().should.deep.equal(window);
             done();
@@ -181,7 +181,7 @@ describe("CONTROLLER: CUSTOM", function() {
                 "value2": ""
             };
 
-            it('should return empty object when given input object doesnt have any key value pairs', function (done) {
+            it("should return empty object when given input object doesnt have any key value pairs", function (done) {
                 CUSTOM.defineWrapperTargetingKeys({}).should.deep.equal({});
                 done();
             });
@@ -262,7 +262,7 @@ describe("CONTROLLER: CUSTOM", function() {
         });
     });
 
-    describe('#initSafeFrameListener', function () {
+    describe("#initSafeFrameListener", function () {
         var theWindow = null;
 
         beforeEach(function (done) {
@@ -281,13 +281,13 @@ describe("CONTROLLER: CUSTOM", function() {
             done();
         });
 
-        it('is a function', function (done) {
-            CUSTOM.initSafeFrameListener.should.be.a('function');
+        it("is a function", function (done) {
+            CUSTOM.initSafeFrameListener.should.be.a("function");
             done();
         });
 
 
-        it('should do nothing if message listener for safe frame is already added', function (done) {
+        it("should do nothing if message listener for safe frame is already added", function (done) {
             CUSTOM.initSafeFrameListener(theWindow);
             UTIL.addMessageEventListenerForSafeFrame.called.should.be.false;
             theWindow.PWT.safeFrameMessageListenerAdded.should.be.true;
@@ -295,7 +295,7 @@ describe("CONTROLLER: CUSTOM", function() {
         });
 
 
-        it('should add message listener for safe frame if not added', function (done) {
+        it("should add message listener for safe frame if not added", function (done) {
             theWindow.PWT.safeFrameMessageListenerAdded = false;
             CUSTOM.initSafeFrameListener(theWindow);
             UTIL.addMessageEventListenerForSafeFrame.calledOnce.should.be.true;
@@ -304,51 +304,219 @@ describe("CONTROLLER: CUSTOM", function() {
         });
     });
 
-    describe('#validateAdUnitObject', function () {
-    	it('is a function', function(done) {
-            CUSTOM.validateAdUnitObject.should.be.a('function');
+    describe("#validateAdUnitObject", function () {
+    	var validObject = null;
+    	beforeEach(function(done){
+    		validObject = {
+				code: "some-pub-friendly-unique-name",
+				divId: "div-id-where-slot-will-render",
+				adUnitId: "ad_unit-id-from-DFP",
+				adUnitIndex: "ad-unit-index",
+				mediaTypes: {
+					banner: {
+						sizes: [ [300, 250], [300, 300] ]
+					}
+				}
+			};
+    		done();
+    	});
+
+    	it("is a function", function(done) {
+            CUSTOM.validateAdUnitObject.should.be.a("function");
+            done();
+        });
+
+        it("should return false when passed argument is not an object", function (done) {        	
+        	CUSTOM.validateAdUnitObject().should.be.false;
+        	done();
+        });
+
+		it("should return false if adUnit.code is not string", function (done) {
+            validObject.code = undefined;
+			CUSTOM.validateAdUnitObject(validObject).should.be.false;
+        	done();
+		});
+
+        it("should return false if adUnit.divId is not string", function (done) {
+            validObject.divId = undefined;
+            CUSTOM.validateAdUnitObject(validObject).should.be.false;
+            done();
+        });
+
+        it("should return false if adUnit.adUnitId is not string", function (done) {
+            validObject.adUnitId = undefined;
+            CUSTOM.validateAdUnitObject(validObject).should.be.false;
+            done();
+        });
+
+        it("should return false if adUnit.adUnitIndex is not string", function (done) {
+            validObject.adUnitIndex = undefined;
+            CUSTOM.validateAdUnitObject(validObject).should.be.false;
+            done();
+        });
+
+        it("should return false if adUnit.mediaTypes is not object", function (done) {
+            validObject.mediaTypes = undefined;
+            CUSTOM.validateAdUnitObject(validObject).should.be.false;
+            done();
+        });
+
+        it("should return false if adUnit.mediaTypes.banner is not object", function (done) {
+            validObject.mediaTypes.banner = undefined;
+            CUSTOM.validateAdUnitObject(validObject).should.be.false;
+            done();
+        });
+
+        it("should return false if adUnit.mediaTypes.banner.sizes is not array", function (done) {
+            validObject.mediaTypes.banner.sizes = undefined;
+            CUSTOM.validateAdUnitObject(validObject).should.be.false;
+            done();
+        });
+
+        it("should return true if adUnit is valid", function (done) {
+            CUSTOM.validateAdUnitObject(validObject).should.be.true;
+            done();
+        });
+
+    });
+
+    describe("#getAdSlotSizesArray()", function() {
+
+        var validInput = null;
+        beforeEach(function(done){
+            validInput = {
+                mediaTypes: {
+                    banner: {
+                        sizes: [[300, 250]]
+                    }
+                }
+            };
+            done();
+        });
+
+        it("is a function", function(done) {
+            CUSTOM.getAdSlotSizesArray.should.be.a("function");
+            done();
+        });
+
+        it("return empty array on invalid input: argument not passed", function(done){
+            CUSTOM.getAdSlotSizesArray().should.deep.equal([]);
+            done();
+        });
+
+        it("return empty array on invalid input: key mediaTypes is not present", function(done){
+            delete validInput.mediaTypes;
+            CUSTOM.getAdSlotSizesArray(validInput).should.deep.equal([]);
+            done();
+        });
+
+        it("return empty array on invalid input: key mediaTypes.banner is not present", function(done){
+            delete validInput.mediaTypes.banner;
+            CUSTOM.getAdSlotSizesArray(validInput).should.deep.equal([]);
+            done();
+        });
+
+        it("return empty array on invalid input: key mediaTypes.banner.sizes is not present", function(done){
+            delete validInput.mediaTypes.banner.sizes;
+            CUSTOM.getAdSlotSizesArray(validInput).should.deep.equal([]);
+            done();
+        });
+
+        it("return sizes array on valid input", function(done){
+            CUSTOM.getAdSlotSizesArray(validInput).should.deep.equal(validInput.mediaTypes.banner.sizes);
             done();
         });
     });
 
-    describe('#getAdSlotSizesArray()', function() {
-        it('is a function', function(done) {
-            CUSTOM.getAdSlotSizesArray.should.be.a('function');
+    describe("#findWinningBidAndGenerateTargeting", function () {
+        var divID = null;
+        var dataStub = null;
+        var winningBidStub = null;
+        var keyValuePairsStub = null;
+
+        beforeEach(function(done){
+
+            winningBidStub = {
+                getBidID: function() {
+                    return "getBidID";
+                },
+                getStatus: function() {
+                    return "getStatus";
+                },
+                getNetEcpm: function() {
+                    return "getNetEcpm";
+                },
+                getDealID: function() {
+                    return "getDealID";
+                },
+                getAdapterID: function() {
+                    return "getAdapterID";
+                },
+            };
+            // sinon.stub(winningBidStub, "getBidID");
+            // sinon.stub(winningBidStub, "getStatus");
+            // sinon.stub(winningBidStub, "getNetEcpm");
+            // sinon.stub(winningBidStub, "getDealID");
+            // sinon.stub(winningBidStub, "getAdapterID");
+            keyValuePairsStub = {
+                "key1": {
+                    "k1": "v1",
+                    "k2": "v2"
+                },
+                "key2": {
+                    "k12": "v12",
+                    "k22": "v22"
+                }
+            };
+            dataStub = {
+                wb: winningBidStub,
+                kvp: keyValuePairsStub
+            };
+            // sinon.stub(BM, "getBid").withArgs(divID).returns(dataStub);
+            sinon.stub(BM, "getBid").returns(dataStub);
+            done();
+        });
+
+        afterEach(function(done){
+            BM.getBid.restore();
+            done();
+        });
+
+    	it("is a function", function(done) {
+            CUSTOM.findWinningBidAndGenerateTargeting.should.be.a("function");
+            done();
+        });
+
+        it("", function(done){
+
+        });
+
+    });
+
+    describe("#customServerExposedAPI", function () {
+    	it("is a function", function(done) {
+            CUSTOM.customServerExposedAPI.should.be.a("function");
             done();
         });
     });
 
-    describe('#findWinningBidAndGenerateTargeting', function () {
-    	it('is a function', function(done) {
-            CUSTOM.findWinningBidAndGenerateTargeting.should.be.a('function');
+    describe("#generateConfForGPT", function () {
+    	it("is a function", function(done) {
+            CUSTOM.generateConfForGPT.should.be.a("function");
             done();
         });
     });
 
-    describe('#customServerExposedAPI', function () {
-    	it('is a function', function(done) {
-            CUSTOM.customServerExposedAPI.should.be.a('function');
+    describe("#addKeyValuePairsOnSlotsForGPT", function () {
+    	it("is a function", function(done) {
+            CUSTOM.addKeyValuePairsOnSlotsForGPT.should.be.a("function");
             done();
         });
     });
 
-    describe('#generateConfForGPT', function () {
-    	it('is a function', function(done) {
-            CUSTOM.generateConfForGPT.should.be.a('function');
-            done();
-        });
-    });
-
-    describe('#addKeyValuePairsOnSlotsForGPT', function () {
-    	it('is a function', function(done) {
-            CUSTOM.addKeyValuePairsOnSlotsForGPT.should.be.a('function');
-            done();
-        });
-    });
-
-    describe('#removeOpenWrapKeyValuePairsFromSlotsForGPT', function () {
-    	it('is a function', function(done) {
-            CUSTOM.removeOpenWrapKeyValuePairsFromSlotsForGPT.should.be.a('function');
+    describe("#removeOpenWrapKeyValuePairsFromSlotsForGPT", function () {
+    	it("is a function", function(done) {
+            CUSTOM.removeOpenWrapKeyValuePairsFromSlotsForGPT.should.be.a("function");
             done();
         });
     });
@@ -375,8 +543,8 @@ describe("CONTROLLER: CUSTOM", function() {
             done();
         });
 
-        it('is a function', function(done) {
-            CUSTOM.init.should.be.a('function');
+        it("is a function", function(done) {
+            CUSTOM.init.should.be.a("function");
             done();
         });
 
@@ -397,7 +565,7 @@ describe("CONTROLLER: CUSTOM", function() {
             done();
         });
 
-        it('should not proceed if passed window object is invalid', function (done) {
+        it("should not proceed if passed window object is invalid", function (done) {
             CUSTOM.init("NonObject").should.be.false;
             UTIL.isObject.called.should.be.true;
             UTIL.isObject.returned(false).should.be.true;
