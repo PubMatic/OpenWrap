@@ -44,8 +44,8 @@ gulp.task('webpack', ['clean'], function() {
 
     return gulp.src('src_new/owt.js')
         .pipe(webpack(webpackConfig))
-        .pipe(uglify())
-        .pipe(optimizejs())
+        //.pipe(uglify())
+        //.pipe(optimizejs())
         .pipe(gulp.dest('build/dist'))
         .pipe(connect.reload())
     ;
@@ -160,7 +160,8 @@ gulp.task('lint', () => {
 // Task to build minified version of owt.js
 gulp.task('bundle', function () {
     console.log("Executing build");
-    return gulp.src(['prebid-header.js', prebidRepoPath + '/build/dist/prebid.js','prebid-footer.js','./build/dist/owt.js'])
+    return gulp.src([prebidRepoPath + '/build/dist/prebid.js', './build/dist/owt.js'])
+    //return gulp.src(['prebid-header.js', prebidRepoPath + '/build/dist/prebid.js','prebid-footer.js','./build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 });
@@ -177,7 +178,8 @@ gulp.task('bundle-creative', function () {
 // Task to build non-minified version of owt.js
 gulp.task('devbundle', function () {
     console.log("Executing Dev Build");
-    return gulp.src(['prebid-header.js', prebidRepoPath + '/build/dev/prebid.js', 'prebid-footer.js', './build/dev/owt.js'])
+    return gulp.src([prebidRepoPath + '/build/dev/prebid.js', './build/dev/owt.js'])
+    //return gulp.src(['prebid-header.js', prebidRepoPath + '/build/dev/prebid.js', 'prebid-footer.js', './build/dev/owt.js'])
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
 });

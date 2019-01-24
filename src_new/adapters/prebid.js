@@ -349,7 +349,7 @@ exports.generatePbConf = generatePbConf;
 
 function fetchBids(activeSlots, impressionID){
 
-	window.pwtCreatePrebidNamespace(pbNameSpace);
+	//window.pwtCreatePrebidNamespace(pbNameSpace);
 
 	/* istanbul ignore else */
 	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
