@@ -144,10 +144,10 @@ function validateAdUnitObject(anAdUnitObject) {
 exports.validateAdUnitObject = validateAdUnitObject;
 /* end-test-block */
 
-function getAdSlotSizesArray(dmSlotName, anAdUnitObject) {
+function getAdSlotSizesArray(anAdUnitObject) {
 	//ToDo: need to habdle fluid sizes
 	// ToDo: for now supporting only banner sizes, need to support native as well
-	if (anAdUnitObject.mediaTypes && anAdUnitObject.mediaTypes.banner && util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
+	if (anAdUnitObject && anAdUnitObject.mediaTypes && anAdUnitObject.mediaTypes.banner && util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
 		return anAdUnitObject.mediaTypes.banner.sizes;
 	}
 	return [];
@@ -255,7 +255,7 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 			slot.setPubAdServerObject(anAdUnitObject);
 			slot.setAdUnitID(anAdUnitObject.adUnitId || "");
 			slot.setAdUnitIndex(anAdUnitObject.adUnitIndex || 0);
-			slot.setSizes(refThis.getAdSlotSizesArray(dmSlotName, anAdUnitObject));
+			slot.setSizes(refThis.getAdSlotSizesArray(anAdUnitObject));
 			qualifyingSlots.push(slot);
 			mapOfDivToCode[slot.getDivID()] = slot.getName();
 			qualifyingSlotDivIds.push(slot.getDivID());
