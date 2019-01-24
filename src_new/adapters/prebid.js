@@ -88,7 +88,7 @@ function checkAndModifySizeOfKGPVIfRequired(bid, responseId){
 	if(responseIdArray &&  responseIdArray.length == 3){
 		var responseIdSize = responseIdArray[2];
 		/* istanbul ignore else */
-		if(bid.getSize() && bid.getSize() != responseIdSize && bid.getSize() != "0X0"){
+		if(bid.getSize() && bid.getSize() != responseIdSize && (bid.getSize().toUpperCase() != "0X0")){
 			responseKGPV = responseIdArray[0] + "@" + responseIdArray[1] + "@" +  bid.getSize().toUpperCase();
 		}
 	}
