@@ -1,17 +1,12 @@
 /* global describe, it, xit, sinon, expect */
 // var sinon = require("sinon");
 var should = require("chai").should();
-var expect = require("chai").expect;
-
 var CUSTOM = require("../../src_new/controllers/custom.js");
 var UTIL = require("../../src_new/util.js");
 var AM = require("../../src_new/adapterManager.js");
-var CONSTANTS = require("../../src_new/constants.js");
 var CONFIG = require("../../src_new/config.js");
 var BM = require("../../src_new/bidManager.js");
-var SLOT = require("../../src_new/slot.js");
 var BID = require("../../src_new/bid.js");
-var commonDivID = "DIV_1";
 
 describe("CONTROLLER: CUSTOM", function() {
 
@@ -430,7 +425,6 @@ describe("CONTROLLER: CUSTOM", function() {
 	});
 
 	describe("#findWinningBidAndGenerateTargeting", function () {
-		var divID = null;
 		var dataStub = null;
 		var winningBidStub = null;
 		var keyValuePairsStub = null;
@@ -581,8 +575,7 @@ describe("CONTROLLER: CUSTOM", function() {
 				}
 			};
 
-			var op = CUSTOM.generateConfForGPT([googleSlot1, googleSlot2])
-			console.log(op);
+			var op = CUSTOM.generateConfForGPT([googleSlot1, googleSlot2]);		
 			op[0].should.deep.equal({
 				code: googleSlot1.getSlotId().getDomId(),
 				divId: googleSlot1.getSlotId().getDomId(),
@@ -766,12 +759,12 @@ describe("CONTROLLER: CUSTOM", function() {
 					return "getAdUnitPath";
 				},
 				setSizes: function () {
-					return "setSizes"
+					return "setSizes";
 				}
 			};
 			(currentGoogleSlotStub_1.keyValuePairs["pwtsid"] === "1234").should.equal(true);
 			(currentGoogleSlotStub_2.keyValuePairs["pwtsid"] === "9876").should.equal(true);
-			var op = CUSTOM.removeOpenWrapKeyValuePairsFromSlotsForGPT([currentGoogleSlotStub_1, currentGoogleSlotStub_2]);
+			CUSTOM.removeOpenWrapKeyValuePairsFromSlotsForGPT([currentGoogleSlotStub_1, currentGoogleSlotStub_2]);
 			(currentGoogleSlotStub_1.keyValuePairs["pwtsid"] === undefined).should.equal(true);
 			(currentGoogleSlotStub_2.keyValuePairs["pwtsid"] === undefined).should.equal(true);
 			done();
