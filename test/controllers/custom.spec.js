@@ -10,6 +10,7 @@ var CONSTANTS = require("../../src_new/constants.js");
 var CONFIG = require("../../src_new/config.js");
 var BM = require("../../src_new/bidManager.js");
 var SLOT = require("../../src_new/slot.js");
+var BID = require("../../src_new/bid.js");
 var commonDivID = "DIV_1";
 
 describe("CONTROLLER: CUSTOM", function() {
@@ -434,63 +435,82 @@ describe("CONTROLLER: CUSTOM", function() {
         var winningBidStub = null;
         var keyValuePairsStub = null;
 
-        beforeEach(function(done){
-
-            winningBidStub = {
-                getBidID: function() {
-                    return "getBidID";
-                },
-                getStatus: function() {
-                    return "getStatus";
-                },
-                getNetEcpm: function() {
-                    return "getNetEcpm";
-                },
-                getDealID: function() {
-                    return "getDealID";
-                },
-                getAdapterID: function() {
-                    return "getAdapterID";
-                },
-            };
-            // sinon.stub(winningBidStub, "getBidID");
-            // sinon.stub(winningBidStub, "getStatus");
-            // sinon.stub(winningBidStub, "getNetEcpm");
-            // sinon.stub(winningBidStub, "getDealID");
-            // sinon.stub(winningBidStub, "getAdapterID");
-            keyValuePairsStub = {
-                "key1": {
-                    "k1": "v1",
-                    "k2": "v2"
-                },
-                "key2": {
-                    "k12": "v12",
-                    "k22": "v22"
-                }
-            };
-            dataStub = {
-                wb: winningBidStub,
-                kvp: keyValuePairsStub
-            };
-            // sinon.stub(BM, "getBid").withArgs(divID).returns(dataStub);
-            sinon.stub(BM, "getBid").returns(dataStub);
-            done();
-        });
-
-        afterEach(function(done){
-            BM.getBid.restore();
-            done();
-        });
-
     	it("is a function", function(done) {
             CUSTOM.findWinningBidAndGenerateTargeting.should.be.a("function");
             done();
         });
 
-        it("", function(done){
-
+        it("proper key value pairs are generated", function(done){            
+            winningBidStub = BID.createBid("pubmatic", "div_1");
+            winningBidStub.setStatus(1);
+            winningBidStub.setGrossEcpm(1.0);
+            winningBidStub.setDealID("deal-id");
+            winningBidStub.setAdHtml("Hello World!");
+            winningBidStub.setWidth(728);
+            winningBidStub.setHeight(90);
+            keyValuePairsStub = {
+                "key1": ["V1", "V2"],
+                "key2": ["V11", "V22"]
+            };
+            dataStub = {
+                wb: winningBidStub,
+                kvp: keyValuePairsStub
+            };
+            sinon.stub(BM, "getBid").returns(dataStub);
+            var a = CUSTOM.findWinningBidAndGenerateTargeting("div1");
+            a.wb.adHtml.should.equal(winningBidStub.getAdHtml());
+            a.wb.adapterID.should.equal(winningBidStub.getAdapterID());
+            a.wb.width.should.equal(winningBidStub.getWidth());
+            a.wb.height.should.equal(winningBidStub.getHeight());
+            a.wb.grossEcpm.should.equal(winningBidStub.getGrossEcpm());
+            a.wb.netEcpm.should.equal(winningBidStub.getNetEcpm());
+            a.kvp["key1"].should.deep.equal(keyValuePairsStub["key1"]);
+            a.kvp["key2"].should.deep.equal(keyValuePairsStub["key2"]);
+            //todo: compare other key value pairs as well
+            BM.getBid.restore();
+            done();
         });
 
+        it("object with wb and kvp set to null is returned if there is no winning bid", function(done){
+            winningBidStub = null;
+            keyValuePairsStub = null;
+            dataStub = {
+                wb: winningBidStub,
+                kvp: keyValuePairsStub
+            };
+            sinon.stub(BM, "getBid").returns(dataStub);
+            var a = CUSTOM.findWinningBidAndGenerateTargeting("div1");        
+            (a.wb === null).should.equal(true);
+            (a.kvp === null).should.equal(true);
+            BM.getBid.restore();
+            done();
+        });
+
+        it("object with wb is set but kvp set to null is returned if winning bid has ecpm 0", function(done){
+            winningBidStub = BID.createBid("pubmatic", "div_1");
+            winningBidStub.setStatus(1);
+            winningBidStub.setGrossEcpm(0);
+            winningBidStub.setDealID("deal-id");
+            winningBidStub.setAdHtml("Hello World!");
+            winningBidStub.setWidth(728);
+            winningBidStub.setHeight(90);
+            keyValuePairsStub = null;
+            dataStub = {
+                wb: winningBidStub,
+                kvp: keyValuePairsStub
+            };
+            sinon.stub(BM, "getBid").returns(dataStub);
+            var a = CUSTOM.findWinningBidAndGenerateTargeting("div1");
+            a.wb.adHtml.should.equal(winningBidStub.getAdHtml());
+            a.wb.adapterID.should.equal(winningBidStub.getAdapterID());
+            a.wb.width.should.equal(winningBidStub.getWidth());
+            a.wb.height.should.equal(winningBidStub.getHeight());
+            a.wb.grossEcpm.should.equal(winningBidStub.getGrossEcpm());
+            a.wb.netEcpm.should.equal(winningBidStub.getNetEcpm());
+            (a.kvp === null).should.equal(true);
+            BM.getBid.restore();
+            done();
+        });
     });
 
     describe("#customServerExposedAPI", function () {
@@ -505,6 +525,88 @@ describe("CONTROLLER: CUSTOM", function() {
             CUSTOM.generateConfForGPT.should.be.a("function");
             done();
         });
+
+        it("return empty array if first argument is not an array", function(done){
+            CUSTOM.generateConfForGPT().should.deep.equal([]);
+            done();
+        });
+
+        it("correct config should be generated", function(done){
+            var googleSlot1 = {
+                getAdUnitPath: function(){
+                    return "1234";
+                },
+                getSlotId: function(){
+                    return {
+                        getDomId: function(){
+                            return "div_1";
+                        }
+                    }
+                },
+                getSizes: function(){
+                    return [
+                        {
+                            getWidth: function(){
+                                return 728;
+                            },
+                            getHeight: function(){
+                                return 90;
+                            }
+                        }
+                    ];
+                }
+            };
+            var googleSlot2 = {
+                getAdUnitPath: function(){
+                    return "9876";
+                },
+                getSlotId: function(){
+                    return {
+                        getDomId: function(){
+                            return "div_2";
+                        }
+                    }
+                },
+                getSizes: function(){
+                    return [
+                        {
+                            getWidth: function(){
+                                return 300;
+                            },
+                            getHeight: function(){
+                                return 250;
+                            }
+                        }
+                    ];
+                }
+            };
+
+            var op = CUSTOM.generateConfForGPT([googleSlot1, googleSlot2])
+            console.log(op);
+            op[0].should.deep.equal({
+                code: googleSlot1.getSlotId().getDomId(),
+                divId: googleSlot1.getSlotId().getDomId(),
+                adUnitId: googleSlot1.getAdUnitPath(),
+                adUnitIndex: 0,
+                mediaTypes: {
+                    banner: {
+                        sizes: [[728, 90]]
+                    }
+                }
+            });
+            op[1].should.deep.equal({
+                code: googleSlot2.getSlotId().getDomId(),
+                divId: googleSlot2.getSlotId().getDomId(),
+                adUnitId: googleSlot2.getAdUnitPath(),
+                adUnitIndex: 0,
+                mediaTypes: {
+                    banner: {
+                        sizes: [[300, 250]]
+                    }
+                }
+            });
+            done();
+        });
     });
 
     describe("#addKeyValuePairsOnSlotsForGPT", function () {
@@ -512,11 +614,166 @@ describe("CONTROLLER: CUSTOM", function() {
             CUSTOM.addKeyValuePairsOnSlotsForGPT.should.be.a("function");
             done();
         });
+
+        xit("should add passed key-value pairs on respective GPT slots", function(done){
+
+            var currentGoogleSlotStub_1 = {
+                keyValuePairs: {
+                    "k1": "v1",
+                    "k2": "v2",
+                    "pk1": "pv1",
+                    "pk2": "pv2",
+                },
+                getTargetingKeys: function() {
+                    return Object.keys(this.keyValuePairs);
+                },
+                getTargeting: function(key) {
+                    return this.keyValuePairs[key];
+                },
+                clearTargeting: function() {
+                    this.keyValuePairs = {};
+                },
+                setTargeting: function(key, value) {
+                    return this.keyValuePairs[key] = value;
+                },
+                getSlotId: function () {
+                    return "slot_1";
+                },
+                getAdUnitPath: function () {
+                    return "getAdUnitPath";
+                },
+                setSizes: function () {
+                    return "setSizes"
+                }
+            };
+
+            var currentGoogleSlotStub_2 = {
+                keyValuePairs: {
+                    "k11": "v11",
+                    "k22": "v22",
+                    "pk11": "pv11",
+                    "pk22": "pv22",
+                },
+                getTargetingKeys: function() {
+                    return Object.keys(this.keyValuePairs);
+                },
+                getTargeting: function(key) {
+                    return this.keyValuePairs[key];
+                },
+                clearTargeting: function() {
+                    this.keyValuePairs = {};
+                },
+                setTargeting: function(key, value) {
+                    return this.keyValuePairs[key] = value;
+                },
+                getSlotId: function () {
+                    return {
+                        getDomId: function () {
+                            return "DIV_2";
+                        }
+                    };
+                },
+                getAdUnitPath: function () {
+                    return "getAdUnitPath";
+                },
+                setSizes: function () {
+                    return "setSizes"
+                }
+            };
+
+            // todo: add stub for getSlots
+
+            CUSTOM.addKeyValuePairsOnSlotsForGPT([
+                {
+                    bidData:{
+                        wb:{}, 
+                        kvp:{}
+                    }
+                }
+            ]);
+
+            done();
+        });
     });
 
     describe("#removeOpenWrapKeyValuePairsFromSlotsForGPT", function () {
     	it("is a function", function(done) {
             CUSTOM.removeOpenWrapKeyValuePairsFromSlotsForGPT.should.be.a("function");
+            done();
+        });
+
+        it("remove the wrappre targetings", function(done){
+
+            var currentGoogleSlotStub_1 = {
+                keyValuePairs: {
+                    "k1": "v1",
+                    "k2": "v2",
+                    "pk1": "pv1",
+                    "pk2": "pv2",
+                    "pwtsid": "1234"
+                },
+                getTargetingKeys: function() {
+                    return Object.keys(this.keyValuePairs);
+                },
+                getTargeting: function(key) {
+                    return this.keyValuePairs[key];
+                },
+                clearTargeting: function() {
+                    this.keyValuePairs = {};
+                },
+                setTargeting: function(key, value) {
+                    return this.keyValuePairs[key] = value;
+                },
+                getSlotId: function () {
+                    return "slot_1";
+                },
+                getAdUnitPath: function () {
+                    return "getAdUnitPath";
+                },
+                setSizes: function () {
+                    return "setSizes"
+                }
+            };
+
+            var currentGoogleSlotStub_2 = {
+                keyValuePairs: {
+                    "k11": "v11",
+                    "k22": "v22",
+                    "pk11": "pv11",
+                    "pk22": "pv22",
+                    "pwtsid": "9876"
+                },
+                getTargetingKeys: function() {
+                    return Object.keys(this.keyValuePairs);
+                },
+                getTargeting: function(key) {
+                    return this.keyValuePairs[key];
+                },
+                clearTargeting: function() {
+                    this.keyValuePairs = {};
+                },
+                setTargeting: function(key, value) {
+                    return this.keyValuePairs[key] = value;
+                },
+                getSlotId: function () {
+                    return {
+                        getDomId: function () {
+                            return "DIV_2";
+                        }
+                    };
+                },
+                getAdUnitPath: function () {
+                    return "getAdUnitPath";
+                },
+                setSizes: function () {
+                    return "setSizes"
+                }
+            };
+            (currentGoogleSlotStub_1.keyValuePairs["pwtsid"] === "1234").should.equal(true);
+            (currentGoogleSlotStub_2.keyValuePairs["pwtsid"] === "9876").should.equal(true);
+            var op = CUSTOM.removeOpenWrapKeyValuePairsFromSlotsForGPT([currentGoogleSlotStub_1, currentGoogleSlotStub_2]);
+            (currentGoogleSlotStub_1.keyValuePairs["pwtsid"] === undefined).should.equal(true);
+            (currentGoogleSlotStub_2.keyValuePairs["pwtsid"] === undefined).should.equal(true);
             done();
         });
     });

@@ -187,8 +187,9 @@ function findWinningBidAndGenerateTargeting(divId) {
 		refThis.defineWrapperTargetingKey(key);
 	});
 
-	var wb = {};
+	var wb = null;
 	if (winningBid) {
+		wb = {};
 		wb.adHtml = winningBid.adHtml;
 		wb.adapterID = winningBid.adapterID;
 		wb.grossEcpm = winningBid.grossEcpm;
