@@ -321,7 +321,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			done();
 		});
 
-		it("should return false when passed argument is not an object", function (done) {        	
+		it("should return false when passed argument is not an object", function (done) {
 			CUSTOM.validateAdUnitObject().should.be.false;
 			done();
 		});
@@ -372,7 +372,6 @@ describe("CONTROLLER: CUSTOM", function() {
 			CUSTOM.validateAdUnitObject(validObject).should.be.true;
 			done();
 		});
-
 	});
 
 	describe("#getAdSlotSizesArray()", function() {
