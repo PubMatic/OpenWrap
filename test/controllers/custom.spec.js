@@ -1,4 +1,4 @@
-/* global describe, it, xit, sinon, expect */
+/* global describe, it, xit, sinon */
 // var sinon = require("sinon");
 //var should = require("chai").should();
 var CUSTOM = require("../../src_new/controllers/custom.js");
@@ -772,6 +772,8 @@ describe("CONTROLLER: CUSTOM", function() {
 
 	describe("#init", function() {
 
+		var input = null;
+
 		beforeEach(function (done) {
 			sinon.spy(UTIL, "isObject");
 			sinon.spy(CUSTOM, "setWindowReference");
@@ -798,7 +800,7 @@ describe("CONTROLLER: CUSTOM", function() {
 		});
 
 		it("should return false when window object is null", function(done) {
-			CUSTOM.init(null).should.equal(false);
+			CUSTOM.init(input).should.equal(false);
 			done();
 		});
 
