@@ -1,10 +1,9 @@
 /* global describe, it, xit, sinon, expect */
 // var sinon = require("sinon");
-var should = require("chai").should();
+//var should = require("chai").should();
 var CUSTOM = require("../../src_new/controllers/custom.js");
 var UTIL = require("../../src_new/util.js");
 var AM = require("../../src_new/adapterManager.js");
-var CONFIG = require("../../src_new/config.js");
 var BM = require("../../src_new/bidManager.js");
 var BID = require("../../src_new/bid.js");
 
@@ -559,7 +558,7 @@ describe("CONTROLLER: CUSTOM", function() {
 						getDomId: function(){
 							return "div_2";
 						}
-					}
+					};
 				},
 				getSizes: function(){
 					return [
@@ -724,7 +723,7 @@ describe("CONTROLLER: CUSTOM", function() {
 					return "getAdUnitPath";
 				},
 				setSizes: function () {
-					return "setSizes"
+					return "setSizes";
 				}
 			};
 
@@ -773,7 +772,7 @@ describe("CONTROLLER: CUSTOM", function() {
 
 	describe("#init", function() {
 
-		beforeEach(function(done) {
+		beforeEach(function (done) {
 			sinon.spy(UTIL, "isObject");
 			sinon.spy(CUSTOM, "setWindowReference");
 			sinon.spy(CUSTOM, "defineWrapperTargetingKeys");
@@ -783,7 +782,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			done();
 		});
 
-		afterEach(function(done) {
+		afterEach(function (done) {
 			UTIL.isObject.restore();
 			CUSTOM.setWindowReference.restore();
 			CUSTOM.defineWrapperTargetingKeys.restore();
