@@ -727,6 +727,11 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
+        it('has access to owpbjs namespace', function(done) {
+            should.exist(window["owpbjs"]);
+            done();
+        });
+
         // TODO: Need to fix this testcase somehow
         it('returns while logging it when Prebid js is not loaded', function(done) {
             // sinon.stub(global.window || window, "pwtCreatePrebidNamespace").withArgs("owpbjs").returns(true);
