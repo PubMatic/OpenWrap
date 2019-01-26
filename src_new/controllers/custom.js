@@ -263,15 +263,6 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 		}
 	});
 
-	/*
-		Note:
-			- No need to handle external bidders
-
-		ToDo:
-			- check if we have considered all the flags?                  
-			- GDPR
-	*/
-
 	if (qualifyingSlots.length == 0) {
 		util.error("There are no qualifyingSlots, so not calling bidders.");
 		return;
@@ -311,9 +302,6 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 		}
 		timeoutTicker += timeoutIncrementer;
 	}, timeoutIncrementer);
-
-	// calling adapters
-	//adapterManager.callAdapters(qualifyingSlots);
 }
 /* start-test-block */
 exports.customServerExposedAPI = customServerExposedAPI;
