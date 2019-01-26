@@ -682,9 +682,10 @@ describe("CONTROLLER: CUSTOM", function() {
 						getSlots: function(){
 							return [currentGoogleSlotStub_1, currentGoogleSlotStub_2];
 						}
-					}
+					};
 				}
-			}
+			};
+
 			CUSTOM.addKeyValuePairsOnSlotsForGPT([
 				{
 					divId: "DIV_1",
