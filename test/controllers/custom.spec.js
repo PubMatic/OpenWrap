@@ -606,85 +606,109 @@ describe("CONTROLLER: CUSTOM", function() {
 			done();
 		});
 
-		// xit("should add passed key-value pairs on respective GPT slots", function(done){
+		it("should add passed key-value pairs on respective GPT slots", function(done){
 
-		// 	var currentGoogleSlotStub_1 = {
-		// 		keyValuePairs: {
-		// 			"k1": "v1",
-		// 			"k2": "v2",
-		// 			"pk1": "pv1",
-		// 			"pk2": "pv2",
-		// 		},
-		// 		getTargetingKeys: function() {
-		// 			return Object.keys(this.keyValuePairs);
-		// 		},
-		// 		getTargeting: function(key) {
-		// 			return this.keyValuePairs[key];
-		// 		},
-		// 		clearTargeting: function() {
-		// 			this.keyValuePairs = {};
-		// 		},
-		// 		setTargeting: function(key, value) {
-		// 			return this.keyValuePairs[key] = value;
-		// 		},
-		// 		getSlotId: function () {
-		// 			return "slot_1";
-		// 		},
-		// 		getAdUnitPath: function () {
-		// 			return "getAdUnitPath";
-		// 		},
-		// 		setSizes: function () {
-		// 			return "setSizes";
-		// 		}
-		// 	};
+			var currentGoogleSlotStub_1 = {
+				keyValuePairs: {
+					"k1": "v1",
+					"k2": "v2",
+					"pk1": "pv1",
+					"pk2": "pv2",
+				},
+				getTargetingKeys: function() {
+					return Object.keys(this.keyValuePairs);
+				},
+				getTargeting: function(key) {
+					return this.keyValuePairs[key];
+				},
+				clearTargeting: function() {
+					this.keyValuePairs = {};
+				},
+				setTargeting: function(key, value) {
+					return this.keyValuePairs[key] = value;
+				},
+				getSlotId: function () {
+					return {
+						getDomId: function () {
+							return "DIV_1";
+						}
+					};
+				},
+				getAdUnitPath: function () {
+					return "getAdUnitPath";
+				},
+				setSizes: function () {
+					return "setSizes";
+				}
+			};
 
-		// 	var currentGoogleSlotStub_2 = {
-		// 		keyValuePairs: {
-		// 			"k11": "v11",
-		// 			"k22": "v22",
-		// 			"pk11": "pv11",
-		// 			"pk22": "pv22",
-		// 		},
-		// 		getTargetingKeys: function() {
-		// 			return Object.keys(this.keyValuePairs);
-		// 		},
-		// 		getTargeting: function(key) {
-		// 			return this.keyValuePairs[key];
-		// 		},
-		// 		clearTargeting: function() {
-		// 			this.keyValuePairs = {};
-		// 		},
-		// 		setTargeting: function(key, value) {
-		// 			return this.keyValuePairs[key] = value;
-		// 		},
-		// 		getSlotId: function () {
-		// 			return {
-		// 				getDomId: function () {
-		// 					return "DIV_2";
-		// 				}
-		// 			};
-		// 		},
-		// 		getAdUnitPath: function () {
-		// 			return "getAdUnitPath";
-		// 		},
-		// 		setSizes: function () {
-		// 			return "setSizes";
-		// 		}
-		// 	};
+			var currentGoogleSlotStub_2 = {
+				keyValuePairs: {
+					"k11": "v11",
+					"k22": "v22",
+					"pk11": "pv11",
+					"pk22": "pv22",
+				},
+				getTargetingKeys: function() {
+					return Object.keys(this.keyValuePairs);
+				},
+				getTargeting: function(key) {
+					return this.keyValuePairs[key];
+				},
+				clearTargeting: function() {
+					this.keyValuePairs = {};
+				},
+				setTargeting: function(key, value) {
+					return this.keyValuePairs[key] = value;
+				},
+				getSlotId: function () {
+					return {
+						getDomId: function () {
+							return "DIV_2";
+						}
+					};
+				},
+				getAdUnitPath: function () {
+					return "getAdUnitPath";
+				},
+				setSizes: function () {
+					return "setSizes";
+				}
+			};
 
-		// 	// todo: add stub for getSlots
-
-		// 	CUSTOM.addKeyValuePairsOnSlotsForGPT([
-		// 		{
-		// 			bidData:{
-		// 				wb:{}, 
-		// 				kvp:{}
-		// 			}
-		// 		}
-		// 	]);
-
-		// 	done();
-		// });
+			window.googletag = {
+				pubads: function(){
+					return {
+						getSlots: function(){
+							return [currentGoogleSlotStub_1, currentGoogleSlotStub_2];
+						}
+					}
+				}
+			}
+			CUSTOM.addKeyValuePairsOnSlotsForGPT([
+				{
+					divId: "DIV_1",
+					bidData: {
+						wb: {}, 
+						kvp: {
+							pwtsid: "12345"
+						}
+					}
+				},
+				{
+					divId: "DIV_2",
+					bidData: {
+						wb: {}, 
+						kvp: {
+							pwtsid: "98765"
+						}
+					}
+				},
+			]);
+			currentGoogleSlotStub_1.keyValuePairs["pwtsid"].should.deep.equal(["12345"]);
+			currentGoogleSlotStub_2.keyValuePairs["pwtsid"].should.deep.equal(["98765"]);
+			done();
+		});
 	});
 
 	describe("#removeOpenWrapKeyValuePairsFromSlotsForGPT", function () {
