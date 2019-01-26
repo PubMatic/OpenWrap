@@ -234,6 +234,7 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 
 	if (!util.isArray(arrayOfAdUnits)) {
 		util.error("First argument to PWT.requestBids API, arrayOfAdUnits is mandatory and it should be an array.");
+		callbackFunction(arrayOfAdUnits);
 		return;
 	}
 
@@ -265,6 +266,7 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 
 	if (qualifyingSlots.length == 0) {
 		util.error("There are no qualifyingSlots, so not calling bidders.");
+		callbackFunction(arrayOfAdUnits);
 		return;
 	}
 
