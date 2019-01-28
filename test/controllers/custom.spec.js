@@ -531,11 +531,11 @@ describe("CONTROLLER: CUSTOM", function() {
 
 		it("it should call addpter-manager", function(done){
 			sinon.stub(AM, "callAdapters");
-            AM.callAdapters.returns(true);
-            sinon.stub(CONFIG, "getTimeout");
-            CONFIG.getTimeout.returns(10);
-            var flag = false;
-            CUSTOM.customServerExposedAPI([{
+			AM.callAdapters.returns(true);
+			sinon.stub(CONFIG, "getTimeout");
+			CONFIG.getTimeout.returns(10);
+			var flag = false;
+			CUSTOM.customServerExposedAPI([{
 				code: "some-pub-friendly-unique-name",
 				divId: "div-id-where-slot-will-render",
 				adUnitId: "ad_unit-id-from-DFP",
@@ -548,12 +548,12 @@ describe("CONTROLLER: CUSTOM", function() {
 			}], function(){
 				flag = true;
 			});
-            AM.callAdapters.called.should.be.true;
-            AM.callAdapters.restore();
-            setTimeout(function(){
-            	flag.should.equal(true);
-            	done();
-            }, 15);
+			AM.callAdapters.called.should.be.true;
+			AM.callAdapters.restore();
+			setTimeout(function(){
+				flag.should.equal(true);
+				done();
+			}, 15);
 		});
 
 	});
