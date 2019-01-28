@@ -3,6 +3,7 @@
 //var should = require("chai").should();
 var CUSTOM = require("../../src_new/controllers/custom.js");
 var UTIL = require("../../src_new/util.js");
+var CONFIG = require("../../src_new/config.js");
 var AM = require("../../src_new/adapterManager.js");
 var BM = require("../../src_new/bidManager.js");
 var BID = require("../../src_new/bid.js");
@@ -510,6 +511,51 @@ describe("CONTROLLER: CUSTOM", function() {
 			CUSTOM.customServerExposedAPI.should.be.a("function");
 			done();
 		});
+
+		it("should call callback if first array is not array", function(done){
+			var flag = false;
+			var myCallback = function(){
+				flag = true;
+			};
+			CUSTOM.customServerExposedAPI("", myCallback);
+			flag.should.equal(true);
+			done();
+		});
+
+		it("should not alter array in the first argument if callback function is not passed", function(done){
+			var firstArg = [ {a:1}, {a:10}];
+			CUSTOM.customServerExposedAPI(firstArg);
+			firstArg.should.equal(firstArg);
+			done();
+		});
+
+		it("it should call addpter-manager", function(done){
+			sinon.stub(AM, "callAdapters");
+            AM.callAdapters.returns(true);
+            sinon.stub(CONFIG, "getTimeout");
+            CONFIG.getTimeout.returns(10);
+            var flag = false;
+            CUSTOM.customServerExposedAPI([{
+				code: "some-pub-friendly-unique-name",
+				divId: "div-id-where-slot-will-render",
+				adUnitId: "ad_unit-id-from-DFP",
+				adUnitIndex: "ad-unit-index",
+				mediaTypes: {
+					banner: {
+						sizes: [ [300, 250], [300, 300] ]
+					}
+				}
+			}], function(){
+				flag = true;
+			});
+            AM.callAdapters.called.should.be.true;
+            AM.callAdapters.restore();
+            setTimeout(function(){
+            	flag.should.equal(true);
+            	done();
+            }, 15);
+		});
+
 	});
 
 	describe("#generateConfForGPT", function () {
