@@ -524,7 +524,9 @@ describe('ADAPTER: Prebid', function() {
             adapterID = "pulsepoint";
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             UTIL.forEachOnArray.calledWith(
-                currentSlot.getSizes()
+               [[
+                   340,210
+               ]]
             ).should.be.true;
             CONFIG.getProfileID.called.should.be.false;
             CONFIG.getProfileDisplayVersionID.called.should.be.false;

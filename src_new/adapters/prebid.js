@@ -237,10 +237,14 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	
 	if(kgpConsistsWidthAndHeight){
 		code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
+		sizes = [[currentWidth,currentHeight]];
 	}else{
 		code = refThis.getPBCodeWithoutWidthAndHeight(divID, adapterID);
+		sizes = currentSlot.getSizes();	
 	}
-	sizes = currentSlot.getSizes();	
+	if(adapterID == "pubmatic"){
+		sizes = currentSlot.getSizes();	
+	}
 	refThis.kgpvMap [ code ] = {
 		kgpv: generatedKey,
 		divID: divID
