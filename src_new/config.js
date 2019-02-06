@@ -159,3 +159,10 @@ exports.initConfig = function(){
 		});
 	});
 };
+
+/* Native Configuration */
+
+exports.getNativeConfiguration = function(){
+	//  Remove short lived variables 
+	return config[CONSTANTS.COMMON.MEDIA_TYPE_CONFIG];
+};

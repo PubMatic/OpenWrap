@@ -11,7 +11,7 @@ exports.pwt = {
 	cmpApi: "iab",
 	gdprTimeout: "10000",
 	awc: "1",
-	disableAjaxTimeout:true
+	disableAjaxTimeout: true
 };
 
 exports.adapters = {
@@ -71,6 +71,50 @@ exports.adapters = {
 			},
 			"Div-2": {
 				ct: "147007"
+			}
+		}
+	}
+};
+
+exports.nativeConfig = {
+	kgp:"_DIV_",
+	klm:{
+		"DIV1":{
+			"NativeOnly": true,
+			config: {
+				image: {
+					required: true,
+					sizes: [150, 50]
+				},
+				title: {
+					required: true,
+					len: 80
+				},
+				sponsoredBy: {
+					required: true
+				},
+				body: {
+					required: true
+				}
+			}
+		},
+		"DIV2":{
+			"NativeOnly": true,
+			config: {
+				image: {
+					required: true,
+					sizes: [150, 50]
+				},
+				title: {
+					required: true,
+					len: 80
+				},
+				sponsoredBy: {
+					required: true
+				},
+				body: {
+					required: true
+				}
 			}
 		}
 	}

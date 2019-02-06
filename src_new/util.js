@@ -915,3 +915,23 @@ exports.ajaxRequest = function(url, callback, data, options) {
 		refThis.log(error);
 	}
 };
+
+exports.getMediaTypeObject = function(nativeConfig, sizes, currentSlot){
+	var mediaTypeObject = {};
+	var kgp = nativeConfig.kgp;
+	var klm = nativeConfig.klm;
+	var kgpv = kgp.replace(constCommonMacroForAdUnitIDRegExp, currentSlot.getAdUnitID())
+					.replace(constCommonMacroForDivRegExp, currentSlot.getDivID());
+	if(refThis.isOwnProperty(klm,kgpv)){
+		refThis.log("Native Config found for adSlot", currentSlot);
+		var config = klm[kgpv];
+		mediaTypeObject["native"] = config.config;
+		if(config.NativeOnly){
+			return mediaTypeObject;
+		}
+	}
+	mediaTypeObject["banner"] = {
+		sizes: sizes
+	};
+	return mediaTypeObject;
+};

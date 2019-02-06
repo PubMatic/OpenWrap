@@ -412,11 +412,15 @@ describe('ADAPTER: Prebid', function() {
                         [340, 210],
                         [1024, 768]
                     ];
+                },
+                getAdUnitID: function(){
+                    return "ad_unit_1"
                 }
             };
 
             sinon.spy(currentSlot, "getDivID");
             sinon.spy(currentSlot, "getSizes");
+            sinon.spy(currentSlot, "getAdUnitID");
             adapterConfig = {
                 "publisherId": 121
             };
@@ -449,6 +453,7 @@ describe('ADAPTER: Prebid', function() {
 
             currentSlot.getDivID.restore();
             currentSlot.getSizes.restore();
+            currentSlot.getAdUnitID.restore();
 
             CONFIG.getProfileID.restore();
             CONFIG.getProfileDisplayVersionID.restore();

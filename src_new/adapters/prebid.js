@@ -188,6 +188,17 @@ function getPBCodeWithoutWidthAndHeight(divID, adapterID){
 }
 
 /* start-test-block */
+exports.getMediaTypeObject = getMediaTypeObject;
+/* end-test-block */
+
+// divID is taken into consideration if nativeconfiguration on adUnit level then we need to check for which div we need
+// 
+function getMediaTypeObject(sizes, currentSlot){
+	console.log(currentSlot);
+	return util.getMediaTypeObject(CONFIG.getNativeConfiguration(), sizes, currentSlot);
+}
+
+/* start-test-block */
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
 
@@ -217,7 +228,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	if(!util.isOwnProperty(adUnits, code)){
 		adUnits[code] = {
 			code: code,
-			mediaType: "banner",
+			mediaTypes: refThis.getMediaTypeObject(sizes, currentSlot),
 			sizes: sizes,
 			bids: []
 		};
