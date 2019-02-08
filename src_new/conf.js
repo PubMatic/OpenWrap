@@ -11,7 +11,7 @@ exports.pwt = {
 	cmpApi: "iab",
 	gdprTimeout: "10000",
 	awc: "1",
-	disableAjaxTimeout: true
+	disableAjaxTimeout:true
 };
 
 exports.adapters = {
@@ -80,7 +80,7 @@ exports.nativeConfig = {
 	kgp:"_DIV_",
 	klm:{
 		"DIV1":{
-			"NativeOnly": true,
+			"nativeOnly": true,
 			config: {
 				image: {
 					required: true,
@@ -99,7 +99,7 @@ exports.nativeConfig = {
 			}
 		},
 		"DIV2":{
-			"NativeOnly": true,
+			"nativeOnly": true,
 			config: {
 				image: {
 					required: true,

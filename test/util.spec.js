@@ -2207,7 +2207,7 @@ describe('UTIL', function() {
                 kgp:"_DIV_", // Or it Could be _AU_
                 klm:{
                     "DIV_1":{
-                        "NativeOnly": false,
+                        "nativeOnly": false,
                         config: {
                             image: {
                                 required: true,
@@ -2226,7 +2226,7 @@ describe('UTIL', function() {
                         }
                     },
                     "DIV_2":{
-                        "NativeOnly": true,
+                        "nativeOnly": true,
                         config: {
                             image: {
                                 required: true,
