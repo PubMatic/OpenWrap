@@ -11,6 +11,7 @@ var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var adapterManager = require("../adapterManager.js");
 var CONF = require("../conf.js");
+var userSyncTriggered = false;
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
@@ -443,6 +444,19 @@ function fetchBids(activeSlots, impressionID){
 					bidsBackHandler: function(bidResponses) {
 						util.log("In PreBid bidsBackHandler with bidResponses: ");
 						util.log(bidResponses);
+						if (userSyncTriggered) {
+							if (window[pbNameSpace].getConfig('enableOverride') === undefined) {
+								window[pbNameSpace].setConfig(
+								{
+									userSync: {
+										enableOverride: true
+									}
+								});
+							}
+							//owpbjs.resetHasFired();
+							owpbjs.triggerUserSyncs();
+						}
+						userSyncTriggered = true;
 						//refThis.handleBidResponses(bidResponses);
 					},
 					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then
