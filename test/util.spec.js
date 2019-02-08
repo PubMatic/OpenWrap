@@ -2199,4 +2199,157 @@ describe('UTIL', function() {
         });
     });
 
+    describe('#getMediaTypeObject', function() {
+        var nativeConfiguration, sizes, currentSlot;
+
+        beforeEach(function(done) {
+            nativeConfiguration =  {
+                kgp:"_DIV_", // Or it Could be _AU_
+                klm:{
+                    "DIV_1":{
+                        "NativeOnly": false,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    },
+                    "DIV_2":{
+                        "NativeOnly": true,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    }
+                }
+            };
+            sizes = [[300,250]];
+            currentSlot = { 
+                getSizes: function(){
+                    return [[300,250]];
+                },
+                getAdUnitID: function(){
+                    return "testAdUnit";
+                },
+                getDivID: function() {
+                    return commonDivID;
+                },
+            }
+            sinon.spy(currentSlot, "getDivID");
+            sinon.spy(currentSlot, "getSizes");
+            sinon.spy(currentSlot, "getAdUnitID");
+            done();
+        });
+
+        afterEach(function(done) {
+            nativeConfiguration = null;
+            sizes = null;
+            commonDivID = "DIV_1"
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.getMediaTypeObject.should.be.a('function');
+            done();
+        });
+
+        it('should return mediaTypeObject with Native and Banner if config is present',function(done){
+            var expectedResult =  { 
+                native: {
+                    image: {
+                        required: true,
+                        sizes: [150, 50]
+                    },
+                    title: {
+                        required: true,
+                        len: 80
+                    },
+                    sponsoredBy: {
+                        required: true
+                    },
+                    body: {
+                        required: true
+                    }
+                },
+                banner: {
+                    sizes: sizes
+                }
+            }
+            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+        
+        it('should return mediaTypeObject with Native only if for that kgpv only native is required',function(done){
+            nativeConfiguration.klm["DIV_1"].NativeOnly = true;
+            var expectedResult =  { 
+                native: {
+                    image: {
+                        required: true,
+                        sizes: [150, 50]
+                    },
+                    title: {
+                        required: true,
+                        len: 80
+                    },
+                    sponsoredBy: {
+                        required: true
+                    },
+                    body: {
+                        required: true
+                    }
+                }
+            }
+            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return only banner if not matching kgpv is found', function(done){
+            var expectedResult =  { 
+                banner: {
+                    sizes: sizes
+                }
+            };
+            commonDivID = "DIV_3";
+            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return only banner if no configuration found for native', function(done){
+            nativeConfiguration = undefined;
+            var expectedResult =  { 
+                banner: {
+                    sizes: sizes
+                }
+            };
+            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
 });

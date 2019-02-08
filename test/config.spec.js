@@ -597,4 +597,67 @@ describe('Config', function() {
             done();
         });
     });
+
+    describe('#getNativeConfiguration',function(){
+        
+        it('is a function', function(done) {
+            CONFIG.getNativeConfiguration.should.be.a('function');
+            done();
+        });
+
+        it('should return nativeConfig by reading from config', function(done) {
+            var conf =  {
+                kgp:"_DIV_",
+                klm:{
+                    "DIV1":{
+                        "NativeOnly": true,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    },
+                    "DIV2":{
+                        "NativeOnly": true,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    }
+                }
+            };
+            CONF[CONSTANTS.COMMON.MEDIA_TYPE_CONFIG] = conf
+            CONFIG.getNativeConfiguration().should.be.equal(conf);
+            done();
+        });
+
+        it('should be undefined if nativeConfig is not present',function(done){
+            delete CONF[CONSTANTS.COMMON.MEDIA_TYPE_CONFIG];
+            // CONFIG.getNativeConfiguration().should.be.undefined();
+            done();
+        })
+    })
 });

@@ -916,19 +916,24 @@ exports.ajaxRequest = function(url, callback, data, options) {
 	}
 };
 
+// Returns mediaTypes for adUnits which are sent to prebid
 exports.getMediaTypeObject = function(nativeConfig, sizes, currentSlot){
 	var mediaTypeObject = {};
-	var kgp = nativeConfig.kgp;
-	var klm = nativeConfig.klm;
-	var kgpv = kgp.replace(constCommonMacroForAdUnitIDRegExp, currentSlot.getAdUnitID())
-					.replace(constCommonMacroForDivRegExp, currentSlot.getDivID());
-	if(refThis.isOwnProperty(klm,kgpv)){
-		refThis.log("Native Config found for adSlot", currentSlot);
-		var config = klm[kgpv];
-		mediaTypeObject["native"] = config.config;
-		if(config.NativeOnly){
-			return mediaTypeObject;
+	if(nativeConfig && nativeConfig.kgp && nativeConfig.klm){
+		var kgp = nativeConfig.kgp;
+		var klm = nativeConfig.klm;
+		var kgpv = kgp.replace(constCommonMacroForAdUnitIDRegExp, currentSlot.getAdUnitID())
+						.replace(constCommonMacroForDivRegExp, currentSlot.getDivID());
+		if(refThis.isOwnProperty(klm,kgpv)){
+			refThis.log("Native Config found for adSlot", currentSlot);
+			var config = klm[kgpv];
+			mediaTypeObject["native"] = config.config;
+			if(config.NativeOnly){
+				return mediaTypeObject;
+			}
 		}
+	} else{
+		refThis.log("Invalid/No Native Config found");
 	}
 	mediaTypeObject["banner"] = {
 		sizes: sizes

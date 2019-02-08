@@ -191,10 +191,8 @@ function getPBCodeWithoutWidthAndHeight(divID, adapterID){
 exports.getMediaTypeObject = getMediaTypeObject;
 /* end-test-block */
 
-// divID is taken into consideration if nativeconfiguration on adUnit level then we need to check for which div we need
-// 
+// it returns mediaTyps object to be attached to adUnit sent to prebid.
 function getMediaTypeObject(sizes, currentSlot){
-	console.log(currentSlot);
 	return util.getMediaTypeObject(CONFIG.getNativeConfiguration(), sizes, currentSlot);
 }
 
