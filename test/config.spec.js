@@ -656,7 +656,7 @@ describe('Config', function() {
 
         it('should be undefined if nativeConfig is not present',function(done){
             delete CONF[CONSTANTS.COMMON.MEDIA_TYPE_CONFIG];
-            // CONFIG.getNativeConfiguration().should.be.undefined();
+            expect(CONFIG.getNativeConfiguration()).to.equal(undefined);
             done();
         })
     })
