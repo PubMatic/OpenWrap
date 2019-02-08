@@ -17,7 +17,8 @@ exports.COMMON = {
 	"KEY_VALUE_PAIRS": "kvp",
 	"IMPRESSION_ID": "iid",
 	"PARENT_ADAPTER_PREBID": "prebid",
-	"MEDIA_TYPE_CONFIG": "nativeConfig"
+	"MEDIA_TYPE_CONFIG": "nativeConfig",
+	"NATIVE_ONLY": "nativeOnly"
 };
 
 exports.CONFIG = {

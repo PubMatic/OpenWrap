@@ -928,7 +928,7 @@ exports.getMediaTypeObject = function(nativeConfig, sizes, currentSlot){
 			refThis.log("Native Config found for adSlot", currentSlot);
 			var config = klm[kgpv];
 			mediaTypeObject["native"] = config.config;
-			if(config.NativeOnly){
+			if(config[CONSTANTS.COMMON.NATIVE_ONLY]){
 				return mediaTypeObject;
 			}
 		}

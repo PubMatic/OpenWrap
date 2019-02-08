@@ -2304,7 +2304,7 @@ describe('UTIL', function() {
         });
         
         it('should return mediaTypeObject with Native only if for that kgpv only native is required',function(done){
-            nativeConfiguration.klm["DIV_1"].NativeOnly = true;
+            nativeConfiguration.klm["DIV_1"].nativeOnly = true;
             var expectedResult =  { 
                 native: {
                     image: {
