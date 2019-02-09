@@ -223,7 +223,6 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 			}
 		}
 	}
-
 	return slotNames;
 };
 
@@ -269,14 +268,13 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 		generatedKeysLength,
 		kgpConsistsWidthAndHeight
 		;
-
 	/* istanbul ignore else */
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 		for(i = 0; i < activeSlotsLength; i++){
 			var activeSlot = activeSlots[i];
 			generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
-			generatedKeysLength = generatedKeys.length;
+			generatedKeysLength =  generatedKeys.length;
 			for(j = 0; j < generatedKeysLength; j++){
 				var generatedKey = generatedKeys[j],
 					keyConfig = null,
