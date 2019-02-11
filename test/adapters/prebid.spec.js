@@ -1025,7 +1025,8 @@ describe('ADAPTER: Prebid', function() {
         });
 
         afterEach(function(done){
-            bid= null;
+            adUnits = {};
+            responseId = null;
             done();
         })
 
