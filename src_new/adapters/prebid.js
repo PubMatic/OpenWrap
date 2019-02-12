@@ -445,13 +445,15 @@ function fetchBids(activeSlots, impressionID){
 						util.log("In PreBid bidsBackHandler with bidResponses: ");
 						util.log(bidResponses);
 						if (userSyncTriggered) {
-							if (window[pbNameSpace].getConfig('enableOverride') === undefined) {
+							if (window[pbNameSpace].getConfig("enableOverride") === undefined) {
 								window[pbNameSpace].setConfig(
-								{
-									userSync: {
-										enableOverride: true
+									{
+										userSync: {
+											enableOverride: true,
+											syncsPerBidder: 999
+										}
 									}
-								});
+								);
 							}
 							//owpbjs.resetHasFired();
 							owpbjs.triggerUserSyncs();
