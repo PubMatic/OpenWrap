@@ -504,8 +504,7 @@ function fetchBids(activeSlots, impressionID){
 									}
 								);
 							}
-							//owpbjs.resetHasFired();
-							owpbjs.triggerUserSyncs();
+							window[pbNameSpace].triggerUserSyncs();
 						}
 						userSyncTriggered = true;
 						//refThis.handleBidResponses(bidResponses);
