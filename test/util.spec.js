@@ -2256,17 +2256,25 @@ describe('UTIL', function() {
                 getDivID: function() {
                     return commonDivID;
                 },
+                getAdUnitIndex: function(){
+                    return 0;
+                }
             }
             sinon.spy(currentSlot, "getDivID");
             sinon.spy(currentSlot, "getSizes");
             sinon.spy(currentSlot, "getAdUnitID");
+            sinon.spy(currentSlot, "getAdUnitIndex");
             done();
         });
 
         afterEach(function(done) {
             nativeConfiguration = null;
             sizes = null;
-            commonDivID = "DIV_1"
+            commonDivID = "DIV_1";
+            currentSlot.getDivID.restore();
+            currentSlot.getSizes.restore();
+            currentSlot.getAdUnitID.restore();
+            currentSlot.getAdUnitIndex.restore();
             done();
         });
 
@@ -2302,7 +2310,7 @@ describe('UTIL', function() {
             done();
         });
         
-        it('should return mediaTypeObject with Native only if for that kgpv only native is required',function(done){
+        it('should return mediaTypeObject with Native only if for that kgpv nativeOnly flag is set',function(done){
             nativeConfiguration.klm["DIV_1"].nativeOnly = true;
             var expectedResult =  { 
                 native: {

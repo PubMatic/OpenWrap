@@ -920,18 +920,22 @@ exports.getMediaTypeObject = function(nativeConfig, sizes, currentSlot){
 	if(nativeConfig && nativeConfig.kgp && nativeConfig.klm){
 		var kgp = nativeConfig.kgp;
 		var klm = nativeConfig.klm;
-		var kgpv = kgp.replace(constCommonMacroForAdUnitIDRegExp, currentSlot.getAdUnitID())
-						.replace(constCommonMacroForDivRegExp, currentSlot.getDivID());
+		// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
+		// as we are only supporting div and ad unit, taking the first slot name.
+		// Implemented as per code review and discussion. 
+		var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
 		if(refThis.isOwnProperty(klm,kgpv)){
-			refThis.log("Native Config found for adSlot", currentSlot);
+			refThis.log("Native Config found for adSlot: " +  currentSlot);
 			var config = klm[kgpv];
 			mediaTypeObject["native"] = config.config;
 			if(config[CONSTANTS.COMMON.NATIVE_ONLY]){
 				return mediaTypeObject;
 			}
+		} else{
+			refThis.log("Native Config not found for adSlot: " +  currentSlot);
 		}
 	} else{
-		refThis.log("Invalid/No Native Config found");
+		refThis.log("Native config not found or KGP/KLM missing in native config provided.");
 	}
 	mediaTypeObject["banner"] = {
 		sizes: sizes

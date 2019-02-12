@@ -227,14 +227,7 @@ function isPubMaticAdUnitPresentForDivId(adUnits, divID){
 exports.isPubMaticAdUnitPresentForDivId = isPubMaticAdUnitPresentForDivId;
 /* end-test-block */
 
-/* start-test-block */
-exports.getMediaTypeObject = getMediaTypeObject;
-/* end-test-block */
 
-// it returns mediaTyps object to be attached to adUnit sent to prebid.
-function getMediaTypeObject(sizes, currentSlot){
-	return util.getMediaTypeObject(CONFIG.getNativeConfiguration(), sizes, currentSlot);
-}
 
 /* start-test-block */
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
@@ -269,7 +262,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		if(adapterID != "pubmatic" || (adapterID == "pubmatic" && isPubMaticAdUnitPresentForDivId(adUnits,divID))) {
 			adUnits[code] = {
 				code: code,
-				mediaTypes: refThis.getMediaTypeObject(sizes, currentSlot),
+				mediaTypes: util.getMediaTypeObject(CONFIG.getNativeConfiguration(), sizes, currentSlot),
 				sizes: sizes,
 				bids: [],
 				divID : divID

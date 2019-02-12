@@ -415,12 +415,16 @@ describe('ADAPTER: Prebid', function() {
                 },
                 getAdUnitID: function(){
                     return "ad_unit_1"
+                },
+                getAdUnitIndex: function(){
+                    return 0;
                 }
             };
 
             sinon.spy(currentSlot, "getDivID");
             sinon.spy(currentSlot, "getSizes");
             sinon.spy(currentSlot, "getAdUnitID");
+            sinon.spy(currentSlot, "getAdUnitIndex");
             adapterConfig = {
                 "publisherId": 121
             };
@@ -454,6 +458,7 @@ describe('ADAPTER: Prebid', function() {
             currentSlot.getDivID.restore();
             currentSlot.getSizes.restore();
             currentSlot.getAdUnitID.restore();
+            currentSlot.getAdUnitIndex.restore();
 
             CONFIG.getProfileID.restore();
             CONFIG.getProfileDisplayVersionID.restore();
@@ -888,54 +893,6 @@ describe('ADAPTER: Prebid', function() {
                 fB: PREBID.fetchBids,
                 ID: PREBID.getParenteAdapterID
             });
-            done();
-        });
-    });
-
-    describe('getMediaTypeObject',function(){
-        var sizes,currentSlot;
-        beforeEach(function(done){
-            sinon.spy(UTIL, "getMediaTypeObject");
-            sinon.spy(CONFIG, "getNativeConfiguration");
-            sizes = [[340,210]];
-            currentSlot = { 
-                getSizes: function(){
-                    return [[300,250]];
-                },
-                getAdUnitID: function(){
-                    return "testAdUnit";
-                },
-                getDivID: function() {
-                    return commonDivID;
-                },
-            }
-            sinon.spy(currentSlot, "getDivID");
-            sinon.spy(currentSlot, "getSizes");
-            sinon.spy(currentSlot, "getAdUnitID");
-            done();
-        });
-
-        afterEach(function(done){
-            sizes = null;
-            UTIL.getMediaTypeObject.restore();
-            CONFIG.getNativeConfiguration.restore();
-            currentSlot.getDivID.restore();
-            currentSlot.getSizes.restore();
-            currentSlot.getAdUnitID.restore();
-            done();
-        });
-
-        it('should be a function',function(done){
-            PREBID.getMediaTypeObject.should.be.a('function');
-            done();
-        });
-
-        it('should call util getMediaTypeObject', function(done){
-            PREBID.getMediaTypeObject(sizes, currentSlot);
-            UTIL.getMediaTypeObject.called.should.be.true;
-            CONFIG.getNativeConfiguration.called.should.be.true;
-            adUnits = {};
-            responseId = null;
             done();
         });
     });

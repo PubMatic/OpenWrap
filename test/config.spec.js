@@ -599,14 +599,9 @@ describe('Config', function() {
     });
 
     describe('#getNativeConfiguration',function(){
-        
-        it('is a function', function(done) {
-            CONFIG.getNativeConfiguration.should.be.a('function');
-            done();
-        });
-
-        it('should return nativeConfig by reading from config', function(done) {
-            var conf =  {
+        var conf;
+        beforeEach(function(done){
+            conf =  {
                 kgp:"_DIV_",
                 klm:{
                     "DIV1":{
@@ -649,8 +644,65 @@ describe('Config', function() {
                     }
                 }
             };
-            CONF[CONSTANTS.COMMON.MEDIA_TYPE_CONFIG] = conf
-            CONFIG.getNativeConfiguration().should.be.equal(conf);
+            CONF[CONSTANTS.COMMON.MEDIA_TYPE_CONFIG] = conf;
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.COMMON.MEDIA_TYPE_CONFIG];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getNativeConfiguration.should.be.a('function');
+            done();
+        });
+
+        it('should return nativeConfig by reading from config', function(done) {
+            var expectedResult =  {
+                kgp:"_DIV_",
+                klm:{
+                    "DIV1":{
+                        "NativeOnly": true,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    },
+                    "DIV2":{
+                        "NativeOnly": true,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    }
+                }
+            };
+            CONFIG.getNativeConfiguration().should.be.deep.equal(expectedResult);
             done();
         });
 
