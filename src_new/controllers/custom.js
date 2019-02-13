@@ -386,8 +386,10 @@ function addKeyValuePairsOnSlotsForGPT(arrayOfAdUnits) {
 		util.error("array is expected");
 	}
 
-	// ToDo: add check
-	var arrayOfGPTSlots = window.googletag.pubads().getSlots();
+	var arrayOfGPTSlots = [];
+	if(util.isObject(window.googletag) && util.isFunction(window.googletag.pubads)){
+		arrayOfGPTSlots = window.googletag.pubads().getSlots();	
+	}
 
 	var mapOfDivIdToGoogleSlot = {};
 	util.forEachOnArray(arrayOfGPTSlots, function(index, googleSlot) {
@@ -406,9 +408,11 @@ function addKeyValuePairsOnSlotsForGPT(arrayOfAdUnits) {
 	util.forEachOnArray(arrayOfAdUnits, function(index, adUnit) {
 		if (util.isOwnProperty(mapOfDivIdToGoogleSlot, adUnit.divId)) {
 			var googleSlot = mapOfDivIdToGoogleSlot[adUnit.divId];
-			util.forEachOnObject(adUnit.bidData.kvp, function(key, value) {
-				googleSlot.setTargeting(key, [value]);
-			});
+			if(util.isObject(adUnit) && util.isObject(adUnit.bidData) && util.isObject(adUnit.bidData.kvp)){
+				util.forEachOnObject(adUnit.bidData.kvp, function(key, value) {
+					googleSlot.setTargeting(key, [value]);
+				});
+			}			
 		} else {
 			util.error("GPT-Slot not found for divId: " + adUnit.divId);
 		}
@@ -423,15 +427,21 @@ function removeOpenWrapKeyValuePairsFromSlotsForGPT(arrayOfGPTSlots) {
 	/* istanbul ignore else */
 	util.forEachOnArray(arrayOfGPTSlots, function(index, currentGoogleSlot){
 		var targetingMap = {};
-		util.forEachOnArray(currentGoogleSlot.getTargetingKeys(), function(index, key) {
-			targetingMap[key] = currentGoogleSlot.getTargeting(key);
-		});
+		if(util.isFunction(currentGoogleSlot.getTargetingKeys)){
+			util.forEachOnArray(currentGoogleSlot.getTargetingKeys(), function(index, key) {
+				targetingMap[key] = currentGoogleSlot.getTargeting(key);
+			});
+		}
 		// now clear all targetings
-		currentGoogleSlot.clearTargeting();
+		if(util.isFunction(currentGoogleSlot.clearTargeting)){
+			currentGoogleSlot.clearTargeting();
+		}
 		// now set all settings from backup
 		util.forEachOnObject(targetingMap, function(key, value) {
 			if (!util.isOwnProperty(refThis.wrapperTargetingKeys, key)) {
-				currentGoogleSlot.setTargeting(key, value);
+				if(util.isFunction(currentGoogleSlot.setTargeting)){
+					currentGoogleSlot.setTargeting(key, value);
+				}
 			}
 		});
 	});
