@@ -339,7 +339,7 @@ function generateConfForGPT(arrayOfGPTSlots) {
 
 			if (util.isFunction(googleSlot.getSlotId)) {
 				var slotID = googleSlot.getSlotId();
-				adUnitIndex = refThis.getAdUnitIndex(googleSlot);
+				adUnitIndex = "" + refThis.getAdUnitIndex(googleSlot);
 
 				// TODO: move to GPT specific code to small functions
 				/* istanbul ignore else */

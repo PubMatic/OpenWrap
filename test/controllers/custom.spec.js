@@ -624,7 +624,7 @@ describe("CONTROLLER: CUSTOM", function() {
 				code: googleSlot1.getSlotId().getDomId(),
 				divId: googleSlot1.getSlotId().getDomId(),
 				adUnitId: googleSlot1.getAdUnitPath(),
-				adUnitIndex: 0,
+				adUnitIndex: "0",
 				mediaTypes: {
 					banner: {
 						sizes: [[728, 90]]
@@ -635,7 +635,7 @@ describe("CONTROLLER: CUSTOM", function() {
 				code: googleSlot2.getSlotId().getDomId(),
 				divId: googleSlot2.getSlotId().getDomId(),
 				adUnitId: googleSlot2.getAdUnitPath(),
-				adUnitIndex: 0,
+				adUnitIndex: "0",
 				mediaTypes: {
 					banner: {
 						sizes: [[300, 250]]
