@@ -860,7 +860,7 @@ function newDefineSlot(theObject, originalFunction){ // TDD, i/o : done
           
       };
     } else {
-        util.log("defineNewSlot: originalFunction is not a function");
+        util.log("newDefineSlot: originalFunction is not a function");
         return null;
     }
 }
