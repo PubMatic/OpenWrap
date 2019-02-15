@@ -849,6 +849,26 @@ function addHookOnSlotDefineSizeMapping(localGoogletag) { // TDD, i/o : done
 exports.addHookOnSlotDefineSizeMapping = addHookOnSlotDefineSizeMapping;
 /* end-test-block */
 
+function newDefineSlot(theObject, originalFunction){ // TDD, i/o : done
+    if (util.isObject(theObject) && util.isFunction(originalFunction)) {
+      return function() {
+          /* istanbul ignore next */
+          var slot =  originalFunction.apply(theObject, arguments);
+          util.addHookOnFunction(slot, false, "defineSizeMapping", refThis.newSizeMappingFunction);
+          /* istanbul ignore next */
+          return slot;
+          
+      };
+    } else {
+        util.log("defineNewSlot: originalFunction is not a function");
+        return null;
+    }
+}
+
+/* start-test-block */
+exports.newDefineSlot = newDefineSlot;
+/* end-test-block */
+
 function addHooks(win) { // TDD, i/o : done
 
     if (util.isObject(win) && util.isObject(win.googletag) && util.isFunction(win.googletag.pubads)) {
@@ -860,7 +880,8 @@ function addHooks(win) { // TDD, i/o : done
             return false;
         }
 
-        refThis.addHookOnSlotDefineSizeMapping(localGoogletag);
+        // refThis.addHookOnSlotDefineSizeMapping(localGoogletag);
+        util.addHookOnFunction(localGoogletag, false, "defineSlot", refThis.newDefineSlot);
         util.addHookOnFunction(localPubAdsObj, false, "disableInitialLoad", refThis.newDisableInitialLoadFunction);
         util.addHookOnFunction(localPubAdsObj, false, "enableSingleRequest", refThis.newEnableSingleRequestFunction);
         refThis.newAddHookOnGoogletagDisplay(localGoogletag);
