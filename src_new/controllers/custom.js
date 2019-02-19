@@ -261,6 +261,7 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 			qualifyingSlots.push(slot);
 			mapOfDivToCode[slot.getDivID()] = slot.getName();
 			qualifyingSlotDivIds.push(slot.getDivID());
+			util.createVLogInfoPanel(slot.getDivID(), slot.getSizes());
 		}
 	});
 
@@ -291,6 +292,7 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 			util.forEachOnArray(qualifyingSlotDivIds, function(index, divId) {
 				var code = mapOfDivToCode[divId];
 				winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId, code);
+				util.realignVLogInfoPanel(divId);
 			});
 
 			// for each adUnit in arrayOfAdUnits find the winningBids, we need to return this updated arrayOfAdUnits
