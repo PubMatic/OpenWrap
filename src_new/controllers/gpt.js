@@ -861,6 +861,20 @@ function addHooks(win) { // TDD, i/o : done
         }
 
         refThis.addHookOnSlotDefineSizeMapping(localGoogletag);
+
+        util.addHookOnFunction(localGoogletag, false, "defineSlot", function(theObject, originalFunction){
+            if (util.isObject(theObject) && util.isFunction(originalFunction)) {
+                return function() {
+                    var newSlotObject = originalFunction.apply(theObject, arguments);
+                    util.addHookOnFunction(newSlotObject, false, "defineSizeMapping", refThis.newSizeMappingFunction);
+                    return newSlotObject;
+                };
+            } else {
+                util.log("newdefineSlot: originalFunction is not a function");
+                return null;
+            }
+        });
+
         util.addHookOnFunction(localPubAdsObj, false, "disableInitialLoad", refThis.newDisableInitialLoadFunction);
         util.addHookOnFunction(localPubAdsObj, false, "enableSingleRequest", refThis.newEnableSingleRequestFunction);
         refThis.newAddHookOnGoogletagDisplay(localGoogletag);
