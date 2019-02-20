@@ -176,6 +176,7 @@ function findWinningBidAndGenerateTargeting(divId) {
 		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID] = CONFIG.getProfileID();
 		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
 		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE] = winningBid.width + "x" + winningBid.height;
+		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY] = CONSTANTS.PLATFORM_VALUES.DISPLAY;
 	}
 
 	// attaching keyValuePairs from adapters
