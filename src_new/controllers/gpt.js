@@ -125,6 +125,9 @@ function getAdSlotSizesArray(divID, currentGoogleSlot) { // TDD, i/o : done
     if (sizeMapping !== false) {
         util.log(divID + ": responsiveSizeMapping applied: ");
         util.log(sizeMapping);
+        if(sizeMapping[0] == CONSTANTS.COMMON.FLUID_SIZE){
+            sizeMapping.push(sizeMapping.shift());
+        }
         return sizeMapping;
     }
     var adslotSizesArray = [];
