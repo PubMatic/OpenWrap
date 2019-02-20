@@ -3091,8 +3091,8 @@ describe("CONTROLLER: GPT", function() {
         it("on passing proper window object with required structure should have called util.addHookOnFunction for various googletag pubads object methods", function(done) {
             GPT.addHooks(winObj).should.equal(true);
 
-            GPT.addHookOnSlotDefineSizeMapping.calledOnce.should.equal(true);
-            GPT.addHookOnSlotDefineSizeMapping.calledWith(winObj.googletag).should.equal(true);
+            // GPT.addHookOnSlotDefineSizeMapping.calledOnce.should.equal(true);
+            // GPT.addHookOnSlotDefineSizeMapping.calledWith(winObj.googletag).should.equal(true);
 
             UTIL.addHookOnFunction.calledWith(winObj.googletag.pubads(), false, "disableInitialLoad", GPT.newDisableInitialLoadFunction).should.equal(true);
             UTIL.addHookOnFunction.calledWith(winObj.googletag.pubads(), false, "enableSingleRequest", GPT.newEnableSingleRequestFunction).should.equal(true);
