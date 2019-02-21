@@ -7,6 +7,7 @@ var CONFIG = require("../../src_new/config.js");
 var AM = require("../../src_new/adapterManager.js");
 var BM = require("../../src_new/bidManager.js");
 var BID = require("../../src_new/bid.js");
+var CONSTANTS = require("../../src_new/constants.js");
 
 describe("CONTROLLER: CUSTOM", function() {
 
@@ -460,6 +461,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			a.kvp["key1"].should.deep.equal(keyValuePairsStub["key1"]);
 			a.kvp["key2"].should.deep.equal(keyValuePairsStub["key2"]);
 			//todo: compare other key value pairs as well
+			a.kvp[CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY].should.equal(CONSTANTS.PLATFORM_VALUES.DISPLAY);
 			BM.getBid.restore();
 			done();
 		});
