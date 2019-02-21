@@ -124,10 +124,11 @@ function getAdSlotSizesArray(divID, currentGoogleSlot) { // TDD, i/o : done
 
     if (sizeMapping !== false) {
         util.log(divID + ": responsiveSizeMapping applied: ");
-        util.log(sizeMapping);
-        if(sizeMapping[0] == CONSTANTS.COMMON.FLUID_SIZE){
+        /* istanbul ignore else */
+        if(typeof(sizeMapping[0]) == "string" || (sizeMapping[0].length == 1 && typeof(sizeMapping[0][0]) == "string")){
             sizeMapping.push(sizeMapping.shift());
         }
+        util.log(sizeMapping);
         return sizeMapping;
     }
     var adslotSizesArray = [];
