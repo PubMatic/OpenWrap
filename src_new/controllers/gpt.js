@@ -124,7 +124,9 @@ function getAdSlotSizesArray(divID, currentGoogleSlot) { // TDD, i/o : done
 
     if (sizeMapping !== false) {
         util.log(divID + ": responsiveSizeMapping applied: ");
-        /* istanbul ignore else */
+        // Below code is written in case  of responsive sizes and first size is fluid and we are sending single impression
+        // for multiple sizes. As first size is fluid single impression will be passed as DIV@fxl and it will be 
+        // ignored in pubmaticBidAdapter in prebid, hence below code move fluid size to last size preventing the above condition
         if(typeof(sizeMapping[0]) == "string" || (sizeMapping[0].length == 1 && typeof(sizeMapping[0][0]) == "string")){
             sizeMapping.push(sizeMapping.shift());
         }
