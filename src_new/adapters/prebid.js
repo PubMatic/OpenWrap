@@ -460,6 +460,8 @@ function fetchBids(activeSlots, impressionID){
 					debug: util.isDebugLogEnabled(),
 					bidderSequence: "random",
 					userSync: {
+						enableOverride: true,
+						syncsPerBidder: 0,
 						iframeEnabled: true,
 						pixelEnabled: true,
 						enabledBidders: (function(){
@@ -493,20 +495,7 @@ function fetchBids(activeSlots, impressionID){
 					bidsBackHandler: function(bidResponses) {
 						util.log("In PreBid bidsBackHandler with bidResponses: ");
 						util.log(bidResponses);
-						if (userSyncTriggered) {
-							if (window[pbNameSpace].getConfig("enableOverride") === undefined) {
-								window[pbNameSpace].setConfig(
-									{
-										userSync: {
-											enableOverride: true,
-											syncsPerBidder: 999
-										}
-									}
-								);
-							}
-							window[pbNameSpace].triggerUserSyncs();
-						}
-						userSyncTriggered = true;
+						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
 						//refThis.handleBidResponses(bidResponses);
 					},
 					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then
