@@ -467,7 +467,6 @@ describe('ADAPTER: Prebid', function() {
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             CONFIG.getProfileID.called.should.be.true;
             CONFIG.getProfileDisplayVersionID.called.should.be.true;
-
             UTIL.forEachOnArray.called.should.be.false;
             done();
         });
@@ -477,13 +476,6 @@ describe('ADAPTER: Prebid', function() {
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             expect(adUnits["DIV_1@pubmatic@340X210"]).to.exist;
             adUnits["DIV_1@pubmatic@340X210"].bids[0].bidder.should.be.equal("pubmatic");
-            done();
-        });
-
-        it('should not have created multiple adunits for same adslot and different sizes for pubmatic', function(done) {
-            adapterID = "pubmatic";
-            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
-            should.equal(adUnits["DIV_1@pubmatic@1024X768"],undefined)       
             done();
         });
 
