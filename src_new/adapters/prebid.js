@@ -348,7 +348,7 @@ exports.generatePbConf = generatePbConf;
 
 function fetchBids(activeSlots, impressionID){
 
-	window.pwtCreatePrebidNamespace(pbNameSpace);
+	//window.pwtCreatePrebidNamespace(pbNameSpace);
 
 	/* istanbul ignore else */
 	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
@@ -409,6 +409,8 @@ function fetchBids(activeSlots, impressionID){
 					debug: util.isDebugLogEnabled(),
 					bidderSequence: "random",
 					userSync: {
+						enableOverride: true,
+						syncsPerBidder: 0,
 						iframeEnabled: true,
 						pixelEnabled: true,
 						enabledBidders: (function(){
@@ -442,6 +444,7 @@ function fetchBids(activeSlots, impressionID){
 					bidsBackHandler: function(bidResponses) {
 						util.log("In PreBid bidsBackHandler with bidResponses: ");
 						util.log(bidResponses);
+						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
 						//refThis.handleBidResponses(bidResponses);
 					},
 					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then
