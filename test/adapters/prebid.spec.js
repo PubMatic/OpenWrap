@@ -799,8 +799,11 @@ describe('ADAPTER: Prebid', function() {
 
         it('should have called setConfig method', function (done) {
             PREBID.fetchBids(activeSlots, impressionID);
-            // NEED to check why this is failing after UOE-4117
-            //window["owpbjs"].setConfig.should.be.called;
+            window.owpbjs = window.owpbjs || {};
+            window.owpbjs.cmd = window.owpbjs.cmd || [];
+            window.owpbjs.que = window.owpbjs.que || [];
+            window.owpbjs.setConfig = function () {};
+            window["owpbjs"].setConfig.should.be.called;
             CONFIG.getGdpr().should.be.true;
             CONFIG.getCmpApi().should.be.called;
 						CONFIG.getGdprTimeout().should.be.called;
