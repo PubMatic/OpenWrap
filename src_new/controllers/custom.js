@@ -293,7 +293,9 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 			util.forEachOnArray(qualifyingSlotDivIds, function(index, divId) {
 				var code = mapOfDivToCode[divId];
 				winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId, code);
-				util.realignVLogInfoPanel(divId);
+				// we need to delay the realignment as we need to do it post creative rendering :)
+				// delaying by 1000ms as creative rendering may tke time
+				setTimeout(util.realignVLogInfoPanel, 1000, divId);
 			});
 
 			// for each adUnit in arrayOfAdUnits find the winningBids, we need to return this updated arrayOfAdUnits
