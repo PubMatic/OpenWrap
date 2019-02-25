@@ -11,7 +11,6 @@ var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var adapterManager = require("../adapterManager.js");
 var CONF = require("../conf.js");
-var userSyncTriggered = false;
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
