@@ -758,6 +758,11 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
+        it('has access to owpbjs namespace', function(done) {
+            should.exist(window["owpbjs"]);
+            done();
+        });
+
         // TODO: Need to fix this testcase somehow
         it('returns while logging it when Prebid js is not loaded', function(done) {
             // sinon.stub(global.window || window, "pwtCreatePrebidNamespace").withArgs("owpbjs").returns(true);
@@ -776,6 +781,10 @@ describe('ADAPTER: Prebid', function() {
 
         it('should have called setConfig method', function (done) {
             PREBID.fetchBids(activeSlots, impressionID);
+            window.owpbjs = window.owpbjs || {};
+            window.owpbjs.cmd = window.owpbjs.cmd || [];
+            window.owpbjs.que = window.owpbjs.que || [];
+            window.owpbjs.setConfig = function () {};
             window["owpbjs"].setConfig.should.be.called;
             CONFIG.getGdpr().should.be.true;
             CONFIG.getCmpApi().should.be.called;
