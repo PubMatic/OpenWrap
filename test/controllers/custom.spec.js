@@ -648,9 +648,9 @@ describe("CONTROLLER: CUSTOM", function() {
 		});
 	});
 
-	describe("#addKeyValuePairsOnSlotsForGPT", function () {
+	describe("#addKeyValuePairsToGPTSlots", function () {
 		it("is a function", function(done) {
-			CUSTOM.addKeyValuePairsOnSlotsForGPT.should.be.a("function");
+			CUSTOM.addKeyValuePairsToGPTSlots.should.be.a("function");
 			done();
 		});
 
@@ -734,7 +734,7 @@ describe("CONTROLLER: CUSTOM", function() {
 				}
 			};
 
-			CUSTOM.addKeyValuePairsOnSlotsForGPT([
+			CUSTOM.addKeyValuePairsToGPTSlots([
 				{
 					divId: "DIV_1",
 					bidData: {
@@ -760,9 +760,9 @@ describe("CONTROLLER: CUSTOM", function() {
 		});
 	});
 
-	describe("#removeOpenWrapKeyValuePairsFromSlotsForGPT", function () {
+	describe("#removeKeyValuePairsFromGPTSlots", function () {
 		it("is a function", function(done) {
-			CUSTOM.removeOpenWrapKeyValuePairsFromSlotsForGPT.should.be.a("function");
+			CUSTOM.removeKeyValuePairsFromGPTSlots.should.be.a("function");
 			done();
 		});
 
@@ -835,7 +835,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			};
 			(currentGoogleSlotStub_1.keyValuePairs["pwtsid"] === "1234").should.equal(true);
 			(currentGoogleSlotStub_2.keyValuePairs["pwtsid"] === "9876").should.equal(true);
-			CUSTOM.removeOpenWrapKeyValuePairsFromSlotsForGPT([currentGoogleSlotStub_1, currentGoogleSlotStub_2]);
+			CUSTOM.removeKeyValuePairsFromGPTSlots([currentGoogleSlotStub_1, currentGoogleSlotStub_2]);
 			(currentGoogleSlotStub_1.keyValuePairs["pwtsid"] === undefined).should.equal(true);
 			(currentGoogleSlotStub_2.keyValuePairs["pwtsid"] === undefined).should.equal(true);
 			done();

@@ -386,7 +386,7 @@ function generateConfForGPT(arrayOfGPTSlots) {
 exports.generateConfForGPT = generateConfForGPT;
 /* end-test-block */
 
-function addKeyValuePairsOnSlotsForGPT(arrayOfAdUnits) {
+function addKeyValuePairsToGPTSlots(arrayOfAdUnits) {
 	if (!util.isArray(arrayOfAdUnits)) {
 		util.error("array is expected");
 	}
@@ -424,10 +424,10 @@ function addKeyValuePairsOnSlotsForGPT(arrayOfAdUnits) {
 	});
 }
 /* start-test-block */
-exports.addKeyValuePairsOnSlotsForGPT = addKeyValuePairsOnSlotsForGPT;
+exports.addKeyValuePairsToGPTSlots = addKeyValuePairsToGPTSlots;
 /* end-test-block */
 
-function removeOpenWrapKeyValuePairsFromSlotsForGPT(arrayOfGPTSlots) {    
+function removeKeyValuePairsFromGPTSlots(arrayOfGPTSlots) {    
 	//ToDo: need some fail-safe validations/checks
 	/* istanbul ignore else */
 	util.forEachOnArray(arrayOfGPTSlots, function(index, currentGoogleSlot){
@@ -453,7 +453,7 @@ function removeOpenWrapKeyValuePairsFromSlotsForGPT(arrayOfGPTSlots) {
 }
 
 /* start-test-block */
-exports.removeOpenWrapKeyValuePairsFromSlotsForGPT = removeOpenWrapKeyValuePairsFromSlotsForGPT;
+exports.removeKeyValuePairsFromGPTSlots = removeKeyValuePairsFromGPTSlots;
 /* end-test-block */
 
 exports.init = function(win) {
@@ -463,8 +463,8 @@ exports.init = function(win) {
 		refThis.initSafeFrameListener(win);
 		win.PWT.requestBids = refThis.customServerExposedAPI;
 		win.PWT.generateConfForGPT = refThis.generateConfForGPT;
-		win.PWT.addKeyValuePairsOnSlotsForGPT = addKeyValuePairsOnSlotsForGPT;
-		win.PWT.removeOpenWrapKeyValuePairsFromSlotsForGPT = removeOpenWrapKeyValuePairsFromSlotsForGPT;
+		win.PWT.addKeyValuePairsToGPTSlots = addKeyValuePairsToGPTSlots;
+		win.PWT.removeKeyValuePairsFromGPTSlots = removeKeyValuePairsFromGPTSlots;
 		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
 		adapterManager.registerAdapters();
 		refThis.callJsLoadedIfRequired(win);
