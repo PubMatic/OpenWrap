@@ -80,7 +80,7 @@ exports.enableVisualDebugLog = function(){
 
 //todo: move...
 var constDebugInConsolePrependWith = "[OpenWrap] : ";
-
+var constErrorInConsolePrependWith = "[OpenWrap] : [Error]";
 
 
 exports.log = function(data){
@@ -92,6 +92,10 @@ exports.log = function(data){
 		}
 	}
 };
+
+exports.error = function(data){
+	console.log( (new Date()).getTime()+ " : " + constErrorInConsolePrependWith, data ); // eslint-disable-line no-console
+}
 
 exports.getCurrentTimestampInMs = function(){
 	var date = new window.Date();
