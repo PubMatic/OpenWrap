@@ -56,6 +56,11 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	);
 };
 
+window.PWT.startTrackers = function(theDocument,object){
+	util.log("In startTrackers for: " + object.bidID);
+	bidManager.loadTrackers(theDocument,object);
+};
+
 
 window.OWT = {
 	notifyCount: 0, // To maintain the id which should be return after externalBidder registered

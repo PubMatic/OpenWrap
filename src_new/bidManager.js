@@ -483,3 +483,39 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 
 	return status;
 };
+
+exports.loadTrackers = function(theDocument, object){ // TDD, i/o : done
+	var bidDetails = refThis.getBidById(object.bidID);
+	/* istanbul ignore else */
+	if(bidDetails){
+		var theBid = bidDetails.bid,
+			divID = bidDetails.slotid
+		;
+		// util.displayCreative(theDocument, theBid);
+		util.vLogInfo(divID, {type: "disp", adapter: theBid.getAdapterID()});
+		refThis.executeMonetizationPixel(divID, theBid);
+		// let adElements = findAdElements(AD_ANCHOR_CLASS_NAME);
+		// for (var i = 0; i < adElements.length; i++) {
+		// 	adElements[i].addEventListener('click', loadClickTrackers, true);
+		//   }
+		fireTracker(bidDetails);
+	}
+};
+
+function fireTracker(bidDetails, action) {
+	var trackers;
+
+	if (action === "click") {
+		trackers = bidDetails["native"] && bidDetails["native"].clickTrackers;
+	} else {
+		trackers = bidDetails["native"] && bidDetails["native"].impressionTrackers;
+  
+	//   if (adObject['native'] && adObject['native'].javascriptTrackers) {
+	// 	insertHtmlIntoIframe(adObject['native'].javascriptTrackers);
+	//   }
+	}
+	(trackers || []).forEach(function(url){refThis.setImageSrcToPixelURL(url);});
+}
+
+ 
+
