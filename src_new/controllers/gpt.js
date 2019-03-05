@@ -358,8 +358,14 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID());
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID, CONFIG.getProfileDisplayVersionID());
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE, winningBid.width + 'x' + winningBid.height);
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY, CONSTANTS.PLATFORM_VALUES.DISPLAY);
-    }
+        var isNative = winningBid.getNative();        
+        if(isNative){
+            googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY, CONSTANTS.PLATFORM_VALUES.NATIVE);
+        }
+        else{
+            googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY, CONSTANTS.PLATFORM_VALUES.DISPLAY);
+        }
+    };
 
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
@@ -955,11 +961,22 @@ function initSafeFrameListener(theWindow){ // TDD, i/o : done
 exports.initSafeFrameListener = initSafeFrameListener;
 /* end-test-block */
 
+function initNativeListener(theWindow){ // TDD, i/o : done
+    if(!theWindow.PWT.nativeMessageListenerAdded){
+        util.addMessageEventListenerForNative(theWindow);
+        theWindow.PWT.nativeMessageListenerAdded = true;
+    }
+}
+/* start-test-block */
+exports.initNativeListener = initNativeListener;
+/* end-test-block */
+
 exports.init = function(win) { // TDD, i/o : done
 	CONFIG.initConfig();
     if (util.isObject(win)) {
         refThis.setWindowReference(win);
         refThis.initSafeFrameListener(win);
+        // refThis.initNativeListener(win);
         refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
         refThis.defineGPTVariables(win);
         adapterManager.registerAdapters();

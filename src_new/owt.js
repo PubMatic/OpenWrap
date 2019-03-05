@@ -57,8 +57,15 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 };
 
 window.PWT.startTrackers = function(theDocument,object){
-	util.log("In startTrackers for: " + object.bidID);
-	bidManager.loadTrackers(theDocument,object);
+	util.log("In startTrackers for: " + object.bidId);
+	window.parent.postMessage(
+		JSON.stringify({
+			pwt_type: "3",
+			pwt_bidID: object.bidId,
+			pwt_origin: window.location.protocol+"//"+window.location.hostname
+		}),
+		"*"
+	);
 };
 
 

@@ -138,5 +138,6 @@ exports.MESSAGES = {
 };
 
 exports.PLATFORM_VALUES = {
-	"DISPLAY": "display"
+	"DISPLAY": "display",
+	"NATIVE": "native"
 };

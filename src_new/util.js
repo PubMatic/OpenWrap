@@ -703,12 +703,53 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 				}
 				break;
+			case 3:
+				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+				/* istanbul ignore else */
+				if(bidDetails){
+					var theBid = bidDetails.bid,
+						adapterID = theBid.getAdapterID(),
+						divID = bidDetails.slotid;
+					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
+					bidManager.executeMonetizationPixel(divID, theBid);
+					bidManager.fireTracker(bidDetails);
+				}
+				break;
 		}
 	}catch(e){}
 }
 
 exports.addMessageEventListenerForSafeFrame = function(theWindow){
 	refThis.addMessageEventListener(theWindow, refThis.safeFrameCommunicationProtocol);
+};
+
+// exports.nativeCommunicationProtocol = function(msg){
+// 	try{
+// 		msgData = window.JSON.parse(msg.data);
+// 		/* istanbul ignore else */
+// 		if(!msgData.pwt_type){
+// 			return;
+// 		}
+
+// 		switch(window.parseInt(msgData.pwt_type)){
+			// case 3:
+			// 	var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+			// 	/* istanbul ignore else */
+			// 	if(bidDetails){
+			// 		var theBid = bidDetails.bid,
+			// 			adapterID = theBid.getAdapterID(),
+			// 			divID = bidDetails.slotid;
+			// 		refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
+			// 		bidManager.executeMonetizationPixel(divID, theBid);
+			// 		bidManager.fireTracker(bidDetails);
+			// 	}
+			// 	break;
+// 		}
+// 	}catch(e){}
+// }
+
+exports.addMessageEventListenerForNative = function(theWindow){
+	refThis.addMessageEventListener(theWindow, refThis.nativeCommunicationProtocol);
 };
 
 exports.getElementLocation = function( el ) {

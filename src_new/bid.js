@@ -24,6 +24,7 @@ function Bid(adapterID, kgpv){
 	this.status = 0;
 	this.serverSideResponseTime = 0;
 	this.mi = undefined;
+	this.native = undefined;
 }
 
 Bid.prototype.setServerSideResponseTime = function (ssResponseTime) {
@@ -233,6 +234,15 @@ Bid.prototype.setMi = function(mi){
 
 Bid.prototype.getMi = function(){
 	return this.mi;
+};
+
+Bid.prototype.getNative = function(){
+	return this.native;
+};
+
+Bid.prototype.setNative = function(native){
+	this.native = native;
+	return this;
 };
 
 /* start-test-block */

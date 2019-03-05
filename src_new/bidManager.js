@@ -464,9 +464,13 @@ exports.analyticalPixelCallback = analyticalPixelCallback;
 
 
 
-exports.setImageSrcToPixelURL = function (pixelURL) { // TDD, i/o : done
+exports.setImageSrcToPixelURL = function (pixelURL, useProtocol=true) { // TDD, i/o : done
 	var img = new window.Image();
-	img.src = util.metaInfo.protocol + pixelURL;
+	if(!useProtocol){
+		img.src = pixelURL;
+		return;
+	}
+	img.src = util.metaInfo.protocol + pixelURL;	
 };
 
 
@@ -484,25 +488,7 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 	return status;
 };
 
-exports.loadTrackers = function(theDocument, object){ // TDD, i/o : done
-	var bidDetails = refThis.getBidById(object.bidID);
-	/* istanbul ignore else */
-	if(bidDetails){
-		var theBid = bidDetails.bid,
-			divID = bidDetails.slotid
-		;
-		// util.displayCreative(theDocument, theBid);
-		util.vLogInfo(divID, {type: "disp", adapter: theBid.getAdapterID()});
-		refThis.executeMonetizationPixel(divID, theBid);
-		// let adElements = findAdElements(AD_ANCHOR_CLASS_NAME);
-		// for (var i = 0; i < adElements.length; i++) {
-		// 	adElements[i].addEventListener('click', loadClickTrackers, true);
-		//   }
-		fireTracker(bidDetails);
-	}
-};
-
-function fireTracker(bidDetails, action) {
+exports.fireTracker = function(bidDetails, action) {
 	var trackers;
 
 	if (action === "click") {
@@ -514,8 +500,8 @@ function fireTracker(bidDetails, action) {
 	// 	insertHtmlIntoIframe(adObject['native'].javascriptTrackers);
 	//   }
 	}
-	(trackers || []).forEach(function(url){refThis.setImageSrcToPixelURL(url);});
-}
+	(trackers || []).forEach(function(url){refThis.setImageSrcToPixelURL(url,false);});
+};
 
  
 
