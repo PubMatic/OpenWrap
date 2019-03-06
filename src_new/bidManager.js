@@ -518,10 +518,21 @@ exports.fireTracker = function(bidDetails, action) {
 		trackers = bidDetails["native"] && bidDetails["native"].clickTrackers;
 	} else {
 		trackers = bidDetails["native"] && bidDetails["native"].impressionTrackers;
-  
-	//   if (adObject['native'] && adObject['native'].javascriptTrackers) {
-	// 	insertHtmlIntoIframe(adObject['native'].javascriptTrackers);
-	//   }
+		if (bidDetails['native'] && bidDetails['native'].javascriptTrackers) {
+			var iframe = util.createInvisibleIframe();
+			/* istanbul ignore else */
+			if(!iframe){
+				throw {message: 'Failed to create invisible frame for native javascript trackers'};
+			}
+			/* istanbul ignore else */
+			if(!iframe.contentWindow){
+				throw {message: 'Unable to access frame window for native javascript trackers'};
+			}
+			window.document.body.appendChild(iframe);
+			iframe.contentWindow.document.open();
+			iframe.contentWindow.document.write(bidDetails['native'].javascriptTrackers);
+			iframe.contentWindow.document.close();
+		}
 	}
 	(trackers || []).forEach(function(url){refThis.setImageSrcToPixelURL(url,false);});
 };
