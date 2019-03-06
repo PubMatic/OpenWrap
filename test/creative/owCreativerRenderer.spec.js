@@ -1,7 +1,7 @@
 /* global describe, it, sinon, beforeEach, afterEach */
 // var sinon = require("sinon");
 
-var OWCren = require('../../src_new/creative/owCreativeRenderer.js');
+var OWCren = require("../../src_new/creative/owCreativeRenderer.js");
 
 describe("owCreativeRenderer : OWCren", function() {
 
@@ -50,7 +50,7 @@ describe("owCreativeRenderer : OWCren", function() {
 		});
 	});
     /* end-test-block */
-
+  
 	describe("renderCreative", function(){
 		var theDocument=null;
 		var params=null;
