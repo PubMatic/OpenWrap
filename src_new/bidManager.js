@@ -464,9 +464,9 @@ exports.analyticalPixelCallback = analyticalPixelCallback;
 
 
 
-exports.setImageSrcToPixelURL = function (pixelURL, useProtocol=true) { // TDD, i/o : done
+exports.setImageSrcToPixelURL = function (pixelURL, useProtocol) { // TDD, i/o : done
 	var img = new window.Image();
-	if(!useProtocol){
+	if(useProtocol != undefined && !useProtocol){
 		img.src = pixelURL;
 		return;
 	}
@@ -484,8 +484,31 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 			});
 		});
 	});
-
 	return status;
+};
+
+exports.loadTrackers = function(event){
+	var bidId = util.getBidFromEvent(event);
+	window.parent.postMessage(
+		JSON.stringify({
+			pwt_type: "3",
+			pwt_bidID: bidId,
+			pwt_origin: window.location.protocol+"//"+window.location.hostname,
+			pwt_action:"click"
+		}),
+		"*"
+	);
+};
+
+exports.executeTracker = function(object){
+	window.parent.postMessage(
+		JSON.stringify({
+			pwt_type: "3",
+			pwt_bidID: object.bidId,
+			pwt_origin: window.location.protocol+"//"+window.location.hostname
+		}),
+		"*"
+	);
 };
 
 exports.fireTracker = function(bidDetails, action) {

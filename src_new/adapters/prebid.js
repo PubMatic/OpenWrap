@@ -82,31 +82,9 @@ function transformPBBidToOWBid(bid, kgpv){
 exports.transformPBBidToOWBid = transformPBBidToOWBid;
 /* end-test-block */
 
-// This function is used to check size for the winning kgpv and if size is different then winning then modify it
-// to have same code for logging and tracking 
-function checkAndModifySizeOfKGPVIfRequired(bid, responseId){
-	var responseKGPV= responseId;
-	var responseIdArray = responseId.split("@");
-	/* istanbul ignore else */
-	if(responseIdArray &&  responseIdArray.length == 3){
-		var responseIdSize = responseIdArray[2];
-		/* istanbul ignore else */
-		if(bid.getSize() && bid.getSize() != responseIdSize && (bid.getSize().toUpperCase() != "0X0")){
-			responseKGPV = responseIdArray[0] + "@" + responseIdArray[1] + "@" +  bid.getSize().toUpperCase();
-		}
-	}
-	return responseKGPV;
-}
-
-/* start-test-block */
-exports.checkAndModifySizeOfKGPVIfRequired = checkAndModifySizeOfKGPVIfRequired;
-/* end-test-block */
 
 function pbBidStreamHandler(pbBid){
 	var responseID = pbBid.adUnitCode || "";
-	if(responseID){
-		responseID = checkAndModifySizeOfKGPVIfRequired(pbBid,responseID);
-	}
 	//OLD APPROACH
 	//serverSideEnabled: bid will contain the kgpv, divId, adapterId
 	/* istanbul ignore else */
@@ -212,26 +190,6 @@ function getPBCodeWithoutWidthAndHeight(divID, adapterID){
 	return divID + "@" + adapterID;
 }
 
-// this function is used to check if for pubmatic && same div one adUnit is defined or not
-// if this is defined then we will be returning false so that for same div multiple impressions can be ignored by not adding 
-// to ad units
-function isPubMaticAdUnitPresentForDivId(adUnits, divID){
-	for(var key in adUnits) {
-		if(adUnits.hasOwnProperty(key)){
-			if(key.indexOf("pubmatic") > 0 && adUnits[key].divID == divID){
-				return false;
-			}
-		}
-	}
-	return true;
-}
-
-/* start-test-block */
-exports.isPubMaticAdUnitPresentForDivId = isPubMaticAdUnitPresentForDivId;
-/* end-test-block */
-
-
-
 /* start-test-block */
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
@@ -247,9 +205,6 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		code = refThis.getPBCodeWithoutWidthAndHeight(divID, adapterID);
 		sizes = currentSlot.getSizes();	
 	}
-	if(adapterID == "pubmatic"){
-		sizes = currentSlot.getSizes();	
-	}
 	refThis.kgpvMap [ code ] = {
 		kgpv: generatedKey,
 		divID: divID
@@ -262,15 +217,13 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(adUnits, code)){
-		if(adapterID != "pubmatic" || (adapterID == "pubmatic" && isPubMaticAdUnitPresentForDivId(adUnits,divID))) {
-			adUnits[code] = {
-				code: code,
-				mediaTypes: util.getMediaTypeObject(CONFIG.getNativeConfiguration(), sizes, currentSlot),
-				sizes: sizes,
-				bids: [],
-				divID : divID
-			};
-		}
+		adUnits[code] = {
+			code: code,
+			mediaTypes: util.getMediaTypeObject(CONFIG.getNativeConfiguration(), sizes, currentSlot),
+			sizes: sizes,
+			bids: [],
+			divID : divID
+		};
 	}
 
 	var slotParams = {};
@@ -299,9 +252,6 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			break;
 
 		case "pubmatic":
-		/* istanbul ignore else*/
-		if(util.isOwnProperty(adUnits, code)) 
-		{
 			slotParams["publisherId"] = adapterConfig["publisherId"];
 			slotParams["adSlot"] = generatedKey;
 			slotParams["wiid"] = impressionID;
@@ -311,9 +261,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
-		}
 			break;
-
 		case "pulsepoint":
 			util.forEachOnArray(sizes, function(index, size){
 				var slotParams = {};
@@ -403,7 +351,7 @@ exports.generatePbConf = generatePbConf;
 
 function fetchBids(activeSlots, impressionID){
 
-	window.pwtCreatePrebidNamespace(pbNameSpace);
+	//window.pwtCreatePrebidNamespace(pbNameSpace);
 
 	/* istanbul ignore else */
 	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
@@ -464,6 +412,8 @@ function fetchBids(activeSlots, impressionID){
 					debug: util.isDebugLogEnabled(),
 					bidderSequence: "random",
 					userSync: {
+						enableOverride: true,
+						syncsPerBidder: 0,
 						iframeEnabled: true,
 						pixelEnabled: true,
 						enabledBidders: (function(){
@@ -497,6 +447,7 @@ function fetchBids(activeSlots, impressionID){
 					bidsBackHandler: function(bidResponses) {
 						util.log("In PreBid bidsBackHandler with bidResponses: ");
 						util.log(bidResponses);
+						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
 						//refThis.handleBidResponses(bidResponses);
 					},
 					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then
