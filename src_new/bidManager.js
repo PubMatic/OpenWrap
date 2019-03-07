@@ -216,6 +216,18 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
             } else if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
                 winningBid = theBid;
             }
+
+			if (keyValuePairs.hasOwnProperty('hb_bidder') && keyValuePairs.hb_bidder.length > 1) {
+				var wbAdapterId = winningBid.adapterID;
+				var wbAdapterIndex = keyValuePairs.hb_bidder.indexOf(wbAdapterId);
+				if (wbAdapterIndex >= 0) {
+					util.forEachOnObject(keyValuePairs, function(key, value) {
+						if (key.indexOf('native') >= 0) {
+							value.splice(wbAdapterIndex, 1);
+						}
+					});
+				}
+			}
         });
         return { winningBid: winningBid , keyValuePairs: keyValuePairs };
     } else {
