@@ -80,7 +80,7 @@ exports.enableVisualDebugLog = function(){
 
 //todo: move...
 var constDebugInConsolePrependWith = "[OpenWrap] : ";
-
+var constErrorInConsolePrependWith = "[OpenWrap] : [Error]";
 
 
 exports.log = function(data){
@@ -91,6 +91,10 @@ exports.log = function(data){
 			console.log(data); // eslint-disable-line no-console
 		}
 	}
+};
+
+exports.error = function(data){
+	console.log( (new Date()).getTime()+ " : " + constErrorInConsolePrependWith, data ); // eslint-disable-line no-console
 };
 
 exports.getCurrentTimestampInMs = function(){
@@ -608,7 +612,7 @@ exports.addMessageEventListener = function(theWindow, eventHandler){
 		theWindow.attachEvent("onmessage", eventHandler);
 	}
 	return true;
-}
+};
 
 exports.safeFrameCommunicationProtocol = function(msg){
 	try{
@@ -711,13 +715,17 @@ exports.safeFrameCommunicationProtocol = function(msg){
 						adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid;
 					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
+					if(msgData.pwt_action && msgData.pwt_action == "click"){
+						bidManager.fireTracker(theBid,msgData.pwt_action);		
+						return;			
+					}
 					bidManager.executeMonetizationPixel(divID, theBid);
-					bidManager.fireTracker(bidDetails);
+					bidManager.fireTracker(theBid);
 				}
 				break;
 		}
 	}catch(e){}
-}
+};
 
 exports.addMessageEventListenerForSafeFrame = function(theWindow){
 	refThis.addMessageEventListener(theWindow, refThis.safeFrameCommunicationProtocol);
@@ -982,4 +990,28 @@ exports.getMediaTypeObject = function(nativeConfig, sizes, currentSlot){
 		sizes: sizes
 	};
 	return mediaTypeObject;
+};
+
+exports.addEventListenerForClass = function(theWindow,event,cls, eventHandler){
+
+	if(typeof eventHandler !== "function"){
+		refThis.log("EventHandler should be a function");
+		return false;
+	}
+	var elems = refThis.findElementsByClass(theWindow,cls);
+	if(!theWindow.addEventListener){
+		event = "on"+event;
+	}
+	for (var i = 0; i < elems.length; i++) {
+		elems[i].addEventListener(event, eventHandler, true);
+	}
+	return true;
+};
+
+exports.findElementsByClass = function(theWindow,cls){
+	return theWindow.document.getElementsByClassName(cls) || [];
+};
+
+exports.getBidFromEvent = function (event) {
+	return (event && event.target && event.target.attributes &&  event.target.attributes[CONSTANTS.COMMON.BID_ID] && event.target.attributes[CONSTANTS.COMMON.BID_ID].value) || "";
 };

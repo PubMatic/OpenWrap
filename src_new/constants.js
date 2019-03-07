@@ -18,7 +18,9 @@ exports.COMMON = {
 	"IMPRESSION_ID": "iid",
 	"PARENT_ADAPTER_PREBID": "prebid",
 	"MEDIA_TYPE_CONFIG": "nativeConfig",
-	"NATIVE_ONLY": "nativeOnly"
+	"NATIVE_ONLY": "nativeOnly",
+	"OW_CLICK_NATIVE": "ow-click",
+	"BID_ID":"owbidid"
 };
 
 exports.CONFIG = {

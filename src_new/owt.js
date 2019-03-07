@@ -1,6 +1,7 @@
 var util = require("./util.js");
 var controller = require("%%PATH_TO_CONTROLLER%%");
 var bidManager = require("./bidManager.js");
+var CONSTANTS = require("./constants.js");
 
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
@@ -58,14 +59,8 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 
 window.PWT.startTrackers = function(theDocument,object){
 	util.log("In startTrackers for: " + object.bidId);
-	window.parent.postMessage(
-		JSON.stringify({
-			pwt_type: "3",
-			pwt_bidID: object.bidId,
-			pwt_origin: window.location.protocol+"//"+window.location.hostname
-		}),
-		"*"
-	);
+	util.addEventListenerForClass(window,"click", CONSTANTS.COMMON.OW_CLICK_NATIVE,bidManager.loadTrackers);
+	bidManager.executeTracker(object);
 };
 
 
