@@ -17,9 +17,9 @@ exports.COMMON = {
 	"KEY_VALUE_PAIRS": "kvp",
 	"IMPRESSION_ID": "iid",
 	"PARENT_ADAPTER_PREBID": "prebid",
-	"MEDIA_TYPE_CONFIG": "nativeConfig",
+	"NATIVE_MEDIA_TYPE_CONFIG": "nativeConfig",
 	"NATIVE_ONLY": "nativeOnly",
-	"OW_CLICK_NATIVE": "ow-click",
+	"OW_CLICK_NATIVE": "openwrap-native-click",
 	"BID_ID":"owbidid"
 };
 

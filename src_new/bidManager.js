@@ -464,6 +464,13 @@ exports.analyticalPixelCallback = analyticalPixelCallback;
 
 
 
+/**
+ * function which takes url and creates an image and executes them
+ * used to execute trackers
+ * @param {*} pixelURL
+ * @param {*} useProtocol
+ * @returns
+ */
 exports.setImageSrcToPixelURL = function (pixelURL, useProtocol) { // TDD, i/o : done
 	var img = new window.Image();
 	if(useProtocol != undefined && !useProtocol){
@@ -487,6 +494,12 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 	return status;
 };
 
+
+/**
+ * This function is used to execute trackers on event
+ * in case of native. On click of native create element 
+ * @param {*} event
+ */
 exports.loadTrackers = function(event){
 	var bidId = util.getBidFromEvent(event);
 	window.parent.postMessage(
@@ -500,23 +513,36 @@ exports.loadTrackers = function(event){
 	);
 };
 
-exports.executeTracker = function(object){
+/**
+ * function takes bidID and post a message to parent pwt.js to execute monetization pixels.
+ * @param {*} bidID
+ */
+exports.executeTracker = function(bidID){
 	window.parent.postMessage(
 		JSON.stringify({
 			pwt_type: "3",
-			pwt_bidID: object.bidId,
-			pwt_origin: window.location.protocol+"//"+window.location.hostname
+			pwt_bidID: bidID,
+			pwt_origin: window.location.protocol+"//"+window.location.hostname,
+			pwt_action:"imptrackers"
 		}),
 		"*"
 	);
 };
 
+/**
+ * based on action it executes either the clickTrackers or
+ * impressionTrackers and javascriptTrackers.
+ * Javascript trackers is a valid html, urls already wrapped in script tagsand its guidelines can be found at
+ * iab spec document.
+ * @param {*} bidDetails
+ * @param {*} action
+ */
 exports.fireTracker = function(bidDetails, action) {
 	var trackers;
 
 	if (action === "click") {
 		trackers = bidDetails["native"] && bidDetails["native"].clickTrackers;
-	} else {
+	} else if(action === "imptrackers") {
 		trackers = bidDetails["native"] && bidDetails["native"].impressionTrackers;
 		if (bidDetails['native'] && bidDetails['native'].javascriptTrackers) {
 			var iframe = util.createInvisibleIframe();

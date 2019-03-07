@@ -971,22 +971,11 @@ function initSafeFrameListener(theWindow){ // TDD, i/o : done
 exports.initSafeFrameListener = initSafeFrameListener;
 /* end-test-block */
 
-function initNativeListener(theWindow){ // TDD, i/o : done
-    if(!theWindow.PWT.nativeMessageListenerAdded){
-        util.addMessageEventListenerForNative(theWindow);
-        theWindow.PWT.nativeMessageListenerAdded = true;
-    }
-}
-/* start-test-block */
-exports.initNativeListener = initNativeListener;
-/* end-test-block */
-
 exports.init = function(win) { // TDD, i/o : done
 	CONFIG.initConfig();
     if (util.isObject(win)) {
         refThis.setWindowReference(win);
         refThis.initSafeFrameListener(win);
-        // refThis.initNativeListener(win);
         refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
         refThis.defineGPTVariables(win);
         adapterManager.registerAdapters();

@@ -731,35 +731,6 @@ exports.addMessageEventListenerForSafeFrame = function(theWindow){
 	refThis.addMessageEventListener(theWindow, refThis.safeFrameCommunicationProtocol);
 };
 
-// exports.nativeCommunicationProtocol = function(msg){
-// 	try{
-// 		msgData = window.JSON.parse(msg.data);
-// 		/* istanbul ignore else */
-// 		if(!msgData.pwt_type){
-// 			return;
-// 		}
-
-// 		switch(window.parseInt(msgData.pwt_type)){
-			// case 3:
-			// 	var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
-			// 	/* istanbul ignore else */
-			// 	if(bidDetails){
-			// 		var theBid = bidDetails.bid,
-			// 			adapterID = theBid.getAdapterID(),
-			// 			divID = bidDetails.slotid;
-			// 		refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
-			// 		bidManager.executeMonetizationPixel(divID, theBid);
-			// 		bidManager.fireTracker(bidDetails);
-			// 	}
-			// 	break;
-// 		}
-// 	}catch(e){}
-// }
-
-exports.addMessageEventListenerForNative = function(theWindow){
-	refThis.addMessageEventListener(theWindow, refThis.nativeCommunicationProtocol);
-};
-
 exports.getElementLocation = function( el ) {
 	var rect,
 		x = 0,
@@ -992,26 +963,26 @@ exports.getMediaTypeObject = function(nativeConfig, sizes, currentSlot){
 	return mediaTypeObject;
 };
 
-exports.addEventListenerForClass = function(theWindow,event,cls, eventHandler){
+exports.addEventListenerForClass = function(theWindow, theEvent, theClass, eventHandler){
 
 	if(typeof eventHandler !== "function"){
 		refThis.log("EventHandler should be a function");
 		return false;
 	}
-	var elems = refThis.findElementsByClass(theWindow,cls);
+	var elems = refThis.findElementsByClass(theWindow, theClass);
 	if(!theWindow.addEventListener){
-		event = "on"+event;
+		theEvent = "on"+theEvent;
 	}
 	for (var i = 0; i < elems.length; i++) {
-		elems[i].addEventListener(event, eventHandler, true);
+		elems[i].addEventListener(theEvent, eventHandler, true);
 	}
 	return true;
 };
-
-exports.findElementsByClass = function(theWindow,cls){
-	return theWindow.document.getElementsByClassName(cls) || [];
+ 
+exports.findElementsByClass = function(theWindow, theClass){
+	return theWindow.document.getElementsByClassName(theClass) || [];
 };
 
-exports.getBidFromEvent = function (event) {
-	return (event && event.target && event.target.attributes &&  event.target.attributes[CONSTANTS.COMMON.BID_ID] && event.target.attributes[CONSTANTS.COMMON.BID_ID].value) || "";
+exports.getBidFromEvent = function (theEvent) {
+	return (theEvent && theEvent.target && theEvent.target.attributes &&  theEvent.target.attributes[CONSTANTS.COMMON.BID_ID] && theEvent.target.attributes[CONSTANTS.COMMON.BID_ID].value) || "";
 };
