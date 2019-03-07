@@ -715,12 +715,10 @@ exports.safeFrameCommunicationProtocol = function(msg){
 						adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid;
 					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
-					if(msgData.pwt_action && msgData.pwt_action == "click"){
-						bidManager.fireTracker(theBid,msgData.pwt_action);		
-						return;			
+					if(msgData.pwt_action && msgData.pwt_action == "imptrackers"){
+						bidManager.executeMonetizationPixel(divID, theBid);
 					}
-					bidManager.executeMonetizationPixel(divID, theBid);
-					bidManager.fireTracker(theBid);
+					bidManager.fireTracker(theBid,msgData.pwt_action);							
 				}
 				break;
 		}
