@@ -362,15 +362,6 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
         var isNative = winningBid.getNative();        
         if(isNative){
             googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY, CONSTANTS.PLATFORM_VALUES.NATIVE);
-            wbKeyValuePairs = winningBid.keyValuePairs;
-            util.forEachOnObject(wbKeyValuePairs, function(key, value) {
-                /* istanbul ignore else*/
-                if (!util.isOwnProperty(ignoreTheseKeys, key) && key.indexOf("native") >= 0) {
-                    googleDefinedSlot.setTargeting(key, value);
-                    // adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
-                    refThis.defineWrapperTargetingKey(key);
-                }
-            });
         }
         else{
             googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY, CONSTANTS.PLATFORM_VALUES.DISPLAY);
@@ -380,7 +371,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
         /* istanbul ignore else*/
-        if (!util.isOwnProperty(ignoreTheseKeys, key) && key.indexOf("native") < 0) {
+        if (!util.isOwnProperty(ignoreTheseKeys, key)) {
             googleDefinedSlot.setTargeting(key, value);
             // adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
             refThis.defineWrapperTargetingKey(key);
