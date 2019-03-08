@@ -163,5 +163,5 @@ exports.initConfig = function(){
 /* Native Configuration */
 
 exports.getNativeConfiguration = function(){
-	return config[CONSTANTS.COMMON.MEDIA_TYPE_CONFIG];
+	return config[CONSTANTS.COMMON.NATIVE_MEDIA_TYPE_CONFIG];
 };

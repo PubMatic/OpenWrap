@@ -644,12 +644,12 @@ describe('Config', function() {
                     }
                 }
             };
-            CONF[CONSTANTS.COMMON.MEDIA_TYPE_CONFIG] = conf;
+            CONF[CONSTANTS.COMMON.NATIVE_MEDIA_TYPE_CONFIG] = conf;
             done();
         });
 
         afterEach(function(done){
-            delete CONF[CONSTANTS.COMMON.MEDIA_TYPE_CONFIG];
+            delete CONF[CONSTANTS.COMMON.NATIVE_MEDIA_TYPE_CONFIG];
             done();
         })
         
@@ -707,7 +707,7 @@ describe('Config', function() {
         });
 
         it('should be undefined if nativeConfig is not present',function(done){
-            delete CONF[CONSTANTS.COMMON.MEDIA_TYPE_CONFIG];
+            delete CONF[CONSTANTS.COMMON.NATIVE_MEDIA_TYPE_CONFIG];
             expect(CONFIG.getNativeConfiguration()).to.equal(undefined);
             done();
         })

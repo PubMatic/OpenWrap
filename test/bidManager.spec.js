@@ -1695,7 +1695,13 @@ describe('bidManager BIDMgr', function() {
             window.Image.called.should.be.true;
             imageObjStub.src.should.equal(UTIL.metaInfo.protocol + pixelURL);
             done();
+        });
 
+        it('should have called window.Image while setting its src to the passed pixelURL without protocol', function(done) {
+            BIDMgr.setImageSrcToPixelURL(pixelURL,false);
+            window.Image.called.should.be.true;
+            imageObjStub.src.should.equal(pixelURL);
+            done();
         });
     });
 
@@ -1753,6 +1759,59 @@ describe('bidManager BIDMgr', function() {
 
         it('should return true if for divId no bids are send', function(done) {
             BIDMgr.getAllPartnersBidStatuses(bidMaps, ["Div2"]).should.be.true;
+            done();
+        });
+    });
+
+    describe('#loadTrackers', function() {
+        beforeEach(function(done) {
+  
+            done();
+        });
+
+        afterEach(function(done) {
+            done();
+        });
+
+        it('is a function', function(done) {
+            BIDMgr.loadTrackers.should.be.a('function');
+            done();
+        });
+
+        it('should call getBidDetails', function(done) {
+            BIDMgr.loadTrackers(event);
+            UTIL.getBidFromEvent.should.be.calledOnce;
+            done();
+        });
+    });
+
+    describe('#executeTracker', function() {
+        beforeEach(function(done) {
+  
+            done();
+        });
+
+        afterEach(function(done) {
+            done();
+        });
+
+        it('is a function', function(done) {
+            BIDMgr.executeTracker.should.be.a('function');
+            done();
+        });
+    });
+
+    describe('#fireTracker', function() {
+        beforeEach(function(done) {
+            done();
+        });
+
+        afterEach(function(done) {
+            done();
+        });
+
+        it('is a function', function(done) {
+            BIDMgr.fireTracker.should.be.a('function');
             done();
         });
     });

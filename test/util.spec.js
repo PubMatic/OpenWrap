@@ -1516,6 +1516,7 @@ describe('UTIL', function() {
 
             sinon.spy(bidDetailsStub.bid, "getAdapterID");
             sinon.stub(BIDMgr, "executeMonetizationPixel");
+            sinon.stub(BIDMgr, "fireTracker");
 
             sinon.stub(UTIL, "vLogInfo").returns(true);
             sinon.stub(UTIL, "resizeWindow").returns(true);
@@ -1551,6 +1552,7 @@ describe('UTIL', function() {
             window.parseInt.restore();
             BIDMgr.executeMonetizationPixel.restore();
             BIDMgr.getBidById.restore();
+            BIDMgr.fireTracker.restore();
 
             UTIL.vLogInfo.restore();
             UTIL.resizeWindow.restore();
@@ -1692,6 +1694,35 @@ describe('UTIL', function() {
                     done();
                 });
             });
+        });
+
+        describe('##when pwt_type is 3', function() {
+            beforeEach(function(done) {
+                msg.data = '{"pwt_type":3,"pwt_bidID":1,"pwt_origin":1,"pwt_action":"impTrackers"}';
+                done();
+            });
+
+            afterEach(function(done){
+                msg.data = null;
+                done();
+            })
+
+            it('should have called vLogInfo and should have called fireTracker with impTrackers', function(done) {
+                UTIL.safeFrameCommunicationProtocol(msg);
+                BIDMgr.getBidById.calledWith(1).should.be.true;
+                BIDMgr.fireTracker.calledWith(bidDetailsStub.bid, "impTrackers").should.be.true;
+                done();
+            });
+
+            it('should have called vLogInfo and should have called fireTracker with click action', function(done) {
+                msg.data = '{"pwt_type":3,"pwt_bidID":1,"pwt_origin":1,"pwt_action":"click"}';
+                UTIL.safeFrameCommunicationProtocol(msg);
+                BIDMgr.getBidById.calledWith(1).should.be.true;
+                bidDetailsStub.bid.getAdapterID.called.should.be.true;
+                BIDMgr.fireTracker.calledWith(bidDetailsStub.bid, "click").should.be.true;
+                done();
+            });
+
         });
     });
 
