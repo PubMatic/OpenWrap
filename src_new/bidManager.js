@@ -220,14 +220,18 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
 			if (keyValuePairs.hasOwnProperty('hb_bidder') && keyValuePairs.hb_bidder.length > 1) {
 				var wbAdapterId = winningBid.adapterID;
 				var wbAdapterIndex = keyValuePairs.hb_bidder.indexOf(wbAdapterId);
-				if (wbAdapterIndex >= 0) {
-					util.forEachOnObject(keyValuePairs, function(key, value) {
-						if (key.indexOf('native') >= 0) {
-							value.splice(wbAdapterIndex, 1);
-						}
-					});
-				}
-			}
+    			if (wbAdapterIndex >= 0) {
+	                for(var key in keyValuePairs){
+	                  if (key.indexOf('native') >= 0 /*&& wbAdapterIndex < keyValuePairs[key].length*/) {
+	                    if (wbAdapterIndex < keyValuePairs[key].length) {
+	                      keyValuePairs[key] = keyValuePairs[key][wbAdapterIndex];
+	                    } else if(key.length != 20) { //deleting keys-value where key is not partner key and does not have values for all partners
+	                      delete keyValuePairs[key]; 
+	                    }
+	                  }
+	                }
+	            }
+    		}
         });
         return { winningBid: winningBid , keyValuePairs: keyValuePairs };
     } else {

@@ -677,7 +677,34 @@ describe('Bid bidObject', function() {
             expect(kvp[bidSizeKey]).to.equal(bidObject.getWidth() + 'x' + bidObject.getHeight());
 
             done();
-        });        
+        });
+
+        it('should check for native keys if bid is for type native', function(done) {
+            var nativeObject = {"title":"Lexus - Luxury vehicles company","image":{"url":"https://stagingnyc.pubmatic.com:8443//sdk/lexus_logo.png","height":150,"width":150},"icon":{"url":"https://stagingnyc.pubmatic.com:8443//sdk/28f48244cafa0363b03899f267453fe7%20copy.png","height":428,"width":214},"sponsoredBy":"Goto PubMatic","body":"Lexus - Luxury vehicles company","clickUrl":"http://www.lexus.com/","clickTrackers":["http://ct.pubmatic.com/track?ts=1496043362&r=84137f17-eefd-4f06-8380-09138dc616e6&i=c35b1240-a0b3-4708-afca-54be95283c61&a=130917&t=9756&au=10002949&p=&c=10014299&o=10002476&wl=10009731&ty=3&url="],"impressionTrackers":["http://phtrack.pubmatic.com/?ts=1496043362&r=84137f17-eefd-4f06-8380-09138dc616e6&i=c35b1240-a0b3-4708-afca-54be95283c61&a=130917&t=9756&au=10002949&p=&c=10014299&o=10002476&wl=10009731&ty=1"],"jstracker":[]};
+            bidObject.setNative(nativeObject);
+            var keyvalues = {
+                "pwt_native_title": "Lexus - Luxury vehicles company",
+                "pwt_native_image": "https://stagingnyc.pubmatic.com:8443//sdk/lexus_logo.png",
+                "pwt_native_icon": "https://stagingnyc.pubmatic.com:8443//sdk/28f48244cafa0363b03899f267453fe7%20copy.png",
+                "pwt_native_brand": "Goto PubMatic",
+                "pwt_native_body": "Lexus - Luxury vehicles company",
+                "pwt_native_linkurl": "http://www.lexus.com/"
+            };
+            bidObject.setKeyValuePair("pwt_native_title", "Lexus - Luxury vehicles company");
+            bidObject.setKeyValuePair("pwt_native_image", "https://stagingnyc.pubmatic.com:8443//sdk/lexus_logo.png");
+            bidObject.setKeyValuePair("pwt_native_icon", "https://stagingnyc.pubmatic.com:8443//sdk/28f48244cafa0363b03899f267453fe7%20copy.png");
+            bidObject.setKeyValuePair("pwt_native_brand", "Goto PubMatic");
+            bidObject.setKeyValuePair("pwt_native_body", "Lexus - Luxury vehicles company");
+            bidObject.setKeyValuePair("pwt_native_linkurl", "http://www.lexus.com/");
+            bidObject.setSendAllBidsKeys();
+            var kvp = bidObject.getKeyValuePairs();
+
+            Object.keys(keyvalues).forEach((property) => {
+                expect(kvp.hasOwnProperty(property));
+                expect(kvp[property]).to.equal(keyvalues[property]);
+            });
+            done();
+        });
 
     });
 
