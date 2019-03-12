@@ -699,7 +699,7 @@ describe('Bid bidObject', function() {
             bidObject.setSendAllBidsKeys();
             var kvp = bidObject.getKeyValuePairs();
 
-            Object.keys(keyvalues).forEach((property) => {
+            Object.keys(keyvalues).forEach(function(property){
                 expect(kvp.hasOwnProperty(property));
                 expect(kvp[property]).to.equal(keyvalues[property]);
             });
