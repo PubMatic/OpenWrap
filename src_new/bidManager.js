@@ -197,17 +197,31 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
 				theBid.setSendAllBidsKeys();
 			}
 
-            //	if bidPassThrough is not enabled and ecpm > 0
-            //		then only append the key value pairs from partner bid
-            /* istanbul ignore else */
-            if (CONFIG.getBidPassThroughStatus(adapterID) === 0 /*&& theBid.getNetEcpm() > 0*/) {
-                util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
-            }
+			if (winningBid !== null ) {
+					if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
+						// i.e. the current bid is the winning bid, so remove the native keys from keyValuePairs 
+						for(var key in keyValuePairs) {
+							if (key.indexOf('native') >= 0 && key.split("_").length === 3) {
+								// key.split("_").length == 3 means it is a key without the adapter name in it
+								delete keyValuePairs[key];
+							}
+						}
+					} else {
+						// i.e. the current bid is not the winning bid, so remove the native keys from theBid.keyValuePairs
+						var bidKeyValuePairs = theBid.getKeyValuePairs();
+						for(var key in bidKeyValuePairs) { 
+							if (key.indexOf('native') >= 0 && key.split("_").length === 3) {
+								// key.split("_").length == 3 means it is a key without the adapter name in it
+								delete bidKeyValuePairs[key];
+							}
+						}
+					theBid.keyValuePairs = bidKeyValuePairs;
+				}
+			}
+            util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
 
-            //BidPassThrough: Do not participate in auction)
             /* istanbul ignore else */
             if (CONFIG.getBidPassThroughStatus(adapterID) !== 0) {
-                util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
                 return { winningBid: winningBid , keyValuePairs: keyValuePairs };
             }
 
@@ -216,22 +230,6 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
             } else if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
                 winningBid = theBid;
             }
-
-			if (keyValuePairs.hasOwnProperty('hb_bidder') && keyValuePairs.hb_bidder.length > 1) {
-				var wbAdapterId = winningBid.adapterID;
-				var wbAdapterIndex = keyValuePairs.hb_bidder.indexOf(wbAdapterId);
-    			if (wbAdapterIndex >= 0) {
-	                for(var key in keyValuePairs){
-	                  if (key.indexOf('native') >= 0 /*&& wbAdapterIndex < keyValuePairs[key].length*/) {
-	                    if (wbAdapterIndex < keyValuePairs[key].length) {
-	                      keyValuePairs[key] = keyValuePairs[key][wbAdapterIndex];
-	                    } else if(key.length != 20) { //deleting keys-value where key is not partner key and does not have values for all partners
-	                      delete keyValuePairs[key]; 
-	                    }
-	                  }
-	                }
-	            }
-    		}
         });
         return { winningBid: winningBid , keyValuePairs: keyValuePairs };
     } else {
