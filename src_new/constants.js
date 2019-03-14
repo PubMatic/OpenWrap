@@ -16,7 +16,8 @@ exports.COMMON = {
 	"KEY_GENERATION_PATTERN_VALUE": "kgpv",
 	"KEY_VALUE_PAIRS": "kvp",
 	"IMPRESSION_ID": "iid",
-	"PARENT_ADAPTER_PREBID": "prebid"
+	"PARENT_ADAPTER_PREBID": "prebid",
+	"ANALYTICS_CURRENCY":"USD"
 };
 
 exports.CONFIG = {

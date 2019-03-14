@@ -368,8 +368,8 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
 	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
 	pixelURL += "&pn=" + window.encodeURIComponent(theBid.getAdapterID());
-	pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
-	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
+	pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm(true));
+	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm(true));
 	pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
 
 	refThis.setImageSrcToPixelURL(pixelURL);
@@ -437,8 +437,8 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "db": theBid.getDefaultBidStatus(),
                     "kgpv": theBid.getKGPV(),
                     "psz": theBid.getWidth() + "x" + theBid.getHeight(),
-                    "eg": theBid.getGrossEcpm(),
-                    "en": theBid.getNetEcpm(),
+                    "eg": theBid.getGrossEcpm(true),
+                    "en": theBid.getNetEcpm(true),
                     "di": theBid.getDealID(),
                     "dc": theBid.getDealChannel(),
                     "l1": theBid.getServerSideStatus() ? theBid.getServerSideResponseTime() : (endTime - startTime),

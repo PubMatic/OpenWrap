@@ -24,6 +24,11 @@ function Bid(adapterID, kgpv){
 	this.status = 0;
 	this.serverSideResponseTime = 0;
 	this.mi = undefined;
+	this.originalCpm = 0;
+	this.originalCurrency = "";
+	this.analyticsGCpm = 0;
+	this.analyticsNCpm = 0;
+
 }
 
 Bid.prototype.setServerSideResponseTime = function (ssResponseTime) {
@@ -83,11 +88,18 @@ Bid.prototype.setGrossEcpm = function(ecpm){
 	return this;
 };
 
-Bid.prototype.getGrossEcpm = function(){
+Bid.prototype.getGrossEcpm = function(forAnalytics){
+	//TODO: Check config if currency module is enabled.
+	if(true && this.analyticsGCpm && forAnalytics){
+		return this.analyticsGCpm;
+	}
 	return this.grossEcpm;
 };
 
-Bid.prototype.getNetEcpm = function(){
+Bid.prototype.getNetEcpm = function(forAnalytics){
+	if(true && this.analyticsNCpm && forAnalytics){
+		return this.analyticsNCpm;
+	}
 	return this.netEcpm;
 };
 
@@ -233,6 +245,36 @@ Bid.prototype.setMi = function(mi){
 
 Bid.prototype.getMi = function(){
 	return this.mi;
+};
+
+Bid.prototype.setOriginalCpm = function(originalCpm){
+	this.originalCpm = originalCpm;
+	return this;
+};
+
+Bid.prototype.getOriginalCpm = function(){
+	return this.originalCpm;
+};
+
+
+Bid.prototype.setOriginalCurrency = function(originalCurrency){
+	this.originalCurrency = originalCurrency;
+	return this;
+};
+
+Bid.prototype.getOriginalCurrency = function(){
+	return this.originalCurrency;
+};
+
+
+Bid.prototype.setAnalyticsCpm = function(analyticsCpm){
+	this.analyticsGCpm = analyticsCpm;
+	this.analyticsNCpm = window.parseFloat((this.analyticsGCpm * CONFIG.getAdapterRevShare(this.getAdapterID())).toFixed(CONSTANTS.COMMON.BID_PRECISION));
+	return this;
+};
+
+Bid.prototype.getAnalyticsCpm = function(){
+	return this.analyticsGCpm;
 };
 
 /* start-test-block */

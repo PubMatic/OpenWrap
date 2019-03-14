@@ -42,7 +42,12 @@ function transformPBBidToOWBid(bid, kgpv){
 
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
-
+	// ToDo : Check if currency conversion is enabled or not
+	if(true && bid.originalCpm && bid.originalCurrency){
+		theBid.setOriginalCpm(bid.originalCpm);
+		theBid.setOriginalCurrency(bid.originalCurrency);
+		theBid.setAnalyticsCpm(bid.getCpmInNewCurrency(CONSTANTS.COMMON.ANALYTICS_CURRENCY));
+	}
 	/*
 		errorCodes meaning:
 		1 = GADS_UNMAPPED_SLOT_ERROR
@@ -430,6 +435,16 @@ function fetchBids(activeSlots, impressionID){
 						cmpApi: CONFIG.getCmpApi(),
 						timeout: CONFIG.getGdprTimeout(),
 						allowAuctionWithoutConsent: CONFIG.getAwc()
+					};
+				}
+				//TODO: remove true and implement getCurrency() in config
+				// CONFIG.getCurrency()
+				if(true){
+					// get AdServer currency from Config
+					prebidConfig["currency"] = {
+						"adServerCurrency": "INR", 
+						"granularityMultiplier": 1, 
+						"defaultRates": { "USD": { "INR": 69.74 }}
 					};
 				}
 

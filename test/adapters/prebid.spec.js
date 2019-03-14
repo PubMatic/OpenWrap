@@ -59,6 +59,9 @@ describe('ADAPTER: Prebid', function() {
                     "hb_format": "native",
                     "hb_source": "client"
                 },
+                getCpmInNewCurrency: function(){
+                    return this.cpm;
+                },
                 serverSideResponseTime: 5
             };
             errorBid = {
@@ -77,7 +80,10 @@ describe('ADAPTER: Prebid', function() {
                     "hb_source": "client"
                 },
                 serverSideResponseTime: 5,
-                pubmaticServerErrorCode: 1
+                pubmaticServerErrorCode: 1,
+                getCpmInNewCurrency: function(){
+                    return this.cpm;
+                }
             };
             kgpv = commonKGPV;
             sinon.spy(UTIL, "forEachOnObject");
@@ -279,6 +285,9 @@ describe('ADAPTER: Prebid', function() {
                 },
                 setMi: function() {
                     return "setMi";
+                },
+                setOriginalCpm:function(){
+                    return 5;
                 }
 
             };
@@ -297,6 +306,7 @@ describe('ADAPTER: Prebid', function() {
 
             sinon.spy(theBid, "setAdUrl");
             sinon.spy(theBid, "setServerSideResponseTime");
+            sinon.spy(theBid, "setOriginalCpm");
 
             sinon.stub(BM, "setBidFromBidder").returns(true);
 
@@ -322,6 +332,7 @@ describe('ADAPTER: Prebid', function() {
             theBid.setWidth.restore();
             theBid.setHeight.restore();
             theBid.setReceivedTime.restore();
+            theBid.setOriginalCpm.restore();
 
             theBid.setKeyValuePair.restore();
             theBid.setServerSideResponseTime.restore();
