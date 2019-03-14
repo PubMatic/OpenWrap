@@ -183,7 +183,21 @@ function auctionBids(bmEntry) { // TDD, i/o : done
 exports.auctionBids = auctionBids;
 /* end-test-block */
 
+function updateNativeTargtingKeys(keyValuePairs) {
+	for(var key in keyValuePairs) {
+		if (key.indexOf('native') >= 0 && key.split("_").length === 3) {
+			delete keyValuePairs[key];
+		}
+	}
+}
+
+/* start-test-block */
+exports.updateNativeTargtingKeys = updateNativeTargtingKeys;
+/* end-test-block */
+
+
 function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) { // TDD, i/o : done
+	var refThis = this;
     if (adapterEntry.getLastBidID() != "") {
         util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
             // do not consider post-timeout bids
@@ -200,22 +214,12 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
 			if (winningBid !== null ) {
 					if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
 						// i.e. the current bid is the winning bid, so remove the native keys from keyValuePairs 
-						for(var key in keyValuePairs) {
-							if (key.indexOf('native') >= 0 && key.split("_").length === 3) {
-								// key.split("_").length == 3 means it is a key without the adapter name in it
-								delete keyValuePairs[key];
-							}
-						}
+						refThis.updateNativeTargtingKeys(keyValuePairs);
 					} else {
 						// i.e. the current bid is not the winning bid, so remove the native keys from theBid.keyValuePairs
 						var bidKeyValuePairs = theBid.getKeyValuePairs();
-						for(var key in bidKeyValuePairs) { 
-							if (key.indexOf('native') >= 0 && key.split("_").length === 3) {
-								// key.split("_").length == 3 means it is a key without the adapter name in it
-								delete bidKeyValuePairs[key];
-							}
-						}
-					theBid.keyValuePairs = bidKeyValuePairs;
+						refThis.updateNativeTargtingKeys(bidKeyValuePairs);
+						theBid.keyValuePairs = bidKeyValuePairs;
 				}
 			}
             util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());

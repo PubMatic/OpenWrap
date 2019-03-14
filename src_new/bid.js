@@ -230,8 +230,8 @@ Bid.prototype.setSendAllBidsKeys = function(){
 		var globalThis = this;
 		UTIL.forEachOnObject(keyValues, function(key, value) {
 			if (key.indexOf("native") >= 0) {
-				globalThis.setKeyValuePair(key + '_' + globalThis.adapterID, value);
-			};
+				globalThis.setKeyValuePair(key + "_" + globalThis.adapterID, value);
+			}
 		});
 	}
 };
