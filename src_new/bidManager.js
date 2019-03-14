@@ -185,7 +185,7 @@ exports.auctionBids = auctionBids;
 
 function updateNativeTargtingKeys(keyValuePairs) {
 	for(var key in keyValuePairs) {
-		if (key.indexOf('native') >= 0 && key.split("_").length === 3) {
+		if (key.indexOf("native") >= 0 && key.split("_").length === 3) {
 			delete keyValuePairs[key];
 		}
 	}
@@ -212,14 +212,14 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
 			}
 
 			if (winningBid !== null ) {
-					if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
-						// i.e. the current bid is the winning bid, so remove the native keys from keyValuePairs 
-						refThis.updateNativeTargtingKeys(keyValuePairs);
-					} else {
-						// i.e. the current bid is not the winning bid, so remove the native keys from theBid.keyValuePairs
-						var bidKeyValuePairs = theBid.getKeyValuePairs();
-						refThis.updateNativeTargtingKeys(bidKeyValuePairs);
-						theBid.keyValuePairs = bidKeyValuePairs;
+				if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
+					// i.e. the current bid is the winning bid, so remove the native keys from keyValuePairs 
+					refThis.updateNativeTargtingKeys(keyValuePairs);
+				} else {
+					// i.e. the current bid is not the winning bid, so remove the native keys from theBid.keyValuePairs
+					var bidKeyValuePairs = theBid.getKeyValuePairs();
+					refThis.updateNativeTargtingKeys(bidKeyValuePairs);
+					theBid.keyValuePairs = bidKeyValuePairs;
 				}
 			}
             util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
