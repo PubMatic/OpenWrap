@@ -16,7 +16,11 @@ exports.COMMON = {
 	"KEY_GENERATION_PATTERN_VALUE": "kgpv",
 	"KEY_VALUE_PAIRS": "kvp",
 	"IMPRESSION_ID": "iid",
-	"PARENT_ADAPTER_PREBID": "prebid"
+	"PARENT_ADAPTER_PREBID": "prebid",
+	"NATIVE_MEDIA_TYPE_CONFIG": "nativeConfig",
+	"NATIVE_ONLY": "nativeOnly",
+	"OW_CLICK_NATIVE": "openwrap-native-click",
+	"BID_ID":"owbidid"
 };
 
 exports.CONFIG = {
@@ -136,5 +140,6 @@ exports.MESSAGES = {
 };
 
 exports.PLATFORM_VALUES = {
-	"DISPLAY": "display"
+	"DISPLAY": "display",
+	"NATIVE": "native"
 };
