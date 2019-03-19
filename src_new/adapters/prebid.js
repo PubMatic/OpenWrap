@@ -39,6 +39,9 @@ function transformPBBidToOWBid(bid, kgpv){
 	theBid.setWidth(bid.width);
 	theBid.setHeight(bid.height);
 	theBid.setMi(bid.mi);
+	if(bid.native){
+		theBid.setNative(bid.native);
+	}
 
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
@@ -221,7 +224,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	if(!util.isOwnProperty(adUnits, code)){
 		adUnits[code] = {
 			code: code,
-			mediaTypes: {"banner":{sizes:sizes}},
+			mediaTypes: util.getMediaTypeObject(CONFIG.getNativeConfiguration(), sizes, currentSlot),
 			sizes: sizes,
 			bids: [],
 			divID : divID

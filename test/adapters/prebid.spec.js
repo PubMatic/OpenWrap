@@ -423,11 +423,19 @@ describe('ADAPTER: Prebid', function() {
                         [340, 210],
                         [1024, 768]
                     ];
+                },
+                getAdUnitID: function(){
+                    return "ad_unit_1"
+                },
+                getAdUnitIndex: function(){
+                    return 0;
                 }
             };
 
             sinon.spy(currentSlot, "getDivID");
             sinon.spy(currentSlot, "getSizes");
+            sinon.spy(currentSlot, "getAdUnitID");
+            sinon.spy(currentSlot, "getAdUnitIndex");
             adapterConfig = {
                 "publisherId": 121
             };
@@ -460,6 +468,8 @@ describe('ADAPTER: Prebid', function() {
 
             currentSlot.getDivID.restore();
             currentSlot.getSizes.restore();
+            currentSlot.getAdUnitID.restore();
+            currentSlot.getAdUnitIndex.restore();
 
             CONFIG.getProfileID.restore();
             CONFIG.getProfileDisplayVersionID.restore();
@@ -888,5 +898,4 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
     });
-
 });

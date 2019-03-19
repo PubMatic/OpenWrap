@@ -17,7 +17,11 @@ exports.COMMON = {
 	"KEY_VALUE_PAIRS": "kvp",
 	"IMPRESSION_ID": "iid",
 	"PARENT_ADAPTER_PREBID": "prebid",
-	"ANALYTICS_CURRENCY":"USD"
+	"ANALYTICS_CURRENCY":"USD",
+	"NATIVE_MEDIA_TYPE_CONFIG": "nativeConfig",
+	"NATIVE_ONLY": "nativeOnly",
+	"OW_CLICK_NATIVE": "openwrap-native-click",
+	"BID_ID":"owbidid"
 };
 
 exports.CONFIG = {
@@ -137,5 +141,6 @@ exports.MESSAGES = {
 };
 
 exports.PLATFORM_VALUES = {
-	"DISPLAY": "display"
+	"DISPLAY": "display",
+	"NATIVE": "native"
 };
