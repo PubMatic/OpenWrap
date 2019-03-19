@@ -46,7 +46,7 @@ function transformPBBidToOWBid(bid, kgpv){
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
 	// ToDo : Check if currency conversion is enabled or not
-	if(true && bid.originalCpm && bid.originalCurrency){
+	if(CONFIG.getAdServerCurrency() && bid.originalCpm && bid.originalCurrency){
 		theBid.setOriginalCpm(bid.originalCpm);
 		theBid.setOriginalCurrency(bid.originalCurrency);
 		theBid.setAnalyticsCpm(bid.getCpmInNewCurrency(CONSTANTS.COMMON.ANALYTICS_CURRENCY));
@@ -442,12 +442,11 @@ function fetchBids(activeSlots, impressionID){
 				}
 				//TODO: remove true and implement getCurrency() in config
 				// CONFIG.getCurrency()
-				if(true){
+				if(CONFIG.getAdServerCurrency()){
 					// get AdServer currency from Config
 					prebidConfig["currency"] = {
-						"adServerCurrency": "INR", 
+						"adServerCurrency": CONFIG.getAdServerCurrency(), 
 						"granularityMultiplier": 1, 
-						"defaultRates": { "USD": { "INR": 69.74 }}
 					};
 				}
 

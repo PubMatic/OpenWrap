@@ -90,14 +90,14 @@ Bid.prototype.setGrossEcpm = function(ecpm){
 
 Bid.prototype.getGrossEcpm = function(forAnalytics){
 	//TODO: Check config if currency module is enabled.
-	if(true && this.analyticsGCpm && forAnalytics){
+	if(CONFIG.getAdServerCurrency() && this.analyticsGCpm && forAnalytics){
 		return this.analyticsGCpm;
 	}
 	return this.grossEcpm;
 };
 
 Bid.prototype.getNetEcpm = function(forAnalytics){
-	if(true && this.analyticsNCpm && forAnalytics){
+	if(CONFIG.getAdServerCurrency() && this.analyticsNCpm && forAnalytics){
 		return this.analyticsNCpm;
 	}
 	return this.netEcpm;

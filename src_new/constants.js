@@ -21,7 +21,8 @@ exports.COMMON = {
 	"NATIVE_MEDIA_TYPE_CONFIG": "nativeConfig",
 	"NATIVE_ONLY": "nativeOnly",
 	"OW_CLICK_NATIVE": "openwrap-native-click",
-	"BID_ID":"owbidid"
+	"BID_ID":"owbidid",
+	"AD_SERVER_CURRENCY": "adServerCurrency"
 };
 
 exports.CONFIG = {
