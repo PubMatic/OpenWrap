@@ -26,10 +26,14 @@ function Bid(adapterID, kgpv){
 	this.mi = undefined;
 	this.originalCpm = 0;
 	this.originalCurrency = "";
-	this.analyticsGCpm = 0;
-	this.analyticsNCpm = 0;
+	this.analyticsGrossCpm = 0;
+	this.analyticsNetCpm = 0;
 	this.native = undefined;
 }
+
+var getNetECPM = function(grossEcpm, adapterID){
+	return window.parseFloat((grossEcpm * CONFIG.getAdapterRevShare(adapterID).toFixed(CONSTANTS.COMMON.BID_PRECISION)));
+};
 
 Bid.prototype.setServerSideResponseTime = function (ssResponseTime) {
 	this.serverSideResponseTime = ssResponseTime;
@@ -83,22 +87,22 @@ Bid.prototype.setGrossEcpm = function(ecpm){
 	ecpm = window.parseFloat(ecpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
 
 	this.grossEcpm = ecpm;
-	this.netEcpm = window.parseFloat((this.grossEcpm * CONFIG.getAdapterRevShare(this.getAdapterID())).toFixed(CONSTANTS.COMMON.BID_PRECISION));
+	this.netEcpm = getNetECPM(this.grossEcpm, this.getAdapterID());
 
 	return this;
 };
 
 Bid.prototype.getGrossEcpm = function(forAnalytics){
 	//TODO: Check config if currency module is enabled.
-	if(CONFIG.getAdServerCurrency() && this.analyticsGCpm && forAnalytics){
-		return this.analyticsGCpm;
+	if(CONFIG.getAdServerCurrency() && this.analyticsGrossCpm && forAnalytics){
+		return this.analyticsGrossCpm;
 	}
 	return this.grossEcpm;
 };
 
 Bid.prototype.getNetEcpm = function(forAnalytics){
-	if(CONFIG.getAdServerCurrency() && this.analyticsNCpm && forAnalytics){
-		return this.analyticsNCpm;
+	if(CONFIG.getAdServerCurrency() && this.analyticsNetCpm && forAnalytics){
+		return this.analyticsNetCpm;
 	}
 	return this.netEcpm;
 };
@@ -277,13 +281,13 @@ Bid.prototype.getOriginalCurrency = function(){
 
 
 Bid.prototype.setAnalyticsCpm = function(analyticsCpm){
-	this.analyticsGCpm = analyticsCpm;
-	this.analyticsNCpm = window.parseFloat((this.analyticsGCpm * CONFIG.getAdapterRevShare(this.getAdapterID())).toFixed(CONSTANTS.COMMON.BID_PRECISION));
+	this.analyticsGrossCpm = analyticsCpm;
+	this.analyticsNetCpm = getNetECPM(this.analyticsGrossCpm,this.getAdapterID());
 	return this;
 };
 
 Bid.prototype.getAnalyticsCpm = function(){
-	return this.analyticsGCpm;
+	return this.analyticsGrossCpm;
 };
 
 Bid.prototype.getNative = function(){

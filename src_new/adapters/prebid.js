@@ -412,7 +412,7 @@ function fetchBids(activeSlots, impressionID){
 			//	window[pbNameSpace].setBidderSequence("random");
 			//}
 
-			if(util.isFunction(window[pbNameSpace].setConfig)) {
+			if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 				var prebidConfig = {
 					debug: util.isDebugLogEnabled(),
 					bidderSequence: "random",
@@ -453,8 +453,14 @@ function fetchBids(activeSlots, impressionID){
 				window[pbNameSpace].setConfig(prebidConfig);
 			}
 
+			/* With prebid 2.0.0 it has started using FunHooks library which provides
+			   proxy object instead of wrapper function by default so in case of safari and IE 
+			   below check of util gives us Object instead of function hence return false and does
+			   not work on safari and ie. Introduced one more check of typeof to check for function.
+			   This if code is just safe check and may be removed in near future.
+			*/
 			/* istanbul ignore else */
-			if(util.isFunction(window[pbNameSpace].requestBids)){
+			if(util.isFunction(window[pbNameSpace].requestBids) || typeof window[pbNameSpace].requestBids == "function"){
 				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
 					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid

@@ -424,11 +424,11 @@ describe('ADAPTER: Prebid', function() {
                         [1024, 768]
                     ];
                 },
-                getAdUnitID: function(){
-                    return "ad_unit_1"
+                getAdUnitID:function(){
+                    return "testAdUnit";
                 },
-                getAdUnitIndex: function(){
-                    return 0;
+                getAdUnitIndex :function(){
+                    return "testAdUnitIndex";
                 }
             };
 
@@ -898,4 +898,5 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
     });
+
 });
