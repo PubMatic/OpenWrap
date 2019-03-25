@@ -844,7 +844,12 @@ exports.vLogInfo = function(divID, infoObject){
 
 				case "win-bid":
 					var bidDetails = infoObject.bidDetails;
-					message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm();
+					if (infoObject.hasOwnProperty("adServerCurrency")) {
+						message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm() + " " + infoObject.adServerCurrency + " (AdServerCurrency)" ;	
+					} else {
+						message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm();
+					}
+
 					break;
 
 				case "win-bid-fail":

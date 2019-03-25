@@ -262,7 +262,8 @@ exports.getBid = function(divID){ // TDD, i/o : done
 			winningBid.setWinningBidStatus();
 			util.vLogInfo(divID, {
 				type: "win-bid",
-				bidDetails: winningBid
+				bidDetails: winningBid,
+				adServerCurrency: CONFIG.getAdServerCurrency()
 			});
 		}else{
 			util.vLogInfo(divID, {
