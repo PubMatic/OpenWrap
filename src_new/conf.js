@@ -11,8 +11,7 @@ exports.pwt = {
 	cmpApi: "iab",
 	gdprTimeout: "10000",
 	awc: "1",
-	disableAjaxTimeout:true,
-	adServerCurrency: "INR"
+	disableAjaxTimeout:true
 };
 
 exports.adapters = {
