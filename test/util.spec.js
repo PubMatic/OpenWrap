@@ -2101,6 +2101,15 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should have created the text node when type of the infoObject is \'win-bid\' and adServerCurrency is set with proper message being generated', function(done) {
+            infoObject.type = "win-bid";
+            infoObject.adServerCurrency = "GBP";
+            UTIL.vLogInfo(divID, infoObject);
+            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm() + " " + infoObject.adServerCurrency + " (AdServerCurrency)").should.be.true;
+            infoPanelElementStub.appendChild.calledTwice.should.be.true;
+            done();
+        });
+
         it('should have created the text node when type of the infoObject is \'win-bid-fail\' with proper message being generated', function(done) {
             infoObject.type = "win-bid-fail";
             UTIL.vLogInfo(divID, infoObject);
