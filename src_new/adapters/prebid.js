@@ -45,7 +45,7 @@ function transformPBBidToOWBid(bid, kgpv){
 
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
-	// ToDo : Check if currency conversion is enabled or not
+	// Check if currency conversion is enabled or not
 	if(CONFIG.getAdServerCurrency() && bid.originalCpm && bid.originalCurrency){
 		theBid.setOriginalCpm(bid.originalCpm);
 		theBid.setOriginalCurrency(bid.originalCurrency);

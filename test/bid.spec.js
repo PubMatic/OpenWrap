@@ -800,4 +800,33 @@ describe('Bid bidObject', function() {
             done();
         });
     });
+
+    describe('#getAnalyticsCpm', function() {
+
+        it('is a function', function(done) {
+            bidObject.getAnalyticsCpm.should.be.a('function')
+            done();
+        });
+
+        it('returns gross cpm', function(done) {
+            expect(bidObject.getAnalyticsCpm()).to.be.equal(bidObject.analyticsGrossCpm);
+            done();
+        });
+    });
+
+    describe('#setAnalyticsCpm', function() {
+
+        it('is a function', function(done) {
+            bidObject.setOriginalCurrency.should.be.a('function')
+            done();
+        });
+
+        it('changes analytics cpm to given value and returns changed/updated bid Object ', function(done) {
+            var analyticsCPM = "5.00";
+            expect(bidObject.originalCurrency).to.equal('');
+            bidObject.setAnalyticsCpm(analyticsCPM).should.deep.equal(bidObject);
+            bidObject.analyticsGrossCpm.should.equal(analyticsCPM);
+            done();
+        });
+    });
 });

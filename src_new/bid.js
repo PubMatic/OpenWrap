@@ -93,7 +93,7 @@ Bid.prototype.setGrossEcpm = function(ecpm){
 };
 
 Bid.prototype.getGrossEcpm = function(forAnalytics){
-	//TODO: Check config if currency module is enabled.
+	// Check config if currency module is enabled.
 	if(CONFIG.getAdServerCurrency() && this.analyticsGrossCpm && forAnalytics){
 		return this.analyticsGrossCpm;
 	}
