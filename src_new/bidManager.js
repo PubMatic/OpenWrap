@@ -392,11 +392,6 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm(isAnalytics));
 	pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
 
-	/*istanbul ignore else */
-	if(CONFIG.getAdServerCurrency()){
-		pixelURL += "&ocpm=" + window.encodeURIComponent(theBid.getOriginalCpm());
-		pixelURL += "&ocry=" + window.encodeURIComponent(theBid.getOriginalCurrency());
-	}
 	refThis.setImageSrcToPixelURL(pixelURL);
 };
 
@@ -474,7 +469,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "wb": theBid.getWinningBidStatus() === true ? 1 : 0,
 					"mi": theBid.getServerSideStatus() ? theBid.getMi() : undefined,
 					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : undefined,
-					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : undefined,
+					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
 				});
             })
         });

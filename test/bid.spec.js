@@ -73,6 +73,11 @@ describe('Bid bidObject', function() {
             bidObject.isWinningBid.should.be.equal(false);
             bidObject.status.should.be.equal(0);
             expect(bidObject.native).to.be.undefined;
+            bidObject.originalCpm.should.be.equal(0);
+            bidObject.originalCurrency.should.be.equal("");
+            bidObject.analyticsNetCpm.should.be.equal(0);
+            bidObject.analyticsGrossCpm.should.be.equal(0);
+
             done();
         });
     });
@@ -734,6 +739,64 @@ describe('Bid bidObject', function() {
             expect(bidObject.native).to.be.undefined;
             bidObject.setNative(nativeObject).should.deep.equal(bidObject);
             bidObject.native.should.equal(nativeObject);
+            done();
+        });
+    });
+
+    describe('#getOriginalCpm', function() {
+
+        it('is a function', function(done) {
+            bidObject.getOriginalCpm.should.be.a('function')
+            done();
+        });
+
+        it('returns gross cpm', function(done) {
+            expect(bidObject.getOriginalCpm()).to.be.equal(bidObject.originalCpm);
+            done();
+        });
+    });
+
+    describe('#setOriginalCpm', function() {
+
+        it('is a function', function(done) {
+            bidObject.setOriginalCpm.should.be.a('function')
+            done();
+        });
+
+        it('changes original cpm to given value and returns changed/updated bid Object ', function(done) {
+            var originalCpm = "5.00"
+            expect(bidObject.originalCpm).to.equal(0);
+            bidObject.setOriginalCpm(originalCpm).should.deep.equal(bidObject);
+            bidObject.originalCpm.should.equal(originalCpm);
+            done();
+        });
+    });
+
+    describe('#getOriginalCurrency', function() {
+
+        it('is a function', function(done) {
+            bidObject.getOriginalCurrency.should.be.a('function')
+            done();
+        });
+
+        it('returns gross cpm', function(done) {
+            expect(bidObject.getOriginalCurrency()).to.be.equal(bidObject.originalCurrency);
+            done();
+        });
+    });
+
+    describe('#setOriginalCurrency', function() {
+
+        it('is a function', function(done) {
+            bidObject.setOriginalCurrency.should.be.a('function')
+            done();
+        });
+
+        it('changes original currency to given value and returns changed/updated bid Object ', function(done) {
+            var originalCurrency = "INR";
+            expect(bidObject.originalCurrency).to.equal('');
+            bidObject.setOriginalCurrency(originalCurrency).should.deep.equal(bidObject);
+            bidObject.originalCurrency.should.equal(originalCurrency);
             done();
         });
     });

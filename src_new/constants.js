@@ -138,7 +138,8 @@ exports.MESSAGES = {
 	"M22": "Bid is rejected as ecpm is <= 0.",
 	"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner.",
 	"M24": "Passsed argument is not a bidAdaptor",
-	"M25": "Bid details not found for bidID: "
+	"M25": "Bid details not found for bidID: ",
+	"M26": "Currency Module is Activated. Ad Server Currency is: " 
 };
 
 exports.PLATFORM_VALUES = {
