@@ -838,9 +838,9 @@ exports.vLogInfo = function(divID, infoObject){
 					}
 					if (infoObject.hasOwnProperty("adServerCurrency")) {
 						if (infoObject.adServerCurrency == 0) {
-							currencyMsg = 'USD (AdServer Currency)';
+							currencyMsg = 'USD';
 						} else {
-							currencyMsg = infoObject.adServerCurrency + " (AdServer Currency)";
+							currencyMsg = infoObject.adServerCurrency;
 						}
 					} else {
 						currencyMsg = "";
@@ -857,9 +857,9 @@ exports.vLogInfo = function(divID, infoObject){
 					var currencyMsg = "";
 					if (infoObject.hasOwnProperty("adServerCurrency")) {
 						if (infoObject.adServerCurrency == 0) {
-							currencyMsg = 'USD (AdServer Currency)';
+							currencyMsg = 'USD';
 						} else {
-							currencyMsg = infoObject.adServerCurrency + " (AdServer Currency)";
+							currencyMsg = infoObject.adServerCurrency;
 						}
 					} else {
 						currencyMsg = "";

@@ -2109,11 +2109,11 @@ describe('UTIL', function() {
 
             infoObject.adServerCurrency = "GBP";
             UTIL.vLogInfo(divID, infoObject);
-            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm() + infoObject.adServerCurrency + " (AdServer Currency)").should.be.true;
+            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm() + infoObject.adServerCurrency).should.be.true;
 
             infoObject.adServerCurrency = "0";
             UTIL.vLogInfo(divID, infoObject);
-            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm() + "USD (AdServer Currency)").should.be.true;
+            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm() + "USD").should.be.true;
             done();
         });
 
