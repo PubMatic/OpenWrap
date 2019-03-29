@@ -32,7 +32,7 @@ function Bid(adapterID, kgpv){
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
-	return window.parseFloat((grossEcpm * CONFIG.getAdapterRevShare(adapterID).toFixed(CONSTANTS.COMMON.BID_PRECISION)));
+	return window.parseFloat((grossEcpm * CONFIG.getAdapterRevShare(adapterID)).toFixed(CONSTANTS.COMMON.BID_PRECISION));
 };
 
 Bid.prototype.setServerSideResponseTime = function (ssResponseTime) {
@@ -281,7 +281,7 @@ Bid.prototype.getOriginalCurrency = function(){
 
 
 Bid.prototype.setAnalyticsCpm = function(analyticsCpm){
-	this.analyticsGrossCpm = analyticsCpm;
+	this.analyticsGrossCpm = window.parseFloat(analyticsCpm).toFixed(CONSTANTS.COMMON.BID_PRECISION);
 	this.analyticsNetCpm = getNetECPM(this.analyticsGrossCpm,this.getAdapterID());
 	return this;
 };
