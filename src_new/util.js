@@ -831,15 +831,21 @@ exports.vLogInfo = function(divID, infoObject){
 				case "bid":
 					var latency = infoObject.latency;
 					var bidDetails = infoObject.bidDetails;
+					var currencyMsg = "";
 					/* istanbul ignore else */
 					if(latency < 0){
 						latency = 0;
 					}
 					if (infoObject.hasOwnProperty("adServerCurrency")) {
-						message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + ")" + infoObject.adServerCurrency + " :" + latency + "ms";
+						if (infoObject.adServerCurrency == 0) {
+							currencyMsg = 'USD (AdServer Currency)';
+						} else {
+							currencyMsg = infoObject.adServerCurrency + " (AdServer Currency)";
+						}
 					} else {
-						message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + "): " + latency + "ms";
+						currencyMsg = "";
 					}
+					message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + ")" + currencyMsg + " :" + latency + "ms";
 					/* istanbul ignore else */
 					if(bidDetails.getPostTimeoutStatus()){
 						message += ": POST-TIMEOUT";
@@ -848,12 +854,17 @@ exports.vLogInfo = function(divID, infoObject){
 
 				case "win-bid":
 					var bidDetails = infoObject.bidDetails;
+					var currencyMsg = "";
 					if (infoObject.hasOwnProperty("adServerCurrency")) {
-						message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm() + " " + infoObject.adServerCurrency + " (AdServerCurrency)" ;
+						if (infoObject.adServerCurrency == 0) {
+							currencyMsg = 'USD (AdServer Currency)';
+						} else {
+							currencyMsg = infoObject.adServerCurrency + " (AdServer Currency)";
+						}
 					} else {
-						message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm();
+						currencyMsg = "";
 					}
-
+					message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm() + currencyMsg;
 					break;
 
 				case "win-bid-fail":

@@ -2076,7 +2076,7 @@ describe('UTIL', function() {
             infoObject.bidDetails.getNetEcpm.called.should.be.true;
             infoObject.bidDetails.getGrossEcpm.called.should.be.true;
 
-            window.document.createTextNode.calledWith("Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + "): " + infoObject.latency + "ms").should.be.true;
+            window.document.createTextNode.calledWith("Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + ") :" + infoObject.latency + "ms").should.be.true;
             infoPanelElementStub.appendChild.calledTwice.should.be.true;
             done();
         });
@@ -2088,7 +2088,7 @@ describe('UTIL', function() {
             UTIL.vLogInfo(divID, infoObject);
             infoObject.bidDetails.getNetEcpm.called.should.be.true;
             infoObject.bidDetails.getGrossEcpm.called.should.be.true;
-            window.document.createTextNode.calledWith("Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + "): " + 0 + "ms" + ": POST-TIMEOUT").should.be.true;
+            window.document.createTextNode.calledWith("Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + ") :" + 0 + "ms" + ": POST-TIMEOUT").should.be.true;
             infoPanelElementStub.appendChild.calledTwice.should.be.true;
             done();
         });
@@ -2103,10 +2103,17 @@ describe('UTIL', function() {
 
         it('should have created the text node when type of the infoObject is \'win-bid\' and adServerCurrency is set with proper message being generated', function(done) {
             infoObject.type = "win-bid";
+            UTIL.vLogInfo(divID, infoObject);
+            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm()).should.be.true;
+            infoPanelElementStub.appendChild.calledTwice.should.be.true;
+
             infoObject.adServerCurrency = "GBP";
             UTIL.vLogInfo(divID, infoObject);
-            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm() + " " + infoObject.adServerCurrency + " (AdServerCurrency)").should.be.true;
-            infoPanelElementStub.appendChild.calledTwice.should.be.true;
+            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm() + infoObject.adServerCurrency + " (AdServer Currency)").should.be.true;
+
+            infoObject.adServerCurrency = "0";
+            UTIL.vLogInfo(divID, infoObject);
+            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm() + "USD (AdServer Currency)").should.be.true;
             done();
         });
 
