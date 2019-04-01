@@ -95,7 +95,7 @@ exports.log = function(data){
 
 exports.error = function(data){
 	console.log( (new Date()).getTime()+ " : " + constErrorInConsolePrependWith, data ); // eslint-disable-line no-console
-}
+};
 
 exports.getCurrentTimestampInMs = function(){
 	var date = new window.Date();
@@ -612,7 +612,7 @@ exports.addMessageEventListener = function(theWindow, eventHandler){
 		theWindow.attachEvent("onmessage", eventHandler);
 	}
 	return true;
-}
+};
 
 exports.safeFrameCommunicationProtocol = function(msg){
 	try{
@@ -707,9 +707,23 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 				}
 				break;
+			case 3:
+				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+				/* istanbul ignore else */
+				if(bidDetails){
+					var theBid = bidDetails.bid,
+						adapterID = theBid.getAdapterID(),
+						divID = bidDetails.slotid;
+					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
+					if(msgData.pwt_action && msgData.pwt_action == "imptrackers"){
+						bidManager.executeMonetizationPixel(divID, theBid);
+					}
+					bidManager.fireTracker(theBid,msgData.pwt_action);							
+				}
+				break;
 		}
 	}catch(e){}
-}
+};
 
 exports.addMessageEventListenerForSafeFrame = function(theWindow){
 	refThis.addMessageEventListener(theWindow, refThis.safeFrameCommunicationProtocol);
@@ -916,4 +930,57 @@ exports.ajaxRequest = function(url, callback, data, options) {
 		refThis.log("Failed in Ajax");
 		refThis.log(error);
 	}
+};
+
+// Returns mediaTypes for adUnits which are sent to prebid
+exports.getMediaTypeObject = function(nativeConfig, sizes, currentSlot){
+	var mediaTypeObject = {};
+	if(nativeConfig && nativeConfig.kgp && nativeConfig.klm){
+		var kgp = nativeConfig.kgp;
+		var klm = nativeConfig.klm;
+		// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
+		// as we are only supporting div and ad unit, taking the first slot name.
+		// Implemented as per code review and discussion. 
+		var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
+		if(refThis.isOwnProperty(klm,kgpv)){
+			refThis.log("Native Config found for adSlot: " +  currentSlot);
+			var config = klm[kgpv];
+			mediaTypeObject["native"] = config.config;
+			if(config[CONSTANTS.COMMON.NATIVE_ONLY]){
+				return mediaTypeObject;
+			}
+		} else{
+			refThis.log("Native Config not found for adSlot: " +  currentSlot);
+		}
+	} else{
+		refThis.log("Native config not found or KGP/KLM missing in native config provided.");
+	}
+	mediaTypeObject["banner"] = {
+		sizes: sizes
+	};
+	return mediaTypeObject;
+};
+
+exports.addEventListenerForClass = function(theWindow, theEvent, theClass, eventHandler){
+
+	if(typeof eventHandler !== "function"){
+		refThis.log("EventHandler should be a function");
+		return false;
+	}
+	var elems = refThis.findElementsByClass(theWindow, theClass);
+	if(!theWindow.addEventListener){
+		theEvent = "on"+theEvent;
+	}
+	for (var i = 0; i < elems.length; i++) {
+		elems[i].addEventListener(theEvent, eventHandler, true);
+	}
+	return true;
+};
+ 
+exports.findElementsByClass = function(theWindow, theClass){
+	return theWindow.document.getElementsByClassName(theClass) || [];
+};
+
+exports.getBidFromEvent = function (theEvent) {
+	return (theEvent && theEvent.target && theEvent.target.attributes &&  theEvent.target.attributes[CONSTANTS.COMMON.BID_ID] && theEvent.target.attributes[CONSTANTS.COMMON.BID_ID].value) || "";
 };

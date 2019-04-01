@@ -75,3 +75,47 @@ exports.adapters = {
 		}
 	}
 };
+
+exports.nativeConfig = {
+	kgp:"_DIV_",
+	klm:{
+		"DIV1":{
+			"nativeOnly": true,
+			config: {
+				image: {
+					required: true,
+					sizes: [150, 50]
+				},
+				title: {
+					required: true,
+					len: 80
+				},
+				sponsoredBy: {
+					required: true
+				},
+				body: {
+					required: true
+				}
+			}
+		},
+		"DIV2":{
+			"nativeOnly": true,
+			config: {
+				image: {
+					required: true,
+					sizes: [150, 50]
+				},
+				title: {
+					required: true,
+					len: 80
+				},
+				sponsoredBy: {
+					required: true
+				},
+				body: {
+					required: true
+				}
+			}
+		}
+	}
+};

@@ -50,8 +50,7 @@ describe("owCreativeRenderer : OWCren", function() {
 		});
 	});
     /* end-test-block */
-
-    /* start-test-block */
+  
 	describe("renderCreative", function(){
 		var theDocument=null;
 		var params=null;

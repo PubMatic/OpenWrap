@@ -337,6 +337,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     var data = bidManager.getBid(divID);
     var winningBid = data.wb || null;
     var keyValuePairs = data.kvp || null;
+    var wbKeyValuePairs = null;
     var googleDefinedSlot = refThis.slotsMap[divID].getPubAdServerObject();
     var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
 
@@ -358,8 +359,14 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID());
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID, CONFIG.getProfileDisplayVersionID());
         googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE, winningBid.width + 'x' + winningBid.height);
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY, CONSTANTS.PLATFORM_VALUES.DISPLAY);
-    }
+        var isNative = winningBid.getNative();        
+        if(isNative){
+            googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY, CONSTANTS.PLATFORM_VALUES.NATIVE);
+        }
+        else{
+            googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY, CONSTANTS.PLATFORM_VALUES.DISPLAY);
+        }
+    };
 
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {

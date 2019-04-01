@@ -597,4 +597,119 @@ describe('Config', function() {
             done();
         });
     });
+
+    describe('#getNativeConfiguration',function(){
+        var conf;
+        beforeEach(function(done){
+            conf =  {
+                kgp:"_DIV_",
+                klm:{
+                    "DIV1":{
+                        "NativeOnly": true,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    },
+                    "DIV2":{
+                        "NativeOnly": true,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    }
+                }
+            };
+            CONF[CONSTANTS.COMMON.NATIVE_MEDIA_TYPE_CONFIG] = conf;
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.COMMON.NATIVE_MEDIA_TYPE_CONFIG];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getNativeConfiguration.should.be.a('function');
+            done();
+        });
+
+        it('should return nativeConfig by reading from config', function(done) {
+            var expectedResult =  {
+                kgp:"_DIV_",
+                klm:{
+                    "DIV1":{
+                        "NativeOnly": true,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    },
+                    "DIV2":{
+                        "NativeOnly": true,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    }
+                }
+            };
+            CONFIG.getNativeConfiguration().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should be undefined if nativeConfig is not present',function(done){
+            delete CONF[CONSTANTS.COMMON.NATIVE_MEDIA_TYPE_CONFIG];
+            expect(CONFIG.getNativeConfiguration()).to.equal(undefined);
+            done();
+        })
+    })
 });

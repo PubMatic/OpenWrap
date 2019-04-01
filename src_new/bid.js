@@ -24,6 +24,7 @@ function Bid(adapterID, kgpv){
 	this.status = 0;
 	this.serverSideResponseTime = 0;
 	this.mi = undefined;
+	this.native = undefined;
 }
 
 Bid.prototype.setServerSideResponseTime = function (ssResponseTime) {
@@ -224,6 +225,15 @@ Bid.prototype.setSendAllBidsKeys = function(){
 	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS+'_'+this.adapterID, this.getNetEcpm() > 0 ? 1 : 0);
 	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM+'_'+this.adapterID, this.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
 	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE+'_'+this.adapterID, this.width + 'x' + this.height);
+	if (this.native) {
+		var keyValues = this.keyValuePairs;
+		var globalThis = this;
+		UTIL.forEachOnObject(keyValues, function(key, value) {
+			if (key.indexOf("native") >= 0) {
+				globalThis.setKeyValuePair(key + "_" + globalThis.adapterID, value);
+			}
+		});
+	}
 };
 
 Bid.prototype.setMi = function(mi){
@@ -233,6 +243,15 @@ Bid.prototype.setMi = function(mi){
 
 Bid.prototype.getMi = function(){
 	return this.mi;
+};
+
+Bid.prototype.getNative = function(){
+	return this.native;
+};
+
+Bid.prototype.setNative = function(native){
+	this.native = native;
+	return this;
 };
 
 /* start-test-block */
