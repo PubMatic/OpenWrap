@@ -261,7 +261,7 @@ Bid.prototype.getMi = function(){
 };
 
 Bid.prototype.setOriginalCpm = function(originalCpm){
-	this.originalCpm = originalCpm;
+	this.originalCpm = window.parseFloat(originalCpm).toFixed(CONSTANTS.COMMON.BID_PRECISION);;
 	return this;
 };
 
