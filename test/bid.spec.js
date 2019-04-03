@@ -764,7 +764,7 @@ describe('Bid bidObject', function() {
         });
 
         it('changes original cpm to given value and returns changed/updated bid Object ', function(done) {
-            var originalCpm = "5.00"
+            var originalCpm = 5.00
             expect(bidObject.originalCpm).to.equal(0);
             bidObject.setOriginalCpm(originalCpm).should.deep.equal(bidObject);
             bidObject.originalCpm.should.equal(originalCpm);
@@ -822,7 +822,7 @@ describe('Bid bidObject', function() {
         });
 
         it('changes analytics cpm to given value and returns changed/updated bid Object ', function(done) {
-            var analyticsCPM = "5.00";
+            var analyticsCPM = 5.00;
             expect(bidObject.originalCurrency).to.equal('');
             bidObject.setAnalyticsCpm(analyticsCPM).should.deep.equal(bidObject);
             bidObject.analyticsGrossCpm.should.equal(analyticsCPM);

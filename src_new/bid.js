@@ -261,7 +261,7 @@ Bid.prototype.getMi = function(){
 };
 
 Bid.prototype.setOriginalCpm = function(originalCpm){
-	this.originalCpm = window.parseFloat(originalCpm).toFixed(CONSTANTS.COMMON.BID_PRECISION);;
+	this.originalCpm = window.parseFloat(originalCpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
 	return this;
 };
 
@@ -281,7 +281,7 @@ Bid.prototype.getOriginalCurrency = function(){
 
 
 Bid.prototype.setAnalyticsCpm = function(analyticsCpm){
-	this.analyticsGrossCpm = window.parseFloat(analyticsCpm).toFixed(CONSTANTS.COMMON.BID_PRECISION);
+	this.analyticsGrossCpm = window.parseFloat(analyticsCpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
 	this.analyticsNetCpm = getNetECPM(this.analyticsGrossCpm,this.getAdapterID());
 	return this;
 };
