@@ -831,11 +831,21 @@ exports.vLogInfo = function(divID, infoObject){
 				case "bid":
 					var latency = infoObject.latency;
 					var bidDetails = infoObject.bidDetails;
+					var currencyMsg = "";
 					/* istanbul ignore else */
 					if(latency < 0){
 						latency = 0;
 					}
-					message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + "): " + latency + "ms";
+					if (infoObject.hasOwnProperty("adServerCurrency")) {
+						if (infoObject.adServerCurrency == 0) {
+							currencyMsg = 'USD';
+						} else {
+							currencyMsg = infoObject.adServerCurrency;
+						}
+					} else {
+						currencyMsg = "";
+					}
+					message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + ")" + currencyMsg + " :" + latency + "ms";
 					/* istanbul ignore else */
 					if(bidDetails.getPostTimeoutStatus()){
 						message += ": POST-TIMEOUT";
@@ -844,7 +854,17 @@ exports.vLogInfo = function(divID, infoObject){
 
 				case "win-bid":
 					var bidDetails = infoObject.bidDetails;
-					message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm();
+					var currencyMsg = "";
+					if (infoObject.hasOwnProperty("adServerCurrency")) {
+						if (infoObject.adServerCurrency == 0) {
+							currencyMsg = 'USD';
+						} else {
+							currencyMsg = infoObject.adServerCurrency;
+						}
+					} else {
+						currencyMsg = "";
+					}
+					message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm() + currencyMsg;
 					break;
 
 				case "win-bid-fail":

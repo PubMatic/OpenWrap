@@ -450,7 +450,8 @@ describe('bidManager BIDMgr', function() {
                 bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(Passthrough)' : ''),
                 bidDetails: theBid,
                 latency: latency,
-                s2s: CONFIG.isServerSideAdapter(adapterID)
+                s2s: CONFIG.isServerSideAdapter(adapterID),
+                adServerCurrency: CONFIG.getAdServerCurrency()
             }).should.be.true;
 
             done();
@@ -861,6 +862,7 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(winningBidObj.wb, 'setStatus');
             sinon.spy(winningBidObj.wb, 'setWinningBidStatus');
             sinon.spy(UTIL, 'vLogInfo');
+            sinon.stub(CONFIG, "getAdServerCurrency");
 
             done();
         });
@@ -872,6 +874,7 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.auctionBids.restore();
             UTIL.vLogInfo.restore();
             window.PWT = {};
+            CONFIG.getAdServerCurrency.restore();
             done();
         });
 
@@ -908,7 +911,8 @@ describe('bidManager BIDMgr', function() {
 
             UTIL.vLogInfo.calledWith(divID, {
                 type: "win-bid",
-                bidDetails: winningBidObj.wb
+                bidDetails: winningBidObj.wb,
+                adServerCurrency: CONFIG.getAdServerCurrency()
             }).should.be.true;
 
             UTIL.isOwnProperty.called.should.be.true;

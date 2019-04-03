@@ -712,4 +712,33 @@ describe('Config', function() {
             done();
         })
     })
+
+    describe('#getAdServerCurrency',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.AD_SERVER_CURRENCY] = "INR";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.AD_SERVER_CURRENCY];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getAdServerCurrency.should.be.a('function');
+            done();
+        });
+
+        it('should return adServerCurrency by reading from config', function(done) {
+            var expectedResult = "INR"
+            CONFIG.getAdServerCurrency().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should be undefined if adServerCurrency is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.AD_SERVER_CURRENCY];
+            expect(CONFIG.getAdServerCurrency()).to.equal(undefined);
+            done();
+        })
+    })
 });

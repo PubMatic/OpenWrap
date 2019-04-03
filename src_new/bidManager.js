@@ -91,7 +91,8 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 			bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(Passthrough)' : ''),
 			bidDetails: theBid,
 			latency: latency,
-			s2s: CONFIG.isServerSideAdapter(adapterID)
+			s2s: CONFIG.isServerSideAdapter(adapterID),
+			adServerCurrency: CONFIG.getAdServerCurrency()
 		});
 	}
 }
@@ -262,7 +263,8 @@ exports.getBid = function(divID){ // TDD, i/o : done
 			winningBid.setWinningBidStatus();
 			util.vLogInfo(divID, {
 				type: "win-bid",
-				bidDetails: winningBid
+				bidDetails: winningBid,
+				adServerCurrency: CONFIG.getAdServerCurrency()
 			});
 		}else{
 			util.vLogInfo(divID, {
@@ -371,6 +373,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
+	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 
 	/* istanbul ignore else */
 	if(!pixelURL){
@@ -386,8 +389,8 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
 	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
 	pixelURL += "&pn=" + window.encodeURIComponent(theBid.getAdapterID());
-	pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
-	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
+	pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm(isAnalytics));
+	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm(isAnalytics));
 	pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
 
 	refThis.setImageSrcToPixelURL(pixelURL);
@@ -397,6 +400,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = undefined;
 	var impressionID = bmEntry.getImpressionID();
+	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
     /* istanbul ignore else */
     if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
         var slotObject = {
@@ -455,8 +459,8 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "db": theBid.getDefaultBidStatus(),
                     "kgpv": theBid.getKGPV(),
                     "psz": theBid.getWidth() + "x" + theBid.getHeight(),
-                    "eg": theBid.getGrossEcpm(),
-                    "en": theBid.getNetEcpm(),
+                    "eg": theBid.getGrossEcpm(isAnalytics),
+                    "en": theBid.getNetEcpm(isAnalytics),
                     "di": theBid.getDealID(),
                     "dc": theBid.getDealChannel(),
                     "l1": theBid.getServerSideStatus() ? theBid.getServerSideResponseTime() : (endTime - startTime),
@@ -464,8 +468,10 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"ss": theBid.getServerSideStatus(),
                     "t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
                     "wb": theBid.getWinningBidStatus() === true ? 1 : 0,
-                    "mi": theBid.getServerSideStatus() ? theBid.getMi() : undefined
-                });
+					"mi": theBid.getServerSideStatus() ? theBid.getMi() : undefined,
+					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
+					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
+				});
             })
         });
 
