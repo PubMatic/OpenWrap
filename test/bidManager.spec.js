@@ -272,6 +272,9 @@ describe('bidManager BIDMgr', function() {
                 sinon.stub(bidDetails, 'getReceivedTime');
                 sinon.stub(window.PWT.bidMap[divID], 'getLastBidIDForAdapter');
                 sinon.stub(window.PWT.bidMap[divID], 'getBid');
+                window.owpbjs = {
+
+                };
                 done();
             });
 

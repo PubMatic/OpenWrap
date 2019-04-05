@@ -75,6 +75,10 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 		util.log(CONSTANTS.MESSAGES.M18);
 		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 	}
+	if (isPostTimeout) {
+      //explicitly trigger user syncs since its a post timeout bid
+      setTimeout(window['owpbjs'].triggerUserSyncs, 10);
+    }
 };
 
 function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : done

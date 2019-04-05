@@ -836,14 +836,14 @@ exports.vLogInfo = function(divID, infoObject){
 					if(latency < 0){
 						latency = 0;
 					}
-					if (infoObject.hasOwnProperty("adServerCurrency")) {
+					if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
 						if (infoObject.adServerCurrency == 0) {
 							currencyMsg = 'USD';
 						} else {
 							currencyMsg = infoObject.adServerCurrency;
 						}
 					} else {
-						currencyMsg = "";
+						currencyMsg = 'USD';
 					}
 					message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + ")" + currencyMsg + " :" + latency + "ms";
 					/* istanbul ignore else */
@@ -855,14 +855,14 @@ exports.vLogInfo = function(divID, infoObject){
 				case "win-bid":
 					var bidDetails = infoObject.bidDetails;
 					var currencyMsg = "";
-					if (infoObject.hasOwnProperty("adServerCurrency")) {
+					if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
 						if (infoObject.adServerCurrency == 0) {
 							currencyMsg = 'USD';
 						} else {
 							currencyMsg = infoObject.adServerCurrency;
 						}
 					} else {
-						currencyMsg = "";
+						currencyMsg = 'USD';
 					}
 					message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm() + currencyMsg;
 					break;
