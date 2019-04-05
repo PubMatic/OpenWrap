@@ -25,6 +25,7 @@ function Bid(adapterID, kgpv){
 	this.serverSideResponseTime = 0;
 	this.mi = undefined;
 	this.native = undefined;
+	this.adFormat = CONSTANTS.FORMAT_VALUES.OTHER;
 }
 
 Bid.prototype.setServerSideResponseTime = function (ssResponseTime) {
@@ -103,6 +104,7 @@ Bid.prototype.getDefaultBidStatus = function(){
 
 Bid.prototype.setAdHtml = function(adHtml){
 	this.adHtml = adHtml;
+	this.setAdFormat(adHtml);
 	return this;
 };
 
@@ -251,6 +253,15 @@ Bid.prototype.getNative = function(){
 
 Bid.prototype.setNative = function(native){
 	this.native = native;
+	return this;
+};
+
+Bid.prototype.getAdFormat = function(){
+	return this.adFormat;
+};
+
+Bid.prototype.setAdFormat = function(ad){
+	this.adFormat = UTIL.getAdFormatFromBidAd(ad);
 	return this;
 };
 

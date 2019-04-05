@@ -464,7 +464,8 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"ss": theBid.getServerSideStatus(),
                     "t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
                     "wb": theBid.getWinningBidStatus() === true ? 1 : 0,
-                    "mi": theBid.getServerSideStatus() ? theBid.getMi() : undefined
+                    "mi": theBid.getServerSideStatus() ? theBid.getMi() : undefined,
+                    "af": theBid.getAdFormat()
                 });
             })
         });
