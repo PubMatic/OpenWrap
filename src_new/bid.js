@@ -25,7 +25,7 @@ function Bid(adapterID, kgpv){
 	this.serverSideResponseTime = 0;
 	this.mi = undefined;
 	this.native = undefined;
-	this.adFormat = CONSTANTS.FORMAT_VALUES.OTHER;
+	this.adFormat = undefined;
 }
 
 Bid.prototype.setServerSideResponseTime = function (ssResponseTime) {

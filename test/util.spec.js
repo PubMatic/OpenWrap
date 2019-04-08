@@ -16,6 +16,8 @@ var BIDMgr = require("../src_new/bidManager.js");
 
 var commonAdapterID = "pubmatic";
 var commonDivID = "DIV_1";
+var CONSTANTS = require("../src_new/constants.js");
+
 
 // TODO : remove as required during single TDD only
 // var jsdom = require('jsdom').jsdom;
@@ -2386,6 +2388,51 @@ describe('UTIL', function() {
                 }
             };
             var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getAdFormatFromBidAd', function(){
+        var adFormat, videoAdString, nativeAdString, bannerAdString;
+
+        beforeEach(function(done){
+            adFormat= undefined;
+            videoAdString= '<?xml version="1.0" encoding="UTF-8"?><VAST xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vast.xsd" version="3.0"><Ad id="4794680078"><Wrapper><AdSystem>GDFP</AdSystem><VASTAdTagURI><![CDATA[http://ow.pubmatic.com/cache?uuid=910ad57b-fddd-4ddf-a94f-cc597930adeb]]></VASTAdTagURI><Error><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=videoplayfailed[ERRORCODE]]]></Error><Impression><![CDATA[https://securepubads.g.doubleclick.net/pcs/view?xai=AKAOjssRKo6cE9xtv3Vb4p3oM4ZibMiNs08ryvPLLmuJiwYYFTaKC7utY2Li_vjzTfvcO2luVVYCl3j2uTRrkxTr68707p6Ccrex7TiIKb1kt1oROgJ3jDNSY2j9YQ1xSCB6LbPXwDUF6_HRjLgBA6vaTV_HS1-NUyGOk5jR_8WxWSwNK_tyKdqhhjn711kBzLk3IwdQ05wC_j31jB94zjWj6l8LRysGFoykRdciTyEYIZwx6KK1byUzL52qIlaIBGvzAW64omi-cCs&sig=Cg0ArKJSzF5yMoWclp4jEAE&adurl=]]></Impression><Creatives><Creative id="138243726392" sequence="1"> <Linear><VideoClicks><ClickTracking id="GDFP"><![CDATA[https://pubads.g.doubleclick.net/pcs/click?xai=AKAOjstvB03z7ObaZOr6VhAeAaRVPBUY_gg6C5Ufe3K899AeYrg2SHOOpwS5JQuXRzdG6ug9BLPgZDm4_vSZEQHfD681sq_J8yLtoe_kriDJuNJ_05UxH90rr5AvWd3AllOLUy_zz3UTzezIs1LnYhQZl1ke1TkSVHQEebLpH2SZgpP40Z10HQnknJVPGV0BCevR_Z7UK8Yz9Q4WjDEHg2oWoPZf0vA1UAPzyvRGACOfl2rcn5rjqATfRN4FvHhLhA6F3WMwoWQ&sig=Cg0ArKJSzH_dYYoGDUutEAE&urlfix=1]]></ClickTracking></VideoClicks></Linear></Creative></Creatives><Extensions><Extension type="geo"><Country>IN</Country><Bandwidth>4</Bandwidth><BandwidthKbps>20000</BandwidthKbps></Extension><Extension type="activeview"><CustomTracking><Tracking event="viewable_impression"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=viewable_impression&acvw=[VIEWABILITY]&gv=[GOOGLE_VIEWABILITY]&ad_mt=[AD_MT]]]></Tracking><Tracking event="abandon"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=video_abandon&acvw=[VIEWABILITY]&gv=[GOOGLE_VIEWABILITY]]]></Tracking></CustomTracking></Extension><Extension type="metrics"><FeEventId>LDqrXPqIGJLGoAPQz604</FeEventId><AdEventId>CPuFoMO7wOECFYmhaAodN2kDUA</AdEventId></Extension><Extension type="ShowAdTracking"><CustomTracking><Tracking event="show_ad"><![CDATA[https://securepubads.g.doubleclick.net/pcs/view?xai=AKAOjsskNiPPjzZVPnZTBoKXb_68n48JD6kaep6DzszP8q8TNeVevCWVxd9OtqdyPGE08DACHmQ3uWvMuuPLGoB7OwX-pWHFAGkybgx_fK17KoOoYPQFo5GhdtsUvPOE5yria9eKwS1BZq2rWr07Y85DJDMBcfJZiaKPmInowRG292edDkl6KaA-rGAgxhgeOQt5hpU6HMTPpeVQuya7RrCmRcyydAhf2-sm7bp23l0R5LYOJHntFGwQ4ua_Q9e8TrrG2LMspXcyOV1TQQ&sig=Cg0ArKJSzBAXwIdOUAQvEAE&adurl=]]></Tracking></CustomTracking></Extension><Extension type="wrapper_info"><Duration>00:00:01</Duration></Extension><Extension type="video_ad_loaded"><CustomTracking><Tracking event="loaded"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=video_ad_loaded]]></Tracking></CustomTracking></Extension></Extensions></Wrapper></Ad></VAST>';
+            nativeAdString= '{"native":{"assets":[{"id":1,"required":0,"title":{"text":"Lexus - Luxury vehicles company"}},{"id":2,"img":{"h":150,"url":"https://stagingnyc.pubmatic.com:8443//sdk/lexus_logo.png","w":150},"required":0},{"id":3,"img":{"h":428,"url":"https://stagingnyc.pubmatic.com:8443//sdk/28f48244cafa0363b03899f267453fe7%20copy.png","w":214},"required":0},{"data":{"value":"Goto PubMatic"},"id":4,"required":0},{"data":{"value":"Lexus - Luxury vehicles company"},"id":5,"required":0},{"data":{"value":"4"},"id":6,"required":0}],"imptrackers":["http://phtrack.pubmatic.com/?ts=1496043362&r=84137f17-eefd-4f06-8380-09138dc616e6&i=c35b1240-a0b3-4708-afca-54be95283c61&a=130917&t=9756&au=10002949&p=&c=10014299&o=10002476&wl=10009731&ty=1"],"link":{"clicktrackers":["http://ct.pubmatic.com/track?ts=1496043362&r=84137f17-eefd-4f06-8380-09138dc616e6&i=c35b1240-a0b3-4708-afca-54be95283c61&a=130917&t=9756&au=10002949&p=&c=10014299&o=10002476&wl=10009731&ty=3&url="],"url":"http://www.lexus.com/"},"ver":1}}';
+            bannerAdString = '<img src="http://ads.pubmatic.com/AdTag/728x90.png"></img><div style="position:absolute;left:0px;top:0px;visibility:hidden;"><img src="http://sin1-ib.adnxs.com/it?e=wqT_3QKqB6CqAwAAAwDWAAUBCIKHsdoFELzlh5jb&s=dfa92ae59f49b6052953a52fcc0152434618139a&referrer=http%253A%252F%252Febay.com%252Finte%252Fappnexus.html%253Fpwtvc%253D1%2526pwtv%253D2%2526profileid%253D2514"></div>'
+            done();
+        });
+
+        afterEach(function(done){
+            adFormat= videoAdString=nativeAdString=bannerAdString= undefined;
+            done();
+        });
+
+        it('should be a function',function(done){
+            UTIL.getAdFormatFromBidAd.should.be.a('function');
+            done();
+        });
+
+        // it('should return video if ad html consists of video string ',function(done){
+        //     var expectedResult = CONSTANTS.FORMAT_VALUES.VIDEO;
+        //     var oParser = new DOMParser();
+        //     var oDOM = oParser.parseFromString(videoAdString, "text/xml");
+        //     var result =  UTIL.getAdFormatFromBidAd(oDOM);
+        //     result.should.deep.equal(expectedResult);
+        //     done();
+        // });
+
+        it('should return native if ad html consists of video string ',function(done){
+            var expectedResult = CONSTANTS.FORMAT_VALUES.NATIVE
+            var result =  UTIL.getAdFormatFromBidAd(nativeAdString);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return banner if ad html consists of video string ',function(done){
+            var expectedResult = CONSTANTS.FORMAT_VALUES.BANNER
+            var result =  UTIL.getAdFormatFromBidAd(bannerAdString);
             result.should.deep.equal(expectedResult);
             done();
         });

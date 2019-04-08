@@ -737,4 +737,44 @@ describe('Bid bidObject', function() {
             done();
         });
     });
+
+    describe('#getAdFormat', function() {
+
+        it('is a function', function(done) {
+            bidObject.getAdFormat.should.be.a('function')
+            done();
+        });
+
+        it('returns ad Format', function(done) {
+            expect(bidObject.getAdFormat()).to.be.undefined;
+            done();
+        });
+    });
+
+    describe('#setAdFormat', function() {
+        beforeEach(function(done){
+            sinon.stub(UTIL, "getAdFormatFromBidAd").returns(CONSTANTS.FORMAT_VALUES.BANNER);
+            done()
+        });
+
+        afterEach(function(done){
+            UTIL.getAdFormatFromBidAd.restore();            
+            done()
+        });
+
+
+        it('is a function', function(done) {
+            bidObject.setAdFormat.should.be.a('function')
+            done();
+        });
+
+        it('call util function to get ad format type ', function(done) {
+            var adHtml = "testCreative";
+            expect(bidObject.adFormat).to.be.undefined;
+            bidObject.setAdFormat(adHtml);
+            UTIL.getAdFormatFromBidAd.calledWith(adHtml).should.be.true;
+            bidObject.adFormat.should.equal(CONSTANTS.FORMAT_VALUES.BANNER);
+            done();
+        });
+    });
 });
