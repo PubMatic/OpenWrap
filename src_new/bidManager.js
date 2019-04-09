@@ -72,12 +72,14 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 			util.log(CONSTANTS.MESSAGES.M17);
 		}
 	}else{
-		util.log(CONSTANTS.MESSAGES.M18);
+		util.log(CONSTANTS.MESSAGES.M18);		
 		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 	}
 };
 
 function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : done
+	// Adding a hook for publishers to modify the bid we have to store
+	util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [slotId, adapterID, theBid, latency]);
 	window.PWT.bidMap[slotID].setNewBid(adapterID, theBid);
 	window.PWT.bidIdMap[theBid.getBidID()] = {
 		s: slotID,
@@ -172,6 +174,9 @@ function auctionBids(bmEntry) { // TDD, i/o : done
     if(CONFIG.getMataDataPattern() !== null){
     	createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);
     }
+
+    // Adding a hook for publishers to modify the adUnits we have made
+	util.handleHook(CONSTANTS.HOOKS.POST_AUCTION, [ winningBid, keyValuePairs ]);
 
     return {
         wb: winningBid,
@@ -582,4 +587,4 @@ exports.fireTracker = function(bidDetails, action) {
 };
 
  
-
+//todo: add a function here that generates all satndard key-value pairs for a given bid and setup , set these key-value pairs in an object
