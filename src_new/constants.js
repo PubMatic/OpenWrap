@@ -143,3 +143,8 @@ exports.PLATFORM_VALUES = {
 	"DISPLAY": "display",
 	"NATIVE": "native"
 };
+
+exports.HOOKS = {
+	'PREBID_SET_CONFIG': 'HookForPrebidSetConfig',
+	'PREBID_REQUEST_BIDS': 'HookForPrebidRequestBids'
+};
