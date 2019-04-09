@@ -988,21 +988,22 @@ exports.getBidFromEvent = function (theEvent) {
 exports.getAdFormatFromBidAd = function(ad){
 	var format = undefined;
 	if(ad && refThis.isString(ad)){
-		var videoRegex = new RegExp(/VAST\s+version/); 
-		if(videoRegex.test(ad)){
-			format = CONSTANTS.FORMAT_VALUES.VIDEO;
-		}
-		else{
-			try{
-				var adStr = JSON.parse(ad.replace(/\\/g, ""));
-				if (adStr && adStr.native) {
-					format = CONSTANTS.FORMAT_VALUES.NATIVE;
-				}
-			}
-			catch(ex){
-				format = CONSTANTS.FORMAT_VALUES.BANNER;
+		//TODO: Uncomment below code once video has been implemented 
+		// var videoRegex = new RegExp(/VAST\s+version/); 
+		// if(videoRegex.test(ad)){
+		// 	format = CONSTANTS.FORMAT_VALUES.VIDEO;
+		// }
+		// else{
+		try{
+			var adStr = JSON.parse(ad.replace(/\\/g, ""));
+			if (adStr && adStr.native) {
+				format = CONSTANTS.FORMAT_VALUES.NATIVE;
 			}
 		}
+		catch(ex){
+			format = CONSTANTS.FORMAT_VALUES.BANNER;
+		}
+		// }
 	}
 	return format;
 };
