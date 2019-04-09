@@ -436,11 +436,15 @@ function fetchBids(activeSlots, impressionID){
 					};
 				}
 
+				// Adding a hook for publishers to modify the Prebid Config we have generated
+				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 				window[pbNameSpace].setConfig(prebidConfig);
 			}
 
 			/* istanbul ignore else */
 			if(util.isFunction(window[pbNameSpace].requestBids)){
+				// Adding a hook for publishers to modify the adUnits we are passing to Prebid
+				util.handleHook(CONSTANTS.HOOKS.PREBID_REQUEST_BIDS, [ adUnits ]);
 				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
 					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid
