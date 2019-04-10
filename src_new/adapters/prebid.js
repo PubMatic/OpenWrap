@@ -45,7 +45,12 @@ function transformPBBidToOWBid(bid, kgpv){
 
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
-
+	// Check if currency conversion is enabled or not
+	if(CONFIG.getAdServerCurrency() && bid.originalCpm && bid.originalCurrency){
+		theBid.setOriginalCpm(window.parseFloat(bid.originalCpm));
+		theBid.setOriginalCurrency(bid.originalCurrency);
+		theBid.setAnalyticsCpm(window.parseFloat(bid.getCpmInNewCurrency(CONSTANTS.COMMON.ANALYTICS_CURRENCY)));
+	}
 	/*
 		errorCodes meaning:
 		1 = GADS_UNMAPPED_SLOT_ERROR
@@ -407,7 +412,7 @@ function fetchBids(activeSlots, impressionID){
 			//	window[pbNameSpace].setBidderSequence("random");
 			//}
 
-			if(util.isFunction(window[pbNameSpace].setConfig)) {
+			if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 				var prebidConfig = {
 					debug: util.isDebugLogEnabled(),
 					bidderSequence: "random",
@@ -435,16 +440,35 @@ function fetchBids(activeSlots, impressionID){
 						allowAuctionWithoutConsent: CONFIG.getAwc()
 					};
 				}
+				//remove true and implement getCurrency() in config
+				// CONFIG.getCurrency()
+				if(CONFIG.getAdServerCurrency()){
+					// get AdServer currency from Config
+					// Log in console 
+					util.log(CONSTANTS.MESSAGES.M26 + CONFIG.getAdServerCurrency());
+					prebidConfig["currency"] = {
+						"adServerCurrency": CONFIG.getAdServerCurrency(), 
+						"granularityMultiplier": 1, 
+					};
+
+				}
 
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 				window[pbNameSpace].setConfig(prebidConfig);
 			}
 
+			/* With prebid 2.0.0 it has started using FunHooks library which provides
+			   proxy object instead of wrapper function by default so in case of safari and IE 
+			   below check of util gives us Object instead of function hence return false and does
+			   not work on safari and ie. Introduced one more check of typeof to check for function.
+			   This if code is just safe check and may be removed in near future.
+			*/
 			/* istanbul ignore else */
-			if(util.isFunction(window[pbNameSpace].requestBids)){
+
+			if(util.isFunction(window[pbNameSpace].requestBids) || typeof window[pbNameSpace].requestBids == "function"){
 				// Adding a hook for publishers to modify the adUnits we are passing to Prebid
-				util.handleHook(CONSTANTS.HOOKS.PREBID_REQUEST_BIDS, [ adUnits ]);
+				util.handleHook(CONSTANTS.HOOKS.PREBID_REQUEST_BIDS, [ adUnitsArray ]);
 				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
 					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid
