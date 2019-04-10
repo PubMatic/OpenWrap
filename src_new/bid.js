@@ -24,9 +24,17 @@ function Bid(adapterID, kgpv){
 	this.status = 0;
 	this.serverSideResponseTime = 0;
 	this.mi = undefined;
+	this.originalCpm = 0;
+	this.originalCurrency = "";
+	this.analyticsGrossCpm = 0;
+	this.analyticsNetCpm = 0;
 	this.native = undefined;
 	this.adFormat = undefined;
 }
+
+var getNetECPM = function(grossEcpm, adapterID){
+	return window.parseFloat((grossEcpm * CONFIG.getAdapterRevShare(adapterID)).toFixed(CONSTANTS.COMMON.BID_PRECISION));
+};
 
 Bid.prototype.setServerSideResponseTime = function (ssResponseTime) {
 	this.serverSideResponseTime = ssResponseTime;
@@ -80,16 +88,23 @@ Bid.prototype.setGrossEcpm = function(ecpm){
 	ecpm = window.parseFloat(ecpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
 
 	this.grossEcpm = ecpm;
-	this.netEcpm = window.parseFloat((this.grossEcpm * CONFIG.getAdapterRevShare(this.getAdapterID())).toFixed(CONSTANTS.COMMON.BID_PRECISION));
+	this.netEcpm = getNetECPM(this.grossEcpm, this.getAdapterID());
 
 	return this;
 };
 
-Bid.prototype.getGrossEcpm = function(){
+Bid.prototype.getGrossEcpm = function(forAnalytics){
+	// Check config if currency module is enabled.
+	if(CONFIG.getAdServerCurrency() && this.analyticsGrossCpm && forAnalytics){
+		return this.analyticsGrossCpm;
+	}
 	return this.grossEcpm;
 };
 
-Bid.prototype.getNetEcpm = function(){
+Bid.prototype.getNetEcpm = function(forAnalytics){
+	if(CONFIG.getAdServerCurrency() && this.analyticsNetCpm && forAnalytics){
+		return this.analyticsNetCpm;
+	}
 	return this.netEcpm;
 };
 
@@ -245,6 +260,36 @@ Bid.prototype.setMi = function(mi){
 
 Bid.prototype.getMi = function(){
 	return this.mi;
+};
+
+Bid.prototype.setOriginalCpm = function(originalCpm){
+	this.originalCpm = window.parseFloat(originalCpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
+	return this;
+};
+
+Bid.prototype.getOriginalCpm = function(){
+	return this.originalCpm;
+};
+
+
+Bid.prototype.setOriginalCurrency = function(originalCurrency){
+	this.originalCurrency = originalCurrency;
+	return this;
+};
+
+Bid.prototype.getOriginalCurrency = function(){
+	return this.originalCurrency;
+};
+
+
+Bid.prototype.setAnalyticsCpm = function(analyticsCpm){
+	this.analyticsGrossCpm = window.parseFloat(analyticsCpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
+	this.analyticsNetCpm = getNetECPM(this.analyticsGrossCpm,this.getAdapterID());
+	return this;
+};
+
+Bid.prototype.getAnalyticsCpm = function(){
+	return this.analyticsGrossCpm;
 };
 
 Bid.prototype.getNative = function(){
