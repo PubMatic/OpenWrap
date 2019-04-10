@@ -149,5 +149,7 @@ exports.PLATFORM_VALUES = {
 
 exports.HOOKS = {
 	'PREBID_SET_CONFIG': 'HookForPrebidSetConfig',
-	'PREBID_REQUEST_BIDS': 'HookForPrebidRequestBids'
+	'PREBID_REQUEST_BIDS': 'HookForPrebidRequestBids',
+	'BID_RECEIVED': 'HookForBidReceived',
+	'POST_AUCTION': 'HookForPostAuction'
 };

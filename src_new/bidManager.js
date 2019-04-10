@@ -180,7 +180,7 @@ function auctionBids(bmEntry) { // TDD, i/o : done
     	createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);
     }
 
-    // Adding a hook for publishers to modify the adUnits we have made
+	// Adding a hook for publishers to modify the adUnits we have made
 	util.handleHook(CONSTANTS.HOOKS.POST_AUCTION, [ winningBid, keyValuePairs ]);
 
     return {
