@@ -486,6 +486,7 @@ exports.isIframe = function(theWindow){
 	}
 };
 
+//todo: this function is not used
 exports.findInString = function(theString, find){
 	return theString.indexOf(find) >= 0;
 };
@@ -729,6 +730,7 @@ exports.addMessageEventListenerForSafeFrame = function(theWindow){
 	refThis.addMessageEventListener(theWindow, refThis.safeFrameCommunicationProtocol);
 };
 
+//todo: this function is not in use
 exports.getElementLocation = function( el ) {
 	var rect,
 		x = 0,
