@@ -159,3 +159,13 @@ exports.initConfig = function(){
 		});
 	});
 };
+
+/* Native Configuration */
+
+exports.getNativeConfiguration = function(){
+	return config[CONSTANTS.COMMON.NATIVE_MEDIA_TYPE_CONFIG];
+};
+
+exports.getAdServerCurrency = function(){
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.AD_SERVER_CURRENCY];
+};

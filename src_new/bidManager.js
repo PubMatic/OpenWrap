@@ -75,6 +75,10 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 		util.log(CONSTANTS.MESSAGES.M18);
 		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 	}
+	if (isPostTimeout) {
+      //explicitly trigger user syncs since its a post timeout bid
+      setTimeout(window['owpbjs'].triggerUserSyncs, 10);
+    }
 };
 
 function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : done
@@ -91,7 +95,8 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 			bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(Passthrough)' : ''),
 			bidDetails: theBid,
 			latency: latency,
-			s2s: CONFIG.isServerSideAdapter(adapterID)
+			s2s: CONFIG.isServerSideAdapter(adapterID),
+			adServerCurrency: CONFIG.getAdServerCurrency()
 		});
 	}
 }
@@ -183,7 +188,21 @@ function auctionBids(bmEntry) { // TDD, i/o : done
 exports.auctionBids = auctionBids;
 /* end-test-block */
 
+function updateNativeTargtingKeys(keyValuePairs) {
+	for(var key in keyValuePairs) {
+		if (key.indexOf("native") >= 0 && key.split("_").length === 3) {
+			delete keyValuePairs[key];
+		}
+	}
+}
+
+/* start-test-block */
+exports.updateNativeTargtingKeys = updateNativeTargtingKeys;
+/* end-test-block */
+
+
 function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) { // TDD, i/o : done
+	var refThis = this;
     if (adapterEntry.getLastBidID() != "") {
         util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
             // do not consider post-timeout bids
@@ -197,17 +216,21 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
 				theBid.setSendAllBidsKeys();
 			}
 
-            //	if bidPassThrough is not enabled and ecpm > 0
-            //		then only append the key value pairs from partner bid
-            /* istanbul ignore else */
-            if (CONFIG.getBidPassThroughStatus(adapterID) === 0 /*&& theBid.getNetEcpm() > 0*/) {
-                util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
-            }
+			if (winningBid !== null ) {
+				if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
+					// i.e. the current bid is the winning bid, so remove the native keys from keyValuePairs 
+					refThis.updateNativeTargtingKeys(keyValuePairs);
+				} else {
+					// i.e. the current bid is not the winning bid, so remove the native keys from theBid.keyValuePairs
+					var bidKeyValuePairs = theBid.getKeyValuePairs();
+					refThis.updateNativeTargtingKeys(bidKeyValuePairs);
+					theBid.keyValuePairs = bidKeyValuePairs;
+				}
+			}
+            util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
 
-            //BidPassThrough: Do not participate in auction)
             /* istanbul ignore else */
             if (CONFIG.getBidPassThroughStatus(adapterID) !== 0) {
-                util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
                 return { winningBid: winningBid , keyValuePairs: keyValuePairs };
             }
 
@@ -244,7 +267,8 @@ exports.getBid = function(divID){ // TDD, i/o : done
 			winningBid.setWinningBidStatus();
 			util.vLogInfo(divID, {
 				type: "win-bid",
-				bidDetails: winningBid
+				bidDetails: winningBid,
+				adServerCurrency: CONFIG.getAdServerCurrency()
 			});
 		}else{
 			util.vLogInfo(divID, {
@@ -353,6 +377,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
+	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 
 	/* istanbul ignore else */
 	if(!pixelURL){
@@ -368,8 +393,8 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
 	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
 	pixelURL += "&pn=" + window.encodeURIComponent(theBid.getAdapterID());
-	pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
-	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
+	pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm(isAnalytics));
+	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm(isAnalytics));
 	pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
 
 	refThis.setImageSrcToPixelURL(pixelURL);
@@ -379,6 +404,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = undefined;
 	var impressionID = bmEntry.getImpressionID();
+	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
     /* istanbul ignore else */
     if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
         var slotObject = {
@@ -437,8 +463,8 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "db": theBid.getDefaultBidStatus(),
                     "kgpv": theBid.getKGPV(),
                     "psz": theBid.getWidth() + "x" + theBid.getHeight(),
-                    "eg": theBid.getGrossEcpm(),
-                    "en": theBid.getNetEcpm(),
+                    "eg": theBid.getGrossEcpm(isAnalytics),
+                    "en": theBid.getNetEcpm(isAnalytics),
                     "di": theBid.getDealID(),
                     "dc": theBid.getDealChannel(),
                     "l1": theBid.getServerSideStatus() ? theBid.getServerSideResponseTime() : (endTime - startTime),
@@ -446,8 +472,10 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"ss": theBid.getServerSideStatus(),
                     "t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
                     "wb": theBid.getWinningBidStatus() === true ? 1 : 0,
-                    "mi": theBid.getServerSideStatus() ? theBid.getMi() : undefined
-                });
+					"mi": theBid.getServerSideStatus() ? theBid.getMi() : undefined,
+					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
+					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
+				});
             })
         });
 
@@ -464,9 +492,20 @@ exports.analyticalPixelCallback = analyticalPixelCallback;
 
 
 
-exports.setImageSrcToPixelURL = function (pixelURL) { // TDD, i/o : done
+/**
+ * function which takes url and creates an image and executes them
+ * used to execute trackers
+ * @param {*} pixelURL
+ * @param {*} useProtocol
+ * @returns
+ */
+exports.setImageSrcToPixelURL = function (pixelURL, useProtocol) { // TDD, i/o : done
 	var img = new window.Image();
-	img.src = util.metaInfo.protocol + pixelURL;
+	if(useProtocol != undefined && !useProtocol){
+		img.src = pixelURL;
+		return;
+	}
+	img.src = util.metaInfo.protocol + pixelURL;	
 };
 
 
@@ -480,6 +519,77 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 			});
 		});
 	});
-
 	return status;
 };
+
+
+/**
+ * This function is used to execute trackers on event
+ * in case of native. On click of native create element 
+ * @param {*} event
+ */
+exports.loadTrackers = function(event){
+	var bidId = util.getBidFromEvent(event);
+	window.parent.postMessage(
+		JSON.stringify({
+			pwt_type: "3",
+			pwt_bidID: bidId,
+			pwt_origin: window.location.protocol+"//"+window.location.hostname,
+			pwt_action:"click"
+		}),
+		"*"
+	);
+};
+
+/**
+ * function takes bidID and post a message to parent pwt.js to execute monetization pixels.
+ * @param {*} bidID
+ */
+exports.executeTracker = function(bidID){
+	window.parent.postMessage(
+		JSON.stringify({
+			pwt_type: "3",
+			pwt_bidID: bidID,
+			pwt_origin: window.location.protocol+"//"+window.location.hostname,
+			pwt_action:"imptrackers"
+		}),
+		"*"
+	);
+};
+
+/**
+ * based on action it executes either the clickTrackers or
+ * impressionTrackers and javascriptTrackers.
+ * Javascript trackers is a valid html, urls already wrapped in script tagsand its guidelines can be found at
+ * iab spec document.
+ * @param {*} bidDetails
+ * @param {*} action
+ */
+exports.fireTracker = function(bidDetails, action) {
+	var trackers;
+
+	if (action === "click") {
+		trackers = bidDetails["native"] && bidDetails["native"].clickTrackers;
+	} else if(action === "imptrackers") {
+		trackers = bidDetails["native"] && bidDetails["native"].impressionTrackers;
+		if (bidDetails['native'] && bidDetails['native'].javascriptTrackers) {
+			var iframe = util.createInvisibleIframe();
+			/* istanbul ignore else */
+			if(!iframe){
+				throw {message: 'Failed to create invisible frame for native javascript trackers'};
+			}
+			/* istanbul ignore else */
+			if(!iframe.contentWindow){
+				throw {message: 'Unable to access frame window for native javascript trackers'};
+			}
+			window.document.body.appendChild(iframe);
+			iframe.contentWindow.document.open();
+			iframe.contentWindow.document.write(bidDetails['native'].javascriptTrackers);
+			iframe.contentWindow.document.close();
+		}
+	}
+	(trackers || []).forEach(function(url){refThis.setImageSrcToPixelURL(url,false);});
+};
+
+ 
+

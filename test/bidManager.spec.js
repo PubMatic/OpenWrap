@@ -272,6 +272,9 @@ describe('bidManager BIDMgr', function() {
                 sinon.stub(bidDetails, 'getReceivedTime');
                 sinon.stub(window.PWT.bidMap[divID], 'getLastBidIDForAdapter');
                 sinon.stub(window.PWT.bidMap[divID], 'getBid');
+                window.owpbjs = {
+
+                };
                 done();
             });
 
@@ -450,7 +453,8 @@ describe('bidManager BIDMgr', function() {
                 bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(Passthrough)' : ''),
                 bidDetails: theBid,
                 latency: latency,
-                s2s: CONFIG.isServerSideAdapter(adapterID)
+                s2s: CONFIG.isServerSideAdapter(adapterID),
+                adServerCurrency: CONFIG.getAdServerCurrency()
             }).should.be.true;
 
             done();
@@ -861,6 +865,7 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(winningBidObj.wb, 'setStatus');
             sinon.spy(winningBidObj.wb, 'setWinningBidStatus');
             sinon.spy(UTIL, 'vLogInfo');
+            sinon.stub(CONFIG, "getAdServerCurrency");
 
             done();
         });
@@ -872,6 +877,7 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.auctionBids.restore();
             UTIL.vLogInfo.restore();
             window.PWT = {};
+            CONFIG.getAdServerCurrency.restore();
             done();
         });
 
@@ -908,7 +914,8 @@ describe('bidManager BIDMgr', function() {
 
             UTIL.vLogInfo.calledWith(divID, {
                 type: "win-bid",
-                bidDetails: winningBidObj.wb
+                bidDetails: winningBidObj.wb,
+                adServerCurrency: CONFIG.getAdServerCurrency()
             }).should.be.true;
 
             UTIL.isOwnProperty.called.should.be.true;
@@ -1695,7 +1702,13 @@ describe('bidManager BIDMgr', function() {
             window.Image.called.should.be.true;
             imageObjStub.src.should.equal(UTIL.metaInfo.protocol + pixelURL);
             done();
+        });
 
+        it('should have called window.Image while setting its src to the passed pixelURL without protocol', function(done) {
+            BIDMgr.setImageSrcToPixelURL(pixelURL,false);
+            window.Image.called.should.be.true;
+            imageObjStub.src.should.equal(pixelURL);
+            done();
         });
     });
 
@@ -1753,6 +1766,117 @@ describe('bidManager BIDMgr', function() {
 
         it('should return true if for divId no bids are send', function(done) {
             BIDMgr.getAllPartnersBidStatuses(bidMaps, ["Div2"]).should.be.true;
+            done();
+        });
+    });
+
+    describe('#loadTrackers', function() {
+        beforeEach(function(done) {
+  
+            done();
+        });
+
+        afterEach(function(done) {
+            done();
+        });
+
+        it('is a function', function(done) {
+            BIDMgr.loadTrackers.should.be.a('function');
+            done();
+        });
+
+        it('should call getBidDetails', function(done) {
+            BIDMgr.loadTrackers(event);
+            UTIL.getBidFromEvent.should.be.calledOnce;
+            done();
+        });
+    });
+
+    describe('#executeTracker', function() {
+        beforeEach(function(done) {
+  
+            done();
+        });
+
+        afterEach(function(done) {
+            done();
+        });
+
+        it('is a function', function(done) {
+            BIDMgr.executeTracker.should.be.a('function');
+            done();
+        });
+    });
+
+    describe('#fireTracker', function() {
+        var bidDetails, action;
+        beforeEach(function(done) {
+            bidDetails = {
+                "adapterID":"appnexus",
+                "kgpv":"300x250@300x250",
+                "bidID":"15356da9861f71d",
+                "grossEcpm":10,
+                "netEcpm":10,
+                "defaultBid":0,
+                "adHtml":"",
+                "adUrl":"",
+                "height":0,
+                "width":0,
+                "creativeID":"",
+                "keyValuePairs": {
+                    "hb_bidder":["appnexus"],
+                    "hb_adid":["177b404c1ad1bdd"],
+                    "hb_pb":["10.00"],
+                    "hb_size":["0x0"],
+                    "pwt_native_title":["This is a Prebid Native Creative"],
+                    "pwt_native_body":["This is a Prebid Native Creative.  There are many like it, but this one is mine."],
+                    "pwt_native_brand":["Prebid.org"],
+                    "pwt_native_linkurl":["http://prebid.org/dev-docs/show-native-ads.html"],
+                    "pwt_native_image":["http://vcdn.adnxs.com/p/creative-image/f8/7f/0f/13/f87f0f13-230c-4f05-8087-db9216e393de.jpg"]
+                },
+                "isPostTimeout":false,
+                "receivedTime":1552303426059,
+                "isServerSide":0,
+                "dealID":"",
+                "dealChannel":"",
+                "isWinningBid":true,
+                "status":1,
+                "native":{"title":"This is a Prebid Native Creative",
+                "body":"This is a Prebid Native Creative.  There are many like it, but this one is mine.",
+                "sponsoredBy":"Prebid.org",
+                "clickUrl":"http://prebid.org/dev-docs/show-native-ads.html",
+                "clickTrackers":["http://sin1-ib.adnxs.com/click?AAAAAAAAJEAAAAAAAAAkQAAAAAAAACRAAAAAAAAAJEAAAAAAAAAkQFA2SWj7_A0Qnfal3hLEgXNDRYZcAAAAAOLoyQBtJAAAbSQAAAIAAAC8pM8FnPgWAAAAAABVU0QAVVNEAAEAAQBNXQAAAAABAQQCAAAAALoAZRY0pwAAAAA./bcr=AAAAAAAA8D8=/cnd=%21sA1qhQj8-LwKELzJvi4YnPFbIAQoADEAAAAAAAAkQDoJU0lOMTozNTg3QLIISQAAAAAAAPA_UQAAAAAAAAAAWQAAAAAAAAAA/cca=OTMyNSNTSU4xOjM1ODc=/bn=78553/referrer=http%3A%2F%2Ftest.com%2FOpenWrap%2FowSingleSlotNative.html/"],
+                "impressionTrackers":["http://sin1-ib.adnxs.com/it?referrer=http%3A%2F%2Ftest.com%2FOpenWrap%2FowSingleSlotNative.html&e=wqT_3QKBB6CBAwAAAwDWAAUBCMOKmeQFENDspMK2n_-GEBid7Zf1rYLxwHMqNgkAAAECCCRAEQEHEAAAJEAZEQkAIREJACkRCQAxEQmoMOLRpwY47UhA7UhIAlC8yb4uWJzxW2AAaM26dXjZ5QSAAQGKAQNVU0SSAQEG8FKYAQGgAQGoAQGwAQC4AQHAAQTIAQLQAQDYAQDgAQDwAQCKAjt1ZignYScsIDI1Mjk4ODUsIDE1NTIzMDM0MjcpO3VmKCdyJywgOTc0OTQyMDQsIC4eAPCakgL1ASFZem56MFFqOC1Md0tFTHpKdmk0WUFDQ2M4VnN3QURnQVFBUkk3VWhRNHRHbkJsZ0FZTlVCYUFCd1BuZ0tnQUdLQVlnQkFKQUJBWmdCQWFBQkFhZ0JBN0FCQUxrQjg2MXFwQUFBSkVEQkFmT3RhcVFBQUNSQXlRRllVdW42VU9iUlA5a0JBQUFBQUFBQThEX2dBUUQxQVEBD0BDWUFnQ2dBdl9fX184UHRRSQEVBEF2DQh4d0FJQXlBSUE0QUlBNkFJQS1BSUFnQU1CbUFNQnFBUAXQgHVnTUpVMGxPTVRvek5UZzM0QU95Q0EuLpoCYSFzQTFxaDr4ACxuUEZiSUFRb0FERUENAQxrUURvMkQAFFFMSUlTUQ0eDFBBX1URDAxBQUFXHQzw7dgCAOACrZhI6gIwaHR0cDovL3Rlc3QuY29tL09wZW5XcmFwL293U2luZ2xlU2xvdE5hdGl2ZS5odG1sgAMAiAMBkAMAmAMXoAMBqgMAwAPgqAHIAwDYA9KCJOADAOgDAPgDAYAEAJIEDS91dC92My9wcmViaWSYBACiBA8xMTUuMTE0LjEzNC4xNzSoBN6SAbIEEAgAEAEYrAIg-gEoADAAOAK4BADABADIBADSBA45MzI1I1NJTjE6MzU4N9oEAggB4AQB8AS8yb4uiAUBmAUAoAX___________8BwAUAyQUAAAAAAADwP9IFCQlJ4XgAANgFAeAFAfAFmfQh-gUECAAQAJAGAZgGALgGAMEGCSUo8D_IBgDaBhYKEAA6AQAYEAAYAOAGDA..&s=e5283e630904b323dced9399c167477da73eb6b3"],
+                "image":{"url":"http://vcdn.adnxs.com/p/creative-image/f8/7f/0f/13/f87f0f13-230c-4f05-8087-db9216e393de.jpg",
+                "height":742,
+                "width":989}}
+            }
+            action = "impTrackers";
+            sinon.spy(BIDMgr, 'setImageSrcToPixelURL');
+            done();
+        });
+
+        afterEach(function(done) {
+            bidDetails = null;
+            action = null;
+            BIDMgr.setImageSrcToPixelURL.restore();
+            done();
+        });
+
+        it('is a function', function(done) {
+            BIDMgr.fireTracker.should.be.a('function');
+            done();
+        });
+
+        it('should call pixel url function with impression trackers',function(done){
+            BIDMgr.fireTracker(bidDetails,action);
+            // BIDMgr.setImageSrcToPixelURL.calledWith(bidDetails["native"].impressionTrackers[0],false).should.be.true;
+            done();
+        });
+
+        it('should call pixel url function with click trackers',function(done){
+            BIDMgr.fireTracker(bidDetails,action);
+            // BIDMgr.setImageSrcToPixelURL.calledWith(bidDetails["native"].clickTrackers[0],false).should.be.true;
             done();
         });
     });
