@@ -2438,14 +2438,14 @@ describe('UTIL', function() {
         //     done();
         // });
 
-        it('should return native if ad html consists of video string ',function(done){
+        it('should return native if ad html consists of native string ',function(done){
             var expectedResult = CONSTANTS.FORMAT_VALUES.NATIVE
             var result =  UTIL.getAdFormatFromBidAd(nativeAdString);
             result.should.deep.equal(expectedResult);
             done();
         });
 
-        it('should return banner if ad html consists of video string ',function(done){
+        it('should return banner if ad html consists of banner string ',function(done){
             var expectedResult = CONSTANTS.FORMAT_VALUES.BANNER
             var result =  UTIL.getAdFormatFromBidAd(bannerAdString);
             result.should.deep.equal(expectedResult);
