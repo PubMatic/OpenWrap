@@ -83,7 +83,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 
 function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : done
 	// Adding a hook for publishers to modify the bid we have to store
-	util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [slotId, adapterID, theBid, latency]);
+	util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [slotID, adapterID, theBid, latency]);
 	window.PWT.bidMap[slotID].setNewBid(adapterID, theBid);
 	window.PWT.bidIdMap[theBid.getBidID()] = {
 		s: slotID,
