@@ -1012,29 +1012,30 @@ exports.handleHook = function(hookName, arrayOfDataToPass) {
 	// Adding a hook for publishers to modify the data we have
 	if(refThis.isFunction(window.pwt[hookName])){
 		// Keep a backup of data we have made to use in case of exeception
-		var backupData = [];
-		refThis.forEachOnArray(arrayOfDataToPass, function(index, data){
-			var backup = data;
-			if(refThis.isObject(data)){
-				backup = {};
-				refThis.copyKeyValueObject(backup, data);				
-			}
-			backupData.push(backup);
-		});
+		// var backupData = [];
+		// refThis.forEachOnArray(arrayOfDataToPass, function(index, data){
+		// 	var backup = data;
+		// 	if(refThis.isObject(data)){
+		// 		backup = {};
+		// 		refThis.copyKeyValueObject(backup, data);				
+		// 	}
+		// 	backupData.push(backup);
+		// });
 
-		refThis.log('Hook-name: '+hookName+', original data:');
-		refThis.log(backupData);
+		// refThis.log('Hook-name: '+hookName+', original data:');
+		// refThis.log(backupData);
 
-		try{
-			window.pwt[hookName].apply(window.pwt, arrayOfDataToPass);
-		}catch(e){
-			refThis.log('Something went wrong with '+hookName+', moving ahead with original config.');
-			refThis.log(e);
-			arrayOfDataToPass = backupData;
-		}
+		// try{
+		// 	window.pwt[hookName].apply(window.pwt, arrayOfDataToPass);
+		// }catch(e){
+		// 	refThis.log('Something went wrong with '+hookName+', moving ahead with original config.');
+		// 	refThis.log(e);
+		// 	arrayOfDataToPass = backupData;
+		// }
 
-		refThis.log('Hook-name: '+hookName+', modified data:');
-		refThis.log(arrayOfDataToPass);
+		// refThis.log('Hook-name: '+hookName+', modified data:');
+		// refThis.log(arrayOfDataToPass);
+		window.pwt[hookName].apply(window.pwt, arrayOfDataToPass);
 	} else {
 		refThis.log('Hook-name: '+hookName+', window.pwt.'+hookName+' is not a function.' );
 	}
