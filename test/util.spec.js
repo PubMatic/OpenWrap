@@ -2405,4 +2405,29 @@ describe('UTIL', function() {
             done();
         });
     });
+
+    describe('#handleHook', function(){
+        it('is a function', function(done) {
+            UTIL.handleHook.should.be.a('function');
+            done();
+        });
+
+        it('executes a given hook function if available', function(done){
+            var myHookData = '1';
+            window.PWT.myHook = function(a, b, c){
+                myHookData = a + b + c;
+            };
+            UTIL.handleHook('myHook', [1, 2, 3]);
+            myHookData.should.equal(6);
+            done();
+        });
+
+        it('does not executes a given hook if it is not a function', function(done){
+            var myHookData = '1';
+            window.PWT.myHook = '';
+            UTIL.handleHook('myHook', [1, 2, 3]);
+            myHookData.should.equal('1');
+            done();
+        });
+    });
 });

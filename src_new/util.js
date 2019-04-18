@@ -1010,7 +1010,7 @@ exports.getBidFromEvent = function (theEvent) {
 // This common function can be used add hooks for publishers to make changes in flows
 exports.handleHook = function(hookName, arrayOfDataToPass) {
 	// Adding a hook for publishers to modify the data we have
-	if(refThis.isFunction(window.pwt[hookName])){
+	if(refThis.isFunction(window.PWT[hookName])){
 		// Keep a backup of data we have made to use in case of exeception
 		// var backupData = [];
 		// refThis.forEachOnArray(arrayOfDataToPass, function(index, data){
@@ -1026,7 +1026,7 @@ exports.handleHook = function(hookName, arrayOfDataToPass) {
 		// refThis.log(backupData);
 
 		// try{
-		// 	window.pwt[hookName].apply(window.pwt, arrayOfDataToPass);
+		// 	window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
 		// }catch(e){
 		// 	refThis.log('Something went wrong with '+hookName+', moving ahead with original config.');
 		// 	refThis.log(e);
@@ -1035,7 +1035,7 @@ exports.handleHook = function(hookName, arrayOfDataToPass) {
 
 		// refThis.log('Hook-name: '+hookName+', modified data:');
 		// refThis.log(arrayOfDataToPass);
-		window.pwt[hookName].apply(window.pwt, arrayOfDataToPass);
+		window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
 	} else {
 		refThis.log('Hook-name: '+hookName+', window.pwt.'+hookName+' is not a function.' );
 	}
