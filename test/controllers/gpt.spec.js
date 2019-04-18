@@ -1512,7 +1512,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should have set targeting when winning bid\'s net ecpm is greater than 0 but should not have called set targeting on deal id if not valid', function (done) {
+        xit('should have set targeting when winning bid\'s net ecpm is greater than 0 but should not have called set targeting on deal id if not valid', function (done) {
             winningBidStub.getNetEcpm.returns(2);
             winningBidStub.getDealID.returns(null);
             GPT.findWinningBidAndApplyTargeting(divID);
@@ -1531,7 +1531,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should have set targeting when winning bid\'s net ecpm is greater than 0 and should have called set targeting on deal id is valid', function (done) {
+        xit('should have set targeting when winning bid\'s net ecpm is greater than 0 and should have called set targeting on deal id is valid', function (done) {
             winningBidStub.getNetEcpm.returns(2);
             winningBidStub.getDealID.returns("deal_id");
             GPT.findWinningBidAndApplyTargeting(divID);
