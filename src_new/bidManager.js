@@ -600,7 +600,7 @@ exports.fireTracker = function(bidDetails, action) {
 // this function generates all satndard key-value pairs for a given bid and setup, set these key-value pairs in an object
 // todo: write unit test cases
 exports.setStandarKeys = function(winningBid, keyValuePairs){
-	if (winningBid && winningBid.getNetEcpm() > 0) {
+	if (winningBid) {
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ] = winningBid.getBidID();
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS ] = winningBid.getStatus();
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM ] = winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION);
@@ -615,7 +615,7 @@ exports.setStandarKeys = function(winningBid, keyValuePairs){
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ] = winningBid.width + 'x' + winningBid.height;
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ] = (winningBid.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
     } else {
-    	util.log('Not generating key-value pairs as net ecpm of the winning bid is not greater than 0. WinningBid: ');
+    	util.log('Not generating key-value pairs as invalid winningBid object passed. WinningBid: ');
     	util.log(winningBid);
     }
 }
