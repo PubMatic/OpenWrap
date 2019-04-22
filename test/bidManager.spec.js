@@ -1880,4 +1880,20 @@ describe('bidManager BIDMgr', function() {
             done();
         });
     });
+
+    describe('#setStandarKeys', function(){
+        it('is a function', function(done) {
+            BIDMgr.setStandarKeys.should.be.a('function');
+            done();
+        });
+
+        it('do not generate keys for invalid winning bid object', function(done){
+            var kvp = {a: 'a', b: 'b'};
+            var old_kvp = {a: 'a', b: 'b'};
+            var wb = null;
+            BIDMgr.setStandarKeys(wb, kvp);
+            kvp.should.deep.equal(oldkvp)
+            done();
+        });
+    });
 });
