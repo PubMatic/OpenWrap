@@ -12,7 +12,8 @@ exports.pwt = {
 	gdprTimeout: "10000",
 	awc: "1",
 	disableAjaxTimeout:true,
-	adServerCurrency: "INR"
+	adServerCurrency: "INR",
+	singleImpression:"1"
 };
 
 exports.adapters = {

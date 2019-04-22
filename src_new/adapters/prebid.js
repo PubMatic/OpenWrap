@@ -203,18 +203,28 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 
 	var code, sizes, divID = currentSlot.getDivID();
 	
-	if(kgpConsistsWidthAndHeight){
-		code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
-		sizes = [[currentWidth,currentHeight]];
-	}else{
-		code = refThis.getPBCodeWithoutWidthAndHeight(divID, adapterID);
-		sizes = currentSlot.getSizes();	
+	if(!CONFIG.getSingleImpresionSetting()){
+		if(kgpConsistsWidthAndHeight){
+			code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
+			sizes = [[currentWidth,currentHeight]];
+		}else{
+			code = refThis.getPBCodeWithoutWidthAndHeight(divID, adapterID);
+			sizes = currentSlot.getSizes();	
+		}
+		refThis.kgpvMap [ code ] = {
+			kgpv: generatedKey,
+			divID: divID
+		};
+	} else{
+		code = currentSlot.getDivID();
+		sizes = currentSlot.getSizes();
 	}
+	
 	refThis.kgpvMap [ code ] = {
 		kgpv: generatedKey,
 		divID: divID
 	};
-
+	
 	//serverSideEabled: do not add config into adUnits
 	if(CONFIG.isServerSideAdapter(adapterID)){
 		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
@@ -229,6 +239,17 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			bids: [],
 			divID : divID
 		};
+	}else if(CONFIG.getSingleImpresionSetting()){
+		var flag = false;
+		adUnits[code].bids.forEach(function(element) {
+			if(element.bidder == adapterID){
+				flag= true;
+				return;
+			}
+		});
+		if(flag){
+			return;
+		}
 	}
 
 	var slotParams = {};
