@@ -599,7 +599,7 @@ exports.fireTracker = function(bidDetails, action) {
  
 // this function generates all satndard key-value pairs for a given bid and setup, set these key-value pairs in an object
 // todo: write unit test cases
-exports.setStandarKeys = function(winningBid, keyValuePairs){
+exports.setStandardKeys = function(winningBid, keyValuePairs){
 	if (winningBid) {
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ] = winningBid.getBidID();
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS ] = winningBid.getStatus();
