@@ -1881,9 +1881,35 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
-    describe('#setStandarKeys', function(){
+    describe('#setStandardKeys', function(){
+        var divID = null;
+        var winningBidStub = null;
+        var keyValuePairsStub = null;
+
+        beforeEach(function(done) {
+            winningBidStub = new bid('pubmatic', 'div1');
+            winningBidStub.setGrossEcpm(2);
+            winningBidStub.setDealID(null);
+            winningBidStub.setDealChannel(0);
+            winningBidStub.setAdHtml("adm");
+            winningBidStub.setAdUrl("");
+            winningBidStub.setWidth(300);
+            winningBidStub.setHeight(250);
+            keyValuePairsStub = {};
+            done();
+        });
+
+        afterEach(function(done) {
+            if (winningBidStub) {
+                winningBidStub = null;
+            }
+            divID = null;
+            keyValuePairsStub = null;
+            done();
+        });
+
         it('is a function', function(done) {
-            BIDMgr.setStandarKeys.should.be.a('function');
+            BIDMgr.setStandardKeys.should.be.a('function');
             done();
         });
 
@@ -1891,8 +1917,59 @@ describe('bidManager BIDMgr', function() {
             var kvp = {a: 'a', b: 'b'};
             var old_kvp = {a: 'a', b: 'b'};
             var wb = null;
-            BIDMgr.setStandarKeys(wb, kvp);
-            kvp.should.deep.equal(oldkvp)
+            BIDMgr.setStandardKeys(wb, kvp);
+            kvp.should.deep.equal(old_kvp)
+            done();
+        });
+
+        it('generate all keys, no deal-id if deal-id is null', function(done){
+            BIDMgr.setStandardKeys(winningBidStub, keyValuePairsStub);
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ].should.be.defined;
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS ].should.equal(winningBidStub.getStatus());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM ].should.equal(winningBidStub.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
+            (keyValuePairsStub.hasOwnProperty(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID)).should.equal(false);
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID ].should.equal('pubmatic');
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID ].should.equal(CONFIG.getPublisherId());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID ].should.equal(CONFIG.getProfileID());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID ].should.equal(CONFIG.getProfileDisplayVersionID());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ].should.equal(winningBidStub.width + 'x' + winningBidStub.height);
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ].should.equal((winningBidStub.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY));
+            done();
+        });
+
+        it('generate all keys, no deal-id if deal-id is valid', function(done){
+            winningBidStub.setDealID('DEAL_ID');
+            BIDMgr.setStandardKeys(winningBidStub, keyValuePairsStub);
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ].should.be.defined;
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS ].should.equal(winningBidStub.getStatus());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM ].should.equal(winningBidStub.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID ].should.equal('DEAL_ID');
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID ].should.equal('pubmatic');
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID ].should.equal(CONFIG.getPublisherId());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID ].should.equal(CONFIG.getProfileID());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID ].should.equal(CONFIG.getProfileDisplayVersionID());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ].should.equal(winningBidStub.width + 'x' + winningBidStub.height);
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ].should.equal((winningBidStub.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY));
+            done();
+        });
+
+        it('second argument object should also contain original key-values', function(done){
+           winningBidStub.setDealID('DEAL_ID');
+            keyValuePairsStub['test_key'] = 'hello world';
+            keyValuePairsStub['another_test_key'] = 2019;
+            BIDMgr.setStandardKeys(winningBidStub, keyValuePairsStub);
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ].should.be.defined;
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS ].should.equal(winningBidStub.getStatus());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM ].should.equal(winningBidStub.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID ].should.equal('DEAL_ID');
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID ].should.equal('pubmatic');
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID ].should.equal(CONFIG.getPublisherId());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID ].should.equal(CONFIG.getProfileID());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID ].should.equal(CONFIG.getProfileDisplayVersionID());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ].should.equal(winningBidStub.width + 'x' + winningBidStub.height);
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ].should.equal((winningBidStub.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY));
+            keyValuePairsStub[ 'test_key' ].should.equal('hello world');
+            keyValuePairsStub[ 'another_test_key' ].should.equal(2019);
             done();
         });
     });
