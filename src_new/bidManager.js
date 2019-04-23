@@ -82,8 +82,11 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 };
 
 function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : done
+
 	// Adding a hook for publishers to modify the bid we have to store
+	// Here slotID, adapterID, and latency are read-only and theBid can be modified
 	util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [slotID, adapterID, theBid, latency]);
+	
 	window.PWT.bidMap[slotID].setNewBid(adapterID, theBid);
 	window.PWT.bidIdMap[theBid.getBidID()] = {
 		s: slotID,
@@ -179,9 +182,6 @@ function auctionBids(bmEntry) { // TDD, i/o : done
     if(CONFIG.getMataDataPattern() !== null){
     	createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);
     }
-
-	// Adding a hook for publishers to modify the adUnits we have made
-	util.handleHook(CONSTANTS.HOOKS.POST_AUCTION, [ winningBid, keyValuePairs ]);
 
     return {
         wb: winningBid,
