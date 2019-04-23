@@ -347,7 +347,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     /* istanbul ignore else*/
     if (winningBid && winningBid.getNetEcpm() > 0) {
         refThis.slotsMap[divID].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
-        bidManager.setStandarKeys(winningBid, keyValuePairs);
+        bidManager.setStandardKeys(winningBid, keyValuePairs);
     };
 
     // attaching keyValuePairs from adapters
