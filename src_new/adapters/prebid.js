@@ -87,9 +87,50 @@ function transformPBBidToOWBid(bid, kgpv){
 exports.transformPBBidToOWBid = transformPBBidToOWBid;
 /* end-test-block */
 
+// This function is used to check size for the winning kgpv and if size is different then winning then modify it
+// to have same code for logging and tracking 
+function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
+	var responseKGPV= "";
+
+	// Logic to find out KGPV for partner for which the bid is recieved.
+	// TODO: Need to check for No Bid Case.
+	kgpv.kgpvs.length > 0 && kgpv.kgpvs.forEach(function(ele){
+		if(bid.bidderCode == ele.adapterID){
+			responseKGPV = ele.kgpv;
+		}
+	});
+	var responseIdArray = responseKGPV.split("@");
+	/* istanbul ignore else */
+	if(responseIdArray &&  responseIdArray.length == 2){
+		var responseIdSize = responseIdArray[1];
+		// Below check if ad unit index is present then ignore it
+		// TODO: need to confirm if it needs to be ignored or not
+		if(responseIdArray[1].indexOf(":")>0){
+			responseIdSize= responseIdArray[1].split(":")[0];
+		}
+		/* istanbul ignore else */
+		if(bid.getSize() && bid.getSize() != responseIdSize && (bid.getSize().toUpperCase() != "0X0")){
+			// Below check is for size level mapping
+			// ex. 300x250@300X250 is KGPV generated for first size but the winning size is 728x90 
+			// then new KGPV will be replaced to 728x90@728X90
+			if(responseIdArray[0] == responseIdArray[1]){
+				responseIdArray[0] = bid.getSize();
+			}
+			responseKGPV = responseIdArray[0] + "@" +  bid.getSize().toUpperCase();
+		}
+	
+	}
+	return responseKGPV;
+}
+
+/* start-test-block */
+exports.checkAndModifySizeOfKGPVIfRequired = checkAndModifySizeOfKGPVIfRequired;
+/* end-test-block */
+
 
 function pbBidStreamHandler(pbBid){
 	var responseID = pbBid.adUnitCode || "";
+
 	//OLD APPROACH
 	//serverSideEnabled: bid will contain the kgpv, divId, adapterId
 	/* istanbul ignore else */
@@ -108,6 +149,14 @@ function pbBidStreamHandler(pbBid){
 	//todo: unit-test cases pending
 	/* istanbul ignore else */
 	if(util.isOwnProperty(refThis.kgpvMap, responseID)){
+
+		// If Single impression is turned on then check and modify kgpv as per bid response size
+		if(CONFIG.getSingleImpressionSetting()){
+			// Assinging kbpv after modifying and will be used for logger and tracker purposes
+			// this field will be replaced everytime a bid is received with single impression feature on
+			refThis.kgpvMap[responseID].kgpv = checkAndModifySizeOfKGPVIfRequired(pbBid,refThis.kgpvMap[responseID]);
+		}
+
 		/*
 			- special handling for serverSideEnabled
 			- get the actual divId = kgpvMap[ pbBid.adUnitCode ].divID
@@ -203,7 +252,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 
 	var code, sizes, divID = currentSlot.getDivID();
 	
-	if(!CONFIG.getSingleImpresionSetting()){
+	if(!CONFIG.getSingleImpressionSetting()){
 		if(kgpConsistsWidthAndHeight){
 			code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
 			sizes = [[currentWidth,currentHeight]];
@@ -216,14 +265,29 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			divID: divID
 		};
 	} else{
+		// This will be executed in case single impression feature is enabled.
+		
 		code = currentSlot.getDivID();
 		sizes = currentSlot.getSizes();
+		if (refThis.kgpvMap [ code ] && refThis.kgpvMap [ code ].kgpvs.length > 0){
+			for (var i=0;i<refThis.kgpvMap [ code ].kgpvs.length;i++){
+				if(refThis.kgpvMap [ code ].kgpvs[i].adapterID == adapterID){
+					return;
+				}
+			}
+		}
+		else{
+			refThis.kgpvMap [ code ] = {
+				kgpvs : [],
+				divID: divID
+			};
+		}
+		var kgpv = {
+			adapterID: adapterID,
+			kgpv:generatedKey
+		};
+		refThis.kgpvMap [ code ].kgpvs.push(kgpv);
 	}
-	
-	refThis.kgpvMap [ code ] = {
-		kgpv: generatedKey,
-		divID: divID
-	};
 	
 	//serverSideEabled: do not add config into adUnits
 	if(CONFIG.isServerSideAdapter(adapterID)){
@@ -239,7 +303,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			bids: [],
 			divID : divID
 		};
-	}else if(CONFIG.getSingleImpresionSetting()){
+	}else if(CONFIG.getSingleImpressionSetting()){
 		var flag = false;
 		adUnits[code].bids.forEach(function(element) {
 			if(element.bidder == adapterID){

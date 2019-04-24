@@ -450,7 +450,7 @@ describe('ADAPTER: Prebid', function() {
 
             sinon.stub(CONFIG, "getProfileID").returns("profId");
             sinon.stub(CONFIG, "getProfileDisplayVersionID").returns("verId");
-            sinon.stub(CONFIG, "getSingleImpresionSetting").returns(0);
+            sinon.stub(CONFIG, "getSingleImpressionSetting").returns(0);
 
             kgpConsistsWidthAndHeight = true;
             window.PWT = {
@@ -474,7 +474,7 @@ describe('ADAPTER: Prebid', function() {
 
             CONFIG.getProfileID.restore();
             CONFIG.getProfileDisplayVersionID.restore();
-            CONFIG.getSingleImpresionSetting.restore();
+            CONFIG.getSingleImpressionSetting.restore();
 
             currentSlot = null;
             kgpConsistsWidthAndHeight = null;

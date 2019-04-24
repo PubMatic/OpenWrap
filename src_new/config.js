@@ -170,6 +170,6 @@ exports.getAdServerCurrency = function(){
 	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.AD_SERVER_CURRENCY];
 };
 
-exports.getSingleImpresionSetting = function(){
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION];
+exports.getSingleImpressionSetting = function(){
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION]);
 };
