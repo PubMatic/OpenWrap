@@ -903,4 +903,93 @@ describe('ADAPTER: Prebid', function() {
         });
     });
 
+    describe('checkAndModifySizeOfKGPVIfRequired',function(){
+        var bid= {};
+        var responseId;
+        var kgpv = {};
+
+        beforeEach(function(done){
+            bid = {
+                "bidderCode": "pubmatic",
+                "width": 728,
+                "height": 90,
+                "statusMessage": "Bid available",
+                "adId": "25799d56e271d8",
+                "mediaType": "banner",
+                "source": "client",
+                "requestId": "25799d56e271d8",
+                "ttl": 300,
+                "ad": "html",
+                "creativeId": 100002,
+                "netRevenue": false,
+                "cpm": 2.4,
+                "currency": "USD",
+                "referrer": "http://test.com/TestPages/multislot_multi_size.html",
+                "auctionId": "7f5d0c6b-81ed-412d-91a9-900a62453c8c",
+                "responseTimestamp": 1547807060472,
+                "requestTimestamp": 1547807060456,
+                "bidder": "pubmatic",
+                "adUnitCode": "Div1@pubmatic@728X90",
+                "timeToRespond": 16,
+                "pbLg": "0.00",
+                "pbMg": "0.00",
+                "pbHg": "0.00",
+                "pbAg": "0.00",
+                "pbDg": "0.00",
+                "pbCg": "",
+                "adserverTargeting": {},
+                getSize:function(){
+                    return this.width + "X" + this.height;
+                }
+            };
+            kgpv={
+                "kgpvs":[{
+                    "adapterID":"pubmatic",
+                    "kgpv":"300x250@300x250:7"
+                },{
+                    "adapterID":"appnexus",
+                    "kgpv":"/43743431/DMDemo@300x250"
+                }],
+                "divID":"Div1"
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            adUnits = {};
+            responseId = null;
+            kgpv = null;
+            done();
+        });
+
+        it('should be a functiion',function(done){
+            PREBID.checkAndModifySizeOfKGPVIfRequired.should.be.a('function');
+            done();
+        });
+
+        // TODO: Write Test cases for below
+        // it('should return modified kgpv as per winningKgpv',function(done){
+        //     bid["adUnitCode"] = "Div1@pubmatic@300X250";
+        //     var expectedResponseKgpv = "728x90@728X90";
+        //     expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+        //     done();
+        // });
+
+        // it('should return same kgpv if winning bid size is same of response size',function(done){
+        //     var expectedResponseKgpv = "728x90@728X90";
+        //     kgpv.kgpvs[0].kgpv = "728x90@728X90:0";
+        //     expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+        //     done();
+        // });
+
+        
+        // it('should not modify kgpv in case of 0X0 bid',function(done){
+        //     bid["width"] = 0;
+        //     bid["height"] = 0;
+        //     var expectedResponseKgpv = "728x90@728X90:0";
+        //     expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+        //     done();
+        // });
+    });
+
 });

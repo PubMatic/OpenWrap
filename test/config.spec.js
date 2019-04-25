@@ -741,4 +741,41 @@ describe('Config', function() {
             done();
         })
     })
+
+    describe('#getSingleImpressionSetting',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getSingleImpressionSetting.should.be.a('function');
+            done();
+        });
+
+        it('should return getSingleImpressionSetting by reading from config', function(done) {
+            var expectedResult = true;
+            CONFIG.getSingleImpressionSetting().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return false if getSingleImpressionSetting is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION];
+            expect(CONFIG.getSingleImpressionSetting()).to.equal(false);
+            done();
+        });
+
+        it('should return false if singleImpression set to "0"', function(done) {
+            var expectedResult = false;
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION] = "0";
+            CONFIG.getSingleImpressionSetting().should.be.deep.equal(expectedResult);
+            done();
+        });
+    })
+
 });
