@@ -156,11 +156,13 @@ describe('ADAPTER: Prebid', function() {
                 "kgpv": "kgpv_value",
                 "divID": "DIV_1"
             };
+            sinon.stub(CONFIG, "getSingleImpressionSetting").returns(0);
             done();
         });
 
         afterEach(function(done){
             BM.setBidFromBidder.restore();
+            CONFIG.getSingleImpressionSetting.restore();
             done();
         });
 

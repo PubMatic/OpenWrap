@@ -266,18 +266,23 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		};
 	} else{
 		// This will be executed in case single impression feature is enabled.
-		
+		// Below statements assign code as div and sizes as all sizes of ad slot
+		// it generates kgpvmap consisting of kgpvs as property 
+		// if in kgpv map code exists and kgpv exists then 
+			// if a adapter with a single kgpv exists in kgpvs then it ignores and returns from this function
+			// if a adapter does not exist for the code then a entry is being pushed in kgpvs with adapterid and kgpv for the bidder
+		// if code does not consists in kgpv object then a entry is made with adapter first calling it.
 		code = currentSlot.getDivID();
 		sizes = currentSlot.getSizes();
-		if (refThis.kgpvMap [ code ] && refThis.kgpvMap [ code ].kgpvs.length > 0){
-			for (var i=0;i<refThis.kgpvMap [ code ].kgpvs.length;i++){
-				if(refThis.kgpvMap [ code ].kgpvs[i].adapterID == adapterID){
+		if (refThis.kgpvMap [ code ] && refThis.kgpvMap[code].kgpvs.length > 0){
+			util.forEachOnArray(refThis.kgpvMap[code].kgpvs, function(idx,kgpv){
+				if(kgpv.adapterID == adapterID){
 					return;
 				}
-			}
+			});
 		}
 		else{
-			refThis.kgpvMap [ code ] = {
+			refThis.kgpvMap[code] = {
 				kgpvs : [],
 				divID: divID
 			};
@@ -286,7 +291,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			adapterID: adapterID,
 			kgpv:generatedKey
 		};
-		refThis.kgpvMap [ code ].kgpvs.push(kgpv);
+		refThis.kgpvMap[code].kgpvs.push(kgpv);
 	}
 	
 	//serverSideEabled: do not add config into adUnits
@@ -305,10 +310,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		};
 	}else if(CONFIG.getSingleImpressionSetting()){
 		var flag = false;
-		adUnits[code].bids.forEach(function(element) {
-			if(element.bidder == adapterID){
+		adUnits[code].bids.forEach(function(bid) {
+			if(bid.bidder == adapterID){
 				flag= true;
-				return;
 			}
 		});
 		if(flag){
