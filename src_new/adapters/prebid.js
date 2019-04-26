@@ -68,6 +68,7 @@ function transformPBBidToOWBid(bid, kgpv){
 		theBid.setHeight(0);
 	} else if (pubmaticServerErrorCode === 3 || pubmaticServerErrorCode === 4 || pubmaticServerErrorCode === 5) {
 		theBid.setDefaultBidStatus(0);
+		/*istanbul ignore else */
 		if (theBid.isServerSide === 0) {
 			theBid.setPostTimeoutStatus();
 		}
@@ -95,6 +96,7 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 	// Logic to find out KGPV for partner for which the bid is recieved.
 	// TODO: Need to check for No Bid Case.
 	kgpv.kgpvs.length > 0 && kgpv.kgpvs.forEach(function(ele){
+		/* istanbul ignore else */
 		if(bid.bidderCode == ele.adapterID){
 			responseKGPV = ele.kgpv;
 		}
@@ -105,6 +107,7 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 		var responseIdSize = responseIdArray[1];
 		// Below check if ad unit index is present then ignore it
 		// TODO: need to confirm if it needs to be ignored or not
+		/* istanbul ignore else */
 		if(responseIdArray[1].indexOf(":")>0){
 			responseIdSize= responseIdArray[1].split(":")[0];
 		}
@@ -113,8 +116,9 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 			// Below check is for size level mapping
 			// ex. 300x250@300X250 is KGPV generated for first size but the winning size is 728x90 
 			// then new KGPV will be replaced to 728x90@728X90
-			if(responseIdArray[0] == responseIdArray[1]){
-				responseIdArray[0] = bid.getSize();
+			/* istanbul ignore else */
+			if(responseIdArray[0].toUpperCase() == responseIdSize.toUpperCase()){
+				responseIdArray[0] = bid.getSize().toLowerCase();
 			}
 			responseKGPV = responseIdArray[0] + "@" +  bid.getSize().toUpperCase();
 		}
@@ -149,12 +153,13 @@ function pbBidStreamHandler(pbBid){
 	//todo: unit-test cases pending
 	/* istanbul ignore else */
 	if(util.isOwnProperty(refThis.kgpvMap, responseID)){
-
 		// If Single impression is turned on then check and modify kgpv as per bid response size
+		/* istanbul ignore else */
 		if(CONFIG.getSingleImpressionSetting()){
+
 			// Assinging kbpv after modifying and will be used for logger and tracker purposes
 			// this field will be replaced everytime a bid is received with single impression feature on
-			refThis.kgpvMap[responseID].kgpv = checkAndModifySizeOfKGPVIfRequired(pbBid,refThis.kgpvMap[responseID]);
+			refThis.kgpvMap[responseID].kgpv = refThis.checkAndModifySizeOfKGPVIfRequired(pbBid,refThis.kgpvMap[responseID]);
 		}
 
 		/*
@@ -274,12 +279,18 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		// if code does not consists in kgpv object then a entry is made with adapter first calling it.
 		code = currentSlot.getDivID();
 		sizes = currentSlot.getSizes();
-		if (refThis.kgpvMap [ code ] && refThis.kgpvMap[code].kgpvs.length > 0){
+		if (refThis.kgpvMap[code] && refThis.kgpvMap[code].kgpvs && refThis.kgpvMap[code].kgpvs.length > 0){
+			var adapterAlreadyExsists = false;
 			util.forEachOnArray(refThis.kgpvMap[code].kgpvs, function(idx,kgpv){
 				if(kgpv.adapterID == adapterID){
+					adapterAlreadyExsists = true;
 					return;
 				}
 			});
+			/*istanbul ignore else*/
+			if(adapterAlreadyExsists){
+				return;
+			}
 		}
 		else{
 			refThis.kgpvMap[code] = {
