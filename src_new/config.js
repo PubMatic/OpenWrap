@@ -171,6 +171,5 @@ exports.getAdServerCurrency = function(){
 };
 
 exports.getSingleImpressionSetting = function(){
-	var singleImpression = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION] || CONSTANTS.CONFIG.DEFAULT_SINGLE_IMPRESSION;
-	return singleImpression === "1";
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION] || CONSTANTS.CONFIG.DEFAULT_SINGLE_IMPRESSION);
 };
