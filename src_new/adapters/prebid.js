@@ -105,11 +105,13 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 	/* istanbul ignore else */
 	if(responseIdArray &&  responseIdArray.length == 2){
 		var responseIdSize = responseIdArray[1];
+		var responseIndex = null;
 		// Below check if ad unit index is present then ignore it
-		// Confirm it needs to be ignored or not
+		// TODO: Confirm it needs to be ignored or not
 		/* istanbul ignore else */
 		if(responseIdArray[1].indexOf(":")>0){
 			responseIdSize= responseIdArray[1].split(":")[0];
+			responseIndex = responseIdArray[1].split(":")[1];
 		}
 		/* istanbul ignore else */
 		if(bid.getSize() && bid.getSize() != responseIdSize && (bid.getSize().toUpperCase() != "0X0")){
@@ -121,6 +123,11 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 				responseIdArray[0] = bid.getSize().toLowerCase();
 			}
 			responseKGPV = responseIdArray[0] + "@" +  bid.getSize().toUpperCase();
+			// Below check is to make consistent behaviour with ad unit index
+			// it again appends index if it was originally present
+			if(responseIndex){
+				responseKGPV = responseKGPV + ":" + responseIndex;
+			}
 		}
 	
 	}

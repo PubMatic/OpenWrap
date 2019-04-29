@@ -764,13 +764,13 @@ describe('Config', function() {
             done();
         });
 
-        it('should return false if getSingleImpressionSetting is not present',function(done){
+        it('should return 0 if getSingleImpressionSetting is not present',function(done){
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION];
             expect(CONFIG.getSingleImpressionSetting()).to.equal(0);
             done();
         });
 
-        it('should return false if singleImpression set to "0"', function(done) {
+        it('should return 0 if singleImpression set to "0"', function(done) {
             var expectedResult = 0;
             CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION] = "0";
             CONFIG.getSingleImpressionSetting().should.be.deep.equal(expectedResult);
