@@ -270,13 +270,13 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			divID: divID
 		};
 	} else{
-		// This will be executed in case single impression feature is enabled.
-		// Below statements assign code as div and sizes as all sizes of ad slot
-		// it generates kgpvmap consisting of kgpvs as property 
-		// if in kgpv map code exists and kgpv exists then 
-			// if a adapter with a single kgpv exists in kgpvs then it ignores and returns from this function
-			// if a adapter does not exist for the code then a entry is being pushed in kgpvs with adapterid and kgpv for the bidder
-		// if code does not consists in kgpv object then a entry is made with adapter first calling it.
+		/* This will be executed in case single impression feature is enabled.
+		Below statements assign code as div and sizes as all sizes of ad slot
+		it generates kgpvmap consisting of kgpvs as property 
+		if in kgpv map code exists and kgpv exists then 
+			if a adapter with a single kgpv exists in kgpvs then it ignores and returns from this function
+			if a adapter does not exist for the code then a entry is being pushed in kgpvs with adapterid and kgpv for the bidder
+		 if code does not consists in kgpv object then a entry is made with adapter first calling it.*/
 		code = currentSlot.getDivID();
 		sizes = currentSlot.getSizes();
 		if (refThis.kgpvMap[code] && refThis.kgpvMap[code].kgpvs && refThis.kgpvMap[code].kgpvs.length > 0){
