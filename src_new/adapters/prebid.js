@@ -94,7 +94,7 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 	var responseKGPV= "";
 
 	// Logic to find out KGPV for partner for which the bid is recieved.
-	// TODO: Need to check for No Bid Case.
+	// Need to check for No Bid Case.
 	kgpv.kgpvs.length > 0 && kgpv.kgpvs.forEach(function(ele){
 		/* istanbul ignore else */
 		if(bid.bidderCode == ele.adapterID){
@@ -106,7 +106,7 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 	if(responseIdArray &&  responseIdArray.length == 2){
 		var responseIdSize = responseIdArray[1];
 		// Below check if ad unit index is present then ignore it
-		// TODO: need to confirm if it needs to be ignored or not
+		// Confirm it needs to be ignored or not
 		/* istanbul ignore else */
 		if(responseIdArray[1].indexOf(":")>0){
 			responseIdSize= responseIdArray[1].split(":")[0];
