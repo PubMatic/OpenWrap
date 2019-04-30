@@ -754,26 +754,26 @@ describe('Config', function() {
         })
         
         it('is a function', function(done) {
-            CONFIG.getSingleImpressionSetting.should.be.a('function');
+            CONFIG.isSingleImpressionSettingEnabled.should.be.a('function');
             done();
         });
 
         it('should return 1 by reading from config', function(done) {
             var expectedResult = 1;
-            CONFIG.getSingleImpressionSetting().should.be.deep.equal(expectedResult);
+            CONFIG.isSingleImpressionSettingEnabled().should.be.deep.equal(expectedResult);
             done();
         });
 
         it('should return 0 if getSingleImpressionSetting is not present',function(done){
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION];
-            expect(CONFIG.getSingleImpressionSetting()).to.equal(0);
+            expect(CONFIG.isSingleImpressionSettingEnabled()).to.equal(0);
             done();
         });
 
         it('should return 0 if singleImpression set to "0"', function(done) {
             var expectedResult = 0;
             CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION] = "0";
-            CONFIG.getSingleImpressionSetting().should.be.deep.equal(expectedResult);
+            CONFIG.isSingleImpressionSettingEnabled().should.be.deep.equal(expectedResult);
             done();
         });
     })

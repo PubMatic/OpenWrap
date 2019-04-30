@@ -156,7 +156,7 @@ describe('ADAPTER: Prebid', function() {
                 "kgpv": "kgpv_value",
                 "divID": "DIV_1"
             };
-            sinon.stub(CONFIG, "getSingleImpressionSetting").returns(0);
+            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(0);
             sinon.spy(PREBID, "checkAndModifySizeOfKGPVIfRequired");
             sinon.stub(UTIL, "isOwnProperty").returns(true);
             
@@ -165,7 +165,7 @@ describe('ADAPTER: Prebid', function() {
 
         afterEach(function(done){
             BM.setBidFromBidder.restore();
-            CONFIG.getSingleImpressionSetting.restore();
+            CONFIG.isSingleImpressionSettingEnabled.restore();
             PREBID.checkAndModifySizeOfKGPVIfRequired.restore();
             UTIL.isOwnProperty.restore();
             done();
@@ -231,8 +231,8 @@ describe('ADAPTER: Prebid', function() {
         });
 
         it('should call checkandmodifysizeofkgpv if single impression is turnedon', function(done){
-            CONFIG.getSingleImpressionSetting.restore();
-            sinon.stub(CONFIG, "getSingleImpressionSetting").returns(1);
+            CONFIG.isSingleImpressionSettingEnabled.restore();
+            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
             PREBID.kgpvMap["DIV_1"] = {
                 kgpvs:[{
                     adapterID:"pubmatic",
@@ -473,7 +473,7 @@ describe('ADAPTER: Prebid', function() {
 
             sinon.stub(CONFIG, "getProfileID").returns("profId");
             sinon.stub(CONFIG, "getProfileDisplayVersionID").returns("verId");
-            sinon.stub(CONFIG, "getSingleImpressionSetting").returns(0);
+            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(0);
 
             kgpConsistsWidthAndHeight = true;
             window.PWT = {
@@ -497,7 +497,7 @@ describe('ADAPTER: Prebid', function() {
 
             CONFIG.getProfileID.restore();
             CONFIG.getProfileDisplayVersionID.restore();
-            CONFIG.getSingleImpressionSetting.restore();
+            CONFIG.isSingleImpressionSettingEnabled.restore();
 
             currentSlot = null;
             kgpConsistsWidthAndHeight = null;
@@ -621,8 +621,8 @@ describe('ADAPTER: Prebid', function() {
 
         // Single Impression Multi Size Feature is On STARTS
         it('should have created bid object for div if multiSizeSingleImpression is on', function(done) {
-            CONFIG.getSingleImpressionSetting.restore();
-            sinon.stub(CONFIG, "getSingleImpressionSetting").returns(1);
+            CONFIG.isSingleImpressionSettingEnabled.restore();
+            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
             adapterID = "pubmatic";
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             expect(adUnits["DIV_1"]).to.exist;
@@ -631,8 +631,8 @@ describe('ADAPTER: Prebid', function() {
         });
 
         it('should not have pushed in adunit if adapter is already present', function(done) {
-            CONFIG.getSingleImpressionSetting.restore();
-            sinon.stub(CONFIG, "getSingleImpressionSetting").returns(1);
+            CONFIG.isSingleImpressionSettingEnabled.restore();
+            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
             adapterID = "pubmatic";
             adUnits["DIV_1"] = {
                 bids: [{ bidder: adapterID, params: "someparams" }],
@@ -644,8 +644,8 @@ describe('ADAPTER: Prebid', function() {
         });
 
         it('should have pushed in adunit if adapter is not present', function(done) {
-            CONFIG.getSingleImpressionSetting.restore();
-            sinon.stub(CONFIG, "getSingleImpressionSetting").returns(1);
+            CONFIG.isSingleImpressionSettingEnabled.restore();
+            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
             adapterID = "appnexus";
             adUnits["DIV_1"] = {
                 bids: [{ bidder: "pubmatic", params: "someparams" }],
@@ -659,8 +659,8 @@ describe('ADAPTER: Prebid', function() {
 
 
         it('should generate kgpvmap consisting of kgpvs array',function(done){
-            CONFIG.getSingleImpressionSetting.restore();
-            sinon.stub(CONFIG, "getSingleImpressionSetting").returns(1);
+            CONFIG.isSingleImpressionSettingEnabled.restore();
+            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
             adapterID = "pubmatic";
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             expect(PREBID.kgpvMap["DIV_1"]).to.exist;
@@ -671,8 +671,8 @@ describe('ADAPTER: Prebid', function() {
         });
 
         it('should push into kgpvs in kgpvmap only in case of unique',function(done){
-            CONFIG.getSingleImpressionSetting.restore();
-            sinon.stub(CONFIG, "getSingleImpressionSetting").returns(1);
+            CONFIG.isSingleImpressionSettingEnabled.restore();
+            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
             adapterID = "appnexus";
             PREBID.kgpvMap["DIV_1"] = {
                 kgpvs:[{
@@ -689,8 +689,8 @@ describe('ADAPTER: Prebid', function() {
         });
 
         it('should not push into kgpvs in kgpvmap if adapter already exists',function(done){
-            CONFIG.getSingleImpressionSetting.restore();
-            sinon.stub(CONFIG, "getSingleImpressionSetting").returns(1);
+            CONFIG.isSingleImpressionSettingEnabled.restore();
+            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
             adapterID = "pubmatic";
             PREBID.kgpvMap["DIV_1"] = {
                 kgpvs:[{
