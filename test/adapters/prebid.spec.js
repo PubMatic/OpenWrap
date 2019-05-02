@@ -1048,7 +1048,7 @@ describe('ADAPTER: Prebid', function() {
                 "pbCg": "",
                 "adserverTargeting": {},
                 getSize:function(){
-                    return this.width + "X" + this.height;
+                    return this.width + "x" + this.height;
                 }
             };
             kgpv={
@@ -1079,22 +1079,22 @@ describe('ADAPTER: Prebid', function() {
         //Test cases for different scenario
         it('should return modified kgpv as per winningKgpv',function(done){
             bid["adUnitCode"] = "Div1";
-            var expectedResponseKgpv = "728x90@728X90:0";
+            var expectedResponseKgpv = "728x90@728x90:0";
             expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
             done();
         });
 
         it('should return modified kgpv as per winningKgpv if kgp is div@size',function(done){
             bid["adUnitCode"] = "Div1";
-            kgpv.kgpvs[0].kgpv = "Div1@300X250:0";
-            var expectedResponseKgpv = "Div1@728X90:0";
+            kgpv.kgpvs[0].kgpv = "Div1@300x250:0";
+            var expectedResponseKgpv = "Div1@728x90:0";
             expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
             done();
         });
 
         it('should return same kgpv if winning bid size is same of response size',function(done){
-            var expectedResponseKgpv = "728x90@728X90:0";
-            kgpv.kgpvs[0].kgpv = "728x90@728X90:0";
+            var expectedResponseKgpv = "728x90@728x90:0";
+            kgpv.kgpvs[0].kgpv = "728x90@728x90:0";
             expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
             done();
         });
@@ -1102,8 +1102,8 @@ describe('ADAPTER: Prebid', function() {
         it('should not modify kgpv in case of 0X0 bid if kgp if Div@Size',function(done){
             bid["width"] = 0;
             bid["height"] = 0;
-            kgpv.kgpvs[0].kgpv = "Div1@728X90:0";
-            var expectedResponseKgpv = "Div1@728X90:0";
+            kgpv.kgpvs[0].kgpv = "Div1@728x90:0";
+            var expectedResponseKgpv = "Div1@728x90:0";
             expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
             done();
         });
@@ -1111,8 +1111,8 @@ describe('ADAPTER: Prebid', function() {
         it('should not modify kgpv in case of 0X0 bid if kgp if Div@Size without index',function(done){
             bid["width"] = 0;
             bid["height"] = 0;
-            kgpv.kgpvs[0].kgpv = "Div1@728X90";
-            var expectedResponseKgpv = "Div1@728X90";
+            kgpv.kgpvs[0].kgpv = "Div1@728x90";
+            var expectedResponseKgpv = "Div1@728x90";
             expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
             done();
         });
@@ -1120,8 +1120,8 @@ describe('ADAPTER: Prebid', function() {
         it('should not modify kgpv in case of 0X0 bid if kgp if AU@Size',function(done){
             bid["width"] = 0;
             bid["height"] = 0;
-            kgpv.kgpvs[0].kgpv = "/43743431/DMDemo@300X250";
-            var expectedResponseKgpv = "/43743431/DMDemo@300X250";
+            kgpv.kgpvs[0].kgpv = "/43743431/DMDemo@300x250";
+            var expectedResponseKgpv = "/43743431/DMDemo@300x250";
             expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
             done();
         });

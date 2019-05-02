@@ -122,7 +122,7 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 			if(responseIdArray[0].toUpperCase() == responseIdSize.toUpperCase()){
 				responseIdArray[0] = bid.getSize().toLowerCase();
 			}
-			responseKGPV = responseIdArray[0] + "@" +  bid.getSize().toUpperCase();
+			responseKGPV = responseIdArray[0] + "@" +  bid.getSize();
 			// Below check is to make consistent behaviour with ad unit index
 			// it again appends index if it was originally present
 			if(responseIndex){
