@@ -1127,4 +1127,48 @@ describe('ADAPTER: Prebid', function() {
         });
     });
 
+    describe('isAdUnitsCodeContainBidder',function(){
+        var adUnits = {};
+        var adapterID = "";
+        var code = "";
+
+        beforeEach(function(done){
+            adapterID = "pubmatic";
+            code = "DIV1";
+            adUnits["DIV1"] = {
+                "code":"DIV1",
+                "bids":[{
+                    "bidder":"pubmatic",
+                }]
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            adUnits = {};
+            adapterID = "";
+            code = "";
+            done();
+        });
+
+        it('should be a functiion',function(done){
+            PREBID.isAdUnitsCodeContainBidder.should.be.a('function');
+            done();
+        });
+
+        it('should return true if adUnit[code] bidder list contain bidder',function(done){
+            var expectedResponseKgpv = true;
+            expect(PREBID.isAdUnitsCodeContainBidder(adUnits, code, adapterID)).to.be.equal(expectedResponseKgpv);
+            done();
+        });
+
+        it('should return false if adUnit[code] bidder list does contain bidder',function(done){
+            var expectedResponseKgpv = false;
+            adapterID = "appnexus";
+            expect(PREBID.isAdUnitsCodeContainBidder(adUnits, code, adapterID)).to.be.equal(expectedResponseKgpv);
+            done();
+        });
+
+    })
+
 });

@@ -18,7 +18,6 @@ exports.pwt = {
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
 
-
 exports.adapters = {
 	pubmatic: {
 		rev_share: "0.0",

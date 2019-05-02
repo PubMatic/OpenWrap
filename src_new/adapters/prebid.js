@@ -242,6 +242,22 @@ function getPBCodeWithoutWidthAndHeight(divID, adapterID){
 }
 
 /* start-test-block */
+exports.isAdUnitsCodeContainBidder = isAdUnitsCodeContainBidder;
+/* end-test-block */
+
+function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
+	var bidderPresent = false;
+	if(util.isOwnProperty(adUnits, code)){
+		adUnits[code].bids.forEach(function(bid) {
+			if(bid.bidder == adapterID){
+				bidderPresent = true;	
+			}
+		});
+	}
+	return bidderPresent;
+}
+
+/* start-test-block */
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
 
@@ -271,17 +287,17 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		 if code does not consists in kgpv object then a entry is made with adapter first calling it.*/
 		code = currentSlot.getDivID();
 		sizes = currentSlot.getSizes();
+		var adapterAlreadyExsistsInKGPVS = false;
 		if (refThis.kgpvMap[code] && refThis.kgpvMap[code].kgpvs && refThis.kgpvMap[code].kgpvs.length > 0){
-			var adapterAlreadyExsists = false;
 			util.forEachOnArray(refThis.kgpvMap[code].kgpvs, function(idx,kgpv){
 				// We want to have one adapter entry for one bidder and one code/adSlot
 				/*istanbul ignore else*/
 				if(kgpv.adapterID == adapterID){
-					adapterAlreadyExsists = true;
+					adapterAlreadyExsistsInKGPVS = true;
 				}
 			});
 			/*istanbul ignore else*/
-			if(adapterAlreadyExsists){
+			if(adapterAlreadyExsistsInKGPVS && isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
 				return;
 			}
 		}
@@ -291,11 +307,13 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				divID: divID
 			};
 		}
-		var kgpv = {
-			adapterID: adapterID,
-			kgpv:generatedKey
-		};
-		refThis.kgpvMap[code].kgpvs.push(kgpv);
+		if(!adapterAlreadyExsistsInKGPVS){
+			var kgpv = {
+				adapterID: adapterID,
+				kgpv:generatedKey
+			};
+			refThis.kgpvMap[code].kgpvs.push(kgpv);
+		}
 	}
 	
 	//serverSideEabled: do not add config into adUnits
@@ -313,14 +331,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			divID : divID
 		};
 	}else if(CONFIG.isSingleImpressionSettingEnabled()){
-		var flag = false;
-		// There will be always a unique bidder in adUnits[code]
-		adUnits[code].bids.forEach(function(bid) {
-			if(bid.bidder == adapterID){
-				flag= true;				
-			}
-		});
-		if(flag){
+		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
 			return;
 		}
 	}
