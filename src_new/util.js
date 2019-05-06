@@ -1037,6 +1037,6 @@ exports.handleHook = function(hookName, arrayOfDataToPass) {
 		// refThis.log(arrayOfDataToPass);
 		window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
 	} else {
-		refThis.log('Hook-name: '+hookName+', window.pwt.'+hookName+' is not a function.' );
+		refThis.log('Hook-name: '+hookName+', window.PWT.'+hookName+' is not a function.' );
 	}
 };
