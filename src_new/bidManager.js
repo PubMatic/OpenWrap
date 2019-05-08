@@ -456,7 +456,10 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 	                return;
 	              }
 	            }
-                //todo: take all these key names from constants
+				//todo: take all these key names from constants
+				if(theBid.getDefaultBidStatus() ||  (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0)){
+					return;
+				}
                 slotObject["ps"].push({
                     "pn": adapterID,
                     "bidid": bidID,
