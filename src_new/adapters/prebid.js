@@ -176,16 +176,18 @@ function pbBidStreamHandler(pbBid){
 		/* istanbul ignore else */
 		if(pbBid.bidderCode && CONFIG.isServerSideAdapter(pbBid.bidderCode)){
 			var divID = refThis.kgpvMap[responseID].divID;
-			var temp1 = refThis.getPBCodeWithWidthAndHeight(divID, pbBid.bidderCode, pbBid.width, pbBid.height);
-			var temp2 = refThis.getPBCodeWithoutWidthAndHeight(divID, pbBid.bidderCode);
+			if(!CONFIG.isSingleImpressionSettingEnabled()){
+				var temp1 = refThis.getPBCodeWithWidthAndHeight(divID, pbBid.bidderCode, pbBid.width, pbBid.height);
+				var temp2 = refThis.getPBCodeWithoutWidthAndHeight(divID, pbBid.bidderCode);
 
-			if(util.isOwnProperty(refThis.kgpvMap, temp1)){
-				responseID = temp1;
-			}else if(util.isOwnProperty(refThis.kgpvMap, temp2)){
-				responseID = temp2;
-			}else{
-				util.log('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
-				return;
+				if(util.isOwnProperty(refThis.kgpvMap, temp1)){
+					responseID = temp1;
+				}else if(util.isOwnProperty(refThis.kgpvMap, temp2)){
+					responseID = temp2;
+				}else{
+					util.log('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
+					return;
+				}
 			}
 			pbBid.ss = CONFIG.isServerSideAdapter(pbBid.bidderCode) ? 1 : 0;
 		}
