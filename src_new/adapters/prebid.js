@@ -146,6 +146,13 @@ function pbBidStreamHandler(pbBid){
 	//todo: unit-test cases pending
 	/* istanbul ignore else */
 	if(util.isOwnProperty(refThis.kgpvMap, responseID)){
+
+		/**Special Hack for pubmaticServer for tracker/logger kgpv */
+		/* istanbul ignore else */
+		if(pbBid.bidderCode === 'pubmaticServer'){
+			pbBid.bidderCode = pbBid.originalBidder;
+		}
+
 		// If Single impression is turned on then check and modify kgpv as per bid response size
 		/* istanbul ignore else */
 		if(CONFIG.isSingleImpressionSettingEnabled()){
@@ -167,11 +174,6 @@ function pbBidStreamHandler(pbBid){
 				no need of divid and kgpv to be returned in bid from prebid
 					no need to add custom keys in Prebid bid object, they might standerdize it in future
 		*/
-
-		/* istanbul ignore else */
-		if(pbBid.bidderCode === 'pubmaticServer'){
-			pbBid.bidderCode = pbBid.originalBidder;
-		}
 
 		/* istanbul ignore else */
 		if(pbBid.bidderCode && CONFIG.isServerSideAdapter(pbBid.bidderCode)){
@@ -410,12 +412,12 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			});
 			break;
-		case "ix":
+	case "ix":
 		case "indexExchange":
-			/** Added case ix cause indexExchange bidder has changed its bidder code in server side 
-			 * this will have impact in codegen to change its adapter code from indexexchange to ix 
-			 * so added a case for the same.
-			*/
+		/** Added case ix cause indexExchange bidder has changed its bidder code in server side 
+		 * this will have impact in codegen to change its adapter code from indexexchange to ix 
+		 * so added a case for the same.
+		*/
 		
 			util.forEachOnArray(sizes, function(index, size) {
 				var slotParams = {};
