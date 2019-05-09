@@ -148,3 +148,10 @@ exports.PLATFORM_VALUES = {
 	"DISPLAY": "display",
 	"NATIVE": "native"
 };
+
+exports.FORMAT_VALUES = {
+	"BANNER": "banner",
+	"VIDEO": "video",
+	"NATIVE": "native",
+	"OTHER": "other"
+};
