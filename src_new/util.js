@@ -208,7 +208,7 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 		if( sizeArrayLength > 0){
 			for(i = 0; i < sizeArrayLength; i++){
 				/* istanbul ignore else */
-				if(sizeArray[i][0] && sizeArray[i][1]){
+				if(sizeArray[i].length == 2 && sizeArray[i][0] && sizeArray[i][1]){
 
 					slotName = pattern;
 					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, activeSlot.getAdUnitID())
@@ -1007,34 +1007,33 @@ exports.getBidFromEvent = function (theEvent) {
 	return (theEvent && theEvent.target && theEvent.target.attributes &&  theEvent.target.attributes[CONSTANTS.COMMON.BID_ID] && theEvent.target.attributes[CONSTANTS.COMMON.BID_ID].value) || "";
 };
 
+exports.getAdFormatFromBidAd = function(ad){
+	var format = undefined;
+	if(ad && refThis.isString(ad)){
+		//TODO: Uncomment below code once video has been implemented 
+		// var videoRegex = new RegExp(/VAST\s+version/); 
+		// if(videoRegex.test(ad)){
+		// 	format = CONSTANTS.FORMAT_VALUES.VIDEO;
+		// }
+		// else{
+		try{
+			var adStr = JSON.parse(ad.replace(/\\/g, ""));
+			if (adStr && adStr.native) {
+				format = CONSTANTS.FORMAT_VALUES.NATIVE;
+			}
+		}
+		catch(ex){
+			format = CONSTANTS.FORMAT_VALUES.BANNER;
+		}
+		// }
+	}
+	return format;
+};
+
 // This common function can be used add hooks for publishers to make changes in flows
 exports.handleHook = function(hookName, arrayOfDataToPass) {
 	// Adding a hook for publishers to modify the data we have
 	if(refThis.isFunction(window.PWT[hookName])){
-		// Keep a backup of data we have made to use in case of exeception
-		// var backupData = [];
-		// refThis.forEachOnArray(arrayOfDataToPass, function(index, data){
-		// 	var backup = data;
-		// 	if(refThis.isObject(data)){
-		// 		backup = {};
-		// 		refThis.copyKeyValueObject(backup, data);				
-		// 	}
-		// 	backupData.push(backup);
-		// });
-
-		// refThis.log('Hook-name: '+hookName+', original data:');
-		// refThis.log(backupData);
-
-		// try{
-		// 	window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
-		// }catch(e){
-		// 	refThis.log('Something went wrong with '+hookName+', moving ahead with original config.');
-		// 	refThis.log(e);
-		// 	arrayOfDataToPass = backupData;
-		// }
-
-		// refThis.log('Hook-name: '+hookName+', modified data:');
-		// refThis.log(arrayOfDataToPass);
 		window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
 	} else {
 		refThis.log('Hook-name: '+hookName+', window.PWT.'+hookName+' is not a function.' );

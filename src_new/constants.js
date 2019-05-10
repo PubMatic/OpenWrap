@@ -22,7 +22,8 @@ exports.COMMON = {
 	"NATIVE_ONLY": "nativeOnly",
 	"OW_CLICK_NATIVE": "openwrap-native-click",
 	"BID_ID":"owbidid",
-	"AD_SERVER_CURRENCY": "adServerCurrency"
+	"AD_SERVER_CURRENCY": "adServerCurrency",
+	"SINGLE_IMPRESSION":"singleImpression"
 };
 
 exports.CONFIG = {
@@ -54,6 +55,7 @@ exports.CONFIG = {
 	"DEFAULT_GDPR_CMPAPI": "iab",
 	"DEFAULT_GDPR_TIMEOUT": 10000,
 	"DEFAULT_GDPR_AWC": "0",
+	"DEFAULT_SINGLE_IMPRESSION": "0",
 	"DEFAULT_GDPR_CONSENT": "0",
 	"DISABLE_AJAX_TIMEOUT":"disableAjaxTimeout"
 };
@@ -145,6 +147,13 @@ exports.MESSAGES = {
 exports.PLATFORM_VALUES = {
 	"DISPLAY": "display",
 	"NATIVE": "native"
+};
+
+exports.FORMAT_VALUES = {
+	"BANNER": "banner",
+	"VIDEO": "video",
+	"NATIVE": "native",
+	"OTHER": "other"
 };
 
 exports.HOOKS = {

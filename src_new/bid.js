@@ -29,6 +29,7 @@ function Bid(adapterID, kgpv){
 	this.analyticsGrossCpm = 0;
 	this.analyticsNetCpm = 0;
 	this.native = undefined;
+	this.adFormat = undefined;
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -118,6 +119,7 @@ Bid.prototype.getDefaultBidStatus = function(){
 
 Bid.prototype.setAdHtml = function(adHtml){
 	this.adHtml = adHtml;
+	this.setAdFormat(adHtml);
 	return this;
 };
 
@@ -296,6 +298,15 @@ Bid.prototype.getNative = function(){
 
 Bid.prototype.setNative = function(native){
 	this.native = native;
+	return this;
+};
+
+Bid.prototype.getAdFormat = function(){
+	return this.adFormat;
+};
+
+Bid.prototype.setAdFormat = function(ad){
+	this.adFormat = UTIL.getAdFormatFromBidAd(ad);
 	return this;
 };
 
