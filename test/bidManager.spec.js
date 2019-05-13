@@ -1502,10 +1502,9 @@ describe('bidManager BIDMgr', function() {
             bmEntryObj.setAdapterEntry(commonAdpterID);
             bmEntryObj.setNewBid(commonAdpterID, theBid);
             CONFIG.getBidPassThroughStatus.returns(2);
-
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
 
-            theBid.getDefaultBidStatus.calledOnce.should.be.true;
+            theBid.getDefaultBidStatus.called.should.be.true;
             theBid.getKGPV.calledOnce.should.be.true;
             theBid.getWidth.calledOnce.should.be.true;
             theBid.getHeight.calledOnce.should.be.true;
@@ -1513,7 +1512,7 @@ describe('bidManager BIDMgr', function() {
             theBid.getNetEcpm.calledOnce.should.be.true;
             theBid.getDealID.calledOnce.should.be.true;
             theBid.getDealChannel.calledOnce.should.be.true;
-            theBid.getPostTimeoutStatus.calledOnce.should.be.true;
+            theBid.getPostTimeoutStatus.called.should.be.true;
             theBid.getWinningBidStatus.calledOnce.should.be.true;
 
             done();

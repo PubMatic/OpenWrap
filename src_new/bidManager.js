@@ -455,11 +455,20 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 	                theBid.getServerSideResponseTime() === -1) {
 	                return;
 	              }
-	            }
-				//todo: take all these key names from constants
-				if(theBid.getDefaultBidStatus() ||  (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0)){
+				}
+				// Logic : if adapter is pubmatic and bid falls under two condition : 
+				/** 
+				 *  timeout zero bids 
+				 *  no response from translator
+				 * Then we don't log it for pubmatic
+				 * Reason : Logging timeout zero bids causing reports to show more zero in comparision to other bidders
+				 * Originally we started logging this for latency purposes.
+				 * Future Scope : Remove below check to log with appt. value(s)
+				*/
+				if(adapterID === "pubmatic" && (theBid.getDefaultBidStatus() ||  (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0))){
 					return;
 				}
+				//todo: take all these key names from constants
                 slotObject["ps"].push({
                     "pn": adapterID,
                     "bidid": bidID,
