@@ -76,7 +76,8 @@ exports.MACROS = {
 	"AD_UNIT_ID": "_AU_",
 	"AD_UNIT_INDEX": "_AUI_",
 	"INTEGER": "_I_",
-	"DIV": "_DIV_"
+	"DIV": "_DIV_",
+	"CODE": "_CODE_"
 };
 
 exports.SLOT_STATUS = {
