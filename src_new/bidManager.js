@@ -84,8 +84,11 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : done
 
 	// Adding a hook for publishers to modify the bid we have to store
+	// we should not call the hook for defaultbids and post-timeout bids
 	// Here slotID, adapterID, and latency are read-only and theBid can be modified
-	util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [slotID, adapterID, theBid, latency]);
+	if(theBid.getDefaultBidStatus() === 0 && theBid.getPostTimeoutStatus() === false){
+		util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [slotID, adapterID, theBid, latency]);
+	}
 	
 	window.PWT.bidMap[slotID].setNewBid(adapterID, theBid);
 	window.PWT.bidIdMap[theBid.getBidID()] = {
