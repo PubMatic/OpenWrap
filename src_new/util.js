@@ -191,6 +191,7 @@ var constCommonMacroForAdUnitIDRegExp = new RegExp(CONSTANTS.MACROS.AD_UNIT_ID, 
 var constCommonMacroForAdUnitIndexRegExp = new RegExp(CONSTANTS.MACROS.AD_UNIT_INDEX, macroRegexFlag);
 var constCommonMacroForIntegerRegExp = new RegExp(CONSTANTS.MACROS.INTEGER, macroRegexFlag);
 var constCommonMacroForDivRegExp = new RegExp(CONSTANTS.MACROS.DIV, macroRegexFlag);
+var constCommonMacroForCodeRegExp = new RegExp(CONSTANTS.MACROS.CODE, macroRegexFlag);
 
 exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 	var slotNames = [],
@@ -216,7 +217,8 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
                     .replace(constCommonMacroForHeightRegExp, sizeArray[i][1])
                     .replace(constCommonMacroForAdUnitIndexRegExp, activeSlot.getAdUnitIndex())
                     .replace(constCommonMacroForIntegerRegExp, refThis.getIncrementalInteger())
-                    .replace(constCommonMacroForDivRegExp, activeSlot.getDivID());
+										.replace(constCommonMacroForDivRegExp, activeSlot.getDivID())
+										.replace(constCommonMacroForCodeRegExp, activeSlot.getCode());
 
                     /* istanbul ignore else */
 					if(! refThis.isOwnProperty(slotNamesObj, slotName)){

@@ -11,7 +11,8 @@ function Slot(name){
 	this.arguments = [];
 	this.pubAdServerObject = null;
 	this.displayFunctionCalled = false;
-	this.refreshFunctionCalled = false;	
+	this.refreshFunctionCalled = false;
+	this.code = "";
 }
 
 Slot.prototype.getName = function(){
@@ -122,6 +123,14 @@ Slot.prototype.isRefreshFunctionCalled = function(){
 	return this.refreshFunctionCalled;
 };
 
+Slot.prototype.getCode = function(){
+	return this.code;
+};
+
+Slot.prototype.setCode = function(code){
+	this.code = code;
+	return this;
+};
 
 Slot.prototype.updateStatusAfterRendering = function(isRefreshCalled){
 	this.status = CONSTANTS.SLOT_STATUS.DISPLAYED;

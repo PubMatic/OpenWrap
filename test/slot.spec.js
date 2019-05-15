@@ -404,4 +404,27 @@ describe('Slot slotObject', function() {
             done();
         });
     });
+
+    describe('#getCode, setCode', function(){
+        it('getCode is a function', function(dome){
+            slotObject.getCode.should.be.a('function');
+            done();
+        });
+
+        it('setCode is a function', function(dome){
+            slotObject.setCode.should.be.a('function');
+            done();
+        });
+
+        it('default value will be empty string', function(done){
+            slotObject.getCode().should.equal('');
+            done();
+        });
+
+        it('get set', function(done){
+            slotObject.setCode('abcd123');
+            slotObject.getCode().should.equal('abcd123');
+            done();
+        });
+    });
 });
