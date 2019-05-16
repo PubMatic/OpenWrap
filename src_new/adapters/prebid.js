@@ -14,7 +14,7 @@ var CONF = require("../conf.js");
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
-var pbNameSpace = "owpbjs";
+var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
 
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
@@ -196,6 +196,12 @@ function pbBidStreamHandler(pbBid){
 
 		/* istanbul ignore else */
 		if(pbBid.bidderCode){
+			// Adding a hook for publishers to modify the bid we have to store
+			// we should NOT call the hook for defaultbids and post-timeout bids
+			//			default bids handled here
+			//			todo: post-timeout bids are not handled here
+			// Here slotID, adapterID, and latency are read-only and theBid can be modified
+			util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [refThis.kgpvMap[responseID].divID, pbBid]);
 			bidManager.setBidFromBidder(
 				refThis.kgpvMap[responseID].divID,
 				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv)
