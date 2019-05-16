@@ -1666,6 +1666,50 @@ describe('bidManager BIDMgr', function() {
 
             done();
         });
+
+        it('should not log any entry in logger for pubmatic if it is a default bid', function(done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry(commonAdpterID);
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+            theBid.getDefaultBidStatus.restore();
+            sinon.stub(theBid,"getDefaultBidStatus").returns(1);
+
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(0);
+            done();
+        });
+
+        it('should not log any entry in logger for pubmatic if it is a timed out zero bid', function(done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry(commonAdpterID);
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+            theBid.getPostTimeoutStatus.restore();
+            sinon.stub(theBid,"getPostTimeoutStatus").returns(1);
+            theBid.setGrossEcpm(0);
+
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(0);
+            done();
+        });
+
+        it('should log any entry in logger for other than pubmatic if it is a timed out zero bid', function(done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry("appnexus");
+            bmEntryObj.setNewBid("appnexus", theBid);
+            theBid.getPostTimeoutStatus.restore();
+            sinon.stub(theBid,"getPostTimeoutStatus").returns(1);
+            theBid.setGrossEcpm(0);
+
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(1);
+            done();
+        });
     });
 
     describe('#setImageSrcToPixelURL', function() {
