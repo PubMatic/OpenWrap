@@ -49,7 +49,7 @@ function transformPBBidToOWBid(bid, kgpv){
 	if(CONFIG.getAdServerCurrency() && bid.originalCpm && bid.originalCurrency){
 		theBid.setOriginalCpm(window.parseFloat(bid.originalCpm));
 		theBid.setOriginalCurrency(bid.originalCurrency);
-		theBid.setAnalyticsCpm(window.parseFloat(bid.getCpmInNewCurrency(util.getCurrencyToDisplay())));
+		theBid.setAnalyticsCpm(window.parseFloat(bid.getCpmInNewCurrency(CONSTANTS.COMMON.ANALYTICS_CURRENCY)));
 	}
 	/*
 		errorCodes meaning:
