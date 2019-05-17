@@ -86,9 +86,9 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 	// Adding a hook for publishers to modify the bid we have to store
 	// we should not call the hook for defaultbids and post-timeout bids
 	// Here slotID, adapterID, and latency are read-only and theBid can be modified
-	if(theBid.getDefaultBidStatus() === 0 && theBid.getPostTimeoutStatus() === false){
-		util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [slotID, adapterID, theBid, latency]);
-	}
+	// if(theBid.getDefaultBidStatus() === 0 && theBid.getPostTimeoutStatus() === false){
+	// 	util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [slotID, adapterID, theBid, latency]);
+	// }
 	
 	window.PWT.bidMap[slotID].setNewBid(adapterID, theBid);
 	window.PWT.bidIdMap[theBid.getBidID()] = {
@@ -104,7 +104,7 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 			bidDetails: theBid,
 			latency: latency,
 			s2s: CONFIG.isServerSideAdapter(adapterID),
-			adServerCurrency: CONFIG.getAdServerCurrency()
+			adServerCurrency: refThis.getCurrencyToDisplay()
 		});
 	}
 }
@@ -258,6 +258,19 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
 exports.auctionBidsCallBack = auctionBidsCallBack;
 /* end-test-block */
 
+exports.getCurrencyToDisplay = function(){
+	var defaultCurrency = 'USD'; //todo: can we take this from soome constant? 
+	if(CONFIG.getAdServerCurrency()){
+		if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && util.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig)){
+			var pbConf = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig();
+			if(pbConf && pbConf.currency && pbConf.currency.adServerCurrency){
+				return pbConf.currency.adServerCurrency;
+			}
+		}
+	}
+	return defaultCurrency;
+}
+
 exports.getBid = function(divID){ // TDD, i/o : done
 
 	var winningBid = null;
@@ -276,7 +289,7 @@ exports.getBid = function(divID){ // TDD, i/o : done
 			util.vLogInfo(divID, {
 				type: "win-bid",
 				bidDetails: winningBid,
-				adServerCurrency: CONFIG.getAdServerCurrency()
+				adServerCurrency: refThis.getCurrencyToDisplay()
 			});
 		}else{
 			util.vLogInfo(divID, {
