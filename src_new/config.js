@@ -169,3 +169,7 @@ exports.getNativeConfiguration = function(){
 exports.getAdServerCurrency = function(){
 	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.AD_SERVER_CURRENCY];
 };
+
+exports.isSingleImpressionSettingEnabled = function(){
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION] || CONSTANTS.CONFIG.DEFAULT_SINGLE_IMPRESSION);
+};

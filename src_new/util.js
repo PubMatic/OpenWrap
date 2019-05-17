@@ -208,7 +208,7 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 		if( sizeArrayLength > 0){
 			for(i = 0; i < sizeArrayLength; i++){
 				/* istanbul ignore else */
-				if(sizeArray[i][0] && sizeArray[i][1]){
+				if(sizeArray[i].length == 2 && sizeArray[i][0] && sizeArray[i][1]){
 
 					slotName = pattern;
 					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, activeSlot.getAdUnitID())
@@ -1003,4 +1003,27 @@ exports.findElementsByClass = function(theWindow, theClass){
 
 exports.getBidFromEvent = function (theEvent) {
 	return (theEvent && theEvent.target && theEvent.target.attributes &&  theEvent.target.attributes[CONSTANTS.COMMON.BID_ID] && theEvent.target.attributes[CONSTANTS.COMMON.BID_ID].value) || "";
+};
+
+exports.getAdFormatFromBidAd = function(ad){
+	var format = undefined;
+	if(ad && refThis.isString(ad)){
+		//TODO: Uncomment below code once video has been implemented 
+		// var videoRegex = new RegExp(/VAST\s+version/); 
+		// if(videoRegex.test(ad)){
+		// 	format = CONSTANTS.FORMAT_VALUES.VIDEO;
+		// }
+		// else{
+		try{
+			var adStr = JSON.parse(ad.replace(/\\/g, ""));
+			if (adStr && adStr.native) {
+				format = CONSTANTS.FORMAT_VALUES.NATIVE;
+			}
+		}
+		catch(ex){
+			format = CONSTANTS.FORMAT_VALUES.BANNER;
+		}
+		// }
+	}
+	return format;
 };

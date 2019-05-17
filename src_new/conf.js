@@ -12,8 +12,11 @@ exports.pwt = {
 	gdprTimeout: "10000",
 	awc: "1",
 	disableAjaxTimeout:true,
-	adServerCurrency: "INR"
+	adServerCurrency: "INR",
+	singleImpression: "1"
 };
+
+// singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
 
 exports.adapters = {
 	pubmatic: {
@@ -78,7 +81,7 @@ exports.adapters = {
 };
 
 exports.nativeConfig = {
-	kgp:"_DIV_",
+	kgp:"_DIV_", 
 	klm:{
 		"DIV1":{
 			"nativeOnly": true,
