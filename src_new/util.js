@@ -1,7 +1,7 @@
 //todo
 //  pageURL refURL protocol related functions
 // forEachOnArray
-
+var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var BID = require("./bid.js");
 var bidManager = require("./bidManager.js");
@@ -1043,7 +1043,7 @@ exports.handleHook = function(hookName, arrayOfDataToPass) {
 exports.getCurrencyToDisplay = function(){
 	var defaultCurrency = 'USD'; //todo: can we take this from soome constant? 
 	if(CONFIG.getAdServerCurrency()){
-		if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && util.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig)){
+		if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig)){
 			var pbConf = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig();
 			if(pbConf && pbConf.currency && pbConf.currency.adServerCurrency){
 				return pbConf.currency.adServerCurrency;
