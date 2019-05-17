@@ -2493,5 +2493,39 @@ describe('UTIL', function() {
         });
 
     });
+
+    describe('#getCurrencyToDisplay', function() {
+        it('#is a function', function(done){
+            done();
+        });
+
+        it('Default test case, without currency module, it should return USD', function(done){
+            done();
+        });
+
+        it('Negative test case, owpbjs not present, it should return USD', function(done){
+            done();
+        });
+
+        it('Negative test case, owpbjs.getConfig not present, it should return USD', function(done){
+            done();
+        });
+
+        it('Negative test case, pbConf is null, it should return USD', function(done){
+            done();
+        });
+
+        it('Negative test case, pbConf.currency is not present, it should return USD', function(done){
+            done();
+        });
+
+        it('Negative test case, pbConf.currency.adServerCurrency is not present, it should return USD', function(done){
+            done();
+        });
+
+        it('Positive test case, it should return currency set in prebid config', function(done){
+            done();
+        });
+    });
     
 });

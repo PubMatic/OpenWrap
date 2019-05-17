@@ -104,7 +104,7 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 			bidDetails: theBid,
 			latency: latency,
 			s2s: CONFIG.isServerSideAdapter(adapterID),
-			adServerCurrency: refThis.getCurrencyToDisplay()
+			adServerCurrency: util.getCurrencyToDisplay()
 		});
 	}
 }
@@ -258,19 +258,6 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
 exports.auctionBidsCallBack = auctionBidsCallBack;
 /* end-test-block */
 
-exports.getCurrencyToDisplay = function(){
-	var defaultCurrency = 'USD'; //todo: can we take this from soome constant? 
-	if(CONFIG.getAdServerCurrency()){
-		if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && util.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig)){
-			var pbConf = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig();
-			if(pbConf && pbConf.currency && pbConf.currency.adServerCurrency){
-				return pbConf.currency.adServerCurrency;
-			}
-		}
-	}
-	return defaultCurrency;
-}
-
 exports.getBid = function(divID){ // TDD, i/o : done
 
 	var winningBid = null;
@@ -289,7 +276,7 @@ exports.getBid = function(divID){ // TDD, i/o : done
 			util.vLogInfo(divID, {
 				type: "win-bid",
 				bidDetails: winningBid,
-				adServerCurrency: refThis.getCurrencyToDisplay()
+				adServerCurrency: util.getCurrencyToDisplay()
 			});
 		}else{
 			util.vLogInfo(divID, {

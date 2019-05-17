@@ -454,7 +454,7 @@ describe('bidManager BIDMgr', function() {
                 bidDetails: theBid,
                 latency: latency,
                 s2s: CONFIG.isServerSideAdapter(adapterID),
-                adServerCurrency: BIDMgr.getCurrencyToDisplay()
+                adServerCurrency: UTIL.getCurrencyToDisplay()
             }).should.be.true;
 
             done();
@@ -818,41 +818,7 @@ describe('bidManager BIDMgr', function() {
 
             done();
         });
-    });
-
-    describe('#getCurrencyToDisplay', function() {
-        it('#is a function', function(done){
-            done();
-        });
-
-        it('Default test case, without currency module, it should return USD', function(done){
-            done();
-        });
-
-        it('Negative test case, owpbjs not present, it should return USD', function(done){
-            done();
-        });
-
-        it('Negative test case, owpbjs.getConfig not present, it should return USD', function(done){
-            done();
-        });
-
-        it('Negative test case, pbConf is null, it should return USD', function(done){
-            done();
-        });
-
-        it('Negative test case, pbConf.currency is not present, it should return USD', function(done){
-            done();
-        });
-
-        it('Negative test case, pbConf.currency.adServerCurrency is not present, it should return USD', function(done){
-            done();
-        });
-
-        it('Positive test case, it should return currency set in prebid config', function(done){
-            done();
-        });
-    });
+    });    
 
     describe('#getBid', function() {
         var divID = null;
@@ -949,7 +915,7 @@ describe('bidManager BIDMgr', function() {
             UTIL.vLogInfo.calledWith(divID, {
                 type: "win-bid",
                 bidDetails: winningBidObj.wb,
-                adServerCurrency: BIDMgr.getCurrencyToDisplay()
+                adServerCurrency: UTIL.getCurrencyToDisplay()
             }).should.be.true;
 
             UTIL.isOwnProperty.called.should.be.true;
