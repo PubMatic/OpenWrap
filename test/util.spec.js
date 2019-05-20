@@ -480,6 +480,9 @@ describe('UTIL', function() {
                 getDivID: function() {
                     return "Div_1";
                 },
+                getCode: function(){
+                    return 'CODE-ABC';
+                }
             };
             sinon.spy(activeSlot, "getSizes");
             sinon.spy(activeSlot, "getAdUnitID");
@@ -2321,6 +2324,9 @@ describe('UTIL', function() {
                 },
                 getAdUnitIndex: function(){
                     return 0;
+                },
+                getCode: function(){
+                    return 'CODE-ABC';
                 }
             }
             sinon.spy(currentSlot, "getDivID");

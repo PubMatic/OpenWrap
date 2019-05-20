@@ -406,12 +406,12 @@ describe('Slot slotObject', function() {
     });
 
     describe('#getCode, setCode', function(){
-        it('getCode is a function', function(dome){
+        it('getCode is a function', function(done){
             slotObject.getCode.should.be.a('function');
             done();
         });
 
-        it('setCode is a function', function(dome){
+        it('setCode is a function', function(done){
             slotObject.setCode.should.be.a('function');
             done();
         });

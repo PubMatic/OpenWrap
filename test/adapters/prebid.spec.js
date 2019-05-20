@@ -452,6 +452,9 @@ describe('ADAPTER: Prebid', function() {
                 },
                 getAdUnitIndex :function(){
                     return "testAdUnitIndex";
+                },
+                getCode: function(){
+                    return 'CODE-ABC';
                 }
             };
 
