@@ -26,6 +26,7 @@ exports.kgpvMap = kgpvMap;
 /* end-test-block */
 
 var refThis = this;
+var timeoutForPrebid = CONFIG.getTimeout()-50;
 
 function transformPBBidToOWBid(bid, kgpv){
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
@@ -199,9 +200,11 @@ function pbBidStreamHandler(pbBid){
 			// Adding a hook for publishers to modify the bid we have to store
 			// we should NOT call the hook for defaultbids and post-timeout bids
 			//			default bids handled here
-			//			todo: post-timeout bids are not handled here
+			//			timeoutForPrebid check is added to avoid Hook call for post-timeout bids
 			// Here slotID, adapterID, and latency are read-only and theBid can be modified
-			util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [refThis.kgpvMap[responseID].divID, pbBid]);
+			if(pbBid.timeToRespond < timeoutForPrebid){
+				util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [refThis.kgpvMap[responseID].divID, pbBid]);
+			}			
 			bidManager.setBidFromBidder(
 				refThis.kgpvMap[responseID].divID,
 				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv)
@@ -601,7 +604,7 @@ function fetchBids(activeSlots, impressionID){
 						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
 						//refThis.handleBidResponses(bidResponses);
 					},
-					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then
+					timeout: timeoutForPrebid
 				});
 			} else {
 				util.log("PreBid js requestBids function is not available");
