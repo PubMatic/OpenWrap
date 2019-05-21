@@ -489,9 +489,11 @@ function fetchBids(activeSlots, impressionID){
 	}
 
 
-	if(!onEventAdded && util.isFunction(window[pbNameSpace].onEvent)){
-		window[pbNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
-		onEventAdded = true;
+	if(util.isFunction(window[pbNameSpace].onEvent)){
+		if(!onEventAdded){
+			window[pbNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
+			onEventAdded = true;
+		}		
 	} else {
 		util.log("PreBid js onEvent method is not available");
 		return;
