@@ -27,6 +27,7 @@ exports.kgpvMap = kgpvMap;
 
 var refThis = this;
 var timeoutForPrebid = CONFIG.getTimeout()-50;
+var onEventAdded = false;
 
 function transformPBBidToOWBid(bid, kgpv){
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
@@ -488,8 +489,9 @@ function fetchBids(activeSlots, impressionID){
 	}
 
 
-	if(util.isFunction(window[pbNameSpace].onEvent)){
+	if(!onEventAdded && util.isFunction(window[pbNameSpace].onEvent)){
 		window[pbNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
+		onEventAdded = true;
 	} else {
 		util.log("PreBid js onEvent method is not available");
 		return;
