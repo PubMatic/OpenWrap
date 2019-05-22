@@ -278,6 +278,9 @@ describe('ADAPTER: Prebid', function() {
                 setGrossEcpm: function() {
                     return "setGrossEcpm";
                 },
+                getGrossEcpm: function() {
+                    return "getGrossEcpm";
+                },
                 setDealID: function() {
                     return "setDealID";
                 },
@@ -310,8 +313,13 @@ describe('ADAPTER: Prebid', function() {
                 },
                 setOriginalCpm:function(){
                     return 5;
+                },
+                setOriginalCurrency: function(){
+                    return 'USD';
+                },
+                setAnalyticsCpm: function(){
+                    return 5;
                 }
-
             };
             sinon.stub(UTIL, "isOwnProperty").returns(true);
             sinon.spy(UTIL, "forEachOnObject");
