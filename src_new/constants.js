@@ -23,7 +23,8 @@ exports.COMMON = {
 	"OW_CLICK_NATIVE": "openwrap-native-click",
 	"BID_ID":"owbidid",
 	"AD_SERVER_CURRENCY": "adServerCurrency",
-	"SINGLE_IMPRESSION":"singleImpression"
+	"SINGLE_IMPRESSION":"singleImpression",
+	"PREBID_NAMESPACE": "owpbjs"
 };
 
 exports.CONFIG = {
