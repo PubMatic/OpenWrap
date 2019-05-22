@@ -47,6 +47,8 @@ function transformPBBidToOWBid(bid, kgpv){
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
 	// Check if currency conversion is enabled or not
 	if(CONFIG.getAdServerCurrency()){
+		// if a bidder has same currency as of pbConf.currency.adServerCurrency then Prebid does not set pbBid.originalCurrency and pbBid.originalCurrency value
+		// thus we need special handling
 		if(!util.isOwnProperty(bid, 'originalCpm')){
 			bid.originalCpm = bid.cpm;
 		}
