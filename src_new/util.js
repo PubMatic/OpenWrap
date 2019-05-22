@@ -1,7 +1,7 @@
 //todo
 //  pageURL refURL protocol related functions
 // forEachOnArray
-
+var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var BID = require("./bid.js");
 var bidManager = require("./bidManager.js");
@@ -1026,4 +1026,20 @@ exports.getAdFormatFromBidAd = function(ad){
 		// }
 	}
 	return format;
+};
+
+exports.getCurrencyToDisplay = function(){
+	var defaultCurrency = CONFIG.getAdServerCurrency();
+	if(defaultCurrency == 0){
+		defaultCurrency = 'USD';
+	}
+	if(CONFIG.getAdServerCurrency()){
+		if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig)){
+			var pbConf = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig();
+			if(pbConf && pbConf.currency && pbConf.currency.adServerCurrency){
+				return pbConf.currency.adServerCurrency;
+			}
+		}
+	}
+	return defaultCurrency;
 };

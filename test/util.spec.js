@@ -13,7 +13,8 @@ var UTIL = require("../src_new/util");
 var SLOT = require("../src_new/slot.js").Slot;
 
 var BIDMgr = require("../src_new/bidManager.js");
-
+var CONFIG = require("../src_new/config.js");
+    
 var commonAdapterID = "pubmatic";
 var commonDivID = "DIV_1";
 var CONSTANTS = require("../src_new/constants.js");
@@ -2464,6 +2465,105 @@ describe('UTIL', function() {
             var expectedResult = CONSTANTS.FORMAT_VALUES.BANNER
             var result =  UTIL.getAdFormatFromBidAd(bannerAdString);
             result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getCurrencyToDisplay', function() {
+
+        beforeEach(function(done){
+            // sinon.stub(CONFIG, "getAdServerCurrency");
+            done();
+        });
+
+        afterEach(function(done){
+            // CONFIG.getAdServerCurrency.restore();
+            done();
+        });
+
+        it('#is a function', function(done){
+            UTIL.getCurrencyToDisplay.should.be.a('function');
+            done();
+        });
+
+        it('Default test case, without currency module, it should return USD', function(done){
+            sinon.stub(CONFIG, "getAdServerCurrency").returns(0);
+            UTIL.getCurrencyToDisplay().should.equal('USD');
+            CONFIG.getAdServerCurrency.restore();
+            done();
+        });
+
+        it('Negative test case, owpbjs not present, it should return USD', function(done){
+            sinon.stub(CONFIG, "getAdServerCurrency").returns('USD');
+            UTIL.getCurrencyToDisplay().should.equal('USD');
+            CONFIG.getAdServerCurrency.restore();
+            done();
+        });
+
+        it('Negative test case, owpbjs.getConfig not present, it should return USD', function(done){
+            sinon.stub(CONFIG, "getAdServerCurrency").returns('USD');
+            window.owpbjs = {};
+            UTIL.getCurrencyToDisplay().should.equal('USD');
+            CONFIG.getAdServerCurrency.restore();
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('Negative test case, pbConf is null, it should return USD', function(done){
+            sinon.stub(CONFIG, "getAdServerCurrency").returns('USD');
+            window.owpbjs = {
+                getConfig: function(){
+                    return null;
+                }
+            };
+            UTIL.getCurrencyToDisplay().should.equal('USD');
+            CONFIG.getAdServerCurrency.restore();
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('Negative test case, pbConf.currency is not present, it should return USD', function(done){
+            sinon.stub(CONFIG, "getAdServerCurrency").returns('USD');
+            window.owpbjs = {
+                getConfig: function(){
+                    return {};
+                }
+            };
+            UTIL.getCurrencyToDisplay().should.equal('USD');
+            CONFIG.getAdServerCurrency.restore();
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('Negative test case, pbConf.currency.adServerCurrency is not present, it should return USD', function(done){
+            sinon.stub(CONFIG, "getAdServerCurrency").returns('USD');
+            window.owpbjs = {
+                getConfig: function(){
+                    return {
+                        currency: {}
+                    };
+                }
+            };
+            UTIL.getCurrencyToDisplay().should.equal('USD');
+            CONFIG.getAdServerCurrency.restore();
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('Positive test case, it should return currency set in prebid config', function(done){
+            sinon.stub(CONFIG, "getAdServerCurrency").returns('USD');
+            window.owpbjs = {
+                getConfig: function(){
+                    return {
+                        currency: {
+                            adServerCurrency: 'INR'
+                        }
+                    };
+                }
+            };
+            UTIL.getCurrencyToDisplay().should.equal('INR');
+            CONFIG.getAdServerCurrency.restore();
+            window.owpbjs = undefined;
             done();
         });
     });
