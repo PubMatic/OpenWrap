@@ -164,19 +164,7 @@ function findWinningBidAndGenerateTargeting(divId) {
 
 	/* istanbul ignore else*/
 	if (winningBid && winningBid.getNetEcpm() > 0) {
-		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID] = winningBid.getBidID();
-		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS] = winningBid.getStatus();
-		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] = winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION);
-		var dealID = winningBid.getDealID();
-		if (dealID) {
-			keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID] = dealID;
-		}
-		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID] = winningBid.getAdapterID();
-		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID] = CONFIG.getPublisherId();
-		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID] = CONFIG.getProfileID();
-		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
-		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE] = winningBid.width + "x" + winningBid.height;
-		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY] = CONSTANTS.PLATFORM_VALUES.DISPLAY;
+		bidManager.setStandardKeys(winningBid, keyValuePairs);		
 	}
 
 	// attaching keyValuePairs from adapters
