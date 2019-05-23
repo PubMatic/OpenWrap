@@ -343,7 +343,10 @@ function generateConfForGPT(arrayOfGPTSlots) {
 			}
 
 			if (util.isFunction(googleSlot.getSizes)) {
-				util.forEachOnArray(googleSlot.getSizes(), function(index, sizeObj) {
+				/*
+					The DFP API, googleSlot.getSizes(window.innerWidth, window.innerHeight) upon passing the two arguments, returns applied sizes as per size-mapping.
+				 */
+				util.forEachOnArray(googleSlot.getSizes(window.innerWidth, window.innerHeight), function(index, sizeObj) {
 					/* istanbul ignore else  */
 					if (util.isFunction(sizeObj.getWidth) && util.isFunction(sizeObj.getHeight)) {
 						sizes.push([sizeObj.getWidth(), sizeObj.getHeight()]);
