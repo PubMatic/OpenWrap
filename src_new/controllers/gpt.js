@@ -62,7 +62,8 @@ function getAdSlotSizesArray(divID, currentGoogleSlot) { // TDD, i/o : done
     var adslotSizesArray = [];
     /* istanbul ignore else  */
     if (util.isFunction(currentGoogleSlot.getSizes)) {
-        util.forEachOnArray(currentGoogleSlot.getSizes(), function(index, sizeObj) {
+        // googleSlot.getSizes() returns applicable sizes as per sizemapping if we pass current available view-port width and height
+        util.forEachOnArray(currentGoogleSlot.getSizes(window.innerWidth, window.innerHeight), function(index, sizeObj) {
             /* istanbul ignore else  */
             if (util.isFunction(sizeObj.getWidth) && util.isFunction(sizeObj.getHeight)) {
                 adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
@@ -114,7 +115,8 @@ function storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow) { // TDD,
         }
 
         refThis.slotsMap[dmSlotName] = slot;
-        util.createVLogInfoPanel(dmSlotName, slot.getSizes());
+        // googleSlot.getSizes() returns applicable sizes as per sizemapping if we pass current available view-port width and height
+        util.createVLogInfoPanel(dmSlotName, slot.getSizes(window.innerWidth, window.innerHeight));
     } else {
         /* istanbul ignore else */
         if (!isDisplayFlow) {
@@ -638,7 +640,8 @@ exports.findWinningBidIfRequired_Refresh = findWinningBidIfRequired_Refresh;
 /* end-test-block */
 
 function postRederingChores(divID, dmSlot){
-    util.createVLogInfoPanel(divID, refThis.slotsMap[dmSlot].getSizes());
+    // googleSlot.getSizes() returns applicable sizes as per sizemapping if we pass current available view-port width and height
+    util.createVLogInfoPanel(divID, refThis.slotsMap[dmSlot].getSizes(window.innerWidth, window.innerHeight));
     util.realignVLogInfoPanel(divID);
     bidManager.executeAnalyticsPixel();
 }
