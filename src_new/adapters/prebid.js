@@ -68,6 +68,7 @@ function transformPBBidToOWBid(bid, kgpv){
 		theBid.setHeight(0);
 	} else if (pubmaticServerErrorCode === 3 || pubmaticServerErrorCode === 4 || pubmaticServerErrorCode === 5) {
 		theBid.setDefaultBidStatus(0);
+		/*istanbul ignore else */
 		if (theBid.isServerSide === 0) {
 			theBid.setPostTimeoutStatus();
 		}
@@ -87,27 +88,79 @@ function transformPBBidToOWBid(bid, kgpv){
 exports.transformPBBidToOWBid = transformPBBidToOWBid;
 /* end-test-block */
 
+// This function is used to check size for the winning kgpv and if size is different then winning then modify it
+// to have same code for logging and tracking 
+function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
+	var responseKGPV= "";
+
+	// Logic to find out KGPV for partner for which the bid is recieved.
+	// Need to check for No Bid Case.
+	kgpv.kgpvs.length > 0 && kgpv.kgpvs.forEach(function(ele){
+		/* istanbul ignore else */
+		if(bid.bidderCode == ele.adapterID){
+			responseKGPV = ele.kgpv;
+		}
+	});
+	var responseIdArray = responseKGPV.split("@");
+	/* istanbul ignore else */
+	if(responseIdArray &&  responseIdArray.length == 2){
+		var responseIdSize = responseIdArray[1];
+		var responseIndex = null;
+		// Below check if ad unit index is present then ignore it
+		// TODO: Confirm it needs to be ignored or not
+		/* istanbul ignore else */
+		if(responseIdArray[1].indexOf(":")>0){
+			responseIdSize= responseIdArray[1].split(":")[0];
+			responseIndex = responseIdArray[1].split(":")[1];
+		}
+		/* istanbul ignore else */
+		if(bid.getSize() && bid.getSize() != responseIdSize && (bid.getSize().toUpperCase() != "0X0")){
+			// Below check is for size level mapping
+			// ex. 300x250@300X250 is KGPV generated for first size but the winning size is 728x90 
+			// then new KGPV will be replaced to 728x90@728X90
+			/* istanbul ignore else */
+			if(responseIdArray[0].toUpperCase() == responseIdSize.toUpperCase()){
+				responseIdArray[0] = bid.getSize().toLowerCase();
+			}
+			responseKGPV = responseIdArray[0] + "@" +  bid.getSize();
+			// Below check is to make consistent behaviour with ad unit index
+			// it again appends index if it was originally present
+			if(responseIndex){
+				responseKGPV = responseKGPV + ":" + responseIndex;
+			}
+		}
+	
+	}
+	return responseKGPV;
+}
+
+/* start-test-block */
+exports.checkAndModifySizeOfKGPVIfRequired = checkAndModifySizeOfKGPVIfRequired;
+/* end-test-block */
+
 
 function pbBidStreamHandler(pbBid){
 	var responseID = pbBid.adUnitCode || "";
-	//OLD APPROACH
-	//serverSideEnabled: bid will contain the kgpv, divId, adapterId
-	/* istanbul ignore else */
-	//if(pbBid.bidderCode && CONFIG.isServerSideAdapter(pbBid.bidderCode)){
-	//	/* istanbul ignore else */
-	//	if(pbBid._pmDivId && pbBid._pmKgpv){
-	//		bidManager.setBidFromBidder(
-	//			pbBid._pmDivId,
-	//			refThis.transformPBBidToOWBid(pbBid, pbBid._pmKgpv)
-	//		);
-	//	}
-	//	return;
-	//}
 
 	// NEW APPROACH
 	//todo: unit-test cases pending
 	/* istanbul ignore else */
 	if(util.isOwnProperty(refThis.kgpvMap, responseID)){
+
+		/**Special Hack for pubmaticServer for tracker/logger kgpv */
+		/* istanbul ignore else */
+		if(pbBid.bidderCode === 'pubmaticServer'){
+			pbBid.bidderCode = pbBid.originalBidder;
+		}
+
+		// If Single impression is turned on then check and modify kgpv as per bid response size
+		/* istanbul ignore else */
+		if(CONFIG.isSingleImpressionSettingEnabled()){
+			// Assinging kbpv after modifying and will be used for logger and tracker purposes
+			// this field will be replaced everytime a bid is received with single impression feature on
+			refThis.kgpvMap[responseID].kgpv = refThis.checkAndModifySizeOfKGPVIfRequired(pbBid,refThis.kgpvMap[responseID]);
+		}
+
 		/*
 			- special handling for serverSideEnabled
 			- get the actual divId = kgpvMap[ pbBid.adUnitCode ].divID
@@ -123,23 +176,20 @@ function pbBidStreamHandler(pbBid){
 		*/
 
 		/* istanbul ignore else */
-		if(pbBid.bidderCode === 'pubmaticServer'){
-			pbBid.bidderCode = pbBid.originalBidder;
-		}
-
-		/* istanbul ignore else */
 		if(pbBid.bidderCode && CONFIG.isServerSideAdapter(pbBid.bidderCode)){
 			var divID = refThis.kgpvMap[responseID].divID;
-			var temp1 = refThis.getPBCodeWithWidthAndHeight(divID, pbBid.bidderCode, pbBid.width, pbBid.height);
-			var temp2 = refThis.getPBCodeWithoutWidthAndHeight(divID, pbBid.bidderCode);
+			if(!CONFIG.isSingleImpressionSettingEnabled()){
+				var temp1 = refThis.getPBCodeWithWidthAndHeight(divID, pbBid.bidderCode, pbBid.width, pbBid.height);
+				var temp2 = refThis.getPBCodeWithoutWidthAndHeight(divID, pbBid.bidderCode);
 
-			if(util.isOwnProperty(refThis.kgpvMap, temp1)){
-				responseID = temp1;
-			}else if(util.isOwnProperty(refThis.kgpvMap, temp2)){
-				responseID = temp2;
-			}else{
-				util.log('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
-				return;
+				if(util.isOwnProperty(refThis.kgpvMap, temp1)){
+					responseID = temp1;
+				}else if(util.isOwnProperty(refThis.kgpvMap, temp2)){
+					responseID = temp2;
+				}else{
+					util.log('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
+					return;
+				}
 			}
 			pbBid.ss = CONFIG.isServerSideAdapter(pbBid.bidderCode) ? 1 : 0;
 		}
@@ -196,6 +246,22 @@ function getPBCodeWithoutWidthAndHeight(divID, adapterID){
 }
 
 /* start-test-block */
+exports.isAdUnitsCodeContainBidder = isAdUnitsCodeContainBidder;
+/* end-test-block */
+
+function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
+	var bidderPresent = false;
+	if(util.isOwnProperty(adUnits, code)){
+		adUnits[code].bids.forEach(function(bid) {
+			if(bid.bidder == adapterID){
+				bidderPresent = true;	
+			}
+		});
+	}
+	return bidderPresent;
+}
+
+/* start-test-block */
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
 
@@ -203,18 +269,57 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 
 	var code, sizes, divID = currentSlot.getDivID();
 	
-	if(kgpConsistsWidthAndHeight){
-		code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
-		sizes = [[currentWidth,currentHeight]];
-	}else{
-		code = refThis.getPBCodeWithoutWidthAndHeight(divID, adapterID);
-		sizes = currentSlot.getSizes();	
+	if(!CONFIG.isSingleImpressionSettingEnabled()){
+		if(kgpConsistsWidthAndHeight){
+			code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
+			sizes = [[currentWidth,currentHeight]];
+		}else{
+			code = refThis.getPBCodeWithoutWidthAndHeight(divID, adapterID);
+			sizes = currentSlot.getSizes();	
+		}
+		refThis.kgpvMap [ code ] = {
+			kgpv: generatedKey,
+			divID: divID
+		};
+	} else{
+		/* This will be executed in case single impression feature is enabled.
+		Below statements assign code as div and sizes as all sizes of ad slot
+		it generates kgpvmap consisting of kgpvs as property 
+		if in kgpv map code exists and kgpv exists then 
+			if a adapter with a single kgpv exists in kgpvs then it ignores and returns from this function
+			if a adapter does not exist for the code then a entry is being pushed in kgpvs with adapterid and kgpv for the bidder
+		 if code does not consists in kgpv object then a entry is made with adapter first calling it.*/
+		code = currentSlot.getDivID();
+		sizes = currentSlot.getSizes();
+		var adapterAlreadyExsistsInKGPVS = false;
+		if (refThis.kgpvMap[code] && refThis.kgpvMap[code].kgpvs && refThis.kgpvMap[code].kgpvs.length > 0){
+			util.forEachOnArray(refThis.kgpvMap[code].kgpvs, function(idx,kgpv){
+				// We want to have one adapter entry for one bidder and one code/adSlot
+				/*istanbul ignore else*/
+				if(kgpv.adapterID == adapterID){
+					adapterAlreadyExsistsInKGPVS = true;
+				}
+			});
+			/*istanbul ignore else*/
+			if(adapterAlreadyExsistsInKGPVS && isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
+				return;
+			}
+		}
+		else{
+			refThis.kgpvMap[code] = {
+				kgpvs : [],
+				divID: divID
+			};
+		}
+		if(!adapterAlreadyExsistsInKGPVS){
+			var kgpv = {
+				adapterID: adapterID,
+				kgpv:generatedKey
+			};
+			refThis.kgpvMap[code].kgpvs.push(kgpv);
+		}
 	}
-	refThis.kgpvMap [ code ] = {
-		kgpv: generatedKey,
-		divID: divID
-	};
-
+	
 	//serverSideEabled: do not add config into adUnits
 	if(CONFIG.isServerSideAdapter(adapterID)){
 		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
@@ -229,6 +334,10 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			bids: [],
 			divID : divID
 		};
+	}else if(CONFIG.isSingleImpressionSettingEnabled()){
+		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
+			return;
+		}
 	}
 
 	var slotParams = {};
@@ -237,7 +346,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		slotParams[key] = value;
 	});
 
-	// processing for each partner
+	//processing for each partner
 	switch(adapterID){
 
 		//todo: unit-test cases pending
@@ -303,8 +412,13 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			});
 			break;
-
+	case "ix":
 		case "indexExchange":
+		/** Added case ix cause indexExchange bidder has changed its bidder code in server side 
+		 * this will have impact in codegen to change its adapter code from indexexchange to ix 
+		 * so added a case for the same.
+		*/
+		
 			util.forEachOnArray(sizes, function(index, size) {
 				var slotParams = {};
 
@@ -320,7 +434,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			adUnits[code].bids.push({ bidder: adapterID, params: slotParams });
 			break;
 	}
-};
+}
 
 /* start-test-block */
 exports.generatedKeyCallback = generatedKeyCallback;

@@ -208,7 +208,7 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 		if( sizeArrayLength > 0){
 			for(i = 0; i < sizeArrayLength; i++){
 				/* istanbul ignore else */
-				if(sizeArray[i][0] && sizeArray[i][1]){
+				if(sizeArray[i].length == 2 && sizeArray[i][0] && sizeArray[i][1]){
 
 					slotName = pattern;
 					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, activeSlot.getAdUnitID())

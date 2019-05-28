@@ -523,6 +523,19 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should return array of slot names and should ignore fluid size', function(done) {
+            activeSlot.getSizes.restore();
+            sinon.stub(activeSlot,"getSizes").returns([
+                    [1024, 120],
+                    'fluid'
+                ]);
+            var slotNames = UTIL.generateSlotNamesFromPattern(activeSlot, pattern);
+            slotNames.should.be.a('array')
+            slotNames.should.be.lengthOf(1);
+            UTIL.isOwnProperty.called.should.be.true;
+            UTIL.getIncrementalInteger.called.should.be.true;
+            done();
+        });
 
         it('should have extracted data from activeSlot to generate slot names', function(done) {
             UTIL.generateSlotNamesFromPattern(activeSlot, pattern);
@@ -532,6 +545,8 @@ describe('UTIL', function() {
             activeSlot.getDivID.calledOnce.should.be.true;
             done();
         });
+
+
     });
 
     describe('#checkMandatoryParams', function() {
