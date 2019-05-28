@@ -14,7 +14,7 @@ var CONF = require("../conf.js");
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
-var pbNameSpace = "owpbjs";
+var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
 
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
@@ -26,6 +26,8 @@ exports.kgpvMap = kgpvMap;
 /* end-test-block */
 
 var refThis = this;
+var timeoutForPrebid = CONFIG.getTimeout()-50;
+var onEventAdded = false;
 
 function transformPBBidToOWBid(bid, kgpv){
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
@@ -196,6 +198,14 @@ function pbBidStreamHandler(pbBid){
 
 		/* istanbul ignore else */
 		if(pbBid.bidderCode){
+			// Adding a hook for publishers to modify the bid we have to store
+			// we should NOT call the hook for defaultbids and post-timeout bids
+			//			default bids handled here
+			//			timeoutForPrebid check is added to avoid Hook call for post-timeout bids
+			// Here slotID, adapterID, and latency are read-only and theBid can be modified
+			if(pbBid.timeToRespond < timeoutForPrebid){
+				util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [refThis.kgpvMap[responseID].divID, pbBid]);
+			}			
 			bidManager.setBidFromBidder(
 				refThis.kgpvMap[responseID].divID,
 				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv)
@@ -480,7 +490,10 @@ function fetchBids(activeSlots, impressionID){
 
 
 	if(util.isFunction(window[pbNameSpace].onEvent)){
-		window[pbNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
+		if(!onEventAdded){
+			window[pbNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
+			onEventAdded = true;
+		}		
 	} else {
 		util.log("PreBid js onEvent method is not available");
 		return;
@@ -567,6 +580,9 @@ function fetchBids(activeSlots, impressionID){
 
 				}
 
+				// Adding a hook for publishers to modify the Prebid Config we have generated
+				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+
 				window[pbNameSpace].setConfig(prebidConfig);
 			}
 
@@ -577,7 +593,12 @@ function fetchBids(activeSlots, impressionID){
 			   This if code is just safe check and may be removed in near future.
 			*/
 			/* istanbul ignore else */
+
 			if(util.isFunction(window[pbNameSpace].requestBids) || typeof window[pbNameSpace].requestBids == "function"){
+				
+				// Adding a hook for publishers to modify the adUnits we are passing to Prebid
+				util.handleHook(CONSTANTS.HOOKS.PREBID_REQUEST_BIDS, [ adUnitsArray ]);
+				
 				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
 					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid
@@ -587,7 +608,7 @@ function fetchBids(activeSlots, impressionID){
 						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
 						//refThis.handleBidResponses(bidResponses);
 					},
-					timeout: CONFIG.getTimeout()-50 //todo is it higher ?: major pre and post processing time and then
+					timeout: timeoutForPrebid
 				});
 			} else {
 				util.log("PreBid js requestBids function is not available");

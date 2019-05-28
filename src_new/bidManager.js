@@ -72,7 +72,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 			util.log(CONSTANTS.MESSAGES.M17);
 		}
 	}else{
-		util.log(CONSTANTS.MESSAGES.M18);
+		util.log(CONSTANTS.MESSAGES.M18);		
 		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 	}
 	if (isPostTimeout) {
@@ -82,6 +82,14 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 };
 
 function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : done
+
+	// Adding a hook for publishers to modify the bid we have to store
+	// we should not call the hook for defaultbids and post-timeout bids
+	// Here slotID, adapterID, and latency are read-only and theBid can be modified
+	// if(theBid.getDefaultBidStatus() === 0 && theBid.getPostTimeoutStatus() === false){
+	// 	util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [slotID, adapterID, theBid, latency]);
+	// }
+	
 	window.PWT.bidMap[slotID].setNewBid(adapterID, theBid);
 	window.PWT.bidIdMap[theBid.getBidID()] = {
 		s: slotID,
@@ -96,7 +104,7 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 			bidDetails: theBid,
 			latency: latency,
 			s2s: CONFIG.isServerSideAdapter(adapterID),
-			adServerCurrency: CONFIG.getAdServerCurrency()
+			adServerCurrency: util.getCurrencyToDisplay()
 		});
 	}
 }
@@ -268,7 +276,7 @@ exports.getBid = function(divID){ // TDD, i/o : done
 			util.vLogInfo(divID, {
 				type: "win-bid",
 				bidDetails: winningBid,
-				adServerCurrency: CONFIG.getAdServerCurrency()
+				adServerCurrency: util.getCurrencyToDisplay()
 			});
 		}else{
 			util.vLogInfo(divID, {
@@ -593,4 +601,25 @@ exports.fireTracker = function(bidDetails, action) {
 };
 
  
-
+// this function generates all satndard key-value pairs for a given bid and setup, set these key-value pairs in an object
+// todo: write unit test cases
+exports.setStandardKeys = function(winningBid, keyValuePairs){
+	if (winningBid) {
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ] = winningBid.getBidID();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS ] = winningBid.getStatus();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM ] = winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION);
+        var dealID = winningBid.getDealID();
+        if(dealID){
+            keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID ] = dealID;
+        }
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID ] = winningBid.getAdapterID();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID ] = CONFIG.getPublisherId();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID ] = CONFIG.getProfileID();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID ] = CONFIG.getProfileDisplayVersionID();
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ] = winningBid.width + 'x' + winningBid.height;
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ] = (winningBid.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
+    } else {
+    	util.log('Not generating key-value pairs as invalid winningBid object passed. WinningBid: ');
+    	util.log(winningBid);
+    }
+}
