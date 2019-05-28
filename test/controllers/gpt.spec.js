@@ -296,20 +296,8 @@ describe("CONTROLLER: GPT", function() {
 
             sinon.stub(GPT, 'getSizeFromSizeMapping');
             slotSizeMapping = [
-                [
-                    [ 1024, 768 ],
-                    [
-                        970, 250
-                    ]
-                ],
-
-                [
-                    [ 980, 600 ],
-                    [
                         [ 728, 90 ],
                         [ 640, 480 ]
-                    ]
-                ]
             ];
             GPT.getSizeFromSizeMapping.returns(slotSizeMapping);
             sinon.spy(UTIL, 'log');
@@ -361,6 +349,42 @@ describe("CONTROLLER: GPT", function() {
             GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.deep.equal(slotSizeMapping);
             UTIL.log.calledWith(divID + ": responsiveSizeMapping applied: ").should.be.true;
             UTIL.log.calledWith(slotSizeMapping).should.be.true;
+            done();
+        });
+
+        it('should have push fluid to last if it is first size in mapping', function(done) {
+            slotSizeMapping = ['fluid',[ 728, 90 ],
+            [ 640, 480 ]];
+            var expectedSlotMapping = [[ 728, 90 ],
+            [ 640, 480 ],'fluid'];
+            GPT.getSizeFromSizeMapping.restore();
+            sinon.stub(GPT, 'getSizeFromSizeMapping');
+            GPT.getSizeFromSizeMapping.returns(slotSizeMapping);
+            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.deep.equal(expectedSlotMapping);
+            done();
+        });
+
+        it('should have push fluid to last if it is first size as array in mapping', function(done) {
+            slotSizeMapping = [['fluid'],[ 728, 90 ],
+            [ 640, 480 ]];
+            var expectedSlotMapping = [[ 728, 90 ],
+            [ 640, 480 ],['fluid']];
+            GPT.getSizeFromSizeMapping.restore();
+            sinon.stub(GPT, 'getSizeFromSizeMapping');
+            GPT.getSizeFromSizeMapping.returns(slotSizeMapping);
+            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.deep.equal(expectedSlotMapping);
+            done();
+        });
+
+        it('should not do anything if first size is not string or not multiple strings', function(done) {
+            slotSizeMapping = [78,[ 728, 90 ],
+            [ 640, 480 ]];
+            var expectedSlotMapping = [[ 728, 90 ],
+            [ 640, 480 ],78];
+            GPT.getSizeFromSizeMapping.restore();
+            sinon.stub(GPT, 'getSizeFromSizeMapping');
+            GPT.getSizeFromSizeMapping.returns(slotSizeMapping);
+            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.not.be.equal(expectedSlotMapping);
             done();
         });
 
