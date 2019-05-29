@@ -57,7 +57,7 @@ function transformPBBidToOWBid(bid, kgpv){
 		}
 		theBid.setOriginalCpm(window.parseFloat(bid.originalCpm));
 		theBid.setOriginalCurrency(bid.originalCurrency);
-		if(util.isFunction(bid, 'getCpmInNewCurrency')){
+		if(util.isFunction(bid.getCpmInNewCurrency)){
 			theBid.setAnalyticsCpm(window.parseFloat(bid.getCpmInNewCurrency(CONSTANTS.COMMON.ANALYTICS_CURRENCY)));
 		} else {
 			theBid.setAnalyticsCpm(theBid.getGrossEcpm());
