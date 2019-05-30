@@ -1041,7 +1041,10 @@ exports.handleHook = function(hookName, arrayOfDataToPass) {
 };
 
 exports.getCurrencyToDisplay = function(){
-	var defaultCurrency = 'USD'; //todo: can we take this from soome constant? 
+	var defaultCurrency = CONFIG.getAdServerCurrency();
+	if(defaultCurrency == 0){
+		defaultCurrency = 'USD';
+	}
 	if(CONFIG.getAdServerCurrency()){
 		if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig)){
 			var pbConf = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig();
@@ -1051,4 +1054,4 @@ exports.getCurrencyToDisplay = function(){
 		}
 	}
 	return defaultCurrency;
-}
+};
