@@ -156,3 +156,10 @@ exports.FORMAT_VALUES = {
 	"NATIVE": "native",
 	"OTHER": "other"
 };
+
+exports.HOOKS = {
+	'PREBID_SET_CONFIG': 'HookForPrebidSetConfig',
+	'PREBID_REQUEST_BIDS': 'HookForPrebidRequestBids',
+	'BID_RECEIVED': 'HookForBidReceived',
+	'POST_AUCTION_KEY_VALUES': 'HookForPostAuctionKeyValues'
+};

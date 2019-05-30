@@ -486,6 +486,7 @@ exports.isIframe = function(theWindow){
 	}
 };
 
+//todo: this function is not used
 exports.findInString = function(theString, find){
 	return theString.indexOf(find) >= 0;
 };
@@ -729,6 +730,7 @@ exports.addMessageEventListenerForSafeFrame = function(theWindow){
 	refThis.addMessageEventListener(theWindow, refThis.safeFrameCommunicationProtocol);
 };
 
+//todo: this function is not in use
 exports.getElementLocation = function( el ) {
 	var rect,
 		x = 0,
@@ -1026,6 +1028,16 @@ exports.getAdFormatFromBidAd = function(ad){
 		// }
 	}
 	return format;
+};
+
+// This common function can be used add hooks for publishers to make changes in flows
+exports.handleHook = function(hookName, arrayOfDataToPass) {
+	// Adding a hook for publishers to modify the data we have
+	if(refThis.isFunction(window.PWT[hookName])){
+		window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
+	} else {
+		refThis.log('Hook-name: '+hookName+', window.PWT.'+hookName+' is not a function.' );
+	}
 };
 
 exports.getCurrencyToDisplay = function(){
