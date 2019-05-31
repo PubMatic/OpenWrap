@@ -249,12 +249,12 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 	var qualifyingSlotDivIds = [];
 	util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject) {
 		if (refThis.validateAdUnitObject(anAdUnitObject)) { // returns true for valid adUnit
-			var dmSlotName = anAdUnitObject.code;
-			var slot = SLOT.createSlot(dmSlotName);
+			var slot = SLOT.createSlot(anAdUnitObject.code);
 			// IMPORTANT:: bidManager stores all data at divId level but in custom controller, divId is not mandatory.
 			// so we woll set value of code to divId if divId is not present
 			// also we will pass array of divId to the bidManager.getAllPartnersBidStatuses API 
-			slot.setDivID(anAdUnitObject.divId || dmSlotName);
+			slot.setCode(anAdUnitObject.code);
+			slot.setDivID(anAdUnitObject.divId || anAdUnitObject.code);
 			slot.setPubAdServerObject(anAdUnitObject);
 			slot.setAdUnitID(anAdUnitObject.adUnitId || "");
 			slot.setAdUnitIndex(anAdUnitObject.adUnitIndex || 0);
