@@ -51,10 +51,10 @@ function transformPBBidToOWBid(bid, kgpv){
 	if(CONFIG.getAdServerCurrency()){
 		// if a bidder has same currency as of pbConf.currency.adServerCurrency then Prebid does not set pbBid.originalCurrency and pbBid.originalCurrency value
 		// thus we need special handling
-		if(!util.isOwnProperty(bid, 'originalCpm')){
+		if(!util.isOwnProperty(bid, "originalCpm")){
 			bid.originalCpm = bid.cpm;
 		}
-		if(!util.isOwnProperty(bid, 'originalCurrency')){
+		if(!util.isOwnProperty(bid, "originalCurrency")){
 			bid.originalCurrency = util.getCurrencyToDisplay();
 		}
 		theBid.setOriginalCpm(window.parseFloat(bid.originalCpm));
