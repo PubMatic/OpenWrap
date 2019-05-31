@@ -454,7 +454,7 @@ describe('bidManager BIDMgr', function() {
                 bidDetails: theBid,
                 latency: latency,
                 s2s: CONFIG.isServerSideAdapter(adapterID),
-                adServerCurrency: CONFIG.getAdServerCurrency()
+                adServerCurrency: UTIL.getCurrencyToDisplay()
             }).should.be.true;
 
             done();
@@ -818,7 +818,7 @@ describe('bidManager BIDMgr', function() {
 
             done();
         });
-    });
+    });    
 
     describe('#getBid', function() {
         var divID = null;
@@ -915,7 +915,7 @@ describe('bidManager BIDMgr', function() {
             UTIL.vLogInfo.calledWith(divID, {
                 type: "win-bid",
                 bidDetails: winningBidObj.wb,
-                adServerCurrency: CONFIG.getAdServerCurrency()
+                adServerCurrency: UTIL.getCurrencyToDisplay()
             }).should.be.true;
 
             UTIL.isOwnProperty.called.should.be.true;
