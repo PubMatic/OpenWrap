@@ -23,7 +23,8 @@ exports.COMMON = {
 	"OW_CLICK_NATIVE": "openwrap-native-click",
 	"BID_ID":"owbidid",
 	"AD_SERVER_CURRENCY": "adServerCurrency",
-	"SINGLE_IMPRESSION":"singleImpression"
+	"SINGLE_IMPRESSION":"singleImpression",
+	"PREBID_NAMESPACE": "owpbjs"
 };
 
 exports.CONFIG = {
@@ -154,4 +155,11 @@ exports.FORMAT_VALUES = {
 	"VIDEO": "video",
 	"NATIVE": "native",
 	"OTHER": "other"
+};
+
+exports.HOOKS = {
+	"PREBID_SET_CONFIG": "HookForPrebidSetConfig",
+	"PREBID_REQUEST_BIDS": "HookForPrebidRequestBids",
+	"BID_RECEIVED": "HookForBidReceived",
+	"POST_AUCTION_KEY_VALUES": "HookForPostAuctionKeyValues"
 };

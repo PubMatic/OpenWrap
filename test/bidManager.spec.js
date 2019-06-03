@@ -454,7 +454,7 @@ describe('bidManager BIDMgr', function() {
                 bidDetails: theBid,
                 latency: latency,
                 s2s: CONFIG.isServerSideAdapter(adapterID),
-                adServerCurrency: CONFIG.getAdServerCurrency()
+                adServerCurrency: UTIL.getCurrencyToDisplay()
             }).should.be.true;
 
             done();
@@ -818,7 +818,7 @@ describe('bidManager BIDMgr', function() {
 
             done();
         });
-    });
+    });    
 
     describe('#getBid', function() {
         var divID = null;
@@ -915,7 +915,7 @@ describe('bidManager BIDMgr', function() {
             UTIL.vLogInfo.calledWith(divID, {
                 type: "win-bid",
                 bidDetails: winningBidObj.wb,
-                adServerCurrency: CONFIG.getAdServerCurrency()
+                adServerCurrency: UTIL.getCurrencyToDisplay()
             }).should.be.true;
 
             UTIL.isOwnProperty.called.should.be.true;
@@ -1502,10 +1502,9 @@ describe('bidManager BIDMgr', function() {
             bmEntryObj.setAdapterEntry(commonAdpterID);
             bmEntryObj.setNewBid(commonAdpterID, theBid);
             CONFIG.getBidPassThroughStatus.returns(2);
-
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
 
-            theBid.getDefaultBidStatus.calledOnce.should.be.true;
+            theBid.getDefaultBidStatus.called.should.be.true;
             theBid.getKGPV.calledOnce.should.be.true;
             theBid.getWidth.calledOnce.should.be.true;
             theBid.getHeight.calledOnce.should.be.true;
@@ -1513,7 +1512,7 @@ describe('bidManager BIDMgr', function() {
             theBid.getNetEcpm.calledOnce.should.be.true;
             theBid.getDealID.calledOnce.should.be.true;
             theBid.getDealChannel.calledOnce.should.be.true;
-            theBid.getPostTimeoutStatus.calledOnce.should.be.true;
+            theBid.getPostTimeoutStatus.called.should.be.true;
             theBid.getWinningBidStatus.calledOnce.should.be.true;
 
             done();
@@ -1665,6 +1664,50 @@ describe('bidManager BIDMgr', function() {
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0].sn).to.equal("Slot_1");
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0].ps).to.be.an('array').that.is.empty;
 
+            done();
+        });
+
+        it('should not log any entry in logger for pubmatic if it is a default bid', function(done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry(commonAdpterID);
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+            theBid.getDefaultBidStatus.restore();
+            sinon.stub(theBid,"getDefaultBidStatus").returns(1);
+
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(0);
+            done();
+        });
+
+        it('should not log any entry in logger for pubmatic if it is a timed out zero bid', function(done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry(commonAdpterID);
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+            theBid.getPostTimeoutStatus.restore();
+            sinon.stub(theBid,"getPostTimeoutStatus").returns(1);
+            theBid.setGrossEcpm(0);
+
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(0);
+            done();
+        });
+
+        it('should log any entry in logger for other than pubmatic if it is a timed out zero bid', function(done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry("appnexus");
+            bmEntryObj.setNewBid("appnexus", theBid);
+            theBid.getPostTimeoutStatus.restore();
+            sinon.stub(theBid,"getPostTimeoutStatus").returns(1);
+            theBid.setGrossEcpm(0);
+
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(1);
             done();
         });
     });
@@ -1877,6 +1920,99 @@ describe('bidManager BIDMgr', function() {
         it('should call pixel url function with click trackers',function(done){
             BIDMgr.fireTracker(bidDetails,action);
             // BIDMgr.setImageSrcToPixelURL.calledWith(bidDetails["native"].clickTrackers[0],false).should.be.true;
+            done();
+        });
+    });
+
+    describe('#setStandardKeys', function(){
+        var divID = null;
+        var winningBidStub = null;
+        var keyValuePairsStub = null;
+
+        beforeEach(function(done) {
+            winningBidStub = new bid('pubmatic', 'div1');
+            winningBidStub.setGrossEcpm(2);
+            winningBidStub.setDealID(null);
+            winningBidStub.setDealChannel(0);
+            winningBidStub.setAdHtml("adm");
+            winningBidStub.setAdUrl("");
+            winningBidStub.setWidth(300);
+            winningBidStub.setHeight(250);
+            keyValuePairsStub = {};
+            done();
+        });
+
+        afterEach(function(done) {
+            if (winningBidStub) {
+                winningBidStub = null;
+            }
+            divID = null;
+            keyValuePairsStub = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            BIDMgr.setStandardKeys.should.be.a('function');
+            done();
+        });
+
+        it('do not generate keys for invalid winning bid object', function(done){
+            var kvp = {a: 'a', b: 'b'};
+            var old_kvp = {a: 'a', b: 'b'};
+            var wb = null;
+            BIDMgr.setStandardKeys(wb, kvp);
+            kvp.should.deep.equal(old_kvp)
+            done();
+        });
+
+        it('generate all keys, no deal-id if deal-id is null', function(done){
+            BIDMgr.setStandardKeys(winningBidStub, keyValuePairsStub);
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ].should.be.defined;
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS ].should.equal(winningBidStub.getStatus());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM ].should.equal(winningBidStub.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
+            (keyValuePairsStub.hasOwnProperty(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID)).should.equal(false);
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID ].should.equal('pubmatic');
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID ].should.equal(CONFIG.getPublisherId());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID ].should.equal(CONFIG.getProfileID());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID ].should.equal(CONFIG.getProfileDisplayVersionID());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ].should.equal(winningBidStub.width + 'x' + winningBidStub.height);
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ].should.equal((winningBidStub.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY));
+            done();
+        });
+
+        it('generate all keys, no deal-id if deal-id is valid', function(done){
+            winningBidStub.setDealID('DEAL_ID');
+            BIDMgr.setStandardKeys(winningBidStub, keyValuePairsStub);
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ].should.be.defined;
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS ].should.equal(winningBidStub.getStatus());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM ].should.equal(winningBidStub.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID ].should.equal('DEAL_ID');
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID ].should.equal('pubmatic');
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID ].should.equal(CONFIG.getPublisherId());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID ].should.equal(CONFIG.getProfileID());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID ].should.equal(CONFIG.getProfileDisplayVersionID());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ].should.equal(winningBidStub.width + 'x' + winningBidStub.height);
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ].should.equal((winningBidStub.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY));
+            done();
+        });
+
+        it('second argument object should also contain original key-values', function(done){
+           winningBidStub.setDealID('DEAL_ID');
+            keyValuePairsStub['test_key'] = 'hello world';
+            keyValuePairsStub['another_test_key'] = 2019;
+            BIDMgr.setStandardKeys(winningBidStub, keyValuePairsStub);
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ].should.be.defined;
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS ].should.equal(winningBidStub.getStatus());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM ].should.equal(winningBidStub.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID ].should.equal('DEAL_ID');
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID ].should.equal('pubmatic');
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID ].should.equal(CONFIG.getPublisherId());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID ].should.equal(CONFIG.getProfileID());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID ].should.equal(CONFIG.getProfileDisplayVersionID());
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ].should.equal(winningBidStub.width + 'x' + winningBidStub.height);
+            keyValuePairsStub[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ].should.equal((winningBidStub.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY));
+            keyValuePairsStub[ 'test_key' ].should.equal('hello world');
+            keyValuePairsStub[ 'another_test_key' ].should.equal(2019);
             done();
         });
     });
