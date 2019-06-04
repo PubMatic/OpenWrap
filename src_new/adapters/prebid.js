@@ -48,10 +48,22 @@ function transformPBBidToOWBid(bid, kgpv){
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
 	// Check if currency conversion is enabled or not
-	if(CONFIG.getAdServerCurrency() && bid.originalCpm && bid.originalCurrency){
+	if(CONFIG.getAdServerCurrency()){
+		// if a bidder has same currency as of pbConf.currency.adServerCurrency then Prebid does not set pbBid.originalCurrency and pbBid.originalCurrency value
+		// thus we need special handling
+		if(!util.isOwnProperty(bid, "originalCpm")){
+			bid.originalCpm = bid.cpm;
+		}
+		if(!util.isOwnProperty(bid, "originalCurrency")){
+			bid.originalCurrency = util.getCurrencyToDisplay();
+		}
 		theBid.setOriginalCpm(window.parseFloat(bid.originalCpm));
 		theBid.setOriginalCurrency(bid.originalCurrency);
-		theBid.setAnalyticsCpm(window.parseFloat(bid.getCpmInNewCurrency(CONSTANTS.COMMON.ANALYTICS_CURRENCY)));
+		if(util.isFunction(bid.getCpmInNewCurrency)){
+			theBid.setAnalyticsCpm(window.parseFloat(bid.getCpmInNewCurrency(CONSTANTS.COMMON.ANALYTICS_CURRENCY)));
+		} else {
+			theBid.setAnalyticsCpm(theBid.getGrossEcpm());
+		}
 	}
 	/*
 		errorCodes meaning:
