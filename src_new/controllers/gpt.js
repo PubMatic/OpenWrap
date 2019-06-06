@@ -342,7 +342,7 @@ exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     var data = bidManager.getBid(divID);
     var winningBid = data.wb || null;
-    var keyValuePairs = data.kvp || null;
+    var keyValuePairs = data.kvp || {};
     var wbKeyValuePairs = null;
     var googleDefinedSlot = refThis.slotsMap[divID].getPubAdServerObject();
     var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
@@ -353,26 +353,13 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     /* istanbul ignore else*/
     if (winningBid && winningBid.getNetEcpm() > 0) {
         refThis.slotsMap[divID].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID, winningBid.getBidID());
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS, winningBid.getStatus());
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
-        var dealID = winningBid.getDealID();
-        if(dealID){
-            googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID, dealID);
-        }
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID, winningBid.getAdapterID());
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID, CONFIG.getPublisherId());
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID());
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID, CONFIG.getProfileDisplayVersionID());
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE, winningBid.width + 'x' + winningBid.height);
-        var isNative = winningBid.getNative();        
-        if(isNative){
-            googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY, CONSTANTS.PLATFORM_VALUES.NATIVE);
-        }
-        else{
-            googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY, CONSTANTS.PLATFORM_VALUES.DISPLAY);
-        }
+        bidManager.setStandardKeys(winningBid, keyValuePairs);
     };
+
+    
+    // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
+    // this hook is not needed in custom controller
+    util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);
 
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
