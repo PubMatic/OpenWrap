@@ -175,7 +175,7 @@ exports.replaceMetaDataMacros = replaceMetaDataMacros;
 function auctionBids(bmEntry) { // TDD, i/o : done
     var winningBid = null,
         keyValuePairs = {};
-
+	// bmEntry.adapters = util.scanCreatives(bmEntry.adapters);
     util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
         var obj = refThis.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
         winningBid  = obj.winningBid;
@@ -497,6 +497,8 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"af": theBid.getAdFormat(),
 					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
+					"ad": theBid.getAdHtml(),
+					"crId":theBid.getCreativeId()
 				});
             })
         });

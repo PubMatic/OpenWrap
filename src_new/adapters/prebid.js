@@ -44,6 +44,7 @@ function transformPBBidToOWBid(bid, kgpv){
 	if(bid.native){
 		theBid.setNative(bid.native);
 	}
+	theBid.setCreativeId(bid.creativeId);	
 
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);

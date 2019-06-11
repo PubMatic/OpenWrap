@@ -30,6 +30,7 @@ function Bid(adapterID, kgpv){
 	this.analyticsNetCpm = 0;
 	this.native = undefined;
 	this.adFormat = undefined;
+	this.isSafeCreative = 1;
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -309,6 +310,26 @@ Bid.prototype.setAdFormat = function(ad){
 	this.adFormat = UTIL.getAdFormatFromBidAd(ad);
 	return this;
 };
+
+
+Bid.prototype.getCreativeId = function(){
+	return this.creativeID;
+};
+
+Bid.prototype.setCreativeId = function(crId){
+	this.creativeID = crId;
+	return this;
+};
+
+Bid.prototype.getCreativeStatus = function(){
+	return this.isSafeCreative;
+};
+
+Bid.prototype.setCreativeStatus = function(creativeStatus){
+	this.isSafeCreative = creativeStatus;
+	return this;
+};
+
 
 /* start-test-block */
 module.exports.Bid = Bid;

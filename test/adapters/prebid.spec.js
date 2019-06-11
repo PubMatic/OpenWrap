@@ -319,7 +319,10 @@ describe('ADAPTER: Prebid', function() {
                 },
                 setAnalyticsCpm: function(){
                     return 5;
-                }
+                },
+                setCreativeId:function(){
+                    return 999999;
+                },
             };
             sinon.stub(UTIL, "isOwnProperty").returns(true);
             sinon.spy(UTIL, "forEachOnObject");
@@ -337,6 +340,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.spy(theBid, "setAdUrl");
             sinon.spy(theBid, "setServerSideResponseTime");
             sinon.spy(theBid, "setOriginalCpm");
+            sinon.spy(theBid, "setCreativeId");
 
             sinon.stub(BM, "setBidFromBidder").returns(true);
 
@@ -363,6 +367,7 @@ describe('ADAPTER: Prebid', function() {
             theBid.setHeight.restore();
             theBid.setReceivedTime.restore();
             theBid.setOriginalCpm.restore();
+            theBid.setCreativeId.restore();
 
             theBid.setKeyValuePair.restore();
             theBid.setServerSideResponseTime.restore();
