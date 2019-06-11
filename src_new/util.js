@@ -1,7 +1,7 @@
 //todo
 //  pageURL refURL protocol related functions
 // forEachOnArray
-
+var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var BID = require("./bid.js");
 var bidManager = require("./bidManager.js");
@@ -486,6 +486,7 @@ exports.isIframe = function(theWindow){
 	}
 };
 
+//todo: this function is not used
 exports.findInString = function(theString, find){
 	return theString.indexOf(find) >= 0;
 };
@@ -729,6 +730,7 @@ exports.addMessageEventListenerForSafeFrame = function(theWindow){
 	refThis.addMessageEventListener(theWindow, refThis.safeFrameCommunicationProtocol);
 };
 
+//todo: this function is not in use
 exports.getElementLocation = function( el ) {
 	var rect,
 		x = 0,
@@ -1026,4 +1028,30 @@ exports.getAdFormatFromBidAd = function(ad){
 		// }
 	}
 	return format;
+};
+
+// This common function can be used add hooks for publishers to make changes in flows
+exports.handleHook = function(hookName, arrayOfDataToPass) {
+	// Adding a hook for publishers to modify the data we have
+	if(refThis.isFunction(window.PWT[hookName])){
+		window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
+	} else {
+		refThis.log('Hook-name: '+hookName+', window.PWT.'+hookName+' is not a function.' );
+	}
+};
+
+exports.getCurrencyToDisplay = function(){
+	var defaultCurrency = CONFIG.getAdServerCurrency();
+	if(defaultCurrency == 0){
+		defaultCurrency = 'USD';
+	}
+	if(CONFIG.getAdServerCurrency()){
+		if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig)){
+			var pbConf = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig();
+			if(pbConf && pbConf.currency && pbConf.currency.adServerCurrency){
+				return pbConf.currency.adServerCurrency;
+			}
+		}
+	}
+	return defaultCurrency;
 };
