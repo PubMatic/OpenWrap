@@ -360,7 +360,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
     // this hook is not needed in custom controller
     util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);
-
+    util.setUserIdTargeting(googleDefinedSlot);
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
         /* istanbul ignore else*/

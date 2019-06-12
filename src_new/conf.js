@@ -13,7 +13,9 @@ exports.pwt = {
 	awc: "1",
 	disableAjaxTimeout:true,
 	adServerCurrency: "INR",
-	singleImpression: "1"
+	singleImpression: "1",
+	enableUserIdModule:"1",
+	identityServer:"EB_A9"
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
@@ -121,5 +123,16 @@ exports.nativeConfig = {
 				}
 			}
 		}
+	}
+};
+
+exports.identityPartners = {
+	unifiedId: {
+		ttidpid: "pubmatic"
+	},
+	digiTrust: {
+		member: "nQjyizbdyF",
+		site:"FL6whbX1IW",
+		redirects: true
 	}
 };

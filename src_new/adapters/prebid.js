@@ -595,6 +595,10 @@ function fetchBids(activeSlots, impressionID){
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 
+				if(CONFIG.enableUserIdModule()){
+					prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+				}
+
 				window[pbNameSpace].setConfig(prebidConfig);
 			}
 

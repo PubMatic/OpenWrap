@@ -448,7 +448,7 @@ exports.getMetaInfo = function(cWin){
 	var  obj = {}
 		, MAX_PAGE_URL_LEN = 512
 		, frame
-	;
+		;
 
 	obj.pageURL = "";
 	obj.refURL = "";
@@ -537,7 +537,7 @@ exports.getBididForPMP = function(values, priorityArray){
 		priorityArrayLength = priorityArray.length,
 		selectedPMPDeal = '',
 		bidID = ''
-	;
+		;
 
 	/* istanbul ignore else */
 	if(valuesLength == 0){
@@ -625,15 +625,15 @@ exports.safeFrameCommunicationProtocol = function(msg){
 
 		switch(window.parseInt(msgData.pwt_type)){
 
-			case 1:
+		case 1:
 				/* istanbul ignore else */
-				if(window.PWT.isSafeFrame){
+			if(window.PWT.isSafeFrame){
 					return;
 				}
 
-				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
-				if(bidDetails){
+			if(bidDetails){
 					var theBid = bidDetails.bid,
 						adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid,
@@ -641,22 +641,22 @@ exports.safeFrameCommunicationProtocol = function(msg){
 							pwt_type: 2,
 							pwt_bid: theBid
 						}
-					;
+						;
 					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
 					refThis.resizeWindow(window.document, theBid.width, theBid.height, divID);
 					msg.source.postMessage(window.JSON.stringify(newMsgData), msgData.pwt_origin);
 				}
-				break;
+			break;
 
-			case 2:
+		case 2:
 				/* istanbul ignore else */
-				if(!window.PWT.isSafeFrame){
+			if(!window.PWT.isSafeFrame){
 					return;
 				}
 
 				/* istanbul ignore else */
-				if(msgData.pwt_bid){
+			if(msgData.pwt_bid){
 					var theBid = msgData.pwt_bid;
 					if(theBid.adHtml){
 						try{
@@ -684,11 +684,11 @@ exports.safeFrameCommunicationProtocol = function(msg){
 							}
 
 							var content = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><base target="_top" /><scr' + 'ipt>inDapIF=true;</scr' + 'ipt></head>';
-								content += '<body>';
-								content += "<script>var $sf = window.parent.$sf;<\/script>";
-								content += "<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>";
-								content += theBid.adHtml;
-								content += '</body></html>';
+							content += '<body>';
+							content += "<script>var $sf = window.parent.$sf;<\/script>";
+							content += "<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>";
+							content += theBid.adHtml;
+							content += '</body></html>';
 
 							iframeDoc.write(content);
 							iframeDoc.close();
@@ -707,11 +707,11 @@ exports.safeFrameCommunicationProtocol = function(msg){
 						refThis.log(theBid);
 					}
 				}
-				break;
-			case 3:
-				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+			break;
+		case 3:
+			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
-				if(bidDetails){
+			if(bidDetails){
 					var theBid = bidDetails.bid,
 						adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid;
@@ -721,7 +721,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 					bidManager.fireTracker(theBid,msgData.pwt_action);							
 				}
-				break;
+			break;
 		}
 	}catch(e){}
 };
@@ -735,7 +735,7 @@ exports.getElementLocation = function( el ) {
 	var rect,
 		x = 0,
 		y = 0
-	;
+		;
 
 	if(refThis.isFunction(el.getBoundingClientRect)) {
 		rect = el.getBoundingClientRect();
@@ -756,7 +756,7 @@ exports.createVLogInfoPanel = function(divID, dimensionArray){
 		infoPanelElement,
 		infoPanelElementID,
 		doc = window.document
-	;
+		;
 
 	/* istanbul ignore else */
 	if(refThis.visualDebugLogIsEnabled){
@@ -798,7 +798,7 @@ exports.realignVLogInfoPanel = function(divID){
 		infoPanelElement,
 		infoPanelElementID,
 		doc = window.document
-	;
+		;
 
 	/* istanbul ignore else */
 	if(refThis.visualDebugLogIsEnabled){
@@ -822,7 +822,7 @@ exports.vLogInfo = function(divID, infoObject){
 	var infoPanelElement,
 		message,
 		doc = window.document
-	;
+		;
 	/* istanbul ignore else */
 	if(refThis.visualDebugLogIsEnabled){
 		var infoPanelElementID = divID + "-pwtc-info";
@@ -830,15 +830,15 @@ exports.vLogInfo = function(divID, infoObject){
 		/* istanbul ignore else */
 		if( infoPanelElement ){
 			switch(infoObject.type){
-				case "bid":
-					var latency = infoObject.latency;
-					var bidDetails = infoObject.bidDetails;
-					var currencyMsg = "";
+			case "bid":
+				var latency = infoObject.latency;
+				var bidDetails = infoObject.bidDetails;
+				var currencyMsg = "";
 					/* istanbul ignore else */
-					if(latency < 0){
+				if(latency < 0){
 						latency = 0;
 					}
-					if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
+				if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
 						if (infoObject.adServerCurrency == 0) {
 							currencyMsg = 'USD';
 						} else {
@@ -847,17 +847,17 @@ exports.vLogInfo = function(divID, infoObject){
 					} else {
 						currencyMsg = 'USD';
 					}
-					message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + ")" + currencyMsg + " :" + latency + "ms";
+				message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + ")" + currencyMsg + " :" + latency + "ms";
 					/* istanbul ignore else */
-					if(bidDetails.getPostTimeoutStatus()){
+				if(bidDetails.getPostTimeoutStatus()){
 						message += ": POST-TIMEOUT";
 					}
-					break;
+				break;
 
-				case "win-bid":
-					var bidDetails = infoObject.bidDetails;
-					var currencyMsg = "";
-					if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
+			case "win-bid":
+				var bidDetails = infoObject.bidDetails;
+				var currencyMsg = "";
+				if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
 						if (infoObject.adServerCurrency == 0) {
 							currencyMsg = 'USD';
 						} else {
@@ -866,20 +866,20 @@ exports.vLogInfo = function(divID, infoObject){
 					} else {
 						currencyMsg = 'USD';
 					}
-					message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm() + currencyMsg;
-					break;
+				message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm() + currencyMsg;
+				break;
 
-				case "win-bid-fail":
-					message = "There are no bids from PWT";
-					break;
+			case "win-bid-fail":
+				message = "There are no bids from PWT";
+				break;
 
-				case "hr":
-					message = "----------------------";
-					break;
+			case "hr":
+				message = "----------------------";
+				break;
 
-				case "disp":
-					message = "Displaying creative from "+ infoObject.adapter;
-					break;
+			case "disp":
+				message = "Displaying creative from "+ infoObject.adapter;
+				break;
 			}
 			infoPanelElement.appendChild(doc.createTextNode(message));
 			infoPanelElement.appendChild(doc.createElement("br"));
@@ -1054,4 +1054,82 @@ exports.getCurrencyToDisplay = function(){
 		}
 	}
 	return defaultCurrency;
+};
+
+exports.getUserIdConfiguration = function(){
+	var userIdConfs = [];
+	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId,partnerValues){
+		var uIdConf = {};
+		switch(parterId){
+		case "unifiedId":
+			uIdConf = {
+				name: "unifiedId",
+				params:{
+					url: "//match.adsrvr.org/track/rid?ttd_pid="+ partnerValues.ttidpid + "&fmt=json"
+				},
+				storage: {
+					type: "cookie",  
+					name: "pbjs-unifiedid",       // create a cookie with this name
+					expires: 60                   // cookie can last for 60 days
+				}
+			};
+			break;
+		case "digitrust":
+			uIdConf = {
+				name: "digitrust",
+				params: {
+					init: {
+						member: partnerValues.member,
+						site: partnerValues.site
+					},
+					callback: function (digiTrustResult) {
+					// This callback method is optional
+						if (digiTrustResult.success) {
+							// Success in Digitrust init;
+							// 'DigiTrust Id (encrypted): ' + digiTrustResult.identity.id;
+							refThis.log("DigiTrust Id (encrypted): " + digiTrustResult.identity.id);
+						}
+						else {
+							// Digitrust init failed
+							refThis.log("DigiTrust init failed");
+						}
+					}
+				},
+				storage: {
+					type: "cookie",
+					name: "pbjsdigitrust",
+					expires: 60
+				}
+			};
+			break;
+		default:
+
+			break;
+		}
+		userIdConfs.push(uIdConf);
+	});
+	return userIdConfs;
+};
+
+exports.setUserIdTargeting = function(googleDefinedSlot){
+	if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
+		var userIds = refThis.getUserIds();
+		if(userIds && userIds != {}){
+			refThis.setUserIdToGPT(googleDefinedSlot,userIds);
+		}
+		else{
+			setTimeout(function(){
+				var userIds = refThis.getUserIds();
+				refThis.setUserIdToGPT(googleDefinedSlot,userIds);
+			},500);
+		}
+	}
+};
+
+exports.setUserIdToGPT = function(googleDefinedSlot,userIds){
+	googleDefinedSlot.setTargeting("pwtuserId",JSON.stringify(userIds));
+};
+
+exports.getUserIds = function(){
+	return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
 };
