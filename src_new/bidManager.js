@@ -176,7 +176,7 @@ function auctionBids(bmEntry) { // TDD, i/o : done
     var winningBid = null,
 		keyValuePairs = {};
 	/* istanbul ignore next */
-	bmEntry.adapters = util.scanCreatives(bmEntry.adapters);
+	util.scanCreatives(bmEntry.adapters);
     util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
         var obj = refThis.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
         winningBid  = obj.winningBid;
@@ -214,6 +214,12 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
 	var refThis = this;
     if (adapterEntry.getLastBidID() != "") {
         util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+			/*istanbul ignore next */
+			if(util.blockedcreativeIds.indexOf(theBid.getCreativeId())>-1){
+				util.log("Creative not upto the mark for partner : " + adapterID + " and creative Id " + theBid.getCreativeId() + "Blocking It");
+				return { winningBid: winningBid , keyValuePairs: keyValuePairs };
+			}
+
             // do not consider post-timeout bids
             /* istanbul ignore else */
             if (theBid.getPostTimeoutStatus() === true) {

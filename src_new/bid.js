@@ -317,7 +317,13 @@ Bid.prototype.getCreativeId = function(){
 };
 
 Bid.prototype.setCreativeId = function(crId){
-	this.creativeID = crId;
+	/* istanbul ignore next */
+	this.creativeID = crId.toString();
+	/* istanbul ignore next */
+	UTIL.creativeKVPS.push({
+		creativeId:this.creativeID,
+		partnerName:this.adapterID
+	});
 	return this;
 };
 

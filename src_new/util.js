@@ -8,6 +8,7 @@ var bidManager = require("./bidManager.js");
 
 var debugLogIsEnabled = false;
 
+
 /* start-test-block */
 exports.debugLogIsEnabled = debugLogIsEnabled;
 /* end-test-block */
@@ -24,6 +25,11 @@ var toString = Object.prototype.toString;
 
 var refThis = this;
 
+var creativeKVPS = [];
+exports.creativeKVPS = creativeKVPS;
+
+var blockedcreativeIds = [];
+exports.blockedcreativeIds = blockedcreativeIds;
 
 function isA(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
@@ -1068,39 +1074,39 @@ function iterateAdapters(adapters, callback1, callback2) {
 
 /* istanbul ignore next */
 exports.scanCreatives = function (adapters) {
-	var creativeKVPs = [];
-	var adaptersToConsider = adapters;
-	iterateAdapters(adapters, function (adapterID, adapterEntry, theBid) {
-		creativeKVPs.push({
-			creativeId: theBid.getCreativeId().toString(),
-			partnerName: adapterID
-		});
-	},function(){});
+	// var creativeKVPs = [];
+	// var adaptersToConsider = adapters;
+	// iterateAdapters(adapters, function (adapterID, adapterEntry, theBid) {
+	// 	creativeKVPs.push({
+	// 		creativeId: theBid.getCreativeId().toString(),
+	// 		partnerName: adapterID
+	// 	});
+	// },function(){});
 	// request to creativeKVPS -> Network Call 
-	var creativeKVPsresponse = refThis.getBlockedCreatives(creativeKVPs);
+	refThis.blockedcreativeIds = refThis.getBlockedCreatives(refThis.creativeKVPS);
 	// We get response of creativeIds to block in similar fashion
-	if(creativeKVPsresponse && creativeKVPsresponse.length > 0){
-		var bidsToConsider = [];
-		iterateAdapters(adapters, function (adapterID, adapterEntry, theBid) {
-			refThis.forEachOnObject(creativeKVPsresponse, function (id, creativeId) {
-				if (creativeId.creativeId != theBid.getCreativeId()) {
-					bidsToConsider.push(theBid);
-				}
-				else{
-					refThis.log("MalWare Creative Found for partner : " + adapterID + " and creative Id " + theBid.getCreativeId());
-				}
-			});
-		}, function (adapterEntry) {
-			adapterEntry.bids = bidsToConsider;
-			adaptersToConsider.push(adapterEntry);
-		});
-	}
-	return adaptersToConsider;
+	// if(creativeKVPsresponse && creativeKVPsresponse.length > 0){
+	// 	var bidsToConsider = [];
+	// 	iterateAdapters(adapters, function (adapterID, adapterEntry, theBid) {
+	// 		refThis.forEachOnObject(creativeKVPsresponse, function (id, creativeId) {
+	// 			if (creativeId.creativeId != theBid.getCreativeId()) {
+	// 				bidsToConsider.push(theBid);
+	// 			}
+	// 			else{
+	// 				refThis.log("MalWare Creative Found for partner : " + adapterID + " and creative Id " + theBid.getCreativeId());
+	// 			}
+	// 		});
+	// 	}, function (adapterEntry) {
+	// 		adapterEntry.bids = bidsToConsider;
+	// 		adaptersToConsider.push(adapterEntry);
+	// 	});
+	// }
+	// return adaptersToConsider;
 };
 
 exports.getBlockedCreatives = function(creativeKVPs){
 	var creativeKVPsresponse = [];
-	var url = "172.16.4.46:2424/cache";
+	var url = "http://172.16.4.46:2424/cache";
 	refThis.ajaxRequest(url,function(responseText,responseKVPS){
 		if(responseKVPS &&  responseKVPS.length > 0){
 			creativeKVPsresponse = responseKVPS;

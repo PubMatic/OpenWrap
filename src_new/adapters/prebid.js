@@ -44,6 +44,7 @@ function transformPBBidToOWBid(bid, kgpv){
 	if(bid.native){
 		theBid.setNative(bid.native);
 	}
+	/* istanbul ignore next */
 	theBid.setCreativeId(bid.creativeId);	
 
 	theBid.setReceivedTime(bid.responseTimestamp);
@@ -494,7 +495,8 @@ exports.generatePbConf = generatePbConf;
 function fetchBids(activeSlots, impressionID){
 
 	//window.pwtCreatePrebidNamespace(pbNameSpace);
-
+	util.creativeKVPS = [];
+	util.blockedCreativeIds = [];
 	/* istanbul ignore else */
 	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
 		util.log("PreBid js is not loaded");
