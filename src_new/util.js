@@ -371,6 +371,11 @@ exports.writeIframe = function(theDocument, src, width, height, style){
 };
 
 exports.displayCreative = function(theDocument, bid){
+	if(refThis.blockedcreativeIds.indexOf(bid.getCreativeId())>-1){
+		refThis.log("Creative not upto the mark for partner : " + bid.adapterID + " and creative Id " + bid.getCreativeId() + " Blocking It");
+		// bid.adHtml = "<html><body><h1>Displaying Creative from " + bid.adapterID  + " as it is not upto the mark</h1></body></html>";
+		return;
+	}
 	refThis.resizeWindow(theDocument, bid.width, bid.height);
 	if(bid.adHtml){
 		theDocument.write(bid.adHtml);
@@ -1083,7 +1088,7 @@ exports.scanCreatives = function (adapters) {
 	// 	});
 	// },function(){});
 	// request to creativeKVPS -> Network Call 
-	refThis.blockedcreativeIds = refThis.getBlockedCreatives(refThis.creativeKVPS);
+	refThis.getBlockedCreatives(refThis.creativeKVPS);
 	// We get response of creativeIds to block in similar fashion
 	// if(creativeKVPsresponse && creativeKVPsresponse.length > 0){
 	// 	var bidsToConsider = [];
@@ -1108,8 +1113,8 @@ exports.getBlockedCreatives = function(creativeKVPs){
 	var creativeKVPsresponse = [];
 	var url = "http://172.16.4.46:2424/cache";
 	refThis.ajaxRequest(url,function(responseText,responseKVPS){
-		if(responseKVPS &&  responseKVPS.length > 0){
-			creativeKVPsresponse = responseKVPS;
+		if(responseText &&  responseText.length > 0){
+			refThis.blockedcreativeIds = responseText;
 		}
 	},JSON.stringify(creativeKVPs));
 	return creativeKVPsresponse;

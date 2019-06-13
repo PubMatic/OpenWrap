@@ -176,7 +176,6 @@ function auctionBids(bmEntry) { // TDD, i/o : done
     var winningBid = null,
 		keyValuePairs = {};
 	/* istanbul ignore next */
-	util.scanCreatives(bmEntry.adapters);
     util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
         var obj = refThis.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
         winningBid  = obj.winningBid;

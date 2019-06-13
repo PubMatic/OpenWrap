@@ -625,6 +625,9 @@ function fetchBids(activeSlots, impressionID){
 					},
 					timeout: timeoutForPrebid
 				});
+				setTimeout(function(){
+					util.scanCreatives();
+				},timeoutForPrebid-100);
 			} else {
 				util.log("PreBid js requestBids function is not available");
 				return;
