@@ -5,6 +5,8 @@ var bidManager = require("../bidManager.js");
 var GDPR = require("../gdpr.js");
 var adapterManager = require("../adapterManager.js");
 var SLOT = require("../slot.js");
+var prebid = require("../adapters/prebid.js");
+
 
 var displayHookIsAdded = false;
 
@@ -624,6 +626,11 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
         return function() {
             /* istanbul ignore next */
             util.log("In display function, with arguments: ");
+
+            if(CONFIG.isIdentityOnly()){
+                util.log("Identity Only Enabled. No Process Need. Calling Original Display function");
+                return originalFunction.apply(theObject, arguments);
+            }
             /* istanbul ignore next */
             util.log(arguments);
             /* istanbul ignore next */
@@ -855,6 +862,9 @@ function newDefineSlot(theObject, originalFunction){ // TDD, i/o : done
           /* istanbul ignore next */
           var slot =  originalFunction.apply(theObject, arguments);
           util.addHookOnFunction(slot, false, "defineSizeMapping", refThis.newSizeMappingFunction);
+          if(CONFIG.isIdentityOnly()){
+            util.setUserIdTargeting(slot);
+          }
           /* istanbul ignore next */
           return slot;
           
@@ -923,6 +933,10 @@ function addHooksIfPossible(win) { // TDD, i/o : done
             /* istanbul ignore next */
             util.log("OpenWrap initialization completed");
         });
+        if(CONFIG.isIdentityOnly()){
+            util.log("Identity Only Enabled and setting config");
+            prebid.register().sC();
+        }
         return true;
     } else {
         util.log("Failed to load before GPT");

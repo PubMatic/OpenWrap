@@ -53,9 +53,9 @@ if (task == CREATIVE_TASK) {
 				break;
 			case "build-all" :
 				console.log("Executing build");
-				prebidTaskName = "build-bundle-dev";
-				openwrapBuildTaskName = "devbundle";
-				openwrapWebpackTaskName = "devpack";
+				prebidTaskName = "build-bundle-dev --modules=modules.json";
+				openwrapBuildTaskName = "bundle";
+				openwrapWebpackTaskName = "webpack";
 			break;	
 			default:
 				console.log("No mode supplied, Too few arguments");

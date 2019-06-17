@@ -14,8 +14,9 @@ exports.pwt = {
 	disableAjaxTimeout:true,
 	adServerCurrency: "INR",
 	singleImpression: "1",
-	enableUserIdModule:"1",
-	identityServer:"EB_A9"
+	identity:"1",
+	identityServer:"EB_A9",
+	identityOnly:"1"
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
@@ -130,7 +131,7 @@ exports.identityPartners = {
 	unifiedId: {
 		ttidpid: "pubmatic"
 	},
-	digiTrust: {
+	digitrust: {
 		member: "nQjyizbdyF",
 		site:"FL6whbX1IW",
 		redirects: true

@@ -646,6 +646,38 @@ function getParenteAdapterID() {
 	return refThis.parentAdapterID;
 }
 
+function setConfig(){
+	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
+		var prebidConfig = {
+			debug: util.isDebugLogEnabled(),
+			bidderSequence: "random",
+			userSync: {
+				
+			},
+			disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
+		};
+
+		if (CONFIG.getGdpr()) {
+			prebidConfig["consentManagement"] = {
+				cmpApi: CONFIG.getCmpApi(),
+				timeout: CONFIG.getGdprTimeout(),
+				allowAuctionWithoutConsent: CONFIG.getAwc()
+			};
+		}
+
+		// Adding a hook for publishers to modify the Prebid Config we have generated
+		// util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+
+		if(CONFIG.enableUserIdModule()){
+			prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+		}
+
+		window[pbNameSpace].setConfig(prebidConfig);
+	}
+}
+
+exports.setConfig = setConfig;
+
 /* start-test-block */
 exports.getParenteAdapterID = getParenteAdapterID;
 /* end-test-block */
@@ -653,6 +685,7 @@ exports.getParenteAdapterID = getParenteAdapterID;
 exports.register = function(){
 	return {
 		fB: refThis.fetchBids,
-		ID: refThis.getParenteAdapterID
+		ID: refThis.getParenteAdapterID,
+		sC:	refThis.setConfig
 	};
 };

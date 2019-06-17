@@ -1123,6 +1123,10 @@ exports.setUserIdTargeting = function(googleDefinedSlot){
 				refThis.setUserIdToGPT(googleDefinedSlot,userIds);
 			},500);
 		}
+	}else{
+		setTimeout(function(googleDefinedSlot) {
+			refThis.setUserIdTargeting(googleDefinedSlot);
+		}, 500)(googleDefinedSlot);
 	}
 };
 

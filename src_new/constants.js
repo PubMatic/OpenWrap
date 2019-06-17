@@ -25,9 +25,10 @@ exports.COMMON = {
 	"AD_SERVER_CURRENCY": "adServerCurrency",
 	"SINGLE_IMPRESSION":"singleImpression",
 	"PREBID_NAMESPACE": "owpbjs",
-	"ENABLE_USER_ID":"enableUserIdModule",
+	"ENABLE_USER_ID":"identity",
 	"IDENTITY_SERVER": "identityServer",
-	"IDENTITY_PARTNERS":"identityPartners"
+	"IDENTITY_PARTNERS":"identityPartners",
+	"IDENTITY_ONLY":"identityOnly"
 };
 
 exports.CONFIG = {

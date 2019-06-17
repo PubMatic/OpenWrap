@@ -175,7 +175,7 @@ exports.isSingleImpressionSettingEnabled = function(){
 };
 
 exports.enableUserIdModule = function(){
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.AD_SERVER_CURRENCY];
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ENABLE_USER_ID];
 };
 
 exports.identityServer = function(){
@@ -184,5 +184,9 @@ exports.identityServer = function(){
 
 exports.getIdentityPartners = function(){
 	return config[CONSTANTS.COMMON.IDENTITY_PARTNERS];
+};
+
+exports.isIdentityOnly = function(){
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY];
 };
 
