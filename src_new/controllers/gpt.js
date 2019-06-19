@@ -124,6 +124,12 @@ function getAdSlotSizesArray(divID, currentGoogleSlot) { // TDD, i/o : done
 
     if (sizeMapping !== false) {
         util.log(divID + ": responsiveSizeMapping applied: ");
+        // Below code is written in case  of responsive sizes and first size is fluid and we are sending single impression
+        // for multiple sizes. As first size is fluid single impression will be passed as DIV@fxl and it will be 
+        // ignored in pubmaticBidAdapter in prebid, hence below code move fluid size to last size preventing the above condition
+        if(util.isString(sizeMapping[0]) || (util.isArray(sizeMapping[0]) && sizeMapping[0].length == 1 && util.isString(sizeMapping[0][0]))){
+            sizeMapping.push(sizeMapping.shift());
+        }
         util.log(sizeMapping);
         return sizeMapping;
     }
@@ -336,7 +342,8 @@ exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     var data = bidManager.getBid(divID);
     var winningBid = data.wb || null;
-    var keyValuePairs = data.kvp || null;
+    var keyValuePairs = data.kvp || {};
+    var wbKeyValuePairs = null;
     var googleDefinedSlot = refThis.slotsMap[divID].getPubAdServerObject();
     var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
 
@@ -346,20 +353,13 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     /* istanbul ignore else*/
     if (winningBid && winningBid.getNetEcpm() > 0) {
         refThis.slotsMap[divID].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID, winningBid.getBidID());
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS, winningBid.getStatus());
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM, winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
-        var dealID = winningBid.getDealID();
-        if(dealID){
-            googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID, dealID);
-        }
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID, winningBid.getAdapterID());
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID, CONFIG.getPublisherId());
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID, CONFIG.getProfileID());
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID, CONFIG.getProfileDisplayVersionID());
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE, winningBid.width + 'x' + winningBid.height);
-        googleDefinedSlot.setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY, CONSTANTS.PLATFORM_VALUES.DISPLAY);
-    }
+        bidManager.setStandardKeys(winningBid, keyValuePairs);
+    };
+
+    
+    // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
+    // this hook is not needed in custom controller
+    util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);
 
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
@@ -849,6 +849,26 @@ function addHookOnSlotDefineSizeMapping(localGoogletag) { // TDD, i/o : done
 exports.addHookOnSlotDefineSizeMapping = addHookOnSlotDefineSizeMapping;
 /* end-test-block */
 
+function newDefineSlot(theObject, originalFunction){ // TDD, i/o : done
+    if (util.isObject(theObject) && util.isFunction(originalFunction)) {
+      return function() {
+          /* istanbul ignore next */
+          var slot =  originalFunction.apply(theObject, arguments);
+          util.addHookOnFunction(slot, false, "defineSizeMapping", refThis.newSizeMappingFunction);
+          /* istanbul ignore next */
+          return slot;
+          
+      };
+    } else {
+        util.log("newDefineSlot: originalFunction is not a function");
+        return null;
+    }
+}
+
+/* start-test-block */
+exports.newDefineSlot = newDefineSlot;
+/* end-test-block */
+
 function addHooks(win) { // TDD, i/o : done
 
     if (util.isObject(win) && util.isObject(win.googletag) && util.isFunction(win.googletag.pubads)) {
@@ -860,7 +880,8 @@ function addHooks(win) { // TDD, i/o : done
             return false;
         }
 
-        refThis.addHookOnSlotDefineSizeMapping(localGoogletag);
+        // refThis.addHookOnSlotDefineSizeMapping(localGoogletag);
+        util.addHookOnFunction(localGoogletag, false, "defineSlot", refThis.newDefineSlot);
         util.addHookOnFunction(localPubAdsObj, false, "disableInitialLoad", refThis.newDisableInitialLoadFunction);
         util.addHookOnFunction(localPubAdsObj, false, "enableSingleRequest", refThis.newEnableSingleRequestFunction);
         refThis.newAddHookOnGoogletagDisplay(localGoogletag);
