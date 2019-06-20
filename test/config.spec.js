@@ -597,4 +597,185 @@ describe('Config', function() {
             done();
         });
     });
+
+    describe('#getNativeConfiguration',function(){
+        var conf;
+        beforeEach(function(done){
+            conf =  {
+                kgp:"_DIV_",
+                klm:{
+                    "DIV1":{
+                        "NativeOnly": true,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    },
+                    "DIV2":{
+                        "NativeOnly": true,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    }
+                }
+            };
+            CONF[CONSTANTS.COMMON.NATIVE_MEDIA_TYPE_CONFIG] = conf;
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.COMMON.NATIVE_MEDIA_TYPE_CONFIG];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getNativeConfiguration.should.be.a('function');
+            done();
+        });
+
+        it('should return nativeConfig by reading from config', function(done) {
+            var expectedResult =  {
+                kgp:"_DIV_",
+                klm:{
+                    "DIV1":{
+                        "NativeOnly": true,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    },
+                    "DIV2":{
+                        "NativeOnly": true,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    }
+                }
+            };
+            CONFIG.getNativeConfiguration().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should be undefined if nativeConfig is not present',function(done){
+            delete CONF[CONSTANTS.COMMON.NATIVE_MEDIA_TYPE_CONFIG];
+            expect(CONFIG.getNativeConfiguration()).to.equal(undefined);
+            done();
+        })
+    })
+
+    describe('#getAdServerCurrency',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.AD_SERVER_CURRENCY] = "INR";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.AD_SERVER_CURRENCY];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getAdServerCurrency.should.be.a('function');
+            done();
+        });
+
+        it('should return adServerCurrency by reading from config', function(done) {
+            var expectedResult = "INR"
+            CONFIG.getAdServerCurrency().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should be undefined if adServerCurrency is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.AD_SERVER_CURRENCY];
+            expect(CONFIG.getAdServerCurrency()).to.equal(undefined);
+            done();
+        })
+    })
+
+    describe('#getSingleImpressionSetting',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.isSingleImpressionSettingEnabled.should.be.a('function');
+            done();
+        });
+
+        it('should return 1 by reading from config', function(done) {
+            var expectedResult = 1;
+            CONFIG.isSingleImpressionSettingEnabled().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return 0 if getSingleImpressionSetting is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION];
+            expect(CONFIG.isSingleImpressionSettingEnabled()).to.equal(0);
+            done();
+        });
+
+        it('should return 0 if singleImpression set to "0"', function(done) {
+            var expectedResult = 0;
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION] = "0";
+            CONFIG.isSingleImpressionSettingEnabled().should.be.deep.equal(expectedResult);
+            done();
+        });
+    })
+
 });

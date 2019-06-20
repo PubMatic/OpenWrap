@@ -159,3 +159,17 @@ exports.initConfig = function(){
 		});
 	});
 };
+
+/* Native Configuration */
+
+exports.getNativeConfiguration = function(){
+	return config[CONSTANTS.COMMON.NATIVE_MEDIA_TYPE_CONFIG];
+};
+
+exports.getAdServerCurrency = function(){
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.AD_SERVER_CURRENCY];
+};
+
+exports.isSingleImpressionSettingEnabled = function(){
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION] || CONSTANTS.CONFIG.DEFAULT_SINGLE_IMPRESSION);
+};

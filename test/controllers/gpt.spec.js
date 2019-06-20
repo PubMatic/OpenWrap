@@ -296,20 +296,8 @@ describe("CONTROLLER: GPT", function() {
 
             sinon.stub(GPT, 'getSizeFromSizeMapping');
             slotSizeMapping = [
-                [
-                    [ 1024, 768 ],
-                    [
-                        970, 250
-                    ]
-                ],
-
-                [
-                    [ 980, 600 ],
-                    [
                         [ 728, 90 ],
                         [ 640, 480 ]
-                    ]
-                ]
             ];
             GPT.getSizeFromSizeMapping.returns(slotSizeMapping);
             sinon.spy(UTIL, 'log');
@@ -361,6 +349,42 @@ describe("CONTROLLER: GPT", function() {
             GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.deep.equal(slotSizeMapping);
             UTIL.log.calledWith(divID + ": responsiveSizeMapping applied: ").should.be.true;
             UTIL.log.calledWith(slotSizeMapping).should.be.true;
+            done();
+        });
+
+        it('should have push fluid to last if it is first size in mapping', function(done) {
+            slotSizeMapping = ['fluid',[ 728, 90 ],
+            [ 640, 480 ]];
+            var expectedSlotMapping = [[ 728, 90 ],
+            [ 640, 480 ],'fluid'];
+            GPT.getSizeFromSizeMapping.restore();
+            sinon.stub(GPT, 'getSizeFromSizeMapping');
+            GPT.getSizeFromSizeMapping.returns(slotSizeMapping);
+            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.deep.equal(expectedSlotMapping);
+            done();
+        });
+
+        it('should have push fluid to last if it is first size as array in mapping', function(done) {
+            slotSizeMapping = [['fluid'],[ 728, 90 ],
+            [ 640, 480 ]];
+            var expectedSlotMapping = [[ 728, 90 ],
+            [ 640, 480 ],['fluid']];
+            GPT.getSizeFromSizeMapping.restore();
+            sinon.stub(GPT, 'getSizeFromSizeMapping');
+            GPT.getSizeFromSizeMapping.returns(slotSizeMapping);
+            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.deep.equal(expectedSlotMapping);
+            done();
+        });
+
+        it('should not do anything if first size is not string or not multiple strings', function(done) {
+            slotSizeMapping = [78,[ 728, 90 ],
+            [ 640, 480 ]];
+            var expectedSlotMapping = [[ 728, 90 ],
+            [ 640, 480 ],78];
+            GPT.getSizeFromSizeMapping.restore();
+            sinon.stub(GPT, 'getSizeFromSizeMapping');
+            GPT.getSizeFromSizeMapping.returns(slotSizeMapping);
+            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.not.be.equal(expectedSlotMapping);
             done();
         });
 
@@ -1371,12 +1395,16 @@ describe("CONTROLLER: GPT", function() {
                 getAdapterID: function() {
                     return "getAdapterID";
                 },
+                getNative: function() {
+                    return "getNative";
+                },
             };
             sinon.stub(winningBidStub, "getBidID");
             sinon.stub(winningBidStub, "getStatus");
             sinon.stub(winningBidStub, "getNetEcpm");
             sinon.stub(winningBidStub, "getDealID");
             sinon.stub(winningBidStub, "getAdapterID");
+            sinon.stub(winningBidStub, "getNative");
             keyValuePairsStub = {
                 "key1": {
                     "k1": "v1",
@@ -1434,6 +1462,7 @@ describe("CONTROLLER: GPT", function() {
                 winningBidStub.getNetEcpm.restore();
                 winningBidStub.getDealID.restore();
                 winningBidStub.getAdapterID.restore();
+                winningBidStub.getNative.restore();
             }
             divID = null;
             keyValuePairsStub = null;
@@ -1507,7 +1536,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should have set targeting when winning bid\'s net ecpm is greater than 0 but should not have called set targeting on deal id if not valid', function (done) {
+        xit('should have set targeting when winning bid\'s net ecpm is greater than 0 but should not have called set targeting on deal id if not valid', function (done) {
             winningBidStub.getNetEcpm.returns(2);
             winningBidStub.getDealID.returns(null);
             GPT.findWinningBidAndApplyTargeting(divID);
@@ -1526,7 +1555,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should have set targeting when winning bid\'s net ecpm is greater than 0 and should have called set targeting on deal id is valid', function (done) {
+        xit('should have set targeting when winning bid\'s net ecpm is greater than 0 and should have called set targeting on deal id is valid', function (done) {
             winningBidStub.getNetEcpm.returns(2);
             winningBidStub.getDealID.returns("deal_id");
             GPT.findWinningBidAndApplyTargeting(divID);

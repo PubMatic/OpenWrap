@@ -16,7 +16,15 @@ exports.COMMON = {
 	"KEY_GENERATION_PATTERN_VALUE": "kgpv",
 	"KEY_VALUE_PAIRS": "kvp",
 	"IMPRESSION_ID": "iid",
-	"PARENT_ADAPTER_PREBID": "prebid"
+	"PARENT_ADAPTER_PREBID": "prebid",
+	"ANALYTICS_CURRENCY":"USD",
+	"NATIVE_MEDIA_TYPE_CONFIG": "nativeConfig",
+	"NATIVE_ONLY": "nativeOnly",
+	"OW_CLICK_NATIVE": "openwrap-native-click",
+	"BID_ID":"owbidid",
+	"AD_SERVER_CURRENCY": "adServerCurrency",
+	"SINGLE_IMPRESSION":"singleImpression",
+	"PREBID_NAMESPACE": "owpbjs"
 };
 
 exports.CONFIG = {
@@ -48,6 +56,7 @@ exports.CONFIG = {
 	"DEFAULT_GDPR_CMPAPI": "iab",
 	"DEFAULT_GDPR_TIMEOUT": 10000,
 	"DEFAULT_GDPR_AWC": "0",
+	"DEFAULT_SINGLE_IMPRESSION": "0",
 	"DEFAULT_GDPR_CONSENT": "0",
 	"DISABLE_AJAX_TIMEOUT":"disableAjaxTimeout"
 };
@@ -132,9 +141,25 @@ exports.MESSAGES = {
 	"M22": "Bid is rejected as ecpm is <= 0.",
 	"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner.",
 	"M24": "Passsed argument is not a bidAdaptor",
-	"M25": "Bid details not found for bidID: "
+	"M25": "Bid details not found for bidID: ",
+	"M26": "Currency Module is Activated. Ad Server Currency is: " 
 };
 
 exports.PLATFORM_VALUES = {
-	"DISPLAY": "display"
+	"DISPLAY": "display",
+	"NATIVE": "native"
+};
+
+exports.FORMAT_VALUES = {
+	"BANNER": "banner",
+	"VIDEO": "video",
+	"NATIVE": "native",
+	"OTHER": "other"
+};
+
+exports.HOOKS = {
+	"PREBID_SET_CONFIG": "HookForPrebidSetConfig",
+	"PREBID_REQUEST_BIDS": "HookForPrebidRequestBids",
+	"BID_RECEIVED": "HookForBidReceived",
+	"POST_AUCTION_KEY_VALUES": "HookForPostAuctionKeyValues"
 };
