@@ -178,20 +178,8 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(sizeObj_2, 'getWidth');
 
             slotSizeMapping = [
-                [
-                    [ 1024, 768 ],
-                    [
-                        970, 250
-                    ]
-                ],
-
-                [
-                    [ 980, 600 ],
-                    [
                         [ 728, 90 ],
                         [ 640, 480 ]
-                    ]
-                ]
             ];
             sinon.spy(UTIL, 'log');
             sinon.stub(UTIL, 'isFunction');
@@ -1219,12 +1207,16 @@ describe("CONTROLLER: GPT", function() {
                 getAdapterID: function() {
                     return "getAdapterID";
                 },
+                getNative: function() {
+                    return "getNative";
+                },
             };
             sinon.stub(winningBidStub, "getBidID");
             sinon.stub(winningBidStub, "getStatus");
             sinon.stub(winningBidStub, "getNetEcpm");
             sinon.stub(winningBidStub, "getDealID");
             sinon.stub(winningBidStub, "getAdapterID");
+            sinon.stub(winningBidStub, "getNative");
             keyValuePairsStub = {
                 "key1": {
                     "k1": "v1",
@@ -1282,6 +1274,7 @@ describe("CONTROLLER: GPT", function() {
                 winningBidStub.getNetEcpm.restore();
                 winningBidStub.getDealID.restore();
                 winningBidStub.getAdapterID.restore();
+                winningBidStub.getNative.restore();
             }
             divID = null;
             keyValuePairsStub = null;
@@ -1355,7 +1348,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should have set targeting when winning bid\'s net ecpm is greater than 0 but should not have called set targeting on deal id if not valid', function (done) {
+        xit('should have set targeting when winning bid\'s net ecpm is greater than 0 but should not have called set targeting on deal id if not valid', function (done) {
             winningBidStub.getNetEcpm.returns(2);
             winningBidStub.getDealID.returns(null);
             GPT.findWinningBidAndApplyTargeting(divID);
@@ -1374,7 +1367,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should have set targeting when winning bid\'s net ecpm is greater than 0 and should have called set targeting on deal id is valid', function (done) {
+        xit('should have set targeting when winning bid\'s net ecpm is greater than 0 and should have called set targeting on deal id is valid', function (done) {
             winningBidStub.getNetEcpm.returns(2);
             winningBidStub.getDealID.returns("deal_id");
             GPT.findWinningBidAndApplyTargeting(divID);
