@@ -751,7 +751,6 @@ function addHooks(win) { // TDD, i/o : done
             return false;
         }
 
-        util.addHookOnFunction(localGoogletag, false, "defineSlot", refThis.newDefineSlot);
         util.addHookOnFunction(localPubAdsObj, false, "disableInitialLoad", refThis.newDisableInitialLoadFunction);
         util.addHookOnFunction(localPubAdsObj, false, "enableSingleRequest", refThis.newEnableSingleRequestFunction);
         refThis.newAddHookOnGoogletagDisplay(localGoogletag);
