@@ -515,6 +515,8 @@ function fetchBids(activeSlots, impressionID){
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
+	var isRubiconPresent = false;
+	var isImprovedigitalPresent = false;
 
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
 		// Assumption: all partners are running through PreBid,
@@ -530,6 +532,12 @@ function fetchBids(activeSlots, impressionID){
 			}else{
 				util.log(adapterID+CONSTANTS.MESSAGES.M2);
 			}
+		}
+		if(adapterID == "rubicon"){
+			isRubiconPresent = true;
+		}
+		if(adapterID== "improvedDigital"){
+			isImprovedigitalPresent = true;			
 		}
 	});
 
@@ -590,6 +598,17 @@ function fetchBids(activeSlots, impressionID){
 						"granularityMultiplier": 1, 
 					};
 
+				}
+
+				if(isRubiconPresent){
+					prebidConfig["rubicon"] = {
+						singleRequest : true
+					};
+				}
+				if(isImprovedigitalPresent){
+					prebidConfig["improvedigital"] = {
+						singleRequest : true
+					};
 				}
 
 				// Adding a hook for publishers to modify the Prebid Config we have generated
