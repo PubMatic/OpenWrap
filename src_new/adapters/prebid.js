@@ -533,10 +533,10 @@ function fetchBids(activeSlots, impressionID){
 				util.log(adapterID+CONSTANTS.MESSAGES.M2);
 			}
 		}
-		if(adapterID == "rubicon"){
+		if(adapterID == CONSTANTS.BIDDER_NAMES.RUBICON){
 			isRubiconPresent = true;
 		}
-		if(adapterID== "improvedDigital"){
+		if(adapterID== CONSTANTS.BIDDER_NAMES.IMPROVE_DIGITAL){
 			isImprovedigitalPresent = true;			
 		}
 	});
@@ -601,12 +601,12 @@ function fetchBids(activeSlots, impressionID){
 				}
 
 				if(isRubiconPresent){
-					prebidConfig["rubicon"] = {
+					prebidConfig[CONSTANTS.BIDDER_NAMES.RUBICON] = {
 						singleRequest : true
 					};
 				}
 				if(isImprovedigitalPresent){
-					prebidConfig["improvedigital"] = {
+					prebidConfig[CONSTANTS.BIDDER_NAMES.IMPROVE_DIGITAL] = {
 						singleRequest : true
 					};
 				}
