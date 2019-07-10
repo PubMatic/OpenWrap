@@ -515,8 +515,7 @@ function fetchBids(activeSlots, impressionID){
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
-	var isRubiconPresent = false;
-	var isImprovedigitalPresent = false;
+	var partnerToEnableSRA = [];
 
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
 		// Assumption: all partners are running through PreBid,
@@ -533,11 +532,8 @@ function fetchBids(activeSlots, impressionID){
 				util.log(adapterID+CONSTANTS.MESSAGES.M2);
 			}
 		}
-		if(adapterID == CONSTANTS.BIDDER_NAMES.RUBICON){
-			isRubiconPresent = true;
-		}
-		if(adapterID== CONSTANTS.BIDDER_NAMES.IMPROVE_DIGITAL){
-			isImprovedigitalPresent = true;			
+		if(CONSTANTS.BIDDER_NAMES.indexOf(adapterID)>-1){
+			partnerToEnableSRA.push(adapterID);
 		}
 	});
 
@@ -599,16 +595,12 @@ function fetchBids(activeSlots, impressionID){
 					};
 
 				}
-
-				if(isRubiconPresent){
-					prebidConfig[CONSTANTS.BIDDER_NAMES.RUBICON] = {
-						singleRequest : true
-					};
-				}
-				if(isImprovedigitalPresent){
-					prebidConfig[CONSTANTS.BIDDER_NAMES.IMPROVE_DIGITAL] = {
-						singleRequest : true
-					};
+				if(partnerToEnableSRA && partnerToEnableSRA.length>0){
+					for(var i=0;i<partnerToEnableSRA.length;i++){
+						prebidConfig[partnerToEnableSRA[i]] = {
+							singleRequest : true
+						};
+					}
 				}
 
 				// Adding a hook for publishers to modify the Prebid Config we have generated

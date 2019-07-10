@@ -164,7 +164,4 @@ exports.HOOKS = {
 	"POST_AUCTION_KEY_VALUES": "HookForPostAuctionKeyValues"
 };
 
-exports.BIDDER_NAMES = {
-	"RUBICON" : "rubicon",
-	"IMPROVE_DIGITAL" : "improvedigital"
-};
+exports.BIDDER_NAMES = ["rubicon","improvedigital"];
