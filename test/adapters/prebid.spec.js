@@ -1022,7 +1022,7 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        xit('should not have set config for single request parnter if it is not present for bidding',function(done){
+        it('should not have set config for single request parnter if it is not present for bidding',function(done){
             var expectedResult = {};
             PREBID.fetchBids(activeSlots, impressionID);
             window["owpbjs"].setConfig(expectedResult).should.be.called;
