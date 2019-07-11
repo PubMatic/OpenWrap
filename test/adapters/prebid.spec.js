@@ -823,7 +823,6 @@ describe('ADAPTER: Prebid', function() {
     describe('#fetchBids', function() {
         var activeSlots = null;
         var impressionID = null;
-        var partnerToEnableSRA = null;
         var prebidConfig = {};
 
         beforeEach(function(done) {
@@ -876,7 +875,6 @@ describe('ADAPTER: Prebid', function() {
              window["owpbjs"].getConfig = function(){
                  return prebidConfig;
              };
-            partnerToEnableSRA = ["rubicon","improvedigital"]
             done();
         });
 
@@ -906,7 +904,6 @@ describe('ADAPTER: Prebid', function() {
             } else {
                 window.pwtCreatePrebidNamespace.restore();
             }
-            partnerToEnableSRA = [];
             delete window.owpbjs;
             prebidConfig = {};
             done();
