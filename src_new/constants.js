@@ -163,3 +163,5 @@ exports.HOOKS = {
 	"BID_RECEIVED": "HookForBidReceived",
 	"POST_AUCTION_KEY_VALUES": "HookForPostAuctionKeyValues"
 };
+
+exports.SRA_ENABLED_BIDDERS = ["rubicon","improvedigital"];
