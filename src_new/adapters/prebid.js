@@ -532,7 +532,7 @@ function fetchBids(activeSlots, impressionID){
 				util.log(adapterID+CONSTANTS.MESSAGES.M2);
 			}
 		}
-		if(CONSTANTS.BIDDER_NAMES.indexOf(adapterID)>-1){
+		if(CONSTANTS.SRA_ENABLED_BIDDERS.indexOf(adapterID)>-1){
 			partnerToEnableSRA.push(adapterID);
 		}
 	});

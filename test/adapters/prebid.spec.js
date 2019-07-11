@@ -860,13 +860,22 @@ describe('ADAPTER: Prebid', function() {
                 window["owpbjs"] = windowPbJS2Stub;
                 window["owpbjs"].que = [];
                 window["owpbjs"].setConfig = function (pbConfig) {
-                    prebidConfig = pbConfig;
+                   prebidConfig = pbConfig;
                   return true;
                 };
                 window["owpbjs"].getConfig = function(){
                     return prebidConfig;
                 }
             });
+            window.owpbjs = window.owpbjs || {};
+            window.owpbjs.cmd = window.owpbjs.cmd || [];
+            window["owpbjs"].setConfig = function (pbConfig) {
+                prebidConfig = pbConfig;
+               return true;
+             };
+             window["owpbjs"].getConfig = function(){
+                 return prebidConfig;
+             };
             partnerToEnableSRA = ["rubicon","improvedigital"]
             done();
         });
@@ -1000,23 +1009,28 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        xit('should set config for single request partners present in constants',function(done){
+        it('should set config for single request partners present in constants',function(done){
             var expectedResult = {
                 "rubicon":{
+                    singleRequest:true
+                },
+                "improvedigital":function(){
                     singleRequest:true
                 }
             }
             PREBID.fetchBids(activeSlots, impressionID);
-            window["owpbjs"].setConfig.should.be.called.with(expectedResult);
+            window["owpbjs"].setConfig(expectedResult).should.be.called;
             var prebidConfig = window["owpbjs"].getConfig();
             expectedResult.should.be.equal(prebidConfig);
             done();
         });
 
         xit('should not have set config for single request parnter if it is not present for bidding',function(done){
-            partnerToEnableSRA = [];
+            var expectedResult = {};
             PREBID.fetchBids(activeSlots, impressionID);
-            window["owpbjs"].setConfig.should.be.called
+            window["owpbjs"].setConfig(expectedResult).should.be.called;
+            var prebidConfig = window["owpbjs"].getConfig();
+            expectedResult.should.be.equal(prebidConfig);
             done();
         });
     });
