@@ -491,7 +491,7 @@ exports.generatePbConf = generatePbConf;
 /* end-test-block */
 
 function assignSingleRequestConfigForBidders(prebidConfig){
-	util.forEachOnObject(CONSTANTS.SRA_ENABLED_BIDDERS,function(adapterName,idx){
+	util.forEachOnObject(CONSTANTS.SRA_ENABLED_BIDDERS,function(adapterName){
 		if(util.isOwnProperty(CONF.adapters, adapterName)){
 			prebidConfig[adapterName] = {
 				singleRequest : true
