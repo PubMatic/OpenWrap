@@ -820,6 +820,55 @@ describe('ADAPTER: Prebid', function() {
         // });
     });
 
+    describe("#assignSingleRequestConfigForBidders",function(){
+        var prebidConfig = {};
+
+        beforeEach(function(done) {
+            sinon.stub(UTIL,"forEachOnObject").returns((function(){
+                prebidConfig = {
+                    "rubicon":{
+                        singleRequest:true
+                    },
+                    "improvedigital":{
+                        singleRequest:true
+                    }
+                }
+            })());
+            done();
+        });
+
+        afterEach(function(done){
+            UTIL.forEachOnObject.restore();
+            prebidConfig = {};
+            done();
+        });
+
+
+        it('should assign config based on CONSTANTS.SRA_ENABLED_BIDDERS',function(done){
+            var expectedResult ={
+                "rubicon":{
+                    singleRequest:true
+                },
+                "improvedigital":{
+                    singleRequest:true
+                }
+            }
+            PREBID.assignSingleRequestConfigForBidders(prebidConfig);
+            UTIL.forEachOnObject.called.should.be.true;
+            expectedResult.should.deep.equal(prebidConfig);
+            done();
+        });
+
+        it('should not assign config if adapter is not present in adpaterconfig',function(done){
+            var expectedResult ={}
+            PREBID.assignSingleRequestConfigForBidders(prebidConfig);
+            UTIL.forEachOnObject.called.should.be.true;
+            prebidConfig = {};
+            expectedResult.should.deep.equal(prebidConfig);
+            done();
+        })
+    });
+
     describe('#fetchBids', function() {
         var activeSlots = null;
         var impressionID = null;
@@ -1011,7 +1060,7 @@ describe('ADAPTER: Prebid', function() {
                 "rubicon":{
                     singleRequest:true
                 },
-                "improvedigital":function(){
+                "improvedigital":{
                     singleRequest:true
                 }
             }

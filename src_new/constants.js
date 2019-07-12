@@ -17,13 +17,13 @@ exports.COMMON = {
 	"KEY_VALUE_PAIRS": "kvp",
 	"IMPRESSION_ID": "iid",
 	"PARENT_ADAPTER_PREBID": "prebid",
-	"ANALYTICS_CURRENCY":"USD",
+	"ANALYTICS_CURRENCY": "USD",
 	"NATIVE_MEDIA_TYPE_CONFIG": "nativeConfig",
 	"NATIVE_ONLY": "nativeOnly",
 	"OW_CLICK_NATIVE": "openwrap-native-click",
-	"BID_ID":"owbidid",
+	"BID_ID": "owbidid",
 	"AD_SERVER_CURRENCY": "adServerCurrency",
-	"SINGLE_IMPRESSION":"singleImpression",
+	"SINGLE_IMPRESSION": "singleImpression",
 	"PREBID_NAMESPACE": "owpbjs"
 };
 
@@ -58,7 +58,7 @@ exports.CONFIG = {
 	"DEFAULT_GDPR_AWC": "0",
 	"DEFAULT_SINGLE_IMPRESSION": "0",
 	"DEFAULT_GDPR_CONSENT": "0",
-	"DISABLE_AJAX_TIMEOUT":"disableAjaxTimeout"
+	"DISABLE_AJAX_TIMEOUT": "disableAjaxTimeout"
 };
 
 exports.METADATA_MACROS = {
@@ -103,10 +103,10 @@ exports.WRAPPER_TARGETING_KEYS = {
 
 exports.IGNORE_PREBID_KEYS = {
 	"hb_bidder": 1,
-    "hb_adid": 1,
-    "hb_pb": 1,
-    "hb_size": 1,
-    "hb_deal": 1
+	"hb_adid": 1,
+	"hb_pb": 1,
+	"hb_size": 1,
+	"hb_deal": 1
 };
 
 //todo: mention all params here and use accordigly
@@ -142,7 +142,7 @@ exports.MESSAGES = {
 	"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner.",
 	"M24": "Passsed argument is not a bidAdaptor",
 	"M25": "Bid details not found for bidID: ",
-	"M26": "Currency Module is Activated. Ad Server Currency is: " 
+	"M26": "Currency Module is Activated. Ad Server Currency is: "
 };
 
 exports.PLATFORM_VALUES = {
@@ -164,4 +164,7 @@ exports.HOOKS = {
 	"POST_AUCTION_KEY_VALUES": "HookForPostAuctionKeyValues"
 };
 
-exports.SRA_ENABLED_BIDDERS = ["rubicon","improvedigital"];
+exports.SRA_ENABLED_BIDDERS = {
+	"rubicon": 1,
+	"improvedigital": 2
+};
