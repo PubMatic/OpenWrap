@@ -490,6 +490,18 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 exports.generatePbConf = generatePbConf;
 /* end-test-block */
 
+function assignSingleRequestConfigForBidders(prebidConfig){
+	util.forEachOnObject(CONSTANTS.SRA_ENABLED_BIDDERS,function(adapterName,idx){
+		if(util.isOwnProperty(CONF.adapters, adapterName)){
+			prebidConfig[adapterName] = {
+				singleRequest : true
+			};
+		}
+	});
+}
+
+exports.assignSingleRequestConfigForBidders = assignSingleRequestConfigForBidders;
+
 function fetchBids(activeSlots, impressionID){
 
 	//window.pwtCreatePrebidNamespace(pbNameSpace);
@@ -515,7 +527,6 @@ function fetchBids(activeSlots, impressionID){
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
-	var partnerToEnableSRA = [];
 
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
 		// Assumption: all partners are running through PreBid,
@@ -531,9 +542,6 @@ function fetchBids(activeSlots, impressionID){
 			}else{
 				util.log(adapterID+CONSTANTS.MESSAGES.M2);
 			}
-		}
-		if(CONSTANTS.SRA_ENABLED_BIDDERS.indexOf(adapterID)>-1){
-			partnerToEnableSRA.push(adapterID);
 		}
 	});
 
@@ -595,14 +603,7 @@ function fetchBids(activeSlots, impressionID){
 					};
 
 				}
-				if(partnerToEnableSRA && partnerToEnableSRA.length>0){
-					for(var i=0;i<partnerToEnableSRA.length;i++){
-						prebidConfig[partnerToEnableSRA[i]] = {
-							singleRequest : true
-						};
-					}
-				}
-
+				refThis.assignSingleRequestConfigForBidders(prebidConfig);
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 
