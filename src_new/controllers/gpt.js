@@ -63,7 +63,7 @@ function getAdSlotSizesArray(divID, currentGoogleSlot) { // TDD, i/o : doness
     /* istanbul ignore else  */
     if (util.isFunction(currentGoogleSlot.getSizes)) {
         // googleSlot.getSizes() returns applicable sizes as per sizemapping if we pass current available view-port width and height
-        util.forEachOnArray(currentGoogleSlot.getSizes(window.innerWidth, window.innerHeight), function(index, sizeObj) {
+	util.forEachOnArray(currentGoogleSlot.getSizes(window.innerWidth, window.innerHeight), function(index, sizeObj) {
             /* istanbul ignore else  */
             if (util.isFunction(sizeObj.getWidth) && util.isFunction(sizeObj.getHeight)) {
                 adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
@@ -116,7 +116,7 @@ function storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow) { // TDD,
 
         refThis.slotsMap[dmSlotName] = slot;
         // googleSlot.getSizes() returns applicable sizes as per sizemapping if we pass current available view-port width and height
-        util.createVLogInfoPanel(dmSlotName, slot.getSizes(window.innerWidth, window.innerHeight));
+	util.createVLogInfoPanel(dmSlotName, slot.getSizes(window.innerWidth, window.innerHeight));
     } else {
         /* istanbul ignore else */
         if (!isDisplayFlow) {
