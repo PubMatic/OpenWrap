@@ -264,6 +264,22 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 	return success;
 };
 
+/**
+ * todo:
+ * 		do not pass kgp and klm as we have already passed adpaterConfig
+ * 		split into two functions
+ * 		use loop over functions
+ * 		if direct mapping is not found then look for regex mapping
+ * 			separate function to handle regex mapping
+ * 			kgp_rx
+ * 			klm_rx: [
+ * 				{
+ * 					rx: "",
+ * 					config_rx: {}
+ * 				}
+ * 			]
+ */
+
 exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids){
 	var activeSlotsLength = activeSlots.length,
 		i,
