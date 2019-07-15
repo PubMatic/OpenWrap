@@ -266,13 +266,21 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 
 /**
  * todo:
- * 		if direct mapping is not found then look for regex mapping
+ * 		if direct mapping is not found 
+ * 		then look for regex mapping
  * 			separate function to handle regex mapping
- * 			kgp_rx
+ * 			kgp: "" // should be filled with whatever value
+ * 			klm: {} // should be filled with records if required else leave it as an empty object {}
+ * 			kgp_rx: "" // regex pattern
  * 			klm_rx: [
  * 				{
- * 					rx: "",
- * 					config_rx: {}
+ * 					rx: "ABC123*",
+ * 					rx_config: {} // here goes adapyter config
+ * 				}, 
+ * 
+ * 				{
+ * 					rx: "*",
+ * 					rx_config: {}
  * 				}
  * 			]
  */
@@ -285,13 +293,23 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
 		refThis.forEachOnArray(activeSlots, function(i, activeSlot){
 			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
-			callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, impressionID, activeSlot, handlerFunction, addZeroBids);
+			if(generatedKeys.length > 0){
+				callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids);
+			} else {
+				/**
+				 * todo: the regex pattern will return only one key and it's respective config
+				 */
+				generatedKeys = refThis.getRegexMatchingAdapterConfig( activeSlot, keyGenerationPattern );
+				if(generatedKeys.length > 0){
+					callHandlerFunctionForRegexMapping(adapterID, adUnits, adapterConfig, impressionID, activeSlot, handlerFunction, addZeroBids);
+				}
+			}			
 		});
 	}
 };
 
 // private
-function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, impressionID, generatedKeys, activeSlot, handlerFunction, addZeroBids){
+function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids){
 	var keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
 		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0
@@ -338,6 +356,17 @@ function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, 
 			);
 		}
 	});
+}
+
+// private
+function getRegexMatchingAdapterConfig(adapterID, adapterConfig, adSlot){
+	var regexKeyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_GENERATION_PATTERN] || '';
+
+}
+
+// private 
+function callHandlerFunctionForRegexMapping(adapterID, adUnits, adapterConfig, impressionID, generatedKeys, activeSlot, handlerFunction, addZeroBids){
+
 }
 
 exports.resizeWindow = function(theDocument, width, height, divId){
@@ -977,10 +1006,10 @@ exports.getMediaTypeObject = function(nativeConfig, sizes, currentSlot){
 		// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
 		// as we are only supporting div and ad unit, taking the first slot name.
 		// Implemented as per code review and discussion. 
-		var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
+		var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0]; // todo: need change here as well fro regex
 		if(refThis.isOwnProperty(klm,kgpv)){
 			refThis.log("Native Config found for adSlot: " +  currentSlot);
-			var config = klm[kgpv];
+			var config = klm[kgpv];// todo: what if klm[kgpv] is undefined?
 			mediaTypeObject["native"] = config.config;
 			if(config[CONSTANTS.COMMON.NATIVE_ONLY]){
 				return mediaTypeObject;
@@ -990,6 +1019,7 @@ exports.getMediaTypeObject = function(nativeConfig, sizes, currentSlot){
 		}
 	} else{
 		refThis.log("Native config not found or KGP/KLM missing in native config provided.");
+		// todo: avoid unnecessary logs, this log is printed even if Native is not enabled for a profile
 	}
 	mediaTypeObject["banner"] = {
 		sizes: sizes
