@@ -266,7 +266,6 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 
 /**
  * todo:
- * 		do not pass kgp and klm as we have already passed adpaterConfig
  * 		split into two functions
  * 		use loop over functions
  * 		if direct mapping is not found then look for regex mapping
@@ -280,12 +279,14 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
  * 			]
  */
 
-exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids){
+exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids){
 	var activeSlotsLength = activeSlots.length,
 		i,
 		j,
 		generatedKeys,
 		generatedKeysLength,
+		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
+		keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
 		kgpConsistsWidthAndHeight
 		;
 	/* istanbul ignore else */

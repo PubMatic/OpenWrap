@@ -645,8 +645,6 @@ describe('UTIL', function() {
             impressionID = null,
             slotConfigMandatoryParams = null,
             activeSlots = null,
-            keyGenerationPattern = null,
-            keyLookupMap = null,
             handlerFunction = null,
             addZeroBids = null;
         var obj = null;
@@ -654,14 +652,15 @@ describe('UTIL', function() {
         beforeEach(function(done) {
             adapterID = commonAdapterID;
             adUnits = "adUnits";
-            adapterConfig = "adapterConfig";
+            adapterConfig = {
+                kgp: "_W_x_H_",
+                klm: {
+                    "generatedKeys": "some_vale"
+                }
+            };
             impressionID = "impressionID";
             slotConfigMandatoryParams = "slotConfigMandatoryParams";
             activeSlots = [new SLOT("slot_1"), new SLOT("slot_2")];
-            keyGenerationPattern = "_W_x_H_";
-            keyLookupMap = {
-                "generatedKeys": "some_vale"
-            };
             obj = {
                 handlerFunction: function() {
                     return "handlerFunction"
@@ -679,8 +678,6 @@ describe('UTIL', function() {
             impressionID = null;
             slotConfigMandatoryParams = null;
             activeSlots = null;
-            keyGenerationPattern = null;
-            keyLookupMap = null;
             obj.handlerFunction.restore();
             obj.handlerFunction = null;
             addZeroBids = null;
@@ -693,7 +690,7 @@ describe('UTIL', function() {
         });
 
         it('should check whther activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
-            UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids);
+            UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
             done();
         });
     });

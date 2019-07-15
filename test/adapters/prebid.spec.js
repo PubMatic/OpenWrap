@@ -770,8 +770,6 @@ describe('ADAPTER: Prebid', function() {
                 adapterConfig,
                 impressionID, [],
                 activeSlots,
-                adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
-                adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
                 PREBID.generatedKeyCallback,
                 true).should.be.true;
             done();
@@ -790,8 +788,6 @@ describe('ADAPTER: Prebid', function() {
                 adapterConfig,
                 impressionID, [],
                 activeSlots,
-                adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
-                adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
                 PREBID.generatedKeyCallback,
                 true).should.be.true;
             delete CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
