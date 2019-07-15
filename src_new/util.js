@@ -266,8 +266,6 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 
 /**
  * todo:
- * 		split into two functions
- * 		use loop over functions
  * 		if direct mapping is not found then look for regex mapping
  * 			separate function to handle regex mapping
  * 			kgp_rx
@@ -281,67 +279,66 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 
 exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids){
 	var activeSlotsLength = activeSlots.length,
-		i,
-		j,
-		generatedKeys,
-		generatedKeysLength,
-		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
-		keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
-		kgpConsistsWidthAndHeight
+		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN]
 		;
 	/* istanbul ignore else */
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
-		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
-		for(i = 0; i < activeSlotsLength; i++){
-			var activeSlot = activeSlots[i];
-			generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
-			generatedKeysLength =  generatedKeys.length;
-			for(j = 0; j < generatedKeysLength; j++){
-				var generatedKey = generatedKeys[j],
-					keyConfig = null,
-					callHandlerFunction = false,
-					sizeArray = activeSlot.getSizes()
-					;
-
-				if(keyLookupMap == null){
-					callHandlerFunction = true;
-				}else{
-					keyConfig = keyLookupMap[generatedKey];
-					if(!keyConfig){
-						refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
-					}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-						refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
-					}else{
-						callHandlerFunction = true;
-					}
-				}
-
-				/* istanbul ignore else */
-				if(callHandlerFunction){
-
-					if(addZeroBids == true){
-						var bid = BID.createBid(adapterID, generatedKey);
-						bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
-						bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
-					}
-
-					handlerFunction(
-						adapterID,
-						adUnits,
-						adapterConfig,
-						impressionID,
-						generatedKey,
-						kgpConsistsWidthAndHeight,
-						activeSlot,
-						keyLookupMap ? keyLookupMap[generatedKey] : null,
-						sizeArray[j][0],
-						sizeArray[j][1]
-					);
-				}
-			}
-		}
+		refThis.forEachOnArray(activeSlots, function(i, activeSlot){
+			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
+			callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, impressionID, activeSlot, handlerFunction, addZeroBids);
+		});
 	}
 };
+
+// private
+function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, impressionID, generatedKeys, activeSlot, handlerFunction, addZeroBids){
+	var keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
+		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
+		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0
+	;
+	refThis.forEachOnArray(generatedKeys, function(j, generatedKey){
+		var keyConfig = null,
+			callHandlerFunction = false,
+			sizeArray = activeSlot.getSizes()			
+			;
+
+		if(keyLookupMap == null){
+			callHandlerFunction = true;
+		}else{
+			keyConfig = keyLookupMap[generatedKey];
+			if(!keyConfig){
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
+			}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
+			}else{
+				callHandlerFunction = true;
+			}
+		}
+
+		/* istanbul ignore else */
+		if(callHandlerFunction){
+
+			if(addZeroBids == true){
+				var bid = BID.createBid(adapterID, generatedKey);
+				bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
+				bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
+			}
+
+			handlerFunction(
+				adapterID,
+				adUnits,
+				adapterConfig,
+				impressionID,
+				generatedKey,
+				kgpConsistsWidthAndHeight,
+				activeSlot,
+				keyLookupMap ? keyLookupMap[generatedKey] : null,
+				sizeArray[j][0],
+				sizeArray[j][1]
+			);
+		}
+	});
+}
 
 exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
