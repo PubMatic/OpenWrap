@@ -820,9 +820,59 @@ describe('ADAPTER: Prebid', function() {
         // });
     });
 
+    describe("#assignSingleRequestConfigForBidders",function(){
+        var prebidConfig = {};
+
+        beforeEach(function(done) {
+            sinon.stub(UTIL,"forEachOnObject").returns((function(){
+                prebidConfig = {
+                    "rubicon":{
+                        singleRequest:true
+                    },
+                    "improvedigital":{
+                        singleRequest:true
+                    }
+                }
+            })());
+            done();
+        });
+
+        afterEach(function(done){
+            UTIL.forEachOnObject.restore();
+            prebidConfig = {};
+            done();
+        });
+
+
+        it('should assign config based on CONSTANTS.SRA_ENABLED_BIDDERS',function(done){
+            var expectedResult ={
+                "rubicon":{
+                    singleRequest:true
+                },
+                "improvedigital":{
+                    singleRequest:true
+                }
+            }
+            PREBID.assignSingleRequestConfigForBidders(prebidConfig);
+            UTIL.forEachOnObject.called.should.be.true;
+            expectedResult.should.deep.equal(prebidConfig);
+            done();
+        });
+
+        it('should not assign config if adapter is not present in adpaterconfig',function(done){
+            var expectedResult ={}
+            PREBID.assignSingleRequestConfigForBidders(prebidConfig);
+            UTIL.forEachOnObject.called.should.be.true;
+            prebidConfig = {};
+            expectedResult.should.deep.equal(prebidConfig);
+            done();
+        })
+    });
+
     describe('#fetchBids', function() {
         var activeSlots = null;
         var impressionID = null;
+        var prebidConfig = {};
 
         beforeEach(function(done) {
             activeSlots = [new SLOT("Slot_1"), new SLOT("Slot_2")];
@@ -857,10 +907,23 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(global.window || window, "pwtCreatePrebidNamespace", function pwtCreatePrebidNamespace(preBidNameSpace) {
                 window["owpbjs"] = windowPbJS2Stub;
                 window["owpbjs"].que = [];
-                window["owpbjs"].setConfig = function () {
+                window["owpbjs"].setConfig = function (pbConfig) {
+                   prebidConfig = pbConfig;
                   return true;
                 };
+                window["owpbjs"].getConfig = function(){
+                    return prebidConfig;
+                }
             });
+            window.owpbjs = window.owpbjs || {};
+            window.owpbjs.cmd = window.owpbjs.cmd || [];
+            window["owpbjs"].setConfig = function (pbConfig) {
+                prebidConfig = pbConfig;
+               return true;
+             };
+             window["owpbjs"].getConfig = function(){
+                 return prebidConfig;
+             };
             done();
         });
 
@@ -890,8 +953,8 @@ describe('ADAPTER: Prebid', function() {
             } else {
                 window.pwtCreatePrebidNamespace.restore();
             }
-
             delete window.owpbjs;
+            prebidConfig = {};
             done();
         });
 
@@ -989,6 +1052,31 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.forEachAdapter.called.should.be.true;
             PREBID.generatePbConf.called.should.be.true;
             delete CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
+            done();
+        });
+
+        it('should set config for single request partners present in constants',function(done){
+            var expectedResult = {
+                "rubicon":{
+                    singleRequest:true
+                },
+                "improvedigital":{
+                    singleRequest:true
+                }
+            }
+            PREBID.fetchBids(activeSlots, impressionID);
+            window["owpbjs"].setConfig(expectedResult).should.be.called;
+            var prebidConfig = window["owpbjs"].getConfig();
+            expectedResult.should.be.equal(prebidConfig);
+            done();
+        });
+
+        it('should not have set config for single request parnter if it is not present for bidding',function(done){
+            var expectedResult = {};
+            PREBID.fetchBids(activeSlots, impressionID);
+            window["owpbjs"].setConfig(expectedResult).should.be.called;
+            var prebidConfig = window["owpbjs"].getConfig();
+            expectedResult.should.be.equal(prebidConfig);
             done();
         });
     });
