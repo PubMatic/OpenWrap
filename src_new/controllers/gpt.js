@@ -394,12 +394,17 @@ exports.defineWrapperTargetingKey = defineWrapperTargetingKey;
 // Hooks related functions
 
 function newDisableInitialLoadFunction(theObject, originalFunction) { // TDD, i/o : done
+   
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             /* istanbul ignore next */
             disableInitialLoadIsSet = true;
             /* istanbul ignore next */
             util.log("Disable Initial Load is called");
+            if(CONFIG.isIdentityOnly()){
+                util.log("Identity Only Enabled. No Process Need. Calling Original DisableInitial Load function");
+                return originalFunction.apply(theObject, arguments);
+            }
             /* istanbul ignore next */
             return originalFunction.apply(theObject, arguments);
         };
@@ -443,6 +448,10 @@ exports.newEnableSingleRequestFunction = newEnableSingleRequestFunction;
         we do not care, as it has a get method
 */
 function newSetTargetingFunction(theObject, originalFunction) { // TDD, i/o : done
+    if(CONFIG.isIdentityOnly()){
+        util.log("Identity Only Enabled. No Process Need. Calling Original Set Targeting function");
+        return originalFunction.apply(theObject, arguments);
+    }
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             /* istanbul ignore next */
@@ -490,6 +499,24 @@ function newDestroySlotsFunction(theObject, originalFunction) { // TDD, i/o : do
 
 /* start-test-block */
 exports.newDestroySlotsFunction = newDestroySlotsFunction;
+/* end-test-block */
+
+function newAddAdUnitFunction(theObject, originalFunction) { // TDD, i/o : done
+    if (util.isObject(theObject) && util.isFunction(originalFunction)) {
+        return function() {
+            console.log("Ab hona chahiye kuch yahan par ");
+            debugger;
+            /* istanbul ignore next */
+            return originalFunction.apply(theObject, arguments);
+        };
+    } else {
+        util.log("destroySlots: originalFunction is not a function");
+        return null;
+    }
+}
+
+/* start-test-block */
+exports.newAddAdUnitFunction = newAddAdUnitFunction;
 /* end-test-block */
 
 function updateStatusAndCallOriginalFunction_Display(message, theObject, originalFunction, arg) { // TDD, i/o : done
@@ -787,6 +814,10 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
         return function() {
             /* istanbul ignore next */
             util.log("In Refresh function");
+            if(CONFIG.isIdentityOnly()){
+                util.log("Identity Only Enabled. No Process Need. Calling Original Display function");
+                return originalFunction.apply(theObject, arguments);
+            }
             /* istanbul ignore next */
             refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
             /* istanbul ignore next */
@@ -934,6 +965,12 @@ function addHooksIfPossible(win) { // TDD, i/o : done
             util.log("OpenWrap initialization completed");
         });
         if(CONFIG.isIdentityOnly()){
+            pbjs.que.unshift(function(){
+                util.log("Adding Hook on pbjs.getUserIds()");
+                var theObject = window.pbjs;
+                var functionName = "addAdUnits"
+                util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
+            });
             util.log("Identity Only Enabled and setting config");
             prebid.register().sC();
         }
