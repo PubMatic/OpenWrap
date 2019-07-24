@@ -115,6 +115,7 @@ gulp.task('test', ['unexpose'], function (done) {
 
 // Test all code including private functions
 gulp.task('testall', function (done) {
+    var karmaServer = require('karma').Server;
     var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
     new karmaServer({
         browsers: defaultBrowsers,
