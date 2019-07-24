@@ -1,28 +1,26 @@
 'use strict';
-
+console.time("Loading plugins");
 var argv = require('yargs').argv;
 var gulp = require('gulp');
-var clean = require('gulp-clean');
 var concat = require('gulp-concat');
-var insert = require('gulp-insert');
-var uglify = require('gulp-uglify');
-var jshint = require('gulp-jshint');
-var jscs = require('gulp-jscs');
-var karma = require('gulp-karma');
-var mocha = require('gulp-mocha');
-var gutil = require('gulp-util');
-var connect = require('gulp-connect');
-var opens = require('open');
-var webserver = require('gulp-webserver');
-var webpack = require('webpack-stream');
-var webpackConfig = require('./webpack.config.js');
-var replace = require('gulp-replace');
-var optimizejs = require('gulp-optimize-js');
-var stripCode = require('gulp-strip-code');
+// var insert = require('gulp-insert');
+// var uglify = require('gulp-uglify');
+// var jshint = require('gulp-jshint');
+// var jscs = require('gulp-jscs');
+// var karma = require('gulp-karma');
+// var mocha = require('gulp-mocha');
+// var gutil = require('gulp-util');
+// var opens = require('open');
+// var webserver = require('gulp-webserver');
+// var webpack = require('webpack-stream');
+// var webpackConfig = require('./webpack.config.js');
+// var replace = require('gulp-replace');
+// var optimizejs = require('gulp-optimize-js');
+// var stripCode = require('gulp-strip-code');
 var eslint = require('gulp-eslint');
-var karmaServer = require('karma').Server;
-var stripComments = require('gulp-strip-comments');
-
+// var karmaServer = require('karma').Server;
+// var stripComments = require('gulp-strip-comments');
+console.timeEnd("Loading plugins");
 var CI_MODE = (argv.mode === 'test-build') ? true : false;
 
 console.log("argv ==>", argv);
@@ -30,8 +28,10 @@ console.log("argv ==>", argv);
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
 
 gulp.task('clean', function() {
+    var clean = require('gulp-clean');
     return gulp.src(['dist/**/*.js', 'build/'], {
-            read: true
+            read: false,
+            allowEmpty: true
         })
         .pipe(clean());
 });
@@ -39,7 +39,11 @@ gulp.task('clean', function() {
 
 // What all processing needs to be done ?
 gulp.task('webpack', ['clean'], function() {
-
+    var connect = require('gulp-connect');
+    var uglify = require('gulp-uglify');
+    var webpack = require('webpack-stream');
+    var webpackConfig = require('./webpack.config.js');
+    var optimizejs = require('gulp-optimize-js');
     webpackConfig.devtool = null;
 
     return gulp.src('src_new/owt.js')
@@ -53,7 +57,11 @@ gulp.task('webpack', ['clean'], function() {
 
 // Run below task to create owt.js for creative
 gulp.task('webpack-creative', ['clean'], function() {
-
+    var connect = require('gulp-connect');
+    var uglify = require('gulp-uglify');
+    var webpack = require('webpack-stream');
+    var webpackConfig = require('./webpack.config.js');
+    var optimizejs = require('gulp-optimize-js');
     webpackConfig.devtool = null;
 
     return gulp.src('src_new/creative/owCreativeRenderer.js')
@@ -67,6 +75,10 @@ gulp.task('webpack-creative', ['clean'], function() {
 
 
 gulp.task('devpack', function () {
+var connect = require('gulp-connect');
+var webpack = require('webpack-stream');
+var webpackConfig = require('./webpack.config.js');
+
   webpackConfig.devtool = 'source-map';
 
   return gulp.src('src_new/owt.js')
@@ -78,6 +90,8 @@ gulp.task('devpack', function () {
 
 // Test all code without private functions
 gulp.task('test', ['unexpose'], function (done) {
+    var karmaServer = require('karma').Server;
+
     var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
     new karmaServer({
         browsers: defaultBrowsers,
@@ -117,6 +131,9 @@ gulp.task('testall', function (done) {
 
 // Small task to load coverage reports in the browser
 gulp.task('coverage', function (done) {
+var connect = require('gulp-connect');
+var opens = require('open');
+
     var coveragePort = 1999;
     connect.server({
         port: 1999,
@@ -130,6 +147,8 @@ gulp.task('coverage', function (done) {
 
 // Task to remove privately exposed functions as well as remove test cases which test private functions
 gulp.task('unexpose', function() {
+    var stripCode = require('gulp-strip-code');
+    
     return gulp
         .src([
             'src_new/**/*.js',

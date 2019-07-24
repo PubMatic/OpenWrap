@@ -3,7 +3,6 @@ console.log("running from shell script");
 var shell = require('shelljs');
 var argv = require('yargs').argv;
 
-shell.exec("gulp clean");
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
 var task = argv.task || "wrapper";
@@ -17,6 +16,9 @@ var CREATIVE_TASK = "creative"
 
 if (task == CREATIVE_TASK) {
 		console.log("inside creative");
+		console.time("Cleaning Gulp");
+		shell.exec("gulp clean");
+		console.timeEnd("Cleaning Gulp");
 		if (shell.exec("gulp webpack-creative --mode=" + argv.mode).code !== 0) {
 			shell.echo('Error: webpack bundle and dist creative task failed');
 			shell.exit(1);
@@ -27,6 +29,7 @@ if (task == CREATIVE_TASK) {
 			shell.exit(1);
 		}
 } else {
+		console.log("Switching To Build Task");
 		if (shell.cd(prebidRepoPath).code !== 0) {
 			shell.echo("Couldnt change the dir to Prebid repo");
 			shell.exit(1);
@@ -75,7 +78,9 @@ if (task == CREATIVE_TASK) {
 		  		shell.exit(1);
 			}
 		}
-
+		console.time("Cleaning Gulp");
+		shell.exec("gulp clean");
+		console.timeEnd("Cleaning Gulp");
 		if(shell.exec("gulp " + openwrapWebpackTaskName + " --mode=" + argv.mode).code !== 0) {
 			shell.echo('Error: webpack wrapper task failed');
 			shell.exit(1);
