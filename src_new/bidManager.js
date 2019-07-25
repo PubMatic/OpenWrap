@@ -59,20 +59,20 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 		if( lastBidWasDefaultBid || !isPostTimeout){
 			/* istanbul ignore else */
 			if(lastBidWasDefaultBid){
-				util.log(CONSTANTS.MESSAGES.M23 + bidderID);
+				util.log(CONSTANTS.MESSAGES.M23 , bidderID);
 			}
 
 			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
-				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14 + bidderID);
+				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14,bidderID);
 				refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 			}else{
-				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16 + bidderID);
+				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16, bidderID);
 			}
 		}else{
 			util.log(CONSTANTS.MESSAGES.M17);
 		}
 	}else{
-		util.log(CONSTANTS.MESSAGES.M18 + bidderID);		
+		util.log(CONSTANTS.MESSAGES.M18,bidderID);		
 		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 	}
 	if (isPostTimeout) {
