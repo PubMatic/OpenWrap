@@ -94,6 +94,7 @@ var webpackConfig = require('./webpack.config.js');
 
 // Test all code without private functions
 gulp.task('test', ['unexpose'], function (done) {
+    var karma = require('gulp-karma');
     var karmaServer = require('karma').Server;
 
     var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
@@ -119,6 +120,7 @@ gulp.task('test', ['unexpose'], function (done) {
 
 // Test all code including private functions
 gulp.task('testall', function (done) {
+    var karma = require('gulp-karma');
     var karmaServer = require('karma').Server;
     var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
     new karmaServer({
