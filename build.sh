@@ -51,7 +51,7 @@ if (task == CREATIVE_TASK) {
 		 	case "build" :
 				console.log("Executing build");
 				prebidTaskName = "bundle --modules=modules.json";
-				openwrapBuildTaskName = "bundle";
+				openwrapBuildTaskName = "bundle-prod";
 				openwrapWebpackTaskName = "webpack";
 				break;	
 			default:
@@ -81,10 +81,10 @@ if (task == CREATIVE_TASK) {
 		console.time("Cleaning Gulp");
 		// shell.exec("gulp clean");
 		console.timeEnd("Cleaning Gulp");
-		if(shell.exec("gulp " + openwrapWebpackTaskName + " --mode=" + argv.mode).code !== 0) {
+		/*if(shell.exec("gulp " + openwrapWebpackTaskName + " --mode=" + argv.mode).code !== 0) {
 			shell.echo('Error: webpack wrapper task failed');
 			shell.exit(1);
-		}
+		}*/
 
 
 		if(shell.exec("gulp " + openwrapBuildTaskName + " --mode=" + argv.mode).code !== 0) {
