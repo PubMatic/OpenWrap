@@ -79,7 +79,7 @@ if (task == CREATIVE_TASK) {
 			}
 		}
 		console.time("Cleaning Gulp");
-		shell.exec("gulp clean");
+		// shell.exec("gulp clean");
 		console.timeEnd("Cleaning Gulp");
 		if(shell.exec("gulp " + openwrapWebpackTaskName + " --mode=" + argv.mode).code !== 0) {
 			shell.echo('Error: webpack wrapper task failed');
