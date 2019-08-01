@@ -89,7 +89,7 @@
     "sinon": "^1.12.1",
     "string-replace-webpack-plugin": "0.0.3",
     "watchify": "^3.9.0",
-    "webpack": "^3.12.0",
+    "webpack": "^1.15.0",
     "webpack-stream": "^3.1.0",
     "yargs": "^1.3.1"
   }
