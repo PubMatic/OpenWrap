@@ -65,12 +65,13 @@ if (task == CREATIVE_TASK) {
 				shell.exit(1);
 		}
 
-
-		if(shell.exec("gulp " + prebidTaskName + " --mode=" + argv.mode).code !== 0) {
+		console.time("Executing Prebid Build");
+		if(shell.exec("time gulp " + prebidTaskName + " --mode=" + argv.mode).code !== 0) {
 			shell.echo('Error: buidlinng of project failed');
 		  	shell.exit(1);
 		}
-
+		console.timeEnd("Executing Prebid Build");
+		
 		shell.cd("../OpenWrap/");
 		if (argv.mode == "test-build") {
 			if(shell.exec("gulp testall" + " --mode=" + argv.mode).code !== 0) {
@@ -87,7 +88,7 @@ if (task == CREATIVE_TASK) {
 		}*/
 
 
-		if(shell.exec("gulp " + openwrapBuildTaskName + " --mode=" + argv.mode).code !== 0) {
+		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode).code !== 0) {
 			shell.echo('Error: wrapper build task failed');
 			shell.exit(1);
 		}

@@ -91,9 +91,7 @@ prebidNpmInstall $prebid_path
 
 if [ "$platform" = "$PLATFORM_DISPLAY" ] || [ -z $platform ]
   then
-    echo "$(date) Building for Display"
-    ./build.sh --prebidpath=$prebid_path --mode=$mode
-    echo "$(date) Building for Display Done"
+   time ./build.sh --prebidpath=$prebid_path --mode=$mode
 
 elif [ "$platform" = "$PLATFORM_AMP" ]
    then

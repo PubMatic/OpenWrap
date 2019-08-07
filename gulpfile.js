@@ -215,3 +215,5 @@ gulp.task('bundle-prod',['webpack'], function () {
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 });
+
+gulp.task('build-gpt-prod',[''])
