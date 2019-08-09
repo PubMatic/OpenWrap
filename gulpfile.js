@@ -210,7 +210,7 @@ gulp.task('devbundle', function () {
 
 
 gulp.task('bundle-prod',['webpack'], function () {
-    console.log("Executing build");
+    console.log("Executing bundling");
     return gulp.src([prebidRepoPath + '/build/dist/prebid.js', './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
