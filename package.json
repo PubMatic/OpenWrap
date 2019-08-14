@@ -17,11 +17,15 @@
   },
   "homepage": "https://github.com/PubMatic/OpenWrap#readme",
   "dependencies": {
+    "@babel/preset-env": "^7.5.5",
+    "parse-domain": "^2.1.1",
     "prebid-universal-creative": "1.1.1",
+    "prebid.js": "^2.27.0",
+    "uglify-js": "^3.6.0",
     "uas-adclient": "0.0.1-master.24"
   },
   "devDependencies": {
-    "babel-core": "6.22.0",
+    "@babel/core": "^7.5.5",
     "babel-loader": "6.4.1",
     "babel-preset-es2015": "6.22.0",
     "block-loader": "^2.1.0",
@@ -55,6 +59,7 @@
     "istanbul-instrumenter-loader": "^0.1.2",
     "jsdom": "^9.3.0",
     "jshint": "^2.9.4",
+    "json-loader": "^0.5.7",
     "karma": "^0.13.2",
     "karma-babel-preprocessor": "^6.0.1",
     "karma-chai": "^0.1.0",

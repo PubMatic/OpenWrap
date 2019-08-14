@@ -4,6 +4,7 @@
 			if so we will need to add special handling
 		PreBid does not do mandatory parameters checking
 */
+var prebid = require('prebid.js');
 var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
 var BID = require("../bid.js");
@@ -507,15 +508,15 @@ function fetchBids(activeSlots, impressionID){
 	//window.pwtCreatePrebidNamespace(pbNameSpace);
 
 	/* istanbul ignore else */
-	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
+	if(! prebid){ // todo: move this code to initial state of adhooks
 		util.log("PreBid js is not loaded");
 		return;
 	}
 
 
-	if(util.isFunction(window[pbNameSpace].onEvent)){
+	if(util.isFunction(prebid.onEvent)){
 		if(!onEventAdded){
-			window[pbNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
+			prebid.onEvent('bidResponse', refThis.pbBidStreamHandler);
 			onEventAdded = true;
 		}		
 	} else {
@@ -523,7 +524,7 @@ function fetchBids(activeSlots, impressionID){
 		return;
 	}
 
-	window[pbNameSpace].logging = util.isDebugLogEnabled();
+	prebid.logging = util.isDebugLogEnabled();
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
@@ -555,15 +556,15 @@ function fetchBids(activeSlots, impressionID){
 	}
 
 	/* istanbul ignore else */
-	if(adUnitsArray.length > 0 && window[pbNameSpace]){
+	if(adUnitsArray.length > 0 && prebid){
 
 		try{
 			/* istanbul ignore else */
-			//if(util.isFunction(window[pbNameSpace].setBidderSequence)){
-			//	window[pbNameSpace].setBidderSequence("random");
+			//if(util.isFunction(prebid.setBidderSequence)){
+			//	prebid.setBidderSequence("random");
 			//}
 
-			if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
+			if(util.isFunction(prebid.setConfig) || typeof prebid.setConfig == "function") {
 				var prebidConfig = {
 					debug: util.isDebugLogEnabled(),
 					bidderSequence: "random",
@@ -607,7 +608,7 @@ function fetchBids(activeSlots, impressionID){
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 
-				window[pbNameSpace].setConfig(prebidConfig);
+				prebid.setConfig(prebidConfig);
 			}
 
 			/* With prebid 2.0.0 it has started using FunHooks library which provides
@@ -618,18 +619,18 @@ function fetchBids(activeSlots, impressionID){
 			*/
 			/* istanbul ignore else */
 
-			if(util.isFunction(window[pbNameSpace].requestBids) || typeof window[pbNameSpace].requestBids == "function"){
+			if(util.isFunction(prebid.requestBids) || typeof prebid.requestBids == "function"){
 				
 				// Adding a hook for publishers to modify the adUnits we are passing to Prebid
 				util.handleHook(CONSTANTS.HOOKS.PREBID_REQUEST_BIDS, [ adUnitsArray ]);
 				
-				window[pbNameSpace].requestBids({
+				prebid.requestBids({
 					adUnits: adUnitsArray,
 					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid
 					bidsBackHandler: function(bidResponses) {
 						util.log("In PreBid bidsBackHandler with bidResponses: ");
 						util.log(bidResponses);
-						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
+						setTimeout(prebid.triggerUserSyncs, 10);
 						//refThis.handleBidResponses(bidResponses);
 					},
 					timeout: timeoutForPrebid

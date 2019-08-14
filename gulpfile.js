@@ -44,8 +44,6 @@ gulp.task('webpack', ['clean'], function() {
 
     return gulp.src('src_new/owt.js')
         .pipe(webpack(webpackConfig))
-        .pipe(uglify())
-        .pipe(optimizejs())
         .pipe(gulp.dest('build/dist'))
         .pipe(connect.reload())
     ;
