@@ -1061,6 +1061,28 @@ exports.getUserIdConfiguration = function(){
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId,partnerValues){
 		var uIdConf = {};
 		switch(parterId){
+		case "pubcommonid":
+			uIdConf = {
+				name: "pubCommonId",
+				storage: {
+					type: "cookie",
+					name: "_pubCommonId", // create a cookie with this name
+					expires: 1825 // expires in 5 years
+				}
+			};
+			break;
+		case "identityLink":
+			uIdConf = {
+				name: "identityLink",
+				params: {
+					pid: "999"          // Set your real identityLink placement ID here
+				},
+				storage: {
+					type: "html5",
+					name: "idl_env"    // set localstorage with this name
+				}
+			};
+			break;
 		case "unifiedId":
 			uIdConf = {
 				name: "unifiedId",
@@ -1069,7 +1091,7 @@ exports.getUserIdConfiguration = function(){
 				},
 				storage: {
 					type: "cookie",  
-					name: "pbjs-unifiedid",       // create a cookie with this name
+					name: "owpbjs-unifiedid",       // create a cookie with this name
 					expires: 60                   // cookie can last for 60 days
 				}
 			};
@@ -1118,13 +1140,13 @@ exports.setUserIdTargeting = function(googleDefinedSlot){
 			refThis.setUserIdToGPT(googleDefinedSlot,userIds);
 		}
 		else{
-			setTimeout(function(){
+			window.setTimeout(function(){
 				var userIds = refThis.getUserIds();
 				refThis.setUserIdToGPT(googleDefinedSlot,userIds);
-			},500);
+			},500); // TODO : make it configurable
 		}
 	}else{
-		setTimeout(function(googleDefinedSlot) {
+		window.setTimeout(function(googleDefinedSlot) {
 			refThis.setUserIdTargeting(googleDefinedSlot);
 		}, 500)(googleDefinedSlot);
 	}

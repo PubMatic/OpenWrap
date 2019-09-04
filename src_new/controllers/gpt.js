@@ -22,10 +22,6 @@ var wrapperTargetingKeys = {}; // key is div id
 /* start-test-block */
 exports.wrapperTargetingKeys = wrapperTargetingKeys;
 /* end-test-block */
-var slotSizeMapping = {}; // key is div id
-/* start-test-block */
-exports.slotSizeMapping = slotSizeMapping;
-/* end-test-block */
 var slotsMap = {}; // key is div id, stores the mapping of divID ==> googletag.slot
 
 /* start-test-block */
@@ -64,81 +60,12 @@ function getAdUnitIndex(currentGoogleSlot) { // TDD, i/o : done
 
 exports.getAdUnitIndex = getAdUnitIndex;
 
-
-//todo:// remove dependency of win being passed
-function getSizeFromSizeMapping(divID, slotSizeMapping) { // TDD, i/o : done
-    /*
-        Ref: https://support.google.com/dfp_premium/answer/3423562?hl=en
-        The adslot.defineSizeMapping() method will receive an array of mappings in the following form:
-            [ [ [ 1024, 768 ], [ [ 970, 250 ] ] ], [ [ 980, 600 ], [ [ 728, 90 ], [ 640, 480 ] ] ], ...],
-            which should be ordered from highest to lowest priority.
-        The builder syntax is a more readable way of defining the mappings that orders them automatically.
-        However, you have the option of using different priority ordering by bypassing the builder and constructing the array of mappings manually.
-    */
-
-    if (!util.isOwnProperty(slotSizeMapping, divID)) {
-        return false;
-    }
-
-    var sizeMapping = slotSizeMapping[divID];
-    var screenWidth = util.getScreenWidth(refThis.getWindowReference());
-    var screenHeight = util.getScreenHeight(refThis.getWindowReference());
-
-    util.log(divID + ": responsiveSizeMapping found: screenWidth: " + screenWidth + ", screenHeight: " + screenHeight);
-    util.log(sizeMapping);
-    /* istanbul ignore else */
-    if (!util.isArray(sizeMapping)) {
-        return false;
-    }
-
-    for (var i = 0, l = sizeMapping.length; i < l; i++) {
-        /* istanbul ignore if */
-        if (sizeMapping[i].length == 2 && sizeMapping[i][0].length == 2) {
-            var currentWidth = sizeMapping[i][0][0],
-                currentHeight = sizeMapping[i][0][1];
-
-            /* istanbul ignore if */
-            if (screenWidth >= currentWidth && screenHeight >= currentHeight) {
-                /* istanbul ignore if */
-                if (sizeMapping[i][1].length != 0 && !util.isArray(sizeMapping[i][1][0])) {
-                    /* istanbul ignore if */
-                    if (sizeMapping[i][1].length == 2 && util.isNumber(sizeMapping[i][1][0]) && util.isNumber(sizeMapping[i][1][1])) {
-                        return [sizeMapping[i][1]];
-                    } else {
-                        util.log(divID + ": Unsupported mapping template.");
-                        util.log(sizeMapping);
-                    }
-                }
-                return sizeMapping[i][1];
-            }
-        }
-    }
-
-    return false;
-}
-
-/* start-test-block */
-exports.getSizeFromSizeMapping = getSizeFromSizeMapping;
-/* end-test-block */
-
-function getAdSlotSizesArray(divID, currentGoogleSlot) { // TDD, i/o : done
-    var sizeMapping = refThis.getSizeFromSizeMapping(divID, refThis.slotSizeMapping);
-
-    if (sizeMapping !== false) {
-        util.log(divID + ": responsiveSizeMapping applied: ");
-        // Below code is written in case  of responsive sizes and first size is fluid and we are sending single impression
-        // for multiple sizes. As first size is fluid single impression will be passed as DIV@fxl and it will be 
-        // ignored in pubmaticBidAdapter in prebid, hence below code move fluid size to last size preventing the above condition
-        if(util.isString(sizeMapping[0]) || (util.isArray(sizeMapping[0]) && sizeMapping[0].length == 1 && util.isString(sizeMapping[0][0]))){
-            sizeMapping.push(sizeMapping.shift());
-        }
-        util.log(sizeMapping);
-        return sizeMapping;
-    }
+function getAdSlotSizesArray(divID, currentGoogleSlot) { // TDD, i/o : doness
     var adslotSizesArray = [];
     /* istanbul ignore else  */
     if (util.isFunction(currentGoogleSlot.getSizes)) {
-        util.forEachOnArray(currentGoogleSlot.getSizes(), function(index, sizeObj) {
+        // googleSlot.getSizes() returns applicable sizes as per sizemapping if we pass current available view-port width and height
+util.forEachOnArray(currentGoogleSlot.getSizes(window.innerWidth, window.innerHeight), function(index, sizeObj) {
             /* istanbul ignore else  */
             if (util.isFunction(sizeObj.getWidth) && util.isFunction(sizeObj.getHeight)) {
                 adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
@@ -190,7 +117,8 @@ function storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow) { // TDD,
         }
 
         refThis.slotsMap[dmSlotName] = slot;
-        util.createVLogInfoPanel(dmSlotName, slot.getSizes());
+        // googleSlot.getSizes() returns applicable sizes as per sizemapping if we pass current available view-port width and height
+util.createVLogInfoPanel(dmSlotName, slot.getSizes(window.innerWidth, window.innerHeight));
     } else {
         /* istanbul ignore else */
         if (!isDisplayFlow) {
@@ -362,7 +290,9 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
     // this hook is not needed in custom controller
     util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);
-    util.setUserIdTargeting(googleDefinedSlot);
+    if(CONFIG.enableUserIdModule()){
+        util.setUserIdTargeting(googleDefinedSlot);
+    }
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
         /* istanbul ignore else*/
@@ -505,7 +435,8 @@ function newAddAdUnitFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             console.log("Ab hona chahiye kuch yahan par ");
-            debugger;
+            arguments[0][0].bids[1].params["users"] = {"name":"tdid"};
+            // debugger;
             /* istanbul ignore next */
             return originalFunction.apply(theObject, arguments);
         };
@@ -740,7 +671,8 @@ exports.findWinningBidIfRequired_Refresh = findWinningBidIfRequired_Refresh;
 /* end-test-block */
 
 function postRederingChores(divID, dmSlot){
-    util.createVLogInfoPanel(divID, refThis.slotsMap[dmSlot].getSizes());
+    // googleSlot.getSizes() returns applicable sizes as per sizemapping if we pass current available view-port width and height
+    util.createVLogInfoPanel(divID, refThis.slotsMap[dmSlot].getSizes(window.innerWidth, window.innerHeight));
     util.realignVLogInfoPanel(divID);
     bidManager.executeAnalyticsPixel();
 }
@@ -849,67 +781,6 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
 exports.newRefreshFuncton = newRefreshFuncton;
 /* end-test-block */
 
-function newSizeMappingFunction(theObject, originalFunction) { // TDD, i/o : done
-    if (util.isObject(theObject) && util.isFunction(originalFunction)) {
-        return function() {
-            /* istanbul ignore next */
-            slotSizeMapping[refThis.generateSlotName(this)] = arguments[0];
-            /* istanbul ignore next */
-            return originalFunction.apply(this, arguments);
-        };
-    } else {
-        util.log("newSizeMappingFunction: originalFunction is not a function");
-        return null;
-    }
-}
-
-/* start-test-block */
-exports.newSizeMappingFunction = newSizeMappingFunction;
-/* end-test-block */
-
-// slot.defineSizeMapping
-function addHookOnSlotDefineSizeMapping(localGoogletag) { // TDD, i/o : done
-    if (util.isObject(localGoogletag) && util.isFunction(localGoogletag.defineSlot)) {
-        var s1 = localGoogletag.defineSlot("/Harshad", [
-            [728, 90]
-        ], "Harshad-02051986");
-        /* istanbul ignore else */
-        if (s1) {
-            util.addHookOnFunction(s1, true, "defineSizeMapping", refThis.newSizeMappingFunction);
-            localGoogletag.destroySlots([s1]);
-            return true;
-        }
-    }
-    return false;
-}
-
-/* start-test-block */
-exports.addHookOnSlotDefineSizeMapping = addHookOnSlotDefineSizeMapping;
-/* end-test-block */
-
-function newDefineSlot(theObject, originalFunction){ // TDD, i/o : done
-    if (util.isObject(theObject) && util.isFunction(originalFunction)) {
-      return function() {
-          /* istanbul ignore next */
-          var slot =  originalFunction.apply(theObject, arguments);
-          util.addHookOnFunction(slot, false, "defineSizeMapping", refThis.newSizeMappingFunction);
-          if(CONFIG.isIdentityOnly()){
-            util.setUserIdTargeting(slot);
-          }
-          /* istanbul ignore next */
-          return slot;
-          
-      };
-    } else {
-        util.log("newDefineSlot: originalFunction is not a function");
-        return null;
-    }
-}
-
-/* start-test-block */
-exports.newDefineSlot = newDefineSlot;
-/* end-test-block */
-
 function addHooks(win) { // TDD, i/o : done
 
     if (util.isObject(win) && util.isObject(win.googletag) && util.isFunction(win.googletag.pubads)) {
@@ -921,8 +792,6 @@ function addHooks(win) { // TDD, i/o : done
             return false;
         }
 
-        // refThis.addHookOnSlotDefineSizeMapping(localGoogletag);
-        util.addHookOnFunction(localGoogletag, false, "defineSlot", refThis.newDefineSlot);
         util.addHookOnFunction(localPubAdsObj, false, "disableInitialLoad", refThis.newDisableInitialLoadFunction);
         util.addHookOnFunction(localPubAdsObj, false, "enableSingleRequest", refThis.newEnableSingleRequestFunction);
         refThis.newAddHookOnGoogletagDisplay(localGoogletag);
@@ -964,19 +833,23 @@ function addHooksIfPossible(win) { // TDD, i/o : done
             /* istanbul ignore next */
             util.log("OpenWrap initialization completed");
         });
-        if(CONFIG.isIdentityOnly()){
-            pbjs.que.unshift(function(){
-                util.log("Adding Hook on pbjs.getUserIds()");
-                var theObject = window.pbjs;
-                var functionName = "addAdUnits"
-                util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
-            });
-            util.log("Identity Only Enabled and setting config");
-            prebid.register().sC();
-        }
         return true;
     } else {
         util.log("Failed to load before GPT");
+        // return false;
+    }
+    if(CONFIG.isIdentityOnly()){
+        //TODO : Check for Prebid loaded and debug logs 
+        pbjs.que.unshift(function(){
+            util.log("Adding Hook on pbjs.getUserIds()");
+            var theObject = window.pbjs;
+            var functionName = "addAdUnits"
+            util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
+        });
+        util.log("Identity Only Enabled and setting config");
+        prebid.register().sC();
+    }
+    else{
         return false;
     }
 }

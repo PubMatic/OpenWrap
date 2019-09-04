@@ -490,6 +490,18 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 exports.generatePbConf = generatePbConf;
 /* end-test-block */
 
+function assignSingleRequestConfigForBidders(prebidConfig){
+	util.forEachOnObject(CONSTANTS.SRA_ENABLED_BIDDERS,function(adapterName){
+		if(util.isOwnProperty(CONF.adapters, adapterName)){
+			prebidConfig[adapterName] = {
+				singleRequest : true
+			};
+		}
+	});
+}
+
+exports.assignSingleRequestConfigForBidders = assignSingleRequestConfigForBidders;
+
 function fetchBids(activeSlots, impressionID){
 
 	//window.pwtCreatePrebidNamespace(pbNameSpace);
@@ -591,7 +603,7 @@ function fetchBids(activeSlots, impressionID){
 					};
 
 				}
-
+				refThis.assignSingleRequestConfigForBidders(prebidConfig);
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 
