@@ -1058,10 +1058,10 @@ exports.getCurrencyToDisplay = function(){
 
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
-	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId,partnerValues){
+	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
 		var uIdConf = {};
 		switch(parterId){
-		case "pubcommonid":
+		case "pubcommon":
 			uIdConf = {
 				name: "pubCommonId",
 				storage: {
@@ -1075,11 +1075,25 @@ exports.getUserIdConfiguration = function(){
 			uIdConf = {
 				name: "identityLink",
 				params: {
-					pid: "999"          // Set your real identityLink placement ID here
+					pid: partnerValues.pid         // Set your real identityLink placement ID here
 				},
 				storage: {
 					type: "html5",
 					name: "idl_env"    // set localstorage with this name
+				}
+			};
+			break;
+		case "id5Id":
+			uIdConf = {
+				name: "id5Id",
+				params: {
+					partner: partnerValues.partner            // change to the Partner Number you received from ID5
+				},
+				storage: {
+					type: "cookie",
+					name: "owpbjs-id5id",     // create a cookie with this name
+					expires: 5              // cookie can last for 5 days to ensure it is
+											// encrypted with the latest key from ID5
 				}
 			};
 			break;
@@ -1095,6 +1109,17 @@ exports.getUserIdConfiguration = function(){
 					expires: 60                   // cookie can last for 60 days
 				}
 			};
+			break;
+		case "criteortus":
+			uIdConf = {
+				name: "criteortus",
+				params: {
+					clientIdentifier: {}
+				}
+			};
+			for(var key in partnerValues){
+				uIdConf.params.clientIdentifier[key] = partnerValues[key];
+			}
 			break;
 		case "digitrust":
 			uIdConf = {
@@ -1119,7 +1144,7 @@ exports.getUserIdConfiguration = function(){
 				},
 				storage: {
 					type: "cookie",
-					name: "pbjsdigitrust",
+					name: "owpbjsdigitrust",
 					expires: 60
 				}
 			};
