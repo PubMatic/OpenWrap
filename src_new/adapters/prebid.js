@@ -201,7 +201,7 @@ function pbBidStreamHandler(pbBid){
 				}else if(util.isOwnProperty(refThis.kgpvMap, temp2)){
 					responseID = temp2;
 				}else{
-					util.log('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
+					util.logWarning('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
 					return;
 				}
 			}
@@ -224,7 +224,7 @@ function pbBidStreamHandler(pbBid){
 			);
 		}
 	}else{
-		util.log('Failed to find pbBid.adUnitCode in kgpvMap, pbBid.adUnitCode:'+ pbBid.adUnitCode);
+		util.logWarning('Failed to find pbBid.adUnitCode in kgpvMap, pbBid.adUnitCode:'+ pbBid.adUnitCode);
 	}
 }
 
@@ -508,7 +508,7 @@ function fetchBids(activeSlots, impressionID){
 
 	/* istanbul ignore else */
 	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
-		util.log("PreBid js is not loaded");
+		util.logError("PreBid js is not loaded");
 		return;
 	}
 
@@ -519,7 +519,7 @@ function fetchBids(activeSlots, impressionID){
 			onEventAdded = true;
 		}		
 	} else {
-		util.log("PreBid js onEvent method is not available");
+		util.logWarning("PreBid js onEvent method is not available");
 		return;
 	}
 
@@ -639,8 +639,8 @@ function fetchBids(activeSlots, impressionID){
 				return;
 			}
 		} catch (e) {
-			util.log('Error occured in calling PreBid.');
-			util.log(e);
+			util.logError('Error occured in calling PreBid.');
+			util.logError(e);
 		}
 	}
 }

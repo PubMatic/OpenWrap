@@ -93,6 +93,26 @@ exports.log = function(data){
 	}
 };
 
+exports.logError = function(data){
+	if( refThis.debugLogIsEnabled && console && this.isFunction(console.log) ){ // eslint-disable-line no-console
+		if(this.isString(data)){
+			console.error( (new Date()).getTime()+ " : " + constDebugInConsolePrependWith + data ); // eslint-disable-line no-console
+		}else{
+			console.error(data); // eslint-disable-line no-console
+		}
+	}
+};
+
+exports.logWarning = function(data){
+	if( refThis.debugLogIsEnabled && console && this.isFunction(console.log) ){ // eslint-disable-line no-console
+		if(this.isString(data)){
+			console.warn( (new Date()).getTime()+ " : " + constDebugInConsolePrependWith + data ); // eslint-disable-line no-console
+		}else{
+			console.warn(data); // eslint-disable-line no-console
+		}
+	}
+};
+
 exports.error = function(data){
 	console.log( (new Date()).getTime()+ " : " + constErrorInConsolePrependWith, data ); // eslint-disable-line no-console
 };
@@ -237,12 +257,12 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 	;
 	/* istanbul ignore else */
 	if(!object || !refThis.isObject(object) || refThis.isArray(object)){
-		refThis.log(adapterID + "provided object is invalid.");
+		refThis.logWarning(adapterID + "provided object is invalid.");
 		return error;
 	}
 	/* istanbul ignore else */
 	if(!refThis.isArray(keys)){
-		refThis.log(adapterID + "provided keys must be in an array.");
+		refThis.logWarning(adapterID + "provided keys must be in an array.");
 		return error;
 	}
 
@@ -256,7 +276,7 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 	for(var i=0; i<arrayLength; i++){
 		/* istanbul ignore else */
 		if(!refThis.isOwnProperty(object, keys[i])){
-			refThis.log(adapterID + ": "+keys[i]+", mandatory parameter not present.");
+			refThis.logError(adapterID + ": "+keys[i]+", mandatory parameter not present.");
 			return error;
 		}
 	}
@@ -291,9 +311,9 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 				}else{
 					keyConfig = keyLookupMap[generatedKey];
 					if(!keyConfig){
-						refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
+						refThis.logWarning(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
 					}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-						refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
+						refThis.logWarning(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
 					}else{
 						callHandlerFunction = true;
 					}
@@ -349,7 +369,7 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 				}
 			});
 		}catch(e){
-			refThis.log("Creative-Resize; Error in resizing creative");
+			refThis.logError("Creative-Resize; Error in resizing creative");
 		} // eslint-disable-line no-empty
 	}
 };
@@ -371,8 +391,8 @@ exports.displayCreative = function(theDocument, bid){
 	}else if(bid.adUrl){
 		refThis.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
 	}else{
-		refThis.log("creative details are not found");
-		refThis.log(bid);
+		refThis.logError("creative details are not found");
+		refThis.logError(bid);
 	}
 };
 
@@ -526,7 +546,7 @@ exports.addHookOnFunction = function(theObject, useProto, functionName, newFunct
 		var originalFunction = theObject[functionName];
 		theObject[functionName] = newFunction(callMethodOn, originalFunction);
 	}else{
-		refThis.log("in assignNewDefination: oldReference is not a function");
+		refThis.logWarning("in assignNewDefination: oldReference is not a function");
 	}
 };
 
@@ -694,7 +714,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 							iframeDoc.close();
 
 						}catch(e){
-							refThis.log('Error in rendering creative in safe frame.');
+							refThis.logError('Error in rendering creative in safe frame.');
 							refThis.log(e);
 							refThis.log('Rendering synchronously.');
 							refThis.displayCreative(window.document, msgData.pwt_bid);
@@ -703,7 +723,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}else if(theBid.adUrl){
 						refThis.writeIframe(window.document, theBid.adUrl, theBid.width, theBid.height, "");
 					}else{
-						refThis.log("creative details are not found");
+						refThis.logWarning("creative details are not found");
 						refThis.log(theBid);
 					}
 				}
@@ -957,25 +977,27 @@ exports.ajaxRequest = function(url, callback, data, options) {
 // Returns mediaTypes for adUnits which are sent to prebid
 exports.getMediaTypeObject = function(nativeConfig, sizes, currentSlot){
 	var mediaTypeObject = {};
-	if(nativeConfig && nativeConfig.kgp && nativeConfig.klm){
-		var kgp = nativeConfig.kgp;
-		var klm = nativeConfig.klm;
-		// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
-		// as we are only supporting div and ad unit, taking the first slot name.
-		// Implemented as per code review and discussion. 
-		var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
-		if(refThis.isOwnProperty(klm,kgpv)){
-			refThis.log("Native Config found for adSlot: " +  currentSlot);
-			var config = klm[kgpv];
-			mediaTypeObject["native"] = config.config;
-			if(config[CONSTANTS.COMMON.NATIVE_ONLY]){
-				return mediaTypeObject;
+	if(nativeConfig){
+		if( nativeConfig.kgp && nativeConfig.klm){
+			var kgp = nativeConfig.kgp;
+			var klm = nativeConfig.klm;
+			// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
+			// as we are only supporting div and ad unit, taking the first slot name.
+			// Implemented as per code review and discussion. 
+			var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
+			if(refThis.isOwnProperty(klm,kgpv)){
+				refThis.log("Native Config found for adSlot: " +  currentSlot);
+				var config = klm[kgpv];
+				mediaTypeObject["native"] = config.config;
+				if(config[CONSTANTS.COMMON.NATIVE_ONLY]){
+					return mediaTypeObject;
+				}
+			} else{
+				refThis.log("Native Config not found for adSlot: " +  currentSlot);
 			}
 		} else{
-			refThis.log("Native Config not found for adSlot: " +  currentSlot);
+			refThis.logWarning("Native config not found or KGP/KLM missing in native config provided.");
 		}
-	} else{
-		refThis.log("Native config not found or KGP/KLM missing in native config provided.");
 	}
 	mediaTypeObject["banner"] = {
 		sizes: sizes
@@ -1034,10 +1056,12 @@ exports.getAdFormatFromBidAd = function(ad){
 exports.handleHook = function(hookName, arrayOfDataToPass) {
 	// Adding a hook for publishers to modify the data we have
 	if(refThis.isFunction(window.PWT[hookName])){
+		refThis.log('For Hook-name: '+hookName+', calling window.PWT.'+hookName+'function.' );
 		window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
-	} else {
-		refThis.log('Hook-name: '+hookName+', window.PWT.'+hookName+' is not a function.' );
-	}
+	} 
+	// else {
+	// 	refThis.log('Hook-name: '+hookName+', window.PWT.'+hookName+' is not a function.' );
+	// }
 };
 
 exports.getCurrencyToDisplay = function(){
