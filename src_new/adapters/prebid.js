@@ -67,16 +67,18 @@ function transformPBBidToOWBid(bid, kgpv){
 	}
 	/*
 		errorCodes meaning:
-		1 = GADS_UNMAPPED_SLOT_ERROR
-		2 = GADS_MISSING_CONF_ERROR
+		1 = UNMAPPED_SLOT_ERROR
+		2 = MISSING_CONF_ERROR
 		3 = TIMEOUT_ERROR
 		4 = NO_BID_PREBID_ERROR
 		5 = PARTNER_TIMEDOUT_ERROR
 		6 = INVALID_CONFIGURATION_ERROR
 		7 = NO_GDPR_CONSENT_ERROR
+		11 = ALL_PARTNER_THROTTLED
+		12 = PARTNER_THROTTLED
 		500 = API_RESPONSE_ERROR
 	*/
-	if(pubmaticServerErrorCode === 1 || pubmaticServerErrorCode === 2 || pubmaticServerErrorCode === 6) {
+	if(pubmaticServerErrorCode === 1 || pubmaticServerErrorCode === 2 || pubmaticServerErrorCode === 6 || pubmaticServerErrorCode === 11 || pubmaticServerErrorCode === 12) {
 		theBid.setDefaultBidStatus(-1);
 		theBid.setWidth(0);
 		theBid.setHeight(0);

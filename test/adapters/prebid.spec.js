@@ -143,6 +143,18 @@ describe('ADAPTER: Prebid', function() {
             theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
             theBid.getDefaultBidStatus().should.be.equal(0);
             theBid.getPostTimeoutStatus().should.be.true;
+
+            errorBid.pubmaticServerErrorCode = 11;
+            theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
+            theBid.getDefaultBidStatus().should.be.equal(-1);
+            theBid.getWidth().should.be.equal(0);
+            theBid.getHeight().should.be.equal(0);
+
+            errorBid.pubmaticServerErrorCode = 12;
+            theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
+            theBid.getDefaultBidStatus().should.be.equal(-1);
+            theBid.getWidth().should.be.equal(0);
+            theBid.getHeight().should.be.equal(0);
             done();
         });
     });
