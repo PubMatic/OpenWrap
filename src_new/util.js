@@ -274,15 +274,16 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
  * 			kgp_rx: "" // regex pattern
  * 			klm_rx: [
  * 				{
- * 					rx: "ABC123*",
- * 					rx_config: {} // here goes adapyter config
- * 				}, 
- * 
- * 				{
- * 					rx: "*",
- * 					rx_config: {}
+ * 					//rx: "ABC123*",
+ *					rx: {
+ *						DIV: "", regex for DIV, can be left as *
+ *						AU: "", regex for AdUnit, can be left as *
+ *						SIZE: "" // array or Pipe separated sizes like 728x90, can be left as *	
+ * 					}	
+ * 					rx_config: {} // here goes adapter config
  * 				}
  * 			]
+ * 			if all fields in rx match for kgpv_rx generated (using kgp_rx) of the current adSlot then pick the rx_config
  */
 
 exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids){
