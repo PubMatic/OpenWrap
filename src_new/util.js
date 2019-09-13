@@ -285,10 +285,26 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
  * 			]
  */
 
+ /**
+  *  Algo for Regex and Normal Flow
+  * 1. Check for kgp key 
+  *   a). If KGP is present for partner then proceed with old flow and no change in that
+  *   b). If KGP is not present and kgp_rx is present it is regex flow and proceed with regex flow as below
+  * 2. Regex Flow
+  * 	a. Generate KGPV's with kgp as _AU_@_DIV_@_W_x_H_
+  * 	b. Regex Match each KGPV with KLM_rx 
+  * 	c. Get config for the partner 
+  *     d. Send the config to prebid and log the same kgpv in logger
+  * 
+  * Special Case for Pubmatic
+  *  1. In case of regex flow we will have hashed keys which will be sent to translator for matching
+  *  2. These hashed keys could be same for multiple slot on the page and hence need to check how to send it to prebid for 
+  *     identification in prebid resposne.
+  */
+
 exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids){
 	var activeSlotsLength = activeSlots.length,
-		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN]
-		;
+		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN];
 	/* istanbul ignore else */
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
 		refThis.forEachOnArray(activeSlots, function(i, activeSlot){
@@ -1098,4 +1114,46 @@ exports.getCurrencyToDisplay = function(){
 		}
 	}
 	return defaultCurrency;
+};
+
+exports.getConfigFromRegex = function(klmsForPartner, slot){
+	// This function will return the config for the partner for specific slot.
+	// KGP would always be AU@DIV@WXH
+	// KLM would be an array of regex Config and regex pattern pairs where key would be regex pattern to match 
+	// and value would be the config for that slot to be considered.
+	/* Algo to match regex pattern 
+		Start regex parttern matching  pattern -> ["ADUNIT", "DIV", "SIZE"]
+		Then match the slot adUnit with pattern 
+		if successful the match the div then size
+		if all are true then return the config else match the next avaiable pattern
+		if none of the pattern match then return the error config not found */
+	var rxConfig = null;
+	for (var i = 0; i < klmsForPartner.length; i++) {
+		var rx = klmsForPartner[i];
+		var rxPattern = rx.rx;
+		if(slot.getAdUnitID().match(rxPattern.AU) && slot.getDivID().match(rxPattern.DIV)){
+			var sizes =slot.getSizes();
+			if(sizes.length>1){
+				for (var j = 0; j < sizes.length; j++) {
+					var size = sizes[j];
+					if(size.join().match(new RegExp(rxPattern.SIZE))!=null){
+						rxConfig = rx.rx_config;
+					}
+				}
+			}
+			else if(sizes.length == 1){
+				if(size[0].join().match(new RegExp(rxPattern.SIZE))!=null){
+					rxConfig = rx.rx_config;
+					break;
+				}
+			}
+			if(rxConfig){
+				break;
+			}
+		}
+	}
+	if(!rxConfig){
+		refThis.logError("Regex Mapping Not Satisfied for slot" + JSON.stringify(slot));
+	}
+	return rxConfig;
 };
