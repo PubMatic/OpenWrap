@@ -304,32 +304,32 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 
 exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids){
 	var activeSlotsLength = activeSlots.length,
-		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN];
+		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_GENERATION_PATTERN] || null;
 	/* istanbul ignore else */
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
 		refThis.forEachOnArray(activeSlots, function(i, activeSlot){
 			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
 			if(generatedKeys.length > 0){
-				callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids);
-			} else {
-				/**
-				 * todo: the regex pattern will return only one key and it's respective config
-				 */
-				generatedKeys = refThis.getRegexMatchingAdapterConfig( activeSlot, keyGenerationPattern );
-				if(generatedKeys.length > 0){
-					callHandlerFunctionForRegexMapping(adapterID, adUnits, adapterConfig, impressionID, activeSlot, handlerFunction, addZeroBids);
-				}
-			}			
+				callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids, keyGenerationPattern);
+			} 
+			// else {
+			// 	/**
+			// 	 * todo: the regex pattern will return only one key and it's respective config
+			// 	 */
+			// 	generatedKeys = refThis.getRegexMatchingAdapterConfig( activeSlot, keyGenerationPattern );
+			// 	if(generatedKeys.length > 0){
+			// 		callHandlerFunctionForRegexMapping(adapterID, adUnits, adapterConfig, impressionID, activeSlot, handlerFunction, addZeroBids);
+			// 	}
+			// }			
 		});
 	}
 };
 
 // private
-function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids){
-	var keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
-		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
-		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0
-	;
+function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern){
+	var keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] || null,
+		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
+	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
 	refThis.forEachOnArray(generatedKeys, function(j, generatedKey){
 		var keyConfig = null,
 			callHandlerFunction = false,
@@ -339,7 +339,12 @@ function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, 
 		if(keyLookupMap == null){
 			callHandlerFunction = true;
 		}else{
-			keyConfig = keyLookupMap[generatedKey];
+			if(isRegexMapping){
+				keyConfig = refThis.getConfigFromRegex(keyLookupMap,generatedKey);
+			}
+			else{
+				keyConfig = keyLookupMap[generatedKey];
+			}
 			if(!keyConfig){
 				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
 			}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
@@ -366,7 +371,7 @@ function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, 
 				generatedKey,
 				kgpConsistsWidthAndHeight,
 				activeSlot,
-				keyLookupMap ? keyLookupMap[generatedKey] : null,
+				keyConfig,
 				sizeArray[j][0],
 				sizeArray[j][1]
 			);
@@ -1116,7 +1121,7 @@ exports.getCurrencyToDisplay = function(){
 	return defaultCurrency;
 };
 
-exports.getConfigFromRegex = function(klmsForPartner, slot){
+exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 	// This function will return the config for the partner for specific slot.
 	// KGP would always be AU@DIV@WXH
 	// KLM would be an array of regex Config and regex pattern pairs where key would be regex pattern to match 
@@ -1129,31 +1134,13 @@ exports.getConfigFromRegex = function(klmsForPartner, slot){
 		if none of the pattern match then return the error config not found */
 	var rxConfig = null;
 	for (var i = 0; i < klmsForPartner.length; i++) {
-		var rx = klmsForPartner[i];
-		var rxPattern = rx.rx;
-		if(slot.getAdUnitID().match(rxPattern.AU) && slot.getDivID().match(rxPattern.DIV)){
-			var sizes =slot.getSizes();
-			if(sizes.length>1){
-				for (var j = 0; j < sizes.length; j++) {
-					var size = sizes[j];
-					if(size.join().match(new RegExp(rxPattern.SIZE))!=null){
-						rxConfig = rx.rx_config;
-					}
-				}
-			}
-			else if(sizes.length == 1){
-				if(size[0].join().match(new RegExp(rxPattern.SIZE))!=null){
-					rxConfig = rx.rx_config;
-					break;
-				}
-			}
-			if(rxConfig){
-				break;
-			}
+		var klmv = klmsForPartner[i];
+		var rxPattern = klmv.rx;
+		var keys = generatedKey.split("@");
+		if(keys[0].match(new RegExp(rxPattern.AU)) && keys[1].match(new RegExp(rxPattern.DIV)) && keys[2].match(new RegExp(rxPattern.SIZE))){
+			rxConfig = klmv.rx_config;
+			break;
 		}
-	}
-	if(!rxConfig){
-		refThis.logError("Regex Mapping Not Satisfied for slot" + JSON.stringify(slot));
 	}
 	return rxConfig;
 };

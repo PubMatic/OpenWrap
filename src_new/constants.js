@@ -33,6 +33,8 @@ exports.CONFIG = {
 	"COMMON": "pwt",
 	"TIMEOUT": "t",
 	"KEY_GENERATION_PATTERN": "kgp",
+	"REGEX_KEY_GENERATION_PATTERN": "kgp_rx",
+	"REGEX_KEY_LOOKUP_MAP": "klm_rx",
 	"KEY_LOOKUP_MAP": "klm",
 	"SERVER_SIDE_KEY": "sk",
 	"PUBLISHER_ID": "pubid",
