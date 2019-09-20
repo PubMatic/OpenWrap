@@ -30,6 +30,7 @@ function Bid(adapterID, kgpv){
 	this.analyticsNetCpm = 0;
 	this.native = undefined;
 	this.adFormat = undefined;
+	this.regexPattern = undefined;
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -155,6 +156,9 @@ Bid.prototype.getWidth = function(){
 };
 
 Bid.prototype.getKGPV = function(){
+	if(this.regexPattern){
+		return this.regexPattern;
+	}
 	return this.kgpv;
 };
 
@@ -307,6 +311,15 @@ Bid.prototype.getAdFormat = function(){
 
 Bid.prototype.setAdFormat = function(ad){
 	this.adFormat = UTIL.getAdFormatFromBidAd(ad);
+	return this;
+};
+
+Bid.prototype.getRegexPattern = function(){
+	return this.regexPattern;
+};
+
+Bid.prototype.setRegexPattern = function(pattern){
+	this.regexPattern = pattern;
 	return this;
 };
 

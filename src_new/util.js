@@ -330,6 +330,7 @@ function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, 
 	var keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] || null,
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
+	var regexPattern = undefined;
 	refThis.forEachOnArray(generatedKeys, function(j, generatedKey){
 		var keyConfig = null,
 			callHandlerFunction = false,
@@ -339,8 +340,12 @@ function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, 
 		if(keyLookupMap == null){
 			callHandlerFunction = true;
 		}else{
-			if(isRegexMapping){
-				keyConfig = refThis.getConfigFromRegex(keyLookupMap,generatedKey);
+			if(isRegexMapping){ 
+				var config = refThis.getConfigFromRegex(keyLookupMap,generatedKey);
+				if(config){
+					keyConfig = config.config;
+					regexPattern = config.regexPattern;
+				}
 			}
 			else{
 				keyConfig = keyLookupMap[generatedKey];
@@ -361,6 +366,7 @@ function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, 
 				var bid = BID.createBid(adapterID, generatedKey);
 				bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
 				bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
+				bid.setRegexPattern(regexPattern);
 			}
 
 			handlerFunction(
@@ -373,7 +379,8 @@ function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, 
 				activeSlot,
 				keyConfig,
 				sizeArray[j][0],
-				sizeArray[j][1]
+				sizeArray[j][1],
+				regexPattern
 			);
 		}
 	});
@@ -1138,7 +1145,10 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 		var rxPattern = klmv.rx;
 		var keys = generatedKey.split("@");
 		if(keys[0].match(new RegExp(rxPattern.AU)) && keys[1].match(new RegExp(rxPattern.DIV)) && keys[2].match(new RegExp(rxPattern.SIZE))){
-			rxConfig = klmv.rx_config;
+			rxConfig = {
+				config : klmv.rx_config,
+				regexPattern : rxPattern.AU + "@" + rxPattern.DIV + "@" + rxPattern.SIZE
+			};
 			break;
 		}
 	}

@@ -173,6 +173,10 @@ function pbBidStreamHandler(pbBid){
 			// Assinging kbpv after modifying and will be used for logger and tracker purposes
 			// this field will be replaced everytime a bid is received with single impression feature on
 			refThis.kgpvMap[responseID].kgpv = refThis.checkAndModifySizeOfKGPVIfRequired(pbBid,refThis.kgpvMap[responseID]);
+
+			// TODO : Put a field Regex Pattern in KGPVMAP so that it can be passed on to the bid and to the logger
+			// Something like this refThis.kgpvMap[responseID].regexPattern = pbBid.refThis.kgpvMap[responseID].regexPattern;
+
 		}
 
 		/*
@@ -287,7 +291,7 @@ function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
 
-function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
+function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight,regexPattern){
 
 	var code, sizes, divID = currentSlot.getDivID();
 	
@@ -301,7 +305,8 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		}
 		refThis.kgpvMap [ code ] = {
 			kgpv: generatedKey,
-			divID: divID
+			divID: divID,
+			regexPattern:regexPattern
 		};
 	} else{
 		/* This will be executed in case single impression feature is enabled.
@@ -336,7 +341,8 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		if(!adapterAlreadyExsistsInKGPVS){
 			var kgpv = {
 				adapterID: adapterID,
-				kgpv:generatedKey
+				kgpv:generatedKey,
+				regexPattern:regexPattern
 			};
 			refThis.kgpvMap[code].kgpvs.push(kgpv);
 		}
