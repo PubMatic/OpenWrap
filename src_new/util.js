@@ -1059,101 +1059,8 @@ exports.getCurrencyToDisplay = function(){
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
-		var uIdConf = {};
-		switch(parterId){
-		case "pubcommon":
-			uIdConf = {
-				name: "pubCommonId",
-				storage: {
-					type: "cookie",
-					name: "_pubCommonId", // create a cookie with this name
-					expires: 1825 // expires in 5 years
-				}
-			};
-			break;
-		case "identityLink":
-			uIdConf = {
-				name: "identityLink",
-				params: {
-					pid: partnerValues.pid         // Set your real identityLink placement ID here
-				},
-				storage: {
-					type: "html5",
-					name: "idl_env"    // set localstorage with this name
-				}
-			};
-			break;
-		case "id5Id":
-			uIdConf = {
-				name: "id5Id",
-				params: {
-					partner: partnerValues.partner            // change to the Partner Number you received from ID5
-				},
-				storage: {
-					type: "cookie",
-					name: "owpbjs-id5id",     // create a cookie with this name
-					expires: 5              // cookie can last for 5 days to ensure it is
-											// encrypted with the latest key from ID5
-				}
-			};
-			break;
-		case "unifiedId":
-			uIdConf = {
-				name: "unifiedId",
-				params:{
-					url: "//match.adsrvr.org/track/rid?ttd_pid="+ partnerValues.ttidpid + "&fmt=json"
-				},
-				storage: {
-					type: "cookie",  
-					name: "owpbjs-unifiedid",       // create a cookie with this name
-					expires: 60                   // cookie can last for 60 days
-				}
-			};
-			break;
-		case "criteortus":
-			uIdConf = {
-				name: "criteortus",
-				params: {
-					clientIdentifier: {}
-				}
-			};
-			for(var key in partnerValues){
-				uIdConf.params.clientIdentifier[key] = partnerValues[key];
-			}
-			break;
-		case "digitrust":
-			uIdConf = {
-				name: "digitrust",
-				params: {
-					init: {
-						member: partnerValues.member,
-						site: partnerValues.site
-					},
-					callback: function (digiTrustResult) {
-					// This callback method is optional
-						if (digiTrustResult.success) {
-							// Success in Digitrust init;
-							// 'DigiTrust Id (encrypted): ' + digiTrustResult.identity.id;
-							refThis.log("DigiTrust Id (encrypted): " + digiTrustResult.identity.id);
-						}
-						else {
-							// Digitrust init failed
-							refThis.log("DigiTrust init failed");
-						}
-					}
-				},
-				storage: {
-					type: "cookie",
-					name: "owpbjsdigitrust",
-					expires: 60
-				}
-			};
-			break;
-		default:
-
-			break;
-		}
-		userIdConfs.push(uIdConf);
+		// var uIdConf = {};
+		userIdConfs.push(refThis.getUserIdParams(partnerValues));
 	});
 	return userIdConfs;
 };
@@ -1183,4 +1090,56 @@ exports.setUserIdToGPT = function(googleDefinedSlot,userIds){
 
 exports.getUserIds = function(){
 	return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
+};
+
+
+// exports.getUserIdParams = function(params){
+// 	var returnObject= {};
+// 	for(var key in params){
+// 		try{
+// 			var splitends = key.split(".");
+// 			if(splitends.length == 1){
+// 				returnObject[key] = params[key];
+// 			}
+// 			else{
+// 				if(!returnObject[splitends[0]]){ 
+// 					returnObject[splitends[0]] ={};
+// 				}
+// 				returnObject[splitends[0]][splitends[1]] = params[key];
+// 			}
+// 		}
+// 		catch(ex){}
+// 	}
+// 	return returnObject;
+// };
+
+
+exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
+	var convertedObject = sourceObject || {};
+	var referenceForNesting = convertedObject;
+	for(var i=0;i<sourceArray.length-1;i++){
+		if(!referenceForNesting[sourceArray[i]]){
+			referenceForNesting[sourceArray[i]] = {};
+		}
+		referenceForNesting = referenceForNesting[sourceArray[i]];
+	}
+	referenceForNesting[sourceArray[sourceArray.length-1]] = valueOfLastNode;
+	return convertedObject;	
+};
+
+exports.getUserIdParams = function(params){
+	var userIdParams= {};
+	for(var key in params){
+		try{
+			var splitParams = key.split(".");
+			if(splitParams.length == 1){
+				userIdParams[key] = params[key];
+			}
+			else{
+				userIdParams = refThis.getNestedObjectFromArray(userIdParams,splitParams,params[key]);
+			}
+		}
+		catch(ex){}
+	}	
+	return userIdParams;
 };
