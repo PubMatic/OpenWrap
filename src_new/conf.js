@@ -129,7 +129,7 @@ exports.nativeConfig = {
 };
 
 exports.identityPartners = {
-	unifiedId: {
+	pubCommonId: {
 		name: "pubCommonId",
 		"storage.type": "cookie",
 		"storage.name": "_pubCommonId", 

@@ -822,6 +822,7 @@ exports.defineGPTVariables = defineGPTVariables;
 /* end-test-block */
 
 function addHooksIfPossible(win) { // TDD, i/o : done
+    var loadGPT = false;
     if (util.isUndefined(win.google_onload_fired) && util.isObject(win.googletag) && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)) {
         util.log("Succeeded to load before GPT");//todo
         var refThis = this; // TODO : check whether the global refThis works here
@@ -833,14 +834,15 @@ function addHooksIfPossible(win) { // TDD, i/o : done
             /* istanbul ignore next */
             util.log("OpenWrap initialization completed");
         });
-        return true;
+        loadGPT = true;
+        //return true;
     } else {
         util.log("Failed to load before GPT");
         // return false;
     }
     if(CONFIG.isIdentityOnly()){
         //TODO : Check for Prebid loaded and debug logs 
-        pbjs.que.unshift(function(){
+        window[CONSTANTS.COMMON.PREBID_NAMESPACE].que.unshift(function(){
             util.log("Adding Hook on pbjs.getUserIds()");
             var theObject = window.pbjs;
             var functionName = "addAdUnits"
@@ -849,9 +851,11 @@ function addHooksIfPossible(win) { // TDD, i/o : done
         util.log("Identity Only Enabled and setting config");
         prebid.register().sC();
     }
-    else{
+    else if(!loadGPT){
         return false;
     }
+    return true;
+
 }
 /* start-test-block */
 exports.addHooksIfPossible = addHooksIfPossible;
