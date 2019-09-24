@@ -78,7 +78,7 @@ gulp.task('webpack-creative', ['clean'], function() {
 });
 
 
-gulp.task('devpack', function () {
+gulp.task('devpack', ['clean'], function () {
 var connect = require('gulp-connect');
 var webpack = require('webpack-stream');
 var webpackConfig = require('./webpack.config.js');
@@ -201,7 +201,7 @@ gulp.task('bundle-creative', function () {
 
 
 // Task to build non-minified version of owt.js
-gulp.task('devbundle', function () {
+gulp.task('devbundle', ['devpack'],function () {
     console.log("Executing Dev Build");
     return gulp.src([prebidRepoPath + '/build/dev/prebid.js', './build/dev/owt.js'])
         .pipe(concat('owt.js'))
