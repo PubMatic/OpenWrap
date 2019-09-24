@@ -547,7 +547,7 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 		// });
 		// NEW APPROACH: check allPossibleBidsReceived flag which is set when pbjs.requestBids->bidsBackHandler is executed
 		if(bidMaps[divId]){
-			status = status && (bidMaps[divId].allPossibleBidsReceived == true);
+			status = status && (bidMaps[divId].hasAllPossibleBidsReceived() === true);
 		}
 	});
 	return status;
