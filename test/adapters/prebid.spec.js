@@ -143,6 +143,18 @@ describe('ADAPTER: Prebid', function() {
             theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
             theBid.getDefaultBidStatus().should.be.equal(0);
             theBid.getPostTimeoutStatus().should.be.true;
+
+            errorBid.pubmaticServerErrorCode = 11;
+            theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
+            theBid.getDefaultBidStatus().should.be.equal(-1);
+            theBid.getWidth().should.be.equal(0);
+            theBid.getHeight().should.be.equal(0);
+
+            errorBid.pubmaticServerErrorCode = 12;
+            theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
+            theBid.getDefaultBidStatus().should.be.equal(-1);
+            theBid.getWidth().should.be.equal(0);
+            theBid.getHeight().should.be.equal(0);
             done();
         });
     });
@@ -729,6 +741,7 @@ describe('ADAPTER: Prebid', function() {
             adUnits = "ad_unit_1";
             impressionID = 123123123;
             sinon.stub(UTIL, 'log');
+            sinon.stub(UTIL, 'logError');
 
             sinon.stub(UTIL, 'forEachGeneratedKey');
             done();
@@ -741,6 +754,7 @@ describe('ADAPTER: Prebid', function() {
             adUnits = null;
             impressionID = null;
             UTIL.log.restore();
+            UTIL.logError.restore();
             UTIL.forEachGeneratedKey.restore();
             done();
         });
@@ -878,6 +892,8 @@ describe('ADAPTER: Prebid', function() {
             activeSlots = [new SLOT("Slot_1"), new SLOT("Slot_2")];
             impressionID = 123123123;
             sinon.spy(UTIL, 'log');
+            sinon.spy(UTIL, 'logError');
+            sinon.spy(UTIL, 'logWarning');
             sinon.stub(UTIL, 'isOwnProperty').returns(true);
             sinon.stub(UTIL, 'isFunction');
             sinon.stub(UTIL, 'isDebugLogEnabled');
@@ -931,6 +947,8 @@ describe('ADAPTER: Prebid', function() {
             activeSlots = null;
             impressionID = null;
             UTIL.log.restore();
+            UTIL.logError.restore();
+            UTIL.logWarning.restore();
             UTIL.isOwnProperty.restore();
             UTIL.isFunction.restore();
             UTIL.isDebugLogEnabled.restore();
@@ -980,7 +998,7 @@ describe('ADAPTER: Prebid', function() {
         it('returns while logging when newly created namespace doenst have onEvent method', function (done) {
             UTIL.isFunction.returns(false);
             PREBID.fetchBids(activeSlots, impressionID);
-            UTIL.log.calledWith("PreBid js onEvent method is not available").should.be.true;
+            UTIL.logWarning.calledWith("PreBid js onEvent method is not available").should.be.true;
             done();
         });
 

@@ -566,6 +566,8 @@ describe('UTIL', function() {
             sinon.spy(UTIL, "isArray");
             sinon.spy(UTIL, "isOwnProperty");
             sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "logWarning");
+            sinon.spy(UTIL, "logError");
             done();
         });
 
@@ -577,6 +579,8 @@ describe('UTIL', function() {
             UTIL.isArray.restore();
             UTIL.isOwnProperty.restore();
             UTIL.log.restore();
+            UTIL.logWarning.restore();
+            UTIL.logError.restore();
             done();
         });
 
@@ -589,14 +593,14 @@ describe('UTIL', function() {
             UTIL.checkMandatoryParams(object, keys, adapterID);
             UTIL.isObject.returned(true).should.be.true;
             UTIL.isArray.returned(false).should.be.true;
-            UTIL.log.calledWith(adapterID + "provided object is invalid.");
+            UTIL.logWarning.calledWith(adapterID + "provided object is invalid.");
             done();
         });
 
         it('should log if provided object is invalid i.e. an array ', function(done) {
             object = [];
             UTIL.checkMandatoryParams(object, keys, adapterID).should.be.false;
-            UTIL.log.calledWith(adapterID + "provided object is invalid.");
+            UTIL.logWarning.calledWith(adapterID + "provided object is invalid.");
             done();
         });
 
@@ -609,7 +613,7 @@ describe('UTIL', function() {
         it('should log if provided keys are not an array', function(done) {
             keys = {};
             UTIL.checkMandatoryParams(object, keys, adapterID).should.be.false;
-            UTIL.log.calledWith(adapterID + "provided keys must be in an array.");
+            UTIL.logWarning.calledWith(adapterID + "provided keys must be in an array.");
             done();
         });
 
@@ -626,7 +630,7 @@ describe('UTIL', function() {
             };
             UTIL.checkMandatoryParams(object, keys, adapterID).should.be.false;
             UTIL.isOwnProperty.calledWith(object, keys[0]).should.be.true;
-            UTIL.log.calledWith(adapterID + ": " + keys[0] + ", mandatory parameter not present.").should.be.true;
+            UTIL.logError.calledWith(adapterID + ": " + keys[0] + ", mandatory parameter not present.").should.be.true;
             done();
         });
 
@@ -802,6 +806,7 @@ describe('UTIL', function() {
             sinon.stub(UTIL, "writeIframe")
             // .returns(true);
             sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "logError");
             done();
         });
 
@@ -812,6 +817,7 @@ describe('UTIL', function() {
             UTIL.resizeWindow.restore();
             UTIL.writeIframe.restore();
             UTIL.log.restore();
+            UTIL.logError.restore();
             done();
         });
 
@@ -843,8 +849,8 @@ describe('UTIL', function() {
         it('should have logged if creative details are not found', function(done) {
             bid = {};
             UTIL.displayCreative(theDocument, bid);
-            UTIL.log.calledWith("creative details are not found").should.be.true;
-            UTIL.log.calledWith(bid).should.be.true;
+            UTIL.logError.calledWith("creative details are not found").should.be.true;
+            UTIL.logError.calledWith(bid).should.be.true;
             done();
         });
     });
@@ -1560,6 +1566,8 @@ describe('UTIL', function() {
             sinon.stub(UTIL, "createInvisibleIframe").returns(iFrameStub);
             sinon.stub(UTIL, "displayCreative").returns(true);
             sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "logError");
+            sinon.spy(UTIL, "logWarning");
             sinon.stub(UTIL, "writeIframe").returns(true);
             sinon.stub(window.document.body, "appendChild").returns(true);
             sinon.spy(window, "parseInt");
@@ -1577,6 +1585,8 @@ describe('UTIL', function() {
             UTIL.createInvisibleIframe.restore();
             UTIL.displayCreative.restore();
             UTIL.log.restore();
+            UTIL.logWarning.restore();
+            UTIL.logError.restore();
             UTIL.writeIframe.restore();
 
             bidDetailsStub.bid.getAdapterID.restore();
@@ -1646,7 +1656,7 @@ describe('UTIL', function() {
                 it('should have thrown if iframe is not generated', function(done) {
                     UTIL.createInvisibleIframe.returns(false);
                     UTIL.safeFrameCommunicationProtocol(msg);
-                    UTIL.log.calledWith('Error in rendering creative in safe frame.').should.be.true;
+                    UTIL.logError.calledWith('Error in rendering creative in safe frame.').should.be.true;
                     UTIL.log.calledWith('Rendering synchronously.').should.be.true;
                     UTIL.displayCreative.called.should.be.true;
                     done();
@@ -1656,7 +1666,7 @@ describe('UTIL', function() {
                     iFrameStub.contentWindow = false;
                     UTIL.createInvisibleIframe.returns(iFrameStub);
                     UTIL.safeFrameCommunicationProtocol(msg);
-                    UTIL.log.calledWith('Error in rendering creative in safe frame.').should.be.true;
+                    UTIL.logError.calledWith('Error in rendering creative in safe frame.').should.be.true;
                     UTIL.log.calledWith('Rendering synchronously.').should.be.true;
                     UTIL.displayCreative.called.should.be.true;
                     done();
@@ -1666,7 +1676,7 @@ describe('UTIL', function() {
                     iFrameStub.contentWindow.document = false;
                     UTIL.createInvisibleIframe.returns(iFrameStub);
                     UTIL.safeFrameCommunicationProtocol(msg);
-                    UTIL.log.calledWith('Error in rendering creative in safe frame.').should.be.true;
+                    UTIL.logError.calledWith('Error in rendering creative in safe frame.').should.be.true;
                     UTIL.log.calledWith('Rendering synchronously.').should.be.true;
                     UTIL.displayCreative.called.should.be.true;
                     done();
@@ -1707,7 +1717,7 @@ describe('UTIL', function() {
 
                 it('should do what...', function(done) {
                     UTIL.safeFrameCommunicationProtocol(msg);
-                    UTIL.log.calledWith("creative details are not found").should.be.true;
+                    UTIL.logWarning.calledWith("creative details are not found").should.be.true;
                     UTIL.createInvisibleIframe.called.should.be.false;
                     done();
                 });
