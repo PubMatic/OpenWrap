@@ -203,7 +203,7 @@ function pbBidStreamHandler(pbBid){
 				}else if(util.isOwnProperty(refThis.kgpvMap, temp2)){
 					responseID = temp2;
 				}else{
-					util.logWarning('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
+					util.logWarning("Failed to find kgpv details for S2S-adapter:"+ pbBid.bidderCode);
 					return;
 				}
 			}
@@ -226,7 +226,7 @@ function pbBidStreamHandler(pbBid){
 			);
 		}
 	}else{
-		util.logWarning('Failed to find pbBid.adUnitCode in kgpvMap, pbBid.adUnitCode:'+ pbBid.adUnitCode);
+		util.logWarning("Failed to find pbBid.adUnitCode in kgpvMap, pbBid.adUnitCode:"+ pbBid.adUnitCode);
 	}
 }
 
@@ -641,7 +641,7 @@ function fetchBids(activeSlots, impressionID){
 				return;
 			}
 		} catch (e) {
-			util.logError('Error occured in calling PreBid.');
+			util.logError("Error occured in calling PreBid.");
 			util.logError(e);
 		}
 	}
