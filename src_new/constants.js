@@ -24,7 +24,8 @@ exports.COMMON = {
 	"BID_ID": "owbidid",
 	"AD_SERVER_CURRENCY": "adServerCurrency",
 	"SINGLE_IMPRESSION": "singleImpression",
-	"PREBID_NAMESPACE": "owpbjs"
+	"PREBID_NAMESPACE": "owpbjs",
+	"PROTOCOL" : "https://"
 };
 
 exports.CONFIG = {
