@@ -152,7 +152,6 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 exports.checkAndModifySizeOfKGPVIfRequired = checkAndModifySizeOfKGPVIfRequired;
 /* end-test-block */
 
-
 function pbBidStreamHandler(pbBid){
 	var responseID = pbBid.adUnitCode || "";
 
@@ -631,6 +630,9 @@ function fetchBids(activeSlots, impressionID){
 						util.log(bidResponses);
 						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
 						//refThis.handleBidResponses(bidResponses);
+						util.forEachOnObject(bidResponses, function(responseID, bidResponse){
+							bidManager.setAllPossibleBidsReceived(refThis.kgpvMap[responseID].divID);
+						});
 					},
 					timeout: timeoutForPrebid
 				});

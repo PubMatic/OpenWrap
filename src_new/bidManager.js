@@ -27,6 +27,10 @@ exports.setCallInitTime = function(divID, adapterID){ // TDD, i/o : done
 	window.PWT.bidMap[divID].setAdapterEntry(adapterID);
 };
 
+exports.setAllPossibleBidsReceived = function(divID){
+	window.PWT.bidMap[divID].setAllPossibleBidsReceived();	
+};
+
 exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 
 	var bidderID = bidDetails.getAdapterID();
@@ -535,11 +539,16 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 	var status = true;
 
 	util.forEachOnArray(divIds, function (key, divId) {
-		bidMaps[divId] && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
-			util.forEachOnObject(adapter.bids, function (bidId, theBid) {
-				status = status && (theBid.getDefaultBidStatus() === 0);
-			});
-		});
+		// OLD APPROACH: check if we have got bids per bidder for each slot
+		// bidMaps[divId] && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
+		// 	util.forEachOnObject(adapter.bids, function (bidId, theBid) {
+		// 		status = status && (theBid.getDefaultBidStatus() === 0);
+		// 	});
+		// });
+		// NEW APPROACH: check allPossibleBidsReceived flag which is set when pbjs.requestBids->bidsBackHandler is executed
+		if(bidMaps[divId]){
+			status = status && (bidMaps[divId].hasAllPossibleBidsReceived() === true);
+		}
 	});
 	return status;
 };
