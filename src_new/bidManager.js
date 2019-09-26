@@ -34,7 +34,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 	var bidMapEntry = window.PWT.bidMap[divID];
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(window.PWT.bidMap, divID)){
-		util.log("BidManager is not expecting bid for "+ divID +", from " + bidderID);
+		util.logWarning("BidManager is not expecting bid for "+ divID +", from " + bidderID);
 		return;
 	}
 
@@ -59,25 +59,25 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 		if( lastBidWasDefaultBid || !isPostTimeout){
 			/* istanbul ignore else */
 			if(lastBidWasDefaultBid){
-				util.log(CONSTANTS.MESSAGES.M23);
+				util.log(CONSTANTS.MESSAGES.M23 , bidderID);
 			}
 
 			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
-				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14);
+				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14,bidderID);
 				refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 			}else{
-				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16);
+				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16, bidderID);
 			}
 		}else{
 			util.log(CONSTANTS.MESSAGES.M17);
 		}
 	}else{
-		util.log(CONSTANTS.MESSAGES.M18);		
+		util.log(CONSTANTS.MESSAGES.M18,bidderID);		
 		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 	}
 	if (isPostTimeout) {
       //explicitly trigger user syncs since its a post timeout bid
-      setTimeout(window['owpbjs'].triggerUserSyncs, 10);
+      setTimeout(window[CONSTANTS.COMMON.PREBID_NAMESPACE].triggerUserSyncs, 10);
     }
 };
 
@@ -632,7 +632,7 @@ exports.setStandardKeys = function(winningBid, keyValuePairs){
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ] = winningBid.width + 'x' + winningBid.height;
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ] = (winningBid.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
     } else {
-    	util.log('Not generating key-value pairs as invalid winningBid object passed. WinningBid: ');
-    	util.log(winningBid);
+    	util.logWarning('Not generating key-value pairs as invalid winningBid object passed. WinningBid: ');
+    	util.logWarning(winningBid);
     }
 }
