@@ -72,7 +72,7 @@ describe('bidManager BIDMgr', function() {
             UTIL.isOwnProperty.calledOnce.should.be.true;
             bmEntry.createBMEntry.calledOnce.should.be.true;
             bmEntry.createBMEntry.calledWith(divID).should.be.true;
-            window.PWT.bidMap[divID].should.have.all.keys("adapters", "analyticsEnabled","creationTime","expired","impressionID","name","sizes");
+            window.PWT.bidMap[divID].should.have.all.keys("adapters", "analyticsEnabled","creationTime","expired","impressionID","name","sizes","allPossibleBidsReceived");
             done();
         });
 
@@ -1781,6 +1781,8 @@ describe('bidManager BIDMgr', function() {
                       }
                     }
                   }
+                },hasAllPossibleBidsReceived:function(){
+                    return false;
                 }
               }
             };
