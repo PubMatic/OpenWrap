@@ -13,9 +13,12 @@ var UTIL = require("../src_new/util");
 var SLOT = require("../src_new/slot.js").Slot;
 
 var BIDMgr = require("../src_new/bidManager.js");
+var CONFIG = require("../src_new/config.js");
 
 var commonAdapterID = "pubmatic";
 var commonDivID = "DIV_1";
+var CONSTANTS = require("../src_new/constants.js");
+
 
 // TODO : remove as required during single TDD only
 // var jsdom = require('jsdom').jsdom;
@@ -514,13 +517,26 @@ describe('UTIL', function() {
             done();
         });
 
-        it('should return Array of slot names', function(done) {
+        it('should return array of slot names', function(done) {
             UTIL.generateSlotNamesFromPattern(activeSlot, pattern).should.be.a('array');
             UTIL.isOwnProperty.called.should.be.true;
             UTIL.getIncrementalInteger.called.should.be.true;
             done();
         });
 
+        it('should return array of slot names and should ignore fluid size', function(done) {
+            activeSlot.getSizes.restore();
+            sinon.stub(activeSlot,"getSizes").returns([
+                    [1024, 120],
+                    'fluid'
+                ]);
+            var slotNames = UTIL.generateSlotNamesFromPattern(activeSlot, pattern);
+            slotNames.should.be.a('array')
+            slotNames.should.be.lengthOf(1);
+            UTIL.isOwnProperty.called.should.be.true;
+            UTIL.getIncrementalInteger.called.should.be.true;
+            done();
+        });
 
         it('should have extracted data from activeSlot to generate slot names', function(done) {
             UTIL.generateSlotNamesFromPattern(activeSlot, pattern);
@@ -530,6 +546,8 @@ describe('UTIL', function() {
             activeSlot.getDivID.calledOnce.should.be.true;
             done();
         });
+
+
     });
 
     describe('#checkMandatoryParams', function() {
@@ -676,7 +694,6 @@ describe('UTIL', function() {
 
         it('should check whther activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
             UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids);
-
             done();
         });
     });
@@ -1517,6 +1534,7 @@ describe('UTIL', function() {
 
             sinon.spy(bidDetailsStub.bid, "getAdapterID");
             sinon.stub(BIDMgr, "executeMonetizationPixel");
+            sinon.stub(BIDMgr, "fireTracker");
 
             sinon.stub(UTIL, "vLogInfo").returns(true);
             sinon.stub(UTIL, "resizeWindow").returns(true);
@@ -1552,6 +1570,7 @@ describe('UTIL', function() {
             window.parseInt.restore();
             BIDMgr.executeMonetizationPixel.restore();
             BIDMgr.getBidById.restore();
+            BIDMgr.fireTracker.restore();
 
             UTIL.vLogInfo.restore();
             UTIL.resizeWindow.restore();
@@ -1693,6 +1712,35 @@ describe('UTIL', function() {
                     done();
                 });
             });
+        });
+
+        describe('##when pwt_type is 3', function() {
+            beforeEach(function(done) {
+                msg.data = '{"pwt_type":3,"pwt_bidID":1,"pwt_origin":1,"pwt_action":"impTrackers"}';
+                done();
+            });
+
+            afterEach(function(done){
+                msg.data = null;
+                done();
+            })
+
+            it('should have called vLogInfo and should have called fireTracker with impTrackers', function(done) {
+                UTIL.safeFrameCommunicationProtocol(msg);
+                BIDMgr.getBidById.calledWith(1).should.be.true;
+                BIDMgr.fireTracker.calledWith(bidDetailsStub.bid, "impTrackers").should.be.true;
+                done();
+            });
+
+            it('should have called vLogInfo and should have called fireTracker with click action', function(done) {
+                msg.data = '{"pwt_type":3,"pwt_bidID":1,"pwt_origin":1,"pwt_action":"click"}';
+                UTIL.safeFrameCommunicationProtocol(msg);
+                BIDMgr.getBidById.calledWith(1).should.be.true;
+                bidDetailsStub.bid.getAdapterID.called.should.be.true;
+                BIDMgr.fireTracker.calledWith(bidDetailsStub.bid, "click").should.be.true;
+                done();
+            });
+
         });
     });
 
@@ -2045,8 +2093,7 @@ describe('UTIL', function() {
             UTIL.vLogInfo(divID, infoObject);
             infoObject.bidDetails.getNetEcpm.called.should.be.true;
             infoObject.bidDetails.getGrossEcpm.called.should.be.true;
-
-            window.document.createTextNode.calledWith("Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + "): " + infoObject.latency + "ms").should.be.true;
+            window.document.createTextNode.calledWith("Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + ")USD :" + infoObject.latency + "ms").should.be.true;
             infoPanelElementStub.appendChild.calledTwice.should.be.true;
             done();
         });
@@ -2058,7 +2105,7 @@ describe('UTIL', function() {
             UTIL.vLogInfo(divID, infoObject);
             infoObject.bidDetails.getNetEcpm.called.should.be.true;
             infoObject.bidDetails.getGrossEcpm.called.should.be.true;
-            window.document.createTextNode.calledWith("Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + "): " + 0 + "ms" + ": POST-TIMEOUT").should.be.true;
+            window.document.createTextNode.calledWith("Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + ")USD :" + 0 + "ms" + ": POST-TIMEOUT").should.be.true;
             infoPanelElementStub.appendChild.calledTwice.should.be.true;
             done();
         });
@@ -2066,8 +2113,24 @@ describe('UTIL', function() {
         it('should have created the text node when type of the infoObject is \'win-bid\' with proper message being generated', function(done) {
             infoObject.type = "win-bid";
             UTIL.vLogInfo(divID, infoObject);
-            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm()).should.be.true;
+            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm() + "USD").should.be.true;
             infoPanelElementStub.appendChild.calledTwice.should.be.true;
+            done();
+        });
+
+        it('should have created the text node when type of the infoObject is \'win-bid\' and adServerCurrency is set with proper message being generated', function(done) {
+            infoObject.type = "win-bid";
+            UTIL.vLogInfo(divID, infoObject);
+            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm() + "USD").should.be.true;
+            infoPanelElementStub.appendChild.calledTwice.should.be.true;
+
+            infoObject.adServerCurrency = "GBP";
+            UTIL.vLogInfo(divID, infoObject);
+            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm() + infoObject.adServerCurrency).should.be.true;
+
+            infoObject.adServerCurrency = "0";
+            UTIL.vLogInfo(divID, infoObject);
+            window.document.createTextNode.calledWith("Winning Bid: " + infoObject.bidDetails.getAdapterID() + ": " + infoObject.bidDetails.getNetEcpm() + "USD").should.be.true;
             done();
         });
 
@@ -2199,4 +2262,335 @@ describe('UTIL', function() {
         });
     });
 
+    describe('#getMediaTypeObject', function() {
+        var nativeConfiguration, sizes, currentSlot;
+
+        beforeEach(function(done) {
+            nativeConfiguration =  {
+                kgp:"_DIV_", // Or it Could be _AU_
+                klm:{
+                    "DIV_1":{
+                        "nativeOnly": false,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    },
+                    "DIV_2":{
+                        "nativeOnly": true,
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
+                        }
+                    }
+                }
+            };
+            sizes = [[300,250]];
+            currentSlot = { 
+                getSizes: function(){
+                    return [[300,250]];
+                },
+                getAdUnitID: function(){
+                    return "testAdUnit";
+                },
+                getDivID: function() {
+                    return commonDivID;
+                },
+                getAdUnitIndex: function(){
+                    return 0;
+                }
+            }
+            sinon.spy(currentSlot, "getDivID");
+            sinon.spy(currentSlot, "getSizes");
+            sinon.spy(currentSlot, "getAdUnitID");
+            sinon.spy(currentSlot, "getAdUnitIndex");
+            done();
+        });
+
+        afterEach(function(done) {
+            nativeConfiguration = null;
+            sizes = null;
+            commonDivID = "DIV_1";
+            currentSlot.getDivID.restore();
+            currentSlot.getSizes.restore();
+            currentSlot.getAdUnitID.restore();
+            currentSlot.getAdUnitIndex.restore();
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.getMediaTypeObject.should.be.a('function');
+            done();
+        });
+
+        it('should return mediaTypeObject with Native and Banner if config is present',function(done){
+            var expectedResult =  { 
+                native: {
+                    image: {
+                        required: true,
+                        sizes: [150, 50]
+                    },
+                    title: {
+                        required: true,
+                        len: 80
+                    },
+                    sponsoredBy: {
+                        required: true
+                    },
+                    body: {
+                        required: true
+                    }
+                },
+                banner: {
+                    sizes: sizes
+                }
+            }
+            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+        
+        it('should return mediaTypeObject with Native only if for that kgpv nativeOnly flag is set',function(done){
+            nativeConfiguration.klm["DIV_1"].nativeOnly = true;
+            var expectedResult =  { 
+                native: {
+                    image: {
+                        required: true,
+                        sizes: [150, 50]
+                    },
+                    title: {
+                        required: true,
+                        len: 80
+                    },
+                    sponsoredBy: {
+                        required: true
+                    },
+                    body: {
+                        required: true
+                    }
+                }
+            }
+            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return only banner if not matching kgpv is found', function(done){
+            var expectedResult =  { 
+                banner: {
+                    sizes: sizes
+                }
+            };
+            commonDivID = "DIV_3";
+            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return only banner if no configuration found for native', function(done){
+            nativeConfiguration = undefined;
+            var expectedResult =  { 
+                banner: {
+                    sizes: sizes
+                }
+            };
+            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getAdFormatFromBidAd', function(){
+        var adFormat, videoAdString, nativeAdString, bannerAdString;
+
+        beforeEach(function(done){
+            adFormat= undefined;
+            videoAdString= '<?xml version="1.0" encoding="UTF-8"?><VAST xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vast.xsd" version="3.0"><Ad id="4794680078"><Wrapper><AdSystem>GDFP</AdSystem><VASTAdTagURI><![CDATA[http://ow.pubmatic.com/cache?uuid=910ad57b-fddd-4ddf-a94f-cc597930adeb]]></VASTAdTagURI><Error><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=videoplayfailed[ERRORCODE]]]></Error><Impression><![CDATA[https://securepubads.g.doubleclick.net/pcs/view?xai=AKAOjssRKo6cE9xtv3Vb4p3oM4ZibMiNs08ryvPLLmuJiwYYFTaKC7utY2Li_vjzTfvcO2luVVYCl3j2uTRrkxTr68707p6Ccrex7TiIKb1kt1oROgJ3jDNSY2j9YQ1xSCB6LbPXwDUF6_HRjLgBA6vaTV_HS1-NUyGOk5jR_8WxWSwNK_tyKdqhhjn711kBzLk3IwdQ05wC_j31jB94zjWj6l8LRysGFoykRdciTyEYIZwx6KK1byUzL52qIlaIBGvzAW64omi-cCs&sig=Cg0ArKJSzF5yMoWclp4jEAE&adurl=]]></Impression><Creatives><Creative id="138243726392" sequence="1"> <Linear><VideoClicks><ClickTracking id="GDFP"><![CDATA[https://pubads.g.doubleclick.net/pcs/click?xai=AKAOjstvB03z7ObaZOr6VhAeAaRVPBUY_gg6C5Ufe3K899AeYrg2SHOOpwS5JQuXRzdG6ug9BLPgZDm4_vSZEQHfD681sq_J8yLtoe_kriDJuNJ_05UxH90rr5AvWd3AllOLUy_zz3UTzezIs1LnYhQZl1ke1TkSVHQEebLpH2SZgpP40Z10HQnknJVPGV0BCevR_Z7UK8Yz9Q4WjDEHg2oWoPZf0vA1UAPzyvRGACOfl2rcn5rjqATfRN4FvHhLhA6F3WMwoWQ&sig=Cg0ArKJSzH_dYYoGDUutEAE&urlfix=1]]></ClickTracking></VideoClicks></Linear></Creative></Creatives><Extensions><Extension type="geo"><Country>IN</Country><Bandwidth>4</Bandwidth><BandwidthKbps>20000</BandwidthKbps></Extension><Extension type="activeview"><CustomTracking><Tracking event="viewable_impression"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=viewable_impression&acvw=[VIEWABILITY]&gv=[GOOGLE_VIEWABILITY]&ad_mt=[AD_MT]]]></Tracking><Tracking event="abandon"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=video_abandon&acvw=[VIEWABILITY]&gv=[GOOGLE_VIEWABILITY]]]></Tracking></CustomTracking></Extension><Extension type="metrics"><FeEventId>LDqrXPqIGJLGoAPQz604</FeEventId><AdEventId>CPuFoMO7wOECFYmhaAodN2kDUA</AdEventId></Extension><Extension type="ShowAdTracking"><CustomTracking><Tracking event="show_ad"><![CDATA[https://securepubads.g.doubleclick.net/pcs/view?xai=AKAOjsskNiPPjzZVPnZTBoKXb_68n48JD6kaep6DzszP8q8TNeVevCWVxd9OtqdyPGE08DACHmQ3uWvMuuPLGoB7OwX-pWHFAGkybgx_fK17KoOoYPQFo5GhdtsUvPOE5yria9eKwS1BZq2rWr07Y85DJDMBcfJZiaKPmInowRG292edDkl6KaA-rGAgxhgeOQt5hpU6HMTPpeVQuya7RrCmRcyydAhf2-sm7bp23l0R5LYOJHntFGwQ4ua_Q9e8TrrG2LMspXcyOV1TQQ&sig=Cg0ArKJSzBAXwIdOUAQvEAE&adurl=]]></Tracking></CustomTracking></Extension><Extension type="wrapper_info"><Duration>00:00:01</Duration></Extension><Extension type="video_ad_loaded"><CustomTracking><Tracking event="loaded"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=video_ad_loaded]]></Tracking></CustomTracking></Extension></Extensions></Wrapper></Ad></VAST>';
+            nativeAdString= '{"native":{"assets":[{"id":1,"required":0,"title":{"text":"Lexus - Luxury vehicles company"}},{"id":2,"img":{"h":150,"url":"https://stagingnyc.pubmatic.com:8443//sdk/lexus_logo.png","w":150},"required":0},{"id":3,"img":{"h":428,"url":"https://stagingnyc.pubmatic.com:8443//sdk/28f48244cafa0363b03899f267453fe7%20copy.png","w":214},"required":0},{"data":{"value":"Goto PubMatic"},"id":4,"required":0},{"data":{"value":"Lexus - Luxury vehicles company"},"id":5,"required":0},{"data":{"value":"4"},"id":6,"required":0}],"imptrackers":["http://phtrack.pubmatic.com/?ts=1496043362&r=84137f17-eefd-4f06-8380-09138dc616e6&i=c35b1240-a0b3-4708-afca-54be95283c61&a=130917&t=9756&au=10002949&p=&c=10014299&o=10002476&wl=10009731&ty=1"],"link":{"clicktrackers":["http://ct.pubmatic.com/track?ts=1496043362&r=84137f17-eefd-4f06-8380-09138dc616e6&i=c35b1240-a0b3-4708-afca-54be95283c61&a=130917&t=9756&au=10002949&p=&c=10014299&o=10002476&wl=10009731&ty=3&url="],"url":"http://www.lexus.com/"},"ver":1}}';
+            bannerAdString = '<img src="http://ads.pubmatic.com/AdTag/728x90.png"></img><div style="position:absolute;left:0px;top:0px;visibility:hidden;"><img src="http://sin1-ib.adnxs.com/it?e=wqT_3QKqB6CqAwAAAwDWAAUBCIKHsdoFELzlh5jb&s=dfa92ae59f49b6052953a52fcc0152434618139a&referrer=http%253A%252F%252Febay.com%252Finte%252Fappnexus.html%253Fpwtvc%253D1%2526pwtv%253D2%2526profileid%253D2514"></div>'
+            done();
+        });
+
+        afterEach(function(done){
+            adFormat= videoAdString=nativeAdString=bannerAdString= undefined;
+            done();
+        });
+
+        it('should be a function',function(done){
+            UTIL.getAdFormatFromBidAd.should.be.a('function');
+            done();
+        });
+
+        // it('should return video if ad html consists of video string ',function(done){
+        //     var expectedResult = CONSTANTS.FORMAT_VALUES.VIDEO;
+        //     var oParser = new DOMParser();
+        //     var oDOM = oParser.parseFromString(videoAdString, "text/xml");
+        //     var result =  UTIL.getAdFormatFromBidAd(oDOM);
+        //     result.should.deep.equal(expectedResult);
+        //     done();
+        // });
+
+        it('should return native if ad html consists of native string ',function(done){
+            var expectedResult = CONSTANTS.FORMAT_VALUES.NATIVE
+            var result =  UTIL.getAdFormatFromBidAd(nativeAdString);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return banner if ad html consists of banner string ',function(done){
+            var expectedResult = CONSTANTS.FORMAT_VALUES.BANNER
+            var result =  UTIL.getAdFormatFromBidAd(bannerAdString);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#handleHook', function(){
+        it('is a function', function(done) {
+            UTIL.handleHook.should.be.a('function');
+            done();
+        });
+
+        it('executes a given hook function if available', function(done){
+            var myHookData = '1';
+            window.PWT.myHook = function(a, b, c){
+                myHookData = a + b + c;
+            };
+            UTIL.handleHook('myHook', [1, 2, 3]);
+            myHookData.should.equal(6);
+            done();
+        });
+
+        it('does not executes a given hook if it is not a function', function(done){
+            var myHookData = '1';
+            window.PWT.myHook = '';
+            UTIL.handleHook('myHook', [1, 2, 3]);
+            myHookData.should.equal('1');
+            done();
+        });
+
+    });
+
+    describe('#getCurrencyToDisplay', function() {
+
+        beforeEach(function(done){
+            // sinon.stub(CONFIG, "getAdServerCurrency");
+            done();
+        });
+
+        afterEach(function(done){
+            // CONFIG.getAdServerCurrency.restore();
+            done();
+        });
+
+        it('#is a function', function(done){
+            UTIL.getCurrencyToDisplay.should.be.a('function');
+            done();
+        });
+
+        it('Default test case, without currency module, it should return USD', function(done){
+            sinon.stub(CONFIG, "getAdServerCurrency").returns(0);
+            UTIL.getCurrencyToDisplay().should.equal('USD');
+            CONFIG.getAdServerCurrency.restore();
+            done();
+        });
+
+        it('Negative test case, owpbjs not present, it should return USD', function(done){
+            sinon.stub(CONFIG, "getAdServerCurrency").returns('USD');
+            UTIL.getCurrencyToDisplay().should.equal('USD');
+            CONFIG.getAdServerCurrency.restore();
+            done();
+        });
+
+        it('Negative test case, owpbjs.getConfig not present, it should return USD', function(done){
+            sinon.stub(CONFIG, "getAdServerCurrency").returns('USD');
+            window.owpbjs = {};
+            UTIL.getCurrencyToDisplay().should.equal('USD');
+            CONFIG.getAdServerCurrency.restore();
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('Negative test case, pbConf is null, it should return USD', function(done){
+            sinon.stub(CONFIG, "getAdServerCurrency").returns('USD');
+            window.owpbjs = {
+                getConfig: function(){
+                    return null;
+                }
+            };
+            UTIL.getCurrencyToDisplay().should.equal('USD');
+            CONFIG.getAdServerCurrency.restore();
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('Negative test case, pbConf.currency is not present, it should return USD', function(done){
+            sinon.stub(CONFIG, "getAdServerCurrency").returns('USD');
+            window.owpbjs = {
+                getConfig: function(){
+                    return {};
+                }
+            };
+            UTIL.getCurrencyToDisplay().should.equal('USD');
+            CONFIG.getAdServerCurrency.restore();
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('Negative test case, pbConf.currency.adServerCurrency is not present, it should return USD', function(done){
+            sinon.stub(CONFIG, "getAdServerCurrency").returns('USD');
+            window.owpbjs = {
+                getConfig: function(){
+                    return {
+                        currency: {}
+                    };
+                }
+            };
+            UTIL.getCurrencyToDisplay().should.equal('USD');
+            CONFIG.getAdServerCurrency.restore();
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('Positive test case, it should return currency set in prebid config', function(done){
+            sinon.stub(CONFIG, "getAdServerCurrency").returns('USD');
+            window.owpbjs = {
+                getConfig: function(){
+                    return {
+                        currency: {
+                            adServerCurrency: 'INR'
+                        }
+                    };
+                }
+            };
+            UTIL.getCurrencyToDisplay().should.equal('INR');
+            CONFIG.getAdServerCurrency.restore();
+            window.owpbjs = undefined;
+            done();
+        });
+    });    
 });

@@ -1,7 +1,7 @@
 //todo
 //  pageURL refURL protocol related functions
 // forEachOnArray
-
+var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var BID = require("./bid.js");
 var bidManager = require("./bidManager.js");
@@ -80,7 +80,7 @@ exports.enableVisualDebugLog = function(){
 
 //todo: move...
 var constDebugInConsolePrependWith = "[OpenWrap] : ";
-
+var constErrorInConsolePrependWith = "[OpenWrap] : [Error]";
 
 
 exports.log = function(data){
@@ -91,6 +91,10 @@ exports.log = function(data){
 			console.log(data); // eslint-disable-line no-console
 		}
 	}
+};
+
+exports.error = function(data){
+	console.log( (new Date()).getTime()+ " : " + constErrorInConsolePrependWith, data ); // eslint-disable-line no-console
 };
 
 exports.getCurrentTimestampInMs = function(){
@@ -204,7 +208,7 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 		if( sizeArrayLength > 0){
 			for(i = 0; i < sizeArrayLength; i++){
 				/* istanbul ignore else */
-				if(sizeArray[i][0] && sizeArray[i][1]){
+				if(sizeArray[i].length == 2 && sizeArray[i][0] && sizeArray[i][1]){
 
 					slotName = pattern;
 					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, activeSlot.getAdUnitID())
@@ -223,7 +227,6 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 			}
 		}
 	}
-
 	return slotNames;
 };
 
@@ -269,14 +272,13 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 		generatedKeysLength,
 		kgpConsistsWidthAndHeight
 		;
-
 	/* istanbul ignore else */
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 		for(i = 0; i < activeSlotsLength; i++){
 			var activeSlot = activeSlots[i];
 			generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
-			generatedKeysLength = generatedKeys.length;
+			generatedKeysLength =  generatedKeys.length;
 			for(j = 0; j < generatedKeysLength; j++){
 				var generatedKey = generatedKeys[j],
 					keyConfig = null,
@@ -484,6 +486,7 @@ exports.isIframe = function(theWindow){
 	}
 };
 
+//todo: this function is not used
 exports.findInString = function(theString, find){
 	return theString.indexOf(find) >= 0;
 };
@@ -610,7 +613,7 @@ exports.addMessageEventListener = function(theWindow, eventHandler){
 		theWindow.attachEvent("onmessage", eventHandler);
 	}
 	return true;
-}
+};
 
 exports.safeFrameCommunicationProtocol = function(msg){
 	try{
@@ -705,14 +708,29 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 				}
 				break;
+			case 3:
+				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+				/* istanbul ignore else */
+				if(bidDetails){
+					var theBid = bidDetails.bid,
+						adapterID = theBid.getAdapterID(),
+						divID = bidDetails.slotid;
+					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
+					if(msgData.pwt_action && msgData.pwt_action == "imptrackers"){
+						bidManager.executeMonetizationPixel(divID, theBid);
+					}
+					bidManager.fireTracker(theBid,msgData.pwt_action);							
+				}
+				break;
 		}
 	}catch(e){}
-}
+};
 
 exports.addMessageEventListenerForSafeFrame = function(theWindow){
 	refThis.addMessageEventListener(theWindow, refThis.safeFrameCommunicationProtocol);
 };
 
+//todo: this function is not in use
 exports.getElementLocation = function( el ) {
 	var rect,
 		x = 0,
@@ -815,11 +833,21 @@ exports.vLogInfo = function(divID, infoObject){
 				case "bid":
 					var latency = infoObject.latency;
 					var bidDetails = infoObject.bidDetails;
+					var currencyMsg = "";
 					/* istanbul ignore else */
 					if(latency < 0){
 						latency = 0;
 					}
-					message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + "): " + latency + "ms";
+					if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
+						if (infoObject.adServerCurrency == 0) {
+							currencyMsg = 'USD';
+						} else {
+							currencyMsg = infoObject.adServerCurrency;
+						}
+					} else {
+						currencyMsg = 'USD';
+					}
+					message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + ")" + currencyMsg + " :" + latency + "ms";
 					/* istanbul ignore else */
 					if(bidDetails.getPostTimeoutStatus()){
 						message += ": POST-TIMEOUT";
@@ -828,7 +856,17 @@ exports.vLogInfo = function(divID, infoObject){
 
 				case "win-bid":
 					var bidDetails = infoObject.bidDetails;
-					message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm();
+					var currencyMsg = "";
+					if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
+						if (infoObject.adServerCurrency == 0) {
+							currencyMsg = 'USD';
+						} else {
+							currencyMsg = infoObject.adServerCurrency;
+						}
+					} else {
+						currencyMsg = 'USD';
+					}
+					message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm() + currencyMsg;
 					break;
 
 				case "win-bid-fail":
@@ -914,4 +952,106 @@ exports.ajaxRequest = function(url, callback, data, options) {
 		refThis.log("Failed in Ajax");
 		refThis.log(error);
 	}
+};
+
+// Returns mediaTypes for adUnits which are sent to prebid
+exports.getMediaTypeObject = function(nativeConfig, sizes, currentSlot){
+	var mediaTypeObject = {};
+	if(nativeConfig && nativeConfig.kgp && nativeConfig.klm){
+		var kgp = nativeConfig.kgp;
+		var klm = nativeConfig.klm;
+		// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
+		// as we are only supporting div and ad unit, taking the first slot name.
+		// Implemented as per code review and discussion. 
+		var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
+		if(refThis.isOwnProperty(klm,kgpv)){
+			refThis.log("Native Config found for adSlot: " +  currentSlot);
+			var config = klm[kgpv];
+			mediaTypeObject["native"] = config.config;
+			if(config[CONSTANTS.COMMON.NATIVE_ONLY]){
+				return mediaTypeObject;
+			}
+		} else{
+			refThis.log("Native Config not found for adSlot: " +  currentSlot);
+		}
+	} else{
+		refThis.log("Native config not found or KGP/KLM missing in native config provided.");
+	}
+	mediaTypeObject["banner"] = {
+		sizes: sizes
+	};
+	return mediaTypeObject;
+};
+
+exports.addEventListenerForClass = function(theWindow, theEvent, theClass, eventHandler){
+
+	if(typeof eventHandler !== "function"){
+		refThis.log("EventHandler should be a function");
+		return false;
+	}
+	var elems = refThis.findElementsByClass(theWindow, theClass);
+	if(!theWindow.addEventListener){
+		theEvent = "on"+theEvent;
+	}
+	for (var i = 0; i < elems.length; i++) {
+		elems[i].addEventListener(theEvent, eventHandler, true);
+	}
+	return true;
+};
+ 
+exports.findElementsByClass = function(theWindow, theClass){
+	return theWindow.document.getElementsByClassName(theClass) || [];
+};
+
+exports.getBidFromEvent = function (theEvent) {
+	return (theEvent && theEvent.target && theEvent.target.attributes &&  theEvent.target.attributes[CONSTANTS.COMMON.BID_ID] && theEvent.target.attributes[CONSTANTS.COMMON.BID_ID].value) || "";
+};
+
+exports.getAdFormatFromBidAd = function(ad){
+	var format = undefined;
+	if(ad && refThis.isString(ad)){
+		//TODO: Uncomment below code once video has been implemented 
+		// var videoRegex = new RegExp(/VAST\s+version/); 
+		// if(videoRegex.test(ad)){
+		// 	format = CONSTANTS.FORMAT_VALUES.VIDEO;
+		// }
+		// else{
+		try{
+			var adStr = JSON.parse(ad.replace(/\\/g, ""));
+			if (adStr && adStr.native) {
+				format = CONSTANTS.FORMAT_VALUES.NATIVE;
+			}
+		}
+		catch(ex){
+			format = CONSTANTS.FORMAT_VALUES.BANNER;
+		}
+		// }
+	}
+	return format;
+};
+
+// This common function can be used add hooks for publishers to make changes in flows
+exports.handleHook = function(hookName, arrayOfDataToPass) {
+	// Adding a hook for publishers to modify the data we have
+	if(refThis.isFunction(window.PWT[hookName])){
+		window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
+	} else {
+		refThis.log('Hook-name: '+hookName+', window.PWT.'+hookName+' is not a function.' );
+	}
+};
+
+exports.getCurrencyToDisplay = function(){
+	var defaultCurrency = CONFIG.getAdServerCurrency();
+	if(defaultCurrency == 0){
+		defaultCurrency = 'USD';
+	}
+	if(CONFIG.getAdServerCurrency()){
+		if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig)){
+			var pbConf = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig();
+			if(pbConf && pbConf.currency && pbConf.currency.adServerCurrency){
+				return pbConf.currency.adServerCurrency;
+			}
+		}
+	}
+	return defaultCurrency;
 };
