@@ -197,6 +197,8 @@ describe('bidManager BIDMgr', function() {
 
             sinon.spy(UTIL, 'isOwnProperty');
             sinon.spy(UTIL, 'log');
+            sinon.spy(UTIL, 'logError');
+            sinon.spy(UTIL, 'logWarning');
             sinon.spy(CONFIG, 'getTimeout');
 
             sinon.stub(BIDMgr, 'storeBidInBidMap');
@@ -206,6 +208,8 @@ describe('bidManager BIDMgr', function() {
         afterEach(function(done) {
             UTIL.isOwnProperty.restore();
             UTIL.log.restore();
+            UTIL.logError.restore();
+            UTIL.logWarning.restore();
             bidDetails.getAdapterID.restore();
             bidDetails.getBidID.restore();
             CONFIG.getTimeout.restore();
@@ -250,7 +254,7 @@ describe('bidManager BIDMgr', function() {
 
             window.PWT.bidMap[commonDivID].getCreationTime.calledTwice.should.be.true;
             bidDetails.getReceivedTime.calledTwice.should.be.true;
-            UTIL.log.calledWith(CONSTANTS.MESSAGES.M18).should.be.true;
+            UTIL.log.calledWith(CONSTANTS.MESSAGES.M18,  bidDetails.getAdapterID()).should.be.true;
             window.PWT.bidMap[divID].getBid.called.should.be.false;
 
             window.PWT.bidMap[commonDivID].getCreationTime.restore();
@@ -334,8 +338,8 @@ describe('bidManager BIDMgr', function() {
 
                 window.PWT.bidMap[commonDivID].getCreationTime.calledTwice.should.be.true;
                 bidDetails.getReceivedTime.calledTwice.should.be.true;
-                UTIL.log.calledWith(CONSTANTS.MESSAGES.M23).should.be.true;
-                UTIL.log.calledWith(CONSTANTS.MESSAGES.M12 + lastBid.getNetEcpm() + CONSTANTS.MESSAGES.M13 + bidDetails.getNetEcpm() + CONSTANTS.MESSAGES.M14);
+                UTIL.log.calledWith(CONSTANTS.MESSAGES.M23, bidDetails.getAdapterID()).should.be.true;
+                UTIL.log.calledWith(CONSTANTS.MESSAGES.M12 + lastBid.getNetEcpm() + CONSTANTS.MESSAGES.M13 + bidDetails.getNetEcpm() + CONSTANTS.MESSAGES.M14, bidDetails.getAdapterID()).should.be.true;
                 window.PWT.bidMap[divID].getBid.called.should.be.true;
 
                 done();

@@ -68,8 +68,8 @@ function getAdSlotSizesArray(divID, currentGoogleSlot) { // TDD, i/o : doness
             if (util.isFunction(sizeObj.getWidth) && util.isFunction(sizeObj.getHeight)) {
                 adslotSizesArray.push([sizeObj.getWidth(), sizeObj.getHeight()]);
             } else {
-                util.log(divID + ", size object does not have getWidth and getHeight method. Ignoring: ");
-                util.log(sizeObj);
+                util.logWarning(divID + ", size object does not have getWidth and getHeight method. Ignoring: ");
+                util.logWarning(sizeObj);
             }
         });
     }
@@ -330,7 +330,7 @@ function newDisableInitialLoadFunction(theObject, originalFunction) { // TDD, i/
             return originalFunction.apply(theObject, arguments);
         };
     } else {
-        util.log("disableInitialLoad: originalFunction is not a function");
+        util.logError("disableInitialLoad: originalFunction is not a function");
         return null;
     }
 }
@@ -350,7 +350,7 @@ function newEnableSingleRequestFunction(theObject, originalFunction) { // TDD, i
             return originalFunction.apply(theObject, arguments);
         };
     } else {
-        util.log("disableInitialLoad: originalFunction is not a function");
+        util.log("enableSingleRequest: originalFunction is not a function");
         return null;
     }
 }
@@ -794,7 +794,7 @@ function addHooksIfPossible(win) { // TDD, i/o : done
         });
         return true;
     } else {
-        util.log("Failed to load before GPT");
+        util.logError("Failed to load before GPT");
         return false;
     }
 }
