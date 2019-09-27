@@ -14,8 +14,8 @@ exports.pwt = {
 	disableAjaxTimeout:true,
 	adServerCurrency: "INR",
 	singleImpression: "1",
-	identity:"0",
-	identityConsumer:"EB,TAM,Prebid", // TODO : Make it identityConsumer
+	identityEnabled:"0",
+	identityConsumers:"EB,TAM,Prebid", // TODO : Make it identityConsumer
 	identityOnly:"0",
 	customfn:""
 };
@@ -27,7 +27,7 @@ exports.adapters = {
 		rev_share: "0.0",
 		throttle: "100",
 		publisherId: "156209",
-		kgp: "_DIV_@_W_x_H_:_AUI_"
+		kgp: "_W_x_H_@_W_x_H_:_AUI_"
 	},
 	audienceNetwork: {
 		rev_share: "0.0",
