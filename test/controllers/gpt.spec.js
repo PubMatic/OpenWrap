@@ -137,123 +137,6 @@ describe("CONTROLLER: GPT", function() {
 
     });
 
-    describe('#getSizeFromSizeMapping', function() {
-        var divID = null;
-        var slotSizeMapping = null;
-        var screenWidth = 1024;
-        var screenHeight = 768;
-
-        beforeEach(function(done) {
-            divID = commonDivID;
-            slotSizeMapping = {};
-            slotSizeMapping[divID] = [];
-
-            sinon.spy(UTIL, 'isOwnProperty');
-
-            sinon.stub(UTIL, 'getScreenWidth');
-            UTIL.getScreenWidth.returns(screenWidth);
-
-            sinon.stub(UTIL, 'getScreenHeight');
-            UTIL.getScreenHeight.returns(screenHeight);
-
-            sinon.spy(UTIL, 'isArray');
-            sinon.spy(UTIL, 'isNumber');
-            sinon.spy(UTIL, 'log');
-            done();
-        });
-
-        afterEach(function(done) {
-            divID = null;
-            slotSizeMapping = null;
-
-            UTIL.getScreenWidth.restore();
-            UTIL.getScreenHeight.restore();
-
-            UTIL.isOwnProperty.restore();
-            UTIL.isArray.restore();
-            UTIL.isNumber.restore();
-            UTIL.log.restore();
-            done();
-        });
-
-        it('is a function', function(done) {
-            GPT.getSizeFromSizeMapping.should.be.a('function');
-            done();
-        });
-
-        it('should return false when given divID not a property of slotSizeMapping passed', function(done) {
-            delete slotSizeMapping[divID];
-            GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.false;
-            UTIL.isOwnProperty.calledOnce.should.be.true;
-            done();
-        });
-
-        it('should have logged sizeMapping and its details', function(done) {
-            GPT.getSizeFromSizeMapping(divID, slotSizeMapping);
-
-            UTIL.log.calledWith(divID + ": responsiveSizeMapping found: screenWidth: " + screenWidth + ", screenHeight: " + screenHeight).should.be.true;
-            UTIL.log.calledWith(slotSizeMapping[divID]).should.be.true;
-            done();
-        });
-
-        it('should return false if sizeMapping is not and array', function(done) {
-            slotSizeMapping[divID] = {};
-            GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.false;
-            UTIL.isArray.calledOnce.should.be.true;
-            done();
-        });
-
-        it('should have logged in case of unsupported mapping template', function (done) {
-            slotSizeMapping[divID] =
-            [
-                [
-                    [ 1024, 768 ],
-                    [
-                        "X970X", 250
-                    ]
-                ],
-
-                [
-                    [ 980, 600 ],
-                    [
-                        [ 728, 90 ],
-                        [ 640, 480 ]
-                    ]
-                ]
-            ];
-            GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.an('array');
-            UTIL.isNumber.called.should.be.true;
-            UTIL.log.calledWith(divID + ": Unsupported mapping template.").should.be.true;
-            UTIL.log.calledWith(slotSizeMapping[divID]).should.be.true;
-            done();
-        });
-
-        it('should have logged in case of unsupported mapping template', function (done) {
-            slotSizeMapping[divID] =
-            [
-                [
-                    [ 1024, 768 ],
-                    [
-                        250, "X970X"
-                    ]
-                ],
-
-                [
-                    [ 980, 600 ],
-                    [
-                        [ 728, 90 ],
-                        [ 640, 480 ]
-                    ]
-                ]
-            ];
-            GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.an('array');
-            UTIL.isNumber.calledTwice.should.be.true;
-            UTIL.log.calledWith(divID + ": Unsupported mapping template.").should.be.true;
-            UTIL.log.calledWith(slotSizeMapping[divID]).should.be.true;
-            done();
-        });
-    });
-
     describe('#getAdSlotSizesArray()', function() {
         var divID = null;
         var currentGoogleSlots = null;
@@ -294,12 +177,10 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(sizeObj_2, 'getHeight');
             sinon.spy(sizeObj_2, 'getWidth');
 
-            sinon.stub(GPT, 'getSizeFromSizeMapping');
             slotSizeMapping = [
                         [ 728, 90 ],
                         [ 640, 480 ]
             ];
-            GPT.getSizeFromSizeMapping.returns(slotSizeMapping);
             sinon.spy(UTIL, 'log');
             sinon.stub(UTIL, 'isFunction');
             UTIL.isFunction.withArgs(sizeObj_1.getWidth).onSecondCall().returns(false);
@@ -309,7 +190,6 @@ describe("CONTROLLER: GPT", function() {
         });
 
         afterEach(function(done) {
-            GPT.getSizeFromSizeMapping.restore();
             UTIL.log.restore();
             UTIL.isFunction.restore();
             UTIL.forEachOnArray.restore();
@@ -345,54 +225,7 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it('should have called getSizeFromSizeMapping', function(done) {
-            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.deep.equal(slotSizeMapping);
-            UTIL.log.calledWith(divID + ": responsiveSizeMapping applied: ").should.be.true;
-            UTIL.log.calledWith(slotSizeMapping).should.be.true;
-            done();
-        });
-
-        it('should have push fluid to last if it is first size in mapping', function(done) {
-            slotSizeMapping = ['fluid',[ 728, 90 ],
-            [ 640, 480 ]];
-            var expectedSlotMapping = [[ 728, 90 ],
-            [ 640, 480 ],'fluid'];
-            GPT.getSizeFromSizeMapping.restore();
-            sinon.stub(GPT, 'getSizeFromSizeMapping');
-            GPT.getSizeFromSizeMapping.returns(slotSizeMapping);
-            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.deep.equal(expectedSlotMapping);
-            done();
-        });
-
-        it('should have push fluid to last if it is first size as array in mapping', function(done) {
-            slotSizeMapping = [['fluid'],[ 728, 90 ],
-            [ 640, 480 ]];
-            var expectedSlotMapping = [[ 728, 90 ],
-            [ 640, 480 ],['fluid']];
-            GPT.getSizeFromSizeMapping.restore();
-            sinon.stub(GPT, 'getSizeFromSizeMapping');
-            GPT.getSizeFromSizeMapping.returns(slotSizeMapping);
-            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.deep.equal(expectedSlotMapping);
-            done();
-        });
-
-        it('should not do anything if first size is not string or not multiple strings', function(done) {
-            slotSizeMapping = [78,[ 728, 90 ],
-            [ 640, 480 ]];
-            var expectedSlotMapping = [[ 728, 90 ],
-            [ 640, 480 ],78];
-            GPT.getSizeFromSizeMapping.restore();
-            sinon.stub(GPT, 'getSizeFromSizeMapping');
-            GPT.getSizeFromSizeMapping.returns(slotSizeMapping);
-            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.not.be.equal(expectedSlotMapping);
-            done();
-        });
-
-        it('should have created adSlotSizesArray when proper currentGoogleSlots is passed ', function(done) {
-            GPT.getSizeFromSizeMapping.restore();
-            sinon.stub(GPT, 'getSizeFromSizeMapping');
-            GPT.getSizeFromSizeMapping.returns(false);
-
+        it('should have created adSlotSizesArray when proper currentGoogleSlots is passed ', function(done) {            
             GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.deep.equal([[1024, 768], [640, 480]]);
 
             UTIL.isFunction.called.should.be.true;
@@ -404,27 +237,6 @@ describe("CONTROLLER: GPT", function() {
             sizeObj_2.getHeight.called.should.be.true;
             sizeObj_2.getWidth.called.should.be.true;
 
-            done();
-        });
-
-        // Todo : check error case
-        xit('should have logged when size object doesnt have either of the getWidth or getHeight methods', function (done) {
-            currentGoogleSlots.getSizes()[0].getWidth.restore();
-            delete currentGoogleSlots.getSizes()[0].getWidth;
-
-            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.an('array');
-            UTIL.log.calledWith(divID + ", size object does not have getWidth and getHeight method. Ignoring: ").should.be.true;
-            UTIL.log.calledWith(sizeObj_1).should.be.true;
-            done();
-        });
-
-        // Todo : check error case
-        xit('should have logged when size object doesnt have either of the getWidth or getHeight methods', function (done) {
-            delete sizeObj_2.getHeight;
-            currentGoogleSlots.getSizes()[1].getHeight = null;
-            GPT.getAdSlotSizesArray(divID, currentGoogleSlots).should.be.an('array');
-            UTIL.log.calledWith(divID + ", size object does not have getWidth and getHeight method. Ignoring: ").should.be.true;
-            UTIL.log.calledWith(sizeObj_2).should.be.true;
             done();
         });
     });
@@ -2864,170 +2676,6 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#newSizeMappingFunction', function() {
-
-        var theObject = null, obj  = null;
-
-        beforeEach(function(done) {
-            sinon.spy(UTIL, "log");
-            sinon.spy(UTIL, "isObject");
-            sinon.spy(UTIL, "isFunction");
-            obj = {
-                originalFunction: function () {
-                    return "originalFunction";
-                }
-            };
-            sinon.spy(obj.originalFunction, "apply");
-
-            theObject = {};
-            done();
-        });
-
-        afterEach(function(done) {
-            UTIL.log.restore();
-            UTIL.isObject.restore();
-            UTIL.isFunction.restore();
-            if (obj.originalFunction) {
-                obj.originalFunction.apply.restore();
-            }
-            // obj.originalFunction = null;
-            theObject = null;
-            done();
-        });
-
-
-        it('is a function', function(done) {
-            GPT.newSizeMappingFunction.should.be.a('function');
-            done();
-        });
-
-        it('should return null when impropper parameters passed, non object', function(done) {
-            theObject = null;
-            var result = GPT.newSizeMappingFunction(theObject, obj.originalFunction);
-            should.not.exist(result);
-            UTIL.isObject.called.should.be.true;
-            UTIL.isFunction.called.should.be.false;
-            UTIL.log.calledOnce.should.be.true;
-            UTIL.log.calledWith("newSizeMappingFunction: originalFunction is not a function").should.be.true;
-            done();
-        });
-
-        it('should return null when impropper parameters passed, non function', function(done) {
-            obj.originalFunction = null
-            var result = GPT.newSizeMappingFunction(theObject, obj.originalFunction);
-            should.not.exist(result);
-            UTIL.isObject.called.should.be.true;
-            UTIL.isFunction.called.should.be.true;
-            UTIL.log.calledOnce.should.be.true;
-            UTIL.log.calledWith("newSizeMappingFunction: originalFunction is not a function").should.be.true;
-            done();
-        });
-
-        it('should return a function when propper parameters are passed', function(done) {
-            GPT.newSizeMappingFunction(theObject, obj.originalFunction).should.be.a('function');
-            UTIL.isObject.calledOnce.should.be.true;
-            UTIL.isFunction.calledOnce.should.be.true;
-            done();
-        });
-
-        it('should have called originalFunction when returned function is invoked', function (done) {
-            var returnedFn = GPT.newSizeMappingFunction(theObject, obj.originalFunction);
-            returnedFn();
-            obj.originalFunction.apply.called.should.be.true;
-            done();
-        });
-    });
-
-    describe("#addHookOnSlotDefineSizeMapping", function() {
-        var googleTagStub = null;
-        var definedSlotS1 = null;
-
-        beforeEach(function(done) {
-            definedSlotS1 = {
-                "/Harshad": {
-                    sizes: [
-                        [728, 90]
-                    ],
-                    id: "Harshad-02051986"
-                }
-            };
-            googleTagStub = {
-                defineSlot: function() {
-                    return definedSlotS1;
-                },
-                destroySlots: function() {
-                    return {};
-                }
-            };
-            sinon.spy(googleTagStub, "defineSlot");
-            sinon.spy(googleTagStub, "destroySlots");
-            sinon.spy(UTIL, "isFunction");
-            sinon.spy(UTIL, "isObject");
-            sinon.spy(UTIL, "addHookOnFunction");
-            done();
-        });
-
-        afterEach(function(done) {
-            if (googleTagStub) {
-                if (googleTagStub.defineSlot) {
-                    googleTagStub.defineSlot.restore();
-                }
-                if (googleTagStub.destroySlots) {
-                    googleTagStub.destroySlots.restore();
-                }
-            }
-
-
-            UTIL.isFunction.restore();
-            UTIL.isObject.restore();
-            UTIL.addHookOnFunction.restore();
-
-            googleTagStub = null;
-
-            done();
-        });
-
-        it("is a function", function(done) {
-            GPT.addHookOnSlotDefineSizeMapping.should.be.a("function");
-            done();
-        });
-
-        it("returns false if passed in googletag is not and object", function(done) {
-            googleTagStub = null;
-            GPT.addHookOnSlotDefineSizeMapping(googleTagStub).should.equal(false);
-            UTIL.isObject.called.should.be.true;
-            UTIL.isFunction.called.should.be.false;
-            done();
-        });
-
-        it("returns false if passed in googletag does not have defineSlot method", function(done) {
-            delete googleTagStub.defineSlot;
-            GPT.addHookOnSlotDefineSizeMapping(googleTagStub).should.equal(false);
-            UTIL.isObject.called.should.be.true;
-            UTIL.isFunction.called.should.be.true;
-            done();
-        });
-
-        it("should return true when proper google object is passed", function(done) {
-            GPT.addHookOnSlotDefineSizeMapping(googleTagStub).should.equal(true);
-            done();
-        });
-
-        it("on passing proper googletag object should have called util.addHookOnFunction", function(done) {
-            GPT.addHookOnSlotDefineSizeMapping(googleTagStub).should.equal(true);
-
-            UTIL.addHookOnFunction.calledWith(definedSlotS1, true, "defineSizeMapping", GPT.newSizeMappingFunction).should.equal(true);
-
-            googleTagStub.defineSlot.calledWith("/Harshad", [
-                [728, 90]
-            ], "Harshad-02051986").should.equal(true);
-
-            googleTagStub.destroySlots.calledWith([definedSlotS1]).should.equal(true);
-
-            done();
-        });
-    });
-
     describe("#addHooks", function() {
         var winObj = null;
         var winObjBad = null;
@@ -3051,7 +2699,6 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(UTIL, "isFunction");
             sinon.spy(UTIL, "addHookOnFunction");
 
-            sinon.spy(GPT, "addHookOnSlotDefineSizeMapping");
             sinon.spy(GPT, "newAddHookOnGoogletagDisplay");
             done();
         });
@@ -3064,7 +2711,6 @@ describe("CONTROLLER: GPT", function() {
             UTIL.isObject.restore();
             UTIL.isFunction.restore();
 
-            GPT.addHookOnSlotDefineSizeMapping.restore();
             GPT.newAddHookOnGoogletagDisplay.restore();
             done();
         });
@@ -3076,8 +2722,6 @@ describe("CONTROLLER: GPT", function() {
 
         it("returns false if passed in window object is not an object", function(done) {
             GPT.addHooks(null).should.equal(false);
-
-            GPT.addHookOnSlotDefineSizeMapping.called.should.be.false;
             GPT.newAddHookOnGoogletagDisplay.called.should.be.false;
             UTIL.addHookOnFunction.called.should.be.false;
             UTIL.isObject.called.should.be.true;
@@ -3088,8 +2732,6 @@ describe("CONTROLLER: GPT", function() {
 
         it("returns false if passed in window object is an object but doesnt have required structure and methods", function(done) {
             GPT.addHooks({googletag : {}}).should.equal(false);
-
-            GPT.addHookOnSlotDefineSizeMapping.called.should.be.false;
             GPT.newAddHookOnGoogletagDisplay.called.should.be.false;
             UTIL.addHookOnFunction.called.should.be.false;
             UTIL.isObject.called.should.be.true;
@@ -3101,11 +2743,8 @@ describe("CONTROLLER: GPT", function() {
 
         it("returns false if googletag.pubads returns a non object value ", function(done) {
             GPT.addHooks(winObjBad).should.equal(false);
-
             UTIL.isObject.calledThrice.should.be.true;
             UTIL.isFunction.calledOnce.should.be.true;
-
-            GPT.addHookOnSlotDefineSizeMapping.called.should.be.false;
             GPT.newAddHookOnGoogletagDisplay.called.should.be.false;
             UTIL.addHookOnFunction.called.should.be.false;
             done();
@@ -3434,62 +3073,6 @@ describe("CONTROLLER: GPT", function() {
             AM.registerAdapters.called.should.be.false;
             GPT.addHooksIfPossible.called.should.be.false;
             GPT.callJsLoadedIfRequired.called.should.be.false;
-            done();
-        });
-    });
-
-    describe('#getSizeFromSizeMapping', function() {
-        var divID = null,
-            slotSizeMapping = null;
-        var sizeMapping = null;
-
-        beforeEach(function(done) {
-            divID = commonDivID;
-            sizeMapping = [
-                [340, 210],
-                [1024, 768]
-            ]
-            slotSizeMapping = sizeMapping;
-            sinon.stub(UTIL, "isOwnProperty");
-            sinon.stub(UTIL, "getScreenWidth");
-            sinon.stub(UTIL, "getScreenHeight");
-            sinon.stub(UTIL, "isArray");
-            sinon.stub(UTIL, "isNumber");
-            sinon.stub(UTIL, "log");
-
-            sinon.stub(GPT, "getWindowReference");
-            GPT.getWindowReference.returns(true);
-            done();
-        });
-
-        afterEach(function(done) {
-
-            UTIL.isOwnProperty.restore();
-            UTIL.getScreenWidth.restore();
-            UTIL.getScreenHeight.restore();
-            UTIL.isArray.restore();
-            UTIL.isNumber.restore();
-            UTIL.log.restore();
-
-            GPT.getWindowReference.restore();
-            done();
-        });
-
-        it('is a function', function(done) {
-            GPT.getSizeFromSizeMapping.should.be.a('function');
-            done();
-        });
-
-        it('returns false if given divID is not in give slotSizeMapping', function(done) {
-            UTIL.isOwnProperty.returns(false);
-            GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.false;
-            done();
-        });
-
-        it('returns false if sizeMapping for given divID is not an array', function(done) {
-            UTIL.isOwnProperty.returns(true);
-            UTIL.isArray.withArgs(sizeMapping).returns(false);
-            GPT.getSizeFromSizeMapping(divID, slotSizeMapping).should.be.false;
             done();
         });
     });
