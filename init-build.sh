@@ -19,7 +19,7 @@ fi
 
 PLATFORM_DISPLAY="display"
 PLATFORM_AMP="amp"
-
+echo "$(date) This is Reading Params"
 while getopts ":p:m:t:w:" opt; do
   case $opt in
     p) prebid_path="$OPTARG"
@@ -34,7 +34,7 @@ while getopts ":p:m:t:w:" opt; do
     ;;
   esac
 done
-
+echo "This is Reading Params Done"
 
 if [ -z $mode ]
   then
@@ -49,14 +49,14 @@ then
       exit 1
 fi
 
-OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR_V2_22_0}/node_modules/"
+OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR_V2_32_0}/node_modules/"
 
 
 function prebidNpmInstall() {
-
+  echo "This is SymLinking Start"
   cd $1
 
-  PrebidJSNodeModules="${GLOBAL_PREBID_PKG_JSON_DIR_V2_22_0}/node_modules/"
+  PrebidJSNodeModules="${GLOBAL_PREBID_PKG_JSON_DIR_V2_32_0}/node_modules/"
 
   symLinkForPrebidNodeModules=node_modules
   if [ -L $symLinkForPrebidNodeModules ]; then
@@ -68,14 +68,18 @@ function prebidNpmInstall() {
  # npm install
 
   cd ../OpenWrap/
+  echo "This is SymLinking Stop"
+
 }
 
+  echo "This is SymLinking Start for OpenWrap"
   symLinkForOpenWrapNodeModules=node_modules
   if [ -L $symLinkForOpenWrapNodeModules ]; then
     unlink $symLinkForOpenWrapNodeModules
   fi
 
 ln -s "$OpenWrapNodeModules" "./node_modules"
+echo "This is SymLinking Start for Prebid"
 
 # echo //ci.pubmatic.com:4873/:_authToken=WeepY06w3S9VfbF4gdm42piZepf9+95zj7dd1AEtAVcfuW0S9u5COPSVS5K39CSF > .npmrc
 # npm install uas-adclient@0.0.1-master.13 --registry=http://ci.pubmatic.com:4873 --save
@@ -87,8 +91,7 @@ prebidNpmInstall $prebid_path
 
 if [ "$platform" = "$PLATFORM_DISPLAY" ] || [ -z $platform ]
   then
-    echo "Building for Display"
-    ./build.sh --prebidpath=$prebid_path --mode=$mode
+   time ./build.sh --prebidpath=$prebid_path --mode=$mode
 
 elif [ "$platform" = "$PLATFORM_AMP" ]
    then

@@ -331,4 +331,16 @@ describe('Bid bmEntryObject', function() {
             done();
         });
     });
+
+    describe('#allPossibleBidsReceived', function(){
+
+        it('default value should be false', function(){
+            bmEntryObject.hasAllPossibleBidsReceived().should.equal(false);
+        });
+
+        it('when set api is called, value should be set to true', function(){
+            bmEntryObject.setAllPossibleBidsReceived();
+            bmEntryObject.hasAllPossibleBidsReceived().should.equal(true);
+        });
+    });
 });
