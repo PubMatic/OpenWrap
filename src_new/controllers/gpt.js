@@ -290,7 +290,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
     // this hook is not needed in custom controller
     util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);
-    if(CONFIG.enableUserIdModule()){
+    if(CONFIG.isUserIdModuleenabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
         util.setUserIdTargeting(googleDefinedSlot);
     }
     // attaching keyValuePairs from adapters
@@ -380,6 +380,9 @@ exports.newEnableSingleRequestFunction = newEnableSingleRequestFunction;
 function newSetTargetingFunction(theObject, originalFunction) { // TDD, i/o : done
     if(CONFIG.isIdentityOnly()){
         util.log("Identity Only Enabled. No Process Need. Calling Original Set Targeting function");
+        if(CONFIG.isUserIdModuleenabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
+            util.setUserIdTargeting(theObject);
+        }
         return originalFunction.apply(theObject, arguments);
     }
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
@@ -434,8 +437,15 @@ exports.newDestroySlotsFunction = newDestroySlotsFunction;
 function newAddAdUnitFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
-            console.log("Ab hona chahiye kuch yahan par ");
-            arguments[0][0].bids[1].params["users"] = {"name":"tdid"};
+            // console.log("Ab hona chahiye kuch yahan par ");
+            arguments.forEach(function(element){
+                element.forEach(function(ele){
+                    ele.bids.forEach(function(el){
+                        el.params["userIds"] = util.getUserIds();
+                    });
+                });
+            });
+            // arguments[0][0].bids[1].params["users"] = {"name":"tdid"};
             // debugger;
             /* istanbul ignore next */
             return originalFunction.apply(theObject, arguments);
@@ -840,16 +850,20 @@ function addHooksIfPossible(win) { // TDD, i/o : done
         util.logError("Failed to load before GPT");
         // return false;
     }
-    if(CONFIG.isIdentityOnly()){
+    if(CONFIG.isUserIdModuleenabled()  && CONFIG.isIdentityOnly()){
         //TODO : Check for Prebid loaded and debug logs 
-        window[CONSTANTS.COMMON.PREBID_NAMESPACE].que.unshift(function(){
-            util.log("Adding Hook on pbjs.getUserIds()");
-            var theObject = window.pbjs;
-            var functionName = "addAdUnits"
-            util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
-        });
-        util.log("Identity Only Enabled and setting config");
-        prebid.register().sC();
+        if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs)){
+            pbjs.que.unshift(function(){
+                util.log("Adding Hook on pbjs.getUserIds()");
+                var theObject = window.pbjs;
+                var functionName = "addAdUnits"
+                util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
+            });
+            util.log("Identity Only Enabled and setting config");
+            prebid.register().sC();
+        }else{
+            util.logWarning("Window.pbjs is undefined")
+        }
     }
     else if(!loadGPT){
         return false;

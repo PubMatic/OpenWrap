@@ -1099,12 +1099,12 @@ exports.setUserIdTargeting = function(googleDefinedSlot){
 			window.setTimeout(function(){
 				var userIds = refThis.getUserIds();
 				refThis.setUserIdToGPT(googleDefinedSlot,userIds);
-			},500); // TODO : make it configurable
+			},50); // TODO : make it configurable
 		}
 	}else{
 		window.setTimeout(function(googleDefinedSlot) {
 			refThis.setUserIdTargeting(googleDefinedSlot);
-		}, 500)(googleDefinedSlot);
+		}, 50)(googleDefinedSlot);
 	}
 };
 

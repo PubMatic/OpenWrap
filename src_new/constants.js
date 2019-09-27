@@ -26,9 +26,12 @@ exports.COMMON = {
 	"SINGLE_IMPRESSION":"singleImpression",
 	"PREBID_NAMESPACE": "owpbjs",
 	"ENABLE_USER_ID":"identityEnabled",
-	"IDENTITY_SERVER": "identityServer",
+	"IDENTITY_CONSUMERS": "identityConsumers",
 	"IDENTITY_PARTNERS":"identityPartners",
-	"IDENTITY_ONLY":"identityOnly"
+	"IDENTITY_ONLY":"identityOnly",
+	"GAM":"EB",
+	"TAM":"TAM",
+	"PREBID":"Prebid"
 };
 
 exports.CONFIG = {

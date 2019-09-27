@@ -15,7 +15,7 @@ exports.pwt = {
 	adServerCurrency: "INR",
 	singleImpression: "1",
 	identity:"0",
-	identityConsumer:["EB","A9","Prebid"], // TODO : Make it identityConsumer
+	identityConsumer:"EB,TAM,Prebid", // TODO : Make it identityConsumer
 	identityOnly:"0",
 	customfn:""
 };
