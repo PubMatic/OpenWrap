@@ -21,7 +21,7 @@ var typeString = "String";
 var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
-
+var MAX_RETRY_COUNT = 5;
 var refThis = this;
 
 
@@ -1086,11 +1086,13 @@ exports.getUserIdConfiguration = function(){
 		// var uIdConf = {};
 		userIdConfs.push(refThis.getUserIdParams(partnerValues));
 	});
+	refThis.log("User Id Condiguration Sent to prebid "+ JSON.stringify(userIdConfs));
 	return userIdConfs;
 };
 
-exports.setUserIdTargeting = function(googleDefinedSlot){
-	if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
+exports.setUserIdTargeting = function(googleDefinedSlot,tryNumber){
+	var noOfTry = tryNumber || 1;
+	if(noOfTry < MAX_RETRY_COUNT && window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
 		var userIds = refThis.getUserIds();
 		if(userIds && userIds != {}){
 			refThis.setUserIdToGPT(googleDefinedSlot,userIds);
@@ -1103,7 +1105,7 @@ exports.setUserIdTargeting = function(googleDefinedSlot){
 		}
 	}else{
 		window.setTimeout(function(googleDefinedSlot) {
-			refThis.setUserIdTargeting(googleDefinedSlot);
+			refThis.setUserIdTargeting(googleDefinedSlot,noOfTry+1);
 		}, 50)(googleDefinedSlot);
 	}
 };
