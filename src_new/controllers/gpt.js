@@ -461,18 +461,15 @@ exports.processDisplayCalledSlot = processDisplayCalledSlot;
 
 
 function executeDisplay(timeout, divIds, callback) {
-    
-    // todo: use setInterval and clearInterval than setTimeout
-    // todo: handle post-timeout case here only as is in custom
-
-    if (util.getExternalBidderStatus(divIds) && bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds)) {
-        util.resetExternalBidderStatus(divIds); //Quick fix to reset flag so that the notification flow happens only once per page load
-        callback();
-    } else {
-        (timeout > 0) && window.setTimeout(function() {
-          refThis.executeDisplay(timeout - 10, divIds, callback);
-        }, 10);
-    }
+    var timeoutTicker = 0; // here we will calculate time elapsed
+    var timeoutIncrementer = 10; // in ms
+    var intervalId = window.setInterval(function() {
+        if ( ( util.getExternalBidderStatus(divIds) && bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds) ) || timeoutTicker >= timeout) {
+            util.resetExternalBidderStatus(divIds); //Quick fix to reset flag so that the notification flow happens only once per page load
+            callback();
+        }
+        timeoutTicker += timeoutIncrementer;
+    }, timeoutIncrementer);
 }
 
 /* start-test-block */
