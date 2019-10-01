@@ -1339,7 +1339,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(10);
+            window.encodeURIComponent.callCount.should.be.equal(11);
 
             done();
         });
@@ -1359,6 +1359,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
+            pixelURL += "&kgpsv=" + window.encodeURIComponent(theBid.getKGPV());
 
             BIDMgr.executeMonetizationPixel(slotID, theBid);
 
@@ -1509,7 +1510,7 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
 
             theBid.getDefaultBidStatus.called.should.be.true;
-            theBid.getKGPV.calledOnce.should.be.true;
+            theBid.getKGPV.calledTwice.should.be.true;
             theBid.getWidth.calledOnce.should.be.true;
             theBid.getHeight.calledOnce.should.be.true;
             theBid.getGrossEcpm.calledOnce.should.be.true;

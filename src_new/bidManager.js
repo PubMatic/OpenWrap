@@ -404,6 +404,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm(isAnalytics));
 	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm(isAnalytics));
 	pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
+	pixelURL += "&kgpsv=" + window.encodeURIComponent(theBid.getKGPV(true));
 
 	refThis.setImageSrcToPixelURL(pixelURL);
 };
@@ -483,6 +484,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "bidid": bidID,
                     "db": theBid.getDefaultBidStatus(),
                     "kgpv": theBid.getKGPV(),
+                    "kgpsv": theBid.getKGPV(true),
                     "psz": theBid.getWidth() + "x" + theBid.getHeight(),
                     "eg": theBid.getGrossEcpm(isAnalytics),
                     "en": theBid.getNetEcpm(isAnalytics),

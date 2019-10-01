@@ -331,16 +331,7 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
 			if(generatedKeys.length > 0){
 				callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids, keyGenerationPattern);
-			} 
-			// else {
-			// 	/**
-			// 	 * todo: the regex pattern will return only one key and it's respective config
-			// 	 */
-			// 	generatedKeys = refThis.getRegexMatchingAdapterConfig( activeSlot, keyGenerationPattern );
-			// 	if(generatedKeys.length > 0){
-			// 		callHandlerFunctionForRegexMapping(adapterID, adUnits, adapterConfig, impressionID, activeSlot, handlerFunction, addZeroBids);
-			// 	}
-			// }			
+			} 		
 		});
 	}
 };
@@ -404,17 +395,6 @@ function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, 
 			);
 		}
 	});
-}
-
-// private
-function getRegexMatchingAdapterConfig(adapterID, adapterConfig, adSlot){
-	var regexKeyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_GENERATION_PATTERN] || '';
-
-}
-
-// private 
-function callHandlerFunctionForRegexMapping(adapterID, adUnits, adapterConfig, impressionID, generatedKeys, activeSlot, handlerFunction, addZeroBids){
-
 }
 
 exports.resizeWindow = function(theDocument, width, height, divId){

@@ -155,8 +155,8 @@ Bid.prototype.getWidth = function(){
 	return this.width;
 };
 
-Bid.prototype.getKGPV = function(){
-	if(this.regexPattern){
+Bid.prototype.getKGPV = function(isActualValueRequired){
+	if(!isActualValueRequired && this.regexPattern){
 		return this.regexPattern;
 	}
 	return this.kgpv;

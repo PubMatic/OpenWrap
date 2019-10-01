@@ -29,7 +29,7 @@ var refThis = this;
 var timeoutForPrebid = CONFIG.getTimeout()-50;
 var onEventAdded = false;
 
-function transformPBBidToOWBid(bid, kgpv){
+function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
 	var pubmaticServerErrorCode = parseInt(bid.pubmaticServerErrorCode);
 
@@ -43,6 +43,9 @@ function transformPBBidToOWBid(bid, kgpv){
 	theBid.setMi(bid.mi);
 	if(bid.native){
 		theBid.setNative(bid.native);
+	}
+	if(regexPattern){
+		theBid.setRegexPattern(regexPattern);
 	}
 
 	theBid.setReceivedTime(bid.responseTimestamp);
@@ -107,17 +110,21 @@ exports.transformPBBidToOWBid = transformPBBidToOWBid;
 // This function is used to check size for the winning kgpv and if size is different then winning then modify it
 // to have same code for logging and tracking 
 function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
-	var responseKGPV= "";
+	var responseObject={
+		"responseKGPV" : "",
+		"responseRegex": ""
+	};
 
 	// Logic to find out KGPV for partner for which the bid is recieved.
 	// Need to check for No Bid Case.
 	kgpv.kgpvs.length > 0 && kgpv.kgpvs.forEach(function(ele){
 		/* istanbul ignore else */
 		if(bid.bidderCode == ele.adapterID){
-			responseKGPV = ele.kgpv;
+			responseObject.responseKGPV = ele.kgpv;
+			responseObject.responseRegex = ele.regexPattern;
 		}
 	});
-	var responseIdArray = responseKGPV.split("@");
+	var responseIdArray = responseObject.responseKGPV.split("@");
 	/* istanbul ignore else */
 	if(responseIdArray &&  responseIdArray.length == 2){
 		var responseIdSize = responseIdArray[1];
@@ -138,16 +145,16 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 			if(responseIdArray[0].toUpperCase() == responseIdSize.toUpperCase()){
 				responseIdArray[0] = bid.getSize().toLowerCase();
 			}
-			responseKGPV = responseIdArray[0] + "@" +  bid.getSize();
+			responseObject.responseKGPV = responseIdArray[0] + "@" +  bid.getSize();
 			// Below check is to make consistent behaviour with ad unit index
 			// it again appends index if it was originally present
 			if(responseIndex){
-				responseKGPV = responseKGPV + ":" + responseIndex;
+				responseObject.responseKGPV = responseObject.responseKGPV + ":" + responseIndex;
 			}
 		}
 	
 	}
-	return responseKGPV;
+	return responseObject;
 }
 
 /* start-test-block */
@@ -174,9 +181,10 @@ function pbBidStreamHandler(pbBid){
 		if(CONFIG.isSingleImpressionSettingEnabled()){
 			// Assinging kbpv after modifying and will be used for logger and tracker purposes
 			// this field will be replaced everytime a bid is received with single impression feature on
-			refThis.kgpvMap[responseID].kgpv = refThis.checkAndModifySizeOfKGPVIfRequired(pbBid,refThis.kgpvMap[responseID]);
-
-			// TODO : Put a field Regex Pattern in KGPVMAP so that it can be passed on to the bid and to the logger
+			var kgpvAndRegexOfBid = refThis.checkAndModifySizeOfKGPVIfRequired(pbBid,refThis.kgpvMap[responseID]);
+			refThis.kgpvMap[responseID].kgpv =kgpvAndRegexOfBid.responseKGPV;
+			refThis.kgpvMap[responseID].regexPattern =kgpvAndRegexOfBid.responseRegex;
+			// : Put a field Regex Pattern in KGPVMAP so that it can be passed on to the bid and to the logger
 			// Something like this refThis.kgpvMap[responseID].regexPattern = pbBid.refThis.kgpvMap[responseID].regexPattern;
 
 		}
@@ -226,7 +234,7 @@ function pbBidStreamHandler(pbBid){
 			}			
 			bidManager.setBidFromBidder(
 				refThis.kgpvMap[responseID].divID,
-				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv)
+				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv,refThis.kgpvMap[responseID].regexPattern)
 			);
 		}
 	}else{
