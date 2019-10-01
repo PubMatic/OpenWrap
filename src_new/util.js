@@ -23,6 +23,7 @@ var typeNumber = "Number";
 var toString = Object.prototype.toString;
 var MAX_RETRY_COUNT = 5;
 var refThis = this;
+var USER_ID_SET = false;
 
 
 function isA(object, testForType) {
@@ -1092,7 +1093,7 @@ exports.getUserIdConfiguration = function(){
 
 exports.setUserIdTargeting = function(googleDefinedSlot,tryNumber){
 	var noOfTry = tryNumber || 1;
-	if(noOfTry < MAX_RETRY_COUNT && window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
+	if(!USER_ID_SET && noOfTry < MAX_RETRY_COUNT && window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
 		var userIds = refThis.getUserIds();
 		if(userIds && userIds != {}){
 			refThis.setUserIdToGPT(googleDefinedSlot,userIds);
@@ -1111,6 +1112,7 @@ exports.setUserIdTargeting = function(googleDefinedSlot,tryNumber){
 };
 
 exports.setUserIdToGPT = function(googleDefinedSlot,userIds){
+	USER_ID_SET = true;
 	googleDefinedSlot.setTargeting("pwtuserId",JSON.stringify(userIds));
 };
 

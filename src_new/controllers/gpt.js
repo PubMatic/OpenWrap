@@ -379,11 +379,13 @@ exports.newEnableSingleRequestFunction = newEnableSingleRequestFunction;
 */
 function newSetTargetingFunction(theObject, originalFunction) { // TDD, i/o : done
     if(CONFIG.isIdentityOnly()){
-        util.log("Identity Only Enabled. No Process Need. Calling Original Set Targeting function");
-        if(CONFIG.isUserIdModuleenabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
-            util.setUserIdTargeting(theObject);
-        }
-        return originalFunction.apply(theObject, arguments);
+        return function() {
+            util.log("Identity Only Enabled. No Process Need. Calling Original Set Targeting function");
+            if(CONFIG.isUserIdModuleenabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
+                util.setUserIdTargeting(theObject);
+            }
+            return originalFunction.apply(theObject, arguments);
+        };
     }
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
@@ -852,6 +854,7 @@ function addHooksIfPossible(win) { // TDD, i/o : done
     }
     if(CONFIG.isUserIdModuleenabled()  && CONFIG.isIdentityOnly()){
         //TODO : Check for Prebid loaded and debug logs 
+        prebid.register().sC();
         if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs)){
             pbjs.que.unshift(function(){
                 util.log("Adding Hook on pbjs.getUserIds()");
@@ -860,7 +863,6 @@ function addHooksIfPossible(win) { // TDD, i/o : done
                 util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
             });
             util.log("Identity Only Enabled and setting config");
-            prebid.register().sC();
         }else{
             util.logWarning("Window.pbjs is undefined")
         }
