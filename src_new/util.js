@@ -21,7 +21,6 @@ var typeString = "String";
 var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
-var MAX_RETRY_COUNT = 5;
 var refThis = this;
 var USER_ID_SET = false;
 
@@ -1091,11 +1090,10 @@ exports.getUserIdConfiguration = function(){
 	return userIdConfs;
 };
 
-exports.setUserIdTargeting = function(googleDefinedSlot,tryNumber){
-	var noOfTry = tryNumber || 1;
-	if(!USER_ID_SET && noOfTry < MAX_RETRY_COUNT && window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
+exports.setUserIdTargeting = function(googleDefinedSlot){
+	if(!USER_ID_SET && window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
 		var userIds = refThis.getUserIds();
-		if(userIds && userIds != {}){
+		if(userIds && Object.keys(userIds).length !== 0 && userIds.constructor === Object){
 			refThis.setUserIdToGPT(googleDefinedSlot,userIds);
 		}
 		else{
@@ -1104,15 +1102,15 @@ exports.setUserIdTargeting = function(googleDefinedSlot,tryNumber){
 				refThis.setUserIdToGPT(googleDefinedSlot,userIds);
 			},50); // TODO : make it configurable
 		}
-	}else{
-		window.setTimeout(function(googleDefinedSlot) {
-			refThis.setUserIdTargeting(googleDefinedSlot,noOfTry+1);
-		}, 50)(googleDefinedSlot);
+	}else {
+		refThis.logWarning("UserId Already Set or Unable to get User Id from OpenIdentity");
+		return;
 	}
 };
 
 exports.setUserIdToGPT = function(googleDefinedSlot,userIds){
 	USER_ID_SET = true;
+	refThis.log("Setting UserIds to EB ", userIds);
 	googleDefinedSlot.setTargeting("pwtuserId",JSON.stringify(userIds));
 };
 
