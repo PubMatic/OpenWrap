@@ -495,6 +495,7 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
                refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
             });
 
+            // todo: remove this repeating code block
             setTimeout(function() {
               util.log("PostTimeout.. back in display function");
               util.forEachOnObject(refThis.slotsMap, function(key, slot) {
@@ -722,6 +723,7 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
                 refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
             });
 
+            // todo: remove this repeating code block
             setTimeout(function() {
               refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
             }, CONFIG.getTimeout());
