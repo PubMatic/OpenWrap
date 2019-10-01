@@ -689,6 +689,7 @@ function setConfig(){
 		}
 
 		window[pbNameSpace].setConfig(prebidConfig);
+		window[pbNameSpace].requestBids([]);
 	}
 }
 
