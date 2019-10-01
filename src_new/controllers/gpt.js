@@ -487,24 +487,12 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
             // eslint-disable-line no-fallthrough
         /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
-            var divIds = Object.keys(refThis.slotsMap);
-            
-            refThis.executeDisplay(CONFIG.getTimeout(), divIds, function() {
+            refThis.executeDisplay(CONFIG.getTimeout(), Object.keys(refThis.slotsMap), function() {
                util.forEachOnObject(refThis.slotsMap, function(key, slot) {
                    refThis.findWinningBidIfRequired_Display(key, slot);
                });
                refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
             });
-
-            // todo: remove this repeating code block
-            setTimeout(function() {
-              util.log("PostTimeout.. back in display function");
-              util.forEachOnObject(refThis.slotsMap, function(key, slot) {
-                  refThis.findWinningBidIfRequired_Display(key, slot);
-              });
-              refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
-            }, CONFIG.getTimeout());
-
             break;
             // call the original function now
         case CONSTANTS.SLOT_STATUS.TARGETING_ADDED:
@@ -722,12 +710,7 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
         
             refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
                 refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
-            });
-
-            // todo: remove this repeating code block
-            setTimeout(function() {
-              refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
-            }, CONFIG.getTimeout());
+            });        
         };
     } else {
         util.log("refresh: originalFunction is not a function");
