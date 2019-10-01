@@ -487,15 +487,13 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
         /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
             var divIds = Object.keys(refThis.slotsMap);
-
-            if (typeof window.OWT.externalBidderStatuses[arg[0]] === "object" && window.OWT.externalBidderStatuses[arg[0]]) {
-               refThis.executeDisplay(CONFIG.getTimeout(), divIds, function() {
-                   util.forEachOnObject(refThis.slotsMap, function(key, slot) {
-                       refThis.findWinningBidIfRequired_Display(key, slot);
-                   });
-                   refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
-                });
-            }
+            
+            refThis.executeDisplay(CONFIG.getTimeout(), divIds, function() {
+               util.forEachOnObject(refThis.slotsMap, function(key, slot) {
+                   refThis.findWinningBidIfRequired_Display(key, slot);
+               });
+               refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
+            });
 
             setTimeout(function() {
               util.log("PostTimeout.. back in display function");
@@ -719,12 +717,10 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
             util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
 
             var arg = arguments;
-
-            if (typeof window.OWT.externalBidderStatuses[qualifyingSlotNames[0]] === "object" && window.OWT.externalBidderStatuses[qualifyingSlotNames[0]]) {
-              refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
+        
+            refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
                 refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
-              });
-            }
+            });
 
             setTimeout(function() {
               refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
