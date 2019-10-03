@@ -378,33 +378,35 @@ exports.newEnableSingleRequestFunction = newEnableSingleRequestFunction;
         we do not care, as it has a get method
 */
 function newSetTargetingFunction(theObject, originalFunction) { // TDD, i/o : done
-    if(CONFIG.isIdentityOnly()){
-        return function() {
-            util.log("Identity Only Enabled. No Process Need. Calling Original Set Targeting function");
-            if(CONFIG.isUserIdModuleenabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
-                util.setUserIdTargeting(theObject);
-            }
-            return originalFunction.apply(theObject, arguments);
-        };
-    }
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
-        return function() {
-            /* istanbul ignore next */
-            var arg = arguments,
-                key = arg[0] ? arg[0] : null;
-            //addHookOnGoogletagDisplay();//todo
-            /* istanbul ignore if */
-            if (key != null) {
+        if(CONFIG.isIdentityOnly()){
+            return function() {
+                util.log("Identity Only Enabled. No Process Need. Calling Original Set Targeting function");
+                if(CONFIG.isUserIdModuleenabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
+                    util.setUserIdTargeting(theObject);
+                }
+                return originalFunction.apply(theObject, arguments);
+            };
+        }
+        else{
+            return function() {
+                /* istanbul ignore next */
+                var arg = arguments,
+                    key = arg[0] ? arg[0] : null;
+                //addHookOnGoogletagDisplay();//todo
                 /* istanbul ignore if */
-                if (!util.isOwnProperty(GPT_targetingMap, key)) {
-                    GPT_targetingMap[key] = [];
+                if (key != null) {
+                    /* istanbul ignore if */
+                    if (!util.isOwnProperty(GPT_targetingMap, key)) {
+                        GPT_targetingMap[key] = [];
+                    }
+                    /* istanbul ignore next */
+                    GPT_targetingMap[key] = GPT_targetingMap[key].concat(arg[1]);
                 }
                 /* istanbul ignore next */
-                GPT_targetingMap[key] = GPT_targetingMap[key].concat(arg[1]);
-            }
-            /* istanbul ignore next */
-            return originalFunction.apply(theObject, arguments);
-        };
+                return originalFunction.apply(theObject, arguments);
+            };
+        }
     } else {
         util.log("setTargeting: originalFunction is not a function");
         return null;
@@ -440,11 +442,10 @@ function newAddAdUnitFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             // console.log("Ab hona chahiye kuch yahan par ");
-            arguments.forEach(function(element){
-                element.forEach(function(ele){
-                    ele.bids.forEach(function(el){
-                        el.params["userIds"] = util.getUserIds();
-                    });
+            var adUnits = arguments[0];
+            adUnits.forEach(function(adUnit){
+                adUnit.bids.forEach(function(bid){
+                    bid["userId"] = util.getUserIds();
                 });
             });
             // arguments[0][0].bids[1].params["users"] = {"name":"tdid"};
@@ -453,7 +454,7 @@ function newAddAdUnitFunction(theObject, originalFunction) { // TDD, i/o : done
             return originalFunction.apply(theObject, arguments);
         };
     } else {
-        util.log("destroySlots: originalFunction is not a function");
+        util.log("newAddAunitfunction: originalFunction is not a function");
         return null;
     }
 }
@@ -592,43 +593,48 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
     GDPR.getUserConsentDataFromCMP();
 
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
+        if(CONFIG.isIdentityOnly()){
+            util.log("Identity Only Enabled. No Process Need. Calling Original Display function");
+            return function() {
+	            return originalFunction.apply(theObject, arguments);
+            }
+        }
+        else{
         // Todo : change structure to take out the anonymous function for better unit test cases
-        return function() {
-            /* istanbul ignore next */
-            util.log("In display function, with arguments: ");
+            return function() {
+                /* istanbul ignore next */
+                util.log("In display function, with arguments: ");
 
-            if(CONFIG.isIdentityOnly()){
-                util.log("Identity Only Enabled. No Process Need. Calling Original Display function");
-                return originalFunction.apply(theObject, arguments);
-            }
-            /* istanbul ignore next */
-            util.log(arguments);
-            /* istanbul ignore next */
-            /* istanbul ignore if */
-            if (disableInitialLoadIsSet) {
-                util.log("DisableInitialLoad was called, Nothing to do");
-                return originalFunction.apply(theObject, arguments);
-            }
-            /* istanbul ignore next */
-            refThis.updateSlotsMapFromGoogleSlots(theObject.pubads().getSlots(), arguments, true);
+            
+                /* istanbul ignore next */
+                util.log(arguments);
+                /* istanbul ignore next */
+                /* istanbul ignore if */
+                if (disableInitialLoadIsSet) {
+                    util.log("DisableInitialLoad was called, Nothing to do");
+                    return originalFunction.apply(theObject, arguments);
+                }
+                /* istanbul ignore next */
+                refThis.updateSlotsMapFromGoogleSlots(theObject.pubads().getSlots(), arguments, true);
 
-            /* istanbul ignore next */
-            refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
-            var statusObj = {};
-            statusObj[CONSTANTS.SLOT_STATUS.CREATED] = "";
-            /* istanbul ignore next */
-            // Todo: need to add reThis whilwe calling getSlotNamesByStatus
-            refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus(statusObj), arguments, false);
-            /* istanbul ignore next */
-            var divID = arguments[0];
-            /* istanbul ignore next */
-            setTimeout(function() {
-                util.realignVLogInfoPanel(divID);
-                bidManager.executeAnalyticsPixel();
-            }, 2000 + CONFIG.getTimeout());
+                /* istanbul ignore next */
+                refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
+                var statusObj = {};
+                statusObj[CONSTANTS.SLOT_STATUS.CREATED] = "";
+                /* istanbul ignore next */
+                // Todo: need to add reThis whilwe calling getSlotNamesByStatus
+                refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus(statusObj), arguments, false);
+                /* istanbul ignore next */
+                var divID = arguments[0];
+                /* istanbul ignore next */
+                setTimeout(function() {
+                    util.realignVLogInfoPanel(divID);
+                    bidManager.executeAnalyticsPixel();
+                }, 2000 + CONFIG.getTimeout());
 
-            //return originalFunction.apply(theObject, arguments);
-        };
+                //return originalFunction.apply(theObject, arguments);
+            };
+        }
     } else {
         util.log("display: originalFunction is not a function");
         return null;
@@ -754,35 +760,40 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
     GDPR.getUserConsentDataFromCMP();
 
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
-        // var refThis = this;
-        return function() {
-            /* istanbul ignore next */
-            util.log("In Refresh function");
-            if(CONFIG.isIdentityOnly()){
-                util.log("Identity Only Enabled. No Process Need. Calling Original Display function");
+        if(CONFIG.isIdentityOnly()){
+            util.log("Identity Only Enabled. No Process Need. Calling Original Display function");
+            return function() {
                 return originalFunction.apply(theObject, arguments);
             }
-            /* istanbul ignore next */
-            refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
-            /* istanbul ignore next */
-            var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(arguments, theObject);
-            /* istanbul ignore next */
-            refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
-            /* istanbul ignore next */
-            util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
+        }
+        else{
+        // var refThis = this;
+            return function() {
+                /* istanbul ignore next */
+                util.log("In Refresh function");
+            
+                /* istanbul ignore next */
+                refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
+                /* istanbul ignore next */
+                var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(arguments, theObject);
+                /* istanbul ignore next */
+                refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
+                /* istanbul ignore next */
+                util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
 
-            var arg = arguments;
+                var arg = arguments;
 
-            if (typeof window.OWT.externalBidderStatuses[qualifyingSlotNames[0]] === "object" && window.OWT.externalBidderStatuses[qualifyingSlotNames[0]]) {
-              refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
+                if (typeof window.OWT.externalBidderStatuses[qualifyingSlotNames[0]] === "object" && window.OWT.externalBidderStatuses[qualifyingSlotNames[0]]) {
+                refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
+                    refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
+                });
+                }
+
+                setTimeout(function() {
                 refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
-              });
-            }
-
-            setTimeout(function() {
-              refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
-            }, CONFIG.getTimeout());
-        };
+                }, CONFIG.getTimeout());
+            };
+        }
     } else {
         util.log("refresh: originalFunction is not a function");
         return null;
@@ -855,9 +866,9 @@ function addHooksIfPossible(win) { // TDD, i/o : done
     if(CONFIG.isUserIdModuleenabled()  && CONFIG.isIdentityOnly()){
         //TODO : Check for Prebid loaded and debug logs 
         prebid.register().sC();
-        if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs)){
+        if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs) && !util.isUndefined(win.pbjs.que)){
             pbjs.que.unshift(function(){
-                util.log("Adding Hook on pbjs.getUserIds()");
+                util.log("Adding Hook on pbjs.addAddUnits()");
                 var theObject = window.pbjs;
                 var functionName = "addAdUnits"
                 util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);

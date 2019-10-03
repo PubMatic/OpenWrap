@@ -1118,28 +1118,6 @@ exports.getUserIds = function(){
 	return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
 };
 
-
-// exports.getUserIdParams = function(params){
-// 	var returnObject= {};
-// 	for(var key in params){
-// 		try{
-// 			var splitends = key.split(".");
-// 			if(splitends.length == 1){
-// 				returnObject[key] = params[key];
-// 			}
-// 			else{
-// 				if(!returnObject[splitends[0]]){ 
-// 					returnObject[splitends[0]] ={};
-// 				}
-// 				returnObject[splitends[0]][splitends[1]] = params[key];
-// 			}
-// 		}
-// 		catch(ex){}
-// 	}
-// 	return returnObject;
-// };
-
-
 exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
 	var convertedObject = sourceObject || {};
 	var referenceForNesting = convertedObject;

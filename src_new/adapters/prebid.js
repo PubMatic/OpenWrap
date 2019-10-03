@@ -668,7 +668,7 @@ function setConfig(){
 			debug: util.isDebugLogEnabled(),
 			bidderSequence: "random",
 			userSync: {
-				
+				syncDelay: 2000
 			},
 			disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
 		};
