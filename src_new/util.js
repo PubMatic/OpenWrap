@@ -22,8 +22,6 @@ var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
 var refThis = this;
-var USER_ID_SET = false;
-
 
 function isA(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
@@ -76,6 +74,10 @@ exports.isDebugLogEnabled = function(){
 exports.enableVisualDebugLog = function(){
 	refThis.debugLogIsEnabled = true;
 	refThis.visualDebugLogIsEnabled = true;
+};
+
+exports.isEmptyObject= function(object){
+	return refThis.isObject(object) && Object.keys(object).length === 0;
 };
 
 //todo: move...
@@ -1086,32 +1088,33 @@ exports.getUserIdConfiguration = function(){
 		// var uIdConf = {};
 		userIdConfs.push(refThis.getUserIdParams(partnerValues));
 	});
-	refThis.log("User Id Condiguration Sent to prebid "+ JSON.stringify(userIdConfs));
+	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4+ JSON.stringify(userIdConfs));
 	return userIdConfs;
 };
 
-exports.setUserIdTargeting = function(googleDefinedSlot){
-	if(!USER_ID_SET && window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
+exports.clearPreviousTargeting = function(){
+	var targetingKeys = window.googletag.pubads().getTargetingKeys();
+	if(targetingKeys.indexOf(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS)>-1){
+		window.googletag.pubads().clearTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS);
+	}
+};
+
+exports.setUserIdTargeting = function(){
+	refThis.clearPreviousTargeting();
+	if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
 		var userIds = refThis.getUserIds();
-		if(userIds && Object.keys(userIds).length !== 0 && userIds.constructor === Object){
-			refThis.setUserIdToGPT(googleDefinedSlot,userIds);
-		}
-		else{
-			window.setTimeout(function(){
-				var userIds = refThis.getUserIds();
-				refThis.setUserIdToGPT(googleDefinedSlot,userIds);
-			},50); // TODO : make it configurable
+		if(!refThis.isEmptyObject(userIds)){
+			refThis.setUserIdToGPT(userIds);
 		}
 	}else {
-		refThis.logWarning("UserId Already Set or Unable to get User Id from OpenIdentity");
+		refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M1);
 		return;
 	}
 };
 
-exports.setUserIdToGPT = function(googleDefinedSlot,userIds){
-	USER_ID_SET = true;
-	refThis.log("Setting UserIds to EB ", userIds);
-	googleDefinedSlot.setTargeting("pwtuserId",JSON.stringify(userIds));
+exports.setUserIdToGPT = function(userIds){
+	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M2, userIds);
+	window.googletag.pubads().setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS,JSON.stringify(userIds));
 };
 
 exports.getUserIds = function(){
@@ -1119,7 +1122,7 @@ exports.getUserIds = function(){
 };
 
 exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
-	var convertedObject = sourceObject || {};
+	var convertedObject = sourceObject;
 	var referenceForNesting = convertedObject;
 	for(var i=0;i<sourceArray.length-1;i++){
 		if(!referenceForNesting[sourceArray[i]]){
@@ -1131,19 +1134,25 @@ exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLas
 	return convertedObject;	
 };
 
+exports.getNestedObjectFromString = function(sourceObject,separator, key, value){
+	var splitParams = key.split(separator);
+	if(splitParams.length == 1){
+		sourceObject[key] = value;
+	} else{
+		sourceObject = refThis.getNestedObjectFromArray(sourceObject,splitParams,value);
+	}
+	return sourceObject;
+};
+
 exports.getUserIdParams = function(params){
 	var userIdParams= {};
 	for(var key in params){
 		try{
-			var splitParams = key.split(".");
-			if(splitParams.length == 1){
-				userIdParams[key] = params[key];
-			}
-			else{
-				userIdParams = refThis.getNestedObjectFromArray(userIdParams,splitParams,params[key]);
-			}
+			userIdParams = refThis.getNestedObjectFromString(userIdParams,".",key,params[key]);
 		}
-		catch(ex){}
+		catch(ex){
+			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
+		}
 	}	
 	return userIdParams;
 };

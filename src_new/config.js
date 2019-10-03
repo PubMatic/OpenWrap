@@ -174,7 +174,7 @@ exports.isSingleImpressionSettingEnabled = function(){
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION] || CONSTANTS.CONFIG.DEFAULT_SINGLE_IMPRESSION);
 };
 
-exports.isUserIdModuleenabled = function(){
+exports.isUserIdModuleEnabled = function(){
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ENABLE_USER_ID]);
 };
 
@@ -187,5 +187,5 @@ exports.isIdentityOnly = function(){
 };
 
 exports.getIdentityConsumers = function(){
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS];
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS].toLowerCase();
 };

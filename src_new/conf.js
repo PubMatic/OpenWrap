@@ -15,9 +15,8 @@ exports.pwt = {
 	adServerCurrency: "INR",
 	singleImpression: "1",
 	identityEnabled:"0",
-	identityConsumers:"EB,TAM,Prebid", // TODO : Make it identityConsumer
-	identityOnly:"0",
-	customfn:""
+	identityConsumers:"EB,TAM,Prebid",
+	identityOnly:"0"
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes

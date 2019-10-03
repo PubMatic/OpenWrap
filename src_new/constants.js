@@ -29,9 +29,9 @@ exports.COMMON = {
 	"IDENTITY_CONSUMERS": "identityConsumers",
 	"IDENTITY_PARTNERS":"identityPartners",
 	"IDENTITY_ONLY":"identityOnly",
-	"GAM":"EB",
-	"TAM":"TAM",
-	"PREBID":"Prebid"
+	"GAM":"eb",
+	"TAM":"tam",
+	"PREBID":"prebid"
 };
 
 exports.CONFIG = {
@@ -105,7 +105,8 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"PROFILE_ID": "pwtprofid",
 	"PROFILE_VERSION_ID": "pwtverid",
 	"META_DATA": "pwtm",
-	"PLATFORM_KEY": "pwtplt"
+	"PLATFORM_KEY": "pwtplt",
+	"USER_IDS":"pwtuid"
 };
 
 exports.IGNORE_PREBID_KEYS = {
@@ -149,7 +150,14 @@ exports.MESSAGES = {
 	"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner %s",
 	"M24": "Passsed argument is not a bidAdaptor",
 	"M25": "Bid details not found for bidID: ",
-	"M26": "Currency Module is Activated. Ad Server Currency is: "
+	"M26": "Currency Module is Activated. Ad Server Currency is: ",
+	IDENTITY:{
+		M1: "Unable to get User Id from OpenIdentity",
+		M2: "Setting UserIds to EB ",
+		M3: "Unable to parse User ID configuration",
+		M4: "User Id Condiguration Sent to prebid ",
+		M5: "Identity only enabled, no need to process. Calling Original %s function"
+	}
 };
 
 exports.PLATFORM_VALUES = {

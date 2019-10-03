@@ -608,7 +608,7 @@ function fetchBids(activeSlots, impressionID){
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 
-				if(CONFIG.isUserIdModuleenabled()){
+				if(CONFIG.isUserIdModuleEnabled()){
 					prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 				}
 
@@ -684,7 +684,7 @@ function setConfig(){
 		// Adding a hook for publishers to modify the Prebid Config we have generated
 		// util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 
-		if(CONFIG.isUserIdModuleenabled()){
+		if(CONFIG.isUserIdModuleEnabled()){
 			prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 		}
 

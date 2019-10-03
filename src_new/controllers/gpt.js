@@ -290,8 +290,8 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
     // this hook is not needed in custom controller
     util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);
-    if(CONFIG.isUserIdModuleenabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
-        util.setUserIdTargeting(googleDefinedSlot);
+    if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
+        util.setUserIdTargeting();
     }
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
@@ -332,7 +332,7 @@ function newDisableInitialLoadFunction(theObject, originalFunction) { // TDD, i/
             /* istanbul ignore next */
             util.log("Disable Initial Load is called");
             if(CONFIG.isIdentityOnly()){
-                util.log("Identity Only Enabled. No Process Need. Calling Original DisableInitial Load function");
+                util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " DisableInitial Load function");
                 return originalFunction.apply(theObject, arguments);
             }
             /* istanbul ignore next */
@@ -380,13 +380,10 @@ exports.newEnableSingleRequestFunction = newEnableSingleRequestFunction;
 function newSetTargetingFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         if(CONFIG.isIdentityOnly()){
+            util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " Original Set Targeting function");
             return function() {
-                util.log("Identity Only Enabled. No Process Need. Calling Original Set Targeting function");
-                if(CONFIG.isUserIdModuleenabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
-                    util.setUserIdTargeting(theObject);
-                }
-                return originalFunction.apply(theObject, arguments);
-            };
+	            return originalFunction.apply(theObject, arguments);
+            }
         }
         else{
             return function() {
@@ -441,16 +438,12 @@ exports.newDestroySlotsFunction = newDestroySlotsFunction;
 function newAddAdUnitFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
-            // console.log("Ab hona chahiye kuch yahan par ");
             var adUnits = arguments[0];
             adUnits.forEach(function(adUnit){
                 adUnit.bids.forEach(function(bid){
                     bid["userId"] = util.getUserIds();
                 });
             });
-            // arguments[0][0].bids[1].params["users"] = {"name":"tdid"};
-            // debugger;
-            /* istanbul ignore next */
             return originalFunction.apply(theObject, arguments);
         };
     } else {
@@ -594,8 +587,11 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
 
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         if(CONFIG.isIdentityOnly()){
-            util.log("Identity Only Enabled. No Process Need. Calling Original Display function");
+            util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " Original Display function");
             return function() {
+                if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
+                    util.setUserIdTargeting(theObject);
+                }
 	            return originalFunction.apply(theObject, arguments);
             }
         }
@@ -845,25 +841,7 @@ exports.defineGPTVariables = defineGPTVariables;
 /* end-test-block */
 
 function addHooksIfPossible(win) { // TDD, i/o : done
-    var loadGPT = false;
-    if (util.isUndefined(win.google_onload_fired) && util.isObject(win.googletag) && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)) {
-        util.log("Succeeded to load before GPT");//todo
-        var refThis = this; // TODO : check whether the global refThis works here
-        win.googletag.cmd.unshift(function() {
-            /* istanbul ignore next */
-            util.log("OpenWrap initialization started");
-            /* istanbul ignore next */
-            refThis.addHooks(win);
-            /* istanbul ignore next */
-            util.log("OpenWrap initialization completed");
-        });
-        loadGPT = true;
-        //return true;
-    } else {
-        util.logError("Failed to load before GPT");
-        // return false;
-    }
-    if(CONFIG.isUserIdModuleenabled()  && CONFIG.isIdentityOnly()){
+    if(CONFIG.isUserIdModuleEnabled()  && CONFIG.isIdentityOnly()){
         //TODO : Check for Prebid loaded and debug logs 
         prebid.register().sC();
         if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs) && !util.isUndefined(win.pbjs.que)){
@@ -878,11 +856,22 @@ function addHooksIfPossible(win) { // TDD, i/o : done
             util.logWarning("Window.pbjs is undefined")
         }
     }
-    else if(!loadGPT){
+    if (util.isUndefined(win.google_onload_fired) && util.isObject(win.googletag) && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)) {
+        util.log("Succeeded to load before GPT");//todo
+        var refThis = this; // TODO : check whether the global refThis works here
+        win.googletag.cmd.unshift(function() {
+            /* istanbul ignore next */
+            util.log("OpenWrap initialization started");
+            /* istanbul ignore next */
+            refThis.addHooks(win);
+            /* istanbul ignore next */
+            util.log("OpenWrap initialization completed");
+        });
+        return true;
+    } else {
+        util.logError("Failed to load before GPT");
         return false;
     }
-    return true;
-
 }
 /* start-test-block */
 exports.addHooksIfPossible = addHooksIfPossible;
