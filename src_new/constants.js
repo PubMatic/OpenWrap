@@ -144,7 +144,8 @@ exports.MESSAGES = {
 	"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner %s",
 	"M24": "Passsed argument is not a bidAdaptor",
 	"M25": "Bid details not found for bidID: ",
-	"M26": "Currency Module is Activated. Ad Server Currency is: "
+	"M26": "Currency Module is Activated. Ad Server Currency is: ",
+	"M27": "Invalid regex pattern "
 };
 
 exports.PLATFORM_VALUES = {

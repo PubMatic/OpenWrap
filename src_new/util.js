@@ -324,20 +324,20 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 
 exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids){
 	var activeSlotsLength = activeSlots.length,
-		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_GENERATION_PATTERN] || null;
+		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_GENERATION_PATTERN] || "";
 	/* istanbul ignore else */
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
 		refThis.forEachOnArray(activeSlots, function(i, activeSlot){
 			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
 			if(generatedKeys.length > 0){
-				callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids, keyGenerationPattern);
+				refThis.callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids, keyGenerationPattern);
 			} 		
 		});
 	}
 };
 
 // private
-function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern){
+function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern){
 	var keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] || null,
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
@@ -373,6 +373,7 @@ function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, 
 		/* istanbul ignore else */
 		if(callHandlerFunction){
 
+			/* istanbul ignore else */
 			if(addZeroBids == true){
 				var bid = BID.createBid(adapterID, generatedKey);
 				bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
@@ -396,6 +397,9 @@ function callHandlerFunctionForDirectMapping(adapterID, adUnits, adapterConfig, 
 		}
 	});
 }
+/* start-test-block */
+exports.callHandlerFunctionForMapping = callHandlerFunctionForMapping;
+/* end-test-block */
 
 exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
@@ -1147,12 +1151,17 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 		var klmv = klmsForPartner[i];
 		var rxPattern = klmv.rx;
 		var keys = generatedKey.split("@");
-		if(keys[0].match(new RegExp(rxPattern.AU)) && keys[1].match(new RegExp(rxPattern.DIV)) && keys[2].match(new RegExp(rxPattern.SIZE))){
-			rxConfig = {
-				config : klmv.rx_config,
-				regexPattern : rxPattern.AU + "@" + rxPattern.DIV + "@" + rxPattern.SIZE
-			};
-			break;
+		try{
+			if(keys[0].match(new RegExp(rxPattern.AU)) && keys[1].match(new RegExp(rxPattern.DIV)) && keys[2].match(new RegExp(rxPattern.SIZE))){
+				rxConfig = {
+					config : klmv.rx_config,
+					regexPattern : rxPattern.AU + "@" + rxPattern.DIV + "@" + rxPattern.SIZE
+				};
+				break;
+			}
+		}
+		catch(ex){
+			refThis.logError(CONSTANTS.MESSAGES.M27 + JSON.stringify(rxPattern));
 		}
 	}
 	return rxConfig;
