@@ -26,6 +26,7 @@ exports.COMMON = {
 	"SINGLE_IMPRESSION":"singleImpression",
 	"PREBID_NAMESPACE": "owpbjs",
 	"ENABLE_USER_ID":"identityEnabled",
+	"IDENTITY_PARTNERS":"identityPartners",
 	"IDENTITY_CONSUMERS": "identityConsumers",
 	"IDENTITY_ONLY":"identityOnly",
 	"GAM":"eb",
