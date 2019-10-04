@@ -1148,7 +1148,12 @@ exports.getUserIdParams = function(params){
 	var userIdParams= {};
 	for(var key in params){
 		try{
-			userIdParams = refThis.getNestedObjectFromString(userIdParams,".",key,params[key]);
+			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
+				if(CONSTANTS.TOLOWERCASE_IDENTITY_PARAMS.indexOf(key)>-1){
+					params[key] = params[key].toLowerCase();
+				}
+				userIdParams = refThis.getNestedObjectFromString(userIdParams,".",key,params[key]);
+			}
 		}
 		catch(ex){
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);

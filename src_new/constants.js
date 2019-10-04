@@ -27,7 +27,6 @@ exports.COMMON = {
 	"PREBID_NAMESPACE": "owpbjs",
 	"ENABLE_USER_ID":"identityEnabled",
 	"IDENTITY_CONSUMERS": "identityConsumers",
-	"IDENTITY_PARTNERS":"identityPartners",
 	"IDENTITY_ONLY":"identityOnly",
 	"GAM":"eb",
 	"TAM":"tam",
@@ -183,3 +182,7 @@ exports.SRA_ENABLED_BIDDERS = {
 	"rubicon": 1,
 	"improvedigital": 2
 };
+
+exports.EXCLUDE_IDENTITY_PARAMS = ["rev_share","timeout","throttle"];
+
+exports.TOLOWERCASE_IDENTITY_PARAMS = ["storage.type"];
