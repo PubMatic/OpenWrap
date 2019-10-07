@@ -193,6 +193,14 @@ describe('Bid bidObject', function() {
             bidObject.getGrossEcpm().should.equal(bidObject.grossEcpm);
             done();
         });
+
+        it('returns analyticsCPM if analyticsGrossCPM and for analytics flag is set true, and adServerCurrency is defined', function(done) {
+            bidObject.setAnalyticsCpm(10);
+            var output = bidObject.getGrossEcpm(true);
+            CONFIG.getAdServerCurrency().should.be.calledOnce;
+            expect(output).to.be.equal(10);
+            done();
+        });
     });
 
     describe('#getNetEcpm', function() {

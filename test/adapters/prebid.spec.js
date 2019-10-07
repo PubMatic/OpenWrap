@@ -157,6 +157,20 @@ describe('ADAPTER: Prebid', function() {
             theBid.getHeight().should.be.equal(0);
             done();
         });
+
+        it('should set regexPattern if regexPattern is passed',function(done){
+            var regexPattern = ".*@.*@.*";
+            var theBid = PREBID.transformPBBidToOWBid(bid, kgpv,regexPattern);
+            theBid.getRegexPattern().should.be.equal(regexPattern);
+            done();
+        });
+
+        it('should set native if native is present',function(done){
+            bid.native = "somenativevalue";
+            var theBid = PREBID.transformPBBidToOWBid(bid, kgpv);
+            theBid.getNative().should.be.equal(bid.native);
+            done();
+        })
     });
 
     describe('#pbBidStreamHandler', function () {
@@ -981,6 +995,13 @@ describe('ADAPTER: Prebid', function() {
             should.exist(window["owpbjs"]);
             done();
         });
+
+        if('should return if owpbjs namespace is not defined',function(done){
+            delete window.owpbjs;
+            PREBID.fetchBids(activeSlots, impressionID);
+            UTIL.logError.calledWith("PreBid js is not loaded").should.be.true;
+            done();
+        })
 
         // TODO: Need to fix this testcase somehow
         it('returns while logging it when Prebid js is not loaded', function(done) {
