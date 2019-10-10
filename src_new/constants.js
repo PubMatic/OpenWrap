@@ -145,7 +145,8 @@ exports.MESSAGES = {
 	"M24": "Passsed argument is not a bidAdaptor",
 	"M25": "Bid details not found for bidID: ",
 	"M26": "Currency Module is Activated. Ad Server Currency is: ",
-	"M27": "Invalid regex pattern "
+	"M27": "Invalid regex pattern ",
+	"M28": "Unable to match regex pattern as kgpv length is not 3"
 };
 
 exports.PLATFORM_VALUES = {

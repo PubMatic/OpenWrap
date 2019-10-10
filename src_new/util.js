@@ -352,7 +352,10 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			callHandlerFunction = true;
 		}else{
 			if(isRegexMapping){ 
+				refThis.log(console.time("Time for regexMatching for key " + generatedKey));
 				var config = refThis.getConfigFromRegex(keyLookupMap,generatedKey);
+				refThis.log(console.timeEnd("Time for regexMatching for key " + generatedKey));
+
 				if(config){
 					keyConfig = config.config;
 					regexPattern = config.regexPattern;
@@ -1147,21 +1150,25 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 		if all are true then return the config else match the next avaiable pattern
 		if none of the pattern match then return the error config not found */
 	var rxConfig = null;
+	var keys = generatedKey.split("@");
 	for (var i = 0; i < klmsForPartner.length; i++) {
 		var klmv = klmsForPartner[i];
 		var rxPattern = klmv.rx;
-		var keys = generatedKey.split("@");
-		try{
-			if(keys[0].match(new RegExp(rxPattern.AU)) && keys[1].match(new RegExp(rxPattern.DIV)) && keys[2].match(new RegExp(rxPattern.SIZE))){
-				rxConfig = {
-					config : klmv.rx_config,
-					regexPattern : rxPattern.AU + "@" + rxPattern.DIV + "@" + rxPattern.SIZE
-				};
-				break;
+		if(keys.length == 3){ // Only execute if generated key length is 3 .
+			try{
+				if(keys[0].match(new RegExp(rxPattern.AU)) && keys[1].match(new RegExp(rxPattern.DIV)) && keys[2].match(new RegExp(rxPattern.SIZE))){
+					rxConfig = {
+						config : klmv.rx_config,
+						regexPattern : rxPattern.AU + "@" + rxPattern.DIV + "@" + rxPattern.SIZE
+					};
+					break;
+				}
 			}
-		}
-		catch(ex){
-			refThis.logError(CONSTANTS.MESSAGES.M27 + JSON.stringify(rxPattern));
+			catch(ex){
+				refThis.logError(CONSTANTS.MESSAGES.M27 + JSON.stringify(rxPattern));
+			}
+		} else {
+			refThis.logWarning(CONSTANTS.MESSAGES.M28 + generatedKey);
 		}
 	}
 	return rxConfig;
