@@ -175,7 +175,7 @@ exports.isSingleImpressionSettingEnabled = function(){
 };
 
 exports.isUserIdModuleEnabled = function(){
-	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ENABLE_USER_ID]);
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ENABLE_USER_ID] || CONSTANTS.CONFIG.DEFAULT_USER_ID_MODULE);
 };
 
 exports.getIdentityPartners = function(){
@@ -183,9 +183,9 @@ exports.getIdentityPartners = function(){
 };
 
 exports.isIdentityOnly = function(){
-	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY]);
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY]|| CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY);
 };
 
 exports.getIdentityConsumers = function(){
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS].toLowerCase();
+	return (config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS] || "").toLowerCase();
 };

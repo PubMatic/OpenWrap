@@ -841,10 +841,10 @@ exports.defineGPTVariables = defineGPTVariables;
 /* end-test-block */
 
 function addHooksIfPossible(win) { // TDD, i/o : done
-    if(CONFIG.isUserIdModuleEnabled()  && CONFIG.isIdentityOnly()){
+    if(CONFIG.isUserIdModuleEnabled()  ){
         //TODO : Check for Prebid loaded and debug logs 
         prebid.register().sC();
-        if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs) && !util.isUndefined(win.pbjs.que)){
+        if(CONFIG.isIdentityOnly() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs) && !util.isUndefined(win.pbjs.que)){
             pbjs.que.unshift(function(){
                 util.log("Adding Hook on pbjs.addAddUnits()");
                 var theObject = window.pbjs;

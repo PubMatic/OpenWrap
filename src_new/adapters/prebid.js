@@ -666,11 +666,9 @@ function setConfig(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 		var prebidConfig = {
 			debug: util.isDebugLogEnabled(),
-			bidderSequence: "random",
 			userSync: {
 				syncDelay: 2000
-			},
-			disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
+			}
 		};
 
 		if (CONFIG.getGdpr()) {
