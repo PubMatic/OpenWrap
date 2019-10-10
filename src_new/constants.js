@@ -189,3 +189,5 @@ exports.SRA_ENABLED_BIDDERS = {
 exports.EXCLUDE_IDENTITY_PARAMS = ["rev_share","timeout","throttle"];
 
 exports.TOLOWERCASE_IDENTITY_PARAMS = ["storage.type"];
+
+exports.JSON_VALUE_KEYS = ["params.clientIdentifier"];

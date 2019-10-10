@@ -1152,6 +1152,9 @@ exports.getUserIdParams = function(params){
 				if(CONSTANTS.TOLOWERCASE_IDENTITY_PARAMS.indexOf(key)>-1){
 					params[key] = params[key].toLowerCase();
 				}
+				if(CONSTANTS.JSON_VALUE_KEYS.indexOf(key)>-1){
+					params[key] = JSON.parse(params[key]);
+				}
 				userIdParams = refThis.getNestedObjectFromString(userIdParams,".",key,params[key]);
 			}
 		}
