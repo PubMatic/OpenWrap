@@ -1085,7 +1085,6 @@ exports.getCurrencyToDisplay = function(){
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
-		// var uIdConf = {};
 		userIdConfs.push(refThis.getUserIdParams(partnerValues));
 	});
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4+ JSON.stringify(userIdConfs));

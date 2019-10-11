@@ -140,16 +140,16 @@ exports.MESSAGES = {
 	"M11": "Bid is rejected as ecpm is NaN: ",
 	"M12": "Existing bid ecpm: ",
 	"M13": ", is lower than new bid ecpm ",
-	"M14": ", so we are replacing bid from partner %s",
+	"M14": ", so we are replacing bid from partner ",
 	"M15": ", is greater than new bid ecpm ",
-	"M16": ", so we are not replacing bid from partner %s",
+	"M16": ", so we are not replacing bid from partner ",
 	"M17": "Post timeout bid, ignored.",
-	"M18": "Bid is selected for partner %s",
+	"M18": "Bid is selected for partner ",
 	"M19": ": Found winning adapterID: ",
 	"M20": "Bid is rejected as ecpm is empty string.",
 	"M21": ": error in respose handler.",
 	"M22": "Bid is rejected as ecpm is <= 0.",
-	"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner %s",
+	"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner ",
 	"M24": "Passsed argument is not a bidAdaptor",
 	"M25": "Bid details not found for bidID: ",
 	"M26": "Currency Module is Activated. Ad Server Currency is: ",
@@ -158,7 +158,7 @@ exports.MESSAGES = {
 		M2: "Setting UserIds to EB ",
 		M3: "Unable to parse User ID configuration",
 		M4: "User Id Condiguration Sent to prebid ",
-		M5: "Identity only enabled, no need to process. Calling Original %s function"
+		M5: "Identity only enabled, no need to process. Calling Original function "
 	}
 };
 
