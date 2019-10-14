@@ -254,7 +254,7 @@ describe('bidManager BIDMgr', function() {
 
             window.PWT.bidMap[commonDivID].getCreationTime.calledTwice.should.be.true;
             bidDetails.getReceivedTime.calledTwice.should.be.true;
-            UTIL.log.calledWith(CONSTANTS.MESSAGES.M18,  bidDetails.getAdapterID()).should.be.true;
+            UTIL.log.calledWith(CONSTANTS.MESSAGES.M18 +  bidDetails.getAdapterID()).should.be.true;
             window.PWT.bidMap[divID].getBid.called.should.be.false;
 
             window.PWT.bidMap[commonDivID].getCreationTime.restore();
@@ -338,8 +338,8 @@ describe('bidManager BIDMgr', function() {
 
                 window.PWT.bidMap[commonDivID].getCreationTime.calledTwice.should.be.true;
                 bidDetails.getReceivedTime.calledTwice.should.be.true;
-                UTIL.log.calledWith(CONSTANTS.MESSAGES.M23, bidDetails.getAdapterID()).should.be.true;
-                UTIL.log.calledWith(CONSTANTS.MESSAGES.M12 + lastBid.getNetEcpm() + CONSTANTS.MESSAGES.M13 + bidDetails.getNetEcpm() + CONSTANTS.MESSAGES.M14, bidDetails.getAdapterID()).should.be.true;
+                UTIL.log.calledWith(CONSTANTS.MESSAGES.M23 +  bidDetails.getAdapterID()).should.be.true;
+                UTIL.log.calledWith(CONSTANTS.MESSAGES.M12 + lastBid.getNetEcpm() + CONSTANTS.MESSAGES.M13 + bidDetails.getNetEcpm() + CONSTANTS.MESSAGES.M14 + bidDetails.getAdapterID()).should.be.true;
                 window.PWT.bidMap[divID].getBid.called.should.be.true;
 
                 done();
