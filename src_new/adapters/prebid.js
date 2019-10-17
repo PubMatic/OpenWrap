@@ -391,7 +391,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		case "pubmatic":
 		case "pubmatic2":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
-			slotParams["adSlot"] = generatedKey;
+			slotParams["adSlot"] = slotParams["slotname"] || generatedKey;
 			slotParams["wiid"] = impressionID;
 			slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
