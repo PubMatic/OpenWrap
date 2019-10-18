@@ -1237,7 +1237,7 @@ describe("CONTROLLER: GPT", function() {
                 }
             };
             sinon.spy(googleDefinedSlotStub, "setTargeting");
-
+            
             GPT.slotsMap[divID] = {
                 getPubAdServerObject: function() {
                     return googleDefinedSlotStub;
@@ -1253,6 +1253,7 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(UTIL, "forEachOnObject");
             sinon.stub(UTIL, "isOwnProperty").returns(true);
             sinon.stub(GPT, "defineWrapperTargetingKey").returns(true);
+            sinon.spy(window, "setTimeout");
             done();
         });
 
@@ -1278,6 +1279,7 @@ describe("CONTROLLER: GPT", function() {
             }
             divID = null;
             keyValuePairsStub = null;
+            window.setTimeout.restore();
             done();
         });
 

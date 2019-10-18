@@ -1120,7 +1120,8 @@ describe('ADAPTER: Prebid', function() {
         it('returns object with methods to use', function(done) {
             PREBID.register().should.deep.equal({
                 fB: PREBID.fetchBids,
-                ID: PREBID.getParenteAdapterID
+                ID: PREBID.getParenteAdapterID,
+                sC: PREBID.setConfig
             });
             done();
         });

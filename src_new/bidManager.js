@@ -27,6 +27,10 @@ exports.setCallInitTime = function(divID, adapterID){ // TDD, i/o : done
 	window.PWT.bidMap[divID].setAdapterEntry(adapterID);
 };
 
+exports.setAllPossibleBidsReceived = function(divID){
+	window.PWT.bidMap[divID].setAllPossibleBidsReceived();	
+};
+
 exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 
 	var bidderID = bidDetails.getAdapterID();
@@ -59,20 +63,20 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 		if( lastBidWasDefaultBid || !isPostTimeout){
 			/* istanbul ignore else */
 			if(lastBidWasDefaultBid){
-				util.log(CONSTANTS.MESSAGES.M23 , bidderID);
+				util.log(CONSTANTS.MESSAGES.M23 + bidderID);
 			}
 
 			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
-				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14,bidderID);
+				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14 + bidderID);
 				refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 			}else{
-				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16, bidderID);
+				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16 +  bidderID);
 			}
 		}else{
 			util.log(CONSTANTS.MESSAGES.M17);
 		}
 	}else{
-		util.log(CONSTANTS.MESSAGES.M18,bidderID);		
+		util.log(CONSTANTS.MESSAGES.M18 + bidderID);		
 		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 	}
 	if (isPostTimeout) {
@@ -535,11 +539,16 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 	var status = true;
 
 	util.forEachOnArray(divIds, function (key, divId) {
-		bidMaps[divId] && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
-			util.forEachOnObject(adapter.bids, function (bidId, theBid) {
-				status = status && (theBid.getDefaultBidStatus() === 0);
-			});
-		});
+		// OLD APPROACH: check if we have got bids per bidder for each slot
+		// bidMaps[divId] && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
+		// 	util.forEachOnObject(adapter.bids, function (bidId, theBid) {
+		// 		status = status && (theBid.getDefaultBidStatus() === 0);
+		// 	});
+		// });
+		// NEW APPROACH: check allPossibleBidsReceived flag which is set when pbjs.requestBids->bidsBackHandler is executed
+		if(bidMaps[divId]){
+			status = status && (bidMaps[divId].hasAllPossibleBidsReceived() === true);
+		}
 	});
 	return status;
 };
