@@ -395,7 +395,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			slotParams["wiid"] = impressionID;
 			slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
-			if(window.PWT.udpv){
+			if(adapterID != "pubmatic2" && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
