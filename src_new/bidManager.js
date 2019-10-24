@@ -478,7 +478,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 				 * Future Scope : Remove below check to log with appt. value(s)
 				*/
 				/*istanbul ignore else*/
-				if(adapterID === "pubmatic" && (theBid.getDefaultBidStatus() ||  (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0))){
+				if( (adapterID === "pubmatic" || adapterID === "pubmatic2") && (theBid.getDefaultBidStatus() ||  (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0))){
 					return;
 				}
 				//todo: take all these key names from constants
