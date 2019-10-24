@@ -21,9 +21,7 @@ var typeString = "String";
 var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
-
 var refThis = this;
-
 
 function isA(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
@@ -76,6 +74,10 @@ exports.isDebugLogEnabled = function(){
 exports.enableVisualDebugLog = function(){
 	refThis.debugLogIsEnabled = true;
 	refThis.visualDebugLogIsEnabled = true;
+};
+
+exports.isEmptyObject= function(object){
+	return refThis.isObject(object) && Object.keys(object).length === 0;
 };
 
 //todo: move...
@@ -526,7 +528,7 @@ exports.getMetaInfo = function(cWin){
 	var  obj = {}
 		, MAX_PAGE_URL_LEN = 512
 		, frame
-	;
+		;
 
 	obj.pageURL = "";
 	obj.refURL = "";
@@ -615,7 +617,7 @@ exports.getBididForPMP = function(values, priorityArray){
 		priorityArrayLength = priorityArray.length,
 		selectedPMPDeal = '',
 		bidID = ''
-	;
+		;
 
 	/* istanbul ignore else */
 	if(valuesLength == 0){
@@ -703,15 +705,15 @@ exports.safeFrameCommunicationProtocol = function(msg){
 
 		switch(window.parseInt(msgData.pwt_type)){
 
-			case 1:
+		case 1:
 				/* istanbul ignore else */
-				if(window.PWT.isSafeFrame){
+			if(window.PWT.isSafeFrame){
 					return;
 				}
 
-				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
-				if(bidDetails){
+			if(bidDetails){
 					var theBid = bidDetails.bid,
 						adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid,
@@ -719,22 +721,22 @@ exports.safeFrameCommunicationProtocol = function(msg){
 							pwt_type: 2,
 							pwt_bid: theBid
 						}
-					;
+						;
 					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
 					refThis.resizeWindow(window.document, theBid.width, theBid.height, divID);
 					msg.source.postMessage(window.JSON.stringify(newMsgData), msgData.pwt_origin);
 				}
-				break;
+			break;
 
-			case 2:
+		case 2:
 				/* istanbul ignore else */
-				if(!window.PWT.isSafeFrame){
+			if(!window.PWT.isSafeFrame){
 					return;
 				}
 
 				/* istanbul ignore else */
-				if(msgData.pwt_bid){
+			if(msgData.pwt_bid){
 					var theBid = msgData.pwt_bid;
 					if(theBid.adHtml){
 						try{
@@ -762,11 +764,11 @@ exports.safeFrameCommunicationProtocol = function(msg){
 							}
 
 							var content = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><base target="_top" /><scr' + 'ipt>inDapIF=true;</scr' + 'ipt></head>';
-								content += '<body>';
-								content += "<script>var $sf = window.parent.$sf;<\/script>";
-								content += "<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>";
-								content += theBid.adHtml;
-								content += '</body></html>';
+							content += '<body>';
+							content += "<script>var $sf = window.parent.$sf;<\/script>";
+							content += "<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>";
+							content += theBid.adHtml;
+							content += '</body></html>';
 
 							iframeDoc.write(content);
 							iframeDoc.close();
@@ -785,11 +787,11 @@ exports.safeFrameCommunicationProtocol = function(msg){
 						refThis.log(theBid);
 					}
 				}
-				break;
-			case 3:
-				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+			break;
+		case 3:
+			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
-				if(bidDetails){
+			if(bidDetails){
 					var theBid = bidDetails.bid,
 						adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid;
@@ -799,7 +801,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 					bidManager.fireTracker(theBid,msgData.pwt_action);							
 				}
-				break;
+			break;
 		}
 	}catch(e){}
 };
@@ -813,7 +815,7 @@ exports.getElementLocation = function( el ) {
 	var rect,
 		x = 0,
 		y = 0
-	;
+		;
 
 	if(refThis.isFunction(el.getBoundingClientRect)) {
 		rect = el.getBoundingClientRect();
@@ -834,7 +836,7 @@ exports.createVLogInfoPanel = function(divID, dimensionArray){
 		infoPanelElement,
 		infoPanelElementID,
 		doc = window.document
-	;
+		;
 
 	/* istanbul ignore else */
 	if(refThis.visualDebugLogIsEnabled){
@@ -876,7 +878,7 @@ exports.realignVLogInfoPanel = function(divID){
 		infoPanelElement,
 		infoPanelElementID,
 		doc = window.document
-	;
+		;
 
 	/* istanbul ignore else */
 	if(refThis.visualDebugLogIsEnabled){
@@ -900,7 +902,7 @@ exports.vLogInfo = function(divID, infoObject){
 	var infoPanelElement,
 		message,
 		doc = window.document
-	;
+		;
 	/* istanbul ignore else */
 	if(refThis.visualDebugLogIsEnabled){
 		var infoPanelElementID = divID + "-pwtc-info";
@@ -908,15 +910,15 @@ exports.vLogInfo = function(divID, infoObject){
 		/* istanbul ignore else */
 		if( infoPanelElement ){
 			switch(infoObject.type){
-				case "bid":
-					var latency = infoObject.latency;
-					var bidDetails = infoObject.bidDetails;
-					var currencyMsg = "";
+			case "bid":
+				var latency = infoObject.latency;
+				var bidDetails = infoObject.bidDetails;
+				var currencyMsg = "";
 					/* istanbul ignore else */
-					if(latency < 0){
+				if(latency < 0){
 						latency = 0;
 					}
-					if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
+				if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
 						if (infoObject.adServerCurrency == 0) {
 							currencyMsg = 'USD';
 						} else {
@@ -925,17 +927,17 @@ exports.vLogInfo = function(divID, infoObject){
 					} else {
 						currencyMsg = 'USD';
 					}
-					message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + ")" + currencyMsg + " :" + latency + "ms";
+				message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + ")" + currencyMsg + " :" + latency + "ms";
 					/* istanbul ignore else */
-					if(bidDetails.getPostTimeoutStatus()){
+				if(bidDetails.getPostTimeoutStatus()){
 						message += ": POST-TIMEOUT";
 					}
-					break;
+				break;
 
-				case "win-bid":
-					var bidDetails = infoObject.bidDetails;
-					var currencyMsg = "";
-					if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
+			case "win-bid":
+				var bidDetails = infoObject.bidDetails;
+				var currencyMsg = "";
+				if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
 						if (infoObject.adServerCurrency == 0) {
 							currencyMsg = 'USD';
 						} else {
@@ -944,20 +946,20 @@ exports.vLogInfo = function(divID, infoObject){
 					} else {
 						currencyMsg = 'USD';
 					}
-					message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm() + currencyMsg;
-					break;
+				message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm() + currencyMsg;
+				break;
 
-				case "win-bid-fail":
-					message = "There are no bids from PWT";
-					break;
+			case "win-bid-fail":
+				message = "There are no bids from PWT";
+				break;
 
-				case "hr":
-					message = "----------------------";
-					break;
+			case "hr":
+				message = "----------------------";
+				break;
 
-				case "disp":
-					message = "Displaying creative from "+ infoObject.adapter;
-					break;
+			case "disp":
+				message = "Displaying creative from "+ infoObject.adapter;
+				break;
 			}
 			infoPanelElement.appendChild(doc.createTextNode(message));
 			infoPanelElement.appendChild(doc.createElement("br"));
@@ -1172,4 +1174,86 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 		}
 	}
 	return rxConfig;
+};
+
+exports.getUserIdConfiguration = function(){
+	var userIdConfs = [];
+	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
+		userIdConfs.push(refThis.getUserIdParams(partnerValues));
+	});
+	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4+ JSON.stringify(userIdConfs));
+	return userIdConfs;
+};
+
+exports.clearPreviousTargeting = function(){
+	var targetingKeys = window.googletag.pubads().getTargetingKeys();
+	if(targetingKeys.indexOf(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS)>-1){
+		window.googletag.pubads().clearTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS);
+	}
+};
+
+exports.setUserIdTargeting = function(){
+	refThis.clearPreviousTargeting();
+	if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
+		var userIds = refThis.getUserIds();
+		if(!refThis.isEmptyObject(userIds)){
+			refThis.setUserIdToGPT(userIds);
+		}
+	}else {
+		refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M1);
+		return;
+	}
+};
+
+exports.setUserIdToGPT = function(userIds){
+	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M2, userIds);
+	window.googletag.pubads().setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS,JSON.stringify(userIds));
+};
+
+exports.getUserIds = function(){
+	return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
+};
+
+exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
+	var convertedObject = sourceObject;
+	var referenceForNesting = convertedObject;
+	for(var i=0;i<sourceArray.length-1;i++){
+		if(!referenceForNesting[sourceArray[i]]){
+			referenceForNesting[sourceArray[i]] = {};
+		}
+		referenceForNesting = referenceForNesting[sourceArray[i]];
+	}
+	referenceForNesting[sourceArray[sourceArray.length-1]] = valueOfLastNode;
+	return convertedObject;	
+};
+
+exports.getNestedObjectFromString = function(sourceObject,separator, key, value){
+	var splitParams = key.split(separator);
+	if(splitParams.length == 1){
+		sourceObject[key] = value;
+	} else{
+		sourceObject = refThis.getNestedObjectFromArray(sourceObject,splitParams,value);
+	}
+	return sourceObject;
+};
+
+exports.getUserIdParams = function(params){
+	var userIdParams= {};
+	for(var key in params){
+		try{
+			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
+				if(CONSTANTS.TOLOWERCASE_IDENTITY_PARAMS.indexOf(key)>-1){
+					params[key] = params[key].toLowerCase();
+				}
+				if(CONSTANTS.JSON_VALUE_KEYS.indexOf(key)>-1){
+					params[key] = JSON.parse(params[key]);
+				}
+				userIdParams = refThis.getNestedObjectFromString(userIdParams,".",key,params[key]);
+			}
+		}
+		catch(ex){
+			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
+		}
+	}	
+	return userIdParams;
 };

@@ -63,6 +63,9 @@ window.PWT.initNativeTrackers = function(theDocument,bidID){
 	bidManager.executeTracker(bidID);
 };
 
+window.PWT.getUserIds = function(){
+	return util.getUserIds();
+};
 
 window.OWT = {
 	notifyCount: 0, // To maintain the id which should be return after externalBidder registered

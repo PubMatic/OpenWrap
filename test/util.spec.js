@@ -2674,6 +2674,158 @@ describe('UTIL', function() {
             done();
         });
     });
+    
+    
+    describe('#getUserIdParams', function() {
+        var params;
+        beforeEach(function(done) {
+            params = {"name":"pubCommonId","storage.type":"cookie","storage.name":"_pubCommonId","storage.expires":"1825"}
+            done();
+        });
+
+        afterEach(function(done) {
+            params = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.getUserIdParams.should.be.a('function');
+            done();
+        });
+
+        it('should return userId with valid params',function(done){
+            var expectedResult = {"name":"pubCommonId","storage":{"type":"cookie","name":"_pubCommonId","expires":"1825"}};
+            var result = UTIL.getUserIdParams(params);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getNestedObjectFromString', function() {
+        var sourceObject,separator,key,value;
+        beforeEach(function(done) {
+            sourceObject = {};
+            separator = ".";
+            key = "params.init.member";
+            value="nQjyizbdyF";
+            done();
+        });
+
+        afterEach(function(done) {
+            sourceObject = null;
+            separator = null;
+            key = null;
+            value = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.getNestedObjectFromString.should.be.a('function');
+            done();
+        });
+
+        it('should return userId with valid params',function(done){
+            var expectedResult = {"params":{"init":{"member":"nQjyizbdyF"}}};
+            var result = UTIL.getNestedObjectFromString(sourceObject,separator,key,value);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getNestedObjectFromArray', function() {
+        var sourceObject, sourceArray , valueOfLastNode;
+        beforeEach(function(done) {
+            sourceObject = {"name":"pubCommonId"};
+            sourceArray =["storage", "type"];
+            valueOfLastNode = "cookie";
+            done();
+        });
+
+        afterEach(function(done) {
+            sourceObject = null;
+            sourceArray = null;
+            valueOfLastNode = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.getNestedObjectFromArray.should.be.a('function');
+            done();
+        });
+
+        it('should return userId with valid params',function(done){
+            var expectedResult = {"name":"pubCommonId","storage":{"type":"cookie"}};
+            var result = UTIL.getNestedObjectFromArray(sourceObject,sourceArray,valueOfLastNode);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#isEmptyObject', function() {
+
+        it('is a function', function(done) {
+            UTIL.isEmptyObject.should.be.a('function');
+            done();
+        });
+
+        it('should return false when non empty object is passed', function (done) {
+            var obj = {"true":true};
+            UTIL.isEmptyObject(obj).should.be.false;
+            done();
+        });
+
+        it('should have returned false when non object is passed', function (done) {
+            var num = 1234;
+            UTIL.isEmptyObject(num).should.be.false;
+            done();
+        });
+
+        it('should have returned false when empty object is passed', function (done) {
+            var obj = {};
+            UTIL.isEmptyObject(obj).should.be.true;
+            done();
+        });
+    });
+
+    describe('#getUserIdConfiguration', function() {
+        beforeEach(function(done) {
+            sinon.stub(CONFIG,"getIdentityPartners").returns({
+                pubCommonId: {
+                    name: "pubCommonId",
+                    "storage.type": "cookie",
+                    "storage.name": "_pubCommonId", 
+                    "storage.expires": "1825"               
+                },
+                digitrust: {
+                    "name":"digitrust",
+                    "params.init.member": "nQjyizbdyF",
+                    "params.init.site":"FL6whbX1IW",
+                    "redirects": "true",
+                    "storage.type": "cookie",
+                    "storage.name": "somenamevalue",
+                    "storage.expires":"60"
+                }
+            })
+            done();
+        });
+
+        afterEach(function(done) {
+            CONFIG.getIdentityPartners.restore();
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.getUserIdConfiguration.should.be.a('function');
+            done();
+        });
+
+        it('should return userId with valid params',function(done){
+            var expectedResult = [{"name":"pubCommonId","storage":{"type":"cookie","name":"_pubCommonId","expires":"1825"}},{"name":"digitrust","params":{"init":{"member":"nQjyizbdyF","site":"FL6whbX1IW"}},"redirects":"true","storage":{"type":"cookie","name":"somenamevalue","expires":"60"}}];
+            var result = UTIL.getUserIdConfiguration();
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
 
     describe('#callHandlerFunctionForMapping',function(){
         var adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern;

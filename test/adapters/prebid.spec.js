@@ -559,6 +559,14 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
+        it('should have created bid object for pubmatic2', function(done) {
+            adapterID = "pubmatic2";
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            expect(adUnits["DIV_1@pubmatic2@340X210"]).to.exist;
+            adUnits["DIV_1@pubmatic2@340X210"].bids[0].bidder.should.be.equal("pubmatic2");
+            done();
+        });
+
         it('should create adunit even if adUnits have different adapter code for same div',function(done){
             adapterID = "pubmatic";
             adUnits["DIV_1@appnexus@160X600"] = {
@@ -1137,7 +1145,8 @@ describe('ADAPTER: Prebid', function() {
         it('returns object with methods to use', function(done) {
             PREBID.register().should.deep.equal({
                 fB: PREBID.fetchBids,
-                ID: PREBID.getParenteAdapterID
+                ID: PREBID.getParenteAdapterID,
+                sC: PREBID.setConfig
             });
             done();
         });
