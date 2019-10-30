@@ -30,6 +30,7 @@ var timeoutForPrebid = CONFIG.getTimeout()-50;
 var onEventAdded = false;
 
 function transformPBBidToOWBid(bid, kgpv, regexPattern){
+	var rxPattern = regexPattern || bid.regexPattern || undefined;
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
 	var pubmaticServerErrorCode = parseInt(bid.pubmaticServerErrorCode);
 
@@ -44,8 +45,8 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	if(bid.native){
 		theBid.setNative(bid.native);
 	}
-	if(regexPattern){
-		theBid.setRegexPattern(regexPattern);
+	if(rxPattern){
+		theBid.setRegexPattern(rxPattern);
 	}
 
 	theBid.setReceivedTime(bid.responseTimestamp);
