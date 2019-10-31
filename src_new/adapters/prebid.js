@@ -389,12 +389,13 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			break;
 
 		case "pubmatic":
+	case "pubmatic2":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
-			slotParams["adSlot"] = generatedKey;
+		slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
 			slotParams["wiid"] = impressionID;
-			slotParams["profId"] = CONFIG.getProfileID();
+		slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
-			if(window.PWT.udpv){
+		if(adapterID != "pubmatic2" && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
@@ -608,6 +609,10 @@ function fetchBids(activeSlots, impressionID){
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 
+				if(CONFIG.isUserIdModuleEnabled()){
+					prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+				}
+
 				window[pbNameSpace].setConfig(prebidConfig);
 			}
 
@@ -658,6 +663,37 @@ function getParenteAdapterID() {
 	return refThis.parentAdapterID;
 }
 
+function setConfig(){
+	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
+		var prebidConfig = {
+			debug: util.isDebugLogEnabled(),
+			userSync: {
+				syncDelay: 2000
+			}
+		};
+
+		if (CONFIG.getGdpr()) {
+			prebidConfig["consentManagement"] = {
+				cmpApi: CONFIG.getCmpApi(),
+				timeout: CONFIG.getGdprTimeout(),
+				allowAuctionWithoutConsent: CONFIG.getAwc()
+			};
+		}
+
+		// Adding a hook for publishers to modify the Prebid Config we have generated
+		// util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+
+		if(CONFIG.isUserIdModuleEnabled()){
+			prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+		}
+
+		window[pbNameSpace].setConfig(prebidConfig);
+		window[pbNameSpace].requestBids([]);
+	}
+}
+
+exports.setConfig = setConfig;
+
 /* start-test-block */
 exports.getParenteAdapterID = getParenteAdapterID;
 /* end-test-block */
@@ -665,6 +701,7 @@ exports.getParenteAdapterID = getParenteAdapterID;
 exports.register = function(){
 	return {
 		fB: refThis.fetchBids,
-		ID: refThis.getParenteAdapterID
+		ID: refThis.getParenteAdapterID,
+		sC:	refThis.setConfig
 	};
 };
