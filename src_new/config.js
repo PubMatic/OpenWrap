@@ -166,22 +166,27 @@ exports.getNativeConfiguration = function(){
 	return config[CONSTANTS.COMMON.NATIVE_MEDIA_TYPE_CONFIG];
 };
 
+//REVIEW: it should have a default value
 exports.getAdServerCurrency = function(){
 	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.AD_SERVER_CURRENCY];
 };
 
+//REVIEW: function like 'isBlaBla' should return a boolean value
 exports.isSingleImpressionSettingEnabled = function(){
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION] || CONSTANTS.CONFIG.DEFAULT_SINGLE_IMPRESSION);
 };
 
+//REVIEW: function like 'isBlaBla' should return a boolean value
 exports.isUserIdModuleEnabled = function(){
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ENABLE_USER_ID] || CONSTANTS.CONFIG.DEFAULT_USER_ID_MODULE);
 };
 
+//REVIEW: it should have a default value
 exports.getIdentityPartners = function(){
 	return config[CONSTANTS.COMMON.IDENTITY_PARTNERS];
 };
 
+//REVIEW: function like 'isBlaBla' should return a boolean value
 exports.isIdentityOnly = function(){
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY]|| CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY);
 };

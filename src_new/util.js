@@ -1116,6 +1116,7 @@ exports.setUserIdToGPT = function(userIds){
 	window.googletag.pubads().setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS,JSON.stringify(userIds));
 };
 
+//REVIEW: un-necessary wrapper function
 exports.getUserIds = function(){
 	return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
 };

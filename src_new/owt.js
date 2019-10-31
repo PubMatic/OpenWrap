@@ -63,6 +63,7 @@ window.PWT.initNativeTrackers = function(theDocument,bidID){
 	bidManager.executeTracker(bidID);
 };
 
+//REVIEW: unnecessary , we could have let pubs simply use owpbjs.getUserIds
 window.PWT.getUserIds = function(){
 	return util.getUserIds();
 };

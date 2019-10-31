@@ -825,7 +825,11 @@ exports.defineGPTVariables = defineGPTVariables;
 function addHooksIfPossible(win) { // TDD, i/o : done
     if(CONFIG.isUserIdModuleEnabled()  ){
         //TODO : Check for Prebid loaded and debug logs 
-        prebid.register().sC();
+        
+        //REVIEW: do we always need to call this function? i think calling it in case of Identity only is sufficient
+        prebid.register().sC(); //REVIEW: why this function call is needed here? as there are no arguments , it can stay in prebid.js only
+
+        //REVIEW: if profile is identity only then why are carrying so much un-necessary code here? also a lot of code from prebid.js
         if(CONFIG.isIdentityOnly() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs) && !util.isUndefined(win.pbjs.que)){
             pbjs.que.unshift(function(){
                 util.log("Adding Hook on pbjs.addAddUnits()");
@@ -835,6 +839,7 @@ function addHooksIfPossible(win) { // TDD, i/o : done
             });
             util.log("Identity Only Enabled and setting config");
         }else{
+            //REVIEW: this log will execute for all OW pubs, un-necessary!!
             util.logWarning("Window.pbjs is undefined")
         }
     }
@@ -845,6 +850,7 @@ function addHooksIfPossible(win) { // TDD, i/o : done
             /* istanbul ignore next */
             util.log("OpenWrap initialization started");
             /* istanbul ignore next */
+            //REVIEW: isIdentityOnly can be added here
             refThis.addHooks(win);
             /* istanbul ignore next */
             util.log("OpenWrap initialization completed");
