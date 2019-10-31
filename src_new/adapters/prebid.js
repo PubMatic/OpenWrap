@@ -663,6 +663,7 @@ function getParenteAdapterID() {
 	return refThis.parentAdapterID;
 }
 
+//REVIEW: should be used only with identity only flow
 function setConfig(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 		var prebidConfig = {
