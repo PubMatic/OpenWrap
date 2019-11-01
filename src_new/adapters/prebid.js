@@ -521,17 +521,7 @@ function enablePrebidPubMaticAnalyticIfRequired(){
 
 exports.enablePrebidPubMaticAnalyticIfRequired = enablePrebidPubMaticAnalyticIfRequired;
 
-function fetchBids(activeSlots, impressionID){
-
-	//window.pwtCreatePrebidNamespace(pbNameSpace);
-
-	/* istanbul ignore else */
-	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
-		util.logError("PreBid js is not loaded");
-		return;
-	}
-
-
+function addOnBidResponseHandler(){
 	if(util.isFunction(window[pbNameSpace].onEvent)){
 		if(!onEventAdded){
 			window[pbNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
@@ -541,9 +531,11 @@ function fetchBids(activeSlots, impressionID){
 		util.logWarning("PreBid js onEvent method is not available");
 		return;
 	}
+}
 
-	window[pbNameSpace].logging = util.isDebugLogEnabled(); //todo: is it needed?
+exports.addOnBidResponseHandler = addOnBidResponseHandler;
 
+function generateAdUnitsArray(){
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
 
@@ -570,6 +562,69 @@ function fetchBids(activeSlots, impressionID){
 		adUnitsArray.push(adUnit);
 	});
 
+	return adUnitsArray;
+}
+
+exports.generateAdUnitsArray = generateAdUnitsArray;
+
+function assignUserSyncConfig(prebidConfig){
+	prebidConfig["userSync"] = {
+		enableOverride: true,
+		syncsPerBidder: 0,
+		iframeEnabled: true,
+		pixelEnabled: true,
+		enabledBidders: (function(){
+			var arr = [];
+			CONFIG.forEachAdapter(function(adapterID){
+				arr.push(adapterID);
+			});
+			return arr;
+		})(),
+		syncDelay: 2000, //todo: default is 3000 write image pixels 5 seconds after the auction
+	};
+	if(CONFIG.isUserIdModuleEnabled()){
+		prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+	}
+}
+
+exports.assignUserSyncConfig = assignUserSyncConfig;
+
+function assignGdprConfigIfRequired(prebidConfig){
+	if (CONFIG.getGdpr()) {
+		prebidConfig["consentManagement"] = {
+			cmpApi: CONFIG.getCmpApi(),
+			timeout: CONFIG.getGdprTimeout(),
+			allowAuctionWithoutConsent: CONFIG.getAwc() // Auction without consent
+		};
+	}
+}
+exports.assignGdprConfigIfRequired = assignGdprConfigIfRequired;
+
+function assignCurrencyConfigIfRequired(prebidConfig){
+	if(CONFIG.getAdServerCurrency()){
+		util.log(CONSTANTS.MESSAGES.M26 + CONFIG.getAdServerCurrency());
+		prebidConfig["currency"] = {
+			"adServerCurrency": CONFIG.getAdServerCurrency(), 
+			"granularityMultiplier": 1, 
+		};
+	}
+}
+
+exports.assignCurrencyConfigIfRequired = assignCurrencyConfigIfRequired;
+
+function fetchBids(activeSlots, impressionID){
+
+	//window.pwtCreatePrebidNamespace(pbNameSpace);
+
+	/* istanbul ignore else */
+	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
+		util.logError("PreBid js is not loaded");
+		return;
+	}
+
+	refThis.addOnBidResponseHandler();
+	window[pbNameSpace].logging = util.isDebugLogEnabled(); //todo: is it needed?	
+	var adUnitsArray = refThis.generateAdUnitsArray();
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window[pbNameSpace]){
 
@@ -583,52 +638,16 @@ function fetchBids(activeSlots, impressionID){
 				var prebidConfig = {
 					debug: util.isDebugLogEnabled(),
 					bidderSequence: "random",
-					userSync: { // move to a function with userIds
-						enableOverride: true,
-						syncsPerBidder: 0,
-						iframeEnabled: true,
-						pixelEnabled: true,
-						enabledBidders: (function(){
-							var arr = [];
-							CONFIG.forEachAdapter(function(adapterID){
-								arr.push(adapterID);
-							});
-							return arr;
-						})(),
-						syncDelay: 2000, //todo: default is 3000 write image pixels 5 seconds after the auction
-					},
 					disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
 				};
-
-				if (CONFIG.getGdpr()) {
-					prebidConfig["consentManagement"] = {
-						cmpApi: CONFIG.getCmpApi(),
-						timeout: CONFIG.getGdprTimeout(),
-						allowAuctionWithoutConsent: CONFIG.getAwc() // Auction without consent
-					};
-				}
-
-				if(CONFIG.getAdServerCurrency()){
-					util.log(CONSTANTS.MESSAGES.M26 + CONFIG.getAdServerCurrency());
-					prebidConfig["currency"] = {
-						"adServerCurrency": CONFIG.getAdServerCurrency(), 
-						"granularityMultiplier": 1, 
-					};
-
-				}
-
+				refThis.assignUserSyncConfig(prebidConfig);
+				refThis.assignGdprConfigIfRequired(prebidConfig);
+				refThis.assignCurrencyConfigIfRequired(prebidConfig);
 				refThis.assignSingleRequestConfigForBidders(prebidConfig);
-
 				refThis.enablePrebidPubMaticAnalyticIfRequired();
-
-				if(CONFIG.isUserIdModuleEnabled()){
-					prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
-				}
-
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 				// DO NOT PUSH ANY CONFIG AFTER THIS LINE!!
-
 				window[pbNameSpace].setConfig(prebidConfig);
 			}
 
@@ -647,7 +666,6 @@ function fetchBids(activeSlots, impressionID){
 				
 				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
-					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid
 					bidsBackHandler: function(bidResponses) {
 						util.log("In PreBid bidsBackHandler with bidResponses: ");
 						util.log(bidResponses);
