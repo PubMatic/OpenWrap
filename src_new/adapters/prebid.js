@@ -1,5 +1,5 @@
 /*
-	Note:
+	Note:s
 		Whenever we support a new PB adapter, we need to check if it needs actual sizes to be passed,
 			if so we will need to add special handling
 		PreBid does not do mandatory parameters checking
@@ -660,6 +660,11 @@ function bidsBackHandler(bidResponses){
 	util.log(bidResponses);
 	setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
 	//refThis.handleBidResponses(bidResponses);
+	// todo move value of CONFIG.isPrebidPubMaticAnalyticsEnabled() to a var isPrebidPubMaticAnalyticsEnabled and make chages to use its
+	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+		window[pbNameSpace].setTargetingForGPTAsync();
+	}
+
 	util.forEachOnObject(bidResponses, function(responseID, bidResponse){
 		bidManager.setAllPossibleBidsReceived(
 			CONFIG.isPrebidPubMaticAnalyticsEnabled() ? responseID : refThis.kgpvMap[responseID].divID
