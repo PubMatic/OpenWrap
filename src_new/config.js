@@ -196,6 +196,7 @@ exports.getIdentityConsumers = function(){
 	return (config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS] || "").toLowerCase();
 };
 
+// todo: unit test case pending
 exports.isPrebidPubMaticAnalyticsEnabled = function(){
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_PM_ANALYTICS]) === 1;
 }

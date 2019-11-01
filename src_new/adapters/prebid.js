@@ -505,6 +505,7 @@ function assignSingleRequestConfigForBidders(prebidConfig){
 
 exports.assignSingleRequestConfigForBidders = assignSingleRequestConfigForBidders;
 
+// todo: unit test case pending
 function enablePrebidPubMaticAnalyticIfRequired(){
 	if(CONFIG.isPrebidPubMaticAnalyticsEnabled() && util.isFunction(window[pbNameSpace].enableAnalytics)){
 		window[pbNameSpace].enableAnalytics({
@@ -563,15 +564,11 @@ function fetchBids(activeSlots, impressionID){
 		}
 	});
 
-	// todo: move to a function and call the function where it is necessary
 	// adUnits is object create array from it
 	var adUnitsArray = [];
-	for(var code in adUnits){
-		/* istanbul ignore else */
-		if(util.isOwnProperty(adUnits, code)){
-			adUnitsArray.push(adUnits[code]);
-		}
-	}
+	util.forEachOnObject(adUnits, function(key, adUnit){
+		adUnitsArray.push(adUnit);
+	});
 
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window[pbNameSpace]){
