@@ -430,7 +430,6 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			break;
 
 		case "yieldlab":
-			console.log("arey aaja yahan tak.");
 			util.forEachOnArray(sizes, function(index, size){
 				var slotParams = {};
 				util.forEachOnObject(keyConfig, function(key, value){
@@ -439,7 +438,6 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				});
 				slotParams["adSize"] = size[0] + "x" + size[1];
 				if(!(CONFIG.isSingleImpressionSettingEnabled() && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
-					console.log("kddddddds aaja yahan tak.");
 					adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 				}
 			});
