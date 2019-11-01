@@ -676,6 +676,7 @@ exports.bidsBackHandler = bidsBackHandler;
 function configurePrebidKeysIfRequired(){
 	// Todo: Handle send-all bids feature enabled case
 	//		we will need to add bidder specific keys
+	// todo: refer constants for key names
 	if(isPrebidPubMaticAnalyticsEnabled){
 		window[pbNameSpace].bidderSettings = {
             'standard': {
