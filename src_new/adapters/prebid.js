@@ -673,6 +673,99 @@ function bidsBackHandler(bidResponses){
 }
 exports.bidsBackHandler = bidsBackHandler;
 
+function configurePrebidKeysIfRequired(){
+	// Todo: Handle send-all bids feature enabled case
+	//		we will need to add bidder specific keys
+	if(isPrebidPubMaticAnalyticsEnabled){
+		window[pbNameSpace].bidderSettings = {
+            'standard': {
+                'adserverTargeting': [
+                    {
+                        key: "pwtpid", //hb_bidder
+                        val: function(bidResponse) {
+                            return bidResponse.bidderCode;
+                        }
+                    }, {
+                        key: "pwtsid", //hb_adid
+                        val: function(bidResponse) {
+                            return bidResponse.adId;
+                        }
+                    }, {
+                        key: "hb_pb", //hb_pb //todo we do not want it, send empty, enable no-empty-keys feature
+                        val: function(bidResponse) {
+                            return bidResponse.pbMg;
+                        }
+                    }, {
+                        key: 'pwtsz', //hb_size
+                        val: function (bidResponse) {
+                            return bidResponse.size;
+                        }
+                    }, {
+                        key: 'hb_source', //hb_source //todo we do not want it, send empty, enable no-empty-keys feature
+                        val: function (bidResponse) {
+                            return bidResponse.source;
+                        }
+                    }, {
+                        key: 'hb_format', //hb_format //todo we do not want it, send empty, enable no-empty-keys feature
+                        val: function (bidResponse) {
+                            return bidResponse.mediaType;
+                        }
+                    },
+                    {
+                        key: 'pwtecp', // our custom
+                        val: function(bidResponse) {
+                            return bidResponse.cpm;
+                        }
+                    },
+                    {
+                        key: 'pwtbst', // our custom
+                        val: function(bidResponse) {
+                            return 1;
+                        }
+                    },
+                    {
+                    	key: 'pwtdid', // custom
+                    	val: function(bidResponse){ // todo: do we want to concat dealchannel as well?
+                    		return bidResponse.dealId;
+                    	}
+                    },
+                    {
+                    	key: 'pwtpubid', // custom
+                    	val: function(bidResponse){
+                    		return CONFIG.getPublisherId();
+                    	}
+                    },
+                    {
+                    	key: 'pwtprofid', // custom
+                    	val: function(bidResponse){
+                    		return CONFIG.getProfileID();
+                    	}
+                    },
+                    {
+                    	key: 'pwtverid', // custom
+                    	val: function(bidResponse){ // todo: empty value?
+                    		return CONFIG.getProfileDisplayVersionID();
+                    	}
+                    },
+                    {
+                    	key: 'pwtm', // custom
+                    	val: function(bidResponse){ // todo: value?
+                    		return '';
+                    	}
+                    },
+                    {
+                    	key: 'pwtplt', // custom
+                    	val: function(bidResponse){ // todo: value?
+                    		return '';
+                    	}
+                    }
+                ]
+            }
+        };
+	}
+}
+exports.configurePrebidKeysIfRequired = configurePrebidKeysIfRequired;
+
 function fetchBids(activeSlots, impressionID){
 	/* istanbul ignore else */
 	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
@@ -694,13 +787,15 @@ function fetchBids(activeSlots, impressionID){
 				refThis.assignUserSyncConfig(prebidConfig);
 				refThis.assignGdprConfigIfRequired(prebidConfig);
 				refThis.assignCurrencyConfigIfRequired(prebidConfig);
-				refThis.assignSingleRequestConfigForBidders(prebidConfig);
-				refThis.enablePrebidPubMaticAnalyticIfRequired();
+				refThis.assignSingleRequestConfigForBidders(prebidConfig);				
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 				// DO NOT PUSH ANY CONFIG AFTER THIS LINE!!
 				window[pbNameSpace].setConfig(prebidConfig);
 			}
+
+			refThis.enablePrebidPubMaticAnalyticIfRequired();
+			refThis.configurePrebidKeysIfRequired();
 
 			// todo: move the typeof check to a function
 			/* With prebid 2.0.0 it has started using FunHooks library which provides
