@@ -67,7 +67,8 @@ exports.CONFIG = {
 	"DEFAULT_USER_ID_MODULE": "0",
 	"DEFAULT_IDENTITY_ONLY": "0",
 	"DEFAULT_GDPR_CONSENT": "0",
-	"DISABLE_AJAX_TIMEOUT": "disableAjaxTimeout"
+	"DISABLE_AJAX_TIMEOUT": "disableAjaxTimeout",
+	"ENABLE_PB_PM_ANALYTICS": "prebidPubMaticAnalytics"	
 };
 
 exports.METADATA_MACROS = {
