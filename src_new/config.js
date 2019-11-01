@@ -128,6 +128,7 @@ exports.getGdprTimeout = function() {
 	return gdprTimeout ? window.parseInt(gdprTimeout) : CONSTANTS.CONFIG.DEFAULT_GDPR_TIMEOUT;
 };
 
+// Auction Without Consent
 exports.getAwc = function () {
 	var awc = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_AWC] || CONSTANTS.CONFIG.DEFAULT_GDPR_AWC;
 	return awc === "1" ;
@@ -194,3 +195,7 @@ exports.isIdentityOnly = function(){
 exports.getIdentityConsumers = function(){
 	return (config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS] || "").toLowerCase();
 };
+
+exports.isPrebidPubMaticAnalyticsEnabled = function(){
+	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_PM_ANALYTICS]) === 1;
+}
