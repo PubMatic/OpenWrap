@@ -624,12 +624,13 @@ function fetchBids(activeSlots, impressionID){
 
 				refThis.enablePrebidPubMaticAnalyticIfRequired();
 
-				// Adding a hook for publishers to modify the Prebid Config we have generated
-				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
-
 				if(CONFIG.isUserIdModuleEnabled()){
 					prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 				}
+
+				// Adding a hook for publishers to modify the Prebid Config we have generated
+				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+				// DO NOT PUSH ANY CONFIG AFTER THIS LINE!!
 
 				window[pbNameSpace].setConfig(prebidConfig);
 			}
