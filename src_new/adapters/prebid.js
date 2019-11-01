@@ -277,7 +277,7 @@ function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
 	if(util.isOwnProperty(adUnits, code)){
 		adUnits[code].bids.forEach(function(bid) {
 			if(bid.bidder == adapterID){
-				bidderPresent = true;	
+				bidderPresent = true;
 			}
 		});
 	}
@@ -371,12 +371,50 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 exports.generatedKeyCallback = generatedKeyCallback;
 /* end-test-block */
 
+// todo: unit test cases pending
+function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
+	var code, sizes, divID;
+	
+	if(CONFIG.isServerSideAdapter(adapterID)){
+		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
+		return;
+	}
+
+	divID = currentSlot.getDivID();
+	code = currentSlot.getDivID();
+	sizes = currentSlot.getSizes();
+
+	/* istanbul ignore else */
+	if(!util.isOwnProperty(adUnits, code)){
+		adUnits[code] = {
+			code: code,
+			mediaTypes: util.getMediaTypeObject(CONFIG.getNativeConfiguration(), sizes, currentSlot),
+			sizes: sizes,
+			bids: [],
+			divID : divID
+		};
+	} else if(CONFIG.isSingleImpressionSettingEnabled()){
+		// following function call basically checks whether the adapter is already configured for the given code in adunits object
+		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
+			return;
+		}
+	}
+
+	pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits);	
+}
+
+exports.generatedKeyCallbackForPbAnalytics = generatedKeyCallbackForPbAnalytics;
+
 function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits){
 	var slotParams = {};
 	util.forEachOnObject(keyConfig, function(key, value){
 		/* istanbul ignore next */
 		slotParams[key] = value;
 	});
+
+	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+		slotParams["kgpv"] = generatedKey;	
+	}	
 
 	//processing for each partner
 	switch(adapterID){
@@ -488,7 +526,7 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 		activeSlots,
 		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
 		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
-		refThis.generatedKeyCallback,
+		(CONFIG.isPrebidPubMaticAnalyticsEnabled() ? refThis.generatedKeyCallbackForPbAnalytics : refThis.generatedKeyCallback),
 		// serverSideEabled: do not set default bids as we do not want to throttle them at client-side
 		true // !CONFIG.isServerSideAdapter(adapterID)
 	);
@@ -540,7 +578,7 @@ function addOnBidResponseHandler(){
 
 exports.addOnBidResponseHandler = addOnBidResponseHandler;
 
-function generateAdUnitsArray(){
+function generateAdUnitsArray(activeSlots, impressionID){
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
 
@@ -623,7 +661,9 @@ function bidsBackHandler(bidResponses){
 	setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
 	//refThis.handleBidResponses(bidResponses);
 	util.forEachOnObject(bidResponses, function(responseID, bidResponse){
-		bidManager.setAllPossibleBidsReceived(refThis.kgpvMap[responseID].divID);
+		bidManager.setAllPossibleBidsReceived(
+			CONFIG.isPrebidPubMaticAnalyticsEnabled() ? responseID : refThis.kgpvMap[responseID].divID
+		);
 	});
 }
 exports.bidsBackHandler = bidsBackHandler;
@@ -635,7 +675,7 @@ function fetchBids(activeSlots, impressionID){
 		return;
 	}
 	
-	var adUnitsArray = refThis.generateAdUnitsArray();
+	var adUnitsArray = refThis.generateAdUnitsArray(activeSlots, impressionID);
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window[pbNameSpace]){
 
@@ -657,6 +697,7 @@ function fetchBids(activeSlots, impressionID){
 				window[pbNameSpace].setConfig(prebidConfig);
 			}
 
+			// todo: move the typeof check to a function
 			/* With prebid 2.0.0 it has started using FunHooks library which provides
 			   proxy object instead of wrapper function by default so in case of safari and IE 
 			   below check of util gives us Object instead of function hence return false and does
@@ -668,7 +709,10 @@ function fetchBids(activeSlots, impressionID){
 			if(util.isFunction(window[pbNameSpace].requestBids) || typeof window[pbNameSpace].requestBids == "function"){				
 				// Adding a hook for publishers to modify the adUnits we are passing to Prebid
 				util.handleHook(CONSTANTS.HOOKS.PREBID_REQUEST_BIDS, [ adUnitsArray ]);
-				refThis.addOnBidResponseHandler();
+				if( !CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+					// we do not want this call when we have PrebidAnalytics enabled
+					refThis.addOnBidResponseHandler();	
+				}				
 				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
 					bidsBackHandler: refThis.bidsBackHandler,
