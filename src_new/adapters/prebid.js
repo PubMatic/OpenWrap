@@ -389,17 +389,18 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			break;
 
 		case "pubmatic":
-	case "pubmatic2":
+		case "pubmatic2":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
-		slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
+			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
 			slotParams["wiid"] = impressionID;
-		slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
+			slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
-		if(adapterID != "pubmatic2" && window.PWT.udpv){
+			if(adapterID != "pubmatic2" && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			break;
+
 		case "pulsepoint":
 			util.forEachOnArray(sizes, function(index, size){
 				var slotParams = {};
@@ -525,7 +526,7 @@ function fetchBids(activeSlots, impressionID){
 		return;
 	}
 
-	window[pbNameSpace].logging = util.isDebugLogEnabled();
+	window[pbNameSpace].logging = util.isDebugLogEnabled(); //todo: is it needed?
 
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
@@ -547,6 +548,7 @@ function fetchBids(activeSlots, impressionID){
 		}
 	});
 
+	// todo: move to a function and call the function where it is necessary
 	// adUnits is object create array from it
 	var adUnitsArray = [];
 	for(var code in adUnits){
@@ -565,11 +567,11 @@ function fetchBids(activeSlots, impressionID){
 			//	window[pbNameSpace].setBidderSequence("random");
 			//}
 
-			if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
+			if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {// todo: use isFunction
 				var prebidConfig = {
 					debug: util.isDebugLogEnabled(),
 					bidderSequence: "random",
-					userSync: {
+					userSync: { // move to a function with userIds
 						enableOverride: true,
 						syncsPerBidder: 0,
 						iframeEnabled: true,
@@ -590,7 +592,7 @@ function fetchBids(activeSlots, impressionID){
 					prebidConfig["consentManagement"] = {
 						cmpApi: CONFIG.getCmpApi(),
 						timeout: CONFIG.getGdprTimeout(),
-						allowAuctionWithoutConsent: CONFIG.getAwc()
+						allowAuctionWithoutConsent: CONFIG.getAwc() // Auction without consent
 					};
 				}
 				//remove true and implement getCurrency() in config
@@ -605,6 +607,7 @@ function fetchBids(activeSlots, impressionID){
 					};
 
 				}
+
 				refThis.assignSingleRequestConfigForBidders(prebidConfig);
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
@@ -657,7 +660,6 @@ function fetchBids(activeSlots, impressionID){
 /* start-test-block */
 exports.fetchBids = fetchBids;
 /* end-test-block */
-
 
 function getParenteAdapterID() {
 	return refThis.parentAdapterID;
