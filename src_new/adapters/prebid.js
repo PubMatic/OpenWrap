@@ -612,9 +612,18 @@ function assignCurrencyConfigIfRequired(prebidConfig){
 
 exports.assignCurrencyConfigIfRequired = assignCurrencyConfigIfRequired;
 
-function fetchBids(activeSlots, impressionID){
+function bidsBackHandler(bidResponses){
+	util.log("In PreBid bidsBackHandler with bidResponses: ");
+	util.log(bidResponses);
+	setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
+	//refThis.handleBidResponses(bidResponses);
+	util.forEachOnObject(bidResponses, function(responseID, bidResponse){
+		bidManager.setAllPossibleBidsReceived(refThis.kgpvMap[responseID].divID);
+	});
+}
+exports.bidsBackHandler = bidsBackHandler;
 
-	//window.pwtCreatePrebidNamespace(pbNameSpace);
+function fetchBids(activeSlots, impressionID){
 
 	/* istanbul ignore else */
 	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
@@ -622,18 +631,12 @@ function fetchBids(activeSlots, impressionID){
 		return;
 	}
 
-	refThis.addOnBidResponseHandler();
-	window[pbNameSpace].logging = util.isDebugLogEnabled(); //todo: is it needed?	
+	refThis.addOnBidResponseHandler();	
 	var adUnitsArray = refThis.generateAdUnitsArray();
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window[pbNameSpace]){
 
 		try{
-			/* istanbul ignore else */
-			//if(util.isFunction(window[pbNameSpace].setBidderSequence)){
-			//	window[pbNameSpace].setBidderSequence("random");
-			//}
-
 			if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {// todo: use isFunction
 				var prebidConfig = {
 					debug: util.isDebugLogEnabled(),
@@ -666,15 +669,7 @@ function fetchBids(activeSlots, impressionID){
 				
 				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
-					bidsBackHandler: function(bidResponses) {
-						util.log("In PreBid bidsBackHandler with bidResponses: ");
-						util.log(bidResponses);
-						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
-						//refThis.handleBidResponses(bidResponses);
-						util.forEachOnObject(bidResponses, function(responseID, bidResponse){
-							bidManager.setAllPossibleBidsReceived(refThis.kgpvMap[responseID].divID);
-						});
-					},
+					bidsBackHandler: refThis.bidsBackHandler,
 					timeout: timeoutForPrebid
 				});
 			} else {
