@@ -607,11 +607,8 @@ function fetchBids(activeSlots, impressionID){
 						allowAuctionWithoutConsent: CONFIG.getAwc() // Auction without consent
 					};
 				}
-				//remove true and implement getCurrency() in config
-				// CONFIG.getCurrency()
+
 				if(CONFIG.getAdServerCurrency()){
-					// get AdServer currency from Config
-					// Log in console 
 					util.log(CONSTANTS.MESSAGES.M26 + CONFIG.getAdServerCurrency());
 					prebidConfig["currency"] = {
 						"adServerCurrency": CONFIG.getAdServerCurrency(), 
