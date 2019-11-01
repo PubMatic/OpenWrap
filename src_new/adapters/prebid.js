@@ -348,6 +348,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
 		return;
 	}
+
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(adUnits, code)){
 		adUnits[code] = {
@@ -363,6 +364,14 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		}
 	}
 
+	pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits);
+}
+
+/* start-test-block */
+exports.generatedKeyCallback = generatedKeyCallback;
+/* end-test-block */
+
+function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits){
 	var slotParams = {};
 	util.forEachOnObject(keyConfig, function(key, value){
 		/* istanbul ignore next */
@@ -437,13 +446,12 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			});
 			break;
-	case "ix":
+		case "ix":
 		case "indexExchange":
 		/** Added case ix cause indexExchange bidder has changed its bidder code in server side 
 		 * this will have impact in codegen to change its adapter code from indexexchange to ix 
 		 * so added a case for the same.
-		*/
-		
+		*/		
 			util.forEachOnArray(sizes, function(index, size) {
 				var slotParams = {};
 
@@ -461,10 +469,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 }
 
-/* start-test-block */
-exports.generatedKeyCallback = generatedKeyCallback;
-/* end-test-block */
-
+exports.pushAdapterParamsInAdunits = pushAdapterParamsInAdunits;
 
 function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID){
 	util.log(adapterID+CONSTANTS.MESSAGES.M1);
