@@ -505,6 +505,21 @@ function assignSingleRequestConfigForBidders(prebidConfig){
 
 exports.assignSingleRequestConfigForBidders = assignSingleRequestConfigForBidders;
 
+function enablePrebidPubMaticAnalyticIfRequired(){
+	if(CONFIG.isPrebidPubMaticAnalyticsEnabled() && util.isFunction(window[pbNameSpace].enableAnalytics)){
+		window[pbNameSpace].enableAnalytics({
+            provider: 'pubmatic',
+            options: {
+                publisherId: CONFIG.getPublisherId(),
+                profileId: CONFIG.getProfileID(),
+                profileVersionId: CONFIG.getProfileDisplayVersionID()
+            }
+        });
+	}
+}
+
+exports.enablePrebidPubMaticAnalyticIfRequired = enablePrebidPubMaticAnalyticIfRequired;
+
 function fetchBids(activeSlots, impressionID){
 
 	//window.pwtCreatePrebidNamespace(pbNameSpace);
@@ -609,6 +624,9 @@ function fetchBids(activeSlots, impressionID){
 				}
 
 				refThis.assignSingleRequestConfigForBidders(prebidConfig);
+
+				refThis.enablePrebidPubMaticAnalyticIfRequired();
+
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 
