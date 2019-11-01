@@ -408,7 +408,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 					slotParams[key] = value;
 				});
 				slotParams["cf"] = size[0] + "x" + size[1];
-				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+				if(!(CONFIG.isSingleImpressionSettingEnabled() && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
+					adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+				}
 			});
 			break;
 
@@ -421,11 +423,14 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				});
 				slotParams["width"] = size[0];
 				slotParams["height"] = size[1];
-				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+				if(!(CONFIG.isSingleImpressionSettingEnabled() && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
+					adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+				}
 			});
 			break;
 
 		case "yieldlab":
+			console.log("arey aaja yahan tak.");
 			util.forEachOnArray(sizes, function(index, size){
 				var slotParams = {};
 				util.forEachOnObject(keyConfig, function(key, value){
@@ -433,7 +438,10 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 					slotParams[key] = value;
 				});
 				slotParams["adSize"] = size[0] + "x" + size[1];
-				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+				if(!(CONFIG.isSingleImpressionSettingEnabled() && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
+					console.log("kddddddds aaja yahan tak.");
+					adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+				}
 			});
 			break;
 	case "ix":
@@ -450,7 +458,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 					slotParams["siteId"] = keyConfig["siteID"];
 				}
 				slotParams["size"] = size;
-				adUnits [code].bids.push({bidder: adapterID, params: slotParams});
+				if(!(CONFIG.isSingleImpressionSettingEnabled() && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
+					adUnits [code].bids.push({bidder: adapterID, params: slotParams});
+				}
 			});
 			break;
 

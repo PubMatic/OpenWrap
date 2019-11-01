@@ -494,7 +494,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(CONFIG, "getProfileID").returns("profId");
             sinon.stub(CONFIG, "getProfileDisplayVersionID").returns("verId");
             sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(0);
-
+            
             kgpConsistsWidthAndHeight = true;
             window.PWT = {
                 udpv: {}
@@ -521,6 +521,7 @@ describe('ADAPTER: Prebid', function() {
 
             currentSlot = null;
             kgpConsistsWidthAndHeight = null;
+            // adUnits = null;
             done();
         });
 
@@ -611,6 +612,51 @@ describe('ADAPTER: Prebid', function() {
             });
             done();
         });
+
+        it('YieldLab: should have created bid object using sizes passed', function(done) {
+            adapterID = "yieldlab";
+            CONF.adapters['yieldlab'] = {};
+            var adapterConfig = CONF.adapters['yieldlab'];
+            var keyConfig = {
+                id: '1234567'
+            };
+            var kgpConsistsWidthAndHeight = false;
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            adUnits["DIV_1@yieldlab"].bids[0].bidder.should.be.equal("yieldlab");
+            adUnits["DIV_1@yieldlab"].bids[0].params.should.be.deep.equal({
+                id: '1234567',
+                adSize: "340x210"
+            });
+            adUnits["DIV_1@yieldlab"].bids[1].params.should.be.deep.equal({
+                id: '1234567',
+                adSize: "1024x768"
+            });
+            done();
+        });
+
+
+        it('YieldLab: should have created bid object with only one param using sizes passed if single Impression setting is enabled', function(done) {
+            CONFIG.isSingleImpressionSettingEnabled.restore();            
+            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
+            adapterID = "yieldlab";
+            CONF.adapters['yieldlab'] = {};
+            var adapterConfig = CONF.adapters['yieldlab'];
+            var keyConfig = {
+                id: '1234567'
+            };
+            var kgpConsistsWidthAndHeight = false;
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            console.log("ddd" + JSON.stringify(adUnits));
+            adUnits["DIV_1"].bids[0].bidder.should.be.equal("yieldlab");
+            adUnits["DIV_1"].bids[0].params.should.be.deep.equal({
+                id: '1234567',
+                adSize: "340x210"
+            });
+            expect(adUnits["DIV_1"].bids[1]).to.be.undefined;
+            done();
+        });
+
+
 
         it('should have constructed proper slotParams', function(done) {
             kgpConsistsWidthAndHeight = false;
