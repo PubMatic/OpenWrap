@@ -145,6 +145,7 @@ exports.getUniqueIdentifierStr = function() {
 	return utilGetIncrementalInteger() + window.Math.random().toString(16).substr(2);
 };
 
+// todo: can we use Object.assign
 exports.copyKeyValueObject = function(copyTo, copyFrom){
 	/* istanbul ignore else */
 	if(refThis.isObject(copyTo) && refThis.isObject(copyFrom)){
