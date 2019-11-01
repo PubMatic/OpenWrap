@@ -28,6 +28,7 @@ exports.kgpvMap = kgpvMap;
 var refThis = this;
 var timeoutForPrebid = CONFIG.getTimeout()-50;
 var onEventAdded = false;
+var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 
 function transformPBBidToOWBid(bid, kgpv){
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
@@ -412,7 +413,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		slotParams[key] = value;
 	});
 
-	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+	if(isPrebidPubMaticAnalyticsEnabled()){
 		slotParams["kgpv"] = generatedKey;	
 	}	
 
@@ -526,7 +527,7 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 		activeSlots,
 		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
 		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
-		(CONFIG.isPrebidPubMaticAnalyticsEnabled() ? refThis.generatedKeyCallbackForPbAnalytics : refThis.generatedKeyCallback),
+		(isPrebidPubMaticAnalyticsEnabled() ? refThis.generatedKeyCallbackForPbAnalytics : refThis.generatedKeyCallback),
 		// serverSideEabled: do not set default bids as we do not want to throttle them at client-side
 		true // !CONFIG.isServerSideAdapter(adapterID)
 	);
@@ -550,7 +551,7 @@ exports.assignSingleRequestConfigForBidders = assignSingleRequestConfigForBidder
 
 // todo: unit test case pending
 function enablePrebidPubMaticAnalyticIfRequired(){
-	if(CONFIG.isPrebidPubMaticAnalyticsEnabled() && util.isFunction(window[pbNameSpace].enableAnalytics)){
+	if(isPrebidPubMaticAnalyticsEnabled() && util.isFunction(window[pbNameSpace].enableAnalytics)){
 		window[pbNameSpace].enableAnalytics({
             provider: 'pubmatic',
             options: {
@@ -660,14 +661,13 @@ function bidsBackHandler(bidResponses){
 	util.log(bidResponses);
 	setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
 	//refThis.handleBidResponses(bidResponses);
-	// todo move value of CONFIG.isPrebidPubMaticAnalyticsEnabled() to a var isPrebidPubMaticAnalyticsEnabled and make chages to use its
-	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+	if(isPrebidPubMaticAnalyticsEnabled()){
 		window[pbNameSpace].setTargetingForGPTAsync();
 	}
 
 	util.forEachOnObject(bidResponses, function(responseID, bidResponse){
 		bidManager.setAllPossibleBidsReceived(
-			CONFIG.isPrebidPubMaticAnalyticsEnabled() ? responseID : refThis.kgpvMap[responseID].divID
+			isPrebidPubMaticAnalyticsEnabled() ? responseID : refThis.kgpvMap[responseID].divID
 		);
 	});
 }
@@ -714,7 +714,7 @@ function fetchBids(activeSlots, impressionID){
 			if(util.isFunction(window[pbNameSpace].requestBids) || typeof window[pbNameSpace].requestBids == "function"){				
 				// Adding a hook for publishers to modify the adUnits we are passing to Prebid
 				util.handleHook(CONSTANTS.HOOKS.PREBID_REQUEST_BIDS, [ adUnitsArray ]);
-				if( !CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+				if( !isPrebidPubMaticAnalyticsEnabled()){
 					// we do not want this call when we have PrebidAnalytics enabled
 					refThis.addOnBidResponseHandler();	
 				}				
