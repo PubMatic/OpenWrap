@@ -624,14 +624,12 @@ function bidsBackHandler(bidResponses){
 exports.bidsBackHandler = bidsBackHandler;
 
 function fetchBids(activeSlots, impressionID){
-
 	/* istanbul ignore else */
 	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
 		util.logError("PreBid js is not loaded");
 		return;
 	}
-
-	refThis.addOnBidResponseHandler();	
+	
 	var adUnitsArray = refThis.generateAdUnitsArray();
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window[pbNameSpace]){
@@ -662,11 +660,10 @@ function fetchBids(activeSlots, impressionID){
 			*/
 			/* istanbul ignore else */
 
-			if(util.isFunction(window[pbNameSpace].requestBids) || typeof window[pbNameSpace].requestBids == "function"){
-				
+			if(util.isFunction(window[pbNameSpace].requestBids) || typeof window[pbNameSpace].requestBids == "function"){				
 				// Adding a hook for publishers to modify the adUnits we are passing to Prebid
 				util.handleHook(CONSTANTS.HOOKS.PREBID_REQUEST_BIDS, [ adUnitsArray ]);
-				
+				refThis.addOnBidResponseHandler();
 				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
 					bidsBackHandler: refThis.bidsBackHandler,
