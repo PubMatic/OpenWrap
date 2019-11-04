@@ -456,9 +456,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 					slotParams["siteId"] = keyConfig["siteID"];
 				}
 				slotParams["size"] = size;
-				if(!(CONFIG.isSingleImpressionSettingEnabled() && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
-					adUnits [code].bids.push({bidder: adapterID, params: slotParams});
-				}
+			if(!(CONFIG.isSingleImpressionSettingEnabled() && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
+				adUnits [code].bids.push({bidder: adapterID, params: slotParams});
+			}
 			});
 			break;
 
