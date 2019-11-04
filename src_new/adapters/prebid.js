@@ -413,7 +413,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		slotParams[key] = value;
 	});
 
-	if(isPrebidPubMaticAnalyticsEnabled()){
+	if(isPrebidPubMaticAnalyticsEnabled){
 		slotParams["kgpv"] = generatedKey;	
 	}	
 
@@ -527,7 +527,7 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 		activeSlots,
 		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
 		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
-		(isPrebidPubMaticAnalyticsEnabled() ? refThis.generatedKeyCallbackForPbAnalytics : refThis.generatedKeyCallback),
+		(isPrebidPubMaticAnalyticsEnabled ? refThis.generatedKeyCallbackForPbAnalytics : refThis.generatedKeyCallback),
 		// serverSideEabled: do not set default bids as we do not want to throttle them at client-side
 		true // !CONFIG.isServerSideAdapter(adapterID)
 	);
@@ -551,7 +551,7 @@ exports.assignSingleRequestConfigForBidders = assignSingleRequestConfigForBidder
 
 // todo: unit test case pending
 function enablePrebidPubMaticAnalyticIfRequired(){
-	if(isPrebidPubMaticAnalyticsEnabled() && util.isFunction(window[pbNameSpace].enableAnalytics)){
+	if(isPrebidPubMaticAnalyticsEnabled && util.isFunction(window[pbNameSpace].enableAnalytics)){
 		window[pbNameSpace].enableAnalytics({
             provider: 'pubmatic',
             options: {
@@ -661,13 +661,13 @@ function bidsBackHandler(bidResponses){
 	util.log(bidResponses);
 	setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
 	//refThis.handleBidResponses(bidResponses);
-	if(isPrebidPubMaticAnalyticsEnabled()){
+	if(isPrebidPubMaticAnalyticsEnabled){
 		window[pbNameSpace].setTargetingForGPTAsync();
 	}
 
 	util.forEachOnObject(bidResponses, function(responseID, bidResponse){
 		bidManager.setAllPossibleBidsReceived(
-			isPrebidPubMaticAnalyticsEnabled() ? responseID : refThis.kgpvMap[responseID].divID
+			isPrebidPubMaticAnalyticsEnabled ? responseID : refThis.kgpvMap[responseID].divID
 		);
 	});
 }
@@ -681,6 +681,7 @@ function configurePrebidKeysIfRequired(){
 		window[pbNameSpace].bidderSettings = {
             'standard': {
                 'adserverTargeting': [
+                	//todo: what abt hb_deal, hb_uuid(video?), hb_cache_id(video?), hb_cache_host(video?) ?
                     {
                         key: "pwtpid", //hb_bidder
                         val: function(bidResponse) {
@@ -693,6 +694,7 @@ function configurePrebidKeysIfRequired(){
                         }
                     }, {
                         key: "hb_pb", //hb_pb //todo we do not want it, send empty, enable no-empty-keys feature
+                        // do not change it in prebid.js project constants file
                         val: function(bidResponse) {
                             return bidResponse.pbMg;
                         }
@@ -703,11 +705,13 @@ function configurePrebidKeysIfRequired(){
                         }
                     }, {
                         key: 'hb_source', //hb_source //todo we do not want it, send empty, enable no-empty-keys feature
+                        // do not change it in prebid.js project constants file
                         val: function (bidResponse) {
                             return bidResponse.source;
                         }
                     }, {
                         key: 'hb_format', //hb_format //todo we do not want it, send empty, enable no-empty-keys feature
+                        // do not change it in prebid.js project constants file
                         val: function (bidResponse) {
                             return bidResponse.mediaType;
                         }
@@ -810,7 +814,7 @@ function fetchBids(activeSlots, impressionID){
 			if(util.isFunction(window[pbNameSpace].requestBids) || typeof window[pbNameSpace].requestBids == "function"){				
 				// Adding a hook for publishers to modify the adUnits we are passing to Prebid
 				util.handleHook(CONSTANTS.HOOKS.PREBID_REQUEST_BIDS, [ adUnitsArray ]);
-				if( !isPrebidPubMaticAnalyticsEnabled()){
+				if( !isPrebidPubMaticAnalyticsEnabled){
 					// we do not want this call when we have PrebidAnalytics enabled
 					refThis.addOnBidResponseHandler();	
 				}				
