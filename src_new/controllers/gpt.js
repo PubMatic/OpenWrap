@@ -465,7 +465,8 @@ function executeDisplay(timeout, divIds, callback) {
     var timeoutIncrementer = 10; // in ms
     var intervalId = window.setInterval(function() {
         if ( ( util.getExternalBidderStatus(divIds) && bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds) ) || timeoutTicker >= timeout) {
-            util.resetExternalBidderStatus(divIds); //Quick fix to reset flag so that the notification flow happens only once per page load
+            window.clearInterval(intervalId);
+            util.resetExternalBidderStatus(divIds); //Quick fix to reset flag so that the notification flow happens only once per page load            
             callback();
         }
         timeoutTicker += timeoutIncrementer;
