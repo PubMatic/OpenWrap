@@ -714,11 +714,10 @@ function configurePrebidKeysIfRequired(){
                             return '';
                         }
                     }, {
-                        key: 'hb_format', //hb_format // we do not want it, so send empty, suppressEmptyKeys feature will prevent it being passed
-                        // do not change it in prebid.js project constants file
+                        key: 'pwtplt', //hb_format
                         val: function (bidResponse) {
                             // return bidResponse.mediaType;
-                            return '';
+                            return (bidResponse.native ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
                         }
                     },
                     {
@@ -759,12 +758,6 @@ function configurePrebidKeysIfRequired(){
                     },
                     {
                     	key: 'pwtm', // custom
-                    	val: function(bidResponse){ // todo: value?
-                    		return '';
-                    	}
-                    },
-                    {
-                    	key: 'pwtplt', // custom
                     	val: function(bidResponse){ // todo: value?
                     		return '';
                     	}
