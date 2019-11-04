@@ -662,7 +662,7 @@ function bidsBackHandler(bidResponses){
 	setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
 	//refThis.handleBidResponses(bidResponses);
 	if(isPrebidPubMaticAnalyticsEnabled){
-		window[pbNameSpace].setTargetingForGPTAsync();
+		window[pbNameSpace].setTargetingForGPTAsync(); // todo we do not want this for Custom conroller OR better do it only for GPT controller
 	}
 
 	util.forEachOnObject(bidResponses, function(responseID, bidResponse){
