@@ -182,6 +182,19 @@ gulp.task('lint', () => {
     .pipe(eslint.failAfterError());
 });
 
+gulp.task('change-prebid-keys', () => {
+    // todo: add gulp-json-editor entry in package.json and in backend build job?
+    // todo: read keys to be updated and with what value from the config and constants of OW
+    // todo: update build.sh to execute this job befor prebid gulp job
+    var prebidConstantsPath = prebidRepoPath + '/src';
+    var jeditor = require("gulp-json-editor");
+    return gulp.src(prebidConstantsPath + '/constants.json')
+        .pipe(jeditor(function(json) {
+            json.STATUS.GOOD = 100;
+            return json;
+        }))
+        .pipe(gulp.dest(prebidConstantsPath));
+});
 
 // Task to build minified version of owt.js
 gulp.task('bundle', function () {
