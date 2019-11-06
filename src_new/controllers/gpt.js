@@ -771,6 +771,7 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
                     refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
                 });        
             };
+        }
     } else {
         util.log("refresh: originalFunction is not a function");
         return null;
