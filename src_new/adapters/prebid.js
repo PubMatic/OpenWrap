@@ -28,6 +28,11 @@ exports.kgpvMap = kgpvMap;
 var refThis = this;
 var timeoutForPrebid = CONFIG.getTimeout()-50;
 var onEventAdded = false;
+var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
+
+/* start-test-block */
+exports.isSingleImpressionSettingEnabled = isSingleImpressionSettingEnabled;
+/* end-test-block */
 
 function transformPBBidToOWBid(bid, kgpv){
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
@@ -170,7 +175,7 @@ function pbBidStreamHandler(pbBid){
 
 		// If Single impression is turned on then check and modify kgpv as per bid response size
 		/* istanbul ignore else */
-		if(CONFIG.isSingleImpressionSettingEnabled()){
+		if(refThis.isSingleImpressionSettingEnabled){
 			// Assinging kbpv after modifying and will be used for logger and tracker purposes
 			// this field will be replaced everytime a bid is received with single impression feature on
 			refThis.kgpvMap[responseID].kgpv = refThis.checkAndModifySizeOfKGPVIfRequired(pbBid,refThis.kgpvMap[responseID]);
@@ -193,7 +198,7 @@ function pbBidStreamHandler(pbBid){
 		/* istanbul ignore else */
 		if(pbBid.bidderCode && CONFIG.isServerSideAdapter(pbBid.bidderCode)){
 			var divID = refThis.kgpvMap[responseID].divID;
-			if(!CONFIG.isSingleImpressionSettingEnabled()){
+			if(!refThis.isSingleImpressionSettingEnabled){
 				var temp1 = refThis.getPBCodeWithWidthAndHeight(divID, pbBid.bidderCode, pbBid.width, pbBid.height);
 				var temp2 = refThis.getPBCodeWithoutWidthAndHeight(divID, pbBid.bidderCode);
 
@@ -292,7 +297,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 
 	var code, sizes, divID = currentSlot.getDivID();
 	
-	if(!CONFIG.isSingleImpressionSettingEnabled()){
+	if(!refThis.isSingleImpressionSettingEnabled){
 		if(kgpConsistsWidthAndHeight){
 			code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
 			sizes = [[currentWidth,currentHeight]];
@@ -357,7 +362,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			bids: [],
 			divID : divID
 		};
-	}else if(CONFIG.isSingleImpressionSettingEnabled()){
+	}else if(refThis.isSingleImpressionSettingEnabled){
 		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
 			return;
 		}
@@ -408,9 +413,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 					slotParams[key] = value;
 				});
 				slotParams["cf"] = size[0] + "x" + size[1];
-				if(!(CONFIG.isSingleImpressionSettingEnabled() && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
-					adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
-				}
+			if(!(refThis.isSingleImpressionSettingEnabled && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
+				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			}
 			});
 			break;
 
@@ -423,9 +428,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				});
 				slotParams["width"] = size[0];
 				slotParams["height"] = size[1];
-				if(!(CONFIG.isSingleImpressionSettingEnabled() && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
-					adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
-				}
+			if(!(refThis.isSingleImpressionSettingEnabled && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
+				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			}
 			});
 			break;
 
@@ -437,9 +442,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 					slotParams[key] = value;
 				});
 				slotParams["adSize"] = size[0] + "x" + size[1];
-				if(!(CONFIG.isSingleImpressionSettingEnabled() && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
-					adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
-				}
+			if(!(refThis.isSingleImpressionSettingEnabled && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
+				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			}
 			});
 			break;
 	case "ix":
@@ -456,7 +461,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 					slotParams["siteId"] = keyConfig["siteID"];
 				}
 				slotParams["size"] = size;
-			if(!(CONFIG.isSingleImpressionSettingEnabled() && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
+			if(!(refThis.isSingleImpressionSettingEnabled && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
 				adUnits [code].bids.push({bidder: adapterID, params: slotParams});
 			}
 			});
