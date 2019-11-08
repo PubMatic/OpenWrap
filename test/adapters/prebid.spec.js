@@ -157,6 +157,20 @@ describe('ADAPTER: Prebid', function() {
             theBid.getHeight().should.be.equal(0);
             done();
         });
+
+        it('should set regexPattern if regexPattern is passed',function(done){
+            var regexPattern = ".*@.*@.*";
+            var theBid = PREBID.transformPBBidToOWBid(bid, kgpv,regexPattern);
+            theBid.getRegexPattern().should.be.equal(regexPattern);
+            done();
+        });
+
+        it('should set native if native is present',function(done){
+            bid.native = "somenativevalue";
+            var theBid = PREBID.transformPBBidToOWBid(bid, kgpv);
+            theBid.getNative().should.be.equal(bid.native);
+            done();
+        })
     });
 
     describe('#pbBidStreamHandler', function () {
@@ -792,8 +806,6 @@ describe('ADAPTER: Prebid', function() {
                 adapterConfig,
                 impressionID, [],
                 activeSlots,
-                adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
-                adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
                 PREBID.generatedKeyCallback,
                 true).should.be.true;
             done();
@@ -812,8 +824,6 @@ describe('ADAPTER: Prebid', function() {
                 adapterConfig,
                 impressionID, [],
                 activeSlots,
-                adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
-                adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
                 PREBID.generatedKeyCallback,
                 true).should.be.true;
             delete CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
@@ -993,6 +1003,13 @@ describe('ADAPTER: Prebid', function() {
             should.exist(window["owpbjs"]);
             done();
         });
+
+        if('should return if owpbjs namespace is not defined',function(done){
+            delete window.owpbjs;
+            PREBID.fetchBids(activeSlots, impressionID);
+            UTIL.logError.calledWith("PreBid js is not loaded").should.be.true;
+            done();
+        })
 
         // TODO: Need to fix this testcase somehow
         it('returns while logging it when Prebid js is not loaded', function(done) {
@@ -1177,10 +1194,12 @@ describe('ADAPTER: Prebid', function() {
             kgpv={
                 "kgpvs":[{
                     "adapterID":"pubmatic",
-                    "kgpv":"300x250@300X250:0"
+                    "kgpv":"300x250@300X250:0",
+                    "regexPattern": ".*@.*@.*"
                 },{
                     "adapterID":"appnexus",
-                    "kgpv":"/43743431/DMDemo@300X250"
+                    "kgpv":"/43743431/DMDemo@300X250",
+                    "regexPattern": ".*@.*@.*"
                 }],
                 "divID":"Div1"
             };
@@ -1202,23 +1221,33 @@ describe('ADAPTER: Prebid', function() {
         //Test cases for different scenario
         it('should return modified kgpv as per winningKgpv',function(done){
             bid["adUnitCode"] = "Div1";
-            var expectedResponseKgpv = "728x90@728x90:0";
-            expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+            var expectedResponseKgpv = {
+                "responseKGPV":"728x90@728x90:0",
+                "responseRegex":".*@.*@.*"
+            }
+            PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv).should.be.deep.equal(expectedResponseKgpv);
             done();
         });
 
         it('should return modified kgpv as per winningKgpv if kgp is div@size',function(done){
             bid["adUnitCode"] = "Div1";
             kgpv.kgpvs[0].kgpv = "Div1@300x250:0";
-            var expectedResponseKgpv = "Div1@728x90:0";
-            expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+            var expectedResponseKgpv = {
+                "responseKGPV":"Div1@728x90:0",
+                "responseRegex":".*@.*@.*"
+            }
+            PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv).should.be.deep.equal(expectedResponseKgpv);
             done();
         });
 
         it('should return same kgpv if winning bid size is same of response size',function(done){
-            var expectedResponseKgpv = "728x90@728x90:0";
+            // var expectedResponseKgpv = "728x90@728x90:0";
             kgpv.kgpvs[0].kgpv = "728x90@728x90:0";
-            expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+            var expectedResponseKgpv = {
+                "responseKGPV":"728x90@728x90:0",
+                "responseRegex":".*@.*@.*"
+            }
+            PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv).should.be.deep.equal(expectedResponseKgpv);
             done();
         });
 
@@ -1226,8 +1255,12 @@ describe('ADAPTER: Prebid', function() {
             bid["width"] = 0;
             bid["height"] = 0;
             kgpv.kgpvs[0].kgpv = "Div1@728x90:0";
-            var expectedResponseKgpv = "Div1@728x90:0";
-            expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+            // var expectedResponseKgpv = "Div1@728x90:0";
+            var expectedResponseKgpv = {
+                "responseKGPV":"Div1@728x90:0",
+                "responseRegex":".*@.*@.*"
+            }
+            PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv).should.be.deep.equal(expectedResponseKgpv);
             done();
         });
 
@@ -1235,8 +1268,12 @@ describe('ADAPTER: Prebid', function() {
             bid["width"] = 0;
             bid["height"] = 0;
             kgpv.kgpvs[0].kgpv = "Div1@728x90";
-            var expectedResponseKgpv = "Div1@728x90";
-            expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+            // var expectedResponseKgpv = "Div1@728x90";
+            var expectedResponseKgpv = {
+                "responseKGPV":"Div1@728x90",
+                "responseRegex":".*@.*@.*"
+            }
+	        PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv).should.be.deep.equal(expectedResponseKgpv);
             done();
         });
 
@@ -1244,8 +1281,12 @@ describe('ADAPTER: Prebid', function() {
             bid["width"] = 0;
             bid["height"] = 0;
             kgpv.kgpvs[0].kgpv = "/43743431/DMDemo@300x250";
-            var expectedResponseKgpv = "/43743431/DMDemo@300x250";
-            expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+            // var expectedResponseKgpv = "/43743431/DMDemo@300x250";
+            var expectedResponseKgpv = {
+                "responseKGPV":"/43743431/DMDemo@300x250",
+                "responseRegex":".*@.*@.*"
+            }
+            PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv).should.be.deep.equal(expectedResponseKgpv);
             done();
         });
     });
