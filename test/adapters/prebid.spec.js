@@ -591,27 +591,6 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.getProfileDisplayVersionID.called.should.be.false;
             done();
         });
-        
-        it('PulsePoint: should have created bid object with only one param using sizes passed if single Impression setting is enabled', function(done) {
-            CONFIG.isSingleImpressionSettingEnabled.restore();            
-            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
-            PREBID.isSingleImpressionSettingEnabled = 1;
-            adapterID = "pulsepoint";
-            CONF.adapters['pulsepoint'] = {};
-            var adapterConfig = CONF.adapters['pulsepoint'];
-            var keyConfig = {
-                id: '1234567'
-            };
-            var kgpConsistsWidthAndHeight = false;
-            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
-            adUnits["DIV_1"].bids[0].bidder.should.be.equal("pulsepoint");
-            adUnits["DIV_1"].bids[0].params.should.be.deep.equal({
-                id: '1234567',
-                cf: '340x210'
-            });
-            expect(adUnits["DIV_1"].bids[1]).to.be.undefined;
-            done();
-        });
 
         it('ADG: should have created bid object using sizes passed', function(done) {
             adapterID = "adg";

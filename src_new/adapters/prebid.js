@@ -413,9 +413,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 					slotParams[key] = value;
 				});
 				slotParams["cf"] = size[0] + "x" + size[1];
-			if(!(refThis.isSingleImpressionSettingEnabled && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
-			}
 			});
 			break;
 
