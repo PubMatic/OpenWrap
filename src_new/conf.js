@@ -31,8 +31,8 @@ exports.adapters = {
 	audienceNetwork: {
 		rev_share: "0.0",
 		throttle: "100",
-		kgp: "_DIV_",
-		klm: {
+		kgp_rx: "_DIV_",
+		klm_rx: {
 			"Div_1": {
 				placementId: "8801674"
 			},

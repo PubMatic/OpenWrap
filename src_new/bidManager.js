@@ -350,7 +350,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		return;
 	}
 
-	pixelURL = util.metaInfo.protocol + pixelURL + "pubid=" + pubId;
+	pixelURL = CONSTANTS.COMMON.PROTOCOL + pixelURL + "pubid=" + pubId;
 
 	outputObj[CONSTANTS.CONFIG.PUBLISHER_ID] = CONFIG.getPublisherId();
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMEOUT] = ""+CONFIG.getTimeout();
@@ -487,6 +487,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "bidid": bidID,
                     "db": theBid.getDefaultBidStatus(),
                     "kgpv": theBid.getKGPV(),
+                    "kgpsv": theBid.getKGPV(true),
                     "psz": theBid.getWidth() + "x" + theBid.getHeight(),
                     "eg": theBid.getGrossEcpm(isAnalytics),
                     "en": theBid.getNetEcpm(isAnalytics),
@@ -531,7 +532,7 @@ exports.setImageSrcToPixelURL = function (pixelURL, useProtocol) { // TDD, i/o :
 		img.src = pixelURL;
 		return;
 	}
-	img.src = util.metaInfo.protocol + pixelURL;	
+	img.src = CONSTANTS.COMMON.PROTOCOL + pixelURL;	
 };
 
 
@@ -565,7 +566,7 @@ exports.loadTrackers = function(event){
 		JSON.stringify({
 			pwt_type: "3",
 			pwt_bidID: bidId,
-			pwt_origin: window.location.protocol+"//"+window.location.hostname,
+			pwt_origin: CONSTANTS.COMMON.PROTOCOL + window.location.hostname,
 			pwt_action:"click"
 		}),
 		"*"
@@ -581,7 +582,7 @@ exports.executeTracker = function(bidID){
 		JSON.stringify({
 			pwt_type: "3",
 			pwt_bidID: bidID,
-			pwt_origin: window.location.protocol+"//"+window.location.hostname,
+			pwt_origin: CONSTANTS.COMMON.PROTOCOL + window.location.hostname,
 			pwt_action:"imptrackers"
 		}),
 		"*"
