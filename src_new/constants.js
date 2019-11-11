@@ -31,7 +31,8 @@ exports.COMMON = {
 	"IDENTITY_ONLY":"identityOnly",
 	"GAM":"eb",
 	"TAM":"tam",
-	"PREBID":"prebid"
+	"PREBID":"prebid",	
+	"PROTOCOL" : "https://"
 };
 
 exports.CONFIG = {
