@@ -666,9 +666,10 @@ function fetchBids(activeSlots, impressionID){
 						util.log("In PreBid bidsBackHandler with bidResponses: ");
 						util.log(bidResponses);
 						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
-						//refThis.handleBidResponses(bidResponses);
-						util.forEachOnObject(bidResponses, function(responseID, bidResponse){
-							bidManager.setAllPossibleBidsReceived(refThis.kgpvMap[responseID].divID);
+						//refThis.handleBidResponses(bidResponses);						
+						// we may not request bids for all slots from Prebid if we do not find mapping for a slot thus looping on activeSlots
+						refThis.forEachOnArray(activeSlots, function(i, activeSlot){
+							bidManager.setAllPossibleBidsReceived(activeSlot.getDivID());
 						});
 					},
 					timeout: timeoutForPrebid
