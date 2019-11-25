@@ -447,8 +447,14 @@ exports.writeIframe = function(theDocument, src, width, height, style){
 exports.displayCreative = function(theDocument, bid){
 	refThis.resizeWindow(theDocument, bid.width, bid.height);
 	if(bid.adHtml){
+		if(bid.getAdapterID().toLowerCase() == "appier"){
+			refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());
+		}
 		theDocument.write(bid.adHtml);
 	}else if(bid.adUrl){
+		if(bid.getAdapterID().toLowerCase() == "appier"){
+			refThis.replaceAuctionPrice(bid.adUrl, bid.getGrossEcpm());
+		}
 		refThis.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
 	}else{
 		refThis.logError("creative details are not found");
@@ -1256,4 +1262,9 @@ exports.getUserIdParams = function(params){
 		}
 	}	
 	return userIdParams;
+};
+
+exports.replaceAuctionPrice = function(str, cpm) {
+	if (!str) return;
+	return str.replace(/\$\{AUCTION_PRICE\}/g, cpm);
 };
