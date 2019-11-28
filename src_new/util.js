@@ -448,12 +448,12 @@ exports.displayCreative = function(theDocument, bid){
 	refThis.resizeWindow(theDocument, bid.width, bid.height);
 	if(bid.adHtml){
 		if(bid.getAdapterID().toLowerCase() == "appier"){
-			refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());
+			bid.adHtml = refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());
 		}
 		theDocument.write(bid.adHtml);
 	}else if(bid.adUrl){
 		if(bid.getAdapterID().toLowerCase() == "appier"){
-			refThis.replaceAuctionPrice(bid.adUrl, bid.getGrossEcpm());
+			bid.adUrl = refThis.replaceAuctionPrice(bid.adUrl, bid.getGrossEcpm());
 		}
 		refThis.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
 	}else{
