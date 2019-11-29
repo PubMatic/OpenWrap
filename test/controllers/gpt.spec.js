@@ -1237,7 +1237,7 @@ describe("CONTROLLER: GPT", function() {
                 }
             };
             sinon.spy(googleDefinedSlotStub, "setTargeting");
-
+            
             GPT.slotsMap[divID] = {
                 getPubAdServerObject: function() {
                     return googleDefinedSlotStub;
@@ -1253,6 +1253,7 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(UTIL, "forEachOnObject");
             sinon.stub(UTIL, "isOwnProperty").returns(true);
             sinon.stub(GPT, "defineWrapperTargetingKey").returns(true);
+            sinon.spy(window, "setTimeout");
             done();
         });
 
@@ -1278,6 +1279,7 @@ describe("CONTROLLER: GPT", function() {
             }
             divID = null;
             keyValuePairsStub = null;
+            window.setTimeout.restore();
             done();
         });
 
@@ -1951,23 +1953,7 @@ describe("CONTROLLER: GPT", function() {
         it('should be a function', function(done) {
             GPT.displayFunctionStatusHandler.should.be.a('function');
             done();
-        });
-
-        it('should have fall through and called setTimeout with function to fire post timeout to handle slot rendering', function (done) {
-            oldStatus = CONSTANTS.SLOT_STATUS.CREATED;
-            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
-            window.setTimeout.called.should.be.true;
-            CONFIG.getTimeout.called.should.be.true;
-            done();
-        });
-
-        it('should have called setTimeout with function to fire post timeout to handle slot rendering', function (done) {
-            oldStatus = CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
-            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
-            window.setTimeout.called.should.be.true;
-            CONFIG.getTimeout.called.should.be.true;
-            done();
-        });
+        });        
 
         it('should have called updateStatusAndCallOriginalFunction_Display with proper arguments when oldStatus is  TARGETING_ADDED', function(done) {
             oldStatus = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;

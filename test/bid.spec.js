@@ -193,6 +193,14 @@ describe('Bid bidObject', function() {
             bidObject.getGrossEcpm().should.equal(bidObject.grossEcpm);
             done();
         });
+
+        it('returns analyticsCPM if analyticsGrossCPM and for analytics flag is set true, and adServerCurrency is defined', function(done) {
+            bidObject.setAnalyticsCpm(10);
+            var output = bidObject.getGrossEcpm(true);
+            CONFIG.getAdServerCurrency().should.be.calledOnce;
+            expect(output).to.be.equal(10);
+            done();
+        });
     });
 
     describe('#getNetEcpm', function() {
@@ -363,6 +371,17 @@ describe('Bid bidObject', function() {
 
         it('returns kgpv', function(done) {
             bidObject.getKGPV().should.equal(bidObject.kgpv);
+            done();
+        });
+
+        it('should return regex pattern if regexpattern is set', function(done){
+            bidObject.regexPattern = "someregexpattern";
+            bidObject.getKGPV().should.equal(bidObject.regexPattern);
+            done();
+        });
+        it('should return kgpv if regex pattern is set but isActualValueRequired is passed as true', function(done){
+            bidObject.regexPattern = "someregexpattern";
+            bidObject.getKGPV(true).should.equal(bidObject.kgpv);
             done();
         });
     });
@@ -864,6 +883,36 @@ describe('Bid bidObject', function() {
             expect(bidObject.originalCurrency).to.equal('');
             bidObject.setAnalyticsCpm(analyticsCPM).should.deep.equal(bidObject);
             bidObject.analyticsGrossCpm.should.equal(analyticsCPM);
+            done();
+        });
+    });
+
+
+    describe('#getRegexPattern', function() {
+
+        it('is a function', function(done) {
+            bidObject.getRegexPattern.should.be.a('function')
+            done();
+        });
+
+        it('returns regexPattern', function(done) {
+            expect(bidObject.getRegexPattern()).to.be.undefined;
+            done();
+        });
+    });
+
+    describe('#setRegexPattern', function() {
+
+        it('is a function', function(done) {
+            bidObject.setRegexPattern.should.be.a('function')
+            done();
+        });
+
+        it('call util function to get ad format type ', function(done) {
+            var regexPattern = "regexPattern";
+            expect(bidObject.regexPattern).to.be.undefined;
+            bidObject.setRegexPattern(regexPattern);
+            bidObject.regexPattern.should.equal(regexPattern);
             done();
         });
     });
