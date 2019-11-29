@@ -63,20 +63,20 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 		if( lastBidWasDefaultBid || !isPostTimeout){
 			/* istanbul ignore else */
 			if(lastBidWasDefaultBid){
-				util.log(CONSTANTS.MESSAGES.M23 , bidderID);
+				util.log(CONSTANTS.MESSAGES.M23 + bidderID);
 			}
 
 			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
-				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14,bidderID);
+				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14 + bidderID);
 				refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 			}else{
-				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16, bidderID);
+				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16 +  bidderID);
 			}
 		}else{
 			util.log(CONSTANTS.MESSAGES.M17);
 		}
 	}else{
-		util.log(CONSTANTS.MESSAGES.M18,bidderID);		
+		util.log(CONSTANTS.MESSAGES.M18 + bidderID);		
 		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 	}
 	if (isPostTimeout) {
@@ -350,7 +350,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		return;
 	}
 
-	pixelURL = util.metaInfo.protocol + pixelURL + "pubid=" + pubId;
+	pixelURL = CONSTANTS.COMMON.PROTOCOL + pixelURL + "pubid=" + pubId;
 
 	outputObj[CONSTANTS.CONFIG.PUBLISHER_ID] = CONFIG.getPublisherId();
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMEOUT] = ""+CONFIG.getTimeout();
@@ -478,7 +478,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 				 * Future Scope : Remove below check to log with appt. value(s)
 				*/
 				/*istanbul ignore else*/
-				if(adapterID === "pubmatic" && (theBid.getDefaultBidStatus() ||  (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0))){
+				if( (adapterID === "pubmatic" || adapterID === "pubmatic2") && (theBid.getDefaultBidStatus() ||  (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0))){
 					return;
 				}
 				//todo: take all these key names from constants
@@ -487,6 +487,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "bidid": bidID,
                     "db": theBid.getDefaultBidStatus(),
                     "kgpv": theBid.getKGPV(),
+                    "kgpsv": theBid.getKGPV(true),
                     "psz": theBid.getWidth() + "x" + theBid.getHeight(),
                     "eg": theBid.getGrossEcpm(isAnalytics),
                     "en": theBid.getNetEcpm(isAnalytics),
@@ -531,7 +532,7 @@ exports.setImageSrcToPixelURL = function (pixelURL, useProtocol) { // TDD, i/o :
 		img.src = pixelURL;
 		return;
 	}
-	img.src = util.metaInfo.protocol + pixelURL;	
+	img.src = CONSTANTS.COMMON.PROTOCOL + pixelURL;	
 };
 
 
@@ -565,7 +566,7 @@ exports.loadTrackers = function(event){
 		JSON.stringify({
 			pwt_type: "3",
 			pwt_bidID: bidId,
-			pwt_origin: window.location.protocol+"//"+window.location.hostname,
+			pwt_origin: CONSTANTS.COMMON.PROTOCOL + window.location.hostname,
 			pwt_action:"click"
 		}),
 		"*"
@@ -581,7 +582,7 @@ exports.executeTracker = function(bidID){
 		JSON.stringify({
 			pwt_type: "3",
 			pwt_bidID: bidID,
-			pwt_origin: window.location.protocol+"//"+window.location.hostname,
+			pwt_origin: CONSTANTS.COMMON.PROTOCOL + window.location.hostname,
 			pwt_action:"imptrackers"
 		}),
 		"*"

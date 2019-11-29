@@ -13,7 +13,10 @@ exports.pwt = {
 	awc: "1",
 	disableAjaxTimeout:true,
 	adServerCurrency: "INR",
-	singleImpression: "1"
+	singleImpression: "1",
+	identityEnabled:"0",
+	identityConsumers:"EB,TAM,Prebid",
+	identityOnly:"0"
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
@@ -23,13 +26,13 @@ exports.adapters = {
 		rev_share: "0.0",
 		throttle: "100",
 		publisherId: "156209",
-		kgp: "_DIV_@_W_x_H_:_AUI_"
+		kgp: "_W_x_H_@_W_x_H_:_AUI_"
 	},
 	audienceNetwork: {
 		rev_share: "0.0",
 		throttle: "100",
-		kgp: "_DIV_",
-		klm: {
+		kgp_rx: "_DIV_",
+		klm_rx: {
 			"Div_1": {
 				placementId: "8801674"
 			},
@@ -121,5 +124,23 @@ exports.nativeConfig = {
 				}
 			}
 		}
+	}
+};
+
+exports.identityPartners = {
+	pubCommonId: {
+		name: "pubCommonId",
+		"storage.type": "cookie",
+		"storage.name": "_pubCommonId", 
+		"storage.expires": "1825"               
+	},
+	digitrust: {
+		"name":"digitrust",
+		"params.init.member": "nQjyizbdyF",
+		"params.init.site":"FL6whbX1IW",
+		"redirects": "true",
+		"storage.type": "cookie",
+		"storage.name": "somenamevalue",
+		"storage.expires":"60"
 	}
 };

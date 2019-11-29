@@ -23,8 +23,16 @@ exports.COMMON = {
 	"OW_CLICK_NATIVE": "openwrap-native-click",
 	"BID_ID": "owbidid",
 	"AD_SERVER_CURRENCY": "adServerCurrency",
-	"SINGLE_IMPRESSION": "singleImpression",
-	"PREBID_NAMESPACE": "owpbjs"
+	"SINGLE_IMPRESSION":"singleImpression",
+	"PREBID_NAMESPACE": "owpbjs",
+	"ENABLE_USER_ID":"identityEnabled",
+	"IDENTITY_PARTNERS":"identityPartners",
+	"IDENTITY_CONSUMERS": "identityConsumers",
+	"IDENTITY_ONLY":"identityOnly",
+	"GAM":"eb",
+	"TAM":"tam",
+	"PREBID":"prebid",	
+	"PROTOCOL" : "https://"
 };
 
 exports.CONFIG = {
@@ -33,6 +41,8 @@ exports.CONFIG = {
 	"COMMON": "pwt",
 	"TIMEOUT": "t",
 	"KEY_GENERATION_PATTERN": "kgp",
+	"REGEX_KEY_GENERATION_PATTERN": "kgp_rx",
+	"REGEX_KEY_LOOKUP_MAP": "klm_rx",
 	"KEY_LOOKUP_MAP": "klm",
 	"SERVER_SIDE_KEY": "sk",
 	"PUBLISHER_ID": "pubid",
@@ -57,6 +67,8 @@ exports.CONFIG = {
 	"DEFAULT_GDPR_TIMEOUT": 10000,
 	"DEFAULT_GDPR_AWC": "0",
 	"DEFAULT_SINGLE_IMPRESSION": "0",
+	"DEFAULT_USER_ID_MODULE": "0",
+	"DEFAULT_IDENTITY_ONLY": "0",
 	"DEFAULT_GDPR_CONSENT": "0",
 	"DISABLE_AJAX_TIMEOUT": "disableAjaxTimeout"
 };
@@ -98,7 +110,8 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"PROFILE_ID": "pwtprofid",
 	"PROFILE_VERSION_ID": "pwtverid",
 	"META_DATA": "pwtm",
-	"PLATFORM_KEY": "pwtplt"
+	"PLATFORM_KEY": "pwtplt",
+	"USER_IDS":"pwtuid"
 };
 
 exports.IGNORE_PREBID_KEYS = {
@@ -130,19 +143,28 @@ exports.MESSAGES = {
 	"M11": "Bid is rejected as ecpm is NaN: ",
 	"M12": "Existing bid ecpm: ",
 	"M13": ", is lower than new bid ecpm ",
-	"M14": ", so we are replacing bid from partner %s",
+	"M14": ", so we are replacing bid from partner ",
 	"M15": ", is greater than new bid ecpm ",
-	"M16": ", so we are not replacing bid from partner %s",
+	"M16": ", so we are not replacing bid from partner ",
 	"M17": "Post timeout bid, ignored.",
-	"M18": "Bid is selected for partner %s",
+	"M18": "Bid is selected for partner ",
 	"M19": ": Found winning adapterID: ",
 	"M20": "Bid is rejected as ecpm is empty string.",
 	"M21": ": error in respose handler.",
 	"M22": "Bid is rejected as ecpm is <= 0.",
-	"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner %s",
+	"M23": "Existing bid is default-bid with zero ecpm, thus replacing it with the new bid from partner ",
 	"M24": "Passsed argument is not a bidAdaptor",
 	"M25": "Bid details not found for bidID: ",
-	"M26": "Currency Module is Activated. Ad Server Currency is: "
+	"M26": "Currency Module is Activated. Ad Server Currency is: ",
+	"M27": "Invalid regex pattern ",
+	"M28": "Unable to match regex pattern as kgpv length is not 3",
+	IDENTITY:{
+		M1: "Unable to get User Id from OpenIdentity",
+		M2: "Setting UserIds to EB ",
+		M3: "Unable to parse User ID configuration",
+		M4: "User Id Condiguration Sent to prebid ",
+		M5: "Identity only enabled, no need to process. Calling Original function "
+	}
 };
 
 exports.PLATFORM_VALUES = {
@@ -168,3 +190,9 @@ exports.SRA_ENABLED_BIDDERS = {
 	"rubicon": 1,
 	"improvedigital": 2
 };
+
+exports.EXCLUDE_IDENTITY_PARAMS = ["rev_share","timeout","throttle"];
+
+exports.TOLOWERCASE_IDENTITY_PARAMS = ["storage.type"];
+
+exports.JSON_VALUE_KEYS = ["params.clientIdentifier"];

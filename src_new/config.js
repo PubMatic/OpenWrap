@@ -173,3 +173,19 @@ exports.getAdServerCurrency = function(){
 exports.isSingleImpressionSettingEnabled = function(){
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION] || CONSTANTS.CONFIG.DEFAULT_SINGLE_IMPRESSION);
 };
+
+exports.isUserIdModuleEnabled = function(){
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ENABLE_USER_ID] || CONSTANTS.CONFIG.DEFAULT_USER_ID_MODULE);
+};
+
+exports.getIdentityPartners = function(){
+	return config[CONSTANTS.COMMON.IDENTITY_PARTNERS];
+};
+
+exports.isIdentityOnly = function(){
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY]|| CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY);
+};
+
+exports.getIdentityConsumers = function(){
+	return (config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS] || "").toLowerCase();
+};

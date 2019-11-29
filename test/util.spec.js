@@ -12,6 +12,7 @@ var UTIL = require("../src_new/util");
 
 var SLOT = require("../src_new/slot.js").Slot;
 
+var BID = require("../src_new/bid.js");
 var BIDMgr = require("../src_new/bidManager.js");
 var CONFIG = require("../src_new/config.js");
 
@@ -649,8 +650,6 @@ describe('UTIL', function() {
             impressionID = null,
             slotConfigMandatoryParams = null,
             activeSlots = null,
-            keyGenerationPattern = null,
-            keyLookupMap = null,
             handlerFunction = null,
             addZeroBids = null;
         var obj = null;
@@ -658,14 +657,15 @@ describe('UTIL', function() {
         beforeEach(function(done) {
             adapterID = commonAdapterID;
             adUnits = "adUnits";
-            adapterConfig = "adapterConfig";
+            adapterConfig = {
+                kgp: "_W_x_H_",
+                klm: {
+                    "generatedKeys": "some_vale"
+                }
+            };
             impressionID = "impressionID";
             slotConfigMandatoryParams = "slotConfigMandatoryParams";
             activeSlots = [new SLOT("slot_1"), new SLOT("slot_2")];
-            keyGenerationPattern = "_W_x_H_";
-            keyLookupMap = {
-                "generatedKeys": "some_vale"
-            };
             obj = {
                 handlerFunction: function() {
                     return "handlerFunction"
@@ -683,8 +683,6 @@ describe('UTIL', function() {
             impressionID = null;
             slotConfigMandatoryParams = null;
             activeSlots = null;
-            keyGenerationPattern = null;
-            keyLookupMap = null;
             obj.handlerFunction.restore();
             obj.handlerFunction = null;
             addZeroBids = null;
@@ -696,10 +694,42 @@ describe('UTIL', function() {
             done();
         });
 
-        it('should check whther activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
-            UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids);
+        it('should check whether activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
+            UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
+            UTIL.forEachOnArray.should.be.calledOnce;
+            UTIL.generateSlotNamesFromPattern.should.be.calledOnce;
+            UTIL.callHandlerFunctionForMapping.should.be.calledOnce;
             done();
         });
+
+        it('should do nothing if active slot lenght is 0 ',function(done){
+            activeSlots = [];
+            UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
+            UTIL.forEachOnArray.should.not.be.called;
+            UTIL.generateSlotNamesFromPattern.should.not.be.called;
+            UTIL.callHandlerFunctionForMapping.should.not.be.called;
+            done();
+        });
+
+        it('should do nothing if KGP length is less than 3 ',function(done){
+            adapterConfig.kgp = "";
+            UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
+            UTIL.forEachOnArray.should.not.be.called;
+            UTIL.generateSlotNamesFromPattern.should.not.be.called;
+            UTIL.callHandlerFunctionForMapping.should.not.be.called;
+            done();
+        });
+
+        it('should check call handler function if activeslots is not empty ad key generation pattern is regex pattern', function(done) {
+            adapterConfig.kgp = undefined;
+            adapterConfig.kgp_rx = "_AU_@_DIV_@_W_x_H_";
+            UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
+            UTIL.forEachOnArray.should.be.calledOnce;
+            UTIL.generateSlotNamesFromPattern.should.be.calledOnce;
+            UTIL.callHandlerFunctionForMapping.should.be.calledOnce;
+            done();
+        });
+
     });
 
     describe('#resizeWindow', function() {
@@ -2602,5 +2632,272 @@ describe('UTIL', function() {
             window.owpbjs = undefined;
             done();
         });
-    });    
+    });
+
+    describe('#getConfigFromRegex', function(){
+        var klmsForPartner,generatedKey;
+        beforeEach(function(done){
+            klmsForPartner=[{"rx":{"DIV":"Div.*","AU":".*","SIZE":".*"},"rx_config":{"hashedKey":"5ae33b52a72ed31da279ec35b26710e0"}}];
+            generatedKey="/43743431/DMDemo@Div1@728x90:0";
+           done();
+
+        });
+
+        afterEach(function(done){
+            done();
+        });
+
+        it('should return regex config if generated key matches the regex',function(done){
+           var expectedResult = {"config":{"hashedKey":"5ae33b52a72ed31da279ec35b26710e0"},"regexPattern":".*@Div.*@.*"}
+           UTIL.getConfigFromRegex(klmsForPartner, generatedKey).should.be.deep.equal(expectedResult);
+           done();
+        });
+
+        it('should return regex config for other partner if genrated key matches the regex', function(done){
+            klmsForPartner = [{"rx":{"DIV":"DiV.*","AU":".*","SIZE":".*"},"rx_config":{"placementId":"8801674"}},{"rx":{"DIV":"Div1","AU":".*","SIZE":".*"},"rx_config":{"placementId":"8801675"}}];
+            generatedKey = "/43743431/DMDemo@Div1@728x90";
+            var expectedResult = {"config":{"placementId":"8801675"},"regexPattern":".*@Div1@.*"}
+            UTIL.getConfigFromRegex(klmsForPartner, generatedKey).should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return null if generated key does not matches the regex pattern', function(done){
+            generatedKey = "/43743431/DMDemo@DiV1@728x90";
+            expect(UTIL.getConfigFromRegex(klmsForPartner, generatedKey)).to.be.equal(null);
+            done();
+        });
+
+        it('should return null if regex pattern is invalid', function(done){
+            klmsForPartner=[{"rx":{"DIV":"Div.*","AU":".*","SIZE":"[0-9]++"},"rx_config":{"hashedKey":"5ae33b52a72ed31da279ec35b26710e0"}}];
+            UTIL.logError.should.be.calledOnce;
+            expect(UTIL.getConfigFromRegex(klmsForPartner, generatedKey)).to.be.equal(null);
+            done();
+        });
+    });
+    
+    
+    describe('#getUserIdParams', function() {
+        var params;
+        beforeEach(function(done) {
+            params = {"name":"pubCommonId","storage.type":"cookie","storage.name":"_pubCommonId","storage.expires":"1825"}
+            done();
+        });
+
+        afterEach(function(done) {
+            params = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.getUserIdParams.should.be.a('function');
+            done();
+        });
+
+        it('should return userId with valid params',function(done){
+            var expectedResult = {"name":"pubCommonId","storage":{"type":"cookie","name":"_pubCommonId","expires":"1825"}};
+            var result = UTIL.getUserIdParams(params);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getNestedObjectFromString', function() {
+        var sourceObject,separator,key,value;
+        beforeEach(function(done) {
+            sourceObject = {};
+            separator = ".";
+            key = "params.init.member";
+            value="nQjyizbdyF";
+            done();
+        });
+
+        afterEach(function(done) {
+            sourceObject = null;
+            separator = null;
+            key = null;
+            value = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.getNestedObjectFromString.should.be.a('function');
+            done();
+        });
+
+        it('should return userId with valid params',function(done){
+            var expectedResult = {"params":{"init":{"member":"nQjyizbdyF"}}};
+            var result = UTIL.getNestedObjectFromString(sourceObject,separator,key,value);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getNestedObjectFromArray', function() {
+        var sourceObject, sourceArray , valueOfLastNode;
+        beforeEach(function(done) {
+            sourceObject = {"name":"pubCommonId"};
+            sourceArray =["storage", "type"];
+            valueOfLastNode = "cookie";
+            done();
+        });
+
+        afterEach(function(done) {
+            sourceObject = null;
+            sourceArray = null;
+            valueOfLastNode = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.getNestedObjectFromArray.should.be.a('function');
+            done();
+        });
+
+        it('should return userId with valid params',function(done){
+            var expectedResult = {"name":"pubCommonId","storage":{"type":"cookie"}};
+            var result = UTIL.getNestedObjectFromArray(sourceObject,sourceArray,valueOfLastNode);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#isEmptyObject', function() {
+
+        it('is a function', function(done) {
+            UTIL.isEmptyObject.should.be.a('function');
+            done();
+        });
+
+        it('should return false when non empty object is passed', function (done) {
+            var obj = {"true":true};
+            UTIL.isEmptyObject(obj).should.be.false;
+            done();
+        });
+
+        it('should have returned false when non object is passed', function (done) {
+            var num = 1234;
+            UTIL.isEmptyObject(num).should.be.false;
+            done();
+        });
+
+        it('should have returned false when empty object is passed', function (done) {
+            var obj = {};
+            UTIL.isEmptyObject(obj).should.be.true;
+            done();
+        });
+    });
+
+    describe('#getUserIdConfiguration', function() {
+        beforeEach(function(done) {
+            sinon.stub(CONFIG,"getIdentityPartners").returns({
+                pubCommonId: {
+                    name: "pubCommonId",
+                    "storage.type": "cookie",
+                    "storage.name": "_pubCommonId", 
+                    "storage.expires": "1825"               
+                },
+                digitrust: {
+                    "name":"digitrust",
+                    "params.init.member": "nQjyizbdyF",
+                    "params.init.site":"FL6whbX1IW",
+                    "redirects": "true",
+                    "storage.type": "cookie",
+                    "storage.name": "somenamevalue",
+                    "storage.expires":"60"
+                }
+            })
+            done();
+        });
+
+        afterEach(function(done) {
+            CONFIG.getIdentityPartners.restore();
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.getUserIdConfiguration.should.be.a('function');
+            done();
+        });
+
+        it('should return userId with valid params',function(done){
+            var expectedResult = [{"name":"pubCommonId","storage":{"type":"cookie","name":"_pubCommonId","expires":"1825"}},{"name":"digitrust","params":{"init":{"member":"nQjyizbdyF","site":"FL6whbX1IW"}},"redirects":"true","storage":{"type":"cookie","name":"somenamevalue","expires":"60"}}];
+            var result = UTIL.getUserIdConfiguration();
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#callHandlerFunctionForMapping',function(){
+        var adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern;
+
+        beforeEach(function(done){
+            adapterID  = commonAdapterID;
+            adUnits = "adUnits";
+            adapterConfig = {
+                kgp: "_W_x_H_",
+                klm: {
+                    "generatedKeys": "some_vale"
+                }
+            };
+            impressionID = "impressionID";
+            slotConfigMandatoryParams = "slotConfigMandatoryParams";
+            activeSlots = [new SLOT("slot_1"), new SLOT("slot_2")];
+            obj = {
+                handlerFunction: function() {
+                    return "handlerFunction"
+                }
+            };
+            sinon.spy(obj, "handlerFunction");
+            addZeroBids = true;
+            done();
+        });
+
+        afterEach(function(done) {
+            adapterID = null;
+            adUnits = null;
+            adapterConfig = null;
+            impressionID = null;
+            slotConfigMandatoryParams = null;
+            activeSlots = null;
+            obj.handlerFunction.restore();
+            obj.handlerFunction = null;
+            addZeroBids = null;
+            done();
+        });
+
+        describe('flow for normal mapping',function(){
+
+            if('should  call handler function',function(done){
+                adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] = undefined;
+                UTIL.forEachOnArray.should.be.calledOnce;
+                UTIL.getConfigFromRegex.should.not.be.called;
+                done();
+            });
+
+        });
+
+        describe('flow for regex mapping',function(){
+
+            if('should  call handler function',function(done){
+                adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = undefined;
+                UTIL.forEachOnArray.should.be.calledOnce;
+                UTIL.getConfigFromRegex.should.be.calledOnce;
+                done();
+            });
+        });
+
+        it('should create bid if addZeroBids is true',function(done){
+            addZeroBids = true;
+            BID.createBid.should.be.calledOnce;
+            BIDMgr.setBidFromBidder.should.be.calledOnce;
+            done();     
+        });
+
+        it('should create bid if addZeroBids is false',function(done){
+            addZeroBids = false;
+            BID.createBid.should.not.be.called;
+            BIDMgr.setBidFromBidder.should.not.be.called;
+            done();     
+        });
+    })
 });
