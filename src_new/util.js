@@ -559,6 +559,8 @@ exports.getMetaInfo = function(cWin){
 
 	}catch(e){}
 
+	obj.pageDomain = refThis.getDomainFromURL(obj.pageURL);
+
 	refThis.metaInfo = obj;
 
 	return obj;
@@ -1264,7 +1266,14 @@ exports.getUserIdParams = function(params){
 	return userIdParams;
 };
 
+
 exports.replaceAuctionPrice = function(str, cpm) {
 	if (!str) return;
 	return str.replace(/\$\{AUCTION_PRICE\}/g, cpm);
+};
+
+exports.getDomainFromURL = function(url){
+	var a = window.document.createElement('a');
+	a.href = url;
+  	return a.hostname;
 };

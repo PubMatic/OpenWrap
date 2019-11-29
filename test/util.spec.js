@@ -1232,6 +1232,7 @@ describe('UTIL', function() {
                     "secure",
                     "isInIframe",
                     "pageURL",
+                    "pageDomain"
                 ]);
             done();
         });
@@ -2852,6 +2853,19 @@ describe('UTIL', function() {
         });
     });
 
+    describe('#getDomainFromURL', function(){
+        it('is a function', function(done) {
+            UTIL.getDomainFromURL.should.be.a('function');
+            done();
+        });
+
+        it('return correct value', function(done){
+            var result = UTIL.getDomainFromURL('http://www.example.com/12xy45');
+            result.should.equal('www.example.com');
+            done();
+        });
+    });
+    
     describe('#callHandlerFunctionForMapping',function(){
         var adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern;
 
