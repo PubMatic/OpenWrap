@@ -126,7 +126,6 @@ exports.IGNORE_PREBID_KEYS = {
 exports.LOGGER_PIXEL_PARAMS = {
 	"TIMESTAMP": "tst",
 	"PAGE_URL": "purl",
-	"PAGE_DOMAIN": 'orig',
 	"TIMEOUT": "to"
 };
 

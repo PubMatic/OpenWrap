@@ -1231,8 +1231,7 @@ describe('UTIL', function() {
                     "protocol",
                     "secure",
                     "isInIframe",
-                    "pageURL",
-                    "pageDomain"
+                    "pageURL"
                 ]);
             done();
         });
@@ -2849,19 +2848,6 @@ describe('UTIL', function() {
             var expectedResult = [{"name":"pubCommonId","storage":{"type":"cookie","name":"_pubCommonId","expires":"1825"}},{"name":"digitrust","params":{"init":{"member":"nQjyizbdyF","site":"FL6whbX1IW"}},"redirects":"true","storage":{"type":"cookie","name":"somenamevalue","expires":"60"}}];
             var result = UTIL.getUserIdConfiguration();
             result.should.deep.equal(expectedResult);
-            done();
-        });
-    });
-
-    describe('#getDomainFromURL', function(){
-        it('is a function', function(done) {
-            UTIL.getDomainFromURL.should.be.a('function');
-            done();
-        });
-
-        it('return correct value', function(done){
-            var result = UTIL.getDomainFromURL('http://www.example.com/12xy45');
-            result.should.equal('www.example.com');
             done();
         });
     });
