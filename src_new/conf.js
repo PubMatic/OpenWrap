@@ -144,3 +144,66 @@ exports.identityPartners = {
 		"storage.expires":"60"
 	}
 };
+
+exports.videoConfig = {
+	"default": {
+		"video": {
+			"enabled": "true",
+			"format":"instream",
+			"connectiontype": [2],
+			"minduration": 10,
+			"maxduration": 50,
+			"battr": [6,7],
+			"skip": 1,
+			"skipmin": 10,
+			"skipafter": 15
+		}
+	},
+	"slotConfig": [{
+		"slotname": "DIV1",
+		"video": {
+			"enabled": true,
+			"connectiontype": [0, 1, 2, 3, 5, 6],
+			"minduration": 10,
+			"maxduration": 50,
+			"battr": [6,7],
+			"skip": 1,
+			"skipmin": 10,
+			"skipafter": 15,
+			"clientconfig": {
+				"timeouts": {
+					"wrapperTagURI": "<interval>",
+					"mediaFileURI": "<interval>"
+				}
+			}
+		}
+	},
+	{
+		"slotname": "DIV2",
+		"video": {
+			"enabled": false,
+			"connectiontype": [1, 2, 6],
+			"minduration": 10,
+			"maxduration": 50,
+			"battr": [
+				6,
+				7
+			],
+			"skip": 1,
+			"skipmin": 10,
+			"skipafter": 15,
+			"clientconfig": {
+				"timeouts": {
+					"wrapperTagURI": "<interval>",
+					"mediaFileURI": "<interval>"
+				}
+			}
+		}
+	},
+	{
+		"slotname": "efgc",
+		"banner": {
+			"enabled":false
+		}
+	}]
+};
