@@ -829,7 +829,10 @@ describe('UTIL', function() {
                 adHtml: "<html>ad content goes here </html>",
                 adUrl: "http://ad.url.here",
                 width: 340,
-                height: 210
+                height: 210,
+                getAdapterID:function(){
+                    return '';
+                }
             };
             sinon.stub(UTIL, "resizeWindow")
             // .returns(true);
@@ -837,6 +840,7 @@ describe('UTIL', function() {
             // .returns(true);
             sinon.spy(UTIL, "log");
             sinon.spy(UTIL, "logError");
+            sinon.spy(UTIL, "replaceAuctionPrice");
             done();
         });
 
@@ -848,6 +852,7 @@ describe('UTIL', function() {
             UTIL.writeIframe.restore();
             UTIL.log.restore();
             UTIL.logError.restore();
+            UTIL.replaceAuctionPrice.restore();
             done();
         });
 
@@ -883,6 +888,26 @@ describe('UTIL', function() {
             UTIL.logError.calledWith(bid).should.be.true;
             done();
         });
+
+        it('should have called replace Auction Price method of the passed object if bid is of APPIER', function(done) {
+            bid.getAdapterID = function(){ return "appier" };
+            bid.getGrossEcpm = function(){ return "10.55" };
+            UTIL.displayCreative(theDocument, bid);
+            theDocument.write.calledWith(bid.adHtml).should.be.true;
+            UTIL.replaceAuctionPrice.calledWith(bid.adHtml,bid.getGrossEcpm()).should.be.true;
+            done();
+        });
+
+        it('should have called replace auction price and  writeIframe method if adUrl is present in given bid and adHtml is not and bidder is appier', function(done) {
+            delete bid.adHtml;
+            bid.getAdapterID = function(){ return "appier" };
+            bid.getGrossEcpm = function(){ return "10.55" };
+            UTIL.displayCreative(theDocument, bid);
+            UTIL.replaceAuctionPrice.calledWith(bid.adUrl,bid.getGrossEcpm()).should.be.true;
+            UTIL.writeIframe.calledWith(theDocument, bid.adUrl, bid.width, bid.height, "").should.be.true;
+            done();
+        });
+
     });
 
     describe('#getScreenWidth', function() {
@@ -1206,7 +1231,7 @@ describe('UTIL', function() {
                     "protocol",
                     "secure",
                     "isInIframe",
-                    "pageURL",
+                    "pageURL"
                 ]);
             done();
         });
@@ -2826,7 +2851,7 @@ describe('UTIL', function() {
             done();
         });
     });
-
+    
     describe('#callHandlerFunctionForMapping',function(){
         var adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern;
 
@@ -2899,5 +2924,28 @@ describe('UTIL', function() {
             BIDMgr.setBidFromBidder.should.not.be.called;
             done();     
         });
-    })
+    });
+
+    describe('replaceAuctionPrice', function(){
+        it('is a function', function(done) {
+            UTIL.replaceAuctionPrice.should.be.a('function');
+            done();
+        });
+
+        it('should replace auction price macro', function(done){
+            var testAdHtml = "<html>Fake HTML ${AUCTION_PRICE}</html>";
+            var expectedResult = "<html>Fake HTML 10.55</html>";
+            var testbid = 10.55;
+            expect(UTIL.replaceAuctionPrice(testAdHtml,testbid)).to.be.equal(expectedResult);
+            done();
+        });
+
+        it('should not replace any other macro macro', function(done){
+            var testAdHtml = "<html>Fake HTML ${DEAL_PRICE}</html>";
+            var testbid = 10.55;
+            expect(UTIL.replaceAuctionPrice(testAdHtml,testbid)).to.be.equal(testAdHtml);
+            done();
+        });
+
+    });
 });
