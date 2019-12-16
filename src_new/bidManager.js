@@ -28,7 +28,7 @@ exports.setCallInitTime = function(divID, adapterID){ // TDD, i/o : done
 };
 
 exports.setAllPossibleBidsReceived = function(divID){
-	window.PWT.bidMap[divID].setAllPossibleBidsReceived();	
+	window.PWT.bidMap[divID].setAllPossibleBidsReceived();
 };
 
 exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
@@ -76,7 +76,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 			util.log(CONSTANTS.MESSAGES.M17);
 		}
 	}else{
-		util.log(CONSTANTS.MESSAGES.M18 + bidderID);		
+		util.log(CONSTANTS.MESSAGES.M18 + bidderID);
 		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 	}
 	if (isPostTimeout) {
@@ -93,7 +93,7 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 	// if(theBid.getDefaultBidStatus() === 0 && theBid.getPostTimeoutStatus() === false){
 	// 	util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [slotID, adapterID, theBid, latency]);
 	// }
-	
+
 	window.PWT.bidMap[slotID].setNewBid(adapterID, theBid);
 	window.PWT.bidIdMap[theBid.getBidID()] = {
 		s: slotID,
@@ -136,8 +136,8 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
 					// If pubmaticServerBidAdapter then don't increase partnerCount
 					(adapterID !== "pubmaticServer") && partnerCount++;
 					util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
-				// Description-> adapterID == "pubmatic" && theBid.netEcpm == 0 this check is put because from pubmaticBidAdapter in prebid we are 
-				// passing zero bid when there are no bid under timout for latency reports and this caused issue to have zero bids in pwtm key 
+				// Description-> adapterID == "pubmatic" && theBid.netEcpm == 0 this check is put because from pubmaticBidAdapter in prebid we are
+				// passing zero bid when there are no bid under timout for latency reports and this caused issue to have zero bids in pwtm key
 				// so put this check which will not log zero bids for pubmatic. Note : From prebid 1.x onwards we do not get zero bids in case of no bids.
 				if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1 || theBid.getGrossEcpm() == 0){
         			return;
@@ -230,7 +230,7 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
 
 			if (winningBid !== null ) {
 				if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
-					// i.e. the current bid is the winning bid, so remove the native keys from keyValuePairs 
+					// i.e. the current bid is the winning bid, so remove the native keys from keyValuePairs
 					refThis.updateNativeTargtingKeys(keyValuePairs);
 				} else {
 					// i.e. the current bid is not the winning bid, so remove the native keys from theBid.keyValuePairs
@@ -459,7 +459,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                      getServerSideResponseTime returns -1, it means that server responded with error code 1/2/6
                      hence do not add entry in logger.
                      keeping the check for responseTime on -1 since there could be a case where:
-						ss status = 1, db status = 0, and responseTime is 0, but error code is 4, i,e. no bid. And for error code 4, 
+						ss status = 1, db status = 0, and responseTime is 0, but error code is 4, i,e. no bid. And for error code 4,
 						we want to log the data not skip it.
                   */
 	            if (theBid.getServerSideStatus()) {
@@ -468,9 +468,9 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 	                return;
 	              }
 				}
-				// Logic : if adapter is pubmatic and bid falls under two condition : 
-				/** 
-				 *  1.timeout zero bids 
+				// Logic : if adapter is pubmatic and bid falls under two condition :
+				/**
+				 *  1.timeout zero bids
 				 *  2.no response from translator
 				 * Then we don't log it for pubmatic
 				 * Reason : Logging timeout zero bids causing reports to show more zero in comparision to other bidders
@@ -532,7 +532,7 @@ exports.setImageSrcToPixelURL = function (pixelURL, useProtocol) { // TDD, i/o :
 		img.src = pixelURL;
 		return;
 	}
-	img.src = CONSTANTS.COMMON.PROTOCOL + pixelURL;	
+	img.src = CONSTANTS.COMMON.PROTOCOL + pixelURL;
 };
 
 
@@ -557,7 +557,7 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 
 /**
  * This function is used to execute trackers on event
- * in case of native. On click of native create element 
+ * in case of native. On click of native create element
  * @param {*} event
  */
 exports.loadTrackers = function(event){
@@ -623,7 +623,7 @@ exports.fireTracker = function(bidDetails, action) {
 	(trackers || []).forEach(function(url){refThis.setImageSrcToPixelURL(url,false);});
 };
 
- 
+
 // this function generates all satndard key-value pairs for a given bid and setup, set these key-value pairs in an object
 // todo: write unit test cases
 exports.setStandardKeys = function(winningBid, keyValuePairs){

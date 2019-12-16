@@ -2306,49 +2306,46 @@ describe('UTIL', function() {
         var nativeConfiguration, sizes, currentSlot;
 
         beforeEach(function(done) {
-            nativeConfiguration =  {
-                kgp:"_DIV_", // Or it Could be _AU_
-                klm:{
-                    "DIV_1":{
-                        "nativeOnly": false,
-                        config: {
-                            image: {
-                                required: true,
-                                sizes: [150, 50]
-                            },
-                            title: {
-                                required: true,
-                                len: 80
-                            },
-                            sponsoredBy: {
-                                required: true
-                            },
-                            body: {
-                                required: true
-                            }
-                        }
-                    },
-                    "DIV_2":{
-                        "nativeOnly": true,
-                        config: {
-                            image: {
-                                required: true,
-                                sizes: [150, 50]
-                            },
-                            title: {
-                                required: true,
-                                len: 80
-                            },
-                            sponsoredBy: {
-                                required: true
-                            },
-                            body: {
-                                required: true
-                            }
+            sinon.stub(CONFIG,"getSlotConfiguration").returns({
+                slotType:"_DIV_", // Or it Could be _AU_
+                "DIV_1":{
+                    native:{enabled: false,
+                    config: {
+                        image: {
+                            required: true,
+                            sizes: [150, 50]
+                        },
+                        title: {
+                            required: true,
+                            len: 80
+                        },
+                        sponsoredBy: {
+                            required: true
+                        },
+                        body: {
+                            required: true
                         }
                     }
-                }
-            };
+                }},
+                "DIV_2":{
+                    native:{
+                        enabled: true,
+                        image: {
+                            required: true,
+                            sizes: [150, 50]
+                        },
+                        title: {
+                            required: true,
+                            len: 80
+                        },
+                        sponsoredBy: {
+                            required: true
+                        },
+                        body: {
+                            required: true
+                        }
+                }}
+            });
             sizes = [[300,250]];
             currentSlot = { 
                 getSizes: function(){
@@ -2379,6 +2376,7 @@ describe('UTIL', function() {
             currentSlot.getSizes.restore();
             currentSlot.getAdUnitID.restore();
             currentSlot.getAdUnitIndex.restore();
+            CONFIG.getSlotConfiguration.restore();
             done();
         });
 
@@ -2409,7 +2407,7 @@ describe('UTIL', function() {
                     sizes: sizes
                 }
             }
-            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot)
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2434,7 +2432,7 @@ describe('UTIL', function() {
                     }
                 }
             }
-            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot)
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2458,7 +2456,7 @@ describe('UTIL', function() {
                     sizes: sizes
                 }
             };
-            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot)
             result.should.deep.equal(expectedResult);
             done();
         });

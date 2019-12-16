@@ -32,7 +32,8 @@ exports.COMMON = {
 	"GAM":"eb",
 	"TAM":"tam",
 	"PREBID":"prebid",	
-	"PROTOCOL" : "https://"
+	"PROTOCOL" : "https://",
+	"SLOT_CONFIG": "slotConfig"	
 };
 
 exports.CONFIG = {

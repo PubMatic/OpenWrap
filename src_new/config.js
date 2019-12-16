@@ -189,3 +189,7 @@ exports.isIdentityOnly = function(){
 exports.getIdentityConsumers = function(){
 	return (config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS] || "").toLowerCase();
 };
+
+exports.getSlotConfiguration = function(){
+	return config[CONSTANTS.COMMON.SLOT_CONFIG];
+};

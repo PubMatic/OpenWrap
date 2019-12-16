@@ -1035,28 +1035,33 @@ exports.ajaxRequest = function(url, callback, data, options) {
 };
 
 // Returns mediaTypes for adUnits which are sent to prebid
-exports.getMediaTypeObject = function(nativeConfig, sizes, currentSlot){
+exports.getMediaTypeObject = function(sizes, currentSlot){
 	var mediaTypeObject = {};
-	if(nativeConfig){
-		if( nativeConfig.kgp && nativeConfig.klm){
-			var kgp = nativeConfig.kgp;
-			var klm = nativeConfig.klm;
+	var slotConfig = CONFIG.getSlotConfiguration();
+	if(slotConfig){
+		if( slotConfig.slotType){
+			var kgp = slotConfig.slotType;
 			// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
 			// as we are only supporting div and ad unit, taking the first slot name.
 			// Implemented as per code review and discussion. 
 			var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
-			if(refThis.isOwnProperty(klm,kgpv)){
-				refThis.log("Native Config found for adSlot: " +  currentSlot);
-				var config = klm[kgpv];
-				mediaTypeObject["native"] = config.config;
-				if(config[CONSTANTS.COMMON.NATIVE_ONLY]){
+			if(refThis.isOwnProperty(slotConfig,kgpv)){
+				refThis.log("Config found for adSlot: " +  currentSlot);
+				var config = slotConfig[kgpv];
+				if(config.native && config.native.enabled){
+					mediaTypeObject["native"] = config.native;
+				}
+				if(config.video && config.video.enabled){
+					mediaTypeObject["video"] = config.video;
+				}
+				if(config.banner && !config.banner.enabled){
 					return mediaTypeObject;
 				}
 			} else{
-				refThis.log("Native Config not found for adSlot: " +  currentSlot);
+				refThis.log("Config not found for adSlot: " +  currentSlot);
 			}
 		} else{
-			refThis.logWarning("Native config not found or KGP/KLM missing in native config provided.");
+			refThis.logWarning("Slot Type not found in config. Please provide slotType in configuration");
 		}
 	}
 	mediaTypeObject["banner"] = {

@@ -380,7 +380,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	if(!util.isOwnProperty(adUnits, code)){
 		adUnits[code] = {
 			code: code,
-			mediaTypes: util.getMediaTypeObject(CONFIG.getNativeConfiguration(), sizes, currentSlot),
+			mediaTypes: util.getMediaTypeObject(sizes, currentSlot),
 			sizes: sizes,
 			bids: [],
 			divID : divID
