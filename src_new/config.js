@@ -157,6 +157,12 @@ exports.initConfig = function(){
 				slotLevelParams[ key ] = value;
 			});
 		});
+
+		util.forEachOnObject(adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP], function(kgpv, slotLevelParams){
+			util.forEachOnObject(adapterLevelParams, function(key, value){
+				slotLevelParams["rx_config"][ key ] = value;
+			});
+		});
 	});
 };
 
