@@ -230,7 +230,7 @@ exports.identityPartners = {
  * 3. Iterating 
  */
 
-var slotConfig = {
+exports.slotConfig = {
 	slotType:"_AU_",
 	"AU1": {
 		"banner": {

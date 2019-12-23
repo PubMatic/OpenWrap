@@ -1039,7 +1039,7 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 	var mediaTypeObject = {};
 	var slotConfig = CONFIG.getSlotConfiguration();
 	if(slotConfig){
-		if( slotConfig.slotType){
+		if(slotConfig.slotType || (slotConfig["slotType"] = "_AU_")){
 			var kgp = slotConfig.slotType;
 			// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
 			// as we are only supporting div and ad unit, taking the first slot name.
@@ -1049,10 +1049,10 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 				refThis.log("Config found for adSlot: " +  currentSlot);
 				var config = slotConfig[kgpv];
 				if(config.native && config.native.enabled){
-					mediaTypeObject["native"] = config.native;
+					mediaTypeObject["native"] = config.native["config"];
 				}
 				if(config.video && config.video.enabled){
-					mediaTypeObject["video"] = config.video;
+					mediaTypeObject["video"] = config.video["config"];
 				}
 				if(config.banner && !config.banner.enabled){
 					return mediaTypeObject;

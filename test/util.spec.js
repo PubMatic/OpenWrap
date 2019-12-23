@@ -2303,13 +2303,15 @@ describe('UTIL', function() {
     });
 
     describe('#getMediaTypeObject', function() {
-        var nativeConfiguration, sizes, currentSlot;
+        var slotConfiguration, sizes, currentSlot;
 
         beforeEach(function(done) {
-            sinon.stub(CONFIG,"getSlotConfiguration").returns({
+            slotConfiguration ={
                 slotType:"_DIV_", // Or it Could be _AU_
                 "DIV_1":{
-                    native:{enabled: false,
+                    banner:{enabled:true},
+                    native:{
+                        enabled: true,
                     config: {
                         image: {
                             required: true,
@@ -2326,26 +2328,9 @@ describe('UTIL', function() {
                             required: true
                         }
                     }
-                }},
-                "DIV_2":{
-                    native:{
-                        enabled: true,
-                        image: {
-                            required: true,
-                            sizes: [150, 50]
-                        },
-                        title: {
-                            required: true,
-                            len: 80
-                        },
-                        sponsoredBy: {
-                            required: true
-                        },
-                        body: {
-                            required: true
-                        }
                 }}
-            });
+            }
+            sinon.stub(CONFIG,"getSlotConfiguration").returns(slotConfiguration);
             sizes = [[300,250]];
             currentSlot = { 
                 getSizes: function(){
@@ -2369,7 +2354,7 @@ describe('UTIL', function() {
         });
 
         afterEach(function(done) {
-            nativeConfiguration = null;
+            slotConfiguration = null;
             sizes = null;
             commonDivID = "DIV_1";
             currentSlot.getDivID.restore();
@@ -2408,12 +2393,13 @@ describe('UTIL', function() {
                 }
             }
             var result = UTIL.getMediaTypeObject(sizes, currentSlot)
-            result.should.deep.equal(expectedResult);
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
             done();
         });
         
         it('should return mediaTypeObject with Native only if for that kgpv nativeOnly flag is set',function(done){
-            nativeConfiguration.klm["DIV_1"].nativeOnly = true;
+            slotConfiguration["DIV_1"].banner.enabled= false;
             var expectedResult =  { 
                 native: {
                     image: {
@@ -2444,13 +2430,13 @@ describe('UTIL', function() {
                 }
             };
             commonDivID = "DIV_3";
-            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot)
             result.should.deep.equal(expectedResult);
             done();
         });
 
         it('should return only banner if no configuration found for native', function(done){
-            nativeConfiguration = undefined;
+            delete slotConfiguration["DIV_1"].native;
             var expectedResult =  { 
                 banner: {
                     sizes: sizes
