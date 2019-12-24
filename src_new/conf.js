@@ -231,58 +231,61 @@ exports.identityPartners = {
  */
 
 exports.slotConfig = {
-	slotType:"_AU_",
-	"AU1": {
-		"banner": {
-			"enabled": true
-		},
-		"native": {
-			"enabled": true,
-			"config": {
-				"image": {
-					"required": true,
-					"sizes": [150, 50]
-				},
-				"title": {
-					"required": true,
-					"len": 80
-				},
-				"sponsoredBy": {
-					"required": true
-				},
-				"body": {
-					"required": true
+	"config_kgp": "_AU_",
+	"kgpv": {
+		"AU1": {
+			"banner": {
+				"enabled": true
+			},
+			"native": {
+				"enabled": true,
+				"config": {
+					"image": {
+						"required": true,
+						"sizes": [150, 50]
+					},
+					"title": {
+						"required": true,
+						"len": 80
+					},
+					"sponsoredBy": {
+						"required": true
+					},
+					"body": {
+						"required": true
+					}
+				}
+			},
+			"video": {
+				"enabled": true,
+				"config": {
+					"context":"instream",
+					"connectiontype": [1, 2, 6],
+					"minduration": 10,
+					"maxduration": 50,
+					"battr": [
+						6,
+						7
+					],
+					"skip": 1,
+					"skipmin": 10,
+					"skipafter": 15
 				}
 			}
 		},
-		"video": {
-			"enabled": true,
-			"config": {
-				"connectiontype": [1, 2, 6],
-				"minduration": 10,
-				"maxduration": 50,
-				"battr": [
-					6,
-					7
-				],
-				"skip": 1,
-				"skipmin": 10,
-				"skipafter": 15
+		"AU2": {
+			"banner": {}
+		},
+		"DEFAULT": {
+			"banner": {
+				"enabled": true
+			},
+			"native": {
+				"enabled": true
+			},
+			"video": {
+				"enabled": true
 			}
 		}
-	},
-	"DIV2": {
-		"banner": {}
-	},
-	"DEFAULT": {
-		"banner": {
-			"enabled": true
-		},
-		"native": {
-			"enabled": true
-		},
-		"video": {
-			"enabled": true
-		}
 	}
-}
+};

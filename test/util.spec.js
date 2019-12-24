@@ -2307,29 +2307,29 @@ describe('UTIL', function() {
 
         beforeEach(function(done) {
             slotConfiguration ={
-                slotType:"_DIV_", // Or it Could be _AU_
-                "DIV_1":{
+                config_kgp:"_DIV_", // Or it Could be _AU_
+                "kgpv":{"DIV_1":{
                     banner:{enabled:true},
                     native:{
                         enabled: true,
-                    config: {
-                        image: {
-                            required: true,
-                            sizes: [150, 50]
-                        },
-                        title: {
-                            required: true,
-                            len: 80
-                        },
-                        sponsoredBy: {
-                            required: true
-                        },
-                        body: {
-                            required: true
+                        config: {
+                            image: {
+                                required: true,
+                                sizes: [150, 50]
+                            },
+                            title: {
+                                required: true,
+                                len: 80
+                            },
+                            sponsoredBy: {
+                                required: true
+                            },
+                            body: {
+                                required: true
+                            }
                         }
-                    }
                 }}
-            }
+            }};
             sinon.stub(CONFIG,"getSlotConfiguration").returns(slotConfiguration);
             sizes = [[300,250]];
             currentSlot = { 
@@ -2399,7 +2399,7 @@ describe('UTIL', function() {
         });
         
         it('should return mediaTypeObject with Native only if for that kgpv nativeOnly flag is set',function(done){
-            slotConfiguration["DIV_1"].banner.enabled= false;
+            slotConfiguration["kgpv"]["DIV_1"].banner.enabled= false;
             var expectedResult =  { 
                 native: {
                     image: {
@@ -2436,7 +2436,7 @@ describe('UTIL', function() {
         });
 
         it('should return only banner if no configuration found for native', function(done){
-            delete slotConfiguration["DIV_1"].native;
+            delete slotConfiguration["kgpv"]["DIV_1"].native;
             var expectedResult =  { 
                 banner: {
                     sizes: sizes

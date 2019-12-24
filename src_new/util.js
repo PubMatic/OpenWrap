@@ -1039,15 +1039,15 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 	var mediaTypeObject = {};
 	var slotConfig = CONFIG.getSlotConfiguration();
 	if(slotConfig){
-		if(slotConfig.slotType || (slotConfig["slotType"] = "_AU_")){
-			var kgp = slotConfig.slotType;
+		if(slotConfig.config_kgp || (slotConfig["config_kgp"] = "_AU_")){
+			var kgp = slotConfig.config_kgp;
 			// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
 			// as we are only supporting div and ad unit, taking the first slot name.
 			// Implemented as per code review and discussion. 
 			var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
-			if(refThis.isOwnProperty(slotConfig,kgpv)){
+			if(refThis.isOwnProperty(slotConfig[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE],kgpv)){
 				refThis.log("Config found for adSlot: " +  currentSlot);
-				var config = slotConfig[kgpv];
+				var config = slotConfig[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE][kgpv];
 				if(config.native && config.native.enabled){
 					mediaTypeObject["native"] = config.native["config"];
 				}

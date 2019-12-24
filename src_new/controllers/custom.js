@@ -363,11 +363,7 @@ function generateConfForGPT(arrayOfGPTSlots) {
 			divId: divId,
 			adUnitId: adUnitId,
 			adUnitIndex: adUnitIndex,
-			mediaTypes: {
-				banner: {
-					sizes: sizes
-				}
-			}
+			mediaTypes: util.getMediaTypeObject(sizes, googleSlot)
 		});
 	});
 
