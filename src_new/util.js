@@ -230,15 +230,19 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 		if( sizeArrayLength > 0){
 			for(i = 0; i < sizeArrayLength; i++){
 				/* istanbul ignore else */
-				if(sizeArray[i].length == 2 && sizeArray[i][0] && sizeArray[i][1]){
-
+				if((sizeArray[i].length == 2 && sizeArray[i][0] && sizeArray[i][1]) || (refThis.isFunction(sizeArray[i].getWidth) && refThis.isFunction(sizeArray[i].getHeight))){
+					var adUnitId = refThis.isFunction(activeSlot.getAdUnitID) ? activeSlot.getAdUnitID() : activeSlot.getSlotId().getAdUnitPath();
+					var divId = refThis.isFunction(activeSlot.getDivID) ? activeSlot.getDivID() : activeSlot.getSlotId().getDomId();
+					var adUnitIndex = refThis.isFunction(activeSlot.getAdUnitIndex) ? activeSlot.getAdUnitIndex() : activeSlot.getSlotId().getId().split("_")[1];
+					var width = sizeArray[i][0] || sizeArray[i].getWidth();
+					var height = sizeArray[i][1] || sizeArray[i].getHeight();
 					slotName = pattern;
-					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, activeSlot.getAdUnitID())
-                    .replace(constCommonMacroForWidthRegExp, sizeArray[i][0])
-                    .replace(constCommonMacroForHeightRegExp, sizeArray[i][1])
-                    .replace(constCommonMacroForAdUnitIndexRegExp, activeSlot.getAdUnitIndex())
+					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, adUnitId)
+                    .replace(constCommonMacroForWidthRegExp, width)
+                    .replace(constCommonMacroForHeightRegExp, height)
+                    .replace(constCommonMacroForAdUnitIndexRegExp, adUnitIndex)
                     .replace(constCommonMacroForIntegerRegExp, refThis.getIncrementalInteger())
-                    .replace(constCommonMacroForDivRegExp, activeSlot.getDivID());
+                    .replace(constCommonMacroForDivRegExp, divId);
 
                     /* istanbul ignore else */
 					if(! refThis.isOwnProperty(slotNamesObj, slotName)){
@@ -394,7 +398,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				generatedKey,
 				kgpConsistsWidthAndHeight,
 				activeSlot,
-				keyConfig,
+				refThis.getPartnerParams(keyConfig),
 				sizeArray[j][0],
 				sizeArray[j][1],
 				regexPattern
@@ -1045,9 +1049,9 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 			// as we are only supporting div and ad unit, taking the first slot name.
 			// Implemented as per code review and discussion. 
 			var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
-			if(refThis.isOwnProperty(slotConfig[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE],kgpv)){
-				refThis.log("Config found for adSlot: " +  currentSlot);
-				var config = slotConfig[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE][kgpv];
+			if(refThis.isOwnProperty(slotConfig[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE],kgpv) || refThis.isOwnProperty(slotConfig[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE],CONSTANTS.COMMON.DEFAULT)){
+				refThis.log("Config found for adSlot: " +  JSON.stringify(currentSlot));
+				var config = slotConfig[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE][kgpv] || slotConfig[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE][CONSTANTS.COMMON.DEFAULT];
 				if(config.native && config.native.enabled){
 					mediaTypeObject["native"] = config.native["config"];
 				}
@@ -1058,7 +1062,7 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 					return mediaTypeObject;
 				}
 			} else{
-				refThis.log("Config not found for adSlot: " +  currentSlot);
+				refThis.log("Config not found for adSlot: " +  JSON.stringify(currentSlot));
 			}
 		} else{
 			refThis.logWarning("Slot Type not found in config. Please provide slotType in configuration");
@@ -1261,4 +1265,17 @@ exports.getUserIdParams = function(params){
 		}
 	}	
 	return userIdParams;
+};
+
+exports.getPartnerParams = function(params){
+	var pparams= {};
+	for(var key in params){
+		try{
+			pparams = refThis.getNestedObjectFromString(pparams,".",key,params[key]);
+		}
+		catch(ex){
+			refThis.logWarning(CONSTANTS.MESSAGES.M29, ex);
+		}
+	}	
+	return pparams;
 };

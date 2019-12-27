@@ -128,15 +128,15 @@ function validateAdUnitObject(anAdUnitObject) {
 
 	// ToDo: in future we need to support native as well
 
-	if (!util.isObject(anAdUnitObject.mediaTypes.banner)) {
+	if (!util.isObject(anAdUnitObject.mediaTypes.banner) && !util.isObject(anAdUnitObject.mediaTypes.native) && !util.isObject(anAdUnitObject.mediaTypes.video)) {
 		util.error("An anAdUnitObject.mediaTypes should have a property named banner and it should be an object", anAdUnitObject);
 		return false;
 	}
 
-	if (!util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
-		util.error("An anAdUnitObject.mediaTypes.banner should have a property named sizes and it should be an array", anAdUnitObject);
-		return false;
-	}
+	// if (!util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
+	// 	util.error("An anAdUnitObject.mediaTypes.banner should have a property named sizes and it should be an array", anAdUnitObject);
+	// 	return false;
+	// }
 
 	return true;
 }
@@ -147,8 +147,16 @@ exports.validateAdUnitObject = validateAdUnitObject;
 function getAdSlotSizesArray(anAdUnitObject) {
 	//ToDo: need to habdle fluid sizes
 	// ToDo: for now supporting only banner sizes, need to support native as well
-	if (anAdUnitObject && anAdUnitObject.mediaTypes && anAdUnitObject.mediaTypes.banner && util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
-		return anAdUnitObject.mediaTypes.banner.sizes;
+	if (anAdUnitObject && anAdUnitObject.mediaTypes){
+		if(anAdUnitObject.mediaTypes.banner && util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
+			return anAdUnitObject.mediaTypes.banner.sizes;
+		}
+		//TODO : Confirm about the below configuration and correct if needed
+		if(anAdUnitObject.mediaTypes.video && util.isArray(anAdUnitObject.mediaTypes.video.playerSize)) {
+			return [anAdUnitObject.mediaTypes.video.playerSize];
+		}
+
+		//TODO : Also handle native only configuration
 	}
 	return [];
 }

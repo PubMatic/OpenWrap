@@ -317,7 +317,7 @@ exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight,regexPattern){
 
 	var code, sizes, divID = currentSlot.getDivID();
-	
+	var mediaTypeConfig;
 	if(!refThis.isSingleImpressionSettingEnabled){
 		if(kgpConsistsWidthAndHeight){
 			code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
@@ -378,9 +378,10 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(adUnits, code)){
+		mediaTypeConfig = util.getMediaTypeObject(sizes, currentSlot);
 		adUnits[code] = {
 			code: code,
-			mediaTypes: util.getMediaTypeObject(sizes, currentSlot),
+			mediaTypes:mediaTypeConfig ,
 			sizes: sizes,
 			bids: [],
 			divID : divID
@@ -392,11 +393,27 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 
 	var slotParams = {};
+	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video")){
+		slotParams["video"]= mediaTypeConfig.video;
+	}
 	util.forEachOnObject(keyConfig, function(key, value){
 		/* istanbul ignore next */
 		slotParams[key] = value;
 	});
 
+	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video")){
+		if(util.isOwnProperty(slotParams,"video")){
+			util.forEachOnObject(mediaTypeConfig.video, function(key, value){
+				if(!util.isOwnProperty(slotParams["video"],key)){
+					slotParams["video"][key] = value;
+				}
+			});
+		}
+		else {
+			slotParams["video"]= mediaTypeConfig.video;
+		}
+	}
+	
 	//processing for each partner
 	switch(adapterID){
 

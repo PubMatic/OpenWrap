@@ -6,7 +6,7 @@ exports.pwt = {
 	pubid: "9999",
 	dataURL: "t.test-domain.com/logger?",
 	winURL: "t.test-domain.com/tracker?",
-	adserver: "DFP",
+	adserver: "CUSTOM",
 	gdpr: "0",
 	cmpApi: "iab",
 	gdprTimeout: "10000",
@@ -31,8 +31,8 @@ exports.adapters = {
 	audienceNetwork: {
 		rev_share: "0.0",
 		throttle: "100",
-		kgp_rx: "_DIV_",
-		klm_rx: {
+		kgp: "_DIV_",
+		klm: {
 			"Div_1": {
 				placementId: "8801674"
 			},
@@ -60,7 +60,9 @@ exports.adapters = {
 		kgp: "_DIV_",
 		klm: {
 			"Div_1": {
-				placementId: "8801674"
+				placementId: "8801674",
+				"video.mimes":"",
+				"video.minduration":""
 			},
 			"Div-2": {
 				placementId: "8801685"
@@ -231,9 +233,9 @@ exports.identityPartners = {
  */
 
 exports.slotConfig = {
-	"config_kgp": "_AU_",
+	"config_kgp": "_DIV_",
 	"kgpv": {
-		"AU1": {
+		"Div1": {
 			"banner": {
 				"enabled": true
 			},
@@ -275,17 +277,6 @@ exports.slotConfig = {
 		},
 		"AU2": {
 			"banner": {}
-		},
-		"DEFAULT": {
-			"banner": {
-				"enabled": true
-			},
-			"native": {
-				"enabled": true
-			},
-			"video": {
-				"enabled": true
-			}
 		}
 	}
 };

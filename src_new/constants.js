@@ -33,7 +33,8 @@ exports.COMMON = {
 	"TAM":"tam",
 	"PREBID":"prebid",	
 	"PROTOCOL" : "https://",
-	"SLOT_CONFIG": "slotConfig"	
+	"SLOT_CONFIG": "slotConfig"	,
+	"DEFAULT": "DEFAULT"
 };
 
 exports.CONFIG = {
@@ -159,6 +160,7 @@ exports.MESSAGES = {
 	"M26": "Currency Module is Activated. Ad Server Currency is: ",
 	"M27": "Invalid regex pattern ",
 	"M28": "Unable to match regex pattern as kgpv length is not 3",
+	"M29": "Unable to parse Partner configuration",
 	IDENTITY:{
 		M1: "Unable to get User Id from OpenIdentity",
 		M2: "Setting UserIds to EB ",
