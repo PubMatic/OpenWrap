@@ -1231,7 +1231,8 @@ describe('UTIL', function() {
                     "protocol",
                     "secure",
                     "isInIframe",
-                    "pageURL"
+                    "pageURL",
+                    "pageDomain"
                 ]);
             done();
         });
@@ -2947,5 +2948,18 @@ describe('UTIL', function() {
             done();
         });
 
+    });
+
+    describe('#getDomainFromURL', function(){
+        it('is a function', function(done) {
+            UTIL.getDomainFromURL.should.be.a('function');
+            done();
+        });
+
+        it('return correct value', function(done){
+            var result = UTIL.getDomainFromURL('http://www.example.com/12xy45');
+            result.should.equal('www.example.com');
+            done();
+        });
     });
 });
