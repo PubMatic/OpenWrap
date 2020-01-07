@@ -1266,14 +1266,13 @@ exports.getUserIdParams = function(params){
 	return userIdParams;
 };
 
+exports.getDomainFromURL = function(url){
+	var a = window.document.createElement("a");
+	a.href = url;
+	return a.hostname;
+};
 
 exports.replaceAuctionPrice = function(str, cpm) {
 	if (!str) return;
 	return str.replace(/\$\{AUCTION_PRICE\}/g, cpm);
-};
-
-exports.getDomainFromURL = function(url){
-	var a = window.document.createElement('a');
-	a.href = url;
-  	return a.hostname;
 };
