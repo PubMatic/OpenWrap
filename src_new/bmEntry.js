@@ -10,6 +10,7 @@ function BMEntry(name){
 	this.impressionID = "";
 	this.analyticsEnabled = false;
 	this.expired = false;
+	this.allPossibleBidsReceived = false; // Boolean: this flag will be set to true when Prebid has received all possible bids and Prebid has executed "bidsBackHandler" of pbjs.requestBids
 }
 
 BMEntry.prototype.setExpired = function(){
@@ -88,6 +89,15 @@ BMEntry.prototype.getLastBidIDForAdapter = function(adapterID){
 		return this.adapters[adapterID].getLastBidID();
 	}
 	return "";
+};
+
+BMEntry.prototype.setAllPossibleBidsReceived = function(){
+	this.allPossibleBidsReceived = true;
+	return this;
+};
+
+BMEntry.prototype.hasAllPossibleBidsReceived = function(){
+	return this.allPossibleBidsReceived;
 };
 
 

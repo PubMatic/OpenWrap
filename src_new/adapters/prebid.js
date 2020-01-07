@@ -28,8 +28,14 @@ exports.kgpvMap = kgpvMap;
 var refThis = this;
 var timeoutForPrebid = CONFIG.getTimeout()-50;
 var onEventAdded = false;
+var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
 
-function transformPBBidToOWBid(bid, kgpv){
+/* start-test-block */
+exports.isSingleImpressionSettingEnabled = isSingleImpressionSettingEnabled;
+/* end-test-block */
+
+function transformPBBidToOWBid(bid, kgpv, regexPattern){
+	var rxPattern = regexPattern || bid.regexPattern || undefined;
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
 	var pubmaticServerErrorCode = parseInt(bid.pubmaticServerErrorCode);
 
@@ -44,10 +50,14 @@ function transformPBBidToOWBid(bid, kgpv){
 	if(bid.native){
 		theBid.setNative(bid.native);
 	}
+	if(rxPattern){
+		theBid.setRegexPattern(rxPattern);
+	}
 
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
 	// Check if currency conversion is enabled or not
+	/*istanbul ignore else */
 	if(CONFIG.getAdServerCurrency()){
 		// if a bidder has same currency as of pbConf.currency.adServerCurrency then Prebid does not set pbBid.originalCurrency and pbBid.originalCurrency value
 		// thus we need special handling
@@ -67,16 +77,18 @@ function transformPBBidToOWBid(bid, kgpv){
 	}
 	/*
 		errorCodes meaning:
-		1 = GADS_UNMAPPED_SLOT_ERROR
-		2 = GADS_MISSING_CONF_ERROR
+		1 = UNMAPPED_SLOT_ERROR
+		2 = MISSING_CONF_ERROR
 		3 = TIMEOUT_ERROR
 		4 = NO_BID_PREBID_ERROR
 		5 = PARTNER_TIMEDOUT_ERROR
 		6 = INVALID_CONFIGURATION_ERROR
 		7 = NO_GDPR_CONSENT_ERROR
+		11 = ALL_PARTNER_THROTTLED
+		12 = PARTNER_THROTTLED
 		500 = API_RESPONSE_ERROR
 	*/
-	if(pubmaticServerErrorCode === 1 || pubmaticServerErrorCode === 2 || pubmaticServerErrorCode === 6) {
+	if(pubmaticServerErrorCode === 1 || pubmaticServerErrorCode === 2 || pubmaticServerErrorCode === 6 || pubmaticServerErrorCode === 11 || pubmaticServerErrorCode === 12) {
 		theBid.setDefaultBidStatus(-1);
 		theBid.setWidth(0);
 		theBid.setHeight(0);
@@ -105,27 +117,33 @@ exports.transformPBBidToOWBid = transformPBBidToOWBid;
 // This function is used to check size for the winning kgpv and if size is different then winning then modify it
 // to have same code for logging and tracking 
 function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
-	var responseKGPV= "";
+	var responseObject={
+		"responseKGPV" : "",
+		"responseRegex": ""
+	};
 
 	// Logic to find out KGPV for partner for which the bid is recieved.
 	// Need to check for No Bid Case.
 	kgpv.kgpvs.length > 0 && kgpv.kgpvs.forEach(function(ele){
 		/* istanbul ignore else */
 		if(bid.bidderCode == ele.adapterID){
-			responseKGPV = ele.kgpv;
+			responseObject.responseKGPV = ele.kgpv;
+			responseObject.responseRegex = ele.regexPattern;
 		}
 	});
-	var responseIdArray = responseKGPV.split("@");
+	var responseIdArray = responseObject.responseKGPV.split("@");
+	var sizeIndex = 1;
+	var isRegex = false;
 	/* istanbul ignore else */
-	if(responseIdArray &&  responseIdArray.length == 2){
-		var responseIdSize = responseIdArray[1];
+	if(responseIdArray &&  (responseIdArray.length == 2 || ((responseIdArray.length == 3) && (sizeIndex = 2) && (isRegex=true)))){
+		var responseIdSize = responseIdArray[sizeIndex];
 		var responseIndex = null;
 		// Below check if ad unit index is present then ignore it
 		// TODO: Confirm it needs to be ignored or not
 		/* istanbul ignore else */
-		if(responseIdArray[1].indexOf(":")>0){
-			responseIdSize= responseIdArray[1].split(":")[0];
-			responseIndex = responseIdArray[1].split(":")[1];
+		if(responseIdArray[sizeIndex].indexOf(":")>0){
+			responseIdSize= responseIdArray[sizeIndex].split(":")[0];
+			responseIndex = responseIdArray[sizeIndex].split(":")[1];
 		}
 		/* istanbul ignore else */
 		if(bid.getSize() && bid.getSize() != responseIdSize && (bid.getSize().toUpperCase() != "0X0")){
@@ -136,22 +154,26 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 			if(responseIdArray[0].toUpperCase() == responseIdSize.toUpperCase()){
 				responseIdArray[0] = bid.getSize().toLowerCase();
 			}
-			responseKGPV = responseIdArray[0] + "@" +  bid.getSize();
+			if(isRegex){
+				responseObject.responseKGPV = responseIdArray[0] + "@" + responseIdArray[1] + "@" +  bid.getSize();
+			}
+			else{
+				responseObject.responseKGPV = responseIdArray[0] + "@" +  bid.getSize();
+			}
 			// Below check is to make consistent behaviour with ad unit index
 			// it again appends index if it was originally present
 			if(responseIndex){
-				responseKGPV = responseKGPV + ":" + responseIndex;
+				responseObject.responseKGPV = responseObject.responseKGPV + ":" + responseIndex;
 			}
 		}
 	
 	}
-	return responseKGPV;
+	return responseObject;
 }
 
 /* start-test-block */
 exports.checkAndModifySizeOfKGPVIfRequired = checkAndModifySizeOfKGPVIfRequired;
 /* end-test-block */
-
 
 function pbBidStreamHandler(pbBid){
 	var responseID = pbBid.adUnitCode || "";
@@ -169,10 +191,15 @@ function pbBidStreamHandler(pbBid){
 
 		// If Single impression is turned on then check and modify kgpv as per bid response size
 		/* istanbul ignore else */
-		if(CONFIG.isSingleImpressionSettingEnabled()){
+		if(refThis.isSingleImpressionSettingEnabled){
 			// Assinging kbpv after modifying and will be used for logger and tracker purposes
 			// this field will be replaced everytime a bid is received with single impression feature on
-			refThis.kgpvMap[responseID].kgpv = refThis.checkAndModifySizeOfKGPVIfRequired(pbBid,refThis.kgpvMap[responseID]);
+			var kgpvAndRegexOfBid = refThis.checkAndModifySizeOfKGPVIfRequired(pbBid,refThis.kgpvMap[responseID]);
+			refThis.kgpvMap[responseID].kgpv =kgpvAndRegexOfBid.responseKGPV;
+			refThis.kgpvMap[responseID].regexPattern =kgpvAndRegexOfBid.responseRegex;
+			// : Put a field Regex Pattern in KGPVMAP so that it can be passed on to the bid and to the logger
+			// Something like this refThis.kgpvMap[responseID].regexPattern = pbBid.refThis.kgpvMap[responseID].regexPattern;
+
 		}
 
 		/*
@@ -192,7 +219,7 @@ function pbBidStreamHandler(pbBid){
 		/* istanbul ignore else */
 		if(pbBid.bidderCode && CONFIG.isServerSideAdapter(pbBid.bidderCode)){
 			var divID = refThis.kgpvMap[responseID].divID;
-			if(!CONFIG.isSingleImpressionSettingEnabled()){
+			if(!refThis.isSingleImpressionSettingEnabled){
 				var temp1 = refThis.getPBCodeWithWidthAndHeight(divID, pbBid.bidderCode, pbBid.width, pbBid.height);
 				var temp2 = refThis.getPBCodeWithoutWidthAndHeight(divID, pbBid.bidderCode);
 
@@ -201,7 +228,7 @@ function pbBidStreamHandler(pbBid){
 				}else if(util.isOwnProperty(refThis.kgpvMap, temp2)){
 					responseID = temp2;
 				}else{
-					util.log('Failed to find kgpv details for S2S-adapter:'+ pbBid.bidderCode);
+					util.logWarning("Failed to find kgpv details for S2S-adapter:"+ pbBid.bidderCode);
 					return;
 				}
 			}
@@ -220,11 +247,11 @@ function pbBidStreamHandler(pbBid){
 			}			
 			bidManager.setBidFromBidder(
 				refThis.kgpvMap[responseID].divID,
-				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv)
+				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv,refThis.kgpvMap[responseID].regexPattern)
 			);
 		}
 	}else{
-		util.log('Failed to find pbBid.adUnitCode in kgpvMap, pbBid.adUnitCode:'+ pbBid.adUnitCode);
+		util.logWarning("Failed to find pbBid.adUnitCode in kgpvMap, pbBid.adUnitCode:"+ pbBid.adUnitCode);
 	}
 }
 
@@ -287,11 +314,11 @@ function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
 
-function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
+function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight,regexPattern){
 
 	var code, sizes, divID = currentSlot.getDivID();
 	
-	if(!CONFIG.isSingleImpressionSettingEnabled()){
+	if(!refThis.isSingleImpressionSettingEnabled){
 		if(kgpConsistsWidthAndHeight){
 			code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
 			sizes = [[currentWidth,currentHeight]];
@@ -301,7 +328,8 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		}
 		refThis.kgpvMap [ code ] = {
 			kgpv: generatedKey,
-			divID: divID
+			divID: divID,
+			regexPattern:regexPattern
 		};
 	} else{
 		/* This will be executed in case single impression feature is enabled.
@@ -336,7 +364,8 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		if(!adapterAlreadyExsistsInKGPVS){
 			var kgpv = {
 				adapterID: adapterID,
-				kgpv:generatedKey
+				kgpv:generatedKey,
+				regexPattern:regexPattern
 			};
 			refThis.kgpvMap[code].kgpvs.push(kgpv);
 		}
@@ -356,7 +385,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			bids: [],
 			divID : divID
 		};
-	}else if(CONFIG.isSingleImpressionSettingEnabled()){
+	}else if(refThis.isSingleImpressionSettingEnabled){
 		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
 			return;
 		}
@@ -388,12 +417,13 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			break;
 
 		case "pubmatic":
+	case "pubmatic2":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
-			slotParams["adSlot"] = generatedKey;
+		slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
 			slotParams["wiid"] = impressionID;
-			slotParams["profId"] = CONFIG.getProfileID();
+		slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
-			if(window.PWT.udpv){
+		if(adapterID != "pubmatic2" && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
@@ -419,7 +449,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 				});
 				slotParams["width"] = size[0];
 				slotParams["height"] = size[1];
+			if(!(refThis.isSingleImpressionSettingEnabled && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			}
 			});
 			break;
 
@@ -431,7 +463,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 					slotParams[key] = value;
 				});
 				slotParams["adSize"] = size[0] + "x" + size[1];
+			if(!(refThis.isSingleImpressionSettingEnabled && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
+			}
 			});
 			break;
 	case "ix":
@@ -478,8 +512,6 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 		impressionID,
 		[],
 		activeSlots,
-		adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
-		adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
 		refThis.generatedKeyCallback,
 		// serverSideEabled: do not set default bids as we do not want to throttle them at client-side
 		true // !CONFIG.isServerSideAdapter(adapterID)
@@ -508,7 +540,7 @@ function fetchBids(activeSlots, impressionID){
 
 	/* istanbul ignore else */
 	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
-		util.log("PreBid js is not loaded");
+		util.logError("PreBid js is not loaded");
 		return;
 	}
 
@@ -519,7 +551,7 @@ function fetchBids(activeSlots, impressionID){
 			onEventAdded = true;
 		}		
 	} else {
-		util.log("PreBid js onEvent method is not available");
+		util.logWarning("PreBid js onEvent method is not available");
 		return;
 	}
 
@@ -607,6 +639,10 @@ function fetchBids(activeSlots, impressionID){
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 
+				if(CONFIG.isUserIdModuleEnabled()){
+					prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+				}
+
 				window[pbNameSpace].setConfig(prebidConfig);
 			}
 
@@ -631,6 +667,9 @@ function fetchBids(activeSlots, impressionID){
 						util.log(bidResponses);
 						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
 						//refThis.handleBidResponses(bidResponses);
+						util.forEachOnObject(bidResponses, function(responseID, bidResponse){
+							bidManager.setAllPossibleBidsReceived(refThis.kgpvMap[responseID].divID);
+						});
 					},
 					timeout: timeoutForPrebid
 				});
@@ -639,8 +678,8 @@ function fetchBids(activeSlots, impressionID){
 				return;
 			}
 		} catch (e) {
-			util.log('Error occured in calling PreBid.');
-			util.log(e);
+			util.logError("Error occured in calling PreBid.");
+			util.logError(e);
 		}
 	}
 }
@@ -654,6 +693,37 @@ function getParenteAdapterID() {
 	return refThis.parentAdapterID;
 }
 
+function setConfig(){
+	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
+		var prebidConfig = {
+			debug: util.isDebugLogEnabled(),
+			userSync: {
+				syncDelay: 2000
+			}
+		};
+
+		if (CONFIG.getGdpr()) {
+			prebidConfig["consentManagement"] = {
+				cmpApi: CONFIG.getCmpApi(),
+				timeout: CONFIG.getGdprTimeout(),
+				allowAuctionWithoutConsent: CONFIG.getAwc()
+			};
+		}
+
+		// Adding a hook for publishers to modify the Prebid Config we have generated
+		// util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+
+		if(CONFIG.isUserIdModuleEnabled()){
+			prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+		}
+
+		window[pbNameSpace].setConfig(prebidConfig);
+		window[pbNameSpace].requestBids([]);
+	}
+}
+
+exports.setConfig = setConfig;
+
 /* start-test-block */
 exports.getParenteAdapterID = getParenteAdapterID;
 /* end-test-block */
@@ -661,6 +731,7 @@ exports.getParenteAdapterID = getParenteAdapterID;
 exports.register = function(){
 	return {
 		fB: refThis.fetchBids,
-		ID: refThis.getParenteAdapterID
+		ID: refThis.getParenteAdapterID,
+		sC:	refThis.setConfig
 	};
 };

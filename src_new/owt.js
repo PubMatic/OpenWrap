@@ -38,7 +38,7 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 		JSON.stringify({
 			pwt_type: "1",
 			pwt_bidID: bidID,
-			pwt_origin: window.location.protocol+"//"+window.location.hostname
+			pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
 		}),
 		"*"
 	);
@@ -51,7 +51,7 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 		JSON.stringify({
 			pwt_type: "1",
 			pwt_bidID: util.getBididForPMP(values, priorityArray),
-			pwt_origin: window.location.protocol+"//"+window.location.hostname
+			pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
 		}),
 		"*"
 	);
@@ -63,6 +63,9 @@ window.PWT.initNativeTrackers = function(theDocument,bidID){
 	bidManager.executeTracker(bidID);
 };
 
+window.PWT.getUserIds = function(){
+	return util.getUserIds();
+};
 
 window.OWT = {
 	notifyCount: 0, // To maintain the id which should be return after externalBidder registered

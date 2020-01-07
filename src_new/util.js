@@ -21,9 +21,7 @@ var typeString = "String";
 var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
-
 var refThis = this;
-
 
 function isA(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
@@ -78,6 +76,10 @@ exports.enableVisualDebugLog = function(){
 	refThis.visualDebugLogIsEnabled = true;
 };
 
+exports.isEmptyObject= function(object){
+	return refThis.isObject(object) && Object.keys(object).length === 0;
+};
+
 //todo: move...
 var constDebugInConsolePrependWith = "[OpenWrap] : ";
 var constErrorInConsolePrependWith = "[OpenWrap] : [Error]";
@@ -89,6 +91,26 @@ exports.log = function(data){
 			console.log( (new Date()).getTime()+ " : " + constDebugInConsolePrependWith + data ); // eslint-disable-line no-console
 		}else{
 			console.log(data); // eslint-disable-line no-console
+		}
+	}
+};
+
+exports.logError = function(data){
+	if( refThis.debugLogIsEnabled && console && this.isFunction(console.log) ){ // eslint-disable-line no-console
+		if(this.isString(data)){
+			console.error( (new Date()).getTime()+ " : " + constDebugInConsolePrependWith + data ); // eslint-disable-line no-console
+		}else{
+			console.error(data); // eslint-disable-line no-console
+		}
+	}
+};
+
+exports.logWarning = function(data){
+	if( refThis.debugLogIsEnabled && console && this.isFunction(console.log) ){ // eslint-disable-line no-console
+		if(this.isString(data)){
+			console.warn( (new Date()).getTime()+ " : " + constDebugInConsolePrependWith + data ); // eslint-disable-line no-console
+		}else{
+			console.warn(data); // eslint-disable-line no-console
 		}
 	}
 };
@@ -237,12 +259,12 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 	;
 	/* istanbul ignore else */
 	if(!object || !refThis.isObject(object) || refThis.isArray(object)){
-		refThis.log(adapterID + "provided object is invalid.");
+		refThis.logWarning(adapterID + "provided object is invalid.");
 		return error;
 	}
 	/* istanbul ignore else */
 	if(!refThis.isArray(keys)){
-		refThis.log(adapterID + "provided keys must be in an array.");
+		refThis.logWarning(adapterID + "provided keys must be in an array.");
 		return error;
 	}
 
@@ -256,7 +278,7 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 	for(var i=0; i<arrayLength; i++){
 		/* istanbul ignore else */
 		if(!refThis.isOwnProperty(object, keys[i])){
-			refThis.log(adapterID + ": "+keys[i]+", mandatory parameter not present.");
+			refThis.logError(adapterID + ": "+keys[i]+", mandatory parameter not present.");
 			return error;
 		}
 	}
@@ -264,67 +286,125 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 	return success;
 };
 
-exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids){
+/**
+ * todo:
+ * 		if direct mapping is not found 
+ * 		then look for regex mapping
+ * 			separate function to handle regex mapping
+ * 			kgp: "" // should be filled with whatever value
+ * 			klm: {} // should be filled with records if required else leave it as an empty object {}
+ * 			kgp_rx: "" // regex pattern
+ * 			klm_rx: [
+ * 				{
+ * 					rx: "ABC123*",
+ * 					rx_config: {} // here goes adapyter config
+ * 				}, 
+ * 
+ * 				{
+ * 					rx: "*",
+ * 					rx_config: {}
+ * 				}
+ * 			]
+ */
+
+ /**
+  *  Algo for Regex and Normal Flow
+  * 1. Check for kgp key 
+  *   a). If KGP is present for partner then proceed with old flow and no change in that
+  *   b). If KGP is not present and kgp_rx is present it is regex flow and proceed with regex flow as below
+  * 2. Regex Flow
+  * 	a. Generate KGPV's with kgp as _AU_@_DIV_@_W_x_H_
+  * 	b. Regex Match each KGPV with KLM_rx 
+  * 	c. Get config for the partner 
+  *     d. Send the config to prebid and log the same kgpv in logger
+  * 
+  * Special Case for Pubmatic
+  *  1. In case of regex flow we will have hashed keys which will be sent to translator for matching
+  *  2. These hashed keys could be same for multiple slot on the page and hence need to check how to send it to prebid for 
+  *     identification in prebid resposne.
+  */
+
+exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids){
 	var activeSlotsLength = activeSlots.length,
-		i,
-		j,
-		generatedKeys,
-		generatedKeysLength,
-		kgpConsistsWidthAndHeight
-		;
+		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_GENERATION_PATTERN] || "";
 	/* istanbul ignore else */
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
-		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
-		for(i = 0; i < activeSlotsLength; i++){
-			var activeSlot = activeSlots[i];
-			generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
-			generatedKeysLength =  generatedKeys.length;
-			for(j = 0; j < generatedKeysLength; j++){
-				var generatedKey = generatedKeys[j],
-					keyConfig = null,
-					callHandlerFunction = false,
-					sizeArray = activeSlot.getSizes()
-					;
-
-				if(keyLookupMap == null){
-					callHandlerFunction = true;
-				}else{
-					keyConfig = keyLookupMap[generatedKey];
-					if(!keyConfig){
-						refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
-					}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-						refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
-					}else{
-						callHandlerFunction = true;
-					}
-				}
-
-				/* istanbul ignore else */
-				if(callHandlerFunction){
-
-					if(addZeroBids == true){
-						var bid = BID.createBid(adapterID, generatedKey);
-						bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
-						bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
-					}
-
-					handlerFunction(
-						adapterID,
-						adUnits,
-						adapterConfig,
-						impressionID,
-						generatedKey,
-						kgpConsistsWidthAndHeight,
-						activeSlot,
-						keyLookupMap ? keyLookupMap[generatedKey] : null,
-						sizeArray[j][0],
-						sizeArray[j][1]
-					);
-				}
-			}
-		}
+		refThis.forEachOnArray(activeSlots, function(i, activeSlot){
+			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
+			if(generatedKeys.length > 0){
+				refThis.callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids, keyGenerationPattern);
+			} 		
+		});
 	}
 };
+
+// private
+function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern){
+	var keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] || null,
+		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
+	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
+	var regexPattern = undefined;
+	refThis.forEachOnArray(generatedKeys, function(j, generatedKey){
+		var keyConfig = null,
+			callHandlerFunction = false,
+			sizeArray = activeSlot.getSizes()			
+			;
+
+		if(keyLookupMap == null){
+			callHandlerFunction = true;
+		}else{
+			if(isRegexMapping){ 
+				refThis.log(console.time("Time for regexMatching for key " + generatedKey));
+				var config = refThis.getConfigFromRegex(keyLookupMap,generatedKey);
+				refThis.log(console.timeEnd("Time for regexMatching for key " + generatedKey));
+
+				if(config){
+					keyConfig = config.config;
+					regexPattern = config.regexPattern;
+				}
+			}
+			else{
+				keyConfig = keyLookupMap[generatedKey];
+			}
+			if(!keyConfig){
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
+			}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
+			}else{
+				callHandlerFunction = true;
+			}
+		}
+
+		/* istanbul ignore else */
+		if(callHandlerFunction){
+
+			/* istanbul ignore else */
+			if(addZeroBids == true){
+				var bid = BID.createBid(adapterID, generatedKey);
+				bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
+				bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
+				bid.setRegexPattern(regexPattern);
+			}
+
+			handlerFunction(
+				adapterID,
+				adUnits,
+				adapterConfig,
+				impressionID,
+				generatedKey,
+				kgpConsistsWidthAndHeight,
+				activeSlot,
+				keyConfig,
+				sizeArray[j][0],
+				sizeArray[j][1],
+				regexPattern
+			);
+		}
+	});
+}
+/* start-test-block */
+exports.callHandlerFunctionForMapping = callHandlerFunctionForMapping;
+/* end-test-block */
 
 exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
@@ -349,7 +429,7 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 				}
 			});
 		}catch(e){
-			refThis.log("Creative-Resize; Error in resizing creative");
+			refThis.logError("Creative-Resize; Error in resizing creative");
 		} // eslint-disable-line no-empty
 	}
 };
@@ -367,12 +447,18 @@ exports.writeIframe = function(theDocument, src, width, height, style){
 exports.displayCreative = function(theDocument, bid){
 	refThis.resizeWindow(theDocument, bid.width, bid.height);
 	if(bid.adHtml){
+		if(bid.getAdapterID().toLowerCase() == "appier"){
+			bid.adHtml = refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());
+		}
 		theDocument.write(bid.adHtml);
 	}else if(bid.adUrl){
+		if(bid.getAdapterID().toLowerCase() == "appier"){
+			bid.adUrl = refThis.replaceAuctionPrice(bid.adUrl, bid.getGrossEcpm());
+		}
 		refThis.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
 	}else{
-		refThis.log("creative details are not found");
-		refThis.log(bid);
+		refThis.logError("creative details are not found");
+		refThis.logError(bid);
 	}
 };
 
@@ -448,7 +534,7 @@ exports.getMetaInfo = function(cWin){
 	var  obj = {}
 		, MAX_PAGE_URL_LEN = 512
 		, frame
-	;
+		;
 
 	obj.pageURL = "";
 	obj.refURL = "";
@@ -472,6 +558,8 @@ exports.getMetaInfo = function(cWin){
 		})(frame);
 
 	}catch(e){}
+
+	obj.pageDomain = refThis.getDomainFromURL(obj.pageURL);
 
 	refThis.metaInfo = obj;
 
@@ -526,7 +614,7 @@ exports.addHookOnFunction = function(theObject, useProto, functionName, newFunct
 		var originalFunction = theObject[functionName];
 		theObject[functionName] = newFunction(callMethodOn, originalFunction);
 	}else{
-		refThis.log("in assignNewDefination: oldReference is not a function");
+		refThis.logWarning("in assignNewDefination: oldReference is not a function");
 	}
 };
 
@@ -537,7 +625,7 @@ exports.getBididForPMP = function(values, priorityArray){
 		priorityArrayLength = priorityArray.length,
 		selectedPMPDeal = '',
 		bidID = ''
-	;
+		;
 
 	/* istanbul ignore else */
 	if(valuesLength == 0){
@@ -625,15 +713,15 @@ exports.safeFrameCommunicationProtocol = function(msg){
 
 		switch(window.parseInt(msgData.pwt_type)){
 
-			case 1:
+		case 1:
 				/* istanbul ignore else */
-				if(window.PWT.isSafeFrame){
+			if(window.PWT.isSafeFrame){
 					return;
 				}
 
-				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
-				if(bidDetails){
+			if(bidDetails){
 					var theBid = bidDetails.bid,
 						adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid,
@@ -641,22 +729,22 @@ exports.safeFrameCommunicationProtocol = function(msg){
 							pwt_type: 2,
 							pwt_bid: theBid
 						}
-					;
+						;
 					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
 					refThis.resizeWindow(window.document, theBid.width, theBid.height, divID);
 					msg.source.postMessage(window.JSON.stringify(newMsgData), msgData.pwt_origin);
 				}
-				break;
+			break;
 
-			case 2:
+		case 2:
 				/* istanbul ignore else */
-				if(!window.PWT.isSafeFrame){
+			if(!window.PWT.isSafeFrame){
 					return;
 				}
 
 				/* istanbul ignore else */
-				if(msgData.pwt_bid){
+			if(msgData.pwt_bid){
 					var theBid = msgData.pwt_bid;
 					if(theBid.adHtml){
 						try{
@@ -684,17 +772,17 @@ exports.safeFrameCommunicationProtocol = function(msg){
 							}
 
 							var content = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><base target="_top" /><scr' + 'ipt>inDapIF=true;</scr' + 'ipt></head>';
-								content += '<body>';
-								content += "<script>var $sf = window.parent.$sf;<\/script>";
-								content += "<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>";
-								content += theBid.adHtml;
-								content += '</body></html>';
+							content += '<body>';
+							content += "<script>var $sf = window.parent.$sf;<\/script>";
+							content += "<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>";
+							content += theBid.adHtml;
+							content += '</body></html>';
 
 							iframeDoc.write(content);
 							iframeDoc.close();
 
 						}catch(e){
-							refThis.log('Error in rendering creative in safe frame.');
+							refThis.logError('Error in rendering creative in safe frame.');
 							refThis.log(e);
 							refThis.log('Rendering synchronously.');
 							refThis.displayCreative(window.document, msgData.pwt_bid);
@@ -703,15 +791,15 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}else if(theBid.adUrl){
 						refThis.writeIframe(window.document, theBid.adUrl, theBid.width, theBid.height, "");
 					}else{
-						refThis.log("creative details are not found");
+						refThis.logWarning("creative details are not found");
 						refThis.log(theBid);
 					}
 				}
-				break;
-			case 3:
-				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+			break;
+		case 3:
+			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
-				if(bidDetails){
+			if(bidDetails){
 					var theBid = bidDetails.bid,
 						adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid;
@@ -721,7 +809,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 					bidManager.fireTracker(theBid,msgData.pwt_action);							
 				}
-				break;
+			break;
 		}
 	}catch(e){}
 };
@@ -735,7 +823,7 @@ exports.getElementLocation = function( el ) {
 	var rect,
 		x = 0,
 		y = 0
-	;
+		;
 
 	if(refThis.isFunction(el.getBoundingClientRect)) {
 		rect = el.getBoundingClientRect();
@@ -756,7 +844,7 @@ exports.createVLogInfoPanel = function(divID, dimensionArray){
 		infoPanelElement,
 		infoPanelElementID,
 		doc = window.document
-	;
+		;
 
 	/* istanbul ignore else */
 	if(refThis.visualDebugLogIsEnabled){
@@ -798,7 +886,7 @@ exports.realignVLogInfoPanel = function(divID){
 		infoPanelElement,
 		infoPanelElementID,
 		doc = window.document
-	;
+		;
 
 	/* istanbul ignore else */
 	if(refThis.visualDebugLogIsEnabled){
@@ -822,7 +910,7 @@ exports.vLogInfo = function(divID, infoObject){
 	var infoPanelElement,
 		message,
 		doc = window.document
-	;
+		;
 	/* istanbul ignore else */
 	if(refThis.visualDebugLogIsEnabled){
 		var infoPanelElementID = divID + "-pwtc-info";
@@ -830,15 +918,15 @@ exports.vLogInfo = function(divID, infoObject){
 		/* istanbul ignore else */
 		if( infoPanelElement ){
 			switch(infoObject.type){
-				case "bid":
-					var latency = infoObject.latency;
-					var bidDetails = infoObject.bidDetails;
-					var currencyMsg = "";
+			case "bid":
+				var latency = infoObject.latency;
+				var bidDetails = infoObject.bidDetails;
+				var currencyMsg = "";
 					/* istanbul ignore else */
-					if(latency < 0){
+				if(latency < 0){
 						latency = 0;
 					}
-					if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
+				if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
 						if (infoObject.adServerCurrency == 0) {
 							currencyMsg = 'USD';
 						} else {
@@ -847,17 +935,17 @@ exports.vLogInfo = function(divID, infoObject){
 					} else {
 						currencyMsg = 'USD';
 					}
-					message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + ")" + currencyMsg + " :" + latency + "ms";
+				message = "Bid: " + infoObject.bidder + (infoObject.s2s ? "(s2s)" : "") + ": " + bidDetails.getNetEcpm() + "(" + bidDetails.getGrossEcpm() + ")" + currencyMsg + " :" + latency + "ms";
 					/* istanbul ignore else */
-					if(bidDetails.getPostTimeoutStatus()){
+				if(bidDetails.getPostTimeoutStatus()){
 						message += ": POST-TIMEOUT";
 					}
-					break;
+				break;
 
-				case "win-bid":
-					var bidDetails = infoObject.bidDetails;
-					var currencyMsg = "";
-					if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
+			case "win-bid":
+				var bidDetails = infoObject.bidDetails;
+				var currencyMsg = "";
+				if (infoObject.hasOwnProperty("adServerCurrency") && infoObject["adServerCurrency"] !== undefined) {
 						if (infoObject.adServerCurrency == 0) {
 							currencyMsg = 'USD';
 						} else {
@@ -866,20 +954,20 @@ exports.vLogInfo = function(divID, infoObject){
 					} else {
 						currencyMsg = 'USD';
 					}
-					message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm() + currencyMsg;
-					break;
+				message = "Winning Bid: " + bidDetails.getAdapterID() + ": " + bidDetails.getNetEcpm() + currencyMsg;
+				break;
 
-				case "win-bid-fail":
-					message = "There are no bids from PWT";
-					break;
+			case "win-bid-fail":
+				message = "There are no bids from PWT";
+				break;
 
-				case "hr":
-					message = "----------------------";
-					break;
+			case "hr":
+				message = "----------------------";
+				break;
 
-				case "disp":
-					message = "Displaying creative from "+ infoObject.adapter;
-					break;
+			case "disp":
+				message = "Displaying creative from "+ infoObject.adapter;
+				break;
 			}
 			infoPanelElement.appendChild(doc.createTextNode(message));
 			infoPanelElement.appendChild(doc.createElement("br"));
@@ -957,25 +1045,27 @@ exports.ajaxRequest = function(url, callback, data, options) {
 // Returns mediaTypes for adUnits which are sent to prebid
 exports.getMediaTypeObject = function(nativeConfig, sizes, currentSlot){
 	var mediaTypeObject = {};
-	if(nativeConfig && nativeConfig.kgp && nativeConfig.klm){
-		var kgp = nativeConfig.kgp;
-		var klm = nativeConfig.klm;
-		// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
-		// as we are only supporting div and ad unit, taking the first slot name.
-		// Implemented as per code review and discussion. 
-		var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
-		if(refThis.isOwnProperty(klm,kgpv)){
-			refThis.log("Native Config found for adSlot: " +  currentSlot);
-			var config = klm[kgpv];
-			mediaTypeObject["native"] = config.config;
-			if(config[CONSTANTS.COMMON.NATIVE_ONLY]){
-				return mediaTypeObject;
+	if(nativeConfig){
+		if( nativeConfig.kgp && nativeConfig.klm){
+			var kgp = nativeConfig.kgp;
+			var klm = nativeConfig.klm;
+			// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
+			// as we are only supporting div and ad unit, taking the first slot name.
+			// Implemented as per code review and discussion. 
+			var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
+			if(refThis.isOwnProperty(klm,kgpv)){
+				refThis.log("Native Config found for adSlot: " +  currentSlot);
+				var config = klm[kgpv];
+				mediaTypeObject["native"] = config.config;
+				if(config[CONSTANTS.COMMON.NATIVE_ONLY]){
+					return mediaTypeObject;
+				}
+			} else{
+				refThis.log("Native Config not found for adSlot: " +  currentSlot);
 			}
 		} else{
-			refThis.log("Native Config not found for adSlot: " +  currentSlot);
+			refThis.logWarning("Native config not found or KGP/KLM missing in native config provided.");
 		}
-	} else{
-		refThis.log("Native config not found or KGP/KLM missing in native config provided.");
 	}
 	mediaTypeObject["banner"] = {
 		sizes: sizes
@@ -1034,10 +1124,12 @@ exports.getAdFormatFromBidAd = function(ad){
 exports.handleHook = function(hookName, arrayOfDataToPass) {
 	// Adding a hook for publishers to modify the data we have
 	if(refThis.isFunction(window.PWT[hookName])){
+		refThis.log('For Hook-name: '+hookName+', calling window.PWT.'+hookName+'function.' );
 		window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
-	} else {
-		refThis.log('Hook-name: '+hookName+', window.PWT.'+hookName+' is not a function.' );
-	}
+	} 
+	// else {
+	// 	refThis.log('Hook-name: '+hookName+', window.PWT.'+hookName+' is not a function.' );
+	// }
 };
 
 exports.getCurrencyToDisplay = function(){
@@ -1054,4 +1146,133 @@ exports.getCurrencyToDisplay = function(){
 		}
 	}
 	return defaultCurrency;
+};
+
+exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
+	// This function will return the config for the partner for specific slot.
+	// KGP would always be AU@DIV@WXH
+	// KLM would be an array of regex Config and regex pattern pairs where key would be regex pattern to match 
+	// and value would be the config for that slot to be considered.
+	/* Algo to match regex pattern 
+		Start regex parttern matching  pattern -> ["ADUNIT", "DIV", "SIZE"]
+		Then match the slot adUnit with pattern 
+		if successful the match the div then size
+		if all are true then return the config else match the next avaiable pattern
+		if none of the pattern match then return the error config not found */
+	var rxConfig = null;
+	var keys = generatedKey.split("@");
+	for (var i = 0; i < klmsForPartner.length; i++) {
+		var klmv = klmsForPartner[i];
+		var rxPattern = klmv.rx;
+		if(keys.length == 3){ // Only execute if generated key length is 3 .
+			try{
+				if(keys[0].match(new RegExp(rxPattern.AU)) && keys[1].match(new RegExp(rxPattern.DIV)) && keys[2].match(new RegExp(rxPattern.SIZE))){
+					rxConfig = {
+						config : klmv.rx_config,
+						regexPattern : rxPattern.AU + "@" + rxPattern.DIV + "@" + rxPattern.SIZE
+					};
+					break;
+				}
+			}
+			catch(ex){
+				refThis.logError(CONSTANTS.MESSAGES.M27 + JSON.stringify(rxPattern));
+			}
+		} else {
+			refThis.logWarning(CONSTANTS.MESSAGES.M28 + generatedKey);
+		}
+	}
+	return rxConfig;
+};
+
+exports.getUserIdConfiguration = function(){
+	var userIdConfs = [];
+	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
+		userIdConfs.push(refThis.getUserIdParams(partnerValues));
+	});
+	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4+ JSON.stringify(userIdConfs));
+	return userIdConfs;
+};
+
+exports.clearPreviousTargeting = function(){
+	var targetingKeys = window.googletag.pubads().getTargetingKeys();
+	if(targetingKeys.indexOf(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS)>-1){
+		window.googletag.pubads().clearTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS);
+	}
+};
+
+exports.setUserIdTargeting = function(){
+	refThis.clearPreviousTargeting();
+	if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
+		var userIds = refThis.getUserIds();
+		if(!refThis.isEmptyObject(userIds)){
+			refThis.setUserIdToGPT(userIds);
+		}
+	}else {
+		refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M1);
+		return;
+	}
+};
+
+exports.setUserIdToGPT = function(userIds){
+	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M2, userIds);
+	window.googletag.pubads().setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS,JSON.stringify(userIds));
+};
+
+exports.getUserIds = function(){
+	return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
+};
+
+exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
+	var convertedObject = sourceObject;
+	var referenceForNesting = convertedObject;
+	for(var i=0;i<sourceArray.length-1;i++){
+		if(!referenceForNesting[sourceArray[i]]){
+			referenceForNesting[sourceArray[i]] = {};
+		}
+		referenceForNesting = referenceForNesting[sourceArray[i]];
+	}
+	referenceForNesting[sourceArray[sourceArray.length-1]] = valueOfLastNode;
+	return convertedObject;	
+};
+
+exports.getNestedObjectFromString = function(sourceObject,separator, key, value){
+	var splitParams = key.split(separator);
+	if(splitParams.length == 1){
+		sourceObject[key] = value;
+	} else{
+		sourceObject = refThis.getNestedObjectFromArray(sourceObject,splitParams,value);
+	}
+	return sourceObject;
+};
+
+exports.getUserIdParams = function(params){
+	var userIdParams= {};
+	for(var key in params){
+		try{
+			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
+				if(CONSTANTS.TOLOWERCASE_IDENTITY_PARAMS.indexOf(key)>-1){
+					params[key] = params[key].toLowerCase();
+				}
+				if(CONSTANTS.JSON_VALUE_KEYS.indexOf(key)>-1){
+					params[key] = JSON.parse(params[key]);
+				}
+				userIdParams = refThis.getNestedObjectFromString(userIdParams,".",key,params[key]);
+			}
+		}
+		catch(ex){
+			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
+		}
+	}	
+	return userIdParams;
+};
+
+exports.getDomainFromURL = function(url){
+	var a = window.document.createElement("a");
+	a.href = url;
+	return a.hostname;
+};
+
+exports.replaceAuctionPrice = function(str, cpm) {
+	if (!str) return;
+	return str.replace(/\$\{AUCTION_PRICE\}/g, cpm);
 };
