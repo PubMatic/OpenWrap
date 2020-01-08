@@ -674,7 +674,8 @@ function fetchBids(activeSlots, impressionID){
 							});
 						}
 						if(CONFIG.getAdServerCurrency()){
-							setTimeout(setPossibleBidRecieved,150);
+							//Added timeout for issue in GPT should execute dfp as soon as all bids are available
+							setTimeout(setPossibleBidRecieved,300);
 						}
 						else{
 							setPossibleBidRecieved();
