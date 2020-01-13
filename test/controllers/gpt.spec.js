@@ -1237,7 +1237,7 @@ describe("CONTROLLER: GPT", function() {
                 }
             };
             sinon.spy(googleDefinedSlotStub, "setTargeting");
-
+            
             GPT.slotsMap[divID] = {
                 getPubAdServerObject: function() {
                     return googleDefinedSlotStub;
@@ -1253,6 +1253,7 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(UTIL, "forEachOnObject");
             sinon.stub(UTIL, "isOwnProperty").returns(true);
             sinon.stub(GPT, "defineWrapperTargetingKey").returns(true);
+            sinon.spy(window, "setTimeout");
             done();
         });
 
@@ -1278,6 +1279,7 @@ describe("CONTROLLER: GPT", function() {
             }
             divID = null;
             keyValuePairsStub = null;
+            window.setTimeout.restore();
             done();
         });
 
@@ -1433,6 +1435,7 @@ describe("CONTROLLER: GPT", function() {
             };
 
             sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "logError");
             sinon.spy(UTIL, "isObject");
             sinon.spy(UTIL, "isFunction");
 
@@ -1445,6 +1448,7 @@ describe("CONTROLLER: GPT", function() {
             theObject = null;
 
             UTIL.log.restore();
+            UTIL.logError.restore();
             UTIL.isObject.restore();
             UTIL.isFunction.restore();
 
@@ -1459,7 +1463,7 @@ describe("CONTROLLER: GPT", function() {
         it('return null if passed function is not a function', function(done) {
             originalFunction = null;
             should.not.exist(GPT.newDisableInitialLoadFunction(theObject, originalFunction));
-            UTIL.log.calledWith("disableInitialLoad: originalFunction is not a function").should.be.true;
+            UTIL.logError.calledWith("disableInitialLoad: originalFunction is not a function").should.be.true;
             UTIL.isObject.calledWith(theObject).should.be.true;
             UTIL.isFunction.calledWith(originalFunction).should.be.true;
             done();
@@ -1468,7 +1472,7 @@ describe("CONTROLLER: GPT", function() {
         it('return null if passed object is not an object', function(done) {
             theObject = null;
             should.not.exist(GPT.newDisableInitialLoadFunction(theObject, originalFunction));
-            UTIL.log.calledWith("disableInitialLoad: originalFunction is not a function").should.be.true;
+            UTIL.logError.calledWith("disableInitialLoad: originalFunction is not a function").should.be.true;
             UTIL.isObject.calledWith(theObject).should.be.true;
             UTIL.isFunction.calledWith(originalFunction).should.be.false;
             done();
@@ -1520,7 +1524,7 @@ describe("CONTROLLER: GPT", function() {
         it('return null if passed function is not a function', function(done) {
             originalFunction = null;
             should.not.exist(GPT.newEnableSingleRequestFunction(theObject, originalFunction));
-            UTIL.log.calledWith("disableInitialLoad: originalFunction is not a function").should.be.true;
+            UTIL.log.calledWith("enableSingleRequest: originalFunction is not a function").should.be.true;
             UTIL.isObject.calledWith(theObject).should.be.true;
             UTIL.isFunction.calledWith(originalFunction).should.be.true;
             UTIL.isFunction.returned(false).should.be.true;
@@ -1530,7 +1534,7 @@ describe("CONTROLLER: GPT", function() {
         it('return null if passed object is not an object', function(done) {
             theObject = null;
             should.not.exist(GPT.newEnableSingleRequestFunction(theObject, originalFunction));
-            UTIL.log.calledWith("disableInitialLoad: originalFunction is not a function").should.be.true;
+            UTIL.log.calledWith("enableSingleRequest: originalFunction is not a function").should.be.true;
             UTIL.isObject.calledWith(theObject).should.be.true;
             UTIL.isFunction.calledWith(originalFunction).should.be.false;
             done();
@@ -1949,23 +1953,7 @@ describe("CONTROLLER: GPT", function() {
         it('should be a function', function(done) {
             GPT.displayFunctionStatusHandler.should.be.a('function');
             done();
-        });
-
-        it('should have fall through and called setTimeout with function to fire post timeout to handle slot rendering', function (done) {
-            oldStatus = CONSTANTS.SLOT_STATUS.CREATED;
-            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
-            window.setTimeout.called.should.be.true;
-            CONFIG.getTimeout.called.should.be.true;
-            done();
-        });
-
-        it('should have called setTimeout with function to fire post timeout to handle slot rendering', function (done) {
-            oldStatus = CONSTANTS.SLOT_STATUS.PARTNERS_CALLED;
-            GPT.displayFunctionStatusHandler(oldStatus, theObject, originalFunction, arg);
-            window.setTimeout.called.should.be.true;
-            CONFIG.getTimeout.called.should.be.true;
-            done();
-        });
+        });        
 
         it('should have called updateStatusAndCallOriginalFunction_Display with proper arguments when oldStatus is  TARGETING_ADDED', function(done) {
             oldStatus = CONSTANTS.SLOT_STATUS.TARGETING_ADDED;
@@ -2843,6 +2831,8 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(UTIL, "isArray");
             sinon.spy(UTIL, "isFunction");
             sinon.spy(UTIL, "log");
+            sinon.spy(UTIL, "logError");
+            sinon.spy(UTIL, "logWarning");
 
             winObj = {
                 googletag: {
@@ -2858,6 +2848,8 @@ describe("CONTROLLER: GPT", function() {
             UTIL.isArray.restore();
             UTIL.isFunction.restore();
             UTIL.log.restore();
+            UTIL.logError.restore();
+            UTIL.logWarning.restore();
             done();
         });
 
@@ -2869,8 +2861,8 @@ describe("CONTROLLER: GPT", function() {
         it("return false if passed in window object is impropper and should have called util.log", function(done) {
             winObj.google_onload_fired = true;
             GPT.addHooksIfPossible(winObj).should.equal(false);
-            UTIL.log.calledOnce.should.equal(true);
-            UTIL.log.calledWith("Failed to load before GPT").should.be.true;
+            UTIL.logError.calledOnce.should.equal(true);
+            UTIL.logError.calledWith("Failed to load before GPT").should.be.true;
 
             UTIL.isUndefined.calledOnce.should.equal(true);
             UTIL.isObject.calledOnce.should.be.false;
@@ -2880,8 +2872,8 @@ describe("CONTROLLER: GPT", function() {
         it("return false if passed in window object is impropper and should have called util.log", function(done) {
             delete winObj.googletag;
             GPT.addHooksIfPossible(winObj).should.equal(false);
-            UTIL.log.calledOnce.should.equal(true);
-            UTIL.log.calledWith("Failed to load before GPT").should.be.true;
+            UTIL.logError.calledOnce.should.equal(true);
+            UTIL.logError.calledWith("Failed to load before GPT").should.be.true;
 
             UTIL.isUndefined.calledOnce.should.equal(true);
             UTIL.isObject.calledOnce.should.equal(true);
@@ -2892,8 +2884,8 @@ describe("CONTROLLER: GPT", function() {
         it("return false if passed in window object is impropper and should have called util.log", function(done) {
             delete winObj.googletag.cmd;
             GPT.addHooksIfPossible(winObj).should.equal(false);
-            UTIL.log.calledOnce.should.equal(true);
-            UTIL.log.calledWith("Failed to load before GPT").should.be.true;
+            UTIL.logError.calledOnce.should.equal(true);
+            UTIL.logError.calledWith("Failed to load before GPT").should.be.true;
 
             UTIL.isUndefined.calledOnce.should.equal(true);
             UTIL.isObject.calledOnce.should.equal(true);

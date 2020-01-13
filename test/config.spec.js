@@ -520,6 +520,13 @@ describe('Config', function() {
             UTIL.forEachOnObject.calledWith(CONF.adapters["sekindoUM"]["klm"]).should.be.true;
             done();
         });
+
+        it('should copy account level params in case of regex',function(done){
+            var expectedConfig = {zoneId: '869224', siteId: '178620', floor: '0', accountId: '10998', timeout: '1000', amp: 0, video: 0, "in-app": 0};
+            CONFIG.initConfig();
+            expect(CONF.adapters["rubicon"].klm_rx[0].rx_config).to.be.deep.equal(expectedConfig);
+            done();
+        });
     });
 
     describe('#getGdpr', function() {
@@ -776,6 +783,167 @@ describe('Config', function() {
             CONFIG.isSingleImpressionSettingEnabled().should.be.deep.equal(expectedResult);
             done();
         });
-    })
+    });
 
+    describe('#isUserIdModuleEnabled',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ENABLE_USER_ID] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ENABLE_USER_ID];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.isUserIdModuleEnabled.should.be.a('function');
+            done();
+        });
+
+        it('should return 1 by reading from config', function(done) {
+            var expectedResult = 1;
+            CONFIG.isUserIdModuleEnabled().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return 0 if isUserIdModuleEnabled is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ENABLE_USER_ID];
+            expect(CONFIG.isUserIdModuleEnabled()).to.equal(0);
+            done();
+        });
+
+        it('should return 0 if isUserIdModuleEnabled set to "0"', function(done) {
+            var expectedResult = 0;
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SINGLE_IMPRESSION] = "0";
+            CONFIG.isSingleImpressionSettingEnabled().should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#isIdentityOnly',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.isIdentityOnly.should.be.a('function');
+            done();
+        });
+
+        it('should return 1 by reading from config', function(done) {
+            var expectedResult = 1;
+            CONFIG.isIdentityOnly().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return 0 if isIdentityOnly is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY];
+            expect(CONFIG.isIdentityOnly()).to.equal(0);
+            done();
+        });
+
+        it('should return 0 if isIdentityOnly set to "0"', function(done) {
+            var expectedResult = 0;
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] = "0";
+            CONFIG.isIdentityOnly().should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getIdentityPartners',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.COMMON.IDENTITY_PARTNERS] = {
+                pubCommonId: {
+                    name: "pubCommonId",
+                    "storage.type": "cookie",
+                    "storage.name": "_pubCommonId", 
+                    "storage.expires": "1825"               
+                },
+                digitrust: {
+                    "name":"digitrust",
+                    "params.init.member": "nQjyizbdyF",
+                    "params.init.site":"FL6whbX1IW",
+                    "redirects": "true",
+                    "storage.type": "cookie",
+                    "storage.name": "somenamevalue",
+                    "storage.expires":"60"
+                }
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.COMMON.IDENTITY_PARTNERS];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getIdentityPartners.should.be.a('function');
+            done();
+        });
+
+        it('should return expected config by reading from config', function(done) {
+            var expectedResult = {
+                pubCommonId: {
+                    name: "pubCommonId",
+                    "storage.type": "cookie",
+                    "storage.name": "_pubCommonId", 
+                    "storage.expires": "1825"               
+                },
+                digitrust: {
+                    "name":"digitrust",
+                    "params.init.member": "nQjyizbdyF",
+                    "params.init.site":"FL6whbX1IW",
+                    "redirects": "true",
+                    "storage.type": "cookie",
+                    "storage.name": "somenamevalue",
+                    "storage.expires":"60"
+                }
+            };
+            CONFIG.getIdentityPartners().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return undefined if identityPartners is not present',function(done){
+            delete CONF[CONSTANTS.COMMON.IDENTITY_PARTNERS];
+            expect(CONFIG.getIdentityPartners()).to.be.undefined;
+            done();
+        });
+    });
+
+    describe('#getIdentityConsumers',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS] = "EB,TAM,Prebid";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getIdentityConsumers.should.be.a('function');
+            done();
+        });
+
+        it('should return "eb,tam,prebid" by reading from config', function(done) {
+            var expectedResult = "eb,tam,prebid";
+            CONFIG.getIdentityConsumers().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return "" if isIdentityOnly is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS];
+            expect(CONFIG.getIdentityConsumers()).to.be.equal("");
+            done();
+        });
+    });
 });

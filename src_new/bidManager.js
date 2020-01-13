@@ -27,6 +27,10 @@ exports.setCallInitTime = function(divID, adapterID){ // TDD, i/o : done
 	window.PWT.bidMap[divID].setAdapterEntry(adapterID);
 };
 
+exports.setAllPossibleBidsReceived = function(divID){
+	window.PWT.bidMap[divID].setAllPossibleBidsReceived();	
+};
+
 exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 
 	var bidderID = bidDetails.getAdapterID();
@@ -34,7 +38,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 	var bidMapEntry = window.PWT.bidMap[divID];
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(window.PWT.bidMap, divID)){
-		util.log("BidManager is not expecting bid for "+ divID +", from " + bidderID);
+		util.logWarning("BidManager is not expecting bid for "+ divID +", from " + bidderID);
 		return;
 	}
 
@@ -59,25 +63,25 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 		if( lastBidWasDefaultBid || !isPostTimeout){
 			/* istanbul ignore else */
 			if(lastBidWasDefaultBid){
-				util.log(CONSTANTS.MESSAGES.M23);
+				util.log(CONSTANTS.MESSAGES.M23 + bidderID);
 			}
 
 			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
-				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14);
+				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14 + bidderID);
 				refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 			}else{
-				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16);
+				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16 +  bidderID);
 			}
 		}else{
 			util.log(CONSTANTS.MESSAGES.M17);
 		}
 	}else{
-		util.log(CONSTANTS.MESSAGES.M18);		
+		util.log(CONSTANTS.MESSAGES.M18 + bidderID);		
 		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 	}
 	if (isPostTimeout) {
       //explicitly trigger user syncs since its a post timeout bid
-      setTimeout(window['owpbjs'].triggerUserSyncs, 10);
+      setTimeout(window[CONSTANTS.COMMON.PREBID_NAMESPACE].triggerUserSyncs, 10);
     }
 };
 
@@ -346,11 +350,12 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		return;
 	}
 
-	pixelURL = util.metaInfo.protocol + pixelURL + "pubid=" + pubId;
+	pixelURL = CONSTANTS.COMMON.PROTOCOL + pixelURL + "pubid=" + pubId;
 
 	outputObj[CONSTANTS.CONFIG.PUBLISHER_ID] = CONFIG.getPublisherId();
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMEOUT] = ""+CONFIG.getTimeout();
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.PAGE_URL] = window.decodeURIComponent(util.metaInfo.pageURL);
+	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.PAGE_DOMAIN] = util.metaInfo.pageDomain;
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
@@ -474,7 +479,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 				 * Future Scope : Remove below check to log with appt. value(s)
 				*/
 				/*istanbul ignore else*/
-				if(adapterID === "pubmatic" && (theBid.getDefaultBidStatus() ||  (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0))){
+				if( (adapterID === "pubmatic" || adapterID === "pubmatic2") && (theBid.getDefaultBidStatus() ||  (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0))){
 					return;
 				}
 				//todo: take all these key names from constants
@@ -483,6 +488,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "bidid": bidID,
                     "db": theBid.getDefaultBidStatus(),
                     "kgpv": theBid.getKGPV(),
+                    "kgpsv": theBid.getKGPV(true),
                     "psz": theBid.getWidth() + "x" + theBid.getHeight(),
                     "eg": theBid.getGrossEcpm(isAnalytics),
                     "en": theBid.getNetEcpm(isAnalytics),
@@ -527,7 +533,7 @@ exports.setImageSrcToPixelURL = function (pixelURL, useProtocol) { // TDD, i/o :
 		img.src = pixelURL;
 		return;
 	}
-	img.src = util.metaInfo.protocol + pixelURL;	
+	img.src = CONSTANTS.COMMON.PROTOCOL + pixelURL;	
 };
 
 
@@ -535,11 +541,16 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 	var status = true;
 
 	util.forEachOnArray(divIds, function (key, divId) {
-		bidMaps[divId] && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
-			util.forEachOnObject(adapter.bids, function (bidId, theBid) {
-				status = status && (theBid.getDefaultBidStatus() === 0);
-			});
-		});
+		// OLD APPROACH: check if we have got bids per bidder for each slot
+		// bidMaps[divId] && util.forEachOnObject(bidMaps[divId].adapters, function (adapterID, adapter) {
+		// 	util.forEachOnObject(adapter.bids, function (bidId, theBid) {
+		// 		status = status && (theBid.getDefaultBidStatus() === 0);
+		// 	});
+		// });
+		// NEW APPROACH: check allPossibleBidsReceived flag which is set when pbjs.requestBids->bidsBackHandler is executed
+		if(bidMaps[divId]){
+			status = status && (bidMaps[divId].hasAllPossibleBidsReceived() === true);
+		}
 	});
 	return status;
 };
@@ -556,7 +567,7 @@ exports.loadTrackers = function(event){
 		JSON.stringify({
 			pwt_type: "3",
 			pwt_bidID: bidId,
-			pwt_origin: window.location.protocol+"//"+window.location.hostname,
+			pwt_origin: CONSTANTS.COMMON.PROTOCOL + window.location.hostname,
 			pwt_action:"click"
 		}),
 		"*"
@@ -572,7 +583,7 @@ exports.executeTracker = function(bidID){
 		JSON.stringify({
 			pwt_type: "3",
 			pwt_bidID: bidID,
-			pwt_origin: window.location.protocol+"//"+window.location.hostname,
+			pwt_origin: CONSTANTS.COMMON.PROTOCOL + window.location.hostname,
 			pwt_action:"imptrackers"
 		}),
 		"*"
@@ -632,7 +643,7 @@ exports.setStandardKeys = function(winningBid, keyValuePairs){
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ] = winningBid.width + 'x' + winningBid.height;
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ] = (winningBid.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
     } else {
-    	util.log('Not generating key-value pairs as invalid winningBid object passed. WinningBid: ');
-    	util.log(winningBid);
+    	util.logWarning('Not generating key-value pairs as invalid winningBid object passed. WinningBid: ');
+    	util.logWarning(winningBid);
     }
 }

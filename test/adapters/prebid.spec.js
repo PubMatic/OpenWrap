@@ -17,6 +17,7 @@ var parentAdapterID = "prebid";
 var commonAdpterID = "pubmatic";
 var commonDivID = "DIV_1";
 var commonKGPV = "XYZ";
+var isSingleImpressionSettingEnabled = 0;
 
 // TODO : remove as required during single TDD only
 // var jsdom = require('jsdom').jsdom;
@@ -143,8 +144,34 @@ describe('ADAPTER: Prebid', function() {
             theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
             theBid.getDefaultBidStatus().should.be.equal(0);
             theBid.getPostTimeoutStatus().should.be.true;
+
+            errorBid.pubmaticServerErrorCode = 11;
+            theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
+            theBid.getDefaultBidStatus().should.be.equal(-1);
+            theBid.getWidth().should.be.equal(0);
+            theBid.getHeight().should.be.equal(0);
+
+            errorBid.pubmaticServerErrorCode = 12;
+            theBid = PREBID.transformPBBidToOWBid(errorBid, kgpv);
+            theBid.getDefaultBidStatus().should.be.equal(-1);
+            theBid.getWidth().should.be.equal(0);
+            theBid.getHeight().should.be.equal(0);
             done();
         });
+
+        it('should set regexPattern if regexPattern is passed',function(done){
+            var regexPattern = ".*@.*@.*";
+            var theBid = PREBID.transformPBBidToOWBid(bid, kgpv,regexPattern);
+            theBid.getRegexPattern().should.be.equal(regexPattern);
+            done();
+        });
+
+        it('should set native if native is present',function(done){
+            bid.native = "somenativevalue";
+            var theBid = PREBID.transformPBBidToOWBid(bid, kgpv);
+            theBid.getNative().should.be.equal(bid.native);
+            done();
+        })
     });
 
     describe('#pbBidStreamHandler', function () {
@@ -157,6 +184,7 @@ describe('ADAPTER: Prebid', function() {
                 "divID": "DIV_1"
             };
             sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(0);
+            PREBID.isSingleImpressionSettingEnabled = 0;
             sinon.spy(PREBID, "checkAndModifySizeOfKGPVIfRequired");
             sinon.stub(UTIL, "isOwnProperty").returns(true);
             
@@ -233,6 +261,7 @@ describe('ADAPTER: Prebid', function() {
         it('should call checkandmodifysizeofkgpv if single impression is turnedon', function(done){
             CONFIG.isSingleImpressionSettingEnabled.restore();
             sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
+            PREBID.isSingleImpressionSettingEnabled = 1;
             PREBID.kgpvMap["DIV_1"] = {
                 kgpvs:[{
                     adapterID:"pubmatic",
@@ -482,7 +511,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(CONFIG, "getProfileID").returns("profId");
             sinon.stub(CONFIG, "getProfileDisplayVersionID").returns("verId");
             sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(0);
-
+            PREBID.isSingleImpressionSettingEnabled = 0;            
             kgpConsistsWidthAndHeight = true;
             window.PWT = {
                 udpv: {}
@@ -530,6 +559,14 @@ describe('ADAPTER: Prebid', function() {
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             expect(adUnits["DIV_1@pubmatic@340X210"]).to.exist;
             adUnits["DIV_1@pubmatic@340X210"].bids[0].bidder.should.be.equal("pubmatic");
+            done();
+        });
+
+        it('should have created bid object for pubmatic2', function(done) {
+            adapterID = "pubmatic2";
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            expect(adUnits["DIV_1@pubmatic2@340X210"]).to.exist;
+            adUnits["DIV_1@pubmatic2@340X210"].bids[0].bidder.should.be.equal("pubmatic2");
             done();
         });
 
@@ -592,6 +629,73 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
+        it('ADG: should have created bid object with only one param using sizes passed if single Impression setting is enabled', function(done) {
+            CONFIG.isSingleImpressionSettingEnabled.restore();            
+            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
+            PREBID.isSingleImpressionSettingEnabled = 1;
+            adapterID = "adg";
+            CONF.adapters['adg'] = {};
+            var adapterConfig = CONF.adapters['adg'];
+            var keyConfig = {
+                id: '1234567'
+            };
+            var kgpConsistsWidthAndHeight = false;
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            adUnits["DIV_1"].bids[0].bidder.should.be.equal("adg");
+            adUnits["DIV_1"].bids[0].params.should.be.deep.equal({
+                id: '1234567',
+                width: 340,
+                height: 210
+            });
+            expect(adUnits["DIV_1"].bids[1]).to.be.undefined;
+            done();
+        });
+
+        it('YieldLab: should have created bid object using sizes passed', function(done) {
+            adapterID = "yieldlab";
+            CONF.adapters['yieldlab'] = {};
+            var adapterConfig = CONF.adapters['yieldlab'];
+            var keyConfig = {
+                id: '1234567'
+            };
+            var kgpConsistsWidthAndHeight = false;
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            adUnits["DIV_1@yieldlab"].bids[0].bidder.should.be.equal("yieldlab");
+            adUnits["DIV_1@yieldlab"].bids[0].params.should.be.deep.equal({
+                id: '1234567',
+                adSize: "340x210"
+            });
+            adUnits["DIV_1@yieldlab"].bids[1].params.should.be.deep.equal({
+                id: '1234567',
+                adSize: "1024x768"
+            });
+            done();
+        });
+
+
+        it('YieldLab: should have created bid object with only one param using sizes passed if single Impression setting is enabled', function(done) {
+            CONFIG.isSingleImpressionSettingEnabled.restore();            
+            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
+            PREBID.isSingleImpressionSettingEnabled = 1;
+            adapterID = "yieldlab";
+            CONF.adapters['yieldlab'] = {};
+            var adapterConfig = CONF.adapters['yieldlab'];
+            var keyConfig = {
+                id: '1234567'
+            };
+            var kgpConsistsWidthAndHeight = false;
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            adUnits["DIV_1"].bids[0].bidder.should.be.equal("yieldlab");
+            adUnits["DIV_1"].bids[0].params.should.be.deep.equal({
+                id: '1234567',
+                adSize: "340x210"
+            });
+            expect(adUnits["DIV_1"].bids[1]).to.be.undefined;
+            done();
+        });
+
+
+
         it('should have constructed proper slotParams', function(done) {
             kgpConsistsWidthAndHeight = false;
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
@@ -631,6 +735,7 @@ describe('ADAPTER: Prebid', function() {
         it('should have created bid object for div if multiSizeSingleImpression is on', function(done) {
             CONFIG.isSingleImpressionSettingEnabled.restore();
             sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
+            PREBID.isSingleImpressionSettingEnabled = 1;
             adapterID = "pubmatic";
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             expect(adUnits["DIV_1"]).to.exist;
@@ -641,6 +746,7 @@ describe('ADAPTER: Prebid', function() {
         it('should not have pushed in adunit if adapter is already present', function(done) {
             CONFIG.isSingleImpressionSettingEnabled.restore();
             sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
+            PREBID.isSingleImpressionSettingEnabled = 1;
             adapterID = "pubmatic";
             adUnits["DIV_1"] = {
                 bids: [{ bidder: adapterID, params: "someparams" }],
@@ -654,6 +760,7 @@ describe('ADAPTER: Prebid', function() {
         it('should have pushed in adunit if adapter is not present', function(done) {
             CONFIG.isSingleImpressionSettingEnabled.restore();
             sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
+            PREBID.isSingleImpressionSettingEnabled = 1;
             adapterID = "appnexus";
             adUnits["DIV_1"] = {
                 bids: [{ bidder: "pubmatic", params: "someparams" }],
@@ -669,6 +776,7 @@ describe('ADAPTER: Prebid', function() {
         it('should generate kgpvmap consisting of kgpvs array',function(done){
             CONFIG.isSingleImpressionSettingEnabled.restore();
             sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
+            PREBID.isSingleImpressionSettingEnabled = 1;
             adapterID = "pubmatic";
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             expect(PREBID.kgpvMap["DIV_1"]).to.exist;
@@ -681,6 +789,7 @@ describe('ADAPTER: Prebid', function() {
         it('should push into kgpvs in kgpvmap only in case of unique',function(done){
             CONFIG.isSingleImpressionSettingEnabled.restore();
             sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
+            PREBID.isSingleImpressionSettingEnabled = 1;
             adapterID = "appnexus";
             PREBID.kgpvMap["DIV_1"] = {
                 kgpvs:[{
@@ -699,6 +808,7 @@ describe('ADAPTER: Prebid', function() {
         it('should not push into kgpvs in kgpvmap if adapter already exists',function(done){
             CONFIG.isSingleImpressionSettingEnabled.restore();
             sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
+            PREBID.isSingleImpressionSettingEnabled = 1;
             adapterID = "pubmatic";
             PREBID.kgpvMap["DIV_1"] = {
                 kgpvs:[{
@@ -729,6 +839,7 @@ describe('ADAPTER: Prebid', function() {
             adUnits = "ad_unit_1";
             impressionID = 123123123;
             sinon.stub(UTIL, 'log');
+            sinon.stub(UTIL, 'logError');
 
             sinon.stub(UTIL, 'forEachGeneratedKey');
             done();
@@ -741,6 +852,7 @@ describe('ADAPTER: Prebid', function() {
             adUnits = null;
             impressionID = null;
             UTIL.log.restore();
+            UTIL.logError.restore();
             UTIL.forEachGeneratedKey.restore();
             done();
         });
@@ -770,8 +882,6 @@ describe('ADAPTER: Prebid', function() {
                 adapterConfig,
                 impressionID, [],
                 activeSlots,
-                adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
-                adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
                 PREBID.generatedKeyCallback,
                 true).should.be.true;
             done();
@@ -790,8 +900,6 @@ describe('ADAPTER: Prebid', function() {
                 adapterConfig,
                 impressionID, [],
                 activeSlots,
-                adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN],
-                adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || null,
                 PREBID.generatedKeyCallback,
                 true).should.be.true;
             delete CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
@@ -878,6 +986,8 @@ describe('ADAPTER: Prebid', function() {
             activeSlots = [new SLOT("Slot_1"), new SLOT("Slot_2")];
             impressionID = 123123123;
             sinon.spy(UTIL, 'log');
+            sinon.spy(UTIL, 'logError');
+            sinon.spy(UTIL, 'logWarning');
             sinon.stub(UTIL, 'isOwnProperty').returns(true);
             sinon.stub(UTIL, 'isFunction');
             sinon.stub(UTIL, 'isDebugLogEnabled');
@@ -931,6 +1041,8 @@ describe('ADAPTER: Prebid', function() {
             activeSlots = null;
             impressionID = null;
             UTIL.log.restore();
+            UTIL.logError.restore();
+            UTIL.logWarning.restore();
             UTIL.isOwnProperty.restore();
             UTIL.isFunction.restore();
             UTIL.isDebugLogEnabled.restore();
@@ -968,6 +1080,13 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
+        if('should return if owpbjs namespace is not defined',function(done){
+            delete window.owpbjs;
+            PREBID.fetchBids(activeSlots, impressionID);
+            UTIL.logError.calledWith("PreBid js is not loaded").should.be.true;
+            done();
+        })
+
         // TODO: Need to fix this testcase somehow
         it('returns while logging it when Prebid js is not loaded', function(done) {
             // sinon.stub(global.window || window, "pwtCreatePrebidNamespace").withArgs("owpbjs").returns(true);
@@ -980,7 +1099,7 @@ describe('ADAPTER: Prebid', function() {
         it('returns while logging when newly created namespace doenst have onEvent method', function (done) {
             UTIL.isFunction.returns(false);
             PREBID.fetchBids(activeSlots, impressionID);
-            UTIL.log.calledWith("PreBid js onEvent method is not available").should.be.true;
+            UTIL.logWarning.calledWith("PreBid js onEvent method is not available").should.be.true;
             done();
         });
 
@@ -1102,7 +1221,8 @@ describe('ADAPTER: Prebid', function() {
         it('returns object with methods to use', function(done) {
             PREBID.register().should.deep.equal({
                 fB: PREBID.fetchBids,
-                ID: PREBID.getParenteAdapterID
+                ID: PREBID.getParenteAdapterID,
+                sC: PREBID.setConfig
             });
             done();
         });
@@ -1150,10 +1270,12 @@ describe('ADAPTER: Prebid', function() {
             kgpv={
                 "kgpvs":[{
                     "adapterID":"pubmatic",
-                    "kgpv":"300x250@300X250:0"
+                    "kgpv":"300x250@300X250:0",
+                    "regexPattern": ".*@.*@.*"
                 },{
                     "adapterID":"appnexus",
-                    "kgpv":"/43743431/DMDemo@300X250"
+                    "kgpv":"/43743431/DMDemo@300X250",
+                    "regexPattern": ".*@.*@.*"
                 }],
                 "divID":"Div1"
             };
@@ -1175,23 +1297,33 @@ describe('ADAPTER: Prebid', function() {
         //Test cases for different scenario
         it('should return modified kgpv as per winningKgpv',function(done){
             bid["adUnitCode"] = "Div1";
-            var expectedResponseKgpv = "728x90@728x90:0";
-            expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+            var expectedResponseKgpv = {
+                "responseKGPV":"728x90@728x90:0",
+                "responseRegex":".*@.*@.*"
+            }
+            PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv).should.be.deep.equal(expectedResponseKgpv);
             done();
         });
 
         it('should return modified kgpv as per winningKgpv if kgp is div@size',function(done){
             bid["adUnitCode"] = "Div1";
             kgpv.kgpvs[0].kgpv = "Div1@300x250:0";
-            var expectedResponseKgpv = "Div1@728x90:0";
-            expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+            var expectedResponseKgpv = {
+                "responseKGPV":"Div1@728x90:0",
+                "responseRegex":".*@.*@.*"
+            }
+            PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv).should.be.deep.equal(expectedResponseKgpv);
             done();
         });
 
         it('should return same kgpv if winning bid size is same of response size',function(done){
-            var expectedResponseKgpv = "728x90@728x90:0";
+            // var expectedResponseKgpv = "728x90@728x90:0";
             kgpv.kgpvs[0].kgpv = "728x90@728x90:0";
-            expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+            var expectedResponseKgpv = {
+                "responseKGPV":"728x90@728x90:0",
+                "responseRegex":".*@.*@.*"
+            }
+            PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv).should.be.deep.equal(expectedResponseKgpv);
             done();
         });
 
@@ -1199,8 +1331,12 @@ describe('ADAPTER: Prebid', function() {
             bid["width"] = 0;
             bid["height"] = 0;
             kgpv.kgpvs[0].kgpv = "Div1@728x90:0";
-            var expectedResponseKgpv = "Div1@728x90:0";
-            expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+            // var expectedResponseKgpv = "Div1@728x90:0";
+            var expectedResponseKgpv = {
+                "responseKGPV":"Div1@728x90:0",
+                "responseRegex":".*@.*@.*"
+            }
+            PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv).should.be.deep.equal(expectedResponseKgpv);
             done();
         });
 
@@ -1208,8 +1344,12 @@ describe('ADAPTER: Prebid', function() {
             bid["width"] = 0;
             bid["height"] = 0;
             kgpv.kgpvs[0].kgpv = "Div1@728x90";
-            var expectedResponseKgpv = "Div1@728x90";
-            expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+            // var expectedResponseKgpv = "Div1@728x90";
+            var expectedResponseKgpv = {
+                "responseKGPV":"Div1@728x90",
+                "responseRegex":".*@.*@.*"
+            }
+	        PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv).should.be.deep.equal(expectedResponseKgpv);
             done();
         });
 
@@ -1217,8 +1357,12 @@ describe('ADAPTER: Prebid', function() {
             bid["width"] = 0;
             bid["height"] = 0;
             kgpv.kgpvs[0].kgpv = "/43743431/DMDemo@300x250";
-            var expectedResponseKgpv = "/43743431/DMDemo@300x250";
-            expect(PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv)).to.be.equal(expectedResponseKgpv);
+            // var expectedResponseKgpv = "/43743431/DMDemo@300x250";
+            var expectedResponseKgpv = {
+                "responseKGPV":"/43743431/DMDemo@300x250",
+                "responseRegex":".*@.*@.*"
+            }
+            PREBID.checkAndModifySizeOfKGPVIfRequired(bid, kgpv).should.be.deep.equal(expectedResponseKgpv);
             done();
         });
     });
