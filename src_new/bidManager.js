@@ -189,7 +189,12 @@ function auctionBids(bmEntry) { // TDD, i/o : done
     if(CONFIG.getMataDataPattern() !== null){
     	createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);
     }
-
+	if(winningBid.adFormat == "video"){
+		// TODO : 1. Cache Bids for video format
+		//		  2. add a new key value pair of uuid got from cache
+		
+	}
+	
     return {
         wb: winningBid,
         kvp: keyValuePairs
@@ -251,7 +256,7 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
             } else if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
                 winningBid = theBid;
             }
-        });
+		});
         return { winningBid: winningBid , keyValuePairs: keyValuePairs };
     } else {
     	return { winningBid: winningBid , keyValuePairs: keyValuePairs };
@@ -387,28 +392,10 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 };
 
 exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
-	var pixelURL = CONFIG.getMonetizationPixelURL(),
-		pubId = CONFIG.getPublisherId();
-	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
-
-	/* istanbul ignore else */
+	var pixelURL = util.generateMonetizationPixel(slotID,theBid);
 	if(!pixelURL){
 		return;
 	}
-
-	pixelURL += "pubid=" + pubId;
-	pixelURL += "&purl=" + window.encodeURIComponent(util.metaInfo.pageURL);
-	pixelURL += "&tst=" + util.getCurrentTimestamp();
-	pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
-	pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
-	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
-	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
-	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
-	pixelURL += "&pn=" + window.encodeURIComponent(theBid.getAdapterID());
-	pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm(isAnalytics));
-	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm(isAnalytics));
-	pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
-
 	refThis.setImageSrcToPixelURL(pixelURL);
 };
 

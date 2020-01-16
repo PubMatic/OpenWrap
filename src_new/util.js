@@ -1048,6 +1048,8 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 			// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
 			// as we are only supporting div and ad unit, taking the first slot name.
 			// Implemented as per code review and discussion. 
+
+			// Global Default Enable is false then disable each 
 			var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
 			if(refThis.isOwnProperty(slotConfig[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE],kgpv) || refThis.isOwnProperty(slotConfig[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE],CONSTANTS.COMMON.DEFAULT)){
 				refThis.log("Config found for adSlot: " +  JSON.stringify(currentSlot));
@@ -1102,15 +1104,16 @@ exports.getAdFormatFromBidAd = function(ad){
 	var format = undefined;
 	if(ad && refThis.isString(ad)){
 		//TODO: Uncomment below code once video has been implemented 
-		// var videoRegex = new RegExp(/VAST\s+version/); 
-		// if(videoRegex.test(ad)){
-		// 	format = CONSTANTS.FORMAT_VALUES.VIDEO;
-		// }
-		// else{
 		try{
-			var adStr = JSON.parse(ad.replace(/\\/g, ""));
-			if (adStr && adStr.native) {
-				format = CONSTANTS.FORMAT_VALUES.NATIVE;
+			var videoRegex = new RegExp(/VAST\s+version/); 
+			if(videoRegex.test(ad)){
+				format = CONSTANTS.FORMAT_VALUES.VIDEO;
+			}
+			else{
+				var adStr = JSON.parse(ad.replace(/\\/g, ""));
+				if (adStr && adStr.native) {
+					format = CONSTANTS.FORMAT_VALUES.NATIVE;
+				}
 			}
 		}
 		catch(ex){
@@ -1279,3 +1282,106 @@ exports.getPartnerParams = function(params){
 	}	
 	return pparams;
 };
+
+function wrapURI(uri, impUrl) {
+	// Technically, this is vulnerable to cross-script injection by sketchy vastUrl bids.
+	// We could make sure it's a valid URI... but since we're loading VAST XML from the
+	// URL they provide anyway, that's probably not a big deal.
+	let vastImp = (impUrl) ? `<![CDATA[${impUrl}]]>` : ``;
+	return `<VAST version="3.0">
+	  <Ad>
+		<Wrapper>
+		  <AdSystem>prebid.org wrapper</AdSystem>
+		  <VASTAdTagURI><![CDATA[${uri}]]></VASTAdTagURI>
+		  <Impression>${vastImp}</Impression>
+		  <Creatives></Creatives>
+		</Wrapper>
+	  </Ad>
+	</VAST>`;
+  }
+
+
+function toStorageRequest(bid) {
+	const vastValue = bid.adm.startsWith("https://") ? wrapURI(bid.adm, bid.vastImpUrl) : bid.adm ;
+  
+	let payload = {
+	  type: 'xml',
+	  value: vastValue,
+	  ttlseconds: Number(bid.ttl)
+	};
+  
+	if (config.getConfig('cache.vasttrack')) {
+	  payload.bidder = bid.bidder;
+	  payload.bidid = bid.requestId;
+	}
+  
+	if (typeof bid.customCacheKey === 'string' && bid.customCacheKey !== '') {
+	  payload.key = bid.customCacheKey;
+	}
+  
+	return payload;
+}
+
+function shimStorageCallback(done) {
+	return {
+	  success: function (responseBody) {
+		var ids;
+		try {
+		  ids = JSON.parse(responseBody).responses
+		} catch (e) {
+		  done(e, []);
+		  return;
+		}
+  
+		if (ids) {
+		  done(null, ids);
+		} else {
+		  done(new Error("The cache server didn't respond with a responses property."), []);
+		}
+	  },
+	  error: function (statusText, responseBody) {
+		done(new Error(`Error storing video ad in the cache: ${statusText}: ${JSON.stringify(responseBody)}`), []);
+	  }
+	}
+}
+
+exports.cacheVideoAd = function(winningBid){
+	// winningBid will contain the adHtml and adFormat as Video
+	// check if the adHtml starts with https:// then it might be a uri which will return valid vast
+	// for this case we need to create a vast and send it for caching.
+	const requestData = {
+		puts: winningBid.map(toStorageRequest)
+	  };
+	// config.getConfig('cache.url')
+	refThis.ajaxRequest("http://172.16.4.192:2424/cache", shimStorageCallback(done), JSON.stringify(requestData), {
+	contentType: 'text/plain',
+	withCredentials: true
+	});
+};
+
+exports.generateMonetizationPixel = function(slotID, theBid){
+	var pixelURL = CONFIG.getMonetizationPixelURL(),
+		pubId = CONFIG.getPublisherId();
+	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
+
+	/* istanbul ignore else */
+	if(!pixelURL){
+		return;
+	}
+
+	pixelURL += "pubid=" + pubId;
+	pixelURL += "&purl=" + window.encodeURIComponent(util.metaInfo.pageURL);
+	pixelURL += "&tst=" + util.getCurrentTimestamp();
+	pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
+	pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
+	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
+	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
+	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
+	pixelURL += "&pn=" + window.encodeURIComponent(theBid.getAdapterID());
+	pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm(isAnalytics));
+	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm(isAnalytics));
+	pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
+
+	return pixelURL;
+};
+
