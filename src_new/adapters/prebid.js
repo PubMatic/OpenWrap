@@ -617,6 +617,7 @@ function fetchBids(activeSlots, impressionID){
 				};
 
 				if (CONFIG.getGdpr()) {
+					prebidConfig["consentManagement"] = {};
 					prebidConfig["consentManagement"]["gdpr"] = {
 						cmpApi: CONFIG.getCmpApi(),
 						timeout: CONFIG.getGdprTimeout(),
@@ -624,6 +625,9 @@ function fetchBids(activeSlots, impressionID){
 					};
 				}
 				if (CONFIG.getCCPA()) {
+					if(!prebidConfig["consentManagement"]){
+						prebidConfig["consentManagement"] = {};
+					}
 					prebidConfig["consentManagement"]["usp"] = {
 						cmpApi: CONFIG.getCCPACmpApi(),
 						timeout: CONFIG.getCCPATimeout(),
