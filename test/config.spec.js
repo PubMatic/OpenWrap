@@ -987,7 +987,7 @@ describe('Config', function() {
     });
 
     describe('#getCCPATimeout', function() {
-        it('is a function', function(done) {
+	it("is a function", function(done) {
             CONFIG.getCCPATimeout.should.be.a('function');
             done();
         });
@@ -1001,7 +1001,7 @@ describe('Config', function() {
         it('should return default value for ccpa timeout which is '+CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT+', as it is NOT set', function(done) {
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_TIMEOUT];
             CONFIG.getCCPATimeout().should.be.equal(CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT);
-            done();
+	done();
         });
-    });
+});
 });
