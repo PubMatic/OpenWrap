@@ -233,8 +233,8 @@ exports.identityPartners = {
  */
 
 exports.slotConfig = {
-	"config_kgp": "_DIV_",
-	"kgpv": {
+	"pattern": "_DIV_",
+	"config": {
 		"Div1": {
 			"banner": {
 				"enabled": true

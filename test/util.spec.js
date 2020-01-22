@@ -2304,11 +2304,13 @@ describe('UTIL', function() {
 
     describe('#getMediaTypeObject', function() {
         var slotConfiguration, sizes, currentSlot;
-
+        
         beforeEach(function(done) {
+            sinon.spy(UTIL, "isOwnProperty");
             slotConfiguration ={
-                config_kgp:"_DIV_", // Or it Could be _AU_
-                "kgpv":{"DIV_1":{
+                pattern:"_DIV_", // Or it Could be _AU_
+                config:{
+                    "DIV_1":{
                     banner:{enabled:true},
                     native:{
                         enabled: true,
@@ -2362,6 +2364,7 @@ describe('UTIL', function() {
             currentSlot.getAdUnitID.restore();
             currentSlot.getAdUnitIndex.restore();
             CONFIG.getSlotConfiguration.restore();
+            UTIL.isOwnProperty.restore();
             done();
         });
 
@@ -2399,7 +2402,7 @@ describe('UTIL', function() {
         });
         
         it('should return mediaTypeObject with Native only if for that kgpv nativeOnly flag is set',function(done){
-            slotConfiguration["kgpv"]["DIV_1"].banner.enabled= false;
+            slotConfiguration["config"]["DIV_1"].banner.enabled= false;
             var expectedResult =  { 
                 native: {
                     image: {
@@ -2436,7 +2439,7 @@ describe('UTIL', function() {
         });
 
         it('should return only banner if no configuration found for native', function(done){
-            delete slotConfiguration["kgpv"]["DIV_1"].native;
+            delete slotConfiguration["config"]["DIV_1"].native;
             var expectedResult =  { 
                 banner: {
                     sizes: sizes

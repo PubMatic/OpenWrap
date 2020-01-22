@@ -1043,24 +1043,38 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 	var mediaTypeObject = {};
 	var slotConfig = CONFIG.getSlotConfiguration();
 	if(slotConfig){
-		if(slotConfig.config_kgp || (slotConfig["config_kgp"] = "_AU_")){
-			var kgp = slotConfig.config_kgp;
+		if(slotConfig.pattern || (slotConfig["pattern"] = "_AU_")){
+			var kgp = slotConfig.pattern;
+			var isVideo = true;
+			var isNative = true;
+			var isBanner = true;
 			// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
 			// as we are only supporting div and ad unit, taking the first slot name.
 			// Implemented as per code review and discussion. 
 
 			// Global Default Enable is false then disable each 
 			var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
-			if(refThis.isOwnProperty(slotConfig[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE],kgpv) || refThis.isOwnProperty(slotConfig[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE],CONSTANTS.COMMON.DEFAULT)){
+			if(refThis.isOwnProperty(slotConfig['config'] ,CONSTANTS.COMMON.DEFAULT)){
+				if(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].banner && !slotConfig['config'][CONSTANTS.COMMON.DEFAULT].banner.enabled){
+					isBanner =false;
+				}
+				if(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].native && !slotConfig['config'][CONSTANTS.COMMON.DEFAULT].native.enabled){
+					isNative =false;
+				}
+				if(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].video && !slotConfig['config'][CONSTANTS.COMMON.DEFAULT].video.enabled){
+					isVideo =false;
+				}
+			}
+			if(refThis.isOwnProperty(slotConfig['config'], kgpv)){
 				refThis.log("Config found for adSlot: " +  JSON.stringify(currentSlot));
-				var config = slotConfig[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE][kgpv] || slotConfig[CONSTANTS.COMMON.KEY_GENERATION_PATTERN_VALUE][CONSTANTS.COMMON.DEFAULT];
-				if(config.native && config.native.enabled){
+				var config = slotConfig["config"][kgpv] || slotConfig["config"][CONSTANTS.COMMON.DEFAULT];
+				if(isNative && config.native && (!refThis.isOwnProperty(config.native, 'enabled') || config.native.enabled)){
 					mediaTypeObject["native"] = config.native["config"];
 				}
-				if(config.video && config.video.enabled){
+				if(isVideo && config.video && (!refThis.isOwnProperty(config.video, 'enabled') || config.video.enabled)){
 					mediaTypeObject["video"] = config.video["config"];
 				}
-				if(config.banner && !config.banner.enabled){
+				if(!isBanner ||  (config.banner && (refThis.isOwnProperty(config.banner, 'enabled') && !config.banner.enabled))){
 					return mediaTypeObject;
 				}
 			} else{
