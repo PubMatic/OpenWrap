@@ -1359,12 +1359,15 @@ function shimStorageCallback(done) {
 	}
 }
 
-exports.cacheVideoAd = function(winningBid){
+// takes bid object and a callback function which would response with ids if possible 
+// else it would be called after 100ms time 
+exports.cacheVideoAd = function(bid, done){
 	// winningBid will contain the adHtml and adFormat as Video
 	// check if the adHtml starts with https:// then it might be a uri which will return valid vast
 	// for this case we need to create a vast and send it for caching.
+	bid = refThis.parseVASTAndAddTracker(bid);
 	const requestData = {
-		puts: winningBid.map(toStorageRequest)
+		puts: bid.map(toStorageRequest)
 	  };
 	// config.getConfig('cache.url')
 	refThis.ajaxRequest("http://172.16.4.192:2424/cache", shimStorageCallback(done), JSON.stringify(requestData), {
@@ -1384,8 +1387,8 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	}
 
 	pixelURL += "pubid=" + pubId;
-	pixelURL += "&purl=" + window.encodeURIComponent(util.metaInfo.pageURL);
-	pixelURL += "&tst=" + util.getCurrentTimestamp();
+	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
+	pixelURL += "&tst=" + refThis.getCurrentTimestamp();
 	pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
 	pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
 	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
@@ -1398,4 +1401,12 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 
 	return pixelURL;
 };
+
+exports.parseVASTAndAddTracker = function(bid){
+	if(bid && bid.adm){
+		// var parsedVast = new VASTParser().parseVAST(bid.adm);
+		
+	}
+	return bid;
+}
 

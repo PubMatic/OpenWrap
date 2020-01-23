@@ -686,7 +686,7 @@ function fetchBids(activeSlots, impressionID){
 						util.log(bidResponses);
 						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
 						//refThis.handleBidResponses(bidResponses);
-						util.forEachOnObject(bidResponses, function(responseID, bidResponse){
+						util.forEachOnObject(bidResponses, function(responseID){
 							bidManager.setAllPossibleBidsReceived(refThis.kgpvMap[responseID].divID);
 						});
 					},
