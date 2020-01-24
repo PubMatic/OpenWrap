@@ -35,7 +35,8 @@ exports.COMMON = {
 	"PROTOCOL" : "https://",
 	"SLOT_CONFIG": "slotConfig"	,
 	"DEFAULT": "DEFAULT",
-	"CACHEURL":"https://ow.pubmatic.com/cache"
+	"CACHEURL":"https://ow.pubmatic.com/cache",
+	"ADSERVER":"adserver"
 };
 
 exports.CONFIG = {
@@ -201,3 +202,8 @@ exports.EXCLUDE_IDENTITY_PARAMS = ["rev_share","timeout","throttle"];
 exports.TOLOWERCASE_IDENTITY_PARAMS = ["storage.type"];
 
 exports.JSON_VALUE_KEYS = ["params.clientIdentifier"];
+
+exports.AD_SERVER = {
+	"DFP" : "DFP",
+	"CUSTOM": "CUSTOM"
+};

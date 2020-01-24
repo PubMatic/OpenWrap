@@ -1080,7 +1080,12 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 					mediaTypeObject["native"] = config.native["config"];
 				}
 				if(isVideo && config.video && (!refThis.isOwnProperty(config.video, 'enabled') || config.video.enabled)){
-					mediaTypeObject["video"] = config.video["config"];
+					if(CONFIG.getAdServer() != CONSTANTS.AD_SERVER.DFP){
+						mediaTypeObject["video"] = config.video["config"];
+					}
+					else{
+						refThis.logWarning("Video Config will not be considered with DFP selected as AdServer.");
+					}
 				}
 				if(!isBanner ||  (config.banner && (refThis.isOwnProperty(config.banner, 'enabled') && !config.banner.enabled))){
 					return mediaTypeObject;
@@ -1308,6 +1313,7 @@ exports.getPartnerParams = function(params){
 exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
+	var netEcpm, grossEcpm, kgpv, bidId, adapterId;
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 
 	/* istanbul ignore else */
@@ -1315,18 +1321,57 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		return;
 	}
 
+	if(refThis.isFunction(theBid.getGrossEcpm)) {
+		grossEcpm = theBid.getGrossEcpm(isAnalytics);
+	}
+	else{
+		if(CONFIG.getAdServerCurrency() &&  refThis.isFunction(theBid.getCpmInNewCurrency)){
+			grossEcpm = window.parseFloat(theBid.getCpmInNewCurrency(CONSTANTS.COMMON.ANALYTICS_CURRENCY));
+		}
+		else {
+			grossEcpm = theBid.cpm;
+		}
+	}
+	if(refThis.isFunction(theBid.getAdapterID)){
+		adapterId = theBid.getAdapterID()
+	}
+	else{
+		adapterId = theBid.bidderCode
+	}
+	// Do we need all checks or we can just use one check
+	if(refThis.isFunction(theBid.getNetEcpm)) {
+		netEcpm = theBid.getNetEcpm(isAnalytics)
+	}
+	else{
+		// else would be executed in case this function is called from prebid for vast updation
+		netEcpm = window.parseFloat((grossEcpm * CONFIG.getAdapterRevShare(adapterId)).toFixed(CONSTANTS.COMMON.BID_PRECISION))
+	}
+	
+	if(refThis.isFunction(theBid.getBidID)){
+		bidId = theBid.getBidID()
+	}
+	else{
+		bidId = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].bidID;
+	}
+	if(refThis.isFunction(theBid.getKGPV)) {
+		kgpv = theBid.getKGPV()
+	}
+	else {
+		kgpv = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].kgpv;
+	}
+
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
 	pixelURL += "&tst=" + refThis.getCurrentTimestamp();
 	pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
-	pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
+	pixelURL += "&bidid=" + window.encodeURIComponent(bidId);
 	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
 	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
 	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
-	pixelURL += "&pn=" + window.encodeURIComponent(theBid.getAdapterID());
-	pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm(isAnalytics));
-	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm(isAnalytics));
-	pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
+	pixelURL += "&pn=" + window.encodeURIComponent(adapterId);
+	pixelURL += "&en=" + window.encodeURIComponent(netEcpm);
+	pixelURL += "&eg=" + window.encodeURIComponent(grossEcpm);
+	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
 
 	return pixelURL;
 };

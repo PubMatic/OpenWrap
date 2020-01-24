@@ -203,3 +203,7 @@ exports.getIdentityConsumers = function(){
 exports.getSlotConfiguration = function(){
 	return config[CONSTANTS.COMMON.SLOT_CONFIG];
 };
+
+exports.getAdServer = function(){
+	return config[CONSTANTS.COMMON.ADSERVER];
+};
