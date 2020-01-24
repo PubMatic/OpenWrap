@@ -34,7 +34,8 @@ exports.COMMON = {
 	"PREBID":"prebid",	
 	"PROTOCOL" : "https://",
 	"SLOT_CONFIG": "slotConfig"	,
-	"DEFAULT": "DEFAULT"
+	"DEFAULT": "DEFAULT",
+	"CACHEURL":"https://ow.pubmatic.com/cache"
 };
 
 exports.CONFIG = {

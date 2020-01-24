@@ -371,7 +371,8 @@ function generateConfForGPT(arrayOfGPTSlots) {
 			divId: divId,
 			adUnitId: adUnitId,
 			adUnitIndex: adUnitIndex,
-			mediaTypes: util.getMediaTypeObject(sizes, googleSlot)
+			mediaTypes: util.getMediaTypeObject(sizes, googleSlot),
+			sizes: sizes
 		});
 	});
 

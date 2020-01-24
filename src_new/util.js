@@ -1297,85 +1297,6 @@ exports.getPartnerParams = function(params){
 	return pparams;
 };
 
-function wrapURI(uri, impUrl) {
-	// Technically, this is vulnerable to cross-script injection by sketchy vastUrl bids.
-	// We could make sure it's a valid URI... but since we're loading VAST XML from the
-	// URL they provide anyway, that's probably not a big deal.
-	let vastImp = (impUrl) ? `<![CDATA[${impUrl}]]>` : ``;
-	return `<VAST version="3.0">
-	  <Ad>
-		<Wrapper>
-		  <AdSystem>prebid.org wrapper</AdSystem>
-		  <VASTAdTagURI><![CDATA[${uri}]]></VASTAdTagURI>
-		  <Impression>${vastImp}</Impression>
-		  <Creatives></Creatives>
-		</Wrapper>
-	  </Ad>
-	</VAST>`;
-  }
-
-
-function toStorageRequest(bid) {
-	const vastValue = bid.adm.startsWith("https://") ? wrapURI(bid.adm, bid.vastImpUrl) : bid.adm ;
-  
-	let payload = {
-	  type: 'xml',
-	  value: vastValue,
-	  ttlseconds: Number(bid.ttl)
-	};
-  
-	if (config.getConfig('cache.vasttrack')) {
-	  payload.bidder = bid.bidder;
-	  payload.bidid = bid.requestId;
-	}
-  
-	if (typeof bid.customCacheKey === 'string' && bid.customCacheKey !== '') {
-	  payload.key = bid.customCacheKey;
-	}
-  
-	return payload;
-}
-
-function shimStorageCallback(done) {
-	return {
-	  success: function (responseBody) {
-		var ids;
-		try {
-		  ids = JSON.parse(responseBody).responses
-		} catch (e) {
-		  done(e, []);
-		  return;
-		}
-  
-		if (ids) {
-		  done(null, ids);
-		} else {
-		  done(new Error("The cache server didn't respond with a responses property."), []);
-		}
-	  },
-	  error: function (statusText, responseBody) {
-		done(new Error(`Error storing video ad in the cache: ${statusText}: ${JSON.stringify(responseBody)}`), []);
-	  }
-	}
-}
-
-// takes bid object and a callback function which would response with ids if possible 
-// else it would be called after 100ms time 
-exports.cacheVideoAd = function(bid, done){
-	// winningBid will contain the adHtml and adFormat as Video
-	// check if the adHtml starts with https:// then it might be a uri which will return valid vast
-	// for this case we need to create a vast and send it for caching.
-	bid = refThis.parseVASTAndAddTracker(bid);
-	const requestData = {
-		puts: bid.map(toStorageRequest)
-	  };
-	// config.getConfig('cache.url')
-	refThis.ajaxRequest("http://172.16.4.192:2424/cache", shimStorageCallback(done), JSON.stringify(requestData), {
-	contentType: 'text/plain',
-	withCredentials: true
-	});
-};
-
 exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
@@ -1402,11 +1323,22 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	return pixelURL;
 };
 
-exports.parseVASTAndAddTracker = function(bid){
-	if(bid && bid.adm){
-		// var parsedVast = new VASTParser().parseVAST(bid.adm);
-		
+exports.UpdateVastWithTracker= function(bid, vast){
+	try{
+		var domParser = new DOMParser();
+		var parsedVast = domParser.parseFromString(vast,"application/xml");
+		var impEle = parsedVast.createElement("Impression");
+		impEle.innerHTML =	"<![CDATA["+ refThis.generateMonetizationPixel(bid.adUnitCode, bid)+"]]>";
+		if(parsedVast.getElementsByTagName('Wrapper').length == 1){
+			parsedVast.getElementsByTagName('Wrapper')[0].appendChild(impEle);
+		}
+		else if(parsedVast.getElementsByTagName('InLine').length == 1){
+			parsedVast.getElementsByTagName('InLine')[0].appendChild(impEle);
+		}
+		return new XMLSerializer().serializeToString(parsedVast);
 	}
-	return bid;
+	catch(ex){
+		return vast;
+	}
+    
 }
-

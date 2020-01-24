@@ -611,12 +611,13 @@ function fetchBids(activeSlots, impressionID){
 			//if(util.isFunction(window[pbNameSpace].setBidderSequence)){
 			//	window[pbNameSpace].setBidderSequence("random");
 			//}
-// cache: {
-// 						url: "http://172.16.4.192:2424/cache"
-// 					},
+
 			if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 				var prebidConfig = {
 					debug: util.isDebugLogEnabled(),
+					cache: {
+						url: CONSTANTS.COMMON.CACHEURL
+					},
 					bidderSequence: "random",
 					userSync: {
 						enableOverride: true,

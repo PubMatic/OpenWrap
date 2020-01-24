@@ -98,4 +98,14 @@ window.OWT.notifyExternalBiddingComplete = function(notifyId) {
 	});
 };
 
+window.PWT.UpdateVastWithTracker = function(bid, vast){
+	return util.UpdateVastWithTracker(bid, vast);
+};
+
+// window.PWT.generateDFPURL= function(adUnitArray){
+// 	var dfpurl = "";
+// 	owpbjs.adServers.dfp.buildVideoUrl
+// 	return dfpurl;
+// }
+
 controller.init(window);
