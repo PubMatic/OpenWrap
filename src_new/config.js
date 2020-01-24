@@ -157,6 +157,16 @@ exports.initConfig = function(){
 				slotLevelParams[ key ] = value;
 			});
 		});
+
+		if(adapterID != "pubmatic" && adapterID != "pubmatic2"){
+			util.forEachOnObject(adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP], function(kgpv, slotLevelParams){
+				util.forEachOnObject(adapterLevelParams, function(key, value){
+					if(util.isOwnProperty(slotLevelParams, "rx_config")){
+						slotLevelParams["rx_config"][ key ] = value;
+					}
+				});
+			});
+		}
 	});
 };
 

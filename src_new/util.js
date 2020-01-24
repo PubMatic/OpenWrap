@@ -451,8 +451,14 @@ exports.writeIframe = function(theDocument, src, width, height, style){
 exports.displayCreative = function(theDocument, bid){
 	refThis.resizeWindow(theDocument, bid.width, bid.height);
 	if(bid.adHtml){
+		if(bid.getAdapterID().toLowerCase() == "appier"){
+			bid.adHtml = refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());
+		}
 		theDocument.write(bid.adHtml);
 	}else if(bid.adUrl){
+		if(bid.getAdapterID().toLowerCase() == "appier"){
+			bid.adUrl = refThis.replaceAuctionPrice(bid.adUrl, bid.getGrossEcpm());
+		}
 		refThis.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
 	}else{
 		refThis.logError("creative details are not found");
@@ -556,6 +562,8 @@ exports.getMetaInfo = function(cWin){
 		})(frame);
 
 	}catch(e){}
+
+	obj.pageDomain = refThis.getDomainFromURL(obj.pageURL);
 
 	refThis.metaInfo = obj;
 
@@ -1341,4 +1349,15 @@ exports.UpdateVastWithTracker= function(bid, vast){
 		return vast;
 	}
     
-}
+};
+
+exports.getDomainFromURL = function(url){
+	var a = window.document.createElement("a");
+	a.href = url;
+	return a.hostname;
+};
+
+exports.replaceAuctionPrice = function(str, cpm) {
+	if (!str) return;
+	return str.replace(/\$\{AUCTION_PRICE\}/g, cpm);
+};

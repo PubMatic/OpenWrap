@@ -82,6 +82,30 @@ exports.adapters = {
 				ct: "147007"
 			}
 		}
+	},
+	rubicon: {
+		accountId: "10998",
+		rev_share: "0.0",
+		timeout: "1000",
+		throttle: "100",
+		pt: 0,
+		serverSideEnabled: "0",
+		amp: 0,
+		video: 0,
+		"in-app": 0,
+		kgp_rx: "_AU_@_DIV_@_W_x_H_",
+		klm_rx: [{
+			rx: {
+				DIV: ".*",
+				AU: "^/43743431/DMDemo",
+				SIZE: "728x90"
+			},
+			rx_config: {
+				zoneId: "869224",
+				siteId: "178620",
+				floor: "0"
+			}
+		}]
 	}
 };
 
