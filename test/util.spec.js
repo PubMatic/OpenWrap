@@ -2334,7 +2334,7 @@ describe('UTIL', function() {
         beforeEach(function(done) {
             sinon.spy(UTIL, "isOwnProperty");
             slotConfiguration ={
-                pattern:"_DIV_", // Or it Could be _AU_
+                configPattern:"_DIV_", // Or it Could be _AU_
                 config:{
                     "DIV_1":{
                     banner:{enabled:true},
