@@ -188,13 +188,7 @@ function auctionBids(bmEntry) { // TDD, i/o : done
 
     if(CONFIG.getMataDataPattern() !== null){
     	createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);
-    }
-	if(winningBid.adFormat == "video"){
-		// TODO : 1. Cache Bids for video format
-		//		  2. add a new key value pair of uuid got from cache
-		
-	}
-	
+    }	
     return {
         wb: winningBid,
         kvp: keyValuePairs
