@@ -160,7 +160,7 @@ function getAdSlotSizesArray(anAdUnitObject) {
 				return [[anAdUnitObject.mediaTypes.video.w, anAdUnitObject.mediaTypes.video.h]];
 			}
 			else {
-				util.logError(`for slot ${anAdUnitObject} video playersize or w,h is not defined and may not request bids from SSP for this slot. `);
+				util.logError("for slot video playersize or w,h is not defined and may not request bids from SSP for this slot. " + JSON.stringify(anAdUnitObject));
 			}
 		}
 		if(anAdUnitObject.mediaTypes.native){
