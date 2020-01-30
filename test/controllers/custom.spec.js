@@ -364,7 +364,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			done();
 		});
 
-		xit("should return false if adUnit.mediaTypes.banner.sizes is not array", function (done) {
+		it("should return false if adUnit.mediaTypes.banner.sizes is not array", function (done) {
 			validObject.mediaTypes.banner.sizes = undefined;
 			CUSTOM.validateAdUnitObject(validObject).should.be.false;
 			done();

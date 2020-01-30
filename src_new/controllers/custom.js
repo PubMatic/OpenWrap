@@ -129,14 +129,14 @@ function validateAdUnitObject(anAdUnitObject) {
 	// ToDo: in future we need to support native as well
 
 	if (!util.isObject(anAdUnitObject.mediaTypes.banner) && !util.isObject(anAdUnitObject.mediaTypes.native) && !util.isObject(anAdUnitObject.mediaTypes.video)) {
-		util.error("An anAdUnitObject.mediaTypes should have a property named banner and it should be an object", anAdUnitObject);
+		util.error("An anAdUnitObject.mediaTypes should atleast have a property named banner or native or video and it should be an object", anAdUnitObject);
 		return false;
 	}
 
-	// if (!util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
-	// 	util.error("An anAdUnitObject.mediaTypes.banner should have a property named sizes and it should be an array", anAdUnitObject);
-	// 	return false;
-	// }
+	if (util.isObject(anAdUnitObject.mediaTypes.banner) && !util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
+		util.error("An anAdUnitObject.mediaTypes.banner should have a property named sizes and it should be an array", anAdUnitObject);
+		return false;
+	}
 
 	return true;
 }
