@@ -180,84 +180,9 @@ exports.identityPartners = {
 // 4. Loop on slotConfig for that generated slot config in pt.3
 // 5. DIV1 -> Apply based on condtions (enabled,)
 // 6. DIV5 -> It will increase Latency 
-// 7. 
-// exports.videoConfig = {
-// "slotConfig": {
-// 	"AU1": {
-// 		banner: {},
-// 		video: {}
-// 	},
-// 	"AU2": {
-// 		banner: {},
-// 		video: {}
-// 	},
-// 	"default": {
-// 		"video": {
-// 			"enabled": "true",
-// 			"format": "instream",
-// 			"kgp": "_DIV_", // _AU_
-// 			"connectiontype": [2],
-// 			"minduration": 10,
-// 			"maxduration": 50,
-// 			"battr": [6, 7],
-// 			"skip": 1,
-// 			"skipmin": 10,
-// 			"skipafter": 15,
-// 		}
-// 	}
-// }
-
-
-// "slotConfig": {
-// 	"DIV1: {
-// 	"slotname": "DIV1",
-// 	"banner": {
-// 		"refreshInterval": 10,
-// 		"clientConfig": {
-
-// 		}
-// 	}
-// }
-// }, {
-// "slotname": "DIV2",
-// "video": {
-// 	"enabled": false,
-// 	"connectiontype": [1, 2, 6],
-// 	"minduration": 10,
-// 	"maxduration": 50,
-// 	"battr": [
-// 		6,
-// 		7
-// 	],
-// 	"skip": 1,
-// 	"skipmin": 10,
-// 	"skipafter": 15,
-// 	"clientconfig": {
-// 		"timeouts": {
-// 			"wrapperTagURI": "<interval>",
-// 			"mediaFileURI": "<interval>"
-// 		}
-// 	}
-// }
-// }, {
-// "slotname": "efgc",
-// "banner": {
-// 	"enabled": false
-// }
-// }]
-// };
-
-
-
-
-/**
- * Points : 1. User has to provide individual Video and Native Config
- * 2. It consists of banner config which might cause confusion why banner is needed in video config
- * 3. Iterating 
- */
 
 exports.slotConfig = {
-	"pattern": "_DIV_",
+	"configPattern": "_DIV_",
 	"config": {
 		"Div1": {
 			"banner": {

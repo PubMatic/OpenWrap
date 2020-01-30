@@ -1074,8 +1074,8 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 				}
 			}
 			if(refThis.isOwnProperty(slotConfig['config'], kgpv)){
-				refThis.log("Config found for adSlot: " +  JSON.stringify(currentSlot));
 				var config = slotConfig["config"][kgpv] || slotConfig["config"][CONSTANTS.COMMON.DEFAULT];
+				refThis.log("Config" + JSON.stringify(config)  +" found for adSlot: " +  JSON.stringify(currentSlot));
 				if(isNative && config.native && (!refThis.isOwnProperty(config.native, 'enabled') || config.native.enabled)){
 					mediaTypeObject["native"] = config.native["config"];
 				}
