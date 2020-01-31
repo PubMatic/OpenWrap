@@ -1056,6 +1056,7 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 			var isVideo = true;
 			var isNative = true;
 			var isBanner = true;
+			var config = undefined;
 			// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
 			// as we are only supporting div and ad unit, taking the first slot name.
 			// Implemented as per code review and discussion. 
@@ -1072,10 +1073,16 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 				if(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].video && !slotConfig['config'][CONSTANTS.COMMON.DEFAULT].video.enabled){
 					isVideo =false;
 				}
+				config = slotConfig["config"][CONSTANTS.COMMON.DEFAULT];
 			}
 			if(refThis.isOwnProperty(slotConfig['config'], kgpv)){
-				var config = slotConfig["config"][kgpv] || slotConfig["config"][CONSTANTS.COMMON.DEFAULT];
+				config = slotConfig["config"][kgpv];
 				refThis.log("Config" + JSON.stringify(config)  +" found for adSlot: " +  JSON.stringify(currentSlot));
+			}
+			else{
+				refThis.log("Considering Default Config for " +  JSON.stringify(currentSlot));
+			}
+			if(config){
 				if(isNative && config.native && (!refThis.isOwnProperty(config.native, 'enabled') || config.native.enabled)){
 					mediaTypeObject["native"] = config.native["config"];
 				}
@@ -1090,7 +1097,8 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 				if(!isBanner ||  (config.banner && (refThis.isOwnProperty(config.banner, 'enabled') && !config.banner.enabled))){
 					return mediaTypeObject;
 				}
-			} else{
+			}
+			else{
 				refThis.log("Config not found for adSlot: " +  JSON.stringify(currentSlot));
 			}
 		} else{

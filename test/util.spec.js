@@ -2470,7 +2470,7 @@ describe('UTIL', function() {
             done();
         });
         
-        it('should return mediaTypeObject with Native only if for that kgpv nativeOnly flag is set',function(done){
+        it('should return mediaTypeObject with Native only if for that kgpv banner is disabled',function(done){
             slotConfiguration["config"]["DIV_1"].banner.enabled= false;
             var expectedResult =  { 
                 native: {

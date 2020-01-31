@@ -97,44 +97,42 @@ exports.initSafeFrameListener = initSafeFrameListener;
 
 function validateAdUnitObject(anAdUnitObject) {
 	if (!util.isObject(anAdUnitObject)) {
-		util.error("An AdUnitObject should be an object", anAdUnitObject);
+		util.logError("An AdUnitObject should be an object", anAdUnitObject);
 		return false;
 	}
 
 	if (!util.isString(anAdUnitObject.code)) {
-		util.error("An AdUnitObject should have a property named code and it should be a string", anAdUnitObject);
+		util.logError("An AdUnitObject should have a property named code and it should be a string", anAdUnitObject);
 		return false;
 	}
 
 	if (!util.isString(anAdUnitObject.divId)) {
-		util.error("An AdUnitObject should have a property named divId and it should be a string", anAdUnitObject);
+		util.logError("An AdUnitObject should have a property named divId and it should be a string", anAdUnitObject);
 		return false;
 	}
 
 	if (!util.isString(anAdUnitObject.adUnitId)) {
-		util.error("An AdUnitObject should have a property named adUnitId and it should be a string", anAdUnitObject);
+		util.logError("An AdUnitObject should have a property named adUnitId and it should be a string", anAdUnitObject);
 		return false;
 	}
 
 	if (!util.isString(anAdUnitObject.adUnitIndex)) {
-		util.error("An AdUnitObject should have a property named adUnitIndex and it should be a string", anAdUnitObject);
+		util.logError("An AdUnitObject should have a property named adUnitIndex and it should be a string", anAdUnitObject);
 		return false;
 	}
 
 	if (!util.isObject(anAdUnitObject.mediaTypes)) {
-		util.error("An AdUnitObject should have a property named mediaTypes and it should be an object", anAdUnitObject);
+		util.logError("An AdUnitObject should have a property named mediaTypes and it should be an object", anAdUnitObject);
 		return false;
 	}
 
-	// ToDo: in future we need to support native as well
-
 	if (!util.isObject(anAdUnitObject.mediaTypes.banner) && !util.isObject(anAdUnitObject.mediaTypes.native) && !util.isObject(anAdUnitObject.mediaTypes.video)) {
-		util.error("An anAdUnitObject.mediaTypes should atleast have a property named banner or native or video and it should be an object", anAdUnitObject);
+		util.logError("An anAdUnitObject.mediaTypes should atleast have a property named banner or native or video and it should be an object", anAdUnitObject);
 		return false;
 	}
 
 	if (util.isObject(anAdUnitObject.mediaTypes.banner) && !util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
-		util.error("An anAdUnitObject.mediaTypes.banner should have a property named sizes and it should be an array", anAdUnitObject);
+		util.logError("An anAdUnitObject.mediaTypes.banner should have a property named sizes and it should be an array", anAdUnitObject);
 		return false;
 	}
 
