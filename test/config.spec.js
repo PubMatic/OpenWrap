@@ -946,4 +946,62 @@ describe('Config', function() {
             done();
         });
     });
+
+
+    describe('#getCCPA', function() {
+        it('is a function', function(done) {
+            CONFIG.getCCPA.should.be.a('function');
+            done();
+        });
+
+        it('should return true, as it is set to "1"', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_CONSENT] = "1";
+            CONFIG.getCCPA().should.be.true;
+            done();
+        });
+
+        it('should return default value for ccpa which is '+(CONSTANTS.CONFIG.DEFAULT_CCPA_CONSENT === "1")+', as it is NOT set', function(done) {
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_CONSENT];
+            CONFIG.getCCPA().should.be.equal((CONSTANTS.CONFIG.DEFAULT_CCPA_CONSENT === "1"));
+            done();
+        });
+    });
+
+    describe('#getCCPACmpApi', function() {
+        it('is a function', function(done) {
+            CONFIG.getCCPACmpApi.should.be.a('function');
+            done();
+        });
+
+        it('should return iab, as it is set to iab', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_CMPAPI] = 'iab';
+            CONFIG.getCCPACmpApi().should.be.equal('iab');
+            done();
+        });
+
+        it('should return default cpm which is '+CONSTANTS.CONFIG.DEFAULT_CCPA_CMPAPI+', as it is NOT set', function(done) {
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_CMPAPI];
+            CONFIG.getCCPACmpApi().should.be.equal(CONSTANTS.CONFIG.DEFAULT_CCPA_CMPAPI);
+            done();
+        });
+    });
+
+    describe('#getCCPATimeout', function() {
+	it("is a function", function(done) {
+            CONFIG.getCCPATimeout.should.be.a('function');
+            done();
+        });
+
+        it('should return 5000, as it is set to 5000', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_TIMEOUT] = 5000;
+            CONFIG.getCCPATimeout().should.be.equal(5000);
+            done();
+        });
+
+        it('should return default value for ccpa timeout which is '+CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT+', as it is NOT set', function(done) {
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_TIMEOUT];
+            CONFIG.getCCPATimeout().should.be.equal(CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT);
+	done();
+        });
+});
 });
