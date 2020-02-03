@@ -1051,7 +1051,7 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 	var mediaTypeObject = {};
 	var slotConfig = CONFIG.getSlotConfiguration();
 	if(slotConfig){
-		if(slotConfig.configPattern || (slotConfig["configPattern"] = "_AU_")){
+		if((slotConfig.configPattern && slotConfig.configPattern.trim() != '') || (slotConfig["configPattern"] = "_AU_")){
 			var kgp = slotConfig.configPattern;
 			var isVideo = true;
 			var isNative = true;
