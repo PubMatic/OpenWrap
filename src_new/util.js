@@ -241,8 +241,8 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
                     .replace(constCommonMacroForAdUnitIndexRegExp, adUnitIndex)
                     .replace(constCommonMacroForIntegerRegExp, refThis.getIncrementalInteger())
 					.replace(constCommonMacroForDivRegExp, divId)
-					.replace(constCommonMacroForWidthRegExp, "0")
-					.replace(constCommonMacroForHeightRegExp, "0");
+					.replace(constCommonMacroForWidthRegExp, width)
+					.replace(constCommonMacroForHeightRegExp, height);
 					// if(!/*video*/){
 					// 	.replace(constCommonMacroForWidthRegExp, width)
 					// 	.replace(constCommonMacroForHeightRegExp, height)
@@ -251,7 +251,7 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 					// .replace(constCommonMacroForWidthRegExp, "0")
 					// .replace(constCommonMacroForHeightRegExp, "0")
 					// }
-
+					
                     /* istanbul ignore else */
 					if(! refThis.isOwnProperty(slotNamesObj, slotName)){
 						slotNamesObj[slotName] = "";
