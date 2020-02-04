@@ -207,3 +207,16 @@ exports.getSlotConfiguration = function(){
 exports.getAdServer = function(){
 	return config[CONSTANTS.COMMON.ADSERVER];
 };
+exports.getCCPA = function () {
+	var ccpa = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_CONSENT] || CONSTANTS.CONFIG.DEFAULT_CCPA_CONSENT;
+	return ccpa === "1";
+};
+
+exports.getCCPACmpApi = function () {
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_CMPAPI] || CONSTANTS.CONFIG.DEFAULT_CCPA_CMPAPI;
+};
+
+exports.getCCPATimeout = function() {
+	var ccpaTimeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_TIMEOUT];
+	return ccpaTimeout ? window.parseInt(ccpaTimeout) : CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT;
+};

@@ -2615,6 +2615,26 @@ describe('UTIL', function() {
             result.should.deep.equal({});
             done();
         });
+
+        it('should return video object from default if config not found for specific slot and default is on ',function(done){
+            slotConfiguration.config["default"] ={
+                video:{
+                    enabled:false,
+                    config:{
+                        "mimes":["mp4"]
+                    }
+                },
+                native:{
+                    enabled:false
+                },
+                banner:{
+                    enabled:false
+                }
+            };
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            result.should.deep.equal({});
+            done();
+        });
     });
 
     describe('#getAdFormatFromBidAd', function(){

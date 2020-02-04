@@ -238,11 +238,19 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 					var height = sizeArray[i][1] || sizeArray[i].getHeight();
 					slotName = pattern;
 					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, adUnitId)
-                    .replace(constCommonMacroForWidthRegExp, width)
-                    .replace(constCommonMacroForHeightRegExp, height)
                     .replace(constCommonMacroForAdUnitIndexRegExp, adUnitIndex)
                     .replace(constCommonMacroForIntegerRegExp, refThis.getIncrementalInteger())
-                    .replace(constCommonMacroForDivRegExp, divId);
+					.replace(constCommonMacroForDivRegExp, divId)
+					.replace(constCommonMacroForWidthRegExp, "0")
+					.replace(constCommonMacroForHeightRegExp, "0");
+					// if(!/*video*/){
+					// 	.replace(constCommonMacroForWidthRegExp, width)
+					// 	.replace(constCommonMacroForHeightRegExp, height)
+					// }
+					// else{
+					// .replace(constCommonMacroForWidthRegExp, "0")
+					// .replace(constCommonMacroForHeightRegExp, "0")
+					// }
 
                     /* istanbul ignore else */
 					if(! refThis.isOwnProperty(slotNamesObj, slotName)){
@@ -1064,13 +1072,13 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 			// Global Default Enable is false then disable each 
 			var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
 			if(refThis.isOwnProperty(slotConfig['config'] ,CONSTANTS.COMMON.DEFAULT)){
-				if(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].banner && !slotConfig['config'][CONSTANTS.COMMON.DEFAULT].banner.enabled){
+				if(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].banner && refThis.isOwnProperty(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].banner, 'enabled') && !slotConfig['config'][CONSTANTS.COMMON.DEFAULT].banner.enabled){
 					isBanner =false;
 				}
-				if(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].native && !slotConfig['config'][CONSTANTS.COMMON.DEFAULT].native.enabled){
+				if(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].native && refThis.isOwnProperty(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].native, 'enabled') && !slotConfig['config'][CONSTANTS.COMMON.DEFAULT].native.enabled){
 					isNative =false;
 				}
-				if(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].video && !slotConfig['config'][CONSTANTS.COMMON.DEFAULT].video.enabled){
+				if(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].video && refThis.isOwnProperty(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].video, 'enabled') &&  !slotConfig['config'][CONSTANTS.COMMON.DEFAULT].video.enabled){
 					isVideo =false;
 				}
 				config = slotConfig["config"][CONSTANTS.COMMON.DEFAULT];
@@ -1092,7 +1100,7 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 					}
 					else{
 						refThis.logWarning("Video Config will not be considered with DFP selected as AdServer.");
-					}
+					}  
 				}
 				if(!isBanner ||  (config.banner && (refThis.isOwnProperty(config.banner, 'enabled') && !config.banner.enabled))){
 					return mediaTypeObject;

@@ -16,7 +16,10 @@ exports.pwt = {
 	singleImpression: "1",
 	identityEnabled:"0",
 	identityConsumers:"EB,TAM,Prebid",
-	identityOnly:"0"
+	identityOnly:"0",
+	ccpa: "0",
+	ccpaCmpApi: "iab",
+	ccpaTimeout: "10000",
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
