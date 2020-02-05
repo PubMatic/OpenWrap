@@ -22,6 +22,8 @@ var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
 var refThis = this;
+var mediaTypeConfigPerSlot = {};
+exports.mediaTypeConfig = mediaTypeConfigPerSlot;
 
 function isA(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
@@ -214,7 +216,7 @@ var constCommonMacroForAdUnitIndexRegExp = new RegExp(CONSTANTS.MACROS.AD_UNIT_I
 var constCommonMacroForIntegerRegExp = new RegExp(CONSTANTS.MACROS.INTEGER, macroRegexFlag);
 var constCommonMacroForDivRegExp = new RegExp(CONSTANTS.MACROS.DIV, macroRegexFlag);
 
-exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
+exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheckMappingForVideo){
 	var slotNames = [],
 		slotName,
 		slotNamesObj = {},
@@ -240,17 +242,24 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, adUnitId)
                     .replace(constCommonMacroForAdUnitIndexRegExp, adUnitIndex)
                     .replace(constCommonMacroForIntegerRegExp, refThis.getIncrementalInteger())
-					.replace(constCommonMacroForDivRegExp, divId)
-					.replace(constCommonMacroForWidthRegExp, width)
-					.replace(constCommonMacroForHeightRegExp, height);
-					// if(!/*video*/){
-					// 	.replace(constCommonMacroForWidthRegExp, width)
-					// 	.replace(constCommonMacroForHeightRegExp, height)
-					// }
-					// else{
-					// .replace(constCommonMacroForWidthRegExp, "0")
-					// .replace(constCommonMacroForHeightRegExp, "0")
-					// }
+					.replace(constCommonMacroForDivRegExp, divId);
+					// .replace(constCommonMacroForWidthRegExp, width)
+					// .replace(constCommonMacroForHeightRegExp, height);
+					if(shouldCheckMappingForVideo){
+						var config = refThis.mediaTypeConfig[divId];
+						if(config && config.video){
+							slotName = slotName.replace(constCommonMacroForWidthRegExp, "0")
+									.replace(constCommonMacroForHeightRegExp, "0");
+						}
+						else{
+							slotName = slotName.replace(constCommonMacroForWidthRegExp, width)
+									.replace(constCommonMacroForHeightRegExp, height);
+						}
+					}
+					else{
+						slotName = slotName.replace(constCommonMacroForWidthRegExp, width)
+								.replace(constCommonMacroForHeightRegExp, height);
+					}
 					
                     /* istanbul ignore else */
 					if(! refThis.isOwnProperty(slotNamesObj, slotName)){
@@ -342,7 +351,7 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 	/* istanbul ignore else */
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
 		refThis.forEachOnArray(activeSlots, function(i, activeSlot){
-			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
+			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern, true);
 			if(generatedKeys.length > 0){
 				refThis.callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids, keyGenerationPattern);
 			} 		
@@ -1065,12 +1074,14 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 			var isNative = true;
 			var isBanner = true;
 			var config = undefined;
+			var divId = refThis.isFunction(currentSlot.getDivID) ? currentSlot.getDivID() : currentSlot.getSlotId().getDomId();
+
 			// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
 			// as we are only supporting div and ad unit, taking the first slot name.
 			// Implemented as per code review and discussion. 
 
+			var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp, false)[0];
 			// Global Default Enable is false then disable each 
-			var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
 			if(refThis.isOwnProperty(slotConfig['config'] ,CONSTANTS.COMMON.DEFAULT)){
 				if(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].banner && refThis.isOwnProperty(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].banner, 'enabled') && !slotConfig['config'][CONSTANTS.COMMON.DEFAULT].banner.enabled){
 					isBanner =false;
@@ -1103,6 +1114,7 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 					}  
 				}
 				if(!isBanner ||  (config.banner && (refThis.isOwnProperty(config.banner, 'enabled') && !config.banner.enabled))){
+					refThis.mediaTypeConfig[divId] = mediaTypeObject;        
 					return mediaTypeObject;
 				}
 			}
@@ -1116,6 +1128,7 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 	mediaTypeObject["banner"] = {
 		sizes: sizes
 	};
+	refThis.mediaTypeConfig[divId] = mediaTypeObject;
 	return mediaTypeObject;
 };
 
