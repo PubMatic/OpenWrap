@@ -1435,3 +1435,11 @@ exports.replaceAuctionPrice = function(str, cpm) {
 	if (!str) return;
 	return str.replace(/\$\{AUCTION_PRICE\}/g, cpm);
 };
+
+exports.getCustomParamsForDFPVideo = function(customParams, bid){
+	const adserverTargeting = (bid && bid.adserverTargeting) || {};
+	var customParams = Object.assign({},
+		adserverTargeting,
+		customParams);
+	return customParams;
+};

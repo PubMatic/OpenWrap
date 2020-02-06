@@ -622,8 +622,13 @@ exports.setStandardKeys = function(winningBid, keyValuePairs){
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID ] = CONFIG.getProfileID();
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID ] = CONFIG.getProfileDisplayVersionID();
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ] = winningBid.width + 'x' + winningBid.height;
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ] = (winningBid.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
-    } else {
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ] = winningBid.getAdFormat() == CONSTANTS.FORMAT_VALUES.VIDEO ? CONSTANTS.PLATFORM_VALUES.VIDEO : (winningBid.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
+		if(winningBid.getAdFormat() == CONSTANTS.FORMAT_VALUES.VIDEO){
+			keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_PATH ] = CONSTANTS.CONFIG.CACHE_PATH;
+			keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_URL ] = CONSTANTS.CONFIG.CACHE_URL;
+			keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_ID ] = winningBid.getcacheUUID();
+		}
+	} else {
     	util.logWarning('Not generating key-value pairs as invalid winningBid object passed. WinningBid: ');
     	util.logWarning(winningBid);
     }

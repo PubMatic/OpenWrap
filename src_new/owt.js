@@ -109,10 +109,11 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 	}
 	if(adUnit.bidData){
 		adUnit.bid = adUnit.bidData.wb;
-		adUnit.adServerTargeting = adUnit.bidData.kvp;
+		adUnit.bid.adserverTargeting = adUnit.bidData.kvp;
 	}
 	dfpurl = window.owpbjs.adServers.dfp.buildVideoUrl({
 		adUnit: adUnit,
+		bid:adUnit.bid,      
 		params: {
 			iu: adUnit.adUnitId,
 			cust_params: cust_params,
@@ -120,6 +121,10 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 		}
 	});
 	return dfpurl;
+};
+
+window.PWT.getCustomParamsForDFPVideo = function(customParams, bid){
+	return util.getCustomParamsForDFPVideo(customParams, bid);
 };
 
 controller.init(window);

@@ -35,7 +35,6 @@ exports.COMMON = {
 	"PROTOCOL" : "https://",
 	"SLOT_CONFIG": "slotConfig"	,
 	"DEFAULT": "default",
-	"CACHEURL":"https://ow.pubmatic.com/cache",
 	"ADSERVER":"adserver"
 };
 
@@ -80,6 +79,9 @@ exports.CONFIG = {
 	"CCPA_TIMEOUT": "ccpaTimeout",
 	"DEFAULT_CCPA_CMPAPI": "iab",
 	"DEFAULT_CCPA_TIMEOUT": 10000,
+	"CACHE_PATH":"/cache",
+	"CACHE_URL":"https://ow.pubmatic.com",
+
 };
 
 exports.METADATA_MACROS = {
@@ -120,7 +122,10 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"PROFILE_VERSION_ID": "pwtverid",
 	"META_DATA": "pwtm",
 	"PLATFORM_KEY": "pwtplt",
-	"USER_IDS":"pwtuid"
+	"USER_IDS":"pwtuid",
+	"CACHE_ID":"pwtcid",
+	"CACHE_URL":"pwtcurl",
+	"CACHE_PATH":"pwtcpath",
 };
 
 exports.IGNORE_PREBID_KEYS = {
@@ -128,7 +133,10 @@ exports.IGNORE_PREBID_KEYS = {
 	"hb_adid": 1,
 	"hb_pb": 1,
 	"hb_size": 1,
-	"hb_deal": 1
+	"hb_deal": 1,
+	"hb_uuid":1,
+	"hb_cache_host":1,
+	"hb_cache_id":1
 };
 
 //todo: mention all params here and use accordigly
@@ -180,7 +188,8 @@ exports.MESSAGES = {
 
 exports.PLATFORM_VALUES = {
 	"DISPLAY": "display",
-	"NATIVE": "native"
+	"NATIVE": "native",
+	"VIDEO":"video"
 };
 
 exports.FORMAT_VALUES = {

@@ -53,7 +53,11 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	if(rxPattern){
 		theBid.setRegexPattern(rxPattern);
 	}
-
+	if(bid.mediaType == CONSTANTS.FORMAT_VALUES.VIDEO){
+		if(bid.videoCacheKey){
+			theBid.setcacheUUID(bid.videoCacheKey);
+		}
+	}
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
 	// Check if currency conversion is enabled or not
@@ -618,7 +622,7 @@ function fetchBids(activeSlots, impressionID){
 				var prebidConfig = {
 					debug: util.isDebugLogEnabled(),
 					cache: {
-						url: CONSTANTS.COMMON.CACHEURL
+						url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH
 					},
 					bidderSequence: "random",
 					userSync: {
