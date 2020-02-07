@@ -1402,7 +1402,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&eg=" + window.encodeURIComponent(grossEcpm);
 	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
 
-	return pixelURL;
+	return CONSTANTS.COMMON.PROTOCOL + pixelURL;
 };
 
 exports.UpdateVastWithTracker= function(bid, vast){

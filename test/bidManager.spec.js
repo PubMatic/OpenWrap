@@ -1345,7 +1345,7 @@ describe('bidManager BIDMgr', function() {
          // TODO 17 JAn 2020 Make below test cases as pass.
         it('should generate proper pixelURL ', function(done) {
 
-            var pixelURL = CONFIG.getMonetizationPixelURL();
+            var pixelURL = CONSTANTS.COMMON.PROTOCOL + CONFIG.getMonetizationPixelURL();
             pixelURL += "pubid=" + CONFIG.getPublisherId();
             pixelURL += "&purl=" + window.encodeURIComponent(UTIL.metaInfo.pageURL);
             pixelURL += "&tst=" + UTIL.getCurrentTimestamp();
