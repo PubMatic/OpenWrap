@@ -514,7 +514,7 @@ exports.setImageSrcToPixelURL = function (pixelURL, useProtocol) { // TDD, i/o :
 		img.src = pixelURL;
 		return;
 	}
-	if(!pixelURL.trim().startsWith(CONSTANTS.COMMON.PROTOCOL)){
+	if(String(pixelURL).trim().substring(0,8) != CONSTANTS.COMMON.PROTOCOL){
 		pixelURL = CONSTANTS.COMMON.PROTOCOL + pixelURL;
 	}
 	img.src = pixelURL;
