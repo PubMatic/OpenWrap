@@ -1103,11 +1103,21 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 			}
 			if(config){
 				if(isNative && config.native && (!refThis.isOwnProperty(config.native, 'enabled') || config.native.enabled)){
-					mediaTypeObject["native"] = config.native["config"];
+					if(config.native["config"]){
+						mediaTypeObject["native"] = config.native["config"];
+					}
+					else{
+						refThis.logWarning("Native Config will not be considered as no config has been provided for slot" + JSON.stringify(currentSlot) + " or there is no configuration defined in default.");
+					}
 				}
 				if(isVideo && config.video && (!refThis.isOwnProperty(config.video, 'enabled') || config.video.enabled)){
 					if(CONFIG.getAdServer() != CONSTANTS.AD_SERVER.DFP){
-						mediaTypeObject["video"] = config.video["config"];
+						if(config.video["config"]){
+							mediaTypeObject["video"] = config.video["config"];
+						}
+						else{
+							refThis.logWarning("Video Config will not be considered as no config has been provided for slot" + JSON.stringify(currentSlot) + " or there is no configuration defined in default.");
+						}
 					}
 					else{
 						refThis.logWarning("Video Config will not be considered with DFP selected as AdServer.");
