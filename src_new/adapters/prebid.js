@@ -602,8 +602,12 @@ function fetchBids(activeSlots, impressionID){
 					userSync: {
 						enableOverride: true,
 						syncsPerBidder: 0,
-						iframeEnabled: true,
-						pixelEnabled: true,
+						filterSettings: {
+							iframe: {
+								bidders: "*",   // '*' means all bidders
+								filter: "include"
+							}
+						},
 						enabledBidders: (function(){
 							var arr = [];
 							CONFIG.forEachAdapter(function(adapterID){
