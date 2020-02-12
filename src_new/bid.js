@@ -330,6 +330,9 @@ Bid.prototype.getcacheUUID = function(){
 
 Bid.prototype.setcacheUUID = function(cacheUUID){
 	this.cacheUUID = cacheUUID;
+	if(!this.adFormat){
+		this.adFormat = CONSTANTS.FORMAT_VALUES.VIDEO;
+	}
 	return this;
 };
 
