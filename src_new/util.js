@@ -1373,6 +1373,9 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	}
 	if(refThis.isFunction(theBid.getAdapterID)){
 		adapterId = theBid.getAdapterID()
+		if(adapterId == "pubmaticServer"){
+			adapterId = "pubmatic";
+		}
 	}
 	else{
 		adapterId = theBid.bidderCode
