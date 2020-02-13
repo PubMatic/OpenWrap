@@ -1373,12 +1373,12 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	}
 	if(refThis.isFunction(theBid.getAdapterID)){
 		adapterId = theBid.getAdapterID()
-		if(adapterId == "pubmaticServer"){
-			adapterId = "pubmatic";
-		}
 	}
 	else{
 		adapterId = theBid.bidderCode
+	}
+	if(adapterId == "pubmaticServer"){
+		adapterId = "pubmatic";
 	}
 	// Do we need all checks or we can just use one check
 	if(refThis.isFunction(theBid.getNetEcpm)) {
