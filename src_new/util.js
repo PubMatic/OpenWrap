@@ -1452,9 +1452,9 @@ exports.getCustomParamsForDFPVideo = function(customParams, bid){
 	for(var key in adserverTargeting){
 		if(refThis.isOwnProperty(adserverTargeting,key)){
 			if(refThis.isArray(adserverTargeting[key])){
-				targetingKeys[key] = t.adserverTargeting[key].join();
+				targetingKeys[key] = adserverTargeting[key].join();
 			} else {
-				targetingKeys[key] = t.adserverTargeting[key];
+				targetingKeys[key] = adserverTargeting[key];
 			}
 		}
 	}
