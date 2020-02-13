@@ -1448,8 +1448,18 @@ exports.replaceAuctionPrice = function(str, cpm) {
 
 exports.getCustomParamsForDFPVideo = function(customParams, bid){
 	const adserverTargeting = (bid && bid.adserverTargeting) || {};
+	var targetingKeys = {}
+	for(var key in adserverTargeting){
+		if(refThis.isOwnProperty(adserverTargeting,key)){
+			if(refThis.isArray(adserverTargeting[key])){
+				targetingKeys[key] = t.adserverTargeting[key].join();
+			} else {
+				targetingKeys[key] = t.adserverTargeting[key];
+			}
+		}
+	}
 	var customParams = Object.assign({},
-		adserverTargeting,
+		targetingKeys,
 		customParams);
 	return customParams;
 };
