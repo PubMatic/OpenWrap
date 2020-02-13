@@ -31,6 +31,7 @@ function Bid(adapterID, kgpv){
 	this.native = undefined;
 	this.adFormat = undefined;
 	this.regexPattern = undefined;
+	this.cacheUUID = undefined;
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -320,6 +321,18 @@ Bid.prototype.getRegexPattern = function(){
 
 Bid.prototype.setRegexPattern = function(pattern){
 	this.regexPattern = pattern;
+	return this;
+};
+
+Bid.prototype.getcacheUUID = function(){
+	return this.cacheUUID;
+};
+
+Bid.prototype.setcacheUUID = function(cacheUUID){
+	this.cacheUUID = cacheUUID;
+	if(!this.adFormat){
+		this.adFormat = CONSTANTS.FORMAT_VALUES.VIDEO;
+	}
 	return this;
 };
 

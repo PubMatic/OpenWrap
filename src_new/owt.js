@@ -98,4 +98,33 @@ window.OWT.notifyExternalBiddingComplete = function(notifyId) {
 	});
 };
 
+window.PWT.UpdateVastWithTracker = function(bid, vast){
+	return util.UpdateVastWithTracker(bid, vast);
+};
+
+window.PWT.generateDFPURL= function(adUnit,cust_params){
+	var dfpurl = "";
+	if(!adUnit || !util.isObject(adUnit)) {
+		util.logError("An AdUnit should be an Object", adUnit);
+	}
+	if(adUnit.bidData){
+		adUnit.bid = adUnit.bidData.wb;
+		adUnit.bid.adserverTargeting = adUnit.bidData.kvp;
+	}
+	dfpurl = window.owpbjs.adServers.dfp.buildVideoUrl({
+		adUnit: adUnit,
+		bid:adUnit.bid,      
+		params: {
+			iu: adUnit.adUnitId,
+			cust_params: cust_params,
+			output: "vast"
+		}
+	});
+	return dfpurl;
+};
+
+window.PWT.getCustomParamsForDFPVideo = function(customParams, bid){
+	return util.getCustomParamsForDFPVideo(customParams, bid);
+};
+
 controller.init(window);

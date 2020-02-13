@@ -580,6 +580,12 @@ describe("CONTROLLER: CUSTOM", function() {
 					return {
 						getDomId: function(){
 							return "div_1";
+						},
+						getAdUnitPath: function(){
+							return "1234";
+						},
+						getId: function(){
+							return "1234_0";
 						}
 					};
 				},
@@ -604,6 +610,12 @@ describe("CONTROLLER: CUSTOM", function() {
 					return {
 						getDomId: function(){
 							return "div_2";
+						},
+						getAdUnitPath: function(){
+							return "9876";
+						},
+						getId: function(){
+							return "9876_0";
 						}
 					};
 				},
@@ -631,7 +643,8 @@ describe("CONTROLLER: CUSTOM", function() {
 					banner: {
 						sizes: [[728, 90]]
 					}
-				}
+				},
+				sizes:[[728, 90]]
 			});
 			op[1].should.deep.equal({
 				code: googleSlot2.getSlotId().getDomId(),
@@ -642,7 +655,8 @@ describe("CONTROLLER: CUSTOM", function() {
 					banner: {
 						sizes: [[300, 250]]
 					}
-				}
+				},
+				sizes: [[300, 250]]
 			});
 			done();
 		});

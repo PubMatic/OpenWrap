@@ -32,7 +32,10 @@ exports.COMMON = {
 	"GAM":"eb",
 	"TAM":"tam",
 	"PREBID":"prebid",	
-	"PROTOCOL" : "https://"
+	"PROTOCOL" : "https://",
+	"SLOT_CONFIG": "slotConfig"	,
+	"DEFAULT": "default",
+	"ADSERVER":"adserver"
 };
 
 exports.CONFIG = {
@@ -76,6 +79,9 @@ exports.CONFIG = {
 	"CCPA_TIMEOUT": "ccpaTimeout",
 	"DEFAULT_CCPA_CMPAPI": "iab",
 	"DEFAULT_CCPA_TIMEOUT": 10000,
+	"CACHE_PATH":"/cache",
+	"CACHE_URL":"https://ow.pubmatic.com",
+
 };
 
 exports.METADATA_MACROS = {
@@ -116,7 +122,10 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"PROFILE_VERSION_ID": "pwtverid",
 	"META_DATA": "pwtm",
 	"PLATFORM_KEY": "pwtplt",
-	"USER_IDS":"pwtuid"
+	"USER_IDS":"pwtuid",
+	"CACHE_ID":"pwtcid",
+	"CACHE_URL":"pwtcurl",
+	"CACHE_PATH":"pwtcpath",
 };
 
 exports.IGNORE_PREBID_KEYS = {
@@ -124,7 +133,10 @@ exports.IGNORE_PREBID_KEYS = {
 	"hb_adid": 1,
 	"hb_pb": 1,
 	"hb_size": 1,
-	"hb_deal": 1
+	"hb_deal": 1,
+	"hb_uuid":1,
+	"hb_cache_host":1,
+	"hb_cache_id":1
 };
 
 //todo: mention all params here and use accordigly
@@ -164,6 +176,7 @@ exports.MESSAGES = {
 	"M26": "Currency Module is Activated. Ad Server Currency is: ",
 	"M27": "Invalid regex pattern ",
 	"M28": "Unable to match regex pattern as kgpv length is not 3",
+	"M29": "Unable to parse Partner configuration",
 	IDENTITY:{
 		M1: "Unable to get User Id from OpenIdentity",
 		M2: "Setting UserIds to EB ",
@@ -175,7 +188,8 @@ exports.MESSAGES = {
 
 exports.PLATFORM_VALUES = {
 	"DISPLAY": "display",
-	"NATIVE": "native"
+	"NATIVE": "native",
+	"VIDEO":"video"
 };
 
 exports.FORMAT_VALUES = {
@@ -202,3 +216,8 @@ exports.EXCLUDE_IDENTITY_PARAMS = ["rev_share","timeout","throttle"];
 exports.TOLOWERCASE_IDENTITY_PARAMS = ["storage.type"];
 
 exports.JSON_VALUE_KEYS = ["params.clientIdentifier"];
+
+exports.AD_SERVER = {
+	"DFP" : "DFP",
+	"CUSTOM": "CUSTOM"
+};

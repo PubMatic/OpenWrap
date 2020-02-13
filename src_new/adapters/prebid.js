@@ -53,7 +53,11 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	if(rxPattern){
 		theBid.setRegexPattern(rxPattern);
 	}
-
+	if(bid.mediaType == CONSTANTS.FORMAT_VALUES.VIDEO){
+		if(bid.videoCacheKey){
+			theBid.setcacheUUID(bid.videoCacheKey);
+		}
+	}
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
 	// Check if currency conversion is enabled or not
@@ -135,7 +139,7 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 	var sizeIndex = 1;
 	var isRegex = false;
 	/* istanbul ignore else */
-	if(responseIdArray &&  (responseIdArray.length == 2 || ((responseIdArray.length == 3) && (sizeIndex = 2) && (isRegex=true)))){
+	if(responseIdArray &&  (responseIdArray.length == 2 || ((responseIdArray.length == 3) && (sizeIndex = 2) && (isRegex=true))) && bid.mediaType != "video"){
 		var responseIdSize = responseIdArray[sizeIndex];
 		var responseIndex = null;
 		// Below check if ad unit index is present then ignore it
@@ -317,7 +321,7 @@ exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight,regexPattern){
 
 	var code, sizes, divID = currentSlot.getDivID();
-	
+	var mediaTypeConfig;
 	if(!refThis.isSingleImpressionSettingEnabled){
 		if(kgpConsistsWidthAndHeight){
 			code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
@@ -378,9 +382,12 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(adUnits, code)){
+		mediaTypeConfig = util.getMediaTypeObject(sizes, currentSlot);
+		//TODO: Remove sizes from below as it will be deprecated soon in prebid
+		// Need to check pubmaticServerBidAdapter in our fork after this change.
 		adUnits[code] = {
 			code: code,
-			mediaTypes: util.getMediaTypeObject(CONFIG.getNativeConfiguration(), sizes, currentSlot),
+			mediaTypes:mediaTypeConfig ,
 			sizes: sizes,
 			bids: [],
 			divID : divID
@@ -391,12 +398,35 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		}
 	}
 
+	// in case there are multiple bidders ,we don't generate the config again but utilize the existing mediatype.
+	if(util.isOwnProperty(adUnits, code)){
+		mediaTypeConfig = adUnits[code].mediaTypes;
+	}
+
 	var slotParams = {};
+	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video")){
+		slotParams["video"]= mediaTypeConfig.video;
+	}
 	util.forEachOnObject(keyConfig, function(key, value){
 		/* istanbul ignore next */
 		slotParams[key] = value;
 	});
 
+	// Logic : If for slot config for partner video parameter is present then use that
+	// else take it from mediaType.video
+	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video")){
+		if(util.isOwnProperty(slotParams,"video")){
+			util.forEachOnObject(mediaTypeConfig.video, function(key, value){
+				if(!util.isOwnProperty(slotParams["video"],key)){
+					slotParams["video"][key] = value;
+				}
+			});
+		}
+		else {
+			slotParams["video"]= mediaTypeConfig.video;
+		}
+	}
+	
 	//processing for each partner
 	switch(adapterID){
 
@@ -598,6 +628,9 @@ function fetchBids(activeSlots, impressionID){
 			if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 				var prebidConfig = {
 					debug: util.isDebugLogEnabled(),
+					cache: {
+						url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH
+					},
 					bidderSequence: "random",
 					userSync: {
 						enableOverride: true,

@@ -2329,52 +2329,79 @@ describe('UTIL', function() {
     });
 
     describe('#getMediaTypeObject', function() {
-        var nativeConfiguration, sizes, currentSlot;
-
+        var slotConfiguration, sizes, currentSlot;
+        
         beforeEach(function(done) {
-            nativeConfiguration =  {
-                kgp:"_DIV_", // Or it Could be _AU_
-                klm:{
+            sinon.spy(UTIL, "isOwnProperty");
+            slotConfiguration ={
+                configPattern:"_DIV_", // Or it Could be _AU_
+                config:{
                     "DIV_1":{
-                        "nativeOnly": false,
-                        config: {
-                            image: {
-                                required: true,
-                                sizes: [150, 50]
-                            },
-                            title: {
-                                required: true,
-                                len: 80
-                            },
-                            sponsoredBy: {
-                                required: true
-                            },
-                            body: {
-                                required: true
+                        banner:{
+                            enabled:true
+                        },
+                        native:{
+                            enabled: true,
+                            config: {
+                                image: {
+                                    required: true,
+                                    sizes: [150, 50]
+                                },
+                                title: {
+                                    required: true,
+                                    len: 80
+                                },
+                                sponsoredBy: {
+                                    required: true
+                                },
+                                body: {
+                                    required: true
+                                }
                             }
                         }
                     },
                     "DIV_2":{
-                        "nativeOnly": true,
-                        config: {
-                            image: {
-                                required: true,
-                                sizes: [150, 50]
-                            },
-                            title: {
-                                required: true,
-                                len: 80
-                            },
-                            sponsoredBy: {
-                                required: true
-                            },
-                            body: {
-                                required: true
+                        "banner":{
+                            enabled:true
+                        },
+                        "native":{
+                            enabled: true,
+                            config: {
+                                image: {
+                                    required: true,
+                                    sizes: [150, 50]
+                                },
+                                title: {
+                                    required: true,
+                                    len: 80
+                                },
+                                sponsoredBy: {
+                                    required: true
+                                },
+                                body: {
+                                    required: true
+                                }
+                            }
+                        },
+                        "video": {
+                            "enabled": true,
+                            "config": {
+                                "context":"instream",
+                                "connectiontype": [1, 2, 6],
+                                "minduration": 10,
+                                "maxduration": 50,
+                                "battr": [
+                                    6,
+                                    7
+                                ],
+                                "skip": 1,
+                                "skipmin": 10,
+                                "skipafter": 15
                             }
                         }
                     }
-                }
-            };
+            }};
+            sinon.stub(CONFIG,"getSlotConfiguration").returns(slotConfiguration);
             sizes = [[300,250]];
             currentSlot = { 
                 getSizes: function(){
@@ -2398,13 +2425,15 @@ describe('UTIL', function() {
         });
 
         afterEach(function(done) {
-            nativeConfiguration = null;
+            slotConfiguration = null;
             sizes = null;
             commonDivID = "DIV_1";
             currentSlot.getDivID.restore();
             currentSlot.getSizes.restore();
             currentSlot.getAdUnitID.restore();
             currentSlot.getAdUnitIndex.restore();
+            CONFIG.getSlotConfiguration.restore();
+            UTIL.isOwnProperty.restore();
             done();
         });
 
@@ -2435,13 +2464,14 @@ describe('UTIL', function() {
                     sizes: sizes
                 }
             }
-            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
-            result.should.deep.equal(expectedResult);
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot)
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
             done();
         });
         
-        it('should return mediaTypeObject with Native only if for that kgpv nativeOnly flag is set',function(done){
-            nativeConfiguration.klm["DIV_1"].nativeOnly = true;
+        it('should return mediaTypeObject with Native only if for that kgpv banner is disabled',function(done){
+            slotConfiguration["config"]["DIV_1"].banner.enabled= false;
             var expectedResult =  { 
                 native: {
                     image: {
@@ -2460,7 +2490,7 @@ describe('UTIL', function() {
                     }
                 }
             }
-            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot)
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2472,20 +2502,137 @@ describe('UTIL', function() {
                 }
             };
             commonDivID = "DIV_3";
-            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot)
             result.should.deep.equal(expectedResult);
             done();
         });
 
         it('should return only banner if no configuration found for native', function(done){
-            nativeConfiguration = undefined;
+            delete slotConfiguration["config"]["DIV_1"].native;
             var expectedResult =  { 
                 banner: {
                     sizes: sizes
                 }
             };
-            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot)
             result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return only video if both banner and native is disabled for slot',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            slotConfiguration["config"]["DIV_2"].banner.enabled= false;
+            slotConfiguration["config"]["DIV_2"].native.enabled= false;
+            var expectedResult =  {"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15}};
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return video, banner and native if all are enabled ',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            var expectedResult = {"native":{"image":{"required":true,"sizes":[150,50]},"title":{"required":true,"len":80},"sponsoredBy":{"required":true},"body":{"required":true}},"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15},"banner":{"sizes":[[300,250]]}};
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return only banner if video and native are disbaled in default ',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            slotConfiguration.config["default"] ={
+                video:{
+                    enabled:false
+                },
+                native:{
+                    enabled:false
+                },
+                banner:{
+                    enabled:true
+                }
+            };
+            var expectedResult = {"banner":{"sizes":[[300,250]]}};
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return only native if banner and video are disbaled in default ',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            slotConfiguration.config["default"] ={
+                video:{
+                    enabled:false
+                },
+                native:{
+                    enabled:true
+                },
+                banner:{
+                    enabled:false
+                }
+            };
+            var expectedResult = {"native":{"image":{"required":true,"sizes":[150,50]},"title":{"required":true,"len":80},"sponsoredBy":{"required":true},"body":{"required":true}}};
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            result.should.deep.equal(expectedResult);
+            done();
+        });             
+
+        it('should return only video if banner and native are disbaled in default ',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            slotConfiguration.config["default"] ={
+                video:{
+                    enabled:true
+                },
+                native:{
+                    enabled:false
+                },
+                banner:{
+                    enabled:false
+                }
+            };
+            var expectedResult = {"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15}};
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return empty object if video, banner and native are disbaled in default ',function(done){
+            slotConfiguration.config["default"] ={
+                video:{
+                    enabled:false
+                },
+                native:{
+                    enabled:false
+                },
+                banner:{
+                    enabled:false
+                }
+            };
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            result.should.deep.equal({});
+            done();
+        });
+
+        it('should return video object from default if config not found for specific slot and default is on ',function(done){
+            slotConfiguration.config["default"] ={
+                video:{
+                    enabled:false,
+                    config:{
+                        "mimes":["mp4"]
+                    }
+                },
+                native:{
+                    enabled:false
+                },
+                banner:{
+                    enabled:false
+                }
+            };
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            result.should.deep.equal({});
             done();
         });
     });
