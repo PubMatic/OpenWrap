@@ -57,6 +57,7 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 		if(bid.videoCacheKey){
 			theBid.setcacheUUID(bid.videoCacheKey);
 		}
+		theBid.updateBidId(bid.adUnitCode);
 	}
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);

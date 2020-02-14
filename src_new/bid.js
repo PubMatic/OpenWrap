@@ -336,6 +336,17 @@ Bid.prototype.setcacheUUID = function(cacheUUID){
 	return this;
 };
 
+
+// This function is used to update the bid in case of video bid
+// this should only be called if bid is video so that there is no discrepancy in tracker and logger for bid Id
+Bid.prototype.updateBidId = function(slotID){
+	var bidId = window.PWT.bidMap[slotID].adapters[this.adapterID].bids[Object.keys(window.PWT.bidMap[slotID].adapters[this.adapterId].bids)[0]].bidID;
+	if(bidId && this.adFormat == CONSTANTS.FORMAT_VALUES.VIDEO){
+		this.bidID = bidId;
+	}
+	return this;
+};
+
 /* start-test-block */
 module.exports.Bid = Bid;
 /* end-test-block */
