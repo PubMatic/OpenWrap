@@ -354,9 +354,10 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			callHandlerFunction = true;
 		}else{
 			if(isRegexMapping){ 
-				refThis.log(console.time("Time for regexMatching for key " + generatedKey));
+				
+				refThis.debugLogIsEnabled && refThis.log(console.time("Time for regexMatching for key " + generatedKey));
 				var config = refThis.getConfigFromRegex(keyLookupMap,generatedKey);
-				refThis.log(console.timeEnd("Time for regexMatching for key " + generatedKey));
+				refThis.debugLogIsEnabled && refThis.log(console.timeEnd("Time for regexMatching for key " + generatedKey));
 
 				if(config){
 					keyConfig = config.config;
