@@ -107,19 +107,26 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 	if(!adUnit || !util.isObject(adUnit)) {
 		util.logError("An AdUnit should be an Object", adUnit);
 	}
-	if(adUnit.bidData){
+	if(adUnit.bidData && adUnit.bidData.wb && adUnit.bidData.kvp){
 		adUnit.bid = adUnit.bidData.wb;
-		adUnit.bid.adserverTargeting = adUnit.bidData.kvp;
+		adUnit.bid["adserverTargeting"] = adUnit.bidData.kvp;
 	}
-	dfpurl = window.owpbjs.adServers.dfp.buildVideoUrl({
+	else{
+		util.logWarning("No bid found for given adUnit");
+		return;
+	}
+	var params = {
 		adUnit: adUnit,
-		bid:adUnit.bid,      
 		params: {
 			iu: adUnit.adUnitId,
 			cust_params: cust_params,
 			output: "vast"
 		}
-	});
+	};
+	if(adUnit.bid){
+		params["bid"] = adUnit.bid;
+	}
+	dfpurl = window.owpbjs.adServers.dfp.buildVideoUrl(params);
 	return dfpurl;
 };
 
