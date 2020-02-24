@@ -150,18 +150,19 @@ function getAdSlotSizesArray(anAdUnitObject) {
 			return anAdUnitObject.mediaTypes.banner.sizes;
 		}
 		//TODO : Confirm about the below configuration and correct if needed
-		if(anAdUnitObject.mediaTypes.video) {
-			if(util.isArray(anAdUnitObject.mediaTypes.video.playerSize)){
-				return [anAdUnitObject.mediaTypes.video.playerSize];
-			}
-			else if(anAdUnitObject.mediaTypes.video.w && anAdUnitObject.mediaTypes.video.h){
-				return [[anAdUnitObject.mediaTypes.video.w, anAdUnitObject.mediaTypes.video.h]];
-			}
-			else {
-				util.logError("for slot video playersize or w,h is not defined and may not request bids from SSP for this slot. " + JSON.stringify(anAdUnitObject));
-			}
-		}
-		if(anAdUnitObject.mediaTypes.native){
+		// Commenting below code to remove custom handling of sizes and will be handled using adSlot.sizes
+		// if(anAdUnitObject.mediaTypes.video) {
+		// 	if(util.isArray(anAdUnitObject.mediaTypes.video.playerSize)){
+		// 		return [anAdUnitObject.mediaTypes.video.playerSize];
+		// 	}
+		// 	else if(anAdUnitObject.mediaTypes.video.w && anAdUnitObject.mediaTypes.video.h){
+		// 		return [[anAdUnitObject.mediaTypes.video.w, anAdUnitObject.mediaTypes.video.h]];
+		// 	}
+		// 	else {
+		// 		util.logError("For slot video playersize or w,h is not defined and may not request bids from SSP for this slot. " + JSON.stringify(anAdUnitObject));
+		// 	}
+		// }
+		if(anAdUnitObject.mediaTypes.native || anAdUnitObject.mediaTypes.video){
 			return anAdUnitObject.sizes;
 		}
 		//TODO : Also handle native only configuration
