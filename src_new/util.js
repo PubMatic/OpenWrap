@@ -55,7 +55,7 @@ exports.isObject = function(object){
 
 exports.isOwnProperty = function(theObject, proertyName){
 	/* istanbul ignore else */
-	if(theObject.hasOwnProperty){
+	if(refThis.isObject(theObject) && theObject.hasOwnProperty){
 		return theObject.hasOwnProperty(proertyName);
 	}
 	return false;
