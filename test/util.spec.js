@@ -12,6 +12,7 @@ var UTIL = require("../src_new/util");
 
 var SLOT = require("../src_new/slot.js").Slot;
 
+var BID = require("../src_new/bid.js");
 var BIDMgr = require("../src_new/bidManager.js");
 var CONFIG = require("../src_new/config.js");
 
@@ -649,8 +650,6 @@ describe('UTIL', function() {
             impressionID = null,
             slotConfigMandatoryParams = null,
             activeSlots = null,
-            keyGenerationPattern = null,
-            keyLookupMap = null,
             handlerFunction = null,
             addZeroBids = null;
         var obj = null;
@@ -658,14 +657,15 @@ describe('UTIL', function() {
         beforeEach(function(done) {
             adapterID = commonAdapterID;
             adUnits = "adUnits";
-            adapterConfig = "adapterConfig";
+            adapterConfig = {
+                kgp: "_W_x_H_",
+                klm: {
+                    "generatedKeys": "some_vale"
+                }
+            };
             impressionID = "impressionID";
             slotConfigMandatoryParams = "slotConfigMandatoryParams";
             activeSlots = [new SLOT("slot_1"), new SLOT("slot_2")];
-            keyGenerationPattern = "_W_x_H_";
-            keyLookupMap = {
-                "generatedKeys": "some_vale"
-            };
             obj = {
                 handlerFunction: function() {
                     return "handlerFunction"
@@ -683,8 +683,6 @@ describe('UTIL', function() {
             impressionID = null;
             slotConfigMandatoryParams = null;
             activeSlots = null;
-            keyGenerationPattern = null;
-            keyLookupMap = null;
             obj.handlerFunction.restore();
             obj.handlerFunction = null;
             addZeroBids = null;
@@ -696,10 +694,42 @@ describe('UTIL', function() {
             done();
         });
 
-        it('should check whther activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
-            UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids);
+        it('should check whether activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
+            UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
+            UTIL.forEachOnArray.should.be.calledOnce;
+            UTIL.generateSlotNamesFromPattern.should.be.calledOnce;
+            UTIL.callHandlerFunctionForMapping.should.be.calledOnce;
             done();
         });
+
+        it('should do nothing if active slot lenght is 0 ',function(done){
+            activeSlots = [];
+            UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
+            UTIL.forEachOnArray.should.not.be.called;
+            UTIL.generateSlotNamesFromPattern.should.not.be.called;
+            UTIL.callHandlerFunctionForMapping.should.not.be.called;
+            done();
+        });
+
+        it('should do nothing if KGP length is less than 3 ',function(done){
+            adapterConfig.kgp = "";
+            UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
+            UTIL.forEachOnArray.should.not.be.called;
+            UTIL.generateSlotNamesFromPattern.should.not.be.called;
+            UTIL.callHandlerFunctionForMapping.should.not.be.called;
+            done();
+        });
+
+        it('should check call handler function if activeslots is not empty ad key generation pattern is regex pattern', function(done) {
+            adapterConfig.kgp = undefined;
+            adapterConfig.kgp_rx = "_AU_@_DIV_@_W_x_H_";
+            UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
+            UTIL.forEachOnArray.should.be.calledOnce;
+            UTIL.generateSlotNamesFromPattern.should.be.calledOnce;
+            UTIL.callHandlerFunctionForMapping.should.be.calledOnce;
+            done();
+        });
+
     });
 
     describe('#resizeWindow', function() {
@@ -799,7 +829,10 @@ describe('UTIL', function() {
                 adHtml: "<html>ad content goes here </html>",
                 adUrl: "http://ad.url.here",
                 width: 340,
-                height: 210
+                height: 210,
+                getAdapterID:function(){
+                    return '';
+                }
             };
             sinon.stub(UTIL, "resizeWindow")
             // .returns(true);
@@ -807,6 +840,7 @@ describe('UTIL', function() {
             // .returns(true);
             sinon.spy(UTIL, "log");
             sinon.spy(UTIL, "logError");
+            sinon.spy(UTIL, "replaceAuctionPrice");
             done();
         });
 
@@ -818,6 +852,7 @@ describe('UTIL', function() {
             UTIL.writeIframe.restore();
             UTIL.log.restore();
             UTIL.logError.restore();
+            UTIL.replaceAuctionPrice.restore();
             done();
         });
 
@@ -853,6 +888,26 @@ describe('UTIL', function() {
             UTIL.logError.calledWith(bid).should.be.true;
             done();
         });
+
+        it('should have called replace Auction Price method of the passed object if bid is of APPIER', function(done) {
+            bid.getAdapterID = function(){ return "appier" };
+            bid.getGrossEcpm = function(){ return "10.55" };
+            UTIL.displayCreative(theDocument, bid);
+            theDocument.write.calledWith(bid.adHtml).should.be.true;
+            UTIL.replaceAuctionPrice.calledWith(bid.adHtml,bid.getGrossEcpm()).should.be.true;
+            done();
+        });
+
+        it('should have called replace auction price and  writeIframe method if adUrl is present in given bid and adHtml is not and bidder is appier', function(done) {
+            delete bid.adHtml;
+            bid.getAdapterID = function(){ return "appier" };
+            bid.getGrossEcpm = function(){ return "10.55" };
+            UTIL.displayCreative(theDocument, bid);
+            UTIL.replaceAuctionPrice.calledWith(bid.adUrl,bid.getGrossEcpm()).should.be.true;
+            UTIL.writeIframe.calledWith(theDocument, bid.adUrl, bid.width, bid.height, "").should.be.true;
+            done();
+        });
+
     });
 
     describe('#getScreenWidth', function() {
@@ -1177,6 +1232,7 @@ describe('UTIL', function() {
                     "secure",
                     "isInIframe",
                     "pageURL",
+                    "pageDomain"
                 ]);
             done();
         });
@@ -2602,7 +2658,48 @@ describe('UTIL', function() {
             window.owpbjs = undefined;
             done();
         });
-    }); 
+    });
+
+    describe('#getConfigFromRegex', function(){
+        var klmsForPartner,generatedKey;
+        beforeEach(function(done){
+            klmsForPartner=[{"rx":{"DIV":"Div.*","AU":".*","SIZE":".*"},"rx_config":{"hashedKey":"5ae33b52a72ed31da279ec35b26710e0"}}];
+            generatedKey="/43743431/DMDemo@Div1@728x90:0";
+           done();
+
+        });
+
+        afterEach(function(done){
+            done();
+        });
+
+        it('should return regex config if generated key matches the regex',function(done){
+           var expectedResult = {"config":{"hashedKey":"5ae33b52a72ed31da279ec35b26710e0"},"regexPattern":".*@Div.*@.*"}
+           UTIL.getConfigFromRegex(klmsForPartner, generatedKey).should.be.deep.equal(expectedResult);
+           done();
+        });
+
+        it('should return regex config for other partner if genrated key matches the regex', function(done){
+            klmsForPartner = [{"rx":{"DIV":"DiV.*","AU":".*","SIZE":".*"},"rx_config":{"placementId":"8801674"}},{"rx":{"DIV":"Div1","AU":".*","SIZE":".*"},"rx_config":{"placementId":"8801675"}}];
+            generatedKey = "/43743431/DMDemo@Div1@728x90";
+            var expectedResult = {"config":{"placementId":"8801675"},"regexPattern":".*@Div1@.*"}
+            UTIL.getConfigFromRegex(klmsForPartner, generatedKey).should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return null if generated key does not matches the regex pattern', function(done){
+            generatedKey = "/43743431/DMDemo@DiV1@728x90";
+            expect(UTIL.getConfigFromRegex(klmsForPartner, generatedKey)).to.be.equal(null);
+            done();
+        });
+
+        it('should return null if regex pattern is invalid', function(done){
+            klmsForPartner=[{"rx":{"DIV":"Div.*","AU":".*","SIZE":"[0-9]++"},"rx_config":{"hashedKey":"5ae33b52a72ed31da279ec35b26710e0"}}];
+            UTIL.logError.should.be.calledOnce;
+            expect(UTIL.getConfigFromRegex(klmsForPartner, generatedKey)).to.be.equal(null);
+            done();
+        });
+    });
     
     
     describe('#getUserIdParams', function() {
@@ -2752,6 +2849,116 @@ describe('UTIL', function() {
             var expectedResult = [{"name":"pubCommonId","storage":{"type":"cookie","name":"_pubCommonId","expires":"1825"}},{"name":"digitrust","params":{"init":{"member":"nQjyizbdyF","site":"FL6whbX1IW"}},"redirects":"true","storage":{"type":"cookie","name":"somenamevalue","expires":"60"}}];
             var result = UTIL.getUserIdConfiguration();
             result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
+    
+    describe('#callHandlerFunctionForMapping',function(){
+        var adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern;
+
+        beforeEach(function(done){
+            adapterID  = commonAdapterID;
+            adUnits = "adUnits";
+            adapterConfig = {
+                kgp: "_W_x_H_",
+                klm: {
+                    "generatedKeys": "some_vale"
+                }
+            };
+            impressionID = "impressionID";
+            slotConfigMandatoryParams = "slotConfigMandatoryParams";
+            activeSlots = [new SLOT("slot_1"), new SLOT("slot_2")];
+            obj = {
+                handlerFunction: function() {
+                    return "handlerFunction"
+                }
+            };
+            sinon.spy(obj, "handlerFunction");
+            addZeroBids = true;
+            done();
+        });
+
+        afterEach(function(done) {
+            adapterID = null;
+            adUnits = null;
+            adapterConfig = null;
+            impressionID = null;
+            slotConfigMandatoryParams = null;
+            activeSlots = null;
+            obj.handlerFunction.restore();
+            obj.handlerFunction = null;
+            addZeroBids = null;
+            done();
+        });
+
+        describe('flow for normal mapping',function(){
+
+            if('should  call handler function',function(done){
+                adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] = undefined;
+                UTIL.forEachOnArray.should.be.calledOnce;
+                UTIL.getConfigFromRegex.should.not.be.called;
+                done();
+            });
+
+        });
+
+        describe('flow for regex mapping',function(){
+
+            if('should  call handler function',function(done){
+                adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = undefined;
+                UTIL.forEachOnArray.should.be.calledOnce;
+                UTIL.getConfigFromRegex.should.be.calledOnce;
+                done();
+            });
+        });
+
+        it('should create bid if addZeroBids is true',function(done){
+            addZeroBids = true;
+            BID.createBid.should.be.calledOnce;
+            BIDMgr.setBidFromBidder.should.be.calledOnce;
+            done();     
+        });
+
+        it('should create bid if addZeroBids is false',function(done){
+            addZeroBids = false;
+            BID.createBid.should.not.be.called;
+            BIDMgr.setBidFromBidder.should.not.be.called;
+            done();     
+        });
+    });
+
+    describe('replaceAuctionPrice', function(){
+        it('is a function', function(done) {
+            UTIL.replaceAuctionPrice.should.be.a('function');
+            done();
+        });
+
+        it('should replace auction price macro', function(done){
+            var testAdHtml = "<html>Fake HTML ${AUCTION_PRICE}</html>";
+            var expectedResult = "<html>Fake HTML 10.55</html>";
+            var testbid = 10.55;
+            expect(UTIL.replaceAuctionPrice(testAdHtml,testbid)).to.be.equal(expectedResult);
+            done();
+        });
+
+        it('should not replace any other macro macro', function(done){
+            var testAdHtml = "<html>Fake HTML ${DEAL_PRICE}</html>";
+            var testbid = 10.55;
+            expect(UTIL.replaceAuctionPrice(testAdHtml,testbid)).to.be.equal(testAdHtml);
+            done();
+        });
+
+    });
+
+    describe('#getDomainFromURL', function(){
+        it('is a function', function(done) {
+            UTIL.getDomainFromURL.should.be.a('function');
+            done();
+        });
+
+        it('return correct value', function(done){
+            var result = UTIL.getDomainFromURL('http://www.example.com/12xy45');
+            result.should.equal('www.example.com');
             done();
         });
     });

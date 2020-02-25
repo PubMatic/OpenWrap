@@ -286,67 +286,125 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 	return success;
 };
 
-exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids){
+/**
+ * todo:
+ * 		if direct mapping is not found 
+ * 		then look for regex mapping
+ * 			separate function to handle regex mapping
+ * 			kgp: "" // should be filled with whatever value
+ * 			klm: {} // should be filled with records if required else leave it as an empty object {}
+ * 			kgp_rx: "" // regex pattern
+ * 			klm_rx: [
+ * 				{
+ * 					rx: "ABC123*",
+ * 					rx_config: {} // here goes adapyter config
+ * 				}, 
+ * 
+ * 				{
+ * 					rx: "*",
+ * 					rx_config: {}
+ * 				}
+ * 			]
+ */
+
+ /**
+  *  Algo for Regex and Normal Flow
+  * 1. Check for kgp key 
+  *   a). If KGP is present for partner then proceed with old flow and no change in that
+  *   b). If KGP is not present and kgp_rx is present it is regex flow and proceed with regex flow as below
+  * 2. Regex Flow
+  * 	a. Generate KGPV's with kgp as _AU_@_DIV_@_W_x_H_
+  * 	b. Regex Match each KGPV with KLM_rx 
+  * 	c. Get config for the partner 
+  *     d. Send the config to prebid and log the same kgpv in logger
+  * 
+  * Special Case for Pubmatic
+  *  1. In case of regex flow we will have hashed keys which will be sent to translator for matching
+  *  2. These hashed keys could be same for multiple slot on the page and hence need to check how to send it to prebid for 
+  *     identification in prebid resposne.
+  */
+
+exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids){
 	var activeSlotsLength = activeSlots.length,
-		i,
-		j,
-		generatedKeys,
-		generatedKeysLength,
-		kgpConsistsWidthAndHeight
-		;
+		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_GENERATION_PATTERN] || "";
 	/* istanbul ignore else */
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
-		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
-		for(i = 0; i < activeSlotsLength; i++){
-			var activeSlot = activeSlots[i];
-			generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
-			generatedKeysLength =  generatedKeys.length;
-			for(j = 0; j < generatedKeysLength; j++){
-				var generatedKey = generatedKeys[j],
-					keyConfig = null,
-					callHandlerFunction = false,
-					sizeArray = activeSlot.getSizes()
-					;
-
-				if(keyLookupMap == null){
-					callHandlerFunction = true;
-				}else{
-					keyConfig = keyLookupMap[generatedKey];
-					if(!keyConfig){
-						refThis.logWarning(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
-					}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-						refThis.logWarning(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
-					}else{
-						callHandlerFunction = true;
-					}
-				}
-
-				/* istanbul ignore else */
-				if(callHandlerFunction){
-
-					if(addZeroBids == true){
-						var bid = BID.createBid(adapterID, generatedKey);
-						bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
-						bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
-					}
-
-					handlerFunction(
-						adapterID,
-						adUnits,
-						adapterConfig,
-						impressionID,
-						generatedKey,
-						kgpConsistsWidthAndHeight,
-						activeSlot,
-						keyLookupMap ? keyLookupMap[generatedKey] : null,
-						sizeArray[j][0],
-						sizeArray[j][1]
-					);
-				}
-			}
-		}
+		refThis.forEachOnArray(activeSlots, function(i, activeSlot){
+			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
+			if(generatedKeys.length > 0){
+				refThis.callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids, keyGenerationPattern);
+			} 		
+		});
 	}
 };
+
+// private
+function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern){
+	var keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] || null,
+		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
+	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
+	var regexPattern = undefined;
+	refThis.forEachOnArray(generatedKeys, function(j, generatedKey){
+		var keyConfig = null,
+			callHandlerFunction = false,
+			sizeArray = activeSlot.getSizes()			
+			;
+
+		if(keyLookupMap == null){
+			callHandlerFunction = true;
+		}else{
+			if(isRegexMapping){ 
+				refThis.log(console.time("Time for regexMatching for key " + generatedKey));
+				var config = refThis.getConfigFromRegex(keyLookupMap,generatedKey);
+				refThis.log(console.timeEnd("Time for regexMatching for key " + generatedKey));
+
+				if(config){
+					keyConfig = config.config;
+					regexPattern = config.regexPattern;
+				}
+			}
+			else{
+				keyConfig = keyLookupMap[generatedKey];
+			}
+			if(!keyConfig){
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
+			}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
+			}else{
+				callHandlerFunction = true;
+			}
+		}
+
+		/* istanbul ignore else */
+		if(callHandlerFunction){
+
+			/* istanbul ignore else */
+			if(addZeroBids == true){
+				var bid = BID.createBid(adapterID, generatedKey);
+				bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
+				bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
+				bid.setRegexPattern(regexPattern);
+			}
+
+			handlerFunction(
+				adapterID,
+				adUnits,
+				adapterConfig,
+				impressionID,
+				generatedKey,
+				kgpConsistsWidthAndHeight,
+				activeSlot,
+				keyConfig,
+				sizeArray[j][0],
+				sizeArray[j][1],
+				regexPattern
+			);
+		}
+	});
+}
+/* start-test-block */
+exports.callHandlerFunctionForMapping = callHandlerFunctionForMapping;
+/* end-test-block */
 
 exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
@@ -389,8 +447,14 @@ exports.writeIframe = function(theDocument, src, width, height, style){
 exports.displayCreative = function(theDocument, bid){
 	refThis.resizeWindow(theDocument, bid.width, bid.height);
 	if(bid.adHtml){
+		if(bid.getAdapterID().toLowerCase() == "appier"){
+			bid.adHtml = refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());
+		}
 		theDocument.write(bid.adHtml);
 	}else if(bid.adUrl){
+		if(bid.getAdapterID().toLowerCase() == "appier"){
+			bid.adUrl = refThis.replaceAuctionPrice(bid.adUrl, bid.getGrossEcpm());
+		}
 		refThis.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
 	}else{
 		refThis.logError("creative details are not found");
@@ -494,6 +558,8 @@ exports.getMetaInfo = function(cWin){
 		})(frame);
 
 	}catch(e){}
+
+	obj.pageDomain = refThis.getDomainFromURL(obj.pageURL);
 
 	refThis.metaInfo = obj;
 
@@ -1082,6 +1148,42 @@ exports.getCurrencyToDisplay = function(){
 	return defaultCurrency;
 };
 
+exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
+	// This function will return the config for the partner for specific slot.
+	// KGP would always be AU@DIV@WXH
+	// KLM would be an array of regex Config and regex pattern pairs where key would be regex pattern to match 
+	// and value would be the config for that slot to be considered.
+	/* Algo to match regex pattern 
+		Start regex parttern matching  pattern -> ["ADUNIT", "DIV", "SIZE"]
+		Then match the slot adUnit with pattern 
+		if successful the match the div then size
+		if all are true then return the config else match the next avaiable pattern
+		if none of the pattern match then return the error config not found */
+	var rxConfig = null;
+	var keys = generatedKey.split("@");
+	for (var i = 0; i < klmsForPartner.length; i++) {
+		var klmv = klmsForPartner[i];
+		var rxPattern = klmv.rx;
+		if(keys.length == 3){ // Only execute if generated key length is 3 .
+			try{
+				if(keys[0].match(new RegExp(rxPattern.AU)) && keys[1].match(new RegExp(rxPattern.DIV)) && keys[2].match(new RegExp(rxPattern.SIZE))){
+					rxConfig = {
+						config : klmv.rx_config,
+						regexPattern : rxPattern.AU + "@" + rxPattern.DIV + "@" + rxPattern.SIZE
+					};
+					break;
+				}
+			}
+			catch(ex){
+				refThis.logError(CONSTANTS.MESSAGES.M27 + JSON.stringify(rxPattern));
+			}
+		} else {
+			refThis.logWarning(CONSTANTS.MESSAGES.M28 + generatedKey);
+		}
+	}
+	return rxConfig;
+};
+
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
@@ -1162,4 +1264,15 @@ exports.getUserIdParams = function(params){
 		}
 	}	
 	return userIdParams;
+};
+
+exports.getDomainFromURL = function(url){
+	var a = window.document.createElement("a");
+	a.href = url;
+	return a.hostname;
+};
+
+exports.replaceAuctionPrice = function(str, cpm) {
+	if (!str) return;
+	return str.replace(/\$\{AUCTION_PRICE\}/g, cpm);
 };

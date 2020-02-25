@@ -31,7 +31,8 @@ exports.COMMON = {
 	"IDENTITY_ONLY":"identityOnly",
 	"GAM":"eb",
 	"TAM":"tam",
-	"PREBID":"prebid"
+	"PREBID":"prebid",	
+	"PROTOCOL" : "https://"
 };
 
 exports.CONFIG = {
@@ -40,6 +41,8 @@ exports.CONFIG = {
 	"COMMON": "pwt",
 	"TIMEOUT": "t",
 	"KEY_GENERATION_PATTERN": "kgp",
+	"REGEX_KEY_GENERATION_PATTERN": "kgp_rx",
+	"REGEX_KEY_LOOKUP_MAP": "klm_rx",
 	"KEY_LOOKUP_MAP": "klm",
 	"SERVER_SIDE_KEY": "sk",
 	"PUBLISHER_ID": "pubid",
@@ -67,7 +70,12 @@ exports.CONFIG = {
 	"DEFAULT_USER_ID_MODULE": "0",
 	"DEFAULT_IDENTITY_ONLY": "0",
 	"DEFAULT_GDPR_CONSENT": "0",
-	"DISABLE_AJAX_TIMEOUT": "disableAjaxTimeout"
+	"DISABLE_AJAX_TIMEOUT": "disableAjaxTimeout",
+	"CCPA_CONSENT": "ccpa",
+	"CCPA_CMPAPI": "ccpaCmpApi",
+	"CCPA_TIMEOUT": "ccpaTimeout",
+	"DEFAULT_CCPA_CMPAPI": "iab",
+	"DEFAULT_CCPA_TIMEOUT": 10000,
 };
 
 exports.METADATA_MACROS = {
@@ -123,6 +131,7 @@ exports.IGNORE_PREBID_KEYS = {
 exports.LOGGER_PIXEL_PARAMS = {
 	"TIMESTAMP": "tst",
 	"PAGE_URL": "purl",
+	"PAGE_DOMAIN": "orig",
 	"TIMEOUT": "to"
 };
 
@@ -153,6 +162,8 @@ exports.MESSAGES = {
 	"M24": "Passsed argument is not a bidAdaptor",
 	"M25": "Bid details not found for bidID: ",
 	"M26": "Currency Module is Activated. Ad Server Currency is: ",
+	"M27": "Invalid regex pattern ",
+	"M28": "Unable to match regex pattern as kgpv length is not 3",
 	IDENTITY:{
 		M1: "Unable to get User Id from OpenIdentity",
 		M2: "Setting UserIds to EB ",

@@ -1509,7 +1509,7 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
 
             theBid.getDefaultBidStatus.called.should.be.true;
-            theBid.getKGPV.calledOnce.should.be.true;
+            theBid.getKGPV.calledTwice.should.be.true;
             theBid.getWidth.calledOnce.should.be.true;
             theBid.getHeight.calledOnce.should.be.true;
             theBid.getGrossEcpm.calledOnce.should.be.true;
@@ -1747,7 +1747,7 @@ describe('bidManager BIDMgr', function() {
         it('should have called window.Image while setting its src to the passed pixelURL', function(done) {
             BIDMgr.setImageSrcToPixelURL(pixelURL);
             window.Image.called.should.be.true;
-            imageObjStub.src.should.equal(UTIL.metaInfo.protocol + pixelURL);
+            imageObjStub.src.should.equal(CONSTANTS.COMMON.PROTOCOL + pixelURL);
             done();
         });
 

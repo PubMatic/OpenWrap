@@ -16,7 +16,10 @@ exports.pwt = {
 	singleImpression: "1",
 	identityEnabled:"0",
 	identityConsumers:"EB,TAM,Prebid",
-	identityOnly:"0"
+	identityOnly:"0",
+	ccpa: "0",
+	ccpaCmpApi: "iab",
+	ccpaTimeout: "10000",
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
@@ -31,8 +34,8 @@ exports.adapters = {
 	audienceNetwork: {
 		rev_share: "0.0",
 		throttle: "100",
-		kgp: "_DIV_",
-		klm: {
+		kgp_rx: "_DIV_",
+		klm_rx: {
 			"Div_1": {
 				placementId: "8801674"
 			},
@@ -80,6 +83,30 @@ exports.adapters = {
 				ct: "147007"
 			}
 		}
+	},
+	rubicon: {
+		accountId: "10998",
+		rev_share: "0.0",
+		timeout: "1000",
+		throttle: "100",
+		pt: 0,
+		serverSideEnabled: "0",
+		amp: 0,
+		video: 0,
+		"in-app": 0,
+		kgp_rx: "_AU_@_DIV_@_W_x_H_",
+		klm_rx: [{
+			rx: {
+				DIV: ".*",
+				AU: "^/43743431/DMDemo",
+				SIZE: "728x90"
+			},
+			rx_config: {
+				zoneId: "869224",
+				siteId: "178620",
+				floor: "0"
+			}
+		}]
 	}
 };
 
