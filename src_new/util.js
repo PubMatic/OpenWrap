@@ -1136,7 +1136,7 @@ exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLas
 exports.getNestedObjectFromString = function(sourceObject,separator, key, value){
 	var splitParams = key.split(separator);
 	if(splitParams.length == 1){
-		sourceObject[key] = value;
+		sourceObject[key] = value.trim();
 	} else{
 		sourceObject = refThis.getNestedObjectFromArray(sourceObject,splitParams,value);
 	}
