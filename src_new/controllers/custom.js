@@ -151,17 +151,12 @@ function getAdSlotSizesArray(anAdUnitObject) {
 		}
 		//TODO : Confirm about the below configuration and correct if needed
 		// Commenting below code to remove custom handling of sizes and will be handled using adSlot.sizes
-		// if(anAdUnitObject.mediaTypes.video) {
-		// 	if(util.isArray(anAdUnitObject.mediaTypes.video.playerSize)){
-		// 		return [anAdUnitObject.mediaTypes.video.playerSize];
-		// 	}
-		// 	else if(anAdUnitObject.mediaTypes.video.w && anAdUnitObject.mediaTypes.video.h){
-		// 		return [[anAdUnitObject.mediaTypes.video.w, anAdUnitObject.mediaTypes.video.h]];
-		// 	}
-		// 	else {
-		// 		util.logError("For slot video playersize or w,h is not defined and may not request bids from SSP for this slot. " + JSON.stringify(anAdUnitObject));
-		// 	}
-		// }
+		// Uncommenting and making behaviour same as to have player size or w and h as mandatory.
+		if(anAdUnitObject.mediaTypes.video) {
+			if(!util.isArray(anAdUnitObject.mediaTypes.video.playerSize) && !(anAdUnitObject.mediaTypes.video.w && anAdUnitObject.mediaTypes.video.h)){
+				util.logError("For slot video playersize or w,h is not defined and may not request bids from SSP for this slot. " + JSON.stringify(anAdUnitObject));
+			}
+		}
 		if(anAdUnitObject.mediaTypes.native || anAdUnitObject.mediaTypes.video){
 			return anAdUnitObject.sizes;
 		}
