@@ -826,16 +826,18 @@ function addHooksIfPossible(win) { // TDD, i/o : done
     if(CONFIG.isUserIdModuleEnabled()  ){
         //TODO : Check for Prebid loaded and debug logs 
         prebid.register().sC();
-        if(CONFIG.isIdentityOnly() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs) && !util.isUndefined(win.pbjs.que)){
-            pbjs.que.unshift(function(){
-                util.log("Adding Hook on pbjs.addAddUnits()");
-                var theObject = window.pbjs;
-                var functionName = "addAdUnits"
-                util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
-            });
-            util.log("Identity Only Enabled and setting config");
-        }else{
-            util.logWarning("Window.pbjs is undefined")
+        if(CONFIG.isIdentityOnly()){
+            if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs) && !util.isUndefined(win.pbjs.que)){
+                pbjs.que.unshift(function(){
+                    util.log("Adding Hook on pbjs.addAddUnits()");
+                    var theObject = window.pbjs;
+                    var functionName = "addAdUnits"
+                    util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
+                });
+                util.log("Identity Only Enabled and setting config");
+            }else{
+                util.logWarning("window.pbjs is undefined")
+            }
         }
     }
     if (util.isUndefined(win.google_onload_fired) && util.isObject(win.googletag) && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)) {
