@@ -155,6 +155,7 @@ function getAdSlotSizesArray(anAdUnitObject) {
 		if(anAdUnitObject.mediaTypes.video) {
 			if(!util.isArray(anAdUnitObject.mediaTypes.video.playerSize) && !(anAdUnitObject.mediaTypes.video.w && anAdUnitObject.mediaTypes.video.h)){
 				util.logError("For slot video playersize or w,h is not defined and may not request bids from SSP for this slot. " + JSON.stringify(anAdUnitObject));
+				return [];
 			}
 		}
 		if(anAdUnitObject.mediaTypes.native || anAdUnitObject.mediaTypes.video){
