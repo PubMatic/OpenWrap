@@ -340,7 +340,7 @@ Bid.prototype.setcacheUUID = function(cacheUUID){
 // This function is used to update the bid in case of video bid
 // this should only be called if bid is video so that there is no discrepancy in tracker and logger for bid Id
 Bid.prototype.updateBidId = function(slotID){
-	if(window.PWT.bidMap[slotID] && window.PWT.bidMap[slotID].adapters && window.PWT.bidMap[slotID].adapters.length>0){
+	if(window.PWT.bidMap[slotID] && window.PWT.bidMap[slotID].adapters && Object.keys(window.PWT.bidMap[slotID].adapters).length>0){
 		var bidId = window.PWT.bidMap[slotID].adapters[this.adapterID].bids[Object.keys(window.PWT.bidMap[slotID].adapters[this.adapterID].bids)[0]].bidID;
 		if(bidId && this.adFormat == CONSTANTS.FORMAT_VALUES.VIDEO){
 			this.bidID = bidId;
