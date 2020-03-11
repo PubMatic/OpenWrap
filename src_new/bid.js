@@ -348,7 +348,7 @@ Bid.prototype.updateBidId = function(slotID){
 	}
 	else {
 		UTIL.logWarning("Error in Updating BidId. It might be possible singleImpressionEnabled is false");
-		console.logWarning("Setup for video might not be correct. Try setting up Optimize MultiSize AdSlot to true.");
+		console.warn("Setup for video might not be correct. Try setting up Optimize MultiSize AdSlot to true.");
 	}
 	return this;
 };
