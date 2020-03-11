@@ -416,7 +416,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	// Logic : If for slot config for partner video parameter is present then use that
 	// else take it from mediaType.video
 	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video")){
-		if(util.isOwnProperty(slotParams,"video")){
+		if(util.isOwnProperty(slotParams,"video") && util.isObject(slotParams.video)){
 			util.forEachOnObject(mediaTypeConfig.video, function(key, value){
 				if(!util.isOwnProperty(slotParams["video"],key)){
 					slotParams["video"][key] = value;
