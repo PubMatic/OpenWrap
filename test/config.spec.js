@@ -522,7 +522,7 @@ describe('Config', function() {
         });
 
         it('should copy account level params in case of regex',function(done){
-            var expectedConfig = {zoneId: '869224', siteId: '178620', floor: '0', accountId: '10998', timeout: '1000', amp: 0, video: 0, "in-app": 0};
+            var expectedConfig = {zoneId: '869224', siteId: '178620', floor: '0', accountId: '10998', timeout: '1000', amp: 0, "in-app": 0};
             CONFIG.initConfig();
             expect(CONF.adapters["rubicon"].klm_rx[0].rx_config).to.be.deep.equal(expectedConfig);
             done();
