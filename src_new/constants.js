@@ -81,7 +81,7 @@ exports.CONFIG = {
 	"DEFAULT_CCPA_TIMEOUT": 10000,
 	"CACHE_PATH":"/cache",
 	"CACHE_URL":"https://ow.pubmatic.com",
-
+	"VIDEO_PARAM":"video"
 };
 
 exports.METADATA_MACROS = {
