@@ -1239,7 +1239,6 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, 'getNetEcpm');
             sinon.spy(theBid, 'getGrossEcpm');
             sinon.spy(theBid, 'getKGPV');
-
             origImage = window.Image;
             window.Image = sinon.stub();
             window.Image.returns({});
@@ -1322,10 +1321,9 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-
+        // TODO 17 JAn 2020 Make below test cases as pass.
         it('should have generated pixel url with all necessary calls', function(done) {
             BIDMgr.executeMonetizationPixel(slotID, theBid);
-
             CONFIG.getMonetizationPixelURL.called.should.be.true;
             CONFIG.getPublisherId.called.should.be.true;
             CONFIG.getProfileID.called.should.be.true;
@@ -1344,9 +1342,10 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
+         // TODO 17 JAn 2020 Make below test cases as pass.
         it('should generate proper pixelURL ', function(done) {
 
-            var pixelURL = CONFIG.getMonetizationPixelURL();
+            var pixelURL = CONSTANTS.COMMON.PROTOCOL + CONFIG.getMonetizationPixelURL();
             pixelURL += "pubid=" + CONFIG.getPublisherId();
             pixelURL += "&purl=" + window.encodeURIComponent(UTIL.metaInfo.pageURL);
             pixelURL += "&tst=" + UTIL.getCurrentTimestamp();
@@ -1361,7 +1360,6 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
 
             BIDMgr.executeMonetizationPixel(slotID, theBid);
-
             BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;
 
             done();

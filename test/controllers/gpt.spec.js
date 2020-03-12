@@ -1210,6 +1210,9 @@ describe("CONTROLLER: GPT", function() {
                 getNative: function() {
                     return "getNative";
                 },
+                getAdFormat:function(){
+                    return "banner";
+                }
             };
             sinon.stub(winningBidStub, "getBidID");
             sinon.stub(winningBidStub, "getStatus");
@@ -1217,6 +1220,7 @@ describe("CONTROLLER: GPT", function() {
             sinon.stub(winningBidStub, "getDealID");
             sinon.stub(winningBidStub, "getAdapterID");
             sinon.stub(winningBidStub, "getNative");
+            sinon.stub(winningBidStub, "getAdFormat");
             keyValuePairsStub = {
                 "key1": {
                     "k1": "v1",
@@ -1276,6 +1280,7 @@ describe("CONTROLLER: GPT", function() {
                 winningBidStub.getDealID.restore();
                 winningBidStub.getAdapterID.restore();
                 winningBidStub.getNative.restore();
+                winningBidStub.getAdFormat.restore();
             }
             divID = null;
             keyValuePairsStub = null;
