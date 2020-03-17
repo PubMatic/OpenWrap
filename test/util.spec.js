@@ -3109,4 +3109,36 @@ describe('UTIL', function() {
             done();
         });
     });
+
+    describe('#getDevicePlatform', function(){
+        it('is a function', function(done) {
+            UTIL.getDevicePlatform.should.be.a('function');
+            done();
+        });
+
+        it('returns device as desktop if navigator does not consists of mobi', function(done){
+            var result = UTIL.getDevicePlatform();
+            result.should.equal(1);
+            done();
+        });
+
+        // TODO: UnComment Below Test Cases once PhantomJs is replaced by ChromeHeadless in build.sh production and test mode
+        // it('returns device as mobile if navigator consists of mobi', function(done){
+        //     navigator.__defineGetter__('userAgent', function(){
+        //         return 'Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36';
+        //     });
+        //     var result = UTIL.getDevicePlatform();
+        //     result.should.equal(2);
+        //     done();
+        // });
+
+        // it('returns unknown if ua is not available', function(done){
+        //     navigator.__defineGetter__('userAgent', function(){
+        //         return '';
+        //     });
+        //     var result = UTIL.getDevicePlatform();
+        //     result.should.equal(3);
+        //     done();
+        // });
+    });
 });
