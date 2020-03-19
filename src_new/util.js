@@ -1472,8 +1472,8 @@ exports.getDevicePlatform = function(){
 	var deviceType = 3;
 	try{
 		var ua = navigator.userAgent;
-		if(ua && refThis.isString(ua) && ua != ""){
-			ua = ua.toLowerCase();
+		if(ua && refThis.isString(ua) && ua.trim() != ""){
+			ua = ua.toLowerCase().trim();
 			var isMobileRegExp = new RegExp("(mobi|tablet|ios).*");
 			if(ua.match(isMobileRegExp)){
 				deviceType=2;
