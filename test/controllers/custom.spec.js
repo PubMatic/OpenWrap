@@ -593,7 +593,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			sinon.stub(AM, "callAdapters");
 			AM.callAdapters.returns(true);
 			sinon.stub(CONFIG, "getTimeout");
-			CONFIG.getTimeout.returns(30);
+			CONFIG.getTimeout.returns(60);
 			BM.getAllPartnersBidStatuses.restore();
 			var flag = false;
 			CUSTOM.customServerExposedAPI([{
