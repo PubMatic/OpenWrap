@@ -552,10 +552,69 @@ describe("CONTROLLER: CUSTOM", function() {
 			});
 			AM.callAdapters.called.should.be.true;
 			AM.callAdapters.restore();
+			CONFIG.getTimeout.restore();
 			setTimeout(function(){
 				flag.should.equal(true);
 				done();
+			}, 20);
+		});
+
+		it("should call the callback postimeput",function(done){
+			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
+			sinon.stub(AM, "callAdapters");
+			AM.callAdapters.returns(true);
+			sinon.stub(CONFIG, "getTimeout");
+			CONFIG.getTimeout.returns(10);
+			BM.getAllPartnersBidStatuses.restore();
+			var flag = false;
+			CUSTOM.customServerExposedAPI([{
+				code: "some-pub-friendly-unique-name",
+				divId: "div-id-where-slot-will-render",
+				adUnitId: "ad_unit-id-from-DFP",
+				adUnitIndex: "ad-unit-index",
+				mediaTypes: {
+					banner: {
+						sizes: [ [300, 250], [300, 300] ]
+					}
+				}
+			}], function(){
+				flag = true;
+			});
+			setTimeout(function(){
+				flag.should.equal(true);
+				AM.callAdapters.restore();
+				CONFIG.getTimeout.restore();
+				done();
 			}, 15);
+		});
+
+		it("should not call the callback before timeout",function(done){
+			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
+			sinon.stub(AM, "callAdapters");
+			AM.callAdapters.returns(true);
+			sinon.stub(CONFIG, "getTimeout");
+			CONFIG.getTimeout.returns(10);
+			BM.getAllPartnersBidStatuses.restore();
+			var flag = false;
+			CUSTOM.customServerExposedAPI([{
+				code: "some-pub-friendly-unique-name",
+				divId: "div-id-where-slot-will-render",
+				adUnitId: "ad_unit-id-from-DFP",
+				adUnitIndex: "ad-unit-index",
+				mediaTypes: {
+					banner: {
+						sizes: [ [300, 250], [300, 300] ]
+					}
+				}
+			}], function(){
+				flag = true;
+			});
+			setTimeout(function(){
+				flag.should.equal(false);
+				AM.callAdapters.restore();
+				CONFIG.getTimeout.restore();
+				done();
+			}, 5);
 		});
 
 	});
