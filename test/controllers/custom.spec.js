@@ -559,7 +559,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			}, 20);
 		});
 
-		it("should call the callback postimeput",function(done){
+		it("should call the callback postimeout if allBid status is false ecverytime",function(done){
 			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
 			sinon.stub(AM, "callAdapters");
 			AM.callAdapters.returns(true);
@@ -588,7 +588,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			}, 15);
 		});
 
-		it("should not call the callback before timeout",function(done){
+		it("should not call the callback before timeout if allBid status is false ecverytime",function(done){
 			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
 			sinon.stub(AM, "callAdapters");
 			AM.callAdapters.returns(true);
