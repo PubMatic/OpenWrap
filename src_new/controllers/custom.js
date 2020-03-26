@@ -232,7 +232,7 @@ exports.findWinningBidAndGenerateTargeting = findWinningBidAndGenerateTargeting;
 */
 function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 
-	GDPR.getUserConsentDataFromCMP();
+	//GDPR.getUserConsentDataFromCMP(); // Commenting this as GDPR will be handled by Prebid and we won't be seding GDPR info to tracker and logger
 
 	if (!util.isArray(arrayOfAdUnits)) {
 		util.error("First argument to PWT.requestBids API, arrayOfAdUnits is mandatory and it should be an array.");

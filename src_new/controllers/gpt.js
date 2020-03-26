@@ -572,7 +572,7 @@ exports.forQualifyingSlotNamesCallAdapters = forQualifyingSlotNamesCallAdapters;
 
 function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
     // Initiating getUserConsentDataFromCMP method to get the updated consentData
-    GDPR.getUserConsentDataFromCMP();
+    // GDPR.getUserConsentDataFromCMP();
 
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         if(CONFIG.isIdentityOnly()){
@@ -742,7 +742,7 @@ exports.getQualifyingSlotNamesForRefresh = getQualifyingSlotNamesForRefresh;
 */
 function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // Note : not covering the function currying atm , if need be will add istanbul ignore
     // Initiating getUserConsentDataFromCMP method to get the updated consentData
-    GDPR.getUserConsentDataFromCMP();
+    // GDPR.getUserConsentDataFromCMP();
 
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         if(CONFIG.isIdentityOnly()){
