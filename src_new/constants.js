@@ -126,6 +126,7 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"CACHE_ID":"pwtcid",
 	"CACHE_URL":"pwtcurl",
 	"CACHE_PATH":"pwtcpath",
+	"BUYER_ID":"pm_buyer_id"
 };
 
 exports.IGNORE_PREBID_KEYS = {

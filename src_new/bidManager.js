@@ -631,6 +631,9 @@ exports.setStandardKeys = function(winningBid, keyValuePairs){
 			keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_URL ] = CONSTANTS.CONFIG.CACHE_URL;
 			keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_ID ] = winningBid.getcacheUUID();
 		}
+		if(winningBid.getAdapterID() == "pubmatic"){
+			keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BUYER_ID] = winningBid.getSeatID() + "_" + winningBid.getDSPID();
+		}
 	} else {
     	util.logWarning('Not generating key-value pairs as invalid winningBid object passed. WinningBid: ');
     	util.logWarning(winningBid);

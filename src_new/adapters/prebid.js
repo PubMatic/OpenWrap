@@ -47,6 +47,10 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	theBid.setWidth(bid.width);
 	theBid.setHeight(bid.height);
 	theBid.setMi(bid.mi);
+	if(bid.adapterID == "pubmatic"){
+		theBid.setSeatID(bid.pm_seat);
+		theBid.setDSPID(bid.pm_dspid);
+	}
 	if(bid.native){
 		theBid.setNative(bid.native);
 	}

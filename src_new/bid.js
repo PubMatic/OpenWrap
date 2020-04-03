@@ -32,6 +32,8 @@ function Bid(adapterID, kgpv){
 	this.adFormat = undefined;
 	this.regexPattern = undefined;
 	this.cacheUUID = undefined;
+	this.seatId = undefined;
+	this.dspId= undefined;
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -333,6 +335,25 @@ Bid.prototype.setcacheUUID = function(cacheUUID){
 	if(!this.adFormat){
 		this.adFormat = CONSTANTS.FORMAT_VALUES.VIDEO;
 	}
+	return this;
+};
+
+
+Bid.prototype.getSeatID = function(){
+	return this.seatId;
+};
+
+Bid.prototype.setSeatID = function(seatId){
+	this.seatId = seatId;
+	return this;
+};
+
+Bid.prototype.getDSPID = function(){
+	return this.dspId;
+};
+
+Bid.prototype.setDSPID = function(dspId){
+	this.dspId = dspId;
 	return this;
 };
 
