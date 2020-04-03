@@ -246,8 +246,10 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
             }
 
             if (winningBid == null) {
-                winningBid = theBid;
+				winningBid = theBid;
+				winningBid.setLiftMetrics(0)
             } else if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
+				theBid.setLiftMetrics(winningBid.getNetEcpm());
                 winningBid = theBid;
             }
 		});
@@ -484,6 +486,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"af": theBid.getAdFormat(),
 					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
+					"lt":theBid.getLiftMetrics()
 				});
             })
         });

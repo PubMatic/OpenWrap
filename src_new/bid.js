@@ -32,6 +32,7 @@ function Bid(adapterID, kgpv){
 	this.adFormat = undefined;
 	this.regexPattern = undefined;
 	this.cacheUUID = undefined;
+	this.liftMetrics = 0;
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -334,6 +335,14 @@ Bid.prototype.setcacheUUID = function(cacheUUID){
 		this.adFormat = CONSTANTS.FORMAT_VALUES.VIDEO;
 	}
 	return this;
+};
+
+Bid.prototype.getLiftMetrics = function(){
+	return this.liftMetrics;
+};
+
+Bid.prototype.setLiftMetrics = function(previousBidNetCpm){
+	this.liftMetrics = this.netEcpm - previousBidNetCpm >0 ? this.netEcpm - previousBidNetCpm:0;
 };
 
 
