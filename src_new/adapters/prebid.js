@@ -617,10 +617,20 @@ function fetchBids(activeSlots, impressionID){
 				};
 
 				if (CONFIG.getGdpr()) {
-					prebidConfig["consentManagement"] = {
+					prebidConfig["consentManagement"] = {};
+					prebidConfig["consentManagement"]["gdpr"] = {
 						cmpApi: CONFIG.getCmpApi(),
 						timeout: CONFIG.getGdprTimeout(),
 						allowAuctionWithoutConsent: CONFIG.getAwc()
+					};
+				}
+				if (CONFIG.getCCPA()) {
+					if(!prebidConfig["consentManagement"]){
+						prebidConfig["consentManagement"] = {};
+					}
+					prebidConfig["consentManagement"]["usp"] = {
+						cmpApi: CONFIG.getCCPACmpApi(),
+						timeout: CONFIG.getCCPATimeout(),
 					};
 				}
 				//remove true and implement getCurrency() in config
@@ -666,10 +676,20 @@ function fetchBids(activeSlots, impressionID){
 						util.log("In PreBid bidsBackHandler with bidResponses: ");
 						util.log(bidResponses);
 						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
-						//refThis.handleBidResponses(bidResponses);
-						util.forEachOnObject(bidResponses, function(responseID, bidResponse){
-							bidManager.setAllPossibleBidsReceived(refThis.kgpvMap[responseID].divID);
-						});
+						//refThis.handleBidResponses(bidResponses);						
+						// we may not request bids for all slots from Prebid if we do not find mapping for a slot thus looping on activeSlots
+						function setPossibleBidRecieved(){
+							util.forEachOnArray(activeSlots, function(i, activeSlot){
+								bidManager.setAllPossibleBidsReceived(activeSlot.getDivID());
+							});
+						}
+						if(CONFIG.getAdServerCurrency()){
+							//Added timeout for issue in GPT should execute dfp as soon as all bids are available
+							setTimeout(setPossibleBidRecieved,300);
+						}
+						else{
+							setPossibleBidRecieved();
+						}
 					},
 					timeout: timeoutForPrebid
 				});

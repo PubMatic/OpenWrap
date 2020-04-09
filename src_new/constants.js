@@ -70,7 +70,12 @@ exports.CONFIG = {
 	"DEFAULT_USER_ID_MODULE": "0",
 	"DEFAULT_IDENTITY_ONLY": "0",
 	"DEFAULT_GDPR_CONSENT": "0",
-	"DISABLE_AJAX_TIMEOUT": "disableAjaxTimeout"
+	"DISABLE_AJAX_TIMEOUT": "disableAjaxTimeout",
+	"CCPA_CONSENT": "ccpa",
+	"CCPA_CMPAPI": "ccpaCmpApi",
+	"CCPA_TIMEOUT": "ccpaTimeout",
+	"DEFAULT_CCPA_CMPAPI": "iab",
+	"DEFAULT_CCPA_TIMEOUT": 10000,
 };
 
 exports.METADATA_MACROS = {

@@ -998,6 +998,9 @@ describe('ADAPTER: Prebid', function() {
             sinon.spy(CONFIG, 'getAwc');
             sinon.stub(CONFIG, 'getGdpr').returns(true);
 
+            sinon.spy(CONFIG, 'getCCPATimeout');
+            sinon.stub(CONFIG, 'getCCPA').returns(true);
+
             sinon.stub(PREBID, 'generatePbConf');
             PREBID.generatePbConf.returns(true);
             window.owpbjs = {
@@ -1050,8 +1053,12 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.forEachAdapter.restore();
             CONFIG.getGdpr.restore();
             CONFIG.getCmpApi.restore();
-						CONFIG.getGdprTimeout.restore();
-						CONFIG.getAwc.restore();
+            CONFIG.getGdprTimeout.restore();
+
+            CONFIG.getCCPA.restore();
+            CONFIG.getCCPATimeout.restore();
+
+            CONFIG.getAwc.restore();
             PREBID.generatePbConf.restore();
 
             AM.getRandomNumberBelow100.restore();
@@ -1112,8 +1119,11 @@ describe('ADAPTER: Prebid', function() {
             window["owpbjs"].setConfig.should.be.called;
             CONFIG.getGdpr().should.be.true;
             CONFIG.getCmpApi().should.be.called;
-						CONFIG.getGdprTimeout().should.be.called;
-						CONFIG.getAwc().should.be.called;
+            CONFIG.getGdprTimeout().should.be.called;
+            CONFIG.getAwc().should.be.called;
+            CONFIG.getCCPA().should.be.true;
+            CONFIG.getCCPACmpApi().should.be.called;
+            CONFIG.getCCPATimeout().should.be.called;
             done();
         });
 
