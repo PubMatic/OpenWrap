@@ -1179,7 +1179,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getAnalyticsPixelURL.returns("");
             BIDMgr.executeAnalyticsPixel();
             CONFIG.getPublisherId.called.should.be.true;
-            GDPR.getUserConsentDataFromLS.called.should.be.true;
+            // GDPR.getUserConsentDataFromLS.called.should.be.true;
             done();
         });
 
@@ -1191,7 +1191,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getProfileID.called.should.be.true;
             CONFIG.getProfileDisplayVersionID.called.should.be.true;
 
-            GDPR.getUserConsentDataFromLS.called.should.be.true;
+            // GDPR.getUserConsentDataFromLS.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
             done();
         });
