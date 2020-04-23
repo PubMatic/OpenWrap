@@ -1488,3 +1488,12 @@ exports.getDevicePlatform = function(){
 	}
 	return deviceType;
 }
+
+exports.getOWConfig = function(){
+	var obj = {
+		"timeout":CONFIG.getTimeout(),
+		"openwrap_version": CONFIG[CONSTANTS.COMMON.OWVERSION],
+		"prebid_version":CONFIG[CONSTANTS.COMMON.PBVERSION]
+	};
+	return obj;
+}

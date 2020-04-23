@@ -3,8 +3,10 @@ var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
 
 var refThis = null;
-
 refThis = this;
+refThis[CONSTANTS.COMMON.OWVERSION] = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.OWVERSION];
+refThis[CONSTANTS.COMMON.PBVERSION] = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBVERSION];
+
 
 exports.getPublisherId = function(){
 	return util.trim(config.pwt.pubid) || "0";
@@ -72,7 +74,7 @@ exports.getAdapterMaskBidsStatus = function(adapterID){
 		return window.parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.MASK_BIDS]) || 0;
 	}
 	return 0;
-}
+};
 
 exports.getBidPassThroughStatus = function(adapterID){
 	var adapterConfig = config.adapters;

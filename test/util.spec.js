@@ -3141,4 +3141,34 @@ describe('UTIL', function() {
         //     done();
         // });
     });
+
+    describe('#getOWConfig', function() {
+        beforeEach(function(done){
+            done();
+        });
+        afterEach(function(done){
+            done();
+        });
+        it("is a function", function(done) {
+            UTIL.getOWConfig.should.be.a('function');
+            done();
+        });
+
+        it('should return timeout, owversion and pbversion',function(done){
+            var expectedResult = {"timeout":3000,"openwrap_version":"v19.0.0","prebid_version":"v3.14.0"};
+            var result = UTIL.getOWConfig();
+            console.log("Version Details:"+ JSON.stringify(result));
+            result.should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return owversion and pbversion if not defined',function(done){
+            delete CONFIG[CONSTANTS.COMMON.PBVERSION];
+            delete CONFIG[CONSTANTS.COMMON.OWVERSION];
+            var expectedResult = {"timeout":3000,"openwrap_version":undefined,"prebid_version":undefined};
+            var result = UTIL.getOWConfig();
+            result.should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
 });
