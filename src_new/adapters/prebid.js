@@ -29,8 +29,14 @@ var refThis = this;
 var timeoutForPrebid = CONFIG.getTimeout()-50;
 var onEventAdded = false;
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
+var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
 
-function transformPBBidToOWBid(bid, kgpv){
+/* start-test-block */
+exports.isSingleImpressionSettingEnabled = isSingleImpressionSettingEnabled;
+/* end-test-block */
+
+function transformPBBidToOWBid(bid, kgpv, regexPattern){
+	var rxPattern = regexPattern || bid.regexPattern || undefined;
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
 	var pubmaticServerErrorCode = parseInt(bid.pubmaticServerErrorCode);
 
@@ -45,10 +51,19 @@ function transformPBBidToOWBid(bid, kgpv){
 	if(bid.native){
 		theBid.setNative(bid.native);
 	}
-
+	if(rxPattern){
+		theBid.setRegexPattern(rxPattern);
+	}
+	if(bid.mediaType == CONSTANTS.FORMAT_VALUES.VIDEO){
+		if(bid.videoCacheKey){
+			theBid.setcacheUUID(bid.videoCacheKey);
+		}
+		theBid.updateBidId(bid.adUnitCode);
+	}
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
 	// Check if currency conversion is enabled or not
+	/*istanbul ignore else */
 	if(CONFIG.getAdServerCurrency()){
 		// if a bidder has same currency as of pbConf.currency.adServerCurrency then Prebid does not set pbBid.originalCurrency and pbBid.originalCurrency value
 		// thus we need special handling
@@ -108,27 +123,33 @@ exports.transformPBBidToOWBid = transformPBBidToOWBid;
 // This function is used to check size for the winning kgpv and if size is different then winning then modify it
 // to have same code for logging and tracking 
 function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
-	var responseKGPV= "";
+	var responseObject={
+		"responseKGPV" : "",
+		"responseRegex": ""
+	};
 
 	// Logic to find out KGPV for partner for which the bid is recieved.
 	// Need to check for No Bid Case.
 	kgpv.kgpvs.length > 0 && kgpv.kgpvs.forEach(function(ele){
 		/* istanbul ignore else */
 		if(bid.bidderCode == ele.adapterID){
-			responseKGPV = ele.kgpv;
+			responseObject.responseKGPV = ele.kgpv;
+			responseObject.responseRegex = ele.regexPattern;
 		}
 	});
-	var responseIdArray = responseKGPV.split("@");
+	var responseIdArray = responseObject.responseKGPV.split("@");
+	var sizeIndex = 1;
+	var isRegex = false;
 	/* istanbul ignore else */
-	if(responseIdArray &&  responseIdArray.length == 2){
-		var responseIdSize = responseIdArray[1];
+	if(responseIdArray &&  (responseIdArray.length == 2 || ((responseIdArray.length == 3) && (sizeIndex = 2) && (isRegex=true))) && bid.mediaType != "video"){
+		var responseIdSize = responseIdArray[sizeIndex];
 		var responseIndex = null;
 		// Below check if ad unit index is present then ignore it
 		// TODO: Confirm it needs to be ignored or not
 		/* istanbul ignore else */
-		if(responseIdArray[1].indexOf(":")>0){
-			responseIdSize= responseIdArray[1].split(":")[0];
-			responseIndex = responseIdArray[1].split(":")[1];
+		if(responseIdArray[sizeIndex].indexOf(":")>0){
+			responseIdSize= responseIdArray[sizeIndex].split(":")[0];
+			responseIndex = responseIdArray[sizeIndex].split(":")[1];
 		}
 		/* istanbul ignore else */
 		if(bid.getSize() && bid.getSize() != responseIdSize && (bid.getSize().toUpperCase() != "0X0")){
@@ -139,16 +160,21 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 			if(responseIdArray[0].toUpperCase() == responseIdSize.toUpperCase()){
 				responseIdArray[0] = bid.getSize().toLowerCase();
 			}
-			responseKGPV = responseIdArray[0] + "@" +  bid.getSize();
+			if(isRegex){
+				responseObject.responseKGPV = responseIdArray[0] + "@" + responseIdArray[1] + "@" +  bid.getSize();
+			}
+			else{
+				responseObject.responseKGPV = responseIdArray[0] + "@" +  bid.getSize();
+			}
 			// Below check is to make consistent behaviour with ad unit index
 			// it again appends index if it was originally present
 			if(responseIndex){
-				responseKGPV = responseKGPV + ":" + responseIndex;
+				responseObject.responseKGPV = responseObject.responseKGPV + ":" + responseIndex;
 			}
 		}
 	
 	}
-	return responseKGPV;
+	return responseObject;
 }
 
 /* start-test-block */
@@ -171,10 +197,15 @@ function pbBidStreamHandler(pbBid){
 
 		// If Single impression is turned on then check and modify kgpv as per bid response size
 		/* istanbul ignore else */
-		if(CONFIG.isSingleImpressionSettingEnabled()){
+		if(refThis.isSingleImpressionSettingEnabled){
 			// Assinging kbpv after modifying and will be used for logger and tracker purposes
 			// this field will be replaced everytime a bid is received with single impression feature on
-			refThis.kgpvMap[responseID].kgpv = refThis.checkAndModifySizeOfKGPVIfRequired(pbBid,refThis.kgpvMap[responseID]);
+			var kgpvAndRegexOfBid = refThis.checkAndModifySizeOfKGPVIfRequired(pbBid,refThis.kgpvMap[responseID]);
+			refThis.kgpvMap[responseID].kgpv =kgpvAndRegexOfBid.responseKGPV;
+			refThis.kgpvMap[responseID].regexPattern =kgpvAndRegexOfBid.responseRegex;
+			// : Put a field Regex Pattern in KGPVMAP so that it can be passed on to the bid and to the logger
+			// Something like this refThis.kgpvMap[responseID].regexPattern = pbBid.refThis.kgpvMap[responseID].regexPattern;
+
 		}
 
 		/*
@@ -194,7 +225,7 @@ function pbBidStreamHandler(pbBid){
 		/* istanbul ignore else */
 		if(pbBid.bidderCode && CONFIG.isServerSideAdapter(pbBid.bidderCode)){
 			var divID = refThis.kgpvMap[responseID].divID;
-			if(!CONFIG.isSingleImpressionSettingEnabled()){
+			if(!refThis.isSingleImpressionSettingEnabled){
 				var temp1 = refThis.getPBCodeWithWidthAndHeight(divID, pbBid.bidderCode, pbBid.width, pbBid.height);
 				var temp2 = refThis.getPBCodeWithoutWidthAndHeight(divID, pbBid.bidderCode);
 
@@ -222,7 +253,7 @@ function pbBidStreamHandler(pbBid){
 			}			
 			bidManager.setBidFromBidder(
 				refThis.kgpvMap[responseID].divID,
-				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv)
+				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv,refThis.kgpvMap[responseID].regexPattern)
 			);
 		}
 	}else{
@@ -289,11 +320,11 @@ function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
 
-function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
+function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight,regexPattern){
 
 	var code, sizes, divID = currentSlot.getDivID();
-	
-	if(!CONFIG.isSingleImpressionSettingEnabled()){
+	var mediaTypeConfig;
+	if(!refThis.isSingleImpressionSettingEnabled){
 		if(kgpConsistsWidthAndHeight){
 			code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
 			sizes = [[currentWidth,currentHeight]];
@@ -303,7 +334,8 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		}
 		refThis.kgpvMap [ code ] = {
 			kgpv: generatedKey,
-			divID: divID
+			divID: divID,
+			regexPattern:regexPattern
 		};
 	} else{
 		/* This will be executed in case single impression feature is enabled.
@@ -338,7 +370,8 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		if(!adapterAlreadyExsistsInKGPVS){
 			var kgpv = {
 				adapterID: adapterID,
-				kgpv:generatedKey
+				kgpv:generatedKey,
+				regexPattern:regexPattern
 			};
 			refThis.kgpvMap[code].kgpvs.push(kgpv);
 		}
@@ -352,14 +385,17 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(adUnits, code)){
+		mediaTypeConfig = util.getMediaTypeObject(sizes, currentSlot);
+		//TODO: Remove sizes from below as it will be deprecated soon in prebid
+		// Need to check pubmaticServerBidAdapter in our fork after this change.
 		adUnits[code] = {
 			code: code,
-			mediaTypes: util.getMediaTypeObject(CONFIG.getNativeConfiguration(), sizes, currentSlot),
+			mediaTypes:mediaTypeConfig ,
 			sizes: sizes,
 			bids: [],
 			divID : divID
 		};
-	}else if(CONFIG.isSingleImpressionSettingEnabled()){
+	}else if(refThis.isSingleImpressionSettingEnabled){
 		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
 			return;
 		}
@@ -407,7 +443,15 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 exports.generatedKeyCallbackForPbAnalytics = generatedKeyCallbackForPbAnalytics;
 
 function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits){
+	// in case there are multiple bidders ,we don't generate the config again but utilize the existing mediatype.
+	if(util.isOwnProperty(adUnits, code)){
+		mediaTypeConfig = adUnits[code].mediaTypes;
+	}
+
 	var slotParams = {};
+	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video") && adapterID != "telaria"){
+		slotParams["video"]= mediaTypeConfig.video;
+	}
 	util.forEachOnObject(keyConfig, function(key, value){
 		/* istanbul ignore next */
 		slotParams[key] = value;
@@ -417,96 +461,20 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		slotParams["kgpv"] = generatedKey;	
 	}	
 
-	//processing for each partner
-	switch(adapterID){
-
-		//todo: unit-test cases pending
-		case "pubmaticServer":
-			slotParams["publisherId"] = adapterConfig["publisherId"];
-			slotParams["adUnitIndex"] = ''+currentSlot.getAdUnitIndex();
-			slotParams["adUnitId"] = currentSlot.getAdUnitID();
-			slotParams["divId"] = currentSlot.getDivID();
-			slotParams["adSlot"] = generatedKey;
-			slotParams["wiid"] = impressionID;
-			slotParams["profId"] = CONFIG.getProfileID();
-			/* istanbul ignore else*/
-			if(window.PWT.udpv){
-				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
-			}
-			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
-			break;
-
-		case "pubmatic":
-		case "pubmatic2":
-			slotParams["publisherId"] = adapterConfig["publisherId"];
-			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
-			slotParams["wiid"] = impressionID;
-			slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
-			/* istanbul ignore else*/
-			if(adapterID != "pubmatic2" && window.PWT.udpv){
-				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
-			}
-			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
-			break;
-
-		case "pulsepoint":
-			util.forEachOnArray(sizes, function(index, size){
-				var slotParams = {};
-				util.forEachOnObject(keyConfig, function(key, value){
-					/* istanbul ignore next */
-					slotParams[key] = value;
-				});
-				slotParams["cf"] = size[0] + "x" + size[1];
-				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
-			});
-			break;
-
-		case "adg":
-			util.forEachOnArray(sizes, function(index, size){
-				var slotParams = {};
-				util.forEachOnObject(keyConfig, function(key, value){
-					/* istanbul ignore next */
-					slotParams[key] = value;
-				});
-				slotParams["width"] = size[0];
-				slotParams["height"] = size[1];
-				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
-			});
-			break;
-
-		case "yieldlab":
-			util.forEachOnArray(sizes, function(index, size){
-				var slotParams = {};
-				util.forEachOnObject(keyConfig, function(key, value){
-					/* istanbul ignore next */
-					slotParams[key] = value;
-				});
-				slotParams["adSize"] = size[0] + "x" + size[1];
-				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
-			});
-			break;
-		case "ix":
-		case "indexExchange":
-		/** Added case ix cause indexExchange bidder has changed its bidder code in server side 
-		 * this will have impact in codegen to change its adapter code from indexexchange to ix 
-		 * so added a case for the same.
-		*/		
-			util.forEachOnArray(sizes, function(index, size) {
-				var slotParams = {};
-
-				if (keyConfig["siteID"]) {
-					slotParams["siteId"] = keyConfig["siteID"];
+	// Logic : If for slot config for partner video parameter is present then use that
+	// else take it from mediaType.video
+	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video") && adapterID != "telaria"){
+		if(util.isOwnProperty(slotParams,"video") && util.isObject(slotParams.video)){
+			util.forEachOnObject(mediaTypeConfig.video, function(key, value){
+				if(!util.isOwnProperty(slotParams["video"],key)){
+					slotParams["video"][key] = value;
 				}
-				slotParams["size"] = size;
-				adUnits [code].bids.push({bidder: adapterID, params: slotParams});
 			});
-			break;
-
-		default:
-			adUnits[code].bids.push({ bidder: adapterID, params: slotParams });
-			break;
+		}
+		else {
+			slotParams["video"]= mediaTypeConfig.video;
+		}
 	}
-}
 
 exports.pushAdapterParamsInAdunits = pushAdapterParamsInAdunits;
 
@@ -784,6 +752,9 @@ function fetchBids(activeSlots, impressionID){
 			if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {// todo: use isFunction
 				var prebidConfig = {
 					debug: util.isDebugLogEnabled(),
+					cache: {
+						url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH
+					},
 					bidderSequence: "random",
 					disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
 				};
@@ -791,6 +762,17 @@ function fetchBids(activeSlots, impressionID){
 				refThis.assignGdprConfigIfRequired(prebidConfig);
 				refThis.assignCurrencyConfigIfRequired(prebidConfig);
 				refThis.assignSingleRequestConfigForBidders(prebidConfig);				
+
+				if (CONFIG.getCCPA()) {
+					if(!prebidConfig["consentManagement"]){
+						prebidConfig["consentManagement"] = {};
+					}
+					prebidConfig["consentManagement"]["usp"] = {
+						cmpApi: CONFIG.getCCPACmpApi(),
+						timeout: CONFIG.getCCPATimeout(),
+					};
+				}
+				
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 				// DO NOT PUSH ANY CONFIG AFTER THIS LINE!!
@@ -818,7 +800,26 @@ function fetchBids(activeSlots, impressionID){
 				}				
 				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
-					bidsBackHandler: refThis.bidsBackHandler,
+					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid
+					bidsBackHandler: function(bidResponses) {
+						util.log("In PreBid bidsBackHandler with bidResponses: ");
+						util.log(bidResponses);
+						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
+						//refThis.handleBidResponses(bidResponses);						
+						// we may not request bids for all slots from Prebid if we do not find mapping for a slot thus looping on activeSlots
+						function setPossibleBidRecieved(){
+							util.forEachOnArray(activeSlots, function(i, activeSlot){
+								bidManager.setAllPossibleBidsReceived(activeSlot.getDivID());
+							});
+						}
+						if(CONFIG.getAdServerCurrency()){
+							//Added timeout for issue in GPT should execute dfp as soon as all bids are available
+							setTimeout(setPossibleBidRecieved,300);
+						}
+						else{
+							setPossibleBidRecieved();
+						}
+					},
 					timeout: timeoutForPrebid
 				});
 			} else {

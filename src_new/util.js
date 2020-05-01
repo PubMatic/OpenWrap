@@ -22,6 +22,8 @@ var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
 var refThis = this;
+var mediaTypeConfigPerSlot = {};
+exports.mediaTypeConfig = mediaTypeConfigPerSlot;
 
 function isA(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
@@ -53,7 +55,7 @@ exports.isObject = function(object){
 
 exports.isOwnProperty = function(theObject, proertyName){
 	/* istanbul ignore else */
-	if(theObject.hasOwnProperty){
+	if(refThis.isObject(theObject) && theObject.hasOwnProperty){
 		return theObject.hasOwnProperty(proertyName);
 	}
 	return false;
@@ -215,7 +217,7 @@ var constCommonMacroForAdUnitIndexRegExp = new RegExp(CONSTANTS.MACROS.AD_UNIT_I
 var constCommonMacroForIntegerRegExp = new RegExp(CONSTANTS.MACROS.INTEGER, macroRegexFlag);
 var constCommonMacroForDivRegExp = new RegExp(CONSTANTS.MACROS.DIV, macroRegexFlag);
 
-exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
+exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheckMappingForVideo){
 	var slotNames = [],
 		slotName,
 		slotNamesObj = {},
@@ -231,16 +233,35 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern){
 		if( sizeArrayLength > 0){
 			for(i = 0; i < sizeArrayLength; i++){
 				/* istanbul ignore else */
-				if(sizeArray[i].length == 2 && sizeArray[i][0] && sizeArray[i][1]){
-
+				if((sizeArray[i].length == 2 && sizeArray[i][0] && sizeArray[i][1]) || (refThis.isFunction(sizeArray[i].getWidth) && refThis.isFunction(sizeArray[i].getHeight))){
+					var adUnitId = refThis.isFunction(activeSlot.getAdUnitID) ? activeSlot.getAdUnitID() : activeSlot.getSlotId().getAdUnitPath();
+					var divId = refThis.isFunction(activeSlot.getDivID) ? activeSlot.getDivID() : activeSlot.getSlotId().getDomId();
+					var adUnitIndex = refThis.isFunction(activeSlot.getAdUnitIndex) ? activeSlot.getAdUnitIndex() : activeSlot.getSlotId().getId().split("_")[1];
+					var width = sizeArray[i][0] || sizeArray[i].getWidth();
+					var height = sizeArray[i][1] || sizeArray[i].getHeight();
 					slotName = pattern;
-					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, activeSlot.getAdUnitID())
-                    .replace(constCommonMacroForWidthRegExp, sizeArray[i][0])
-                    .replace(constCommonMacroForHeightRegExp, sizeArray[i][1])
-                    .replace(constCommonMacroForAdUnitIndexRegExp, activeSlot.getAdUnitIndex())
+					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, adUnitId)
+                    .replace(constCommonMacroForAdUnitIndexRegExp, adUnitIndex)
                     .replace(constCommonMacroForIntegerRegExp, refThis.getIncrementalInteger())
-                    .replace(constCommonMacroForDivRegExp, activeSlot.getDivID());
-
+					.replace(constCommonMacroForDivRegExp, divId);
+					// .replace(constCommonMacroForWidthRegExp, width)
+					// .replace(constCommonMacroForHeightRegExp, height);
+					if(shouldCheckMappingForVideo){
+						var config = refThis.mediaTypeConfig[divId];
+						if(config && config.video){
+							slotName = slotName.replace(constCommonMacroForWidthRegExp, "0")
+									.replace(constCommonMacroForHeightRegExp, "0");
+						}
+						else{
+							slotName = slotName.replace(constCommonMacroForWidthRegExp, width)
+									.replace(constCommonMacroForHeightRegExp, height);
+						}
+					}
+					else{
+						slotName = slotName.replace(constCommonMacroForWidthRegExp, width)
+								.replace(constCommonMacroForHeightRegExp, height);
+					}
+					
                     /* istanbul ignore else */
 					if(! refThis.isOwnProperty(slotNamesObj, slotName)){
 						slotNamesObj[slotName] = "";
@@ -287,67 +308,125 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
 	return success;
 };
 
-exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, keyGenerationPattern, keyLookupMap, handlerFunction, addZeroBids){
+/**
+ * todo:
+ * 		if direct mapping is not found 
+ * 		then look for regex mapping
+ * 			separate function to handle regex mapping
+ * 			kgp: "" // should be filled with whatever value
+ * 			klm: {} // should be filled with records if required else leave it as an empty object {}
+ * 			kgp_rx: "" // regex pattern
+ * 			klm_rx: [
+ * 				{
+ * 					rx: "ABC123*",
+ * 					rx_config: {} // here goes adapyter config
+ * 				}, 
+ * 
+ * 				{
+ * 					rx: "*",
+ * 					rx_config: {}
+ * 				}
+ * 			]
+ */
+
+ /**
+  *  Algo for Regex and Normal Flow
+  * 1. Check for kgp key 
+  *   a). If KGP is present for partner then proceed with old flow and no change in that
+  *   b). If KGP is not present and kgp_rx is present it is regex flow and proceed with regex flow as below
+  * 2. Regex Flow
+  * 	a. Generate KGPV's with kgp as _AU_@_DIV_@_W_x_H_
+  * 	b. Regex Match each KGPV with KLM_rx 
+  * 	c. Get config for the partner 
+  *     d. Send the config to prebid and log the same kgpv in logger
+  * 
+  * Special Case for Pubmatic
+  *  1. In case of regex flow we will have hashed keys which will be sent to translator for matching
+  *  2. These hashed keys could be same for multiple slot on the page and hence need to check how to send it to prebid for 
+  *     identification in prebid resposne.
+  */
+
+exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids){
 	var activeSlotsLength = activeSlots.length,
-		i,
-		j,
-		generatedKeys,
-		generatedKeysLength,
-		kgpConsistsWidthAndHeight
-		;
+		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_GENERATION_PATTERN] || "";
 	/* istanbul ignore else */
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
-		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
-		for(i = 0; i < activeSlotsLength; i++){
-			var activeSlot = activeSlots[i];
-			generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern );
-			generatedKeysLength =  generatedKeys.length;
-			for(j = 0; j < generatedKeysLength; j++){
-				var generatedKey = generatedKeys[j],
-					keyConfig = null,
-					callHandlerFunction = false,
-					sizeArray = activeSlot.getSizes()
-					;
-
-				if(keyLookupMap == null){
-					callHandlerFunction = true;
-				}else{
-					keyConfig = keyLookupMap[generatedKey];
-					if(!keyConfig){
-						refThis.logWarning(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
-					}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-						refThis.logWarning(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
-					}else{
-						callHandlerFunction = true;
-					}
-				}
-
-				/* istanbul ignore else */
-				if(callHandlerFunction){
-
-					if(addZeroBids == true){
-						var bid = BID.createBid(adapterID, generatedKey);
-						bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
-						bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
-					}
-
-					handlerFunction(
-						adapterID,
-						adUnits,
-						adapterConfig,
-						impressionID,
-						generatedKey,
-						kgpConsistsWidthAndHeight,
-						activeSlot,
-						keyLookupMap ? keyLookupMap[generatedKey] : null,
-						sizeArray[j][0],
-						sizeArray[j][1]
-					);
-				}
-			}
-		}
+		refThis.forEachOnArray(activeSlots, function(i, activeSlot){
+			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern, true);
+			if(generatedKeys.length > 0){
+				refThis.callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids, keyGenerationPattern);
+			} 		
+		});
 	}
 };
+
+// private
+function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern){
+	var keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] || null,
+		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
+	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
+	var regexPattern = undefined;
+	refThis.forEachOnArray(generatedKeys, function(j, generatedKey){
+		var keyConfig = null,
+			callHandlerFunction = false,
+			sizeArray = activeSlot.getSizes()			
+			;
+
+		if(keyLookupMap == null){
+			callHandlerFunction = true;
+		}else{
+			if(isRegexMapping){ 
+				refThis.debugLogIsEnabled && refThis.log(console.time("Time for regexMatching for key " + generatedKey));
+				var config = refThis.getConfigFromRegex(keyLookupMap,generatedKey);
+				refThis.debugLogIsEnabled && refThis.log(console.timeEnd("Time for regexMatching for key " + generatedKey));
+
+				if(config){
+					keyConfig = config.config;
+					regexPattern = config.regexPattern;
+				}
+			}
+			else{
+				keyConfig = keyLookupMap[generatedKey];
+			}
+			if(!keyConfig){
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
+			}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
+			}else{
+				callHandlerFunction = true;
+			}
+		}
+
+		/* istanbul ignore else */
+		if(callHandlerFunction){
+
+			/* istanbul ignore else */
+			if(addZeroBids == true){
+				var bid = BID.createBid(adapterID, generatedKey);
+				bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
+				bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
+				bid.setRegexPattern(regexPattern);
+			}
+
+			handlerFunction(
+				adapterID,
+				adUnits,
+				adapterConfig,
+				impressionID,
+				generatedKey,
+				kgpConsistsWidthAndHeight,
+				activeSlot,
+				refThis.getPartnerParams(keyConfig),
+				sizeArray[j][0],
+				sizeArray[j][1],
+				regexPattern
+			);
+		}
+	});
+}
+/* start-test-block */
+exports.callHandlerFunctionForMapping = callHandlerFunctionForMapping;
+/* end-test-block */
 
 exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
@@ -390,8 +469,14 @@ exports.writeIframe = function(theDocument, src, width, height, style){
 exports.displayCreative = function(theDocument, bid){
 	refThis.resizeWindow(theDocument, bid.width, bid.height);
 	if(bid.adHtml){
+		if(bid.getAdapterID().toLowerCase() == "appier"){
+			bid.adHtml = refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());
+		}
 		theDocument.write(bid.adHtml);
 	}else if(bid.adUrl){
+		if(bid.getAdapterID().toLowerCase() == "appier"){
+			bid.adUrl = refThis.replaceAuctionPrice(bid.adUrl, bid.getGrossEcpm());
+		}
 		refThis.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
 	}else{
 		refThis.logError("creative details are not found");
@@ -495,6 +580,8 @@ exports.getMetaInfo = function(cWin){
 		})(frame);
 
 	}catch(e){}
+
+	obj.pageDomain = refThis.getDomainFromURL(obj.pageURL);
 
 	refThis.metaInfo = obj;
 
@@ -978,33 +1065,81 @@ exports.ajaxRequest = function(url, callback, data, options) {
 };
 
 // Returns mediaTypes for adUnits which are sent to prebid
-exports.getMediaTypeObject = function(nativeConfig, sizes, currentSlot){
+exports.getMediaTypeObject = function(sizes, currentSlot){
 	var mediaTypeObject = {};
-	if(nativeConfig){
-		if( nativeConfig.kgp && nativeConfig.klm){
-			var kgp = nativeConfig.kgp;
-			var klm = nativeConfig.klm;
+	var slotConfig = CONFIG.getSlotConfiguration();
+	if(slotConfig){
+		if((slotConfig.configPattern && slotConfig.configPattern.trim() != '') || (slotConfig["configPattern"] = "_AU_")){
+			var kgp = slotConfig.configPattern;
+			var isVideo = true;
+			var isNative = true;
+			var isBanner = true;
+			var config = undefined;
+			var divId = refThis.isFunction(currentSlot.getDivID) ? currentSlot.getDivID() : currentSlot.getSlotId().getDomId();
+
 			// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
 			// as we are only supporting div and ad unit, taking the first slot name.
 			// Implemented as per code review and discussion. 
-			var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp)[0];
-			if(refThis.isOwnProperty(klm,kgpv)){
-				refThis.log("Native Config found for adSlot: " +  currentSlot);
-				var config = klm[kgpv];
-				mediaTypeObject["native"] = config.config;
-				if(config[CONSTANTS.COMMON.NATIVE_ONLY]){
+
+			var kgpv = refThis.generateSlotNamesFromPattern(currentSlot, kgp, false)[0];
+			// Global Default Enable is false then disable each 
+			if(refThis.isOwnProperty(slotConfig['config'] ,CONSTANTS.COMMON.DEFAULT)){
+				if(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].banner && refThis.isOwnProperty(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].banner, 'enabled') && !slotConfig['config'][CONSTANTS.COMMON.DEFAULT].banner.enabled){
+					isBanner =false;
+				}
+				if(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].native && refThis.isOwnProperty(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].native, 'enabled') && !slotConfig['config'][CONSTANTS.COMMON.DEFAULT].native.enabled){
+					isNative =false;
+				}
+				if(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].video && refThis.isOwnProperty(slotConfig['config'][CONSTANTS.COMMON.DEFAULT].video, 'enabled') &&  !slotConfig['config'][CONSTANTS.COMMON.DEFAULT].video.enabled){
+					isVideo =false;
+				}
+				config = slotConfig["config"][CONSTANTS.COMMON.DEFAULT];
+			}
+			if(refThis.isOwnProperty(slotConfig['config'], kgpv)){
+				config = slotConfig["config"][kgpv];
+				refThis.log("Config" + JSON.stringify(config)  +" found for adSlot: " +  JSON.stringify(currentSlot));
+			}
+			else{
+				refThis.log("Considering Default Config for " +  JSON.stringify(currentSlot));
+			}
+			if(config){
+				if(isNative && config.native && (!refThis.isOwnProperty(config.native, 'enabled') || config.native.enabled)){
+					if(config.native["config"]){
+						mediaTypeObject["native"] = config.native["config"];
+					}
+					else{
+						refThis.logWarning("Native Config will not be considered as no config has been provided for slot" + JSON.stringify(currentSlot) + " or there is no configuration defined in default.");
+					}
+				}
+				if(isVideo && config.video && (!refThis.isOwnProperty(config.video, 'enabled') || config.video.enabled)){
+					if(CONFIG.getAdServer() != CONSTANTS.AD_SERVER.DFP){
+						if(config.video["config"]){
+							mediaTypeObject["video"] = config.video["config"];
+						}
+						else{
+							refThis.logWarning("Video Config will not be considered as no config has been provided for slot" + JSON.stringify(currentSlot) + " or there is no configuration defined in default.");
+						}
+					}
+					else{
+						refThis.logWarning("Video Config will not be considered with DFP selected as AdServer.");
+					}  
+				}
+				if(!isBanner ||  (config.banner && (refThis.isOwnProperty(config.banner, 'enabled') && !config.banner.enabled))){
+					refThis.mediaTypeConfig[divId] = mediaTypeObject;        
 					return mediaTypeObject;
 				}
-			} else{
-				refThis.log("Native Config not found for adSlot: " +  currentSlot);
+			}
+			else{
+				refThis.log("Config not found for adSlot: " +  JSON.stringify(currentSlot));
 			}
 		} else{
-			refThis.logWarning("Native config not found or KGP/KLM missing in native config provided.");
+			refThis.logWarning("Slot Type not found in config. Please provide slotType in configuration");
 		}
 	}
 	mediaTypeObject["banner"] = {
 		sizes: sizes
 	};
+	refThis.mediaTypeConfig[divId] = mediaTypeObject;
 	return mediaTypeObject;
 };
 
@@ -1036,15 +1171,16 @@ exports.getAdFormatFromBidAd = function(ad){
 	var format = undefined;
 	if(ad && refThis.isString(ad)){
 		//TODO: Uncomment below code once video has been implemented 
-		// var videoRegex = new RegExp(/VAST\s+version/); 
-		// if(videoRegex.test(ad)){
-		// 	format = CONSTANTS.FORMAT_VALUES.VIDEO;
-		// }
-		// else{
 		try{
-			var adStr = JSON.parse(ad.replace(/\\/g, ""));
-			if (adStr && adStr.native) {
-				format = CONSTANTS.FORMAT_VALUES.NATIVE;
+			var videoRegex = new RegExp(/VAST\s+version/); 
+			if(videoRegex.test(ad)){
+				format = CONSTANTS.FORMAT_VALUES.VIDEO;
+			}
+			else{
+				var adStr = JSON.parse(ad.replace(/\\/g, ""));
+				if (adStr && adStr.native) {
+					format = CONSTANTS.FORMAT_VALUES.NATIVE;
+				}
 			}
 		}
 		catch(ex){
@@ -1081,6 +1217,42 @@ exports.getCurrencyToDisplay = function(){
 		}
 	}
 	return defaultCurrency;
+};
+
+exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
+	// This function will return the config for the partner for specific slot.
+	// KGP would always be AU@DIV@WXH
+	// KLM would be an array of regex Config and regex pattern pairs where key would be regex pattern to match 
+	// and value would be the config for that slot to be considered.
+	/* Algo to match regex pattern 
+		Start regex parttern matching  pattern -> ["ADUNIT", "DIV", "SIZE"]
+		Then match the slot adUnit with pattern 
+		if successful the match the div then size
+		if all are true then return the config else match the next avaiable pattern
+		if none of the pattern match then return the error config not found */
+	var rxConfig = null;
+	var keys = generatedKey.split("@");
+	for (var i = 0; i < klmsForPartner.length; i++) {
+		var klmv = klmsForPartner[i];
+		var rxPattern = klmv.rx;
+		if(keys.length == 3){ // Only execute if generated key length is 3 .
+			try{
+				if(keys[0].match(new RegExp(rxPattern.AU)) && keys[1].match(new RegExp(rxPattern.DIV)) && keys[2].match(new RegExp(rxPattern.SIZE))){
+					rxConfig = {
+						config : klmv.rx_config,
+						regexPattern : rxPattern.AU + "@" + rxPattern.DIV + "@" + rxPattern.SIZE
+					};
+					break;
+				}
+			}
+			catch(ex){
+				refThis.logError(CONSTANTS.MESSAGES.M27 + JSON.stringify(rxPattern));
+			}
+		} else {
+			refThis.logWarning(CONSTANTS.MESSAGES.M28 + generatedKey);
+		}
+	}
+	return rxConfig;
 };
 
 exports.getUserIdConfiguration = function(){
@@ -1165,3 +1337,156 @@ exports.getUserIdParams = function(params){
 	}	
 	return userIdParams;
 };
+
+exports.getPartnerParams = function(params){
+	var pparams= {};
+	for(var key in params){
+		try{
+			pparams = refThis.getNestedObjectFromString(pparams,".",key,params[key]);
+		}
+		catch(ex){
+			refThis.logWarning(CONSTANTS.MESSAGES.M29, ex);
+		}
+	}	
+	return pparams;
+};
+
+exports.generateMonetizationPixel = function(slotID, theBid){
+	var pixelURL = CONFIG.getMonetizationPixelURL(),
+		pubId = CONFIG.getPublisherId();
+	var netEcpm, grossEcpm, kgpv, bidId, adapterId;
+	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
+
+	/* istanbul ignore else */
+	if(!pixelURL){
+		return;
+	}
+
+	if(refThis.isFunction(theBid.getGrossEcpm)) {
+		grossEcpm = theBid.getGrossEcpm(isAnalytics);
+	}
+	else{
+		if(CONFIG.getAdServerCurrency() &&  refThis.isFunction(theBid.getCpmInNewCurrency)){
+			grossEcpm = window.parseFloat(theBid.getCpmInNewCurrency(CONSTANTS.COMMON.ANALYTICS_CURRENCY));
+		}
+		else {
+			grossEcpm = theBid.cpm;
+		}
+	}
+	if(refThis.isFunction(theBid.getAdapterID)){
+		adapterId = theBid.getAdapterID()
+	}
+	else{
+		adapterId = theBid.bidderCode
+	}
+	// TODO: Uncomment below code in case hybrid profile is supported 
+	// if(adapterId == "pubmaticServer"){
+	// 	adapterId = "pubmatic";
+	// }
+	// Do we need all checks or we can just use one check
+	if(refThis.isFunction(theBid.getNetEcpm)) {
+		netEcpm = theBid.getNetEcpm(isAnalytics)
+	}
+	else{
+		// else would be executed in case this function is called from prebid for vast updation
+		netEcpm = window.parseFloat((grossEcpm * CONFIG.getAdapterRevShare(adapterId)).toFixed(CONSTANTS.COMMON.BID_PRECISION))
+	}
+	
+	if(refThis.isFunction(theBid.getBidID)){
+		bidId = theBid.getBidID()
+	}
+	else{
+		bidId = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].bidID;
+	}
+	if(refThis.isFunction(theBid.getKGPV)) {
+		kgpv = theBid.getKGPV()
+	}
+	else {
+		kgpv = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].kgpv;
+	}
+
+	pixelURL += "pubid=" + pubId;
+	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
+	pixelURL += "&tst=" + refThis.getCurrentTimestamp();
+	pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
+	pixelURL += "&bidid=" + window.encodeURIComponent(bidId);
+	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
+	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
+	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
+	pixelURL += "&pn=" + window.encodeURIComponent(adapterId);
+	pixelURL += "&en=" + window.encodeURIComponent(netEcpm);
+	pixelURL += "&eg=" + window.encodeURIComponent(grossEcpm);
+	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
+
+	return CONSTANTS.COMMON.PROTOCOL + pixelURL;
+};
+
+exports.UpdateVastWithTracker= function(bid, vast){
+	try{
+		var domParser = new DOMParser();
+		var parsedVast = domParser.parseFromString(vast,"application/xml");
+		var impEle = parsedVast.createElement("Impression");
+		impEle.innerHTML =	"<![CDATA["+ refThis.generateMonetizationPixel(bid.adUnitCode, bid)+"]]>";
+		if(parsedVast.getElementsByTagName('Wrapper').length == 1){
+			parsedVast.getElementsByTagName('Wrapper')[0].appendChild(impEle);
+		}
+		else if(parsedVast.getElementsByTagName('InLine').length == 1){
+			parsedVast.getElementsByTagName('InLine')[0].appendChild(impEle);
+		}
+		return new XMLSerializer().serializeToString(parsedVast);
+	}
+	catch(ex){
+		return vast;
+	}
+    
+};
+
+exports.getDomainFromURL = function(url){
+	var a = window.document.createElement("a");
+	a.href = url;
+	return a.hostname;
+};
+
+exports.replaceAuctionPrice = function(str, cpm) {
+	if (!str) return;
+	return str.replace(/\$\{AUCTION_PRICE\}/g, cpm);
+};
+
+exports.getCustomParamsForDFPVideo = function(customParams, bid){
+	const adserverTargeting = (bid && bid.adserverTargeting) || {};
+	var targetingKeys = {}
+	for(var key in adserverTargeting){
+		if(refThis.isOwnProperty(adserverTargeting,key)){
+			if(refThis.isArray(adserverTargeting[key])){
+				targetingKeys[key] = adserverTargeting[key].join();
+			} else {
+				targetingKeys[key] = adserverTargeting[key];
+			}
+		}
+	}
+	var customParams = Object.assign({},
+		targetingKeys,
+		customParams);
+	return customParams;
+};
+
+exports.getDevicePlatform = function(){
+	var deviceType = 3;
+	try{
+		var ua = navigator.userAgent;
+		if(ua && refThis.isString(ua) && ua.trim() != ""){
+			ua = ua.toLowerCase().trim();
+			var isMobileRegExp = new RegExp("(mobi|tablet|ios).*");
+			if(ua.match(isMobileRegExp)){
+				deviceType=2;
+			}
+			else{
+				deviceType=1;
+			}
+		}
+	}
+	catch(ex){
+		refThis.logError("Unable to get device platform" , ex);
+	}
+	return deviceType;
+}

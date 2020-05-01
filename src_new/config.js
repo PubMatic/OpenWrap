@@ -158,6 +158,16 @@ exports.initConfig = function(){
 				slotLevelParams[ key ] = value;
 			});
 		});
+
+		if(adapterID != "pubmatic" && adapterID != "pubmatic2"){
+			util.forEachOnObject(adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP], function(kgpv, slotLevelParams){
+				util.forEachOnObject(adapterLevelParams, function(key, value){
+					if(util.isOwnProperty(slotLevelParams, "rx_config")){
+						slotLevelParams["rx_config"][ key ] = value;
+					}
+				});
+			});
+		}
 	});
 };
 
@@ -196,7 +206,28 @@ exports.getIdentityConsumers = function(){
 	return (config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS] || "").toLowerCase();
 };
 
+exports.getSlotConfiguration = function(){
+	return config[CONSTANTS.COMMON.SLOT_CONFIG];
+};
+
+exports.getAdServer = function(){
+	return config[CONSTANTS.COMMON.ADSERVER];
+};
+exports.getCCPA = function () {
+	var ccpa = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_CONSENT] || CONSTANTS.CONFIG.DEFAULT_CCPA_CONSENT;
+	return ccpa === "1";
+};
+
+exports.getCCPACmpApi = function () {
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_CMPAPI] || CONSTANTS.CONFIG.DEFAULT_CCPA_CMPAPI;
+};
+
+exports.getCCPATimeout = function() {
+	var ccpaTimeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_TIMEOUT];
+	return ccpaTimeout ? window.parseInt(ccpaTimeout) : CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT;
+};
+
 // todo: unit test case pending
 exports.isPrebidPubMaticAnalyticsEnabled = function(){
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_PM_ANALYTICS]) === 1;
-}
+};

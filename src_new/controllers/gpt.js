@@ -290,7 +290,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
     // this hook is not needed in custom controller
     util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);
-    if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
+    if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().split(",").includes(CONSTANTS.COMMON.GAM)>-1){
         util.setUserIdTargeting();
     }
     // attaching keyValuePairs from adapters
@@ -503,7 +503,8 @@ function executeDisplay(timeout, divIds, callback) {
     var timeoutIncrementer = 10; // in ms
     var intervalId = window.setInterval(function() {
         if ( ( util.getExternalBidderStatus(divIds) && bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds) ) || timeoutTicker >= timeout) {
-            util.resetExternalBidderStatus(divIds); //Quick fix to reset flag so that the notification flow happens only once per page load
+            window.clearInterval(intervalId);
+            util.resetExternalBidderStatus(divIds); //Quick fix to reset flag so that the notification flow happens only once per page load            
             callback();
         }
         timeoutTicker += timeoutIncrementer;
@@ -571,7 +572,7 @@ exports.forQualifyingSlotNamesCallAdapters = forQualifyingSlotNamesCallAdapters;
 
 function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
     // Initiating getUserConsentDataFromCMP method to get the updated consentData
-    GDPR.getUserConsentDataFromCMP();
+    // GDPR.getUserConsentDataFromCMP();
 
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         if(CONFIG.isIdentityOnly()){
@@ -741,7 +742,7 @@ exports.getQualifyingSlotNamesForRefresh = getQualifyingSlotNamesForRefresh;
 */
 function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // Note : not covering the function currying atm , if need be will add istanbul ignore
     // Initiating getUserConsentDataFromCMP method to get the updated consentData
-    GDPR.getUserConsentDataFromCMP();
+    // GDPR.getUserConsentDataFromCMP();
 
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         if(CONFIG.isIdentityOnly()){
@@ -763,10 +764,8 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
                 /* istanbul ignore next */
                 refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
                 /* istanbul ignore next */
-                util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
-
+                util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");              
                 var arg = arguments;
-        
                 refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
                     refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
                 });        
@@ -838,9 +837,6 @@ function addHooksIfPossible(win) { // TDD, i/o : done
                 util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
             });
             util.log("Identity Only Enabled and setting config");
-        }else{
-            //REVIEW: this log will execute for all OW pubs, un-necessary!!
-            util.logWarning("Window.pbjs is undefined")
         }
     }
     if (util.isUndefined(win.google_onload_fired) && util.isObject(win.googletag) && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)) {

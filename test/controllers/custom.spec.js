@@ -552,10 +552,70 @@ describe("CONTROLLER: CUSTOM", function() {
 			});
 			AM.callAdapters.called.should.be.true;
 			AM.callAdapters.restore();
+			CONFIG.getTimeout.restore();
 			setTimeout(function(){
 				flag.should.equal(true);
 				done();
+			}, 20);
+		});
+
+		it("should call the callback postimeout if allBid status is false ecverytime",function(done){
+			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
+			sinon.stub(AM, "callAdapters");
+			AM.callAdapters.returns(true);
+			sinon.stub(CONFIG, "getTimeout");
+			CONFIG.getTimeout.returns(10);
+			BM.getAllPartnersBidStatuses.restore();
+			var flag = false;
+			CUSTOM.customServerExposedAPI([{
+				code: "some-pub-friendly-unique-name",
+				divId: "div-id-where-slot-will-render",
+				adUnitId: "ad_unit-id-from-DFP",
+				adUnitIndex: "ad-unit-index",
+				mediaTypes: {
+					banner: {
+						sizes: [ [300, 250], [300, 300] ]
+					}
+				}
+			}], function(){
+				flag = true;
+			});
+			setTimeout(function(){
+				flag.should.equal(true);
+				AM.callAdapters.restore();
+				CONFIG.getTimeout.restore();
+				done();
 			}, 15);
+		});
+
+		// Uncomment below test case when change from Phantom to ChromeHeadless
+		xit("should not call the callback before timeout if allBid status is false ecverytime",function(done){
+			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
+			sinon.stub(AM, "callAdapters");
+			AM.callAdapters.returns(true);
+			sinon.stub(CONFIG, "getTimeout");
+			CONFIG.getTimeout.returns(60);
+			BM.getAllPartnersBidStatuses.restore();
+			var flag = false;
+			CUSTOM.customServerExposedAPI([{
+				code: "some-pub-friendly-unique-name",
+				divId: "div-id-where-slot-will-render",
+				adUnitId: "ad_unit-id-from-DFP",
+				adUnitIndex: "ad-unit-index",
+				mediaTypes: {
+					banner: {
+						sizes: [ [300, 250], [300, 300] ]
+					}
+				}
+			}], function(){
+				flag = true;
+			});
+			setTimeout(function(){
+				flag.should.equal(false);
+				AM.callAdapters.restore();
+				CONFIG.getTimeout.restore();
+				done();
+			}, 5);
 		});
 
 	});
@@ -580,6 +640,12 @@ describe("CONTROLLER: CUSTOM", function() {
 					return {
 						getDomId: function(){
 							return "div_1";
+						},
+						getAdUnitPath: function(){
+							return "1234";
+						},
+						getId: function(){
+							return "1234_0";
 						}
 					};
 				},
@@ -604,6 +670,12 @@ describe("CONTROLLER: CUSTOM", function() {
 					return {
 						getDomId: function(){
 							return "div_2";
+						},
+						getAdUnitPath: function(){
+							return "9876";
+						},
+						getId: function(){
+							return "9876_0";
 						}
 					};
 				},
@@ -631,7 +703,8 @@ describe("CONTROLLER: CUSTOM", function() {
 					banner: {
 						sizes: [[728, 90]]
 					}
-				}
+				},
+				sizes:[[728, 90]]
 			});
 			op[1].should.deep.equal({
 				code: googleSlot2.getSlotId().getDomId(),
@@ -642,7 +715,8 @@ describe("CONTROLLER: CUSTOM", function() {
 					banner: {
 						sizes: [[300, 250]]
 					}
-				}
+				},
+				sizes: [[300, 250]]
 			});
 			done();
 		});

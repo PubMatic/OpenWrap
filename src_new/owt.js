@@ -44,7 +44,7 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 		JSON.stringify({
 			pwt_type: "1",
 			pwt_bidID: bidID,
-			pwt_origin: window.location.protocol+"//"+window.location.hostname
+			pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
 		}),
 		"*"
 	);
@@ -57,7 +57,7 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 		JSON.stringify({
 			pwt_type: "1",
 			pwt_bidID: util.getBididForPMP(values, priorityArray),
-			pwt_origin: window.location.protocol+"//"+window.location.hostname
+			pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
 		}),
 		"*"
 	);
@@ -103,6 +103,42 @@ window.OWT.notifyExternalBiddingComplete = function(notifyId) {
 			};
 		}
 	});
+};
+
+window.PWT.UpdateVastWithTracker = function(bid, vast){
+	return util.UpdateVastWithTracker(bid, vast);
+};
+
+window.PWT.generateDFPURL= function(adUnit,cust_params){
+	var dfpurl = "";
+	if(!adUnit || !util.isObject(adUnit)) {
+		util.logError("An AdUnit should be an Object", adUnit);
+	}
+	if(adUnit.bidData && adUnit.bidData.wb && adUnit.bidData.kvp){
+		adUnit.bid = adUnit.bidData.wb;
+		adUnit.bid["adserverTargeting"] = adUnit.bidData.kvp;
+	}
+	else{
+		util.logWarning("No bid found for given adUnit");
+		return;
+	}
+	var params = {
+		adUnit: adUnit,
+		params: {
+			iu: adUnit.adUnitId,
+			cust_params: cust_params,
+			output: "vast"
+		}
+	};
+	if(adUnit.bid){
+		params["bid"] = adUnit.bid;
+	}
+	dfpurl = window.owpbjs.adServers.dfp.buildVideoUrl(params);
+	return dfpurl;
+};
+
+window.PWT.getCustomParamsForDFPVideo = function(customParams, bid){
+	return util.getCustomParamsForDFPVideo(customParams, bid);
 };
 
 controller.init(window);

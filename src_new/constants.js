@@ -31,7 +31,11 @@ exports.COMMON = {
 	"IDENTITY_ONLY":"identityOnly",
 	"GAM":"eb",
 	"TAM":"tam",
-	"PREBID":"prebid"
+	"PREBID":"prebid",	
+	"PROTOCOL" : "https://",
+	"SLOT_CONFIG": "slotConfig"	,
+	"DEFAULT": "default",
+	"ADSERVER":"adserver"
 };
 
 exports.CONFIG = {
@@ -40,6 +44,8 @@ exports.CONFIG = {
 	"COMMON": "pwt",
 	"TIMEOUT": "t",
 	"KEY_GENERATION_PATTERN": "kgp",
+	"REGEX_KEY_GENERATION_PATTERN": "kgp_rx",
+	"REGEX_KEY_LOOKUP_MAP": "klm_rx",
 	"KEY_LOOKUP_MAP": "klm",
 	"SERVER_SIDE_KEY": "sk",
 	"PUBLISHER_ID": "pubid",
@@ -68,7 +74,15 @@ exports.CONFIG = {
 	"DEFAULT_IDENTITY_ONLY": "0",
 	"DEFAULT_GDPR_CONSENT": "0",
 	"DISABLE_AJAX_TIMEOUT": "disableAjaxTimeout",
-	"ENABLE_PB_PM_ANALYTICS": "prebidPubMaticAnalytics"	
+	"CCPA_CONSENT": "ccpa",
+	"CCPA_CMPAPI": "ccpaCmpApi",
+	"CCPA_TIMEOUT": "ccpaTimeout",
+	"DEFAULT_CCPA_CMPAPI": "iab",
+	"DEFAULT_CCPA_TIMEOUT": 10000,
+	"CACHE_PATH":"/cache",
+	"CACHE_URL":"https://ow.pubmatic.com",
+	"VIDEO_PARAM":"video",
+	"ENABLE_PB_PM_ANALYTICS": "prebidPubMaticAnalytics"
 };
 
 exports.METADATA_MACROS = {
@@ -109,7 +123,10 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"PROFILE_VERSION_ID": "pwtverid",
 	"META_DATA": "pwtm",
 	"PLATFORM_KEY": "pwtplt",
-	"USER_IDS":"pwtuid"
+	"USER_IDS":"pwtuid",
+	"CACHE_ID":"pwtcid",
+	"CACHE_URL":"pwtcurl",
+	"CACHE_PATH":"pwtcpath",
 };
 
 exports.IGNORE_PREBID_KEYS = {
@@ -117,13 +134,17 @@ exports.IGNORE_PREBID_KEYS = {
 	"hb_adid": 1,
 	"hb_pb": 1,
 	"hb_size": 1,
-	"hb_deal": 1
+	"hb_deal": 1,
+	"hb_uuid":1,
+	"hb_cache_host":1,
+	"hb_cache_id":1
 };
 
 //todo: mention all params here and use accordigly
 exports.LOGGER_PIXEL_PARAMS = {
 	"TIMESTAMP": "tst",
 	"PAGE_URL": "purl",
+	"PAGE_DOMAIN": "orig",
 	"TIMEOUT": "to"
 };
 
@@ -154,6 +175,9 @@ exports.MESSAGES = {
 	"M24": "Passsed argument is not a bidAdaptor",
 	"M25": "Bid details not found for bidID: ",
 	"M26": "Currency Module is Activated. Ad Server Currency is: ",
+	"M27": "Invalid regex pattern ",
+	"M28": "Unable to match regex pattern as kgpv length is not 3",
+	"M29": "Unable to parse Partner configuration",
 	IDENTITY:{
 		M1: "Unable to get User Id from OpenIdentity",
 		M2: "Setting UserIds to EB ",
@@ -165,7 +189,8 @@ exports.MESSAGES = {
 
 exports.PLATFORM_VALUES = {
 	"DISPLAY": "display",
-	"NATIVE": "native"
+	"NATIVE": "native",
+	"VIDEO":"video"
 };
 
 exports.FORMAT_VALUES = {
@@ -192,3 +217,8 @@ exports.EXCLUDE_IDENTITY_PARAMS = ["rev_share","timeout","throttle"];
 exports.TOLOWERCASE_IDENTITY_PARAMS = ["storage.type"];
 
 exports.JSON_VALUE_KEYS = ["params.clientIdentifier"];
+
+exports.AD_SERVER = {
+	"DFP" : "DFP",
+	"CUSTOM": "CUSTOM"
+};
