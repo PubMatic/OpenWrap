@@ -47,6 +47,15 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	theBid.setWidth(bid.width);
 	theBid.setHeight(bid.height);
 	theBid.setMi(bid.mi);
+	if(bid.videoCacheKey){
+		theBid.setVastCache(bid.videoCacheKey);
+	}
+	if(bid.vastUrl){
+		theBid.setVastUrl(bid.vastUrl);
+	}
+	if(bid.vastUrl){
+		theBid.setRenderer(bid.renderer);
+	}
 	if(bid.native){
 		theBid.setNative(bid.native);
 	}

@@ -32,6 +32,9 @@ function Bid(adapterID, kgpv){
 	this.adFormat = undefined;
 	this.regexPattern = undefined;
 	this.cacheUUID = undefined;
+	this.vastUrl = undefined;
+	this.vastCache = undefined;
+	this.renderer = undefined;
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -334,6 +337,36 @@ Bid.prototype.setcacheUUID = function(cacheUUID){
 		this.adFormat = CONSTANTS.FORMAT_VALUES.VIDEO;
 	}
 	return this;
+};
+
+Bid.prototype.setRenderer = function(renderer){
+	if(!UTIL.isEmptyObject(renderer)){
+		this.renderer = renderer;
+	}
+};
+
+Bid.prototype.getRenderer = function(){
+	return this.renderer;
+};
+
+Bid.prototype.setVastCache = function(vastCache){
+	if(UTIL.isString(vastCache)){
+		this.vastCache = vastCache;
+	}
+};
+
+Bid.prototype.getVastCache = function(){
+	return this.vastCache;
+};
+
+Bid.prototype.setVastUrl = function(vastUrl){
+	if(UTIL.isString(vastUrl)){
+		this.vastUrl = vastUrl;
+	}
+};
+
+Bid.prototype.getVastUrl= function(){
+	return this.vastUrl;
 };
 
 
