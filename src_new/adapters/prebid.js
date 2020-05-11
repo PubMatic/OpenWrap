@@ -683,6 +683,9 @@ function fetchBids(activeSlots, impressionID){
 					};
 
 				}
+				if(CONFIG.isSchainEnabled){
+					prebidConfig["schain"] = CONFIG.getSchainObject();
+				}
 				refThis.assignSingleRequestConfigForBidders(prebidConfig);
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
