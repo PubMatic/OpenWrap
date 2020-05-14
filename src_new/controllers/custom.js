@@ -232,7 +232,7 @@ exports.findWinningBidAndGenerateTargeting = findWinningBidAndGenerateTargeting;
 */
 function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 
-	GDPR.getUserConsentDataFromCMP();
+	//GDPR.getUserConsentDataFromCMP(); // Commenting this as GDPR will be handled by Prebid and we won't be seding GDPR info to tracker and logger
 
 	if (!util.isArray(arrayOfAdUnits)) {
 		util.error("First argument to PWT.requestBids API, arrayOfAdUnits is mandatory and it should be an array.");
@@ -276,12 +276,10 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 	// calling adapters
 	adapterManager.callAdapters(qualifyingSlots);
 
-	var timeoutTicker = 0; // here we will calculate time elapsed
-	// Note: some time has already elapsed since we started 
-	var timeoutIncrementer = 10; // in ms
+	var posTimeoutTime = Date.now() + CONFIG.getTimeout(); // post timeout condition
 	var intervalId = window.setInterval(function() {
 		// todo: can we move this code to a function?
-		if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || timeoutTicker >= CONFIG.getTimeout()) {
+		if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || Date.now() >= posTimeoutTime) {
 
 			clearInterval(intervalId);
 			// after some time call fire the analytics pixel
@@ -308,8 +306,7 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 
 			callbackFunction(arrayOfAdUnits);
 		}
-		timeoutTicker += timeoutIncrementer;
-	}, timeoutIncrementer);
+	}, 10); // check every 10 milliseconds if we have all bids or timeout has been happened.
 }
 /* start-test-block */
 exports.customServerExposedAPI = customServerExposedAPI;
