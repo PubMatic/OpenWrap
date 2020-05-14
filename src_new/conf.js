@@ -225,6 +225,15 @@ exports.slotConfig = {
 					"skipmin": 10,
 					"skipafter": 15
 				}
+			},
+			"renderer":{
+				url: "https://acdn.adnxs.com/video/outstream/ANOutstreamVideo.js",
+				render: function (bid) {
+					ANOutstreamVideo.renderAd({
+						targetId: bid.adUnitCode,
+						adResponse: bid.adResponse,
+					});
+				}
 			}
 		},
 		"AU2": {

@@ -35,6 +35,7 @@ function Bid(adapterID, kgpv){
 	this.vastUrl = undefined;
 	this.vastCache = undefined;
 	this.renderer = undefined;
+	this.pbBid = undefined;
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -367,6 +368,14 @@ Bid.prototype.setVastUrl = function(vastUrl){
 
 Bid.prototype.getVastUrl= function(){
 	return this.vastUrl;
+};
+
+Bid.prototype.setPbBid = function(pbbid){
+	this.pbbid = pbbid;
+};
+
+Bid.prototype.getPbBid= function(){
+	return this.pbbid;
 };
 
 

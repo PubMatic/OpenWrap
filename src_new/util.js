@@ -467,8 +467,8 @@ exports.writeIframe = function(theDocument, src, width, height, style){
 
 exports.displayCreative = function(theDocument, bid){
 	refThis.resizeWindow(theDocument, bid.width, bid.height);
-	if(bid.renderer && refthis.isObject(bid.renderer)){
-		bid.renderer.render(bid);
+	if(bid.renderer && refThis.isObject(bid.renderer)){
+		bid.renderer.render(bid.getPbBid);
 	}
 	else{
 		if(bid.adHtml){
@@ -1070,6 +1070,7 @@ exports.ajaxRequest = function(url, callback, data, options) {
 
 // Returns mediaTypes for adUnits which are sent to prebid
 exports.getMediaTypeObject = function(sizes, currentSlot){
+	var adUnitConfig = {};
 	var mediaTypeObject = {};
 	var slotConfig = CONFIG.getSlotConfiguration();
 	if(slotConfig){
@@ -1128,9 +1129,13 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 						refThis.logWarning("Video Config will not be considered with DFP selected as AdServer.");
 					}  
 				}
+				if(config.renderer && !refThis.isEmptyObject(config.renderer)){
+					adUnitConfig['renderer'] = config.renderer;
+				}
 				if(!isBanner ||  (config.banner && (refThis.isOwnProperty(config.banner, 'enabled') && !config.banner.enabled))){
-					refThis.mediaTypeConfig[divId] = mediaTypeObject;        
-					return mediaTypeObject;
+					refThis.mediaTypeConfig[divId] = mediaTypeObject;  
+					adUnitConfig['mediaTypeObject'] = mediaTypeObject
+					return adUnitConfig;      
 				}
 			}
 			else{
@@ -1144,7 +1149,8 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 		sizes: sizes
 	};
 	refThis.mediaTypeConfig[divId] = mediaTypeObject;
-	return mediaTypeObject;
+	adUnitConfig['mediaTypeObject'] = mediaTypeObject
+	return adUnitConfig;
 };
 
 exports.addEventListenerForClass = function(theWindow, theEvent, theClass, eventHandler){
@@ -1492,4 +1498,8 @@ exports.getDevicePlatform = function(){
 		refThis.logError("Unable to get device platform" , ex);
 	}
 	return deviceType;
+}
+
+exports.getRenderer = function(){
+	
 }
