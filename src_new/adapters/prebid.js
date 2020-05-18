@@ -52,10 +52,11 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	if(bid.vastUrl){
 		theBid.setVastUrl(bid.vastUrl);
 	}
+	if(bid.vastXml){
+		theBid.setVastUrl(bid.vastUrl);
+	}
 	if(bid.renderer){
 		theBid.setRenderer(bid.renderer);
-		theBid.setPbBid(bid);
-
 	}
 	if(bid.native){
 		theBid.setNative(bid.native);
@@ -122,6 +123,7 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 			theBid.setKeyValuePair(key, value);
 		}
 	});
+	theBid.setPbBid(bid);
 	return theBid;
 }
 

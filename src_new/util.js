@@ -466,11 +466,11 @@ exports.writeIframe = function(theDocument, src, width, height, style){
 };
 
 exports.displayCreative = function(theDocument, bid){
-	refThis.resizeWindow(theDocument, bid.width, bid.height);
 	if(bid.renderer && refThis.isObject(bid.renderer)){
 		bid.renderer.render(bid.getPbBid);
 	}
 	else{
+		refThis.resizeWindow(theDocument, bid.width, bid.height);
 		if(bid.adHtml){
 			if(bid.getAdapterID().toLowerCase() == "appier"){
 				bid.adHtml = refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());

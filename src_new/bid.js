@@ -370,12 +370,26 @@ Bid.prototype.getVastUrl= function(){
 	return this.vastUrl;
 };
 
+Bid.prototype.setVastXml = function(xml){
+	if(UTIL.isString(xml)){
+		this.vastXml = xml;
+	}
+};
+
+Bid.prototype.getVastXml= function(){
+	return this.vastXml;
+};
+
 Bid.prototype.setPbBid = function(pbbid){
 	this.pbbid = pbbid;
 };
 
 Bid.prototype.getPbBid= function(){
 	return this.pbbid;
+};
+
+Bid.prototype.getVastResponse = function(){
+	return this.vastXml || this.vastUrl;
 };
 
 
