@@ -1099,6 +1099,9 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 					isVideo =false;
 				}
 				config = slotConfig["config"][CONSTANTS.COMMON.DEFAULT];
+				if(config.renderer && !refThis.isEmptyObject(config.renderer)){
+					adUnitConfig['renderer'] = config.renderer;
+				}
 			}
 			if(refThis.isOwnProperty(slotConfig['config'], kgpv)){
 				config = slotConfig["config"][kgpv];
@@ -1498,8 +1501,4 @@ exports.getDevicePlatform = function(){
 		refThis.logError("Unable to get device platform" , ex);
 	}
 	return deviceType;
-}
-
-exports.getRenderer = function(){
-	
 }

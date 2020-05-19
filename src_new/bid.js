@@ -344,6 +344,7 @@ Bid.prototype.setRenderer = function(renderer){
 	if(!UTIL.isEmptyObject(renderer)){
 		this.renderer = renderer;
 	}
+	return this;
 };
 
 Bid.prototype.getRenderer = function(){
@@ -354,6 +355,7 @@ Bid.prototype.setVastCache = function(vastCache){
 	if(UTIL.isString(vastCache)){
 		this.vastCache = vastCache;
 	}
+	return this;
 };
 
 Bid.prototype.getVastCache = function(){
@@ -364,6 +366,7 @@ Bid.prototype.setVastUrl = function(vastUrl){
 	if(UTIL.isString(vastUrl)){
 		this.vastUrl = vastUrl;
 	}
+	return this;
 };
 
 Bid.prototype.getVastUrl= function(){
@@ -374,6 +377,7 @@ Bid.prototype.setVastXml = function(xml){
 	if(UTIL.isString(xml)){
 		this.vastXml = xml;
 	}
+	return this;
 };
 
 Bid.prototype.getVastXml= function(){
@@ -382,6 +386,7 @@ Bid.prototype.getVastXml= function(){
 
 Bid.prototype.setPbBid = function(pbbid){
 	this.pbbid = pbbid;
+	return this;
 };
 
 Bid.prototype.getPbBid= function(){

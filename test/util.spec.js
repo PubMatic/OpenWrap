@@ -2635,6 +2635,68 @@ describe('UTIL', function() {
             result.should.deep.equal({});
             done();
         });
+
+        it('should return renderer if present with the div',function(done){
+            slotConfiguration.config["DIV_1"].renderer = {
+                "url" :"someUrl"
+            }
+            var expectedResult = {
+                "url" :"someUrl"
+            }
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return renderer if not present with the div',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.undefined
+            done();
+        });
+
+        it('should return renderer if present in default',function(done){
+            slotConfiguration.config["default"] = {
+                renderer : {
+                    "url" :"someUrl"
+                }
+            }
+            var expectedResult = {
+                "url" :"someUrl"
+            }
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return renderer if not present in default and div',function(done){
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.undefined;
+            done();
+        });
+
+        it('should return div renderer if present in default and div',function(done){
+            slotConfiguration.config["DIV_1"].renderer = {
+                "url" :"divurl"
+            }
+            slotConfiguration.config["default"] = {
+                renderer : {
+                    "url" :"defaulturl"
+                }
+            }
+            var expectedResult = {
+                "url" :"divurl"
+            }
+            var result = UTIL.getMediaTypeObject(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
     });
 
     describe('#getAdFormatFromBidAd', function(){

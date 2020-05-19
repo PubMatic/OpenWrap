@@ -228,11 +228,8 @@ exports.slotConfig = {
 			},
 			"renderer":{
 				url: "https://acdn.adnxs.com/video/outstream/ANOutstreamVideo.js",
-				render: function (bid) {
-					ANOutstreamVideo.renderAd({
-						targetId: bid.adUnitCode,
-						adResponse: bid.adResponse,
-					});
+				render: function () {
+					//some renderer function 
 				}
 			}
 		},
