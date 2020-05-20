@@ -393,11 +393,6 @@ Bid.prototype.getPbBid= function(){
 	return this.pbbid;
 };
 
-Bid.prototype.getVastResponse = function(){
-	return this.vastXml || this.vastUrl;
-};
-
-
 // This function is used to update the bid in case of video bid
 // this should only be called if bid is video so that there is no discrepancy in tracker and logger for bid Id
 Bid.prototype.updateBidId = function(slotID){

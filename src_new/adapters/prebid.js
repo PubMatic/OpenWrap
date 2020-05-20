@@ -395,7 +395,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(adUnits, code)){
-		var adUnitConfig = util.getMediaTypeObject(sizes, currentSlot);
+		var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
 		mediaTypeConfig = adUnitConfig.mediaTypeObject;
 		//TODO: Remove sizes from below as it will be deprecated soon in prebid
 		// Need to check pubmaticServerBidAdapter in our fork after this change.

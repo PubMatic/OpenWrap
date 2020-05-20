@@ -2328,7 +2328,7 @@ describe('UTIL', function() {
         });
     });
 
-    describe('#getMediaTypeObject', function() {
+    describe('#getAdUnitConfig', function() {
         var slotConfiguration, sizes, currentSlot;
         
         beforeEach(function(done) {
@@ -2438,7 +2438,7 @@ describe('UTIL', function() {
         });
 
         it('is a function', function(done) {
-            UTIL.getMediaTypeObject.should.be.a('function');
+            UTIL.getAdUnitConfig.should.be.a('function');
             done();
         });
 
@@ -2464,7 +2464,7 @@ describe('UTIL', function() {
                     sizes: sizes
                 }
             }
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).mediaTypeObject
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject
             console.log("Result is " + JSON.stringify(result));
             expect(result).to.be.deep.equal(expectedResult);
             done();
@@ -2490,7 +2490,7 @@ describe('UTIL', function() {
                     }
                 }
             }
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).mediaTypeObject
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2502,7 +2502,7 @@ describe('UTIL', function() {
                 }
             };
             commonDivID = "DIV_3";
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).mediaTypeObject
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2514,7 +2514,7 @@ describe('UTIL', function() {
                     sizes: sizes
                 }
             };
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).mediaTypeObject
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2525,7 +2525,7 @@ describe('UTIL', function() {
             slotConfiguration["config"]["DIV_2"].banner.enabled= false;
             slotConfiguration["config"]["DIV_2"].native.enabled= false;
             var expectedResult =  {"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15}};
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).mediaTypeObject;
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2534,7 +2534,7 @@ describe('UTIL', function() {
             currentSlot.getDivID.restore();
             sinon.stub(currentSlot, "getDivID").returns("DIV_2");
             var expectedResult = {"native":{"image":{"required":true,"sizes":[150,50]},"title":{"required":true,"len":80},"sponsoredBy":{"required":true},"body":{"required":true}},"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15},"banner":{"sizes":[[300,250]]}};
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).mediaTypeObject;
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2554,7 +2554,7 @@ describe('UTIL', function() {
                 }
             };
             var expectedResult = {"banner":{"sizes":[[300,250]]}};
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).mediaTypeObject;
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2574,7 +2574,7 @@ describe('UTIL', function() {
                 }
             };
             var expectedResult = {"native":{"image":{"required":true,"sizes":[150,50]},"title":{"required":true,"len":80},"sponsoredBy":{"required":true},"body":{"required":true}}};
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).mediaTypeObject;
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal(expectedResult);
             done();
         });             
@@ -2594,7 +2594,7 @@ describe('UTIL', function() {
                 }
             };
             var expectedResult = {"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15}};
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).mediaTypeObject;
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2611,7 +2611,7 @@ describe('UTIL', function() {
                     enabled:false
                 }
             };
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).mediaTypeObject;
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal({});
             done();
         });
@@ -2631,7 +2631,7 @@ describe('UTIL', function() {
                     enabled:false
                 }
             };
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).mediaTypeObject;
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal({});
             done();
         });
@@ -2643,7 +2643,7 @@ describe('UTIL', function() {
             var expectedResult = {
                 "url" :"someUrl"
             }
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).renderer
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
             console.log("Result is " + JSON.stringify(result));
             expect(result).to.be.deep.equal(expectedResult);
             done();
@@ -2652,7 +2652,7 @@ describe('UTIL', function() {
         it('should not return renderer if not present with the div',function(done){
             currentSlot.getDivID.restore();
             sinon.stub(currentSlot, "getDivID").returns("DIV_2");
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).renderer
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
             console.log("Result is " + JSON.stringify(result));
             expect(result).to.be.undefined
             done();
@@ -2667,14 +2667,14 @@ describe('UTIL', function() {
             var expectedResult = {
                 "url" :"someUrl"
             }
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).renderer
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
             console.log("Result is " + JSON.stringify(result));
             expect(result).to.be.deep.equal(expectedResult);
             done();
         });
 
         it('should not return renderer if not present in default and div',function(done){
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).renderer
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
             console.log("Result is " + JSON.stringify(result));
             expect(result).to.be.undefined;
             done();
@@ -2692,7 +2692,7 @@ describe('UTIL', function() {
             var expectedResult = {
                 "url" :"divurl"
             }
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot).renderer
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
             console.log("Result is " + JSON.stringify(result));
             expect(result).to.be.deep.equal(expectedResult);
             done();

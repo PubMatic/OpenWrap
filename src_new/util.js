@@ -467,7 +467,9 @@ exports.writeIframe = function(theDocument, src, width, height, style){
 
 exports.displayCreative = function(theDocument, bid){
 	if(bid.renderer && refThis.isObject(bid.renderer)){
-		bid.renderer.render(bid.getPbBid);
+		if(refThis.isFunction(bid.renderer.render)){
+			bid.renderer.render(bid.getPbBid());
+		}
 	}
 	else{
 		refThis.resizeWindow(theDocument, bid.width, bid.height);
@@ -748,14 +750,14 @@ exports.safeFrameCommunicationProtocol = function(msg){
 			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
 			if(bidDetails){
-					var theBid = bidDetails.bid,
-						adapterID = theBid.getAdapterID(),
+					var theBid = bidDetails.bid;
+					var	adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid,
 						newMsgData = {
 							pwt_type: 2,
-							pwt_bid: theBid
-						}
-						;
+							pwt_bid: theBid,
+							pwt_pbbid: theBid.pbbid
+						};
 					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
 					refThis.resizeWindow(window.document, theBid.width, theBid.height, divID);
@@ -772,53 +774,60 @@ exports.safeFrameCommunicationProtocol = function(msg){
 				/* istanbul ignore else */
 			if(msgData.pwt_bid){
 					var theBid = msgData.pwt_bid;
-					if(theBid.adHtml){
-						try{
-							var iframe = refThis.createInvisibleIframe(window.document);
-							/* istanbul ignore else */
-							if(!iframe){
-								throw {message: 'Failed to create invisible frame.', name:""};
-							}
-
-							iframe.setAttribute('width', theBid.width);
-        					iframe.setAttribute('height', theBid.height);
-        					iframe.style = '';
-
-							window.document.body.appendChild(iframe);
-
-							/* istanbul ignore else */
-							if(!iframe.contentWindow){
-								throw {message: 'Unable to access frame window.', name:""};
-							}
-
-							var iframeDoc = iframe.contentWindow.document;
-							/* istanbul ignore else */
-							if(!iframeDoc){
-								throw {message: 'Unable to access frame window document.', name:""};
-							}
-
-							var content = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><base target="_top" /><scr' + 'ipt>inDapIF=true;</scr' + 'ipt></head>';
-							content += '<body>';
-							content += "<script>var $sf = window.parent.$sf;<\/script>";
-							content += "<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>";
-							content += theBid.adHtml;
-							content += '</body></html>';
-
-							iframeDoc.write(content);
-							iframeDoc.close();
-
-						}catch(e){
-							refThis.logError('Error in rendering creative in safe frame.');
-							refThis.log(e);
-							refThis.log('Rendering synchronously.');
-							refThis.displayCreative(window.document, msgData.pwt_bid);
+					if(theBid.renderer && refThis.isObject(theBid.renderer)){
+						if(refThis.isFunction(theBid.renderer.render)){
+							theBid.renderer.render(theBid.getPbBid());
 						}
+					}
+					else { 
+						if(theBid.adHtml){
+							try{
+								var iframe = refThis.createInvisibleIframe(window.document);
+								/* istanbul ignore else */
+								if(!iframe){
+									throw {message: 'Failed to create invisible frame.', name:""};
+								}
 
-					}else if(theBid.adUrl){
-						refThis.writeIframe(window.document, theBid.adUrl, theBid.width, theBid.height, "");
-					}else{
-						refThis.logWarning("creative details are not found");
-						refThis.log(theBid);
+								iframe.setAttribute('width', theBid.width);
+								iframe.setAttribute('height', theBid.height);
+								iframe.style = '';
+
+								window.document.body.appendChild(iframe);
+
+								/* istanbul ignore else */
+								if(!iframe.contentWindow){
+									throw {message: 'Unable to access frame window.', name:""};
+								}
+
+								var iframeDoc = iframe.contentWindow.document;
+								/* istanbul ignore else */
+								if(!iframeDoc){
+									throw {message: 'Unable to access frame window document.', name:""};
+								}
+
+								var content = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><base target="_top" /><scr' + 'ipt>inDapIF=true;</scr' + 'ipt></head>';
+								content += '<body>';
+								content += "<script>var $sf = window.parent.$sf;<\/script>";
+								content += "<script>setInterval(function(){try{var fr = window.document.defaultView.frameElement;fr.width = window.parent.document.defaultView.innerWidth;fr.height = window.parent.document.defaultView.innerHeight;}catch(e){}}, 200);</script>";
+								content += theBid.adHtml;
+								content += '</body></html>';
+
+								iframeDoc.write(content);
+								iframeDoc.close();
+
+							}catch(e){
+								refThis.logError('Error in rendering creative in safe frame.');
+								refThis.log(e);
+								refThis.log('Rendering synchronously.');
+								refThis.displayCreative(window.document, msgData.pwt_bid);
+							}
+
+						}else if(theBid.adUrl){
+							refThis.writeIframe(window.document, theBid.adUrl, theBid.width, theBid.height, "");
+						}else{
+							refThis.logWarning("creative details are not found");
+							refThis.log(theBid);
+						}
 					}
 				}
 			break;
@@ -1069,7 +1078,7 @@ exports.ajaxRequest = function(url, callback, data, options) {
 };
 
 // Returns mediaTypes for adUnits which are sent to prebid
-exports.getMediaTypeObject = function(sizes, currentSlot){
+exports.getAdUnitConfig = function(sizes, currentSlot){
 	var adUnitConfig = {};
 	var mediaTypeObject = {};
 	var slotConfig = CONFIG.getSlotConfiguration();
