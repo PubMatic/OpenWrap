@@ -439,11 +439,7 @@ function newAddAdUnitFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             var adUnits = arguments[0];
-            adUnits.forEach(function(adUnit){
-                adUnit.bids.forEach(function(bid){
-                    bid["userId"] = util.getUserIds();
-                });
-            });
+            util.updateAdUnitsWithEids(adUnits);
             return originalFunction.apply(theObject, arguments);
         };
     } else {
@@ -833,7 +829,16 @@ function addHooksIfPossible(win) { // TDD, i/o : done
                     var theObject = window.pbjs;
                     var functionName = "addAdUnits"
                     util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
+                    if(vdetails = pbjs.version.split('.') && vdetails.length===3 && vdetails[0].includes("v3") && +vdetails[1] >= 3){
+                        pbjs.onEvent("addAdUnits", function () {
+                            util.updateAdUnitsWithEids(pbjs["adUnits"]);
+                        });
+                        pbjs.onEvent("beforeRequestBids", function (adUnits) {
+                            util.updateAdUnitsWithEids(adUnits);
+                        });
+                    }
                 });
+              
                 util.log("Identity Only Enabled and setting config");
             }else{
                 util.logWarning("window.pbjs is undefined")

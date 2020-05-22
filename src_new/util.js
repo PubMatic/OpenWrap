@@ -22,6 +22,7 @@ var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
 var refThis = this;
+refThis.idsAppendedToAdUnits = false;
 var mediaTypeConfigPerSlot = {};
 exports.mediaTypeConfig = mediaTypeConfigPerSlot;
 
@@ -1292,6 +1293,10 @@ exports.getUserIds = function(){
 	return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
 };
 
+exports.getUserIdsAsEids = function(){
+	return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids();
+};
+
 exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
 	var convertedObject = sourceObject;
 	var referenceForNesting = convertedObject;
@@ -1487,4 +1492,34 @@ exports.getDevicePlatform = function(){
 		refThis.logError("Unable to get device platform" , ex);
 	}
 	return deviceType;
-}
+};
+
+exports.updateAdUnitsWithEids = function(adUnits){
+	if(refThis.isArray(adUnits)){
+		adUnits.forEach(function(adUnit){
+			adUnit.bids.forEach(function(bid){
+				refThis.updateBidWithEids(bid);
+			});
+		});
+	} else if(!refThis.isEmptyObject(adUnits)){
+		adUnits.bids.forEach(function(bid){
+			refThis.updateBidWithEids(bid);
+		});
+	}
+};
+
+exports.updateBidWithEids = function(bid){
+	if(refThis.isUndefined(bid.userId)){
+		bid["userId"] = refThis.getUserIds();
+	}
+	else if(bid.userId){
+		/* istanbul ignore next */
+		bid.userId = Object.assign(bid.userId, refThis.getUserIds());
+	}
+	if(refThis.isUndefined(bid.userIdAsEids)){
+		bid["userIdAsEids"] = refThis.getUserIds();
+	}
+	else if(refThis.isArray(bid.userIdAsEids)){
+		bid.userIdAsEids.concat(refThis.getUserIdsAsEids())
+	}
+};
