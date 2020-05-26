@@ -825,17 +825,20 @@ function addHooksIfPossible(win) { // TDD, i/o : done
         if(CONFIG.isIdentityOnly()){
             if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs) && !util.isUndefined(win.pbjs.que)){
                 pbjs.que.unshift(function(){
-                    util.log("Adding Hook on pbjs.addAddUnits()");
-                    var theObject = window.pbjs;
-                    var functionName = "addAdUnits"
-                    util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
-                    if(vdetails = pbjs.version.split('.') && vdetails.length===3 && vdetails[0].includes("v3") && +vdetails[1] >= 3){
+                    var vdetails = pbjs.version.split('.') 
+                    if(vdetails.length===3 && vdetails[0].includes("v3") && +vdetails[1] >= 3){
                         pbjs.onEvent("addAdUnits", function () {
                             util.updateAdUnitsWithEids(pbjs["adUnits"]);
                         });
                         pbjs.onEvent("beforeRequestBids", function (adUnits) {
                             util.updateAdUnitsWithEids(adUnits);
                         });
+                    }
+                    else{
+                        util.log("Adding Hook on pbjs.addAddUnits()");
+                        var theObject = window.pbjs;
+                        var functionName = "addAdUnits"
+                        util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
                     }
                 });
               

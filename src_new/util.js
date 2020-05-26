@@ -1498,17 +1498,18 @@ exports.updateAdUnitsWithEids = function(adUnits){
 	if(refThis.isArray(adUnits)){
 		adUnits.forEach(function(adUnit){
 			adUnit.bids.forEach(function(bid){
-				refThis.updateBidWithEids(bid);
+				refThis.updateUserIds(bid);
 			});
 		});
 	} else if(!refThis.isEmptyObject(adUnits)){
 		adUnits.bids.forEach(function(bid){
-			refThis.updateBidWithEids(bid);
+			refThis.updateUserIds(bid);
 		});
 	}
 };
 
-exports.updateBidWithEids = function(bid){
+exports.updateUserIds = function(bid){
+	// refThis.idsAppendedToAdUnits =true;
 	if(refThis.isUndefined(bid.userId)){
 		bid["userId"] = refThis.getUserIds();
 	}
@@ -1517,7 +1518,7 @@ exports.updateBidWithEids = function(bid){
 		bid.userId = Object.assign(bid.userId, refThis.getUserIds());
 	}
 	if(refThis.isUndefined(bid.userIdAsEids)){
-		bid["userIdAsEids"] = refThis.getUserIds();
+		bid["userIdAsEids"] = refThis.getUserIdsAsEids();
 	}
 	else if(refThis.isArray(bid.userIdAsEids)){
 		bid.userIdAsEids.concat(refThis.getUserIdsAsEids())

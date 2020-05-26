@@ -3141,4 +3141,50 @@ describe('UTIL', function() {
         //     done();
         // });
     });
+
+    describe('updateAdUnitsWithEids',function(){
+        it('is a function', function(done) {
+            UTIL.updateAdUnitsWithEids.should.be.a('function');
+            done();
+        });
+
+        it('should update adUnits with Userids',function(done){
+            done();
+        });
+
+        it('should not update adUnits if no userIds are present', function(done){
+            done();
+        })
+    });
+
+    describe('updateUserIds', function(){
+        var bid;
+        beforeEach(function(done){
+            bid = {
+            }
+            done();
+        });
+
+        afterEach(function(done){
+            bid=null;
+            done();
+        });
+
+        it('is a function', function(done){
+            UTIL.updateAdUnitsWithEids.should.be.a('function');
+            done();
+        });
+
+        it('should add UserId in bid if userIds is not present', function(done){
+            done();
+        })
+
+        it('should update UserID in bid if userIds is present',function(done){
+            done();
+        })
+
+        it('should set EIds in Ortb format in bid', function(done){
+            done();
+        })
+    })
 });
