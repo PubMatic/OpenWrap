@@ -1290,11 +1290,15 @@ exports.setUserIdToGPT = function(userIds){
 };
 
 exports.getUserIds = function(){
-	return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
+	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
+		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds
+	};
 };
 
 exports.getUserIdsAsEids = function(){
-	return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids();
+	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids)) {
+		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids();
+	}
 };
 
 exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
@@ -1521,6 +1525,20 @@ exports.updateUserIds = function(bid){
 		bid["userIdAsEids"] = refThis.getUserIdsAsEids();
 	}
 	else if(refThis.isArray(bid.userIdAsEids)){
-		bid.userIdAsEids.concat(refThis.getUserIdsAsEids())
+		var idsPresent = new Set();
+		var ids = refThis.getUserIdsAsEids().concat(bid.userIdAsEids);
+		if(refThis.isArray(ids) && ids.length > 0){
+			ids = ids.filter(function(id){
+				if(id.source){
+					if(idsPresent.has(id.source)){
+						return false;
+					}
+					idsPresent.add(id.source);
+				}
+				return true;
+				
+			})
+		}
+		bid.userIdAsEids = ids;
 	}
 };
