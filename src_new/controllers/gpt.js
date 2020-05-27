@@ -439,7 +439,7 @@ function newAddAdUnitFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             var adUnits = arguments[0];
-            util.updateAdUnitsWithEids(adUnits);
+            util.updateAdUnits(adUnits);
             return originalFunction.apply(theObject, arguments);
         };
     } else {
@@ -828,10 +828,10 @@ function addHooksIfPossible(win) { // TDD, i/o : done
                     var vdetails = pbjs.version.split('.') 
                     if(vdetails.length===3 && vdetails[0].includes("v3") && +vdetails[1] >= 3){
                         pbjs.onEvent("addAdUnits", function () {
-                            util.updateAdUnitsWithEids(pbjs["adUnits"]);
+                            util.updateAdUnits(pbjs["adUnits"]);
                         });
                         pbjs.onEvent("beforeRequestBids", function (adUnits) {
-                            util.updateAdUnitsWithEids(adUnits);
+                            util.updateAdUnits(adUnits);
                         });
                     }
                     else{

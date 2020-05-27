@@ -3160,27 +3160,27 @@ describe('UTIL', function() {
         });
 
         it('is a function', function(done) {
-            UTIL.updateAdUnitsWithEids.should.be.a('function');
+            UTIL.updateAdUnits.should.be.a('function');
             done();
         });
 
         it('should call updateUserIds if passed adUnit is array',function(done){
             adUnits = [{bids:[{"ecpm":10}]}];
-            UTIL.updateAdUnitsWithEids(adUnits);
+            UTIL.updateAdUnits(adUnits);
             UTIL.updateUserIds.calledOnce.should.be.true;
             done();
         });
 
         it('should call updateUserIds if passed adUnit is object', function(done){
             adUnits = {bids:[{"ecpm":10}]};
-            UTIL.updateAdUnitsWithEids(adUnits);
+            UTIL.updateAdUnits(adUnits);
             UTIL.updateUserIds.calledOnce.should.be.true;          
             done();
         });
 
         it('should call updateUserIds for each bid if multiple bids are present', function(done){
             adUnits = {bids:[{"ecpm":10},{"ecpm":20}]};
-            UTIL.updateAdUnitsWithEids(adUnits);
+            UTIL.updateAdUnits(adUnits);
             UTIL.updateUserIds.calledTwice.should.be.true;          
             done();
         });

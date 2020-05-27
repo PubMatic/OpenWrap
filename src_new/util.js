@@ -1291,14 +1291,18 @@ exports.setUserIdToGPT = function(userIds){
 
 exports.getUserIds = function(){
 	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
-		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds
+		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
+	} else{
+		refThis.logWarning("getUserIds" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	};
 };
 
 exports.getUserIdsAsEids = function(){
 	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids)) {
 		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids();
-	}
+	} else {
+		refThis.logWarning("getUserIdsAsEids" + CONSTANTS.MESSAGES.IDENTITY.M6);
+	};
 };
 
 exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
@@ -1498,7 +1502,7 @@ exports.getDevicePlatform = function(){
 	return deviceType;
 };
 
-exports.updateAdUnitsWithEids = function(adUnits){
+exports.updateAdUnits = function(adUnits){
 	if(refThis.isArray(adUnits)){
 		adUnits.forEach(function(adUnit){
 			adUnit.bids.forEach(function(bid){
