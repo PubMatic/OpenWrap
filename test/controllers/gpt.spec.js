@@ -1338,6 +1338,7 @@ describe("CONTROLLER: GPT", function() {
         it('should have called defineWrapperTargetingKey if key in keyValuePairs is not among prebid keys to ignore', function(done) {
             winningBidStub.getNetEcpm.returns(2);
             UTIL.isOwnProperty.withArgs(CONSTANTS.IGNORE_PREBID_KEYS).returns(false);
+            UTIL.isOwnProperty.withArgs({"hb_buyid_pubmatic":1}).returns(false);
 
             GPT.findWinningBidAndApplyTargeting(divID);
 

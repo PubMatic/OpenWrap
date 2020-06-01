@@ -182,11 +182,14 @@ function findWinningBidAndGenerateTargeting(divId) {
 
 	// attaching keyValuePairs from adapters
 	util.forEachOnObject(keyValuePairs, function(key) {
-		/* istanbul ignore else*/
-		if (util.isOwnProperty(ignoreTheseKeys, key)) {
+		// if winning bid is not pubmatic then remove buyId targeting key. Ref : UOE-5277
+		/* istanbul ignore else*/ 
+		if (util.isOwnProperty(ignoreTheseKeys, key) || (winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1}, key))) {
 			delete keyValuePairs[key];
 		}
-		refThis.defineWrapperTargetingKey(key);
+		else {
+			refThis.defineWrapperTargetingKey(key);
+		}
 	});
 
 	var wb = null;
