@@ -832,6 +832,9 @@ describe('UTIL', function() {
                 height: 210,
                 getAdapterID:function(){
                     return '';
+                },
+                pbbid:{
+                    mediaType:"banner"
                 }
             };
             sinon.stub(UTIL, "resizeWindow")

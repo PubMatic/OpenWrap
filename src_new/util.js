@@ -466,7 +466,7 @@ exports.writeIframe = function(theDocument, src, width, height, style){
 };
 
 exports.displayCreative = function(theDocument, bid){
-	if(bid.renderer && refThis.isObject(bid.renderer)){
+	if(bid && bid.pbbid && bid.pbbid.mediaType == "video" && bid.renderer && refThis.isObject(bid.renderer)){
 		if(refThis.isFunction(bid.renderer.render)){
 			bid.renderer.render(bid.getPbBid());
 		}
@@ -760,7 +760,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
 					// outstream video renderer for safe frame.
-					if(theBid.renderer && refThis.isObject(theBid.renderer)){
+					if(theBid && theBid.pbbid && theBid.pbbid.mediaType == "video"  && theBid.renderer && refThis.isObject(theBid.renderer)){
 						if(refThis.isFunction(theBid.renderer.render)){
 							theBid.renderer.render(theBid.getPbBid());
 						}
