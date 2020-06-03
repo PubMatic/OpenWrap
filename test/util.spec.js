@@ -3206,4 +3206,99 @@ describe('UTIL', function() {
         //     done();
         // });
     });
+
+    describe('updateAdUnitsWithEids',function(){
+        var adUnits
+        beforeEach(function(done){
+            sinon.spy(UTIL,'updateUserIds');
+            sinon.stub(UTIL,'getUserIds').returns({id:1})
+            sinon.stub(UTIL,'getUserIdsAsEids').returns([{"source":"myId",id:1}])
+            done();
+        });
+
+        afterEach(function(done){
+            adUnits = null;
+            UTIL.updateUserIds.restore();
+            UTIL.getUserIds.restore();
+            UTIL.getUserIdsAsEids.restore();    
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.updateAdUnits.should.be.a('function');
+            done();
+        });
+
+        it('should call updateUserIds if passed adUnit is array',function(done){
+            adUnits = [{bids:[{"ecpm":10}]}];
+            UTIL.updateAdUnits(adUnits);
+            UTIL.updateUserIds.calledOnce.should.be.true;
+            done();
+        });
+
+        it('should call updateUserIds if passed adUnit is object', function(done){
+            adUnits = {bids:[{"ecpm":10}]};
+            UTIL.updateAdUnits(adUnits);
+            UTIL.updateUserIds.calledOnce.should.be.true;          
+            done();
+        });
+
+        it('should call updateUserIds for each bid if multiple bids are present', function(done){
+            adUnits = {bids:[{"ecpm":10},{"ecpm":20}]};
+            UTIL.updateAdUnits(adUnits);
+            UTIL.updateUserIds.calledTwice.should.be.true;          
+            done();
+        });
+    });
+
+    describe('updateUserIds', function(){
+        var bid;
+        beforeEach(function(done){
+            bid = {
+                'ecpm':'10.00'
+            }
+            sinon.stub(UTIL,'getUserIds').returns({id:1})
+            sinon.stub(UTIL,'getUserIdsAsEids').returns([{"source":"myId",id:1}])
+            done();
+        });
+
+        afterEach(function(done){
+            bid=null;
+            UTIL.getUserIds.restore();
+            UTIL.getUserIdsAsEids.restore();
+            done();
+        });
+
+        it('is a function', function(done){
+            UTIL.updateUserIds.should.be.a('function');
+            done();
+        });
+
+        it('should add UserId in bid if userIds is not present', function(done){
+            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","id":1}]}
+            UTIL.updateUserIds(bid)
+            bid.should.be.deep.equal(expectedResult);
+            done();
+        })
+
+        // TODO: UnComment Below Test Cases once PhantomJs is replaced by ChromeHeadless in build.sh production and test mode
+        xit('should update UserID in bid if userIds is present',function(done){
+            var expectedResult = {"ecpm":"10.00","userId":{"existingId":2,"id":1},"userIdAsEids":[{"source":"myId","id":1},{"source":"existingMyId","existingId":2}]} 
+            bid['userId'] = {"existingId":2}
+            bid['userIdAsEids'] = [{"source":"existingMyId","existingId":2}]
+            UTIL.updateUserIds(bid)
+            bid.should.be.deep.equal(expectedResult);
+            done();
+        })
+        
+        // TODO: UnComment Below Test Cases once PhantomJs is replaced by ChromeHeadless in build.sh production and test mode
+        xit('should update with IH values if same id is present', function(done){
+            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","id":1}]}
+            bid['userId'] = {"id":2}
+            bid['userIdAsEids'] = [{"source":"myId","id":2}]
+            UTIL.updateUserIds(bid);
+            bid.should.be.deep.equal(expectedResult);
+            done();
+        })
+    })
 });

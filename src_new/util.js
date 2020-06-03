@@ -22,6 +22,7 @@ var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
 var refThis = this;
+refThis.idsAppendedToAdUnits = false;
 var mediaTypeConfigPerSlot = {};
 exports.mediaTypeConfig = mediaTypeConfigPerSlot;
 
@@ -1311,7 +1312,19 @@ exports.setUserIdToGPT = function(userIds){
 };
 
 exports.getUserIds = function(){
-	return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
+	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
+		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
+	} else{
+		refThis.logWarning("getUserIds" + CONSTANTS.MESSAGES.IDENTITY.M6);
+	};
+};
+
+exports.getUserIdsAsEids = function(){
+	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids)) {
+		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids();
+	} else {
+		refThis.logWarning("getUserIdsAsEids" + CONSTANTS.MESSAGES.IDENTITY.M6);
+	};
 };
 
 exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
@@ -1509,4 +1522,49 @@ exports.getDevicePlatform = function(){
 		refThis.logError("Unable to get device platform" , ex);
 	}
 	return deviceType;
-}
+};
+
+exports.updateAdUnits = function(adUnits){
+	if(refThis.isArray(adUnits)){
+		adUnits.forEach(function(adUnit){
+			adUnit.bids.forEach(function(bid){
+				refThis.updateUserIds(bid);
+			});
+		});
+	} else if(!refThis.isEmptyObject(adUnits)){
+		adUnits.bids.forEach(function(bid){
+			refThis.updateUserIds(bid);
+		});
+	}
+};
+
+exports.updateUserIds = function(bid){
+	// refThis.idsAppendedToAdUnits =true;
+	if(refThis.isUndefined(bid.userId)){
+		bid["userId"] = refThis.getUserIds();
+	}
+	else if(bid.userId){
+		/* istanbul ignore next */
+		bid.userId = Object.assign(bid.userId, refThis.getUserIds());
+	}
+	if(refThis.isUndefined(bid.userIdAsEids)){
+		bid["userIdAsEids"] = refThis.getUserIdsAsEids();
+	}
+	else if(refThis.isArray(bid.userIdAsEids)){
+		var idsPresent = new Set();
+		var ids = refThis.getUserIdsAsEids().concat(bid.userIdAsEids);
+		if(refThis.isArray(ids) && ids.length > 0){
+			ids = ids.filter(function(id){
+				if(id.source){
+					if(idsPresent.has(id.source)){
+						return false;
+					}
+					idsPresent.add(id.source);
+				}
+				return true;
+				
+			})
+		}
+		bid.userIdAsEids = ids;
+	}
+};
