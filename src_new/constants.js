@@ -35,7 +35,9 @@ exports.COMMON = {
 	"PROTOCOL" : "https://",
 	"SLOT_CONFIG": "slotConfig"	,
 	"DEFAULT": "default",
-	"ADSERVER":"adserver"
+	"ADSERVER":"adserver",
+	"SCHAINOBJECT":"sChainObj",
+	"SCHAIN":"sChain"
 };
 
 exports.CONFIG = {

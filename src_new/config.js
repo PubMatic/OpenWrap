@@ -227,6 +227,14 @@ exports.getCCPATimeout = function() {
 	return ccpaTimeout ? window.parseInt(ccpaTimeout) : CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT;
 };
 
+exports.getSchainObject = function(){
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAINOBJECT] || {};
+};
+
+exports.isSchainEnabled = function(){
+	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN]) || 0;
+};
+
 // todo: unit test case pending
 exports.isPrebidPubMaticAnalyticsEnabled = function(){
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_PM_ANALYTICS]) === 1;

@@ -761,8 +761,7 @@ function fetchBids(activeSlots, impressionID){
 				refThis.assignUserSyncConfig(prebidConfig);
 				refThis.assignGdprConfigIfRequired(prebidConfig);
 				refThis.assignCurrencyConfigIfRequired(prebidConfig);
-				refThis.assignSingleRequestConfigForBidders(prebidConfig);				
-
+				// todo move it to a separate function or along with GDPR
 				if (CONFIG.getCCPA()) {
 					if(!prebidConfig["consentManagement"]){
 						prebidConfig["consentManagement"] = {};
@@ -772,7 +771,11 @@ function fetchBids(activeSlots, impressionID){
 						timeout: CONFIG.getCCPATimeout(),
 					};
 				}
-				
+				// todo move it to a separate function
+				if(CONFIG.isSchainEnabled){
+					prebidConfig["schain"] = CONFIG.getSchainObject();
+				}
+				refThis.assignSingleRequestConfigForBidders(prebidConfig);
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 				// DO NOT PUSH ANY CONFIG AFTER THIS LINE!!
