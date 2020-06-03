@@ -1,5 +1,5 @@
 /*
-	Note:s
+	Notes:
 		Whenever we support a new PB adapter, we need to check if it needs actual sizes to be passed,
 			if so we will need to add special handling
 		PreBid does not do mandatory parameters checking
@@ -475,6 +475,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["video"]= mediaTypeConfig.video;
 		}
 	}
+}
 
 exports.pushAdapterParamsInAdunits = pushAdapterParamsInAdunits;
 
@@ -610,6 +611,7 @@ function assignGdprConfigIfRequired(prebidConfig){
 		};
 	}
 }
+
 exports.assignGdprConfigIfRequired = assignGdprConfigIfRequired;
 
 function assignCurrencyConfigIfRequired(prebidConfig){
@@ -639,6 +641,7 @@ function bidsBackHandler(bidResponses){
 		);
 	});
 }
+
 exports.bidsBackHandler = bidsBackHandler;
 
 function configurePrebidKeysIfRequired(){
@@ -735,6 +738,7 @@ function configurePrebidKeysIfRequired(){
         };
 	}
 }
+
 exports.configurePrebidKeysIfRequired = configurePrebidKeysIfRequired;
 
 function fetchBids(activeSlots, impressionID){
