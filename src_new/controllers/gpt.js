@@ -295,8 +295,11 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     }
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
+        if (!CONFIG.getSendAllBidsStatus() && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
+			delete keyValuePairs[key];
+		}
         /* istanbul ignore else*/
-        if (!util.isOwnProperty(ignoreTheseKeys, key)) {
+        else if (!util.isOwnProperty(ignoreTheseKeys, key)) {
             googleDefinedSlot.setTargeting(key, value);
             // adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
             refThis.defineWrapperTargetingKey(key);
@@ -439,11 +442,7 @@ function newAddAdUnitFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             var adUnits = arguments[0];
-            adUnits.forEach(function(adUnit){
-                adUnit.bids.forEach(function(bid){
-                    bid["userId"] = util.getUserIds();
-                });
-            });
+            util.updateAdUnits(adUnits);
             return originalFunction.apply(theObject, arguments);
         };
     } else {
@@ -829,11 +828,23 @@ function addHooksIfPossible(win) { // TDD, i/o : done
         if(CONFIG.isIdentityOnly()){
             if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs) && !util.isUndefined(win.pbjs.que)){
                 pbjs.que.unshift(function(){
-                    util.log("Adding Hook on pbjs.addAddUnits()");
-                    var theObject = window.pbjs;
-                    var functionName = "addAdUnits"
-                    util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
+                    var vdetails = pbjs.version.split('.') 
+                    if(vdetails.length===3 && vdetails[0].includes("v3") && +vdetails[1] >= 3){
+                        pbjs.onEvent("addAdUnits", function () {
+                            util.updateAdUnits(pbjs["adUnits"]);
+                        });
+                        pbjs.onEvent("beforeRequestBids", function (adUnits) {
+                            util.updateAdUnits(adUnits);
+                        });
+                    }
+                    else{
+                        util.log("Adding Hook on pbjs.addAddUnits()");
+                        var theObject = window.pbjs;
+                        var functionName = "addAdUnits"
+                        util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
+                    }
                 });
+              
                 util.log("Identity Only Enabled and setting config");
             }else{
                 util.logWarning("window.pbjs is undefined")
