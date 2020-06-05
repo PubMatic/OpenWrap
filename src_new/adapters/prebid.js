@@ -59,6 +59,9 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 		}
 		theBid.updateBidId(bid.adUnitCode);
 	}
+	if (bid.sspID){
+		theBid.setsspID(bid.sspID);
+	}
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
 	// Check if currency conversion is enabled or not

@@ -32,6 +32,7 @@ function Bid(adapterID, kgpv){
 	this.adFormat = undefined;
 	this.regexPattern = undefined;
 	this.cacheUUID = undefined;
+	this.sspID = "";
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -333,6 +334,15 @@ Bid.prototype.setcacheUUID = function(cacheUUID){
 	if(!this.adFormat){
 		this.adFormat = CONSTANTS.FORMAT_VALUES.VIDEO;
 	}
+	return this;
+};
+
+Bid.prototype.getsspID = function(){
+	return this.sspID;
+};
+
+Bid.prototype.setsspID = function(sspID){
+	this.sspID = sspID;
 	return this;
 };
 
