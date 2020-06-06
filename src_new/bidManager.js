@@ -389,6 +389,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 };
 
 exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
+	// todo: bid-cache: set bid-rendered flags
 	var pixelURL = util.generateMonetizationPixel(slotID,theBid);
 	if(!pixelURL){
 		return;
@@ -565,6 +566,7 @@ exports.loadTrackers = function(event){
  * @param {*} bidID
  */
 exports.executeTracker = function(bidID){
+	// todo: bid-cache: set bid-rendered flag
 	window.parent.postMessage(
 		JSON.stringify({
 			pwt_type: "3",
@@ -638,3 +640,116 @@ exports.setStandardKeys = function(winningBid, keyValuePairs){
     	util.logWarning(winningBid);
     }
 }
+
+// bid-caching
+exports.sortCachedBidsForAdUnitId = function(adUnitId){
+    if(window.PWT.cachedBids.hasOwnProperty(adUnitId)){
+        // sort the bids by ecpm, highest first
+        window.PWT.cachedBids[adUnitId] = window.PWT.cachedBids[adUnitId].sort(function(a, b){ 
+        	return b.netEcpm - a.netEcpm 
+        });
+    }
+};
+
+exports.addBidInCache = function(adUnitId, bid){
+    if(!window.PWT.cachedBids.hasOwnProperty(adUnitId)){
+        window.PWT.cachedBids[adUnitId] = []; // array of bids
+    }
+    window.PWT.cachedBids[adUnitId].push(bid);
+    refThis.sortCachedBidsForAdUnitId(adUnitId);
+}
+
+exports.copyBidsFromPwtToCache = function(adUnitId, divId){
+    if(!window.PWT.cachedBids.hasOwnProperty(adUnitId)){
+        window.PWT.cachedBids[adUnitId] = []; // array of bids
+    }
+
+    if(PWT.bidMap.hasOwnProperty(divId)){
+        for(var bidder in PWT.bidMap[divId].adapters){
+            if(bidder != "prebid"){
+                for(var bidId in PWT.bidMap[divId].adapters[bidder].bids){
+                    var bid = PWT.bidMap[divId].adapters[bidder].bids[bidId];                            
+                    if(bid.defaultBid != 1 && bid.netEcpm > 0){
+                        // todo: do not cache a rendered bids
+                        window.PWT.cachedBids[adUnitId].push(bid);    
+                    }                    
+                }   
+            }
+        }
+        refThis.sortCachedBidsForAdUnitId(adUnitId);
+    }
+};
+
+exports.swapWithCachedBidIfRequired = function(adUnit){
+    if(window.PWT.cachedBids.hasOwnProperty(adUnit.adUnitId) && window.PWT.cachedBids[adUnit.adUnitId].length > 0){
+        var cb = cachedBids[adUnit.adUnitId][0]; // cached Bid
+        var wbd = adUnit.bidData.wb; // winning bid details
+        console.log('cb.netEcpm', cb.netEcpm, 'wbd.netEcpm', wbd.netEcpm);
+        if(cb.netEcpm > wbd.netEcpm){                    
+            // remove from cache
+            window.PWT.cachedBids[adUnit.adUnitId].splice(0, 1); // delete the top most bid
+            // old winning bid
+            var owb = PWT.bidMap[adUnit.code].adapters[wbd.adapterID].bids[adUnit.bidData.kvp.pwtsid];
+            // mark owb it as not a winning bid
+            owb.wb = 0;
+            // mark cb as winning bid
+            cb.wb = 1;
+            // if a bid exists in PWT for cb.adapterID then we need to add it to cache
+            //      handle the keys if there are any
+            //      remove entry from PWT.bidIdMap                    
+            if(PWT.bidMap[adUnit.code].adapters[cb.adapterID].lastBidID){
+                // use lastBidID to access it , if it is not set then it might be a default bid
+                // do not caceh a default bid
+                // change value of lastBidID as well
+                if(PWT.bidMap[adUnit.code].adapters[cb.adapterID].bids[ PWT.bidMap[adUnit.code].adapters[cb.adapterID].lastBidID ]) {
+                    // existing bid
+                    var eb = PWT.bidMap[adUnit.code].adapters[cb.adapterID].bids[ PWT.bidMap[adUnit.code].adapters[cb.adapterID].lastBidID ];
+                    // push this bid to cache
+                    addBidInCache(adUnit.adUnitId, eb);
+                    // remove eb from PWT
+                    delete PWT.bidMap[adUnit.code].adapters[cb.adapterID].bids[ PWT.bidMap[adUnit.code].adapters[cb.adapterID].lastBidID ];
+                    delete PWT.bidIdMap[eb.bidID];
+                    // push cb in PWT
+                    PWT.bidMap[adUnit.code].adapters[cb.adapterID].bids[cb.bidID] = cb;
+                    // change lastBidID
+                    PWT.bidMap[adUnit.code].adapters[cb.adapterID].lastBidID = cb.bidID;
+                } else {
+                    // bid with lastBidID is not present
+                    // push cb in PWT
+                    PWT.bidMap[adUnit.code].adapters[cb.adapterID].bids[cb.bidID] = cb;
+                    // change lastBidID
+                    PWT.bidMap[adUnit.code].adapters[cb.adapterID].lastBidID = cb.bidID;
+                }
+            } else {
+                // there is no existing bid, directly set the cached bid
+                // push cb in PWT
+                PWT.bidMap[adUnit.code].adapters[cb.adapterID].bids[cb.bidID] = cb;
+                // change lastBidID
+                PWT.bidMap[adUnit.code].adapters[cb.adapterID].lastBidID = cb.bidID;
+            }
+
+            // change details in adUnit.bidData
+            // adUnit.bidData.wb
+            adUnit.bidData.wb.adHtml = cb.adHtml;
+            adUnit.bidData.wb.adapterID = cb.adapterID;
+            adUnit.bidData.wb.grossEcpm = cb.grossEcpm;
+            adUnit.bidData.wb.netEcpm = cb.netEcpm;
+            adUnit.bidData.wb.width = cb.width;
+            adUnit.bidData.wb.height = cb.height;
+            // adUnit.bidData.kvp
+            // todo: some keys are still remaining
+            // todo: move this code inside OW and use bidManager.setStandardKeys
+            adUnit.bidData.kvp.pwtecp = cb.netEcpm;
+            adUnit.bidData.kvp.pwtpid = cb.adapterID;
+            adUnit.bidData.kvp.pwtplt = "display"; //todo: logic?
+            adUnit.bidData.kvp.pwtsid = cb.bidID;
+            adUnit.bidData.kvp.pwtsz = cb.width + "x" + cb.height;
+            // todo
+                // handle send-all-bids case with key-value pairs
+                // need to change bid ids
+        }
+    } else {
+        // there are no cached bids for this adUnitId
+        console.log("there are no cached bids for this adUnitId", adUnit.adUnitId);
+    }
+};

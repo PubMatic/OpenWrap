@@ -7,6 +7,7 @@ var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
 window.PWT.bidMap = window.PWT.bidMap || {};
 window.PWT.bidIdMap = window.PWT.bidIdMap || {};
+window.PWT.cachedBids = window.PWT.cachedBids || {};
 window.PWT.isIframe = window.PWT.isIframe || metaInfo.isInIframe;
 window.PWT.protocol = window.PWT.protocol || metaInfo.protocol;
 window.PWT.secure = window.PWT.secure || metaInfo.secure;
@@ -132,6 +133,15 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 
 window.PWT.getCustomParamsForDFPVideo = function(customParams, bid){
 	return util.getCustomParamsForDFPVideo(customParams, bid);
+};
+
+// this function should be used as GPT slotRenderEnded event listener
+// only to be used with bid-caching
+window.PWT.copyBidsFromPwtToCache = function(event){
+    bidManager.copyBidsFromPwtToCache(
+    	event.slot.getAdUnitPath(), // adUnitId
+        event.slot.getSlotElementId() // divId
+	);
 };
 
 controller.init(window);
