@@ -144,4 +144,6 @@ window.PWT.copyBidsFromPwtToCache = function(event){
 	);
 };
 
+//todo: bid-caching
+// 		we can set the GPT slotRenderEnded event listener here if bid-caching feature is enabled
 controller.init(window);

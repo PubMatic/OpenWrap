@@ -680,6 +680,10 @@ exports.copyBidsFromPwtToCache = function(adUnitId, divId){
     }
 };
 
+// todo: bid-caching: 
+// 		this function needs refactor as it will be used internally in OW
+//		call this function post auction completion
+//		add a flag in logger to denote a cached bid in use, we might also want to note the fresh bid ecpm it replaced
 exports.swapWithCachedBidIfRequired = function(adUnit){
     if(window.PWT.cachedBids.hasOwnProperty(adUnit.adUnitId) && window.PWT.cachedBids[adUnit.adUnitId].length > 0){
         var cb = cachedBids[adUnit.adUnitId][0]; // cached Bid
