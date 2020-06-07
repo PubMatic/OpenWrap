@@ -49,9 +49,6 @@ exports.getAdapterThrottle = function(adapterID){
 	return 0;
 };
 
-// todo: bid-caching 
-//		add a flag for bid-caching enabled check
-
 exports.isServerSideAdapter = function(adapterID){
 	var adapterConfig = config.adapters;
 	/* istanbul ignore else */
@@ -231,3 +228,6 @@ exports.getSchainObject = function(){
 exports.isSchainEnabled = function(){
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN]) || 0;
 };
+
+// todo: bid-caching 
+//		add a flag for bid-caching enabled check
