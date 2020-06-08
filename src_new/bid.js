@@ -36,6 +36,8 @@ function Bid(adapterID, kgpv){
 	this.vastCache = undefined;
 	this.renderer = undefined;
 	this.pbBid = undefined;
+	this.ttl = 0;
+	this.rendered = false;
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -391,6 +393,24 @@ Bid.prototype.setPbBid = function(pbbid){
 
 Bid.prototype.getPbBid= function(){
 	return this.pbbid;
+};
+
+Bid.prototype.setTtl = function(ttl){
+	this.ttl = ttl;
+	return this;
+};
+
+Bid.prototype.getTtl = function(){
+	return this.ttl;
+};
+
+Bid.prototype.setRendered = function(){
+	this.rendered = true;
+	return this;
+};
+
+Bid.prototype.isRendered = function(){
+	return this.rendered;
 };
 
 // This function is used to update the bid in case of video bid

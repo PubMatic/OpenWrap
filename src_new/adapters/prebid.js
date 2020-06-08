@@ -46,6 +46,7 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	theBid.setWidth(bid.width);
 	theBid.setHeight(bid.height);
 	theBid.setMi(bid.mi);
+	theBid.setTtl(bid.ttl || 0);
 	if(bid.videoCacheKey){
 		theBid.setVastCache(bid.videoCacheKey);
 	}
