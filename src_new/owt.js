@@ -152,14 +152,15 @@ if(CONFIG.addGptSlotRenderEndedEventListener() === true){
 	if(googletag && typeof googletag.pubads === "function"){
 		var pubads = googletag.pubads();
 		if(typeof pubads.addEventListener === "function") {
-			googletag.pubads().addEventListener('slotRenderEnded', function(event) {
+			pubads.addEventListener('slotRenderEnded', function(event) {
 				if(CONFIG.isBidCachingEnabled() === true){
-					bidManager.copyBidsFromPwtToCache(
-						event.slot.getAdUnitPath(), // adUnitId
-            			event.slot.getSlotElementId() // divId
-            		);
+					// bidManager.copyBidsFromPwtToCache(
+					// event.slot.getAdUnitPath(), // adUnitId
+     				// event.slot.getSlotElementId() // divId
+     				// );
+     				window.PWT.copyBidsFromPwtToCache(event);
 				}
-			}
+			});
 		} else {
 			util.log(CONSTANTS.MESSAGES.M30);
 		}
