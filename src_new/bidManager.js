@@ -697,7 +697,7 @@ exports.copyBidsFromPwtToCache = function(adUnitId, divId){
 exports.swapWithCachedBidIfRequired = function(adUnitId, divID, wb){
     if(window.PWT.cachedBids.hasOwnProperty(adUnitId) && window.PWT.cachedBids[adUnitId].length > 0){
     	//todo put following cb retrieval code in a function, add a ttl check before returning
-        var cb = cachedBids[adUnitId][0]; // cached Bid with highest netEcpm
+        var cb = window.PWT.cachedBids[adUnitId][0]; // cached Bid with highest netEcpm
         console.log('cb.netEcpm', cb.netEcpm, 'wb.netEcpm', wb.netEcpm);
         if(cb.netEcpm > wb.netEcpm){                    
             // remove from cache
