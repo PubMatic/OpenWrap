@@ -176,7 +176,7 @@ exports.replaceMetaDataMacros = replaceMetaDataMacros;
 /* end-test-block */
 
 
-function auctionBids(bmEntry) { // TDD, i/o : done
+function auctionBids(bmEntry, divID) { // TDD, i/o : done
     var winningBid = null,
         keyValuePairs = {};
 
@@ -188,10 +188,14 @@ function auctionBids(bmEntry) { // TDD, i/o : done
 
     // bid-caching
     if(CONFIG.isBidCachingEnabled() === true){
-    	// compare and flip the winningBid
-    	// use divIdToAdUnitIdMap is used in bid-caching feature as we keep cachedBids per adUnitId
-    	// refThis.swapWithCachedBidIfRequired() // need to refactor existing code as we will pass a winning-bid
-    	// keep copy of existing function as it is to refer
+    	// compare and flip the winningBid if required from cachedBids
+    	if(window.PWT.divIdToAdUnitIdMap.hasOwnProperty(divID)){
+    		winningBid = refThis.swapWithCachedBidIfRequired(window.PWT.divIdToAdUnitIdMap[divID], divID, winningBid);
+    	} else {
+    		console.log("divId-To-AdUnitId entry not found");
+    		//todo: remove console logs
+    	}
+
     }
 
     if(CONFIG.getMataDataPattern() !== null){
@@ -275,7 +279,7 @@ exports.getBid = function(divID){ // TDD, i/o : done
 	var keyValuePairs = null;
 	/* istanbul ignore else */
 	if( util.isOwnProperty(window.PWT.bidMap, divID) ){
-		var data = refThis.auctionBids(window.PWT.bidMap[divID]);
+		var data = refThis.auctionBids(window.PWT.bidMap[divID], divID);
 		winningBid = data.wb;
 		keyValuePairs = data.kvp;
 
@@ -678,9 +682,8 @@ exports.copyBidsFromPwtToCache = function(adUnitId, divId){
             if(bidder != "prebid"){
                 for(var bidId in PWT.bidMap[divId].adapters[bidder].bids){
                     var bid = PWT.bidMap[divId].adapters[bidder].bids[bidId];                            
-                    if(bid.defaultBid != 1 && bid.netEcpm > 0){
-                        // todo: do not cache a rendered bids
-                        window.PWT.cachedBids[adUnitId].push(bid);    
+                    if(bid.defaultBid != 1 && bid.isRendered() != true && bid.netEcpm > 0){
+                        window.PWT.cachedBids[adUnitId].push(bid);
                     }                    
                 }   
             }
@@ -690,79 +693,82 @@ exports.copyBidsFromPwtToCache = function(adUnitId, divId){
 };
 
 // todo: bid-caching: 
-// 		this function needs refactor as it will be used internally in OW
-//		call this function post auction completion
 //		add a flag in logger to denote a cached bid in use, we might also want to note the fresh bid ecpm it replaced
-exports.swapWithCachedBidIfRequired = function(adUnit){
-    if(window.PWT.cachedBids.hasOwnProperty(adUnit.adUnitId) && window.PWT.cachedBids[adUnit.adUnitId].length > 0){
-        var cb = cachedBids[adUnit.adUnitId][0]; // cached Bid
-        var wbd = adUnit.bidData.wb; // winning bid details
-        console.log('cb.netEcpm', cb.netEcpm, 'wbd.netEcpm', wbd.netEcpm);
-        if(cb.netEcpm > wbd.netEcpm){                    
+exports.swapWithCachedBidIfRequired = function(adUnitId, divID, wb){
+    if(window.PWT.cachedBids.hasOwnProperty(adUnitId) && window.PWT.cachedBids[adUnitId].length > 0){
+    	//todo put following cb retrieval code in a function, add a ttl check before returning
+        var cb = cachedBids[adUnitId][0]; // cached Bid with highest netEcpm
+        console.log('cb.netEcpm', cb.netEcpm, 'wb.netEcpm', wb.netEcpm);
+        if(cb.netEcpm > wb.netEcpm){                    
             // remove from cache
-            window.PWT.cachedBids[adUnit.adUnitId].splice(0, 1); // delete the top most bid
-            // old winning bid
-            var owb = PWT.bidMap[adUnit.code].adapters[wbd.adapterID].bids[adUnit.bidData.kvp.pwtsid];
-            // mark owb it as not a winning bid
-            owb.wb = 0;
+            window.PWT.cachedBids[adUnitId].splice(0, 1); // delete the top most bid
+            //todo: when retrieval logic is moved to a function then we will need to move deletion logic to a function
+            //		yes, use bidID as a param to deletion function, then it work even when we add size filter
+            // mark wb it as not a winning bid
+            wb.wb = 0;
             // mark cb as winning bid
             cb.wb = 1;
             // if a bid exists in PWT for cb.adapterID then we need to add it to cache
-            //      handle the keys if there are any
-            //      remove entry from PWT.bidIdMap                    
-            if(PWT.bidMap[adUnit.code].adapters[cb.adapterID].lastBidID){
+            if(PWT.bidMap[divID].adapters[cb.adapterID].lastBidID){
                 // use lastBidID to access it , if it is not set then it might be a default bid
                 // do not caceh a default bid
                 // change value of lastBidID as well
-                if(PWT.bidMap[adUnit.code].adapters[cb.adapterID].bids[ PWT.bidMap[adUnit.code].adapters[cb.adapterID].lastBidID ]) {
+                if(PWT.bidMap[divID].adapters[cb.adapterID].bids[ PWT.bidMap[divID].adapters[cb.adapterID].lastBidID ]) {
                     // existing bid
-                    var eb = PWT.bidMap[adUnit.code].adapters[cb.adapterID].bids[ PWT.bidMap[adUnit.code].adapters[cb.adapterID].lastBidID ];
+                    var eb = PWT.bidMap[divID].adapters[cb.adapterID].bids[ PWT.bidMap[divID].adapters[cb.adapterID].lastBidID ];
                     // push this bid to cache
-                    addBidInCache(adUnit.adUnitId, eb);
+                    addBidInCache(adUnitId, eb);
                     // remove eb from PWT
-                    delete PWT.bidMap[adUnit.code].adapters[cb.adapterID].bids[ PWT.bidMap[adUnit.code].adapters[cb.adapterID].lastBidID ];
+                    delete PWT.bidMap[divID].adapters[cb.adapterID].bids[ PWT.bidMap[divID].adapters[cb.adapterID].lastBidID ];
                     delete PWT.bidIdMap[eb.bidID];
                     // push cb in PWT
-                    PWT.bidMap[adUnit.code].adapters[cb.adapterID].bids[cb.bidID] = cb;
+                    PWT.bidMap[divID].adapters[cb.adapterID].bids[cb.bidID] = cb;
                     // change lastBidID
-                    PWT.bidMap[adUnit.code].adapters[cb.adapterID].lastBidID = cb.bidID;
+                    PWT.bidMap[divID].adapters[cb.adapterID].lastBidID = cb.bidID;
                 } else {
                     // bid with lastBidID is not present
                     // push cb in PWT
-                    PWT.bidMap[adUnit.code].adapters[cb.adapterID].bids[cb.bidID] = cb;
+                    PWT.bidMap[divID].adapters[cb.adapterID].bids[cb.bidID] = cb;
                     // change lastBidID
-                    PWT.bidMap[adUnit.code].adapters[cb.adapterID].lastBidID = cb.bidID;
+                    PWT.bidMap[divID].adapters[cb.adapterID].lastBidID = cb.bidID;
                 }
             } else {
                 // there is no existing bid, directly set the cached bid
                 // push cb in PWT
-                PWT.bidMap[adUnit.code].adapters[cb.adapterID].bids[cb.bidID] = cb;
+                PWT.bidMap[divID].adapters[cb.adapterID].bids[cb.bidID] = cb;
                 // change lastBidID
-                PWT.bidMap[adUnit.code].adapters[cb.adapterID].lastBidID = cb.bidID;
+                PWT.bidMap[divID].adapters[cb.adapterID].lastBidID = cb.bidID;
             }
 
-            // change details in adUnit.bidData
-            // adUnit.bidData.wb
-            adUnit.bidData.wb.adHtml = cb.adHtml;
-            adUnit.bidData.wb.adapterID = cb.adapterID;
-            adUnit.bidData.wb.grossEcpm = cb.grossEcpm;
-            adUnit.bidData.wb.netEcpm = cb.netEcpm;
-            adUnit.bidData.wb.width = cb.width;
-            adUnit.bidData.wb.height = cb.height;
-            // adUnit.bidData.kvp
-            // todo: some keys are still remaining
-            // todo: move this code inside OW and use bidManager.setStandardKeys
-            adUnit.bidData.kvp.pwtecp = cb.netEcpm;
-            adUnit.bidData.kvp.pwtpid = cb.adapterID;
-            adUnit.bidData.kvp.pwtplt = "display"; //todo: logic?
-            adUnit.bidData.kvp.pwtsid = cb.bidID;
-            adUnit.bidData.kvp.pwtsz = cb.width + "x" + cb.height;
-            // todo
-                // handle send-all-bids case with key-value pairs
-                // need to change bid ids
+            return cb;
+
+            //todo: i think below part is not even needed
+            // // change details in adUnit.bidData
+            // // adUnit.bidData.wb
+            // adUnit.bidData.wb.adHtml = cb.adHtml;
+            // adUnit.bidData.wb.adapterID = cb.adapterID;
+            // adUnit.bidData.wb.grossEcpm = cb.grossEcpm;
+            // adUnit.bidData.wb.netEcpm = cb.netEcpm;
+            // adUnit.bidData.wb.width = cb.width;
+            // adUnit.bidData.wb.height = cb.height;
+            // // adUnit.bidData.kvp
+            // // todo: some keys are still remaining
+            // // todo: move this code inside OW and use bidManager.setStandardKeys
+            // adUnit.bidData.kvp.pwtecp = cb.netEcpm;
+            // adUnit.bidData.kvp.pwtpid = cb.adapterID;
+            // adUnit.bidData.kvp.pwtplt = "display"; //todo: logic?
+            // adUnit.bidData.kvp.pwtsid = cb.bidID;
+            // adUnit.bidData.kvp.pwtsz = cb.width + "x" + cb.height;
+            // // todo
+            //     // handle send-all-bids case with key-value pairs
+            //     // need to change bid ids
+        } else {
+        	// no need to swap as wb is higher
+        	return wb;
         }
     } else {
         // there are no cached bids for this adUnitId
         console.log("there are no cached bids for this adUnitId", adUnit.adUnitId);
+        return wb;
     }
 };
