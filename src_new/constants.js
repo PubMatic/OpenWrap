@@ -37,7 +37,9 @@ exports.COMMON = {
 	"DEFAULT": "default",
 	"ADSERVER":"adserver",
 	"SCHAINOBJECT":"sChainObj",
-	"SCHAIN":"sChain"
+	"SCHAIN":"sChain",
+	"BID_CACHING": "bidCaching",
+	"ADD_GPT_SLOT_RENDER_ENDED_EVENT": "addSlotRenderEndedEvent"
 };
 
 exports.CONFIG = {

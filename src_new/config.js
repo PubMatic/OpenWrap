@@ -229,5 +229,12 @@ exports.isSchainEnabled = function(){
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN]) || 0;
 };
 
-// todo: bid-caching 
-//		add a flag for bid-caching enabled check
+// returns true if enabled else returns false
+exports.isBidCachingEnabled = function(){
+	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.BID_CACHING]) === 1;
+};
+
+// returns true if enabled else returns false
+exports.addGptSlotRenderEndedEventListener = function(){
+	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ADD_GPT_SLOT_RENDER_ENDED_EVENT]) === 1;
+};
