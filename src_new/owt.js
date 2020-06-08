@@ -2,6 +2,7 @@ var util = require("./util.js");
 var controller = require("%%PATH_TO_CONTROLLER%%");
 var bidManager = require("./bidManager.js");
 var CONSTANTS = require("./constants.js");
+var CONFIG = require("./config.js");
 
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
@@ -143,5 +144,26 @@ window.PWT.copyBidsFromPwtToCache = function(event){
         event.slot.getSlotElementId() // divId
 	);
 };
+
+// add GPT-Slot-Render-Ended-Event-Listener if it is mentioned in config
+if(CONFIG.addGptSlotRenderEndedEventListener() === true){
+	if(googletag && typeof googletag.pubads === "function"){
+		var pubads = googletag.pubads();
+		if(typeof pubads.addEventListener === "function") {
+			googletag.pubads().addEventListener('slotRenderEnded', function(event) {
+				if(CONFIG.isBidCachingEnabled() === true){
+					bidManager.copyBidsFromPwtToCache(
+						event.slot.getAdUnitPath(), // adUnitId
+            			event.slot.getSlotElementId() // divId
+            		);
+				}
+			}
+		} else {
+			util.log(CONSTANTS.MESSAGES.M30);
+		}
+	} else {
+		util.log(CONSTANTS.MESSAGES.M30);
+	}
+}
 
 controller.init(window);
