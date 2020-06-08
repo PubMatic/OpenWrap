@@ -186,6 +186,14 @@ function auctionBids(bmEntry) { // TDD, i/o : done
         keyValuePairs = obj.keyValuePairs;
     });
 
+    // bid-caching
+    if(CONFIG.isBidCachingEnabled() === true){
+    	// compare and flip the winningBid
+    	// use divIdToAdUnitIdMap is used in bid-caching feature as we keep cachedBids per adUnitId
+    	// refThis.swapWithCachedBidIfRequired() // need to refactor existing code as we will pass a winning-bid
+    	// keep copy of existing function as it is to refer
+    }
+
     if(CONFIG.getMataDataPattern() !== null){
     	createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);
     }	
