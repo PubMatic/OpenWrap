@@ -108,6 +108,7 @@ function storeInSlotsMap(dmSlotName, currentGoogleSlot, isDisplayFlow) { // TDD,
         slot.setAdUnitIndex(refThis.getAdUnitIndex(currentGoogleSlot));
         slot.setSizes(refThis.getAdSlotSizesArray(dmSlotName, currentGoogleSlot));
         slot.setStatus(CONSTANTS.SLOT_STATUS.CREATED);
+        window.PWT.divIdToAdUnitIdMap[slot.getDivID()] = slot.getAdUnitID(); // bid-caching ; this map is used for bid-caching
         // todo: find and set position
         /* istanbul ignore else */
         if (sendTargetingInfoIsSet && util.isObject(JSON) && util.isFunction(JSON.stringify)) {

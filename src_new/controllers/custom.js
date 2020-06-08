@@ -177,7 +177,7 @@ function findWinningBidAndGenerateTargeting(divId) {
 
 	/* istanbul ignore else*/
 	if (winningBid && winningBid.getNetEcpm() > 0) {
-		bidManager.setStandardKeys(winningBid, keyValuePairs);		
+		bidManager.setStandardKeys(winningBid, keyValuePairs);	
 	}
 
 	// attaching keyValuePairs from adapters
@@ -265,6 +265,7 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 			slot.setSizes(refThis.getAdSlotSizesArray(anAdUnitObject));
 			qualifyingSlots.push(slot);
 			mapOfDivToCode[slot.getDivID()] = slot.getName();
+			window.PWT.divIdToAdUnitIdMap[slot.getDivID()] = slot.getAdUnitID(); // bid-caching ; this map is used for bid-caching
 			qualifyingSlotDivIds.push(slot.getDivID());
 			util.createVLogInfoPanel(slot.getDivID(), slot.getSizes());
 		}
