@@ -149,24 +149,28 @@ window.PWT.copyBidsFromPwtToCache = function(event){
 
 // add GPT-Slot-Render-Ended-Event-Listener if it is mentioned in config
 if(CONFIG.addGptSlotRenderEndedEventListener() === true){
-	if(googletag && typeof googletag.pubads === "function"){
-		var pubads = googletag.pubads();
-		if(typeof pubads.addEventListener === "function") {
-			pubads.addEventListener('slotRenderEnded', function(event) {
-				if(CONFIG.isBidCachingEnabled() === true){
-					// bidManager.copyBidsFromPwtToCache(
-					// event.slot.getAdUnitPath(), // adUnitId
-     				// event.slot.getSlotElementId() // divId
-     				// );
-     				window.PWT.copyBidsFromPwtToCache(event);
-				}
-			});
+	window.googletag = window.googletag || {};
+    googletag.cmd = googletag.cmd || [];
+    googletag.cmd.push(function(){
+		if(googletag && typeof googletag.pubads === "function"){
+			var pubads = googletag.pubads();
+			if(typeof pubads.addEventListener === "function") {
+				pubads.addEventListener('slotRenderEnded', function(event) {
+					if(CONFIG.isBidCachingEnabled() === true){
+						// bidManager.copyBidsFromPwtToCache(
+						// event.slot.getAdUnitPath(), // adUnitId
+	     				// event.slot.getSlotElementId() // divId
+	     				// );
+	     				window.PWT.copyBidsFromPwtToCache(event);
+					}
+				});
+			} else {
+				util.log(CONSTANTS.MESSAGES.M30);
+			}
 		} else {
 			util.log(CONSTANTS.MESSAGES.M30);
 		}
-	} else {
-		util.log(CONSTANTS.MESSAGES.M30);
-	}
+	});
 }
 
 controller.init(window);

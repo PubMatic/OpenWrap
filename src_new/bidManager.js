@@ -768,7 +768,7 @@ exports.swapWithCachedBidIfRequired = function(adUnitId, divID, wb){
         }
     } else {
         // there are no cached bids for this adUnitId
-        console.log("there are no cached bids for this adUnitId", adUnit.adUnitId);
+        console.log("there are no cached bids for this adUnitId", adUnitId);
         return wb;
     }
 };
