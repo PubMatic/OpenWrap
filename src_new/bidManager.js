@@ -389,7 +389,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 };
 
 exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
-	// todo: bid-cache: set bid-rendered flags
+	theBid.setRendered();
 	var pixelURL = util.generateMonetizationPixel(slotID,theBid);
 	if(!pixelURL){
 		return;
@@ -566,7 +566,8 @@ exports.loadTrackers = function(event){
  * @param {*} bidID
  */
 exports.executeTracker = function(bidID){
-	// todo: bid-cache: set bid-rendered flag
+	var bid = refThis.getBidById(bidID);
+	bid.setRendered();
 	window.parent.postMessage(
 		JSON.stringify({
 			pwt_type: "3",
