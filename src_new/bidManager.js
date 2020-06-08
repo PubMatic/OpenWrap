@@ -694,6 +694,7 @@ exports.copyBidsFromPwtToCache = function(adUnitId, divId){
 
 // todo: bid-caching: 
 //		add a flag in logger to denote a cached bid in use, we might also want to note the fresh bid ecpm it replaced
+//		add TTL check
 exports.swapWithCachedBidIfRequired = function(adUnitId, divID, wb){
     if(window.PWT.cachedBids.hasOwnProperty(adUnitId) && window.PWT.cachedBids[adUnitId].length > 0){
     	//todo put following cb retrieval code in a function, add a ttl check before returning
