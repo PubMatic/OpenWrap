@@ -38,7 +38,6 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	var rxPattern = regexPattern || bid.regexPattern || undefined;
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
 	var pubmaticServerErrorCode = parseInt(bid.pubmaticServerErrorCode);
-
 	theBid.setGrossEcpm(bid.cpm);
 	theBid.setDealID(bid.dealId);
 	theBid.setDealChannel(bid.dealChannel);
@@ -47,6 +46,18 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	theBid.setWidth(bid.width);
 	theBid.setHeight(bid.height);
 	theBid.setMi(bid.mi);
+	if(bid.videoCacheKey){
+		theBid.setVastCache(bid.videoCacheKey);
+	}
+	if(bid.vastUrl){
+		theBid.setVastUrl(bid.vastUrl);
+	}
+	if(bid.vastXml){
+		theBid.setVastUrl(bid.vastUrl);
+	}
+	if(bid.renderer){
+		theBid.setRenderer(bid.renderer);
+	}
 	if(bid.native){
 		theBid.setNative(bid.native);
 	}
@@ -115,6 +126,7 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 			theBid.setKeyValuePair(key, value);
 		}
 	});
+	theBid.setPbBid(bid);
 	return theBid;
 }
 
@@ -386,7 +398,8 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(adUnits, code)){
-		mediaTypeConfig = util.getMediaTypeObject(sizes, currentSlot);
+		var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
+		mediaTypeConfig = adUnitConfig.mediaTypeObject;
 		//TODO: Remove sizes from below as it will be deprecated soon in prebid
 		// Need to check pubmaticServerBidAdapter in our fork after this change.
 		adUnits[code] = {
@@ -396,6 +409,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			bids: [],
 			divID : divID
 		};
+		if(adUnitConfig.renderer){
+			adUnits[code]["renderer"]= adUnitConfig.renderer;
+		}
 	}else if(refThis.isSingleImpressionSettingEnabled){
 		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
 			return;

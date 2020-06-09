@@ -33,16 +33,19 @@ describe('Bid bidObject', function() {
     var bidObject = null;
     var adapterID = null;
     var kgpv = null;
+    var randomvalue = null;
 
     beforeEach(function(done) {
         adapterID = commonAdpterID;
         kgpv = commonKGPV;
         bidObject = new BID(adapterID, kgpv);
+        randomvalue = Math.random().toString(36).substr(2, 5);                        
         done();
     });
 
     afterEach(function(done) {
         bidObject = null;
+        randomvalue = null;
         done();
     });
 
@@ -887,7 +890,6 @@ describe('Bid bidObject', function() {
         });
     });
 
-
     describe('#getRegexPattern', function() {
 
         it('is a function', function(done) {
@@ -916,4 +918,208 @@ describe('Bid bidObject', function() {
             done();
         });
     });
+
+    describe('#getPbBid', function() {
+
+        it('is a function', function(done) {
+            bidObject.getPbBid.should.be.a('function')
+            done();
+        });
+
+        it('returns prebid bid', function(done) {
+            expect(bidObject.getPbBid()).to.be.equal(undefined);
+            done();
+        });
+    });
+
+    describe('#setPbBid', function() {
+
+        it('is a function', function(done) {
+            bidObject.setPbBid.should.be.a('function')
+            done();
+        });
+
+        it('should set prebid bid in pBBid', function(done) {
+            expect(bidObject.pbbid).to.equal(undefined);
+            bidObject.setPbBid({"test":"bid"}).should.deep.equal(bidObject);
+            expect(bidObject.pbbid).to.deep.equal({"test":"bid"});
+            done();
+        });
+    });
+
+    describe('#getVastXml', function() {
+
+        it('is a function', function(done) {
+            bidObject.getVastXml.should.be.a('function')
+            done();
+        });
+
+        it('returns vast xml', function(done) {
+            expect(bidObject.getVastXml()).to.be.equal(undefined);
+            done();
+        });
+
+        it('returns vast xml', function(done) {
+            bidObject.setVastXml("someXml");
+            expect(bidObject.getVastXml()).to.be.equal("someXml");
+            done();
+        });
+    });
+
+    describe('#setVastXml', function() {
+
+        it('is a function', function(done) {
+            bidObject.setVastXml.should.be.a('function')
+            done();
+        });
+
+        it('should set vast xml', function(done) {
+            expect(bidObject.vastXml).to.equal(undefined);
+            bidObject.setVastXml(randomvalue).should.deep.equal(bidObject);
+            expect(bidObject.vastXml).to.deep.equal(randomvalue);
+            done();
+        });
+    });
+
+    describe('#getvastUrl', function() {
+
+        it('is a function', function(done) {
+            bidObject.getVastUrl.should.be.a('function')
+            done();
+        });
+
+        it('returns default vast url', function(done) {
+            expect(bidObject.getVastUrl()).to.be.equal(undefined);
+            done();
+        });
+
+        it('returns vast url', function(done) {
+            bidObject.setVastUrl(randomvalue)
+            expect(bidObject.getVastUrl()).to.be.equal(randomvalue);
+            done();
+        });
+    });
+
+    describe('#setVastUrl', function() {
+
+        it('is a function', function(done) {
+            bidObject.setVastUrl.should.be.a('function')
+            done();
+        });
+
+        it('should set vast url', function(done) {
+            expect(bidObject.vastUrl).to.equal(undefined);
+            
+            bidObject.setVastUrl(randomvalue).should.deep.equal(bidObject);
+            expect(bidObject.vastUrl).to.deep.equal(randomvalue);
+            done();
+        });
+    });
+
+    describe('#getRenderer', function() {
+
+        it('is a function', function(done) {
+            bidObject.getRenderer.should.be.a('function')
+            done();
+        });
+
+        it('returns renderer', function(done) {
+            expect(bidObject.getRenderer()).to.be.equal(undefined);
+            done();
+        });
+    });
+
+    describe('#setRenderer', function() {
+
+        it('is a function', function(done) {
+            bidObject.setRenderer.should.be.a('function')
+            done();
+        });
+
+        it('should set renderer', function(done) {
+            expect(bidObject.renderer).to.equal(undefined);
+            bidObject.setRenderer({"renderer":"someobject"}).should.deep.equal(bidObject);
+            expect(bidObject.renderer).to.deep.equal({"renderer":"someobject"});
+            done();
+        });
+    });
+
+    describe('#getcacheUUID', function() {
+
+        it('is a function', function(done) {
+            bidObject.getcacheUUID.should.be.a('function')
+            done();
+        });
+
+        it('returns cahce id', function(done) {
+            expect(bidObject.getcacheUUID()).to.be.equal(undefined);
+            done();
+        });
+
+        it('returns cahce id', function(done) {
+            bidObject.setcacheUUID(randomvalue)
+            expect(bidObject.getcacheUUID()).to.be.equal(randomvalue);
+            done();
+        });
+    });
+
+    describe('#setcacheUUID', function() {
+
+        it('is a function', function(done) {
+            bidObject.setcacheUUID.should.be.a('function')
+            done();
+        });
+
+        it('should set cacheUUID', function(done) {
+            expect(bidObject.cacheUUID).to.equal(undefined);
+                        
+            bidObject.setcacheUUID(randomvalue).should.deep.equal(bidObject);
+            expect(bidObject.cacheUUID).to.deep.equal(randomvalue);
+            done();
+        });
+
+        it('should set adFormat if it is not defined', function(done) {
+            expect(bidObject.adFormat).to.equal(undefined);
+            bidObject.setcacheUUID("someId").should.deep.equal(bidObject);
+            expect(bidObject.adFormat).to.deep.equal("video");
+            done();
+        });
+    });
+
+    describe('#getVastCache', function() {
+
+        it('is a function', function(done) {
+            bidObject.getVastCache.should.be.a('function')
+            done();
+        });
+
+        it('returns default vast cache', function(done) {
+            expect(bidObject.getVastCache()).to.be.equal(undefined);
+            done();
+        });
+
+        it('returns vast cache', function(done) {
+                                    
+            bidObject.setVastCache(randomvalue)
+            expect(bidObject.getVastCache()).to.be.equal(randomvalue);
+            done();
+        });
+    });
+
+    describe('#setVastCache', function() {
+
+        it('is a function', function(done) {
+            bidObject.setVastCache.should.be.a('function')
+            done();
+        });
+
+        it('should set vast cache', function(done) {
+            expect(bidObject.vastCache).to.equal(undefined);
+                                    
+            bidObject.setVastCache(randomvalue).should.deep.equal(bidObject);
+            expect(bidObject.vastCache).to.deep.equal(randomvalue);
+            done();
+        });
+    });
+
 });
