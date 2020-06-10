@@ -3220,7 +3220,7 @@ describe('UTIL', function() {
         });
 
         it('should return timeout, owversion and pbversion',function(done){
-            var expectedResult = {"timeout":3000,"openwrap_version":"v19.0.0","prebid_version":"v3.14.0"};
+            var expectedResult = {"timeout":3000,"openwrap_version":"v19.0.0","prebid_version":"v3.14.0","profileId":"46","profileVersionId":"4"} ;
             var result = UTIL.getOWConfig();
             console.log("Version Details:"+ JSON.stringify(result));
             result.should.be.deep.equal(expectedResult);
@@ -3230,7 +3230,7 @@ describe('UTIL', function() {
         it('should not return owversion and pbversion if not defined',function(done){
             delete CONFIG[CONSTANTS.COMMON.PBVERSION];
             delete CONFIG[CONSTANTS.COMMON.OWVERSION];
-            var expectedResult = {"timeout":3000,"openwrap_version":undefined,"prebid_version":undefined};
+            var expectedResult = {"timeout":3000,"openwrap_version":undefined,"prebid_version":undefined,"profileId":"46","profileVersionId":"4"};
             var result = UTIL.getOWConfig();
             result.should.be.deep.equal(expectedResult);
             done();

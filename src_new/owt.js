@@ -134,8 +134,6 @@ window.PWT.getCustomParamsForDFPVideo = function(customParams, bid){
 	return util.getCustomParamsForDFPVideo(customParams, bid);
 };
 
-window.PWT.getOWConfig= function(){
-	return util.getOWConfig();
-};
+window.PWT.getOWConfig =  util.getOWConfig();
 
 controller.init(window);

@@ -7,7 +7,6 @@ refThis = this;
 refThis[CONSTANTS.COMMON.OWVERSION] = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.OWVERSION];
 refThis[CONSTANTS.COMMON.PBVERSION] = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBVERSION];
 
-
 exports.getPublisherId = function(){
 	return util.trim(config.pwt.pubid) || "0";
 };
@@ -30,7 +29,7 @@ exports.getTimeout = function(){
 exports.getDisableAjaxTimeout = function(){
 	var pwt =config.pwt;
 	if(util.isOwnProperty(pwt,CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT)){
-	    return true ==  config.pwt.disableAjaxTimeout;
+		return true ==  config.pwt.disableAjaxTimeout;
 	}
 	return true;
 };
