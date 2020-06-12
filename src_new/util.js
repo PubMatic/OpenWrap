@@ -22,6 +22,7 @@ var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
 var refThis = this;
+refThis.idsAppendedToAdUnits = false;
 var mediaTypeConfigPerSlot = {};
 exports.mediaTypeConfig = mediaTypeConfigPerSlot;
 
@@ -467,20 +468,27 @@ exports.writeIframe = function(theDocument, src, width, height, style){
 };
 
 exports.displayCreative = function(theDocument, bid){
-	refThis.resizeWindow(theDocument, bid.width, bid.height);
-	if(bid.adHtml){
-		if(bid.getAdapterID().toLowerCase() == "appier"){
-			bid.adHtml = refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());
+	if(bid && bid.pbbid && bid.pbbid.mediaType == "video" && bid.renderer && refThis.isObject(bid.renderer)){
+		if(refThis.isFunction(bid.renderer.render)){
+			bid.renderer.render(bid.getPbBid());
 		}
-		theDocument.write(bid.adHtml);
-	}else if(bid.adUrl){
-		if(bid.getAdapterID().toLowerCase() == "appier"){
-			bid.adUrl = refThis.replaceAuctionPrice(bid.adUrl, bid.getGrossEcpm());
+	}
+	else{
+		refThis.resizeWindow(theDocument, bid.width, bid.height);
+		if(bid.adHtml){
+			if(bid.getAdapterID().toLowerCase() == "appier"){
+				bid.adHtml = refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());
+			}
+			theDocument.write(bid.adHtml);
+		}else if(bid.adUrl){
+			if(bid.getAdapterID().toLowerCase() == "appier"){
+				bid.adUrl = refThis.replaceAuctionPrice(bid.adUrl, bid.getGrossEcpm());
+			}
+			refThis.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
+		}else{
+			refThis.logError("creative details are not found");
+			refThis.logError(bid);
 		}
-		refThis.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
-	}else{
-		refThis.logError("creative details are not found");
-		refThis.logError(bid);
 	}
 };
 
@@ -744,18 +752,24 @@ exports.safeFrameCommunicationProtocol = function(msg){
 			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
 			if(bidDetails){
-					var theBid = bidDetails.bid,
-						adapterID = theBid.getAdapterID(),
+					var theBid = bidDetails.bid;
+					var	adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid,
 						newMsgData = {
 							pwt_type: 2,
 							pwt_bid: theBid
-						}
-						;
+						};
 					refThis.vLogInfo(divID, {type: 'disp', adapter: adapterID});
 					bidManager.executeMonetizationPixel(divID, theBid);
-					refThis.resizeWindow(window.document, theBid.width, theBid.height, divID);
-					msg.source.postMessage(window.JSON.stringify(newMsgData), msgData.pwt_origin);
+					// outstream video renderer for safe frame.
+					if(theBid && theBid.pbbid && theBid.pbbid.mediaType == "video"  && theBid.renderer && refThis.isObject(theBid.renderer)){
+						if(refThis.isFunction(theBid.renderer.render)){
+							theBid.renderer.render(theBid.getPbBid());
+						}
+					}else{
+						refThis.resizeWindow(window.document, theBid.width, theBid.height, divID);
+						msg.source.postMessage(window.JSON.stringify(newMsgData), msgData.pwt_origin);
+					}
 				}
 			break;
 
@@ -777,8 +791,8 @@ exports.safeFrameCommunicationProtocol = function(msg){
 							}
 
 							iframe.setAttribute('width', theBid.width);
-        					iframe.setAttribute('height', theBid.height);
-        					iframe.style = '';
+							iframe.setAttribute('height', theBid.height);
+							iframe.style = '';
 
 							window.document.body.appendChild(iframe);
 
@@ -1065,7 +1079,8 @@ exports.ajaxRequest = function(url, callback, data, options) {
 };
 
 // Returns mediaTypes for adUnits which are sent to prebid
-exports.getMediaTypeObject = function(sizes, currentSlot){
+exports.getAdUnitConfig = function(sizes, currentSlot){
+	var adUnitConfig = {};
 	var mediaTypeObject = {};
 	var slotConfig = CONFIG.getSlotConfiguration();
 	if(slotConfig){
@@ -1094,6 +1109,9 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 					isVideo =false;
 				}
 				config = slotConfig["config"][CONSTANTS.COMMON.DEFAULT];
+				if(config.renderer && !refThis.isEmptyObject(config.renderer)){
+					adUnitConfig['renderer'] = config.renderer;
+				}
 			}
 			if(refThis.isOwnProperty(slotConfig['config'], kgpv)){
 				config = slotConfig["config"][kgpv];
@@ -1124,9 +1142,13 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 						refThis.logWarning("Video Config will not be considered with DFP selected as AdServer.");
 					}  
 				}
+				if(config.renderer && !refThis.isEmptyObject(config.renderer)){
+					adUnitConfig['renderer'] = config.renderer;
+				}
 				if(!isBanner ||  (config.banner && (refThis.isOwnProperty(config.banner, 'enabled') && !config.banner.enabled))){
-					refThis.mediaTypeConfig[divId] = mediaTypeObject;        
-					return mediaTypeObject;
+					refThis.mediaTypeConfig[divId] = mediaTypeObject;  
+					adUnitConfig['mediaTypeObject'] = mediaTypeObject
+					return adUnitConfig;      
 				}
 			}
 			else{
@@ -1140,7 +1162,8 @@ exports.getMediaTypeObject = function(sizes, currentSlot){
 		sizes: sizes
 	};
 	refThis.mediaTypeConfig[divId] = mediaTypeObject;
-	return mediaTypeObject;
+	adUnitConfig['mediaTypeObject'] = mediaTypeObject
+	return adUnitConfig;
 };
 
 exports.addEventListenerForClass = function(theWindow, theEvent, theClass, eventHandler){
@@ -1291,7 +1314,19 @@ exports.setUserIdToGPT = function(userIds){
 
 //REVIEW: un-necessary wrapper function
 exports.getUserIds = function(){
-	return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
+	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
+		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
+	} else{
+		refThis.logWarning("getUserIds" + CONSTANTS.MESSAGES.IDENTITY.M6);
+	};
+};
+
+exports.getUserIdsAsEids = function(){
+	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids)) {
+		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids();
+	} else {
+		refThis.logWarning("getUserIdsAsEids" + CONSTANTS.MESSAGES.IDENTITY.M6);
+	};
 };
 
 exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
@@ -1355,6 +1390,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
 	var netEcpm, grossEcpm, kgpv, bidId, adapterId;
+	var sspID = "";
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 
 	/* istanbul ignore else */
@@ -1404,6 +1440,9 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	else {
 		kgpv = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].kgpv;
 	}
+	if(refThis.isFunction(theBid.getsspID)){
+		sspID = theBid.getsspID();
+	}
 
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
@@ -1417,6 +1456,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&en=" + window.encodeURIComponent(netEcpm);
 	pixelURL += "&eg=" + window.encodeURIComponent(grossEcpm);
 	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
+	pixelURL += "&piid=" + window.encodeURIComponent(sspID);
 
 	return CONSTANTS.COMMON.PROTOCOL + pixelURL;
 };
@@ -1489,4 +1529,49 @@ exports.getDevicePlatform = function(){
 		refThis.logError("Unable to get device platform" , ex);
 	}
 	return deviceType;
-}
+};
+
+exports.updateAdUnits = function(adUnits){
+	if(refThis.isArray(adUnits)){
+		adUnits.forEach(function(adUnit){
+			adUnit.bids.forEach(function(bid){
+				refThis.updateUserIds(bid);
+			});
+		});
+	} else if(!refThis.isEmptyObject(adUnits)){
+		adUnits.bids.forEach(function(bid){
+			refThis.updateUserIds(bid);
+		});
+	}
+};
+
+exports.updateUserIds = function(bid){
+	// refThis.idsAppendedToAdUnits =true;
+	if(refThis.isUndefined(bid.userId)){
+		bid["userId"] = refThis.getUserIds();
+	}
+	else if(bid.userId){
+		/* istanbul ignore next */
+		bid.userId = Object.assign(bid.userId, refThis.getUserIds());
+	}
+	if(refThis.isUndefined(bid.userIdAsEids)){
+		bid["userIdAsEids"] = refThis.getUserIdsAsEids();
+	}
+	else if(refThis.isArray(bid.userIdAsEids)){
+		var idsPresent = new Set();
+		var ids = refThis.getUserIdsAsEids().concat(bid.userIdAsEids);
+		if(refThis.isArray(ids) && ids.length > 0){
+			ids = ids.filter(function(id){
+				if(id.source){
+					if(idsPresent.has(id.source)){
+						return false;
+					}
+					idsPresent.add(id.source);
+				}
+				return true;
+				
+			})
+		}
+		bid.userIdAsEids = ids;
+	}
+};

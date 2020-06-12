@@ -832,6 +832,9 @@ describe('UTIL', function() {
                 height: 210,
                 getAdapterID:function(){
                     return '';
+                },
+                pbbid:{
+                    mediaType:"banner"
                 }
             };
             sinon.stub(UTIL, "resizeWindow")
@@ -2328,7 +2331,7 @@ describe('UTIL', function() {
         });
     });
 
-    describe('#getMediaTypeObject', function() {
+    describe('#getAdUnitConfig', function() {
         var slotConfiguration, sizes, currentSlot;
         
         beforeEach(function(done) {
@@ -2438,7 +2441,7 @@ describe('UTIL', function() {
         });
 
         it('is a function', function(done) {
-            UTIL.getMediaTypeObject.should.be.a('function');
+            UTIL.getAdUnitConfig.should.be.a('function');
             done();
         });
 
@@ -2464,7 +2467,7 @@ describe('UTIL', function() {
                     sizes: sizes
                 }
             }
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot)
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject
             console.log("Result is " + JSON.stringify(result));
             expect(result).to.be.deep.equal(expectedResult);
             done();
@@ -2490,7 +2493,7 @@ describe('UTIL', function() {
                     }
                 }
             }
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot)
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2502,7 +2505,7 @@ describe('UTIL', function() {
                 }
             };
             commonDivID = "DIV_3";
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot)
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2514,7 +2517,7 @@ describe('UTIL', function() {
                     sizes: sizes
                 }
             };
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot)
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2525,7 +2528,7 @@ describe('UTIL', function() {
             slotConfiguration["config"]["DIV_2"].banner.enabled= false;
             slotConfiguration["config"]["DIV_2"].native.enabled= false;
             var expectedResult =  {"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15}};
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2534,7 +2537,7 @@ describe('UTIL', function() {
             currentSlot.getDivID.restore();
             sinon.stub(currentSlot, "getDivID").returns("DIV_2");
             var expectedResult = {"native":{"image":{"required":true,"sizes":[150,50]},"title":{"required":true,"len":80},"sponsoredBy":{"required":true},"body":{"required":true}},"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15},"banner":{"sizes":[[300,250]]}};
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2554,7 +2557,7 @@ describe('UTIL', function() {
                 }
             };
             var expectedResult = {"banner":{"sizes":[[300,250]]}};
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2574,7 +2577,7 @@ describe('UTIL', function() {
                 }
             };
             var expectedResult = {"native":{"image":{"required":true,"sizes":[150,50]},"title":{"required":true,"len":80},"sponsoredBy":{"required":true},"body":{"required":true}}};
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal(expectedResult);
             done();
         });             
@@ -2594,7 +2597,7 @@ describe('UTIL', function() {
                 }
             };
             var expectedResult = {"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15}};
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2611,7 +2614,7 @@ describe('UTIL', function() {
                     enabled:false
                 }
             };
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal({});
             done();
         });
@@ -2631,8 +2634,70 @@ describe('UTIL', function() {
                     enabled:false
                 }
             };
-            var result = UTIL.getMediaTypeObject(sizes, currentSlot);
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal({});
+            done();
+        });
+
+        it('should return renderer if present with the div',function(done){
+            slotConfiguration.config["DIV_1"].renderer = {
+                "url" :"someUrl"
+            }
+            var expectedResult = {
+                "url" :"someUrl"
+            }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return renderer if not present with the div',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.undefined
+            done();
+        });
+
+        it('should return renderer if present in default',function(done){
+            slotConfiguration.config["default"] = {
+                renderer : {
+                    "url" :"someUrl"
+                }
+            }
+            var expectedResult = {
+                "url" :"someUrl"
+            }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return renderer if not present in default and div',function(done){
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.undefined;
+            done();
+        });
+
+        it('should return div renderer if present in default and div',function(done){
+            slotConfiguration.config["DIV_1"].renderer = {
+                "url" :"divurl"
+            }
+            slotConfiguration.config["default"] = {
+                renderer : {
+                    "url" :"defaulturl"
+                }
+            }
+            var expectedResult = {
+                "url" :"divurl"
+            }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
             done();
         });
     });
@@ -3141,4 +3206,99 @@ describe('UTIL', function() {
         //     done();
         // });
     });
+
+    describe('updateAdUnitsWithEids',function(){
+        var adUnits
+        beforeEach(function(done){
+            sinon.spy(UTIL,'updateUserIds');
+            sinon.stub(UTIL,'getUserIds').returns({id:1})
+            sinon.stub(UTIL,'getUserIdsAsEids').returns([{"source":"myId",id:1}])
+            done();
+        });
+
+        afterEach(function(done){
+            adUnits = null;
+            UTIL.updateUserIds.restore();
+            UTIL.getUserIds.restore();
+            UTIL.getUserIdsAsEids.restore();    
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.updateAdUnits.should.be.a('function');
+            done();
+        });
+
+        it('should call updateUserIds if passed adUnit is array',function(done){
+            adUnits = [{bids:[{"ecpm":10}]}];
+            UTIL.updateAdUnits(adUnits);
+            UTIL.updateUserIds.calledOnce.should.be.true;
+            done();
+        });
+
+        it('should call updateUserIds if passed adUnit is object', function(done){
+            adUnits = {bids:[{"ecpm":10}]};
+            UTIL.updateAdUnits(adUnits);
+            UTIL.updateUserIds.calledOnce.should.be.true;          
+            done();
+        });
+
+        it('should call updateUserIds for each bid if multiple bids are present', function(done){
+            adUnits = {bids:[{"ecpm":10},{"ecpm":20}]};
+            UTIL.updateAdUnits(adUnits);
+            UTIL.updateUserIds.calledTwice.should.be.true;          
+            done();
+        });
+    });
+
+    describe('updateUserIds', function(){
+        var bid;
+        beforeEach(function(done){
+            bid = {
+                'ecpm':'10.00'
+            }
+            sinon.stub(UTIL,'getUserIds').returns({id:1})
+            sinon.stub(UTIL,'getUserIdsAsEids').returns([{"source":"myId",id:1}])
+            done();
+        });
+
+        afterEach(function(done){
+            bid=null;
+            UTIL.getUserIds.restore();
+            UTIL.getUserIdsAsEids.restore();
+            done();
+        });
+
+        it('is a function', function(done){
+            UTIL.updateUserIds.should.be.a('function');
+            done();
+        });
+
+        it('should add UserId in bid if userIds is not present', function(done){
+            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","id":1}]}
+            UTIL.updateUserIds(bid)
+            bid.should.be.deep.equal(expectedResult);
+            done();
+        })
+
+        // TODO: UnComment Below Test Cases once PhantomJs is replaced by ChromeHeadless in build.sh production and test mode
+        xit('should update UserID in bid if userIds is present',function(done){
+            var expectedResult = {"ecpm":"10.00","userId":{"existingId":2,"id":1},"userIdAsEids":[{"source":"myId","id":1},{"source":"existingMyId","existingId":2}]} 
+            bid['userId'] = {"existingId":2}
+            bid['userIdAsEids'] = [{"source":"existingMyId","existingId":2}]
+            UTIL.updateUserIds(bid)
+            bid.should.be.deep.equal(expectedResult);
+            done();
+        })
+        
+        // TODO: UnComment Below Test Cases once PhantomJs is replaced by ChromeHeadless in build.sh production and test mode
+        xit('should update with IH values if same id is present', function(done){
+            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","id":1}]}
+            bid['userId'] = {"id":2}
+            bid['userIdAsEids'] = [{"source":"myId","id":2}]
+            UTIL.updateUserIds(bid);
+            bid.should.be.deep.equal(expectedResult);
+            done();
+        })
+    })
 });

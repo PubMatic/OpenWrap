@@ -295,8 +295,11 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     }
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
+        if (!CONFIG.getSendAllBidsStatus() && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
+			delete keyValuePairs[key];
+		}
         /* istanbul ignore else*/
-        if (!util.isOwnProperty(ignoreTheseKeys, key)) {
+        else if (!util.isOwnProperty(ignoreTheseKeys, key)) {
             googleDefinedSlot.setTargeting(key, value);
             // adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
             refThis.defineWrapperTargetingKey(key);
@@ -439,11 +442,7 @@ function newAddAdUnitFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             var adUnits = arguments[0];
-            adUnits.forEach(function(adUnit){
-                adUnit.bids.forEach(function(bid){
-                    bid["userId"] = util.getUserIds();
-                });
-            });
+            util.updateAdUnits(adUnits);
             return originalFunction.apply(theObject, arguments);
         };
     } else {
@@ -824,19 +823,33 @@ exports.defineGPTVariables = defineGPTVariables;
 function addHooksIfPossible(win) { // TDD, i/o : done
     if(CONFIG.isUserIdModuleEnabled()  ){
         //TODO : Check for Prebid loaded and debug logs 
-        
         //REVIEW: do we always need to call this function? i think calling it in case of Identity only is sufficient
         prebid.register().sC(); //REVIEW: why this function call is needed here? as there are no arguments , it can stay in prebid.js only
-
         //REVIEW: if profile is identity only then why are carrying so much un-necessary code here? also a lot of code from prebid.js
-        if(CONFIG.isIdentityOnly() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs) && !util.isUndefined(win.pbjs.que)){
-            pbjs.que.unshift(function(){
-                util.log("Adding Hook on pbjs.addAddUnits()");
-                var theObject = window.pbjs;
-                var functionName = "addAdUnits"
-                util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
-            });
-            util.log("Identity Only Enabled and setting config");
+        if(CONFIG.isIdentityOnly()){
+            if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs) && !util.isUndefined(win.pbjs.que)){
+                pbjs.que.unshift(function(){
+                    var vdetails = pbjs.version.split('.') 
+                    if(vdetails.length===3 && vdetails[0].includes("v3") && +vdetails[1] >= 3){
+                        pbjs.onEvent("addAdUnits", function () {
+                            util.updateAdUnits(pbjs["adUnits"]);
+                        });
+                        pbjs.onEvent("beforeRequestBids", function (adUnits) {
+                            util.updateAdUnits(adUnits);
+                        });
+                    }
+                    else{
+                        util.log("Adding Hook on pbjs.addAddUnits()");
+                        var theObject = window.pbjs;
+                        var functionName = "addAdUnits"
+                        util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
+                    }
+                });
+              
+                util.log("Identity Only Enabled and setting config");
+            }else{
+                util.logWarning("window.pbjs is undefined")
+            }
         }
     }
     if (util.isUndefined(win.google_onload_fired) && util.isObject(win.googletag) && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)) {

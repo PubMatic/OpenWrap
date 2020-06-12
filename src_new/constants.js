@@ -185,7 +185,8 @@ exports.MESSAGES = {
 		M2: "Setting UserIds to EB ",
 		M3: "Unable to parse User ID configuration",
 		M4: "User Id Condiguration Sent to prebid ",
-		M5: "Identity only enabled, no need to process. Calling Original function "
+		M5: "Identity only enabled, no need to process. Calling Original function ",
+		M6: " function is not available. Make sure userId module is included."
 	}
 };
 
