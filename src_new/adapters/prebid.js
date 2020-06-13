@@ -857,11 +857,14 @@ function configurePrebidKeysIfRequired(){
 
 exports.configurePrebidKeysIfRequired = configurePrebidKeysIfRequired;
 
-function pbjsBidsBackHandler(bidResponses) {
+function pbjsBidsBackHandler(bidResponses, activeSlots) {
 	util.log("In PreBid bidsBackHandler with bidResponses: ");
 	util.log(bidResponses);
 	setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
-	//refThis.handleBidResponses(bidResponses);						
+	//refThis.handleBidResponses(bidResponses);
+	if(isPrebidPubMaticAnalyticsEnabled){
+		window[pbNameSpace].setTargetingForGPTAsync(); // todo we do not want this for Custom conroller OR better do it only for GPT controller
+	}
 	// we may not request bids for all slots from Prebid if we do not find mapping for a slot thus looping on activeSlots
 	function setPossibleBidRecieved(){
 		util.forEachOnArray(activeSlots, function(i, activeSlot){
@@ -921,7 +924,9 @@ function fetchBids(activeSlots, impressionID){
 
 				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
-					bidsBackHandler: refThis.pbjsBidsBackHandler,
+					bidsBackHandler: function(bidResponses){
+						refThis.pbjsBidsBackHandler(bidResponses, activeSlots);
+					},
 					timeout: timeoutForPrebid
 				});
 			} else {
