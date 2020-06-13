@@ -625,6 +625,20 @@ function assignGdprConfigIfRequired(prebidConfig){
 
 exports.assignGdprConfigIfRequired = assignGdprConfigIfRequired;
 
+function assignCcpaConfigIfRequired(prebidConfig){
+	if (CONFIG.getCCPA()) {
+		if(!prebidConfig["consentManagement"]){
+			prebidConfig["consentManagement"] = {};
+		}
+		prebidConfig["consentManagement"]["usp"] = {
+			cmpApi: CONFIG.getCCPACmpApi(),
+			timeout: CONFIG.getCCPATimeout(),
+		};
+	}
+}
+
+exports.assignCcpaConfigIfRequired = assignCcpaConfigIfRequired;
+
 
 function fetchBids(activeSlots, impressionID){
 
@@ -699,16 +713,8 @@ function fetchBids(activeSlots, impressionID){
 
 				refThis.assignUserSyncConfig(prebidConfig);
 				refThis.assignGdprConfigIfRequired(prebidConfig);
+				refThis.assignCcpaConfigIfRequired(prebidConfig);
 
-				if (CONFIG.getCCPA()) {
-					if(!prebidConfig["consentManagement"]){
-						prebidConfig["consentManagement"] = {};
-					}
-					prebidConfig["consentManagement"]["usp"] = {
-						cmpApi: CONFIG.getCCPACmpApi(),
-						timeout: CONFIG.getCCPATimeout(),
-					};
-				}
 				//remove true and implement getCurrency() in config
 				// CONFIG.getCurrency()
 				if(CONFIG.getAdServerCurrency()){
