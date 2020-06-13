@@ -676,30 +676,7 @@ function enablePrebidPubMaticAnalyticIfRequired(){
 
 exports.enablePrebidPubMaticAnalyticIfRequired = enablePrebidPubMaticAnalyticIfRequired;
 
-
-function fetchBids(activeSlots, impressionID){
-
-	//window.pwtCreatePrebidNamespace(pbNameSpace);
-
-	/* istanbul ignore else */
-	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
-		util.logError("PreBid js is not loaded");
-		return;
-	}
-
-
-	if(util.isFunction(window[pbNameSpace].onEvent)){
-		if(!onEventAdded){
-			window[pbNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
-			onEventAdded = true;
-		}		
-	} else {
-		util.logWarning("PreBid js onEvent method is not available");
-		return;
-	}
-
-	window[pbNameSpace].logging = util.isDebugLogEnabled();
-
+function generateAdUnitsArray(activeSlots, impressionID){
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
 
@@ -728,6 +705,36 @@ function fetchBids(activeSlots, impressionID){
 			adUnitsArray.push(adUnits[code]);
 		}
 	}
+
+	return adUnitsArray;
+}
+
+exports.generateAdUnitsArray = generateAdUnitsArray;
+
+function fetchBids(activeSlots, impressionID){
+
+	//window.pwtCreatePrebidNamespace(pbNameSpace);
+
+	/* istanbul ignore else */
+	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
+		util.logError("PreBid js is not loaded");
+		return;
+	}
+
+
+	if(util.isFunction(window[pbNameSpace].onEvent)){
+		if(!onEventAdded){
+			window[pbNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
+			onEventAdded = true;
+		}		
+	} else {
+		util.logWarning("PreBid js onEvent method is not available");
+		return;
+	}
+
+	window[pbNameSpace].logging = util.isDebugLogEnabled();
+
+	var adUnitsArray = refThis.generateAdUnitsArray(activeSlots, impressionID);	
 
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window[pbNameSpace]){
