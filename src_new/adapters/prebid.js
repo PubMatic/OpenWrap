@@ -711,17 +711,7 @@ function generateAdUnitsArray(activeSlots, impressionID){
 
 exports.generateAdUnitsArray = generateAdUnitsArray;
 
-function fetchBids(activeSlots, impressionID){
-
-	//window.pwtCreatePrebidNamespace(pbNameSpace);
-
-	/* istanbul ignore else */
-	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
-		util.logError("PreBid js is not loaded");
-		return;
-	}
-
-
+function addOnBidResponseHandler(){
 	if(util.isFunction(window[pbNameSpace].onEvent)){
 		if(!onEventAdded){
 			window[pbNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
@@ -731,19 +721,27 @@ function fetchBids(activeSlots, impressionID){
 		util.logWarning("PreBid js onEvent method is not available");
 		return;
 	}
+}
+
+exports.addOnBidResponseHandler = addOnBidResponseHandler;
+
+function fetchBids(activeSlots, impressionID){
+
+	//window.pwtCreatePrebidNamespace(pbNameSpace);
+
+	/* istanbul ignore else */
+	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
+		util.logError("PreBid js is not loaded");
+		return;
+	}	
 
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
-
 	var adUnitsArray = refThis.generateAdUnitsArray(activeSlots, impressionID);	
 
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window[pbNameSpace]){
 
 		try{
-			/* istanbul ignore else */
-			//if(util.isFunction(window[pbNameSpace].setBidderSequence)){
-			//	window[pbNameSpace].setBidderSequence("random");
-			//}
 
 			if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 				var prebidConfig = {
@@ -783,6 +781,11 @@ function fetchBids(activeSlots, impressionID){
 				// Adding a hook for publishers to modify the adUnits we are passing to Prebid
 				util.handleHook(CONSTANTS.HOOKS.PREBID_REQUEST_BIDS, [ adUnitsArray ]);
 				
+				if(isPrebidPubMaticAnalyticsEnabled === false){
+					// we do not want this call when we have PrebidAnalytics enabled
+					refThis.addOnBidResponseHandler();	
+				}
+
 				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
 					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid
