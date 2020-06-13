@@ -754,6 +754,28 @@ function setPrebidConfig(){
 
 exports.setPrebidConfig = setPrebidConfig;
 
+function pbjsBidsBackHandler(bidResponses) {
+	util.log("In PreBid bidsBackHandler with bidResponses: ");
+	util.log(bidResponses);
+	setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
+	//refThis.handleBidResponses(bidResponses);						
+	// we may not request bids for all slots from Prebid if we do not find mapping for a slot thus looping on activeSlots
+	function setPossibleBidRecieved(){
+		util.forEachOnArray(activeSlots, function(i, activeSlot){
+			bidManager.setAllPossibleBidsReceived(activeSlot.getDivID());
+		});
+	}
+	if(CONFIG.getAdServerCurrency()){
+		//Added timeout for issue in GPT should execute dfp as soon as all bids are available
+		setTimeout(setPossibleBidRecieved,300);
+	}
+	else{
+		setPossibleBidRecieved();
+	}
+}
+
+exports.pbjsBidsBackHandler = pbjsBidsBackHandler;
+
 function fetchBids(activeSlots, impressionID){
 
 	//window.pwtCreatePrebidNamespace(pbNameSpace);
@@ -795,26 +817,7 @@ function fetchBids(activeSlots, impressionID){
 
 				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
-					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid
-					bidsBackHandler: function(bidResponses) {
-						util.log("In PreBid bidsBackHandler with bidResponses: ");
-						util.log(bidResponses);
-						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
-						//refThis.handleBidResponses(bidResponses);						
-						// we may not request bids for all slots from Prebid if we do not find mapping for a slot thus looping on activeSlots
-						function setPossibleBidRecieved(){
-							util.forEachOnArray(activeSlots, function(i, activeSlot){
-								bidManager.setAllPossibleBidsReceived(activeSlot.getDivID());
-							});
-						}
-						if(CONFIG.getAdServerCurrency()){
-							//Added timeout for issue in GPT should execute dfp as soon as all bids are available
-							setTimeout(setPossibleBidRecieved,300);
-						}
-						else{
-							setPossibleBidRecieved();
-						}
-					},
+					bidsBackHandler: refThis.pbjsBidsBackHandler,
 					timeout: timeoutForPrebid
 				});
 			} else {
