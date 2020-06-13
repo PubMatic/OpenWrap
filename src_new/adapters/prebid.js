@@ -639,6 +639,20 @@ function assignCcpaConfigIfRequired(prebidConfig){
 
 exports.assignCcpaConfigIfRequired = assignCcpaConfigIfRequired;
 
+function assignCurrencyConfigIfRequired(prebidConfig){
+	if(CONFIG.getAdServerCurrency()){
+		// get AdServer currency from Config
+		// Log in console 
+		util.log(CONSTANTS.MESSAGES.M26 + CONFIG.getAdServerCurrency());
+		prebidConfig["currency"] = {
+			"adServerCurrency": CONFIG.getAdServerCurrency(), 
+			"granularityMultiplier": 1, 
+		};
+	}
+}
+
+exports.assignCurrencyConfigIfRequired = assignCurrencyConfigIfRequired;
+
 
 function fetchBids(activeSlots, impressionID){
 
@@ -714,19 +728,7 @@ function fetchBids(activeSlots, impressionID){
 				refThis.assignUserSyncConfig(prebidConfig);
 				refThis.assignGdprConfigIfRequired(prebidConfig);
 				refThis.assignCcpaConfigIfRequired(prebidConfig);
-
-				//remove true and implement getCurrency() in config
-				// CONFIG.getCurrency()
-				if(CONFIG.getAdServerCurrency()){
-					// get AdServer currency from Config
-					// Log in console 
-					util.log(CONSTANTS.MESSAGES.M26 + CONFIG.getAdServerCurrency());
-					prebidConfig["currency"] = {
-						"adServerCurrency": CONFIG.getAdServerCurrency(), 
-						"granularityMultiplier": 1, 
-					};
-
-				}
+				refThis.assignCurrencyConfigIfRequired(prebidConfig);
 				if(CONFIG.isSchainEnabled){
 					prebidConfig["schain"] = CONFIG.getSchainObject();
 				}
