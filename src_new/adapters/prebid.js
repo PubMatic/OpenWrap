@@ -585,6 +585,34 @@ function assignSingleRequestConfigForBidders(prebidConfig){
 
 exports.assignSingleRequestConfigForBidders = assignSingleRequestConfigForBidders;
 
+function assignUserSyncConfig(prebidConfig){
+	prebidConfig["userSync"] = {
+		enableOverride: true,
+		syncsPerBidder: 0,
+		iframeEnabled: true,
+		pixelEnabled: true,
+		filterSettings: {
+			iframe: {
+				bidders: "*", // '*' means all bidders
+				filter: "include"
+			}
+		},
+		enabledBidders: (function(){
+			var arr = [];
+			CONFIG.forEachAdapter(function(adapterID){
+				arr.push(adapterID);
+			});
+			return arr;
+		})(),
+		syncDelay: 2000, //todo: default is 3000 write image pixels 5 seconds after the auction
+	};
+	if(CONFIG.isUserIdModuleEnabled()){
+		prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+	}
+}
+
+exports.assignUserSyncConfig = assignUserSyncConfig;
+
 function fetchBids(activeSlots, impressionID){
 
 	//window.pwtCreatePrebidNamespace(pbNameSpace);
@@ -652,27 +680,10 @@ function fetchBids(activeSlots, impressionID){
 					cache: {
 						url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH
 					},
-					bidderSequence: "random",
-					userSync: {
-						enableOverride: true,
-						syncsPerBidder: 0,
-						filterSettings: {
-							iframe: {
-								bidders: "*",   // '*' means all bidders
-								filter: "include"
-							}
-						},
-						enabledBidders: (function(){
-							var arr = [];
-							CONFIG.forEachAdapter(function(adapterID){
-								arr.push(adapterID);
-							});
-							return arr;
-						})(),
-						syncDelay: 2000, //todo: default is 3000 write image pixels 5 seconds after the auction
-					},
+					bidderSequence: "random",					
 					disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
 				};
+				refThis.assignUserSyncConfig(prebidConfig);
 
 				if (CONFIG.getGdpr()) {
 					prebidConfig["consentManagement"] = {};
@@ -709,11 +720,8 @@ function fetchBids(activeSlots, impressionID){
 				refThis.assignSingleRequestConfigForBidders(prebidConfig);
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
-
-				if(CONFIG.isUserIdModuleEnabled()){
-					prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
-				}
-
+				//todo: stop supporting this hook let pubs use pbjs.requestBids hook
+				// do not set any config below this line as we are executing the hook above
 				window[pbNameSpace].setConfig(prebidConfig);
 			}
 
