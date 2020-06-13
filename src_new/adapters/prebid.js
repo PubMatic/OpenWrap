@@ -653,6 +653,13 @@ function assignCurrencyConfigIfRequired(prebidConfig){
 
 exports.assignCurrencyConfigIfRequired = assignCurrencyConfigIfRequired;
 
+function assignSchainConfigIfRequired(prebidConfig){
+	if(CONFIG.isSchainEnabled){
+		prebidConfig["schain"] = CONFIG.getSchainObject();
+	}
+}
+
+exports.assignSchainConfigIfRequired = assignSchainConfigIfRequired;
 
 function fetchBids(activeSlots, impressionID){
 
@@ -729,9 +736,7 @@ function fetchBids(activeSlots, impressionID){
 				refThis.assignGdprConfigIfRequired(prebidConfig);
 				refThis.assignCcpaConfigIfRequired(prebidConfig);
 				refThis.assignCurrencyConfigIfRequired(prebidConfig);
-				if(CONFIG.isSchainEnabled){
-					prebidConfig["schain"] = CONFIG.getSchainObject();
-				}
+				refThis.assignSchainConfigIfRequired(prebidConfig);
 				refThis.assignSingleRequestConfigForBidders(prebidConfig);
 				// Adding a hook for publishers to modify the Prebid Config we have generated
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
