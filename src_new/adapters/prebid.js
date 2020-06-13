@@ -754,6 +754,109 @@ function setPrebidConfig(){
 
 exports.setPrebidConfig = setPrebidConfig;
 
+function configurePrebidKeysIfRequired(){
+	// Todo: Handle send-all bids feature enabled case
+	//		we will need to add bidder specific keys
+	// todo: refer constants for key names
+	/*
+		Todo: 
+			do we always need to update the prebid targeting keys config in?
+			what keys in prebid can be re-used?
+	*/
+
+	if(isPrebidPubMaticAnalyticsEnabled){
+		window[pbNameSpace].bidderSettings = {
+            'standard': {
+            	'suppressEmptyKeys': true, // this boolean flag can be used to avoid sending those empty values to the ad server.
+                'adserverTargeting': [
+                	//todo: what abt hb_deal, hb_uuid(video?), hb_cache_id(video?), hb_cache_host(video?) ?
+                    {
+                        key: "pwtpid", //hb_bidder
+                        val: function(bidResponse) {
+                            return bidResponse.bidderCode;
+                        }
+                    }, {
+                        key: "pwtsid", //hb_adid
+                        val: function(bidResponse) {
+                            return bidResponse.adId;
+                        }
+                    }, {
+                        key: "hb_pb", //hb_pb // we do not want it, so send empty, suppressEmptyKeys feature will prevent it being passed
+                        // do not change it in prebid.js project constants file
+                        val: function(bidResponse) {
+                            // return bidResponse.pbMg;
+                            return '';
+                        }
+                    }, {
+                        key: 'pwtsz', //hb_size
+                        val: function (bidResponse) {
+                            return bidResponse.size;
+                        }
+                    }, {
+                        key: 'hb_source', //hb_source // we do not want it, so send empty, suppressEmptyKeys feature will prevent it being passed
+                        // do not change it in prebid.js project constants file
+                        val: function (bidResponse) {
+                            // return bidResponse.source;
+                            return '';
+                        }
+                    }, {
+                        key: 'pwtplt', //hb_format
+                        val: function (bidResponse) {
+                            // return bidResponse.mediaType;
+                            return (bidResponse.native ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
+                        }
+                    },
+                    {
+                        key: 'pwtecp', // our custom
+                        val: function(bidResponse) {
+                            return bidResponse.cpm;
+                        }
+                    },
+                    {
+                        key: 'pwtbst', // our custom
+                        val: function(bidResponse) {
+                            return 1;
+                        }
+                    },
+                    {
+                    	key: 'pwtdid', // custom
+                    	val: function(bidResponse){ // todo: do we want to concat dealchannel as well?
+                    		return bidResponse.dealId;
+                    	}
+                    },
+                    {
+                    	key: 'pwtpubid', // custom
+                    	val: function(bidResponse){
+                    		return CONFIG.getPublisherId();
+                    	}
+                    },
+                    {
+                    	key: 'pwtprofid', // custom
+                    	val: function(bidResponse){
+                    		return CONFIG.getProfileID();
+                    	}
+                    },
+                    {
+                    	key: 'pwtverid', // custom
+                    	val: function(bidResponse){ // todo: empty value?
+                    		return CONFIG.getProfileDisplayVersionID();
+                    	}
+                    },
+                    {
+                    	key: 'pwtm', // custom
+                    	val: function(bidResponse){ 
+                    	// todo: value? is it meta-data feature? is it in use?
+                    		return '';
+                    	}
+                    }
+                ]
+            }
+        };
+    }
+}
+
+exports.configurePrebidKeysIfRequired = configurePrebidKeysIfRequired;
+
 function pbjsBidsBackHandler(bidResponses) {
 	util.log("In PreBid bidsBackHandler with bidResponses: ");
 	util.log(bidResponses);
@@ -796,6 +899,7 @@ function fetchBids(activeSlots, impressionID){
 
 			refThis.setPrebidConfig();
 			refThis.enablePrebidPubMaticAnalyticIfRequired();
+			refThis.configurePrebidKeysIfRequired();
 
 			/* With prebid 2.0.0 it has started using FunHooks library which provides
 			   proxy object instead of wrapper function by default so in case of safari and IE 
