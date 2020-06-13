@@ -2,6 +2,7 @@ var util = require("./util.js");
 var controller = require("%%PATH_TO_CONTROLLER%%");
 var bidManager = require("./bidManager.js");
 var CONSTANTS = require("./constants.js");
+var CONFIG = require("./config.js");
 
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
@@ -22,7 +23,12 @@ util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL,
 
 window.PWT.displayCreative = function(theDocument, bidID){
 	util.log("In displayCreative for: " + bidID);
-	bidManager.displayCreative(theDocument, bidID);
+	//todo: move value of CONFIG.isPrebidPubMaticAnalyticsEnabled() if used multiple times
+	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+		window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
+	} else {
+		bidManager.displayCreative(theDocument, bidID);	
+	}
 };
 
 window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
