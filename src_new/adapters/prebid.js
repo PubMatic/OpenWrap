@@ -28,6 +28,7 @@ exports.kgpvMap = kgpvMap;
 var refThis = this;
 var timeoutForPrebid = CONFIG.getTimeout()-50;
 var onEventAdded = false;
+var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
 
 /* start-test-block */
