@@ -613,6 +613,19 @@ function assignUserSyncConfig(prebidConfig){
 
 exports.assignUserSyncConfig = assignUserSyncConfig;
 
+function assignGdprConfigIfRequired(prebidConfig){
+	if (CONFIG.getGdpr()) {
+		prebidConfig["consentManagement"] = {
+			cmpApi: CONFIG.getCmpApi(),
+			timeout: CONFIG.getGdprTimeout(),
+			allowAuctionWithoutConsent: CONFIG.getAwc() // Auction without consent
+		};
+	}
+}
+
+exports.assignGdprConfigIfRequired = assignGdprConfigIfRequired;
+
+
 function fetchBids(activeSlots, impressionID){
 
 	//window.pwtCreatePrebidNamespace(pbNameSpace);
@@ -683,16 +696,10 @@ function fetchBids(activeSlots, impressionID){
 					bidderSequence: "random",					
 					disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
 				};
-				refThis.assignUserSyncConfig(prebidConfig);
 
-				if (CONFIG.getGdpr()) {
-					prebidConfig["consentManagement"] = {};
-					prebidConfig["consentManagement"]["gdpr"] = {
-						cmpApi: CONFIG.getCmpApi(),
-						timeout: CONFIG.getGdprTimeout(),
-						allowAuctionWithoutConsent: CONFIG.getAwc()
-					};
-				}
+				refThis.assignUserSyncConfig(prebidConfig);
+				refThis.assignGdprConfigIfRequired(prebidConfig);
+
 				if (CONFIG.getCCPA()) {
 					if(!prebidConfig["consentManagement"]){
 						prebidConfig["consentManagement"] = {};
