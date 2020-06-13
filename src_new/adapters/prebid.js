@@ -661,6 +661,22 @@ function assignSchainConfigIfRequired(prebidConfig){
 
 exports.assignSchainConfigIfRequired = assignSchainConfigIfRequired;
 
+function enablePrebidPubMaticAnalyticIfRequired(){
+	if(isPrebidPubMaticAnalyticsEnabled && util.isFunction(window[pbNameSpace].enableAnalytics)){
+		window[pbNameSpace].enableAnalytics({
+			provider: 'pubmatic',
+			options: {
+				publisherId: CONFIG.getPublisherId(),
+				profileId: CONFIG.getProfileID(),
+                profileVersionId: CONFIG.getProfileDisplayVersionID()
+			}
+		});
+	}
+}
+
+exports.enablePrebidPubMaticAnalyticIfRequired = enablePrebidPubMaticAnalyticIfRequired;
+
+
 function fetchBids(activeSlots, impressionID){
 
 	//window.pwtCreatePrebidNamespace(pbNameSpace);
@@ -744,6 +760,8 @@ function fetchBids(activeSlots, impressionID){
 				// do not set any config below this line as we are executing the hook above
 				window[pbNameSpace].setConfig(prebidConfig);
 			}
+
+			refThis.enablePrebidPubMaticAnalyticIfRequired();
 
 			/* With prebid 2.0.0 it has started using FunHooks library which provides
 			   proxy object instead of wrapper function by default so in case of safari and IE 
