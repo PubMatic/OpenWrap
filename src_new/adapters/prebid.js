@@ -725,6 +725,35 @@ function addOnBidResponseHandler(){
 
 exports.addOnBidResponseHandler = addOnBidResponseHandler;
 
+function setPrebidConfig(){
+	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
+		var prebidConfig = {
+			debug: util.isDebugLogEnabled(),
+			cache: {
+				url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH
+			},
+			bidderSequence: "random",					
+			disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
+		};
+
+		refThis.assignUserSyncConfig(prebidConfig);
+		refThis.assignGdprConfigIfRequired(prebidConfig);
+		refThis.assignCcpaConfigIfRequired(prebidConfig);
+		refThis.assignCurrencyConfigIfRequired(prebidConfig);
+		refThis.assignSchainConfigIfRequired(prebidConfig);
+		refThis.assignSingleRequestConfigForBidders(prebidConfig);
+		// Adding a hook for publishers to modify the Prebid Config we have generated
+		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+		//todo: stop supporting this hook let pubs use pbjs.requestBids hook
+		// do not set any config below this line as we are executing the hook above
+		window[pbNameSpace].setConfig(prebidConfig);
+	} else {
+		util.logWarning("PreBidJS setConfig method is not available");
+	}
+}
+
+exports.setPrebidConfig = setPrebidConfig;
+
 function fetchBids(activeSlots, impressionID){
 
 	//window.pwtCreatePrebidNamespace(pbNameSpace);
@@ -743,29 +772,7 @@ function fetchBids(activeSlots, impressionID){
 
 		try{
 
-			if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
-				var prebidConfig = {
-					debug: util.isDebugLogEnabled(),
-					cache: {
-						url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH
-					},
-					bidderSequence: "random",					
-					disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
-				};
-
-				refThis.assignUserSyncConfig(prebidConfig);
-				refThis.assignGdprConfigIfRequired(prebidConfig);
-				refThis.assignCcpaConfigIfRequired(prebidConfig);
-				refThis.assignCurrencyConfigIfRequired(prebidConfig);
-				refThis.assignSchainConfigIfRequired(prebidConfig);
-				refThis.assignSingleRequestConfigForBidders(prebidConfig);
-				// Adding a hook for publishers to modify the Prebid Config we have generated
-				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
-				//todo: stop supporting this hook let pubs use pbjs.requestBids hook
-				// do not set any config below this line as we are executing the hook above
-				window[pbNameSpace].setConfig(prebidConfig);
-			}
-
+			refThis.setPrebidConfig();
 			refThis.enablePrebidPubMaticAnalyticIfRequired();
 
 			/* With prebid 2.0.0 it has started using FunHooks library which provides
