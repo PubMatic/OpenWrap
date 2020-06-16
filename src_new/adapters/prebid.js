@@ -335,11 +335,44 @@ function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
 
+function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
+	var code, sizes, divID;
+
+	if(CONFIG.isServerSideAdapter(adapterID)){
+		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
+		return;
+	}
+
+	divID = currentSlot.getDivID();
+	code = currentSlot.getDivID();
+	sizes = currentSlot.getSizes();
+
+	/* istanbul ignore else */
+	if(!util.isOwnProperty(adUnits, code)){
+		adUnits[code] = {
+			code: code,
+			mediaTypes: util.getMediaTypeObject(CONFIG.getNativeConfiguration(), sizes, currentSlot),
+			sizes: sizes,
+			bids: [],
+			divID : divID
+		};
+	} else if(CONFIG.isSingleImpressionSettingEnabled()){
+		// following function call basically checks whether the adapter is already configured for the given code in adunits object
+		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
+			return;
+		}
+	}
+
+	pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits);	
+}
+
+exports.generatedKeyCallbackForPbAnalytics = generatedKeyCallbackForPbAnalytics;
+
 function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight,regexPattern){
 
 	var code, sizes, divID = currentSlot.getDivID();
 	var mediaTypeConfig;
-	
+
 	if(!refThis.isSingleImpressionSettingEnabled){
 		if(kgpConsistsWidthAndHeight){
 			code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
@@ -571,7 +604,7 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 		impressionID,
 		[],
 		activeSlots,
-		refThis.generatedKeyCallback,
+		(isPrebidPubMaticAnalyticsEnabled ? refThis.generatedKeyCallbackForPbAnalytics : refThis.generatedKeyCallback),
 		// serverSideEabled: do not set default bids as we do not want to throttle them at client-side
 		true // !CONFIG.isServerSideAdapter(adapterID)
 	);
