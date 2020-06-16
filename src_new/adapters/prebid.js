@@ -339,6 +339,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 
 	var code, sizes, divID = currentSlot.getDivID();
 	var mediaTypeConfig;
+	
 	if(!refThis.isSingleImpressionSettingEnabled){
 		if(kgpConsistsWidthAndHeight){
 			code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
@@ -397,6 +398,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
 		return;
 	}
+
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(adUnits, code)){
 		var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
@@ -419,11 +421,20 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		}
 	}
 
+	// todo: is this block required? isn't it covered in above if block?
 	// in case there are multiple bidders ,we don't generate the config again but utilize the existing mediatype.
 	if(util.isOwnProperty(adUnits, code)){
-		mediaTypeConfig = adUnits[code].mediaTypes;
+		mediaTypeConfig = adUnits[code].mediaTypes;		
 	}
 
+	pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits);	
+}
+
+/* start-test-block */
+exports.generatedKeyCallback = generatedKeyCallback;
+/* end-test-block */
+
+function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits){
 	var slotParams = {};
 	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video") && adapterID != "telaria"){
 		slotParams["video"]= mediaTypeConfig.video;
@@ -543,10 +554,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 }
 
-/* start-test-block */
-exports.generatedKeyCallback = generatedKeyCallback;
-/* end-test-block */
-
+exports.pushAdapterParamsInAdunits = pushAdapterParamsInAdunits;
 
 function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID){
 	util.log(adapterID+CONSTANTS.MESSAGES.M1);
