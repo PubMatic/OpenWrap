@@ -469,6 +469,7 @@ exports.generatedKeyCallback = generatedKeyCallback;
 
 function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits){
 	var slotParams = {};
+	var mediaTypeConfig = adUnits[code].mediaTypes;
 	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video") && adapterID != "telaria"){
 		slotParams["video"]= mediaTypeConfig.video;
 	}
@@ -476,6 +477,11 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		/* istanbul ignore next */
 		slotParams[key] = value;
 	});
+
+	if(isPrebidPubMaticAnalyticsEnabled){
+		slotParams["kgpv"] = generatedKey;
+		//todo do we also need to pass regexPattern ??
+	}
 
 	// Logic : If for slot config for partner video parameter is present then use that
 	// else take it from mediaType.video
