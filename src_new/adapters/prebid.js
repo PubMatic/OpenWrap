@@ -349,9 +349,10 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(adUnits, code)){
+		var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
 		adUnits[code] = {
 			code: code,
-			mediaTypes: util.getMediaTypeObject(CONFIG.getNativeConfiguration(), sizes, currentSlot),
+			mediaTypes: adUnitConfig.mediaTypeObject,
 			sizes: sizes,
 			bids: [],
 			divID : divID
@@ -470,6 +471,7 @@ exports.generatedKeyCallback = generatedKeyCallback;
 function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits){
 	var slotParams = {};
 	var mediaTypeConfig = adUnits[code].mediaTypes;
+	var sizes = adUnits[code].sizes;
 	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video") && adapterID != "telaria"){
 		slotParams["video"]= mediaTypeConfig.video;
 	}
