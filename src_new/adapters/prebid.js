@@ -908,10 +908,13 @@ function setPbjsBidderSettingsIfRequired(){
 	window[pbNameSpace].bidderSettings = {
 		'standard': {
 			'suppressEmptyKeys': true, // this boolean flag can be used to avoid sending those empty values to the ad server.
-			'adserverTargeting': getPbjsAdServerTargetingConfig()
-		}
+		}		
 	};
-	
+
+	if(CONFIG.isUsePrebidKeysEnabled() === false){
+		window[pbNameSpace].bidderSettings['standard']['adserverTargeting'] = getPbjsAdServerTargetingConfig();
+	}
+
 	// adding bidder level settings
 	CONFIG.forEachAdapter(function(adapterID){
 		if(window[pbNameSpace].bidderSettings.hasOwnProperty(adapterID) === false){
