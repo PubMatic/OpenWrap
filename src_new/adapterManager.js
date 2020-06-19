@@ -20,13 +20,6 @@ exports.callAdapters = function(activeSlots){
 	refThis.callAdapter(registeredAdapters, activeSlots, impressionID);
 };
 
-// todo: this function can be moved to util
-function getRandomNumberBelow100(){
-	return Math.floor(Math.random()*100);
-}
-
-exports.getRandomNumberBelow100 = getRandomNumberBelow100;
-
 // when this function executes, it is only called for prebid adapter; we can remove this flow totally
 function callAdapter(adapters, slots, impressionID){
 	util.forEachOnObject(adapters, function(adapterID, theAdapter){

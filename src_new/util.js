@@ -1573,3 +1573,7 @@ exports.updateUserIds = function(bid){
 		bid.userIdAsEids = ids;
 	}
 };
+
+exports.getRandomNumberBelow100 = function(){
+	return Math.floor(Math.random()*100);
+};

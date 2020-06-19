@@ -728,7 +728,7 @@ exports.enablePrebidPubMaticAnalyticIfRequired = enablePrebidPubMaticAnalyticIfR
 
 function generateAdUnitsArray(activeSlots, impressionID){
 	var adUnits = {};// create ad-units for prebid
-	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
+	var randomNumberBelow100 = util.getRandomNumberBelow100();
 
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
 		// Assumption: all partners are running through PreBid,
