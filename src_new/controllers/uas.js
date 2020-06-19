@@ -3,7 +3,7 @@ var CONSTANTS = require("../constants.js");
 var UTIL = require("../util.js");
 var prebid = require("../adapters/prebid.js");
 var bidManager = require("../bidManager.js");
-var GDPR = require("../gdpr.js");
+// var GDPR = require("../gdpr.js");
 var SLOT = require("../slot.js");
 var PHOENIX = require("uas-adclient");
 
