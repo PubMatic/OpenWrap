@@ -745,7 +745,9 @@ function generateAdUnitsArray(activeSlots, impressionID){
 			//serverSideEabled: we do not want to throttle them at client-side
 			/* istanbul ignore if */
 			if(CONFIG.isServerSideAdapter(adapterID) || refThis.throttleAdapter(randomNumberBelow100, adapterID) == false){
-				adapterManager.setInitTimeForSlotsForAdapter(activeSlots, adapterID);
+				util.forEachOnObject(activeSlots, function(j, slot){
+					bidManager.setCallInitTime(slot.getDivID(), adapterID);
+				});
 				refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
 			}else{
 				util.log(adapterID+CONSTANTS.MESSAGES.M2);
