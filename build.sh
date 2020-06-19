@@ -31,7 +31,7 @@ if (task == CREATIVE_TASK) {
 
 		if(config.isUsePrebidKeysEnabled() === false){
 			console.log("We need to use PWT keys, so changing targeting keys in PrebidJS config");
-			if(shell.exec("time gulp change-prebid-keys").code !== 0) {
+			if(shell.exec("time gulp change-prebid-keys" + " --prebidpath=" + prebidRepoPath).code !== 0) {
 				shell.echo('Error: Changing PrebidJS targeting keys failed');
 			  	shell.exit(1);
 			}
