@@ -48,13 +48,6 @@ function resetSlots(slots, impressionID){
 exports.resetSlots = resetSlots;
 /* end-test-block */
 
-// todo: this function can be moved to adapters/prebid
-function throttleAdapter(randomNumber, adapterID){
-	return !(randomNumber >= CONFIG.getAdapterThrottle(adapterID));
-}
-
-exports.throttleAdapter = throttleAdapter;
-
 // this function is also called by adapters/Prebid to log the init time
 // todo: this function can be moved to adapters/prebid
 function setInitTimeForSlotsForAdapter(slots, adapterID){

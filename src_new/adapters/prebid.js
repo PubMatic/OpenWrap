@@ -726,6 +726,12 @@ function enablePrebidPubMaticAnalyticIfRequired(){
 
 exports.enablePrebidPubMaticAnalyticIfRequired = enablePrebidPubMaticAnalyticIfRequired;
 
+function throttleAdapter(randomNumber, adapterID){
+	return !(randomNumber >= CONFIG.getAdapterThrottle(adapterID));
+}
+
+exports.throttleAdapter = throttleAdapter;
+
 function generateAdUnitsArray(activeSlots, impressionID){
 	var adUnits = {};// create ad-units for prebid
 	var randomNumberBelow100 = util.getRandomNumberBelow100();
@@ -738,7 +744,7 @@ function generateAdUnitsArray(activeSlots, impressionID){
 
 			//serverSideEabled: we do not want to throttle them at client-side
 			/* istanbul ignore if */
-			if(CONFIG.isServerSideAdapter(adapterID) || adapterManager.throttleAdapter(randomNumberBelow100, adapterID) == false){
+			if(CONFIG.isServerSideAdapter(adapterID) || refThis.throttleAdapter(randomNumberBelow100, adapterID) == false){
 				adapterManager.setInitTimeForSlotsForAdapter(activeSlots, adapterID);
 				refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
 			}else{
