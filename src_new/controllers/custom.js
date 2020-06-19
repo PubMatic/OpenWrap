@@ -276,15 +276,8 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 		return;
 	}
 
-	// new approach without adapter-manager
-	var impressionID = util.generateUUID();
-	// todo: this function can be moved to bidManager
-	util.forEachOnArray(qualifyingSlots, function(key, slot){
-		var divID = slot.getDivID();
-		bidManager.resetBid(divID, impressionID);
-		bidManager.setSizes(divID, util.generateSlotNamesFromPattern(slot, "_W_x_H_"));
-	});
-	prebid.fetchBids(qualifyingSlots, impressionID);
+	// new approach without adapter-managers
+	prebid.fetchBids(qualifyingSlots, util.generateUUID());
 
 	var posTimeoutTime = Date.now() + CONFIG.getTimeout(); // post timeout condition
 	var intervalId = window.setInterval(function() {

@@ -952,7 +952,13 @@ exports.pbjsBidsBackHandler = pbjsBidsBackHandler;
 
 function fetchBids(activeSlots, impressionID){
 
-	//window.pwtCreatePrebidNamespace(pbNameSpace);
+	// calling some bid-manager functions to reset, and set new sizes
+	// todo: can be moved to a function
+	util.forEachOnArray(activeSlots, function(key, slot){
+        var divID = slot.getDivID();
+        bidManager.resetBid(divID, impressionID);
+        bidManager.setSizes(divID, util.generateSlotNamesFromPattern(slot, "_W_x_H_"));
+    });
 
 	/* istanbul ignore else */
 	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks

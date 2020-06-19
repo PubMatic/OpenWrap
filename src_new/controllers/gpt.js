@@ -561,14 +561,7 @@ function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshC
         refThis.updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, isRefreshCall);
         var qualifyingSlots = refThis.arrayOfSelectedSlots(qualifyingSlotNames);
         // new approach without adapter-manager
-        var impressionID = util.generateUUID();
-        // todo: this function can be moved to bidManager
-        util.forEachOnArray(qualifyingSlots, function(key, slot){
-            var divID = slot.getDivID();
-            bidManager.resetBid(divID, impressionID);
-            bidManager.setSizes(divID, util.generateSlotNamesFromPattern(slot, "_W_x_H_"));
-        });
-        prebid.fetchBids(qualifyingSlots, impressionID);
+        prebid.fetchBids(qualifyingSlots, util.generateUUID());
     }
 }
 
