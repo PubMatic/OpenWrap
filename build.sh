@@ -2,8 +2,7 @@
 console.log("running from shell script");
 var shell = require('shelljs');
 var argv = require('yargs').argv;
-
-
+var config = require("./src_new/config.js");
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
 var task = argv.task || "wrapper";
 
@@ -29,6 +28,17 @@ if (task == CREATIVE_TASK) {
 			shell.exit(1);
 		}
 } else {
+
+		if(config.isUsePrebidKeysEnabled() === false){
+			console.log("We need to use PWT keys, so changing targeting keys in PrebidJS config");
+			if(shell.exec("time gulp change-prebid-keys").code !== 0) {
+				shell.echo('Error: Changing PrebidJS targeting keys failed');
+			  	shell.exit(1);
+			}
+		} else {
+			console.log("We need to use PrebidJS keys, NO need to change targeting keys in PrebidJS config");
+		}
+
 		console.log("Switching To Build Task");
 		if (shell.cd(prebidRepoPath).code !== 0) {
 			shell.echo("Couldnt change the dir to Prebid repo");
@@ -85,6 +95,7 @@ if (task == CREATIVE_TASK) {
 		  		shell.exit(1);
 			}
 		}
+
 		console.time("Cleaning Gulp");
 		// shell.exec("gulp clean");
 		console.timeEnd("Cleaning Gulp");
