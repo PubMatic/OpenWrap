@@ -3,8 +3,8 @@ var CONSTANTS = require("../constants.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var GDPR = require("../gdpr.js");
-var adapterManager = require("../adapterManager.js");
 var SLOT = require("../slot.js");
+var prebid = require("../adapters/prebid.js");
 
 //ToDo: add a functionality / API to remove extra added wrpper keys
 var wrapperTargetingKeys = {}; // key is div id
@@ -276,8 +276,15 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 		return;
 	}
 
-	// calling adapters
-	adapterManager.callAdapters(qualifyingSlots);
+	// new approach without adapter-manager
+	var impressionID = util.generateUUID();
+	// todo: this function can be moved to bidManager
+	util.forEachOnArray(qualifyingSlots, function(key, slot){
+		var divID = slot.getDivID();
+		bidManager.resetBid(divID, impressionID);
+		bidManager.setSizes(divID, util.generateSlotNamesFromPattern(slot, "_W_x_H_"));
+	});
+	prebid.fetchBids(qualifyingSlots, impressionID);
 
 	var posTimeoutTime = Date.now() + CONFIG.getTimeout(); // post timeout condition
 	var intervalId = window.setInterval(function() {
@@ -467,7 +474,6 @@ exports.init = function(win) {
 		win.PWT.addKeyValuePairsToGPTSlots = addKeyValuePairsToGPTSlots;
 		win.PWT.removeKeyValuePairsFromGPTSlots = removeKeyValuePairsFromGPTSlots;
 		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
-		adapterManager.registerAdapters();
 		refThis.callJsLoadedIfRequired(win);
 		return true;
 	} else {
