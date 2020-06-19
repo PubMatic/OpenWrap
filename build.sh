@@ -90,7 +90,7 @@ if (task == CREATIVE_TASK) {
 		
 		shell.cd("../OpenWrap/");
 		if (argv.mode == "test-build") {
-			if(shell.exec("gulp testall" + " --mode=" + argv.mode).code !== 0) {
+			if(shell.exec("gulp testall" + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 				shell.echo('Error: test cases failed');
 		  		shell.exit(1);
 			}
@@ -99,13 +99,13 @@ if (task == CREATIVE_TASK) {
 		console.time("Cleaning Gulp");
 		// shell.exec("gulp clean");
 		console.timeEnd("Cleaning Gulp");
-		/*if(shell.exec("gulp " + openwrapWebpackTaskName + " --mode=" + argv.mode).code !== 0) {
+		/*if(shell.exec("gulp " + openwrapWebpackTaskName + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: webpack wrapper task failed');
 			shell.exit(1);
 		}*/
 
 
-		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode).code !== 0) {
+		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: wrapper build task failed');
 			shell.exit(1);
 		}
