@@ -84,8 +84,8 @@ exports.CONFIG = {
 	"CACHE_PATH":"/cache",
 	"CACHE_URL":"https://ow.pubmatic.com",
 	"VIDEO_PARAM":"video",
-	"ENABLE_PB_PM_ANALYTICS": "prebidPubMaticAnalytics",
-	"USE_PREBID_KEYS": "usePrebidKeys"
+	"ENABLE_PB_PM_ANALYTICS": "pubAnalyticsAdapter",
+	"USE_PREBID_KEYS": "usePBJSKeys"
 };
 
 exports.METADATA_MACROS = {
