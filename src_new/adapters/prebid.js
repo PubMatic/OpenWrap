@@ -9,7 +9,6 @@ var CONSTANTS = require("../constants.js");
 var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
-var adapterManager = require("../adapterManager.js");
 var CONF = require("../conf.js");
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
