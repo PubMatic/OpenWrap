@@ -807,10 +807,12 @@ exports.setPrebidConfig = setPrebidConfig;
 
 function getPbjsAdServerTargetingConfig(){
 	// Todo: Handle send-all bids feature enabled case
-	//		we will need to add bidder specific keys
+	//		we will need to add bidder specific keys?? do we?
 	// todo: refer constants for key names
 	/*
 		Todo: 
+			what if we do not add a handler for some keys? do we need to add handler to all if we want to add for one?
+			does custom keys do not get used in send-all-bids?
 			do we always need to update the prebid targeting keys config in?
 			what keys in prebid can be re-used?
 	*/
@@ -827,11 +829,10 @@ function getPbjsAdServerTargetingConfig(){
                 return bidResponse.adId;
             }
         }, {
-            key: "hb_pb", //hb_pb // we do not want it, so send empty, suppressEmptyKeys feature will prevent it being passed
-            // do not change it in prebid.js project constants file
+            key: "pwtecp", //hb_pb
             val: function(bidResponse) {
                 // return bidResponse.pbMg;
-                return '';
+                return bidResponse.cpm;
             }
         }, {
             key: 'pwtsz', //hb_size
@@ -853,23 +854,17 @@ function getPbjsAdServerTargetingConfig(){
             }
         },
         {
-            key: 'pwtecp', // our custom
-            val: function(bidResponse) {
-                return bidResponse.cpm;
-            }
-        },
+        	key: 'pwtdid', // hb_deal
+        	val: function(bidResponse){ // todo: do we want to concat dealchannel as well?
+        		return bidResponse.dealId;
+        	}
+        },       
         {
             key: 'pwtbst', // our custom
             val: function(bidResponse) {
                 return 1;
             }
-        },
-        {
-        	key: 'pwtdid', // custom
-        	val: function(bidResponse){ // todo: do we want to concat dealchannel as well?
-        		return bidResponse.dealId;
-        	}
-        },
+        },               
         {
         	key: 'pwtpubid', // custom
         	val: function(bidResponse){
