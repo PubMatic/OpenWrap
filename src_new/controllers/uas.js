@@ -1,7 +1,7 @@
 var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
 var UTIL = require("../util.js");
-var adapterManager = require("../adapterManager.js");
+var prebid = require("../adapters/prebid.js");
 var bidManager = require("../bidManager.js");
 var GDPR = require("../gdpr.js");
 var SLOT = require("../slot.js");
@@ -233,7 +233,7 @@ function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshC
     if (qualifyingSlotNames.length > 0) {
         refThis.updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, isRefreshCall);
         var qualifyingSlots = refThis.arrayOfSelectedSlots(qualifyingSlotNames);
-        adapterManager.callAdapters(qualifyingSlots);
+        prebid.fetchBids(qualifyingSlots, util.generateUUID());
     }
 }
 
@@ -381,7 +381,6 @@ exports.init = function(win) { // TDD, i/o : done
 	CONFIG.initConfig();
     if (UTIL.isObject(win)) {
         refThis.setWindowReference(win);
-        adapterManager.registerAdapters();
         refThis.initPhoenixScript(win);
         refThis.callJsLoadedIfRequired(win);
         return true;
