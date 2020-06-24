@@ -38,7 +38,6 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	var rxPattern = regexPattern || bid.regexPattern || undefined;
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
 	var pubmaticServerErrorCode = parseInt(bid.pubmaticServerErrorCode);
-
 	theBid.setGrossEcpm(bid.cpm);
 	theBid.setDealID(bid.dealId);
 	theBid.setDealChannel(bid.dealChannel);
@@ -47,6 +46,18 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	theBid.setWidth(bid.width);
 	theBid.setHeight(bid.height);
 	theBid.setMi(bid.mi);
+	if(bid.videoCacheKey){
+		theBid.setVastCache(bid.videoCacheKey);
+	}
+	if(bid.vastUrl){
+		theBid.setVastUrl(bid.vastUrl);
+	}
+	if(bid.vastXml){
+		theBid.setVastUrl(bid.vastUrl);
+	}
+	if(bid.renderer){
+		theBid.setRenderer(bid.renderer);
+	}
 	if(bid.native){
 		theBid.setNative(bid.native);
 	}
@@ -58,6 +69,9 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 			theBid.setcacheUUID(bid.videoCacheKey);
 		}
 		theBid.updateBidId(bid.adUnitCode);
+	}
+	if (bid.sspID){
+		theBid.setsspID(bid.sspID);
 	}
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
@@ -112,6 +126,7 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 			theBid.setKeyValuePair(key, value);
 		}
 	});
+	theBid.setPbBid(bid);
 	return theBid;
 }
 
@@ -383,7 +398,8 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 	/* istanbul ignore else */
 	if(!util.isOwnProperty(adUnits, code)){
-		mediaTypeConfig = util.getMediaTypeObject(sizes, currentSlot);
+		var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
+		mediaTypeConfig = adUnitConfig.mediaTypeObject;
 		//TODO: Remove sizes from below as it will be deprecated soon in prebid
 		// Need to check pubmaticServerBidAdapter in our fork after this change.
 		adUnits[code] = {
@@ -393,6 +409,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			bids: [],
 			divID : divID
 		};
+		if(adUnitConfig.renderer){
+			adUnits[code]["renderer"]= adUnitConfig.renderer;
+		}
 	}else if(refThis.isSingleImpressionSettingEnabled){
 		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
 			return;
@@ -405,7 +424,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 
 	var slotParams = {};
-	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video")){
+	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video") && adapterID != "telaria"){
 		slotParams["video"]= mediaTypeConfig.video;
 	}
 	util.forEachOnObject(keyConfig, function(key, value){
@@ -415,8 +434,8 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 
 	// Logic : If for slot config for partner video parameter is present then use that
 	// else take it from mediaType.video
-	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video")){
-		if(util.isOwnProperty(slotParams,"video")){
+	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video") && adapterID != "telaria"){
+		if(util.isOwnProperty(slotParams,"video") && util.isObject(slotParams.video)){
 			util.forEachOnObject(mediaTypeConfig.video, function(key, value){
 				if(!util.isOwnProperty(slotParams["video"],key)){
 					slotParams["video"][key] = value;
@@ -636,8 +655,12 @@ function fetchBids(activeSlots, impressionID){
 					userSync: {
 						enableOverride: true,
 						syncsPerBidder: 0,
-						iframeEnabled: true,
-						pixelEnabled: true,
+						filterSettings: {
+							iframe: {
+								bidders: "*",   // '*' means all bidders
+								filter: "include"
+							}
+						},
 						enabledBidders: (function(){
 							var arr = [];
 							CONFIG.forEachAdapter(function(adapterID){
@@ -678,6 +701,9 @@ function fetchBids(activeSlots, impressionID){
 						"granularityMultiplier": 1, 
 					};
 
+				}
+				if(CONFIG.isSchainEnabled){
+					prebidConfig["schain"] = CONFIG.getSchainObject();
 				}
 				refThis.assignSingleRequestConfigForBidders(prebidConfig);
 				// Adding a hook for publishers to modify the Prebid Config we have generated

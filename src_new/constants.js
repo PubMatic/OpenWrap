@@ -35,7 +35,9 @@ exports.COMMON = {
 	"PROTOCOL" : "https://",
 	"SLOT_CONFIG": "slotConfig"	,
 	"DEFAULT": "default",
-	"ADSERVER":"adserver"
+	"ADSERVER":"adserver",
+	"SCHAINOBJECT":"sChainObj",
+	"SCHAIN":"sChain"
 };
 
 exports.CONFIG = {
@@ -81,7 +83,7 @@ exports.CONFIG = {
 	"DEFAULT_CCPA_TIMEOUT": 10000,
 	"CACHE_PATH":"/cache",
 	"CACHE_URL":"https://ow.pubmatic.com",
-
+	"VIDEO_PARAM":"video"
 };
 
 exports.METADATA_MACROS = {
@@ -182,7 +184,8 @@ exports.MESSAGES = {
 		M2: "Setting UserIds to EB ",
 		M3: "Unable to parse User ID configuration",
 		M4: "User Id Condiguration Sent to prebid ",
-		M5: "Identity only enabled, no need to process. Calling Original function "
+		M5: "Identity only enabled, no need to process. Calling Original function ",
+		M6: " function is not available. Make sure userId module is included."
 	}
 };
 

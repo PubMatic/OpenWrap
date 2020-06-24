@@ -339,8 +339,8 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 			s: []
 		},
 		pubId = CONFIG.getPublisherId(),
-		gdprData = GDPR.getUserConsentDataFromLS(),
-		consentString = "",
+		// gdprData = GDPR.getUserConsentDataFromLS(),
+		// consentString = "",
 		pixelURL = CONFIG.getAnalyticsPixelURL(),
 		impressionIDMap = {} // impID => slots[]
 		;
@@ -359,14 +359,15 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
 
-	if (CONFIG.getGdpr()) {
-		consentString = gdprData && gdprData.c ? encodeURIComponent(gdprData.c) : "";
+	// As discussed we won't be seding gdpr data to logger
+	// if (CONFIG.getGdpr()) {
+	// 	consentString = gdprData && gdprData.c ? encodeURIComponent(gdprData.c) : "";
 
-		outputObj[CONSTANTS.CONFIG.GDPR_CONSENT] = gdprData && gdprData.g;
-		outputObj[CONSTANTS.CONFIG.CONSENT_STRING] = consentString;
+	// 	outputObj[CONSTANTS.CONFIG.GDPR_CONSENT] = gdprData && gdprData.g;
+	// 	outputObj[CONSTANTS.CONFIG.CONSENT_STRING] = consentString;
 
-		pixelURL += "&gdEn=" + (CONFIG.getGdpr() ? 1 : 0);
-	}
+	// 	pixelURL += "&gdEn=" + (CONFIG.getGdpr() ? 1 : 0);
+	// }
 
 	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {
 		refThis.analyticalPixelCallback(slotID, bmEntry, impressionIDMap);
@@ -377,6 +378,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 			outputObj.s = slots;
 			outputObj[CONSTANTS.COMMON.IMPRESSION_ID] = window.encodeURIComponent(impressionID);
 			outputObj.psl = slots.psl;
+			outputObj.dvc = { "plt": util.getDevicePlatform()}
 			// (new window.Image()).src = pixelURL + "&json=" + window.encodeURIComponent(JSON.stringify(outputObj));
 			util.ajaxRequest(pixelURL, function(){}, "json=" + window.encodeURIComponent(JSON.stringify(outputObj)), {
 				contentType : "application/x-www-form-urlencoded", // as per https://inside.pubmatic.com:8443/confluence/pages/viewpage.action?spaceKey=Products&title=POST+support+for+logger+in+Wrapper-tracker
@@ -484,6 +486,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"af": theBid.getAdFormat(),
 					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
+					"piid": theBid.getsspID()
 				});
             })
         });

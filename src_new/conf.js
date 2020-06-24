@@ -225,6 +225,12 @@ exports.slotConfig = {
 					"skipmin": 10,
 					"skipafter": 15
 				}
+			},
+			"renderer":{
+				url: "https://acdn.adnxs.com/video/outstream/ANOutstreamVideo.js",
+				render: function () {
+					//some renderer function 
+				}
 			}
 		},
 		"AU2": {
