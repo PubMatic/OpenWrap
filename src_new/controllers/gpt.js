@@ -295,8 +295,11 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     }
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
+        if (!CONFIG.getSendAllBidsStatus() && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
+			delete keyValuePairs[key];
+		}
         /* istanbul ignore else*/
-        if (!util.isOwnProperty(ignoreTheseKeys, key)) {
+        else if (!util.isOwnProperty(ignoreTheseKeys, key)) {
             googleDefinedSlot.setTargeting(key, value);
             // adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
             refThis.defineWrapperTargetingKey(key);
