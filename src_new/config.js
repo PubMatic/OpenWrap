@@ -228,3 +228,5 @@ exports.getSchainObject = function(){
 exports.isSchainEnabled = function(){
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN]) || 0;
 };
+
+exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";
