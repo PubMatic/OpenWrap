@@ -1440,6 +1440,8 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	}
 	if(refThis.isFunction(theBid.getsspID)){
 		sspID = theBid.getsspID();
+	}else{
+		sspID = theBid.sspID || "";	
 	}
 
 	pixelURL += "pubid=" + pubId;
