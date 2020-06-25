@@ -57,16 +57,17 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 	if(lastBidID != ""){
 
 		var lastBid = bidMapEntry.getBid(bidderID, lastBidID), //todo: what if the lastBid is null
-			lastBidWasDefaultBid = lastBid.getDefaultBidStatus() === 1
+			lastBidWasDefaultBid = lastBid.getDefaultBidStatus() === 1,
+			lastBidWasErrorBid = lastBid.getDefaultBidStatus() === -1
 			;
 
-		if( lastBidWasDefaultBid || !isPostTimeout){
+		if( lastBidWasDefaultBid || !isPostTimeout || lastBidWasErrorBid){
 			/* istanbul ignore else */
 			if(lastBidWasDefaultBid){
 				util.log(CONSTANTS.MESSAGES.M23 + bidderID);
 			}
 
-			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
+			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() || lastBidWasErrorBid){
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14 + bidderID);
 				refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 			}else{
