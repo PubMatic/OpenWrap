@@ -359,7 +359,13 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
-	outputObj["tgId"] = PWT.testGroupId ? (parseInt(PWT.testGroupId) || 0) : 0;
+	outputObj["tgId"] = (function() {
+	    var testGroupId = parseInt(PWT.testGroupId || 0);
+	    if (testGroupId <= 15 && testGroupId >= 0) {
+	      return testGroupId;
+	    }
+	    return 0;
+	})();
 
 	// As discussed we won't be seding gdpr data to logger
 	// if (CONFIG.getGdpr()) {
