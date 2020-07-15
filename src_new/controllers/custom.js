@@ -6,6 +6,7 @@ var bidManager = require("../bidManager.js");
 // var GDPR = require("../gdpr.js");
 var SLOT = require("../slot.js");
 var prebid = require("../adapters/prebid.js");
+var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 
 //ToDo: add a functionality / API to remove extra added wrpper keys
 var wrapperTargetingKeys = {}; // key is div id
@@ -170,6 +171,15 @@ function getAdSlotSizesArray(anAdUnitObject) {
 exports.getAdSlotSizesArray = getAdSlotSizesArray;
 /* end-test-block */
 
+function findWinningBidAndGenerateTargetingForPbjsAnalytics(divId){
+	// here we need to call pbjs APIs to fill in the required data
+}
+
+/* start-test-block */
+exports.findWinningBidAndGenerateTargetingForPbjsAnalytics = findWinningBidAndGenerateTargetingForPbjsAnalytics;
+/* end-test-block */
+
+
 function findWinningBidAndGenerateTargeting(divId) {
 	var data = bidManager.getBid(divId);
 	var winningBid = data.wb || null;
@@ -178,7 +188,7 @@ function findWinningBidAndGenerateTargeting(divId) {
 
 	/* istanbul ignore else*/
 	if (winningBid && winningBid.getNetEcpm() > 0) {
-		bidManager.setStandardKeys(winningBid, keyValuePairs);		
+		bidManager.setStandardKeys(winningBid, keyValuePairs);
 	}
 
 	// attaching keyValuePairs from adapters
@@ -286,16 +296,24 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 		if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || Date.now() >= posTimeoutTime) {
 
 			clearInterval(intervalId);
-			// after some time call fire the analytics pixel
-			setTimeout(function() {
-				bidManager.executeAnalyticsPixel();
-			}, 2000);
+			if(isPrebidPubMaticAnalyticsEnabled === false){
+				// after some time call fire the analytics pixel
+				setTimeout(function() {
+					bidManager.executeAnalyticsPixel();
+				}, 2000);	
+			}			
 
 			var winningBids = {}; // object:: { code : response bid or just key value pairs }
 			// we should loop on qualifyingSlotDivIds to avoid confusion if two parallel calls are fired to our PWT.requestBids 
 			util.forEachOnArray(qualifyingSlotDivIds, function(index, divId) {
 				var code = mapOfDivToCode[divId];
-				winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId, code);
+				
+				if(isPrebidPubMaticAnalyticsEnabled() === true){
+					winningBids[code] = refThis.findWinningBidAndGenerateTargetingForPbjsAnalytics(divId, code);
+				}else {
+					winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId);	
+				}
+				
 				// we need to delay the realignment as we need to do it post creative rendering :)
 				// delaying by 1000ms as creative rendering may tke time
 				setTimeout(util.realignVLogInfoPanel, 1000, divId);
