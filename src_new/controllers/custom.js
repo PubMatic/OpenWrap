@@ -1,6 +1,7 @@
 var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.js");
+// todo: include bidManager only if required
 var bidManager = require("../bidManager.js");
 // var GDPR = require("../gdpr.js");
 var SLOT = require("../slot.js");
@@ -277,7 +278,7 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 	}
 
 	// new approach without adapter-managers
-	prebid.fetchBids(qualifyingSlots, util.generateUUID());
+	prebid.fetchBids(qualifyingSlots);
 
 	var posTimeoutTime = Date.now() + CONFIG.getTimeout(); // post timeout condition
 	var intervalId = window.setInterval(function() {

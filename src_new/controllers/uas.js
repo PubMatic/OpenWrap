@@ -233,7 +233,7 @@ function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshC
     if (qualifyingSlotNames.length > 0) {
         refThis.updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, isRefreshCall);
         var qualifyingSlots = refThis.arrayOfSelectedSlots(qualifyingSlotNames);
-        prebid.fetchBids(qualifyingSlots, util.generateUUID());
+        prebid.fetchBids(qualifyingSlots);
     }
 }
 

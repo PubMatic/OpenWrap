@@ -561,7 +561,7 @@ function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshC
         refThis.updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, isRefreshCall);
         var qualifyingSlots = refThis.arrayOfSelectedSlots(qualifyingSlotNames);
         // new approach without adapter-manager
-        prebid.fetchBids(qualifyingSlots, util.generateUUID());
+        prebid.fetchBids(qualifyingSlots);
     }
 }
 
