@@ -381,7 +381,8 @@ exports.init = function(win) { // TDD, i/o : done
 	CONFIG.initConfig();
     if (UTIL.isObject(win)) {
         refThis.setWindowReference(win);
-        refThis.initPhoenixScript(win);
+        prebid.initPbjsConfig();
+        refThis.initPhoenixScript(win);        
         refThis.callJsLoadedIfRequired(win);
         return true;
     } else {

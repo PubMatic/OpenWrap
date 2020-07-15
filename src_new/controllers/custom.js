@@ -463,6 +463,7 @@ exports.init = function(win) {
 	if (util.isObject(win)) {
 		refThis.setWindowReference(win);
 		refThis.initSafeFrameListener(win);
+		prebid.initPbjsConfig();
 		win.PWT.requestBids = refThis.customServerExposedAPI;
 		win.PWT.generateConfForGPT = refThis.generateConfForGPT;
 		win.PWT.addKeyValuePairsToGPTSlots = addKeyValuePairsToGPTSlots;

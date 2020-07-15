@@ -938,6 +938,10 @@ function pbjsBidsBackHandler(bidResponses, activeSlots) {
 	util.log(bidResponses);
 	setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
 	//refThis.handleBidResponses(bidResponses);
+	//TODO: this blockk is used only for analytics enabled thus it should be covered in callback function?
+	//		callback function behaviour will be different for different controllers?
+	//			diff behaviour can be managed in respective controller code
+	//		making the callback related code changes will be good to manage respective code
 	if(isPrebidPubMaticAnalyticsEnabled){
 		window[pbNameSpace].setTargetingForGPTAsync(); // todo we do not want this for Custom conroller OR better do it only for GPT controller
 	}
@@ -958,13 +962,27 @@ function pbjsBidsBackHandler(bidResponses, activeSlots) {
 
 exports.pbjsBidsBackHandler = pbjsBidsBackHandler;
 
+// this function will be called by controllers, 
+// will take care of setting the config as it is configured thru UI
+function initPbjsConfig(){
+	if(! window[pbNameSpace]){ // todo: move this code owt.js
+		util.logError("PreBid js is not loaded");
+		return;
+	}
+	window[pbNameSpace].logging = util.isDebugLogEnabled();
+	refThis.setPrebidConfig();
+	refThis.enablePrebidPubMaticAnalyticIfRequired();
+	refThis.setPbjsBidderSettingsIfRequired();
+}
+exports.initPbjsConfig = initPbjsConfig;
+
 function fetchBids(activeSlots){
 
 	var impressionID = util.generateUUID();
 	// todo: 
 	// 	Accept a call back function, pass it from controllers only if pbjs-analytics is enabled
 	//		if possible try to use the callback for all cases
-	//  Do not make many changes in GPT controller
+	//  TRY not make many changes in GPT controller
 
 	// calling some bid-manager functions to reset, and set new sizes
 	// todo: can be moved to a function
@@ -975,13 +993,10 @@ function fetchBids(activeSlots){
     });
 
 	/* istanbul ignore else */
-	if(! window[pbNameSpace]){ // todo: move this code to controllers
+	if(! window[pbNameSpace]){ // todo: move this code owt.js
 		util.logError("PreBid js is not loaded");
 		return;
-	}	
-
-	// todo: move it to a small function and call from a common function like the below functions
-	window[pbNameSpace].logging = util.isDebugLogEnabled();
+	}
 
 	// todo: this is the function that basically puts bidder params in all adUnits, expose it separately
 	var adUnitsArray = refThis.generateAdUnitsArray(activeSlots, impressionID);	
@@ -990,13 +1005,6 @@ function fetchBids(activeSlots){
 	if(adUnitsArray.length > 0 && window[pbNameSpace]){
 
 		try{
-
-			// todo: move these function calls out, not required for each execution put in a separate function
-			// this separate function will be exposed and called if pub wants us to configure it
-			refThis.setPrebidConfig();
-			refThis.enablePrebidPubMaticAnalyticIfRequired();
-			refThis.setPbjsBidderSettingsIfRequired();
-
 			/* With prebid 2.0.0 it has started using FunHooks library which provides
 			   proxy object instead of wrapper function by default so in case of safari and IE 
 			   below check of util gives us Object instead of function hence return false and does
@@ -1038,10 +1046,13 @@ exports.fetchBids = fetchBids;
 /* end-test-block */
 
 
+// todo: is it needed?
 function getParenteAdapterID() {
 	return refThis.parentAdapterID;
 }
 
+// todo : rename to IDHub Config, change references
+//		check what is missing
 function setConfig(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 		var prebidConfig = {
@@ -1077,6 +1088,7 @@ exports.setConfig = setConfig;
 exports.getParenteAdapterID = getParenteAdapterID;
 /* end-test-block */
 
+// todo: remove this
 exports.register = function(){
 	return {
 		fB: refThis.fetchBids,
