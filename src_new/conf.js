@@ -224,14 +224,14 @@ exports.slotConfig = {
 					"skip": 1,
 					"skipmin": 10,
 					"skipafter": 15
+				},
+				"partnerConfig":{
+					"pubmatic": {
+						"outstreamAU":"pubmatic-test"
+					}
 				}
 			},
-			"renderer":{
-				url: "https://acdn.adnxs.com/video/outstream/ANOutstreamVideo.js",
-				render: function () {
-					//some renderer function 
-				}
-			}
+		
 		},
 		"AU2": {
 			"banner": {}

@@ -2700,6 +2700,91 @@ describe('UTIL', function() {
             expect(result).to.be.deep.equal(expectedResult);
             done();
         });
+
+
+        xit('should return partnerConfig if present with the div',function(done){
+            slotConfiguration.config["DIV_1"].video = {
+                enabled:true,
+                config: {
+                    "someconfig" :"someconfigvalue"
+                },
+                partnerConfig : {
+                    "pubmatic": {
+                        "outstreamAU" :"pubmatictest"
+                    }
+                }
+            };
+            var expectedResult = {
+                "pubmatic":{
+                    "outstreamAU" :"pubmatictest"
+                }
+            }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).partnerConfig;
+            console.log("Result for partnerConfig is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        xit('should not return partnerConfig if not present with the div',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).partnerConfig
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.undefined
+            done();
+        });
+
+        xit('should return partnerConfig if present in default',function(done){
+            slotConfiguration.config["DIV_1"].video = {
+                enabled:true,
+                config:{
+                    "someconfig" :"someconfigvalue"
+                },
+                partnerConfig : {
+                    "pubmatic":{
+                        "outstreamAU" :"pubmatictest"
+                    }
+                }
+            };
+            var expectedResult = {
+                "pubmatic":{
+                    "outstreamAU" :"pubmatictest"
+                }
+             }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).partnerConfig
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return partnerConfig if not present in default and div',function(done){
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).partnerConfig
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.undefined;
+            done();
+        });
+
+        xit('should return div partnerConfig if present in default and div',function(done){
+            slotConfiguration.config["default"].video.partnerConfig = {
+                "pubmatic":{
+                    "outstreamAU" :"defautlpubmatictest"
+                }
+             }
+             slotConfiguration.config["DIV_1"].video.partnerConfig = {
+                "pubmatic":{
+                    "outstreamAU" :"pubmatictest"
+                }
+             }
+            var expectedResult = {
+                "pubmatic":{
+                    "outstreamAU" :"pubmatictest"
+                }
+             }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).partnerConfig
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
     });
 
     describe('#getAdFormatFromBidAd', function(){
