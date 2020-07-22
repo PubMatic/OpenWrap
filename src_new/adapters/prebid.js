@@ -337,7 +337,7 @@ exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight,regexPattern){
 
 	var code, sizes, divID = currentSlot.getDivID();
-	var mediaTypeConfig;
+	var mediaTypeConfig, partnerConfig;
 	if(!refThis.isSingleImpressionSettingEnabled){
 		if(kgpConsistsWidthAndHeight){
 			code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
@@ -397,18 +397,32 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		return;
 	}
 	/* istanbul ignore else */
+	var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
+	mediaTypeConfig = adUnitConfig.mediaTypeObject;
+	if(mediaTypeConfig.partnerConfig){
+		partnerConfig = mediaTypeConfig.partnerConfig;
+	}
 	if(!util.isOwnProperty(adUnits, code)){
-		var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
-		mediaTypeConfig = adUnitConfig.mediaTypeObject;
 		//TODO: Remove sizes from below as it will be deprecated soon in prebid
 		// Need to check pubmaticServerBidAdapter in our fork after this change.
 		adUnits[code] = {
 			code: code,
-			mediaTypes:mediaTypeConfig ,
+			mediaTypes:{} ,
 			sizes: sizes,
 			bids: [],
 			divID : divID
 		};
+		//Assigning it individually since mediaTypes doesn't take any extra param apart from these.
+		// And We are now also getting partnerConfig for different partners
+		if(mediaTypeConfig.banner){
+			adUnits[code].mediaTypes["banner"] = mediaTypeConfig.banner;
+		}
+		if(mediaTypeConfig.native){
+			adUnits[code].mediaTypes["native"] = mediaTypeConfig.native;
+		}
+		if(mediaTypeConfig.video){
+			adUnits[code].mediaTypes["video"] = mediaTypeConfig.video;
+		}
 		if(adUnitConfig.renderer){
 			adUnits[code]["renderer"]= adUnitConfig.renderer;
 		}
@@ -431,6 +445,17 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		/* istanbul ignore next */
 		slotParams[key] = value;
 	});
+
+	if(partnerConfig && Object.keys(partnerConfig).length>0){
+		util.forEachOnObject(partnerConfig, function(key, value){
+			if(key == adapterID) {
+				util.forEachOnObject(value, function(key, value){
+					/* istanbul ignore next */
+					slotParams[key] = value;
+				});
+			}
+		});
+	}
 
 	// Logic : If for slot config for partner video parameter is present then use that
 	// else take it from mediaType.video
