@@ -171,17 +171,9 @@ function getAdSlotSizesArray(anAdUnitObject) {
 exports.getAdSlotSizesArray = getAdSlotSizesArray;
 /* end-test-block */
 
-function findWinningBidAndGenerateTargetingForPbjsAnalytics(divId){
-	// here we need to call pbjs APIs to fill in the required data
-}
-
-/* start-test-block */
-exports.findWinningBidAndGenerateTargetingForPbjsAnalytics = findWinningBidAndGenerateTargetingForPbjsAnalytics;
-/* end-test-block */
-
-
 function findWinningBidAndGenerateTargeting(divId) {
-	var data = bidManager.getBid(divId);
+	var data = bidManager.getBid(divId); //todo: make changes here for getting bid details from PBJS
+	// if(isPrebidPubMaticAnalyticsEnabled() === true){}
 	var winningBid = data.wb || null;
 	var keyValuePairs = data.kvp || null;
 	var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
@@ -306,14 +298,8 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 			var winningBids = {}; // object:: { code : response bid or just key value pairs }
 			// we should loop on qualifyingSlotDivIds to avoid confusion if two parallel calls are fired to our PWT.requestBids 
 			util.forEachOnArray(qualifyingSlotDivIds, function(index, divId) {
-				var code = mapOfDivToCode[divId];
-				
-				if(isPrebidPubMaticAnalyticsEnabled() === true){
-					winningBids[code] = refThis.findWinningBidAndGenerateTargetingForPbjsAnalytics(divId, code);
-				}else {
-					winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId);	
-				}
-				
+				var code = mapOfDivToCode[divId];				
+				winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId);
 				// we need to delay the realignment as we need to do it post creative rendering :)
 				// delaying by 1000ms as creative rendering may tke time
 				setTimeout(util.realignVLogInfoPanel, 1000, divId);
