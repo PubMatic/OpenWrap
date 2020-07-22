@@ -1045,6 +1045,16 @@ function fetchBids(activeSlots){
 exports.fetchBids = fetchBids;
 /* end-test-block */
 
+// returns the highest bid and its key value pairs
+function getBid(divID){	
+	return {
+		wb: window[pbNameSpace].getHighestCpmBids([divID]) || null, 
+		kvp: window[pbNameSpace].getAdserverTargetingForAdUnitCode([divID]) || null
+	};
+}
+
+exports.getBid = getBid;
+
 
 // todo: is it needed?
 function getParenteAdapterID() {

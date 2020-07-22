@@ -172,14 +172,19 @@ exports.getAdSlotSizesArray = getAdSlotSizesArray;
 /* end-test-block */
 
 function findWinningBidAndGenerateTargeting(divId) {
-	var data = bidManager.getBid(divId); //todo: make changes here for getting bid details from PBJS
-	// if(isPrebidPubMaticAnalyticsEnabled() === true){}
+	var data;
+	if(isPrebidPubMaticAnalyticsEnabled === true){
+		data = prebid.getBid(divId);
+		//todo: we might need to change some proprty names in wb (from PBJS)
+	} else {
+		data = bidManager.getBid(divId);
+	}
 	var winningBid = data.wb || null;
 	var keyValuePairs = data.kvp || null;
 	var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
 
-	/* istanbul ignore else*/
-	if (winningBid && winningBid.getNetEcpm() > 0) {
+	/* istanbul ignore else*/	
+	if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {
 		bidManager.setStandardKeys(winningBid, keyValuePairs);
 	}
 
