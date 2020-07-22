@@ -272,7 +272,6 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     var data = bidManager.getBid(divID);
     var winningBid = data.wb || null;
     var keyValuePairs = data.kvp || {};
-    var wbKeyValuePairs = null;
     var googleDefinedSlot = refThis.slotsMap[divID].getPubAdServerObject();
     var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
 
