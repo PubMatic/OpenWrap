@@ -826,6 +826,9 @@ function addHooksIfPossible(win) { // TDD, i/o : done
         //TODO : Check for Prebid loaded and debug logs 
         prebid.register().sC();
         if(CONFIG.isIdentityOnly()){
+            if(util.isUndefined(win[CONFIG.PBJS_NAMESPACE])){
+                win[CONFIG.PBJS_NAMESPACE]= win[CONFIG.PBJS_NAMESPACE] || {};
+            }
             if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE]) && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE].que)){
                 win[CONFIG.PBJS_NAMESPACE].que.unshift(function(){
                     var vdetails = win[CONFIG.PBJS_NAMESPACE].version.split('.') 
