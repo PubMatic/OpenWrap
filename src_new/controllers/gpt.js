@@ -577,7 +577,7 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
         if(CONFIG.isIdentityOnly()){
             util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " Original Display function");
             return function() {
-                if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
+                if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().split(",").includes(CONSTANTS.COMMON.GAM)>-1){
                     util.setUserIdTargeting(theObject);
                 }
 	            return originalFunction.apply(theObject, arguments);
