@@ -577,7 +577,7 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
         if(CONFIG.isIdentityOnly()){
             util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " Original Display function");
             return function() {
-                if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
+                if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().split(",").includes(CONSTANTS.COMMON.GAM)>-1){
                     util.setUserIdTargeting(theObject);
                 }
 	            return originalFunction.apply(theObject, arguments);
@@ -826,9 +826,6 @@ function addHooksIfPossible(win) { // TDD, i/o : done
         //TODO : Check for Prebid loaded and debug logs 
         prebid.register().sC();
         if(CONFIG.isIdentityOnly()){
-            if(util.isUndefined(win[CONFIG.PBJS_NAMESPACE])){
-                win[CONFIG.PBJS_NAMESPACE]= win[CONFIG.PBJS_NAMESPACE] || {};
-            }
             if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE]) && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE].que)){
                 win[CONFIG.PBJS_NAMESPACE].que.unshift(function(){
                     var vdetails = win[CONFIG.PBJS_NAMESPACE].version.split('.') 
