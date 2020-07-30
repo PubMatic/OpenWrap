@@ -200,6 +200,13 @@ exports.getIdentityConsumers = function(){
 	return (config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS] || "").toLowerCase();
 };
 
+exports.getSlotConfiguration = function(){
+	return config[CONSTANTS.COMMON.SLOT_CONFIG];
+};
+
+exports.getAdServer = function(){
+	return config[CONSTANTS.COMMON.ADSERVER];
+};
 exports.getCCPA = function () {
 	var ccpa = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_CONSENT] || CONSTANTS.CONFIG.DEFAULT_CCPA_CONSENT;
 	return ccpa === "1";
@@ -213,3 +220,13 @@ exports.getCCPATimeout = function() {
 	var ccpaTimeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_TIMEOUT];
 	return ccpaTimeout ? window.parseInt(ccpaTimeout) : CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT;
 };
+
+exports.getSchainObject = function(){
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAINOBJECT] || {};
+};
+
+exports.isSchainEnabled = function(){
+	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN]) || 0;
+};
+
+exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";

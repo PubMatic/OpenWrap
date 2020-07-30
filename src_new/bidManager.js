@@ -28,7 +28,7 @@ exports.setCallInitTime = function(divID, adapterID){ // TDD, i/o : done
 };
 
 exports.setAllPossibleBidsReceived = function(divID){
-	window.PWT.bidMap[divID].setAllPossibleBidsReceived();	
+	window.PWT.bidMap[divID].setAllPossibleBidsReceived();
 };
 
 exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
@@ -57,16 +57,17 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 	if(lastBidID != ""){
 
 		var lastBid = bidMapEntry.getBid(bidderID, lastBidID), //todo: what if the lastBid is null
-			lastBidWasDefaultBid = lastBid.getDefaultBidStatus() === 1
+			lastBidWasDefaultBid = lastBid.getDefaultBidStatus() === 1,
+			lastBidWasErrorBid = lastBid.getDefaultBidStatus() === -1
 			;
 
-		if( lastBidWasDefaultBid || !isPostTimeout){
+		if( lastBidWasDefaultBid || !isPostTimeout || lastBidWasErrorBid){
 			/* istanbul ignore else */
 			if(lastBidWasDefaultBid){
 				util.log(CONSTANTS.MESSAGES.M23 + bidderID);
 			}
 
-			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
+			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() || lastBidWasErrorBid){
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14 + bidderID);
 				refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 			}else{
@@ -76,7 +77,7 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 			util.log(CONSTANTS.MESSAGES.M17);
 		}
 	}else{
-		util.log(CONSTANTS.MESSAGES.M18 + bidderID);		
+		util.log(CONSTANTS.MESSAGES.M18 + bidderID);
 		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 	}
 	if (isPostTimeout) {
@@ -93,7 +94,7 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 	// if(theBid.getDefaultBidStatus() === 0 && theBid.getPostTimeoutStatus() === false){
 	// 	util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [slotID, adapterID, theBid, latency]);
 	// }
-	
+
 	window.PWT.bidMap[slotID].setNewBid(adapterID, theBid);
 	window.PWT.bidIdMap[theBid.getBidID()] = {
 		s: slotID,
@@ -136,8 +137,8 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
 					// If pubmaticServerBidAdapter then don't increase partnerCount
 					(adapterID !== "pubmaticServer") && partnerCount++;
 					util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
-				// Description-> adapterID == "pubmatic" && theBid.netEcpm == 0 this check is put because from pubmaticBidAdapter in prebid we are 
-				// passing zero bid when there are no bid under timout for latency reports and this caused issue to have zero bids in pwtm key 
+				// Description-> adapterID == "pubmatic" && theBid.netEcpm == 0 this check is put because from pubmaticBidAdapter in prebid we are
+				// passing zero bid when there are no bid under timout for latency reports and this caused issue to have zero bids in pwtm key
 				// so put this check which will not log zero bids for pubmatic. Note : From prebid 1.x onwards we do not get zero bids in case of no bids.
 				if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1 || theBid.getGrossEcpm() == 0){
         			return;
@@ -188,8 +189,7 @@ function auctionBids(bmEntry) { // TDD, i/o : done
 
     if(CONFIG.getMataDataPattern() !== null){
     	createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);
-    }
-
+    }	
     return {
         wb: winningBid,
         kvp: keyValuePairs
@@ -230,7 +230,7 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
 
 			if (winningBid !== null ) {
 				if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
-					// i.e. the current bid is the winning bid, so remove the native keys from keyValuePairs 
+					// i.e. the current bid is the winning bid, so remove the native keys from keyValuePairs
 					refThis.updateNativeTargtingKeys(keyValuePairs);
 				} else {
 					// i.e. the current bid is not the winning bid, so remove the native keys from theBid.keyValuePairs
@@ -251,7 +251,7 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
             } else if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
                 winningBid = theBid;
             }
-        });
+		});
         return { winningBid: winningBid , keyValuePairs: keyValuePairs };
     } else {
     	return { winningBid: winningBid , keyValuePairs: keyValuePairs };
@@ -340,8 +340,8 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 			s: []
 		},
 		pubId = CONFIG.getPublisherId(),
-		gdprData = GDPR.getUserConsentDataFromLS(),
-		consentString = "",
+		// gdprData = GDPR.getUserConsentDataFromLS(),
+		// consentString = "",
 		pixelURL = CONFIG.getAnalyticsPixelURL(),
 		impressionIDMap = {} // impID => slots[]
 		;
@@ -360,14 +360,15 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
 
-	if (CONFIG.getGdpr()) {
-		consentString = gdprData && gdprData.c ? encodeURIComponent(gdprData.c) : "";
+	// As discussed we won't be seding gdpr data to logger
+	// if (CONFIG.getGdpr()) {
+	// 	consentString = gdprData && gdprData.c ? encodeURIComponent(gdprData.c) : "";
 
-		outputObj[CONSTANTS.CONFIG.GDPR_CONSENT] = gdprData && gdprData.g;
-		outputObj[CONSTANTS.CONFIG.CONSENT_STRING] = consentString;
+	// 	outputObj[CONSTANTS.CONFIG.GDPR_CONSENT] = gdprData && gdprData.g;
+	// 	outputObj[CONSTANTS.CONFIG.CONSENT_STRING] = consentString;
 
-		pixelURL += "&gdEn=" + (CONFIG.getGdpr() ? 1 : 0);
-	}
+	// 	pixelURL += "&gdEn=" + (CONFIG.getGdpr() ? 1 : 0);
+	// }
 
 	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {
 		refThis.analyticalPixelCallback(slotID, bmEntry, impressionIDMap);
@@ -378,6 +379,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 			outputObj.s = slots;
 			outputObj[CONSTANTS.COMMON.IMPRESSION_ID] = window.encodeURIComponent(impressionID);
 			outputObj.psl = slots.psl;
+			outputObj.dvc = { "plt": util.getDevicePlatform()}
 			// (new window.Image()).src = pixelURL + "&json=" + window.encodeURIComponent(JSON.stringify(outputObj));
 			util.ajaxRequest(pixelURL, function(){}, "json=" + window.encodeURIComponent(JSON.stringify(outputObj)), {
 				contentType : "application/x-www-form-urlencoded", // as per https://inside.pubmatic.com:8443/confluence/pages/viewpage.action?spaceKey=Products&title=POST+support+for+logger+in+Wrapper-tracker
@@ -388,28 +390,10 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 };
 
 exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
-	var pixelURL = CONFIG.getMonetizationPixelURL(),
-		pubId = CONFIG.getPublisherId();
-	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
-
-	/* istanbul ignore else */
+	var pixelURL = util.generateMonetizationPixel(slotID,theBid);
 	if(!pixelURL){
 		return;
 	}
-
-	pixelURL += "pubid=" + pubId;
-	pixelURL += "&purl=" + window.encodeURIComponent(util.metaInfo.pageURL);
-	pixelURL += "&tst=" + util.getCurrentTimestamp();
-	pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
-	pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
-	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
-	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
-	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
-	pixelURL += "&pn=" + window.encodeURIComponent(theBid.getAdapterID());
-	pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm(isAnalytics));
-	pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm(isAnalytics));
-	pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
-
 	refThis.setImageSrcToPixelURL(pixelURL);
 };
 
@@ -460,7 +444,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                      getServerSideResponseTime returns -1, it means that server responded with error code 1/2/6
                      hence do not add entry in logger.
                      keeping the check for responseTime on -1 since there could be a case where:
-						ss status = 1, db status = 0, and responseTime is 0, but error code is 4, i,e. no bid. And for error code 4, 
+						ss status = 1, db status = 0, and responseTime is 0, but error code is 4, i,e. no bid. And for error code 4,
 						we want to log the data not skip it.
                   */
 	            if (theBid.getServerSideStatus()) {
@@ -469,9 +453,9 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 	                return;
 	              }
 				}
-				// Logic : if adapter is pubmatic and bid falls under two condition : 
-				/** 
-				 *  1.timeout zero bids 
+				// Logic : if adapter is pubmatic and bid falls under two condition :
+				/**
+				 *  1.timeout zero bids
 				 *  2.no response from translator
 				 * Then we don't log it for pubmatic
 				 * Reason : Logging timeout zero bids causing reports to show more zero in comparision to other bidders
@@ -503,6 +487,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"af": theBid.getAdFormat(),
 					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
+					"piid": theBid.getsspID()
 				});
             })
         });
@@ -533,7 +518,10 @@ exports.setImageSrcToPixelURL = function (pixelURL, useProtocol) { // TDD, i/o :
 		img.src = pixelURL;
 		return;
 	}
-	img.src = CONSTANTS.COMMON.PROTOCOL + pixelURL;	
+	if(String(pixelURL).trim().substring(0,8) != CONSTANTS.COMMON.PROTOCOL){
+		pixelURL = CONSTANTS.COMMON.PROTOCOL + pixelURL;
+	}
+	img.src = pixelURL;
 };
 
 
@@ -558,7 +546,7 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 
 /**
  * This function is used to execute trackers on event
- * in case of native. On click of native create element 
+ * in case of native. On click of native create element
  * @param {*} event
  */
 exports.loadTrackers = function(event){
@@ -624,7 +612,7 @@ exports.fireTracker = function(bidDetails, action) {
 	(trackers || []).forEach(function(url){refThis.setImageSrcToPixelURL(url,false);});
 };
 
- 
+
 // this function generates all satndard key-value pairs for a given bid and setup, set these key-value pairs in an object
 // todo: write unit test cases
 exports.setStandardKeys = function(winningBid, keyValuePairs){
@@ -641,8 +629,13 @@ exports.setStandardKeys = function(winningBid, keyValuePairs){
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID ] = CONFIG.getProfileID();
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID ] = CONFIG.getProfileDisplayVersionID();
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ] = winningBid.width + 'x' + winningBid.height;
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ] = (winningBid.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
-    } else {
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ] = winningBid.getAdFormat() == CONSTANTS.FORMAT_VALUES.VIDEO ? CONSTANTS.PLATFORM_VALUES.VIDEO : (winningBid.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
+		if(winningBid.getAdFormat() == CONSTANTS.FORMAT_VALUES.VIDEO){
+			keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_PATH ] = CONSTANTS.CONFIG.CACHE_PATH;
+			keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_URL ] = CONSTANTS.CONFIG.CACHE_URL;
+			keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_ID ] = winningBid.getcacheUUID();
+		}
+	} else {
     	util.logWarning('Not generating key-value pairs as invalid winningBid object passed. WinningBid: ');
     	util.logWarning(winningBid);
     }

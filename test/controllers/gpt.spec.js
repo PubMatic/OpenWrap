@@ -1210,6 +1210,9 @@ describe("CONTROLLER: GPT", function() {
                 getNative: function() {
                     return "getNative";
                 },
+                getAdFormat:function(){
+                    return "banner";
+                }
             };
             sinon.stub(winningBidStub, "getBidID");
             sinon.stub(winningBidStub, "getStatus");
@@ -1217,6 +1220,7 @@ describe("CONTROLLER: GPT", function() {
             sinon.stub(winningBidStub, "getDealID");
             sinon.stub(winningBidStub, "getAdapterID");
             sinon.stub(winningBidStub, "getNative");
+            sinon.stub(winningBidStub, "getAdFormat");
             keyValuePairsStub = {
                 "key1": {
                     "k1": "v1",
@@ -1276,6 +1280,7 @@ describe("CONTROLLER: GPT", function() {
                 winningBidStub.getDealID.restore();
                 winningBidStub.getAdapterID.restore();
                 winningBidStub.getNative.restore();
+                winningBidStub.getAdFormat.restore();
             }
             divID = null;
             keyValuePairsStub = null;
@@ -1333,6 +1338,7 @@ describe("CONTROLLER: GPT", function() {
         it('should have called defineWrapperTargetingKey if key in keyValuePairs is not among prebid keys to ignore', function(done) {
             winningBidStub.getNetEcpm.returns(2);
             UTIL.isOwnProperty.withArgs(CONSTANTS.IGNORE_PREBID_KEYS).returns(false);
+            UTIL.isOwnProperty.withArgs({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}).returns(false);
 
             GPT.findWinningBidAndApplyTargeting(divID);
 
@@ -2858,41 +2864,37 @@ describe("CONTROLLER: GPT", function() {
             done();
         });
 
-        it("return false if passed in window object is impropper and should have called util.log", function(done) {
-            winObj.google_onload_fired = true;
+        it("return false if passed in window object is impropper and should have called util.log, 1", function(done) {
+            winObj.googletag["apiReady"] = true;
             GPT.addHooksIfPossible(winObj).should.equal(false);
             UTIL.logError.calledOnce.should.equal(true);
             UTIL.logError.calledWith("Failed to load before GPT").should.be.true;
-
-            UTIL.isUndefined.calledOnce.should.equal(true);
-            UTIL.isObject.calledOnce.should.be.false;
+            UTIL.isObject.calledOnce.should.be.equal(true);
             done();
         });
 
-        it("return false if passed in window object is impropper and should have called util.log", function(done) {
+        it("return false if passed in window object is impropper and should have called util.log, 2", function(done) {
             delete winObj.googletag;
             GPT.addHooksIfPossible(winObj).should.equal(false);
             UTIL.logError.calledOnce.should.equal(true);
             UTIL.logError.calledWith("Failed to load before GPT").should.be.true;
-
-            UTIL.isUndefined.calledOnce.should.equal(true);
             UTIL.isObject.calledOnce.should.equal(true);
             done();
         });
 
 
-        it("return false if passed in window object is impropper and should have called util.log", function(done) {
+        it("return false if passed in window object is impropper and should have called util.log, 3", function(done) {
+            winObj.googletag["apiReady"] = false;
             delete winObj.googletag.cmd;
             GPT.addHooksIfPossible(winObj).should.equal(false);
             UTIL.logError.calledOnce.should.equal(true);
             UTIL.logError.calledWith("Failed to load before GPT").should.be.true;
-
-            UTIL.isUndefined.calledOnce.should.equal(true);
             UTIL.isObject.calledOnce.should.equal(true);
             done();
         });
 
         it("return true if passed window object with required props and should have called util.log", function(done) {
+            winObj.googletag["apiReady"] = false;
             GPT.addHooksIfPossible(winObj).should.equal(true);
             UTIL.log.calledOnce.should.equal(true);
             UTIL.log.calledWith("Succeeded to load before GPT").should.be.true;

@@ -38,7 +38,6 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	var rxPattern = regexPattern || bid.regexPattern || undefined;
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
 	var pubmaticServerErrorCode = parseInt(bid.pubmaticServerErrorCode);
-
 	theBid.setGrossEcpm(bid.cpm);
 	theBid.setDealID(bid.dealId);
 	theBid.setDealChannel(bid.dealChannel);
@@ -47,13 +46,33 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	theBid.setWidth(bid.width);
 	theBid.setHeight(bid.height);
 	theBid.setMi(bid.mi);
+	if(bid.videoCacheKey){
+		theBid.setVastCache(bid.videoCacheKey);
+	}
+	if(bid.vastUrl){
+		theBid.setVastUrl(bid.vastUrl);
+	}
+	if(bid.vastXml){
+		theBid.setVastUrl(bid.vastUrl);
+	}
+	if(bid.renderer){
+		theBid.setRenderer(bid.renderer);
+	}
 	if(bid.native){
 		theBid.setNative(bid.native);
 	}
 	if(rxPattern){
 		theBid.setRegexPattern(rxPattern);
 	}
-
+	if(bid.mediaType == CONSTANTS.FORMAT_VALUES.VIDEO){
+		if(bid.videoCacheKey){
+			theBid.setcacheUUID(bid.videoCacheKey);
+		}
+		theBid.updateBidId(bid.adUnitCode);
+	}
+	if (bid.sspID){
+		theBid.setsspID(bid.sspID);
+	}
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
 	// Check if currency conversion is enabled or not
@@ -107,6 +126,7 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 			theBid.setKeyValuePair(key, value);
 		}
 	});
+	theBid.setPbBid(bid);
 	return theBid;
 }
 
@@ -135,7 +155,7 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 	var sizeIndex = 1;
 	var isRegex = false;
 	/* istanbul ignore else */
-	if(responseIdArray &&  (responseIdArray.length == 2 || ((responseIdArray.length == 3) && (sizeIndex = 2) && (isRegex=true)))){
+	if(responseIdArray &&  (responseIdArray.length == 2 || ((responseIdArray.length == 3) && (sizeIndex = 2) && (isRegex=true))) && bid.mediaType != "video"){
 		var responseIdSize = responseIdArray[sizeIndex];
 		var responseIndex = null;
 		// Below check if ad unit index is present then ignore it
@@ -317,7 +337,7 @@ exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight,regexPattern){
 
 	var code, sizes, divID = currentSlot.getDivID();
-	
+	var mediaTypeConfig, partnerConfig;
 	if(!refThis.isSingleImpressionSettingEnabled){
 		if(kgpConsistsWidthAndHeight){
 			code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
@@ -377,26 +397,81 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		return;
 	}
 	/* istanbul ignore else */
+	var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
+	mediaTypeConfig = adUnitConfig.mediaTypeObject;
+	if(mediaTypeConfig.partnerConfig){
+		partnerConfig = mediaTypeConfig.partnerConfig;
+	}
 	if(!util.isOwnProperty(adUnits, code)){
+		//TODO: Remove sizes from below as it will be deprecated soon in prebid
+		// Need to check pubmaticServerBidAdapter in our fork after this change.
 		adUnits[code] = {
 			code: code,
-			mediaTypes: util.getMediaTypeObject(CONFIG.getNativeConfiguration(), sizes, currentSlot),
+			mediaTypes:{} ,
 			sizes: sizes,
 			bids: [],
 			divID : divID
 		};
+		//Assigning it individually since mediaTypes doesn't take any extra param apart from these.
+		// And We are now also getting partnerConfig for different partners
+		if(mediaTypeConfig.banner){
+			adUnits[code].mediaTypes["banner"] = mediaTypeConfig.banner;
+		}
+		if(mediaTypeConfig.native){
+			adUnits[code].mediaTypes["native"] = mediaTypeConfig.native;
+		}
+		if(mediaTypeConfig.video){
+			adUnits[code].mediaTypes["video"] = mediaTypeConfig.video;
+		}
+		if(adUnitConfig.renderer){
+			adUnits[code]["renderer"]= adUnitConfig.renderer;
+		}
 	}else if(refThis.isSingleImpressionSettingEnabled){
 		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
 			return;
 		}
 	}
 
+	// in case there are multiple bidders ,we don't generate the config again but utilize the existing mediatype.
+	if(util.isOwnProperty(adUnits, code)){
+		mediaTypeConfig = adUnits[code].mediaTypes;
+	}
+
 	var slotParams = {};
+	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video") && adapterID != "telaria"){
+		slotParams["video"]= mediaTypeConfig.video;
+	}
 	util.forEachOnObject(keyConfig, function(key, value){
 		/* istanbul ignore next */
 		slotParams[key] = value;
 	});
 
+	if(partnerConfig && Object.keys(partnerConfig).length>0){
+		util.forEachOnObject(partnerConfig, function(key, value){
+			if(key == adapterID) {
+				util.forEachOnObject(value, function(key, value){
+					/* istanbul ignore next */
+					slotParams[key] = value;
+				});
+			}
+		});
+	}
+
+	// Logic : If for slot config for partner video parameter is present then use that
+	// else take it from mediaType.video
+	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video") && adapterID != "telaria"){
+		if(util.isOwnProperty(slotParams,"video") && util.isObject(slotParams.video)){
+			util.forEachOnObject(mediaTypeConfig.video, function(key, value){
+				if(!util.isOwnProperty(slotParams["video"],key)){
+					slotParams["video"][key] = value;
+				}
+			});
+		}
+		else {
+			slotParams["video"]= mediaTypeConfig.video;
+		}
+	}
+	
 	//processing for each partner
 	switch(adapterID){
 
@@ -598,12 +673,19 @@ function fetchBids(activeSlots, impressionID){
 			if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 				var prebidConfig = {
 					debug: util.isDebugLogEnabled(),
+					cache: {
+						url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH
+					},
 					bidderSequence: "random",
 					userSync: {
 						enableOverride: true,
 						syncsPerBidder: 0,
-						iframeEnabled: true,
-						pixelEnabled: true,
+						filterSettings: {
+							iframe: {
+								bidders: "*",   // '*' means all bidders
+								filter: "include"
+							}
+						},
 						enabledBidders: (function(){
 							var arr = [];
 							CONFIG.forEachAdapter(function(adapterID){
@@ -644,6 +726,9 @@ function fetchBids(activeSlots, impressionID){
 						"granularityMultiplier": 1, 
 					};
 
+				}
+				if(CONFIG.isSchainEnabled){
+					prebidConfig["schain"] = CONFIG.getSchainObject();
 				}
 				refThis.assignSingleRequestConfigForBidders(prebidConfig);
 				// Adding a hook for publishers to modify the Prebid Config we have generated
