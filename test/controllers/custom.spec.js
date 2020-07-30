@@ -1,4 +1,4 @@
-/* global describe, it, expect, sinon, beforeEach, afterEach */
+/* global describe, it, xit, expect, sinon, beforeEach, afterEach */
 // var sinon = require("sinon");
 //var should = require("chai").should();
 var CUSTOM = require("../../src_new/controllers/custom.js");
