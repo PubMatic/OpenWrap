@@ -66,25 +66,7 @@ describe("adapterManager : ADPTMgr", function() {
 
             done();
         });
-    });
-
-
-    /* start-test-block */
-    describe('#getRandomNumberBelow100', function() {
-
-        it('is a function', function (done) {
-            ADPTMgr.getRandomNumberBelow100.should.be.a('function');
-            done();
-        });
-
-        it('returns numeric value below 100', function(done) {
-            var result = ADPTMgr.getRandomNumberBelow100();
-
-            result.should.be.below(100);
-            done();
-        });
-    });
-    /* end-test-block */
+    });    
 
 
     /* start-test-block */

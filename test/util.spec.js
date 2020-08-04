@@ -86,6 +86,23 @@ describe('UTIL', function() {
         });
     });
 
+    /* start-test-block */
+    describe('#getRandomNumberBelow100', function() {
+
+        it('is a function', function (done) {
+            UTIL.getRandomNumberBelow100.should.be.a('function');
+            done();
+        });
+
+        it('returns numeric value below 100', function(done) {
+            var result = UTIL.getRandomNumberBelow100();
+            result.should.be.below(100);
+            done();
+        });
+    });
+    /* end-test-block */
+
+
     describe('#isFunction', function() {
 
         it('is a function', function(done) {
