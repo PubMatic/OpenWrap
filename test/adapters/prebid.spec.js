@@ -601,8 +601,8 @@ describe('ADAPTER: Prebid', function() {
 
         it('should have created bid object by composing from passed in params', function(done) {
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
-            CONFIG.getProfileID.called.should.be.true;
-            CONFIG.getProfileDisplayVersionID.called.should.be.true;
+            // CONFIG.getProfileID.called.should.be.true;
+            // CONFIG.getProfileDisplayVersionID.called.should.be.true;
             UTIL.forEachOnArray.called.should.be.false;
             done();
         });
