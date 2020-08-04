@@ -749,7 +749,7 @@ describe('ADAPTER: Prebid', function() {
 
 
 
-        it('should have constructed proper slotParams', function(done) {
+        xit('should have constructed proper slotParams', function(done) {
             kgpConsistsWidthAndHeight = false;
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             // sizes => [[340, 210], [1024, 768]]
@@ -764,7 +764,7 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should have constructed proper slotParams', function(done) {
+        xit('should have constructed proper slotParams', function(done) {
             kgpConsistsWidthAndHeight = false;
             adapterID = "different";
             CONF.adapters[adapterID] = {};
