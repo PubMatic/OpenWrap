@@ -5,11 +5,11 @@ var expect = require("chai").expect;
 
 var GPT = require("../../src_new/controllers/gpt.js");
 var UTIL = require("../../src_new/util.js");
-var AM = require("../../src_new/adapterManager.js");
 var CONSTANTS = require("../../src_new/constants.js");
 var CONFIG = require("../../src_new/config.js");
 var BM = require("../../src_new/bidManager.js");
 var SLOT = require("../../src_new/slot.js");
+var PREBID = require("../../src_new/adapters/prebid.js");
 
 var commonDivID = "DIV_1";
 
@@ -2013,8 +2013,7 @@ describe("CONTROLLER: GPT", function() {
             sinon.stub(GPT, "arrayOfSelectedSlots");
             GPT.arrayOfSelectedSlots.returns(qualifyingSlots);
 
-            sinon.stub(AM, "callAdapters");
-            AM.callAdapters.returns(true);
+            sinon.stub(PREBID, 'fetchBids', function(){});
 
             done();
         });
@@ -2022,7 +2021,7 @@ describe("CONTROLLER: GPT", function() {
         afterEach(function(done) {
             GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.restore();
             GPT.arrayOfSelectedSlots.restore();
-            AM.callAdapters.restore();
+            PREBID.fetchBids.restore();
 
             qualifyingSlotNames = null;
             qualifyingSlots = null;
@@ -2043,7 +2042,6 @@ describe("CONTROLLER: GPT", function() {
             GPT.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall);
             GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.calledWith(qualifyingSlotNames, arg, isRefreshCall).should.be.true;
             GPT.arrayOfSelectedSlots.calledWith(qualifyingSlotNames).should.be.true;
-            AM.callAdapters.calledWith(qualifyingSlots).should.be.true;
             done();
         });
 
@@ -2052,7 +2050,6 @@ describe("CONTROLLER: GPT", function() {
             GPT.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall);
             GPT.updateStatusOfQualifyingSlotsBeforeCallingAdapters.called.should.be.false;
             GPT.arrayOfSelectedSlots.called.should.be.false;
-            AM.callAdapters.called.should.be.false;
             done();
         });
     });
@@ -3018,7 +3015,6 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(GPT, "setWindowReference");
             sinon.spy(GPT, "defineWrapperTargetingKeys");
             sinon.spy(GPT, "defineGPTVariables");
-            sinon.spy(AM, "registerAdapters");
             sinon.spy(GPT, "addHooksIfPossible");
             sinon.spy(GPT, "callJsLoadedIfRequired");
             sinon.spy(GPT, "initSafeFrameListener");
@@ -3030,7 +3026,6 @@ describe("CONTROLLER: GPT", function() {
             GPT.setWindowReference.restore();
             GPT.defineWrapperTargetingKeys.restore();
             GPT.defineGPTVariables.restore();
-            AM.registerAdapters.restore();
             GPT.addHooksIfPossible.restore();
             GPT.callJsLoadedIfRequired.restore();
             GPT.initSafeFrameListener.restore();
@@ -3052,7 +3047,6 @@ describe("CONTROLLER: GPT", function() {
             GPT.setWindowReference.called.should.be.true;
             GPT.defineWrapperTargetingKeys.called.should.be.true;
             GPT.defineGPTVariables.called.should.be.true;
-            AM.registerAdapters.called.should.be.true;
             GPT.addHooksIfPossible.called.should.be.true;
             GPT.callJsLoadedIfRequired.called.should.be.true;
             done();
@@ -3068,7 +3062,6 @@ describe("CONTROLLER: GPT", function() {
             GPT.setWindowReference.called.should.be.false;
             GPT.defineWrapperTargetingKeys.called.should.be.false;
             GPT.defineGPTVariables.called.should.be.false;
-            AM.registerAdapters.called.should.be.false;
             GPT.addHooksIfPossible.called.should.be.false;
             GPT.callJsLoadedIfRequired.called.should.be.false;
             done();
