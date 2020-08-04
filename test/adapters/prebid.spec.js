@@ -14,7 +14,7 @@ var SLOT = require("../../src_new/slot.js").Slot;
 var PREBID = require("../../src_new/adapters/prebid.js");
 
 var parentAdapterID = "prebid";
-var commonAdpterID = "pubmatic";
+var commonAdapterID = "pubmatic";
 var commonDivID = "DIV_1";
 var commonKGPV = "XYZ";
 var isSingleImpressionSettingEnabled = 0;
@@ -40,6 +40,54 @@ var isSingleImpressionSettingEnabled = 0;
 
 
 describe('ADAPTER: Prebid', function() {
+
+    /* start-test-block */
+    describe('#throttleAdapter', function() {
+        var adapterID = null;
+
+        beforeEach(function(done) {
+            adapterID = commonAdapterID;
+            sinon.stub(CONFIG, 'getAdapterThrottle');
+            CONFIG.getAdapterThrottle.returns(true);
+            done();
+        });
+
+        afterEach(function(done) {
+            CONFIG.getAdapterThrottle.restore();
+            adapterID = null;
+            done();
+        });
+
+
+        it('is a function', function(done) {
+            PREBID.throttleAdapter.should.be.a('function');
+            done();
+        });
+
+        it('should have called CONFIG.getAdapterThrottle', function(done) {
+            PREBID.throttleAdapter(90, adapterID);
+            CONFIG.getAdapterThrottle.calledOnce.should.be.true;
+            done();
+        });
+
+        it('should return true when passed randomNumber is less than passed adapter ids throttle value ', function(done) {
+            CONFIG.getAdapterThrottle.restore();
+            sinon.stub(CONFIG, 'getAdapterThrottle');
+            CONFIG.getAdapterThrottle.withArgs(adapterID).returns(90);
+            PREBID.throttleAdapter(80, adapterID).should.be.true;
+            done();
+        });
+
+
+        it('should return false when passed randomNumber is greater than passed adapter ids throttle value ', function(done) {
+            CONFIG.getAdapterThrottle.restore();
+            sinon.stub(CONFIG, 'getAdapterThrottle');
+            CONFIG.getAdapterThrottle.withArgs(adapterID).returns(90);
+            PREBID.throttleAdapter(99, adapterID).should.be.false;
+            done();
+        });
+    });
+    /* end-test-block */
 
     describe('#transformPBBidToOWBid', function () {
         var bid = null, kgpv = null, errorBid = null;
@@ -504,7 +552,7 @@ describe('ADAPTER: Prebid', function() {
             adapterConfig = {
                 "publisherId": 121
             };
-            adapterID = commonAdpterID;
+            adapterID = commonAdapterID;
             generatedKey = "generatedKey_1";
             impressionID = 123123123;
             adUnits = {};
@@ -838,7 +886,7 @@ describe('ADAPTER: Prebid', function() {
         var impressionID = null;
 
         beforeEach(function(done) {
-            adapterID = commonAdpterID;
+            adapterID = commonAdapterID;
             adapterConfig = {};
             activeSlots = [new SLOT("Slot_1"), new SLOT("Slot_2")];
             adUnits = "ad_unit_1";
