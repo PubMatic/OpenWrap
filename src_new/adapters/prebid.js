@@ -943,7 +943,7 @@ function pbjsBidsBackHandler(bidResponses, activeSlots) {
 	//			diff behaviour can be managed in respective controller code
 	//		making the callback related code changes will be good to manage respective code
 	if(isPrebidPubMaticAnalyticsEnabled){
-		window[pbNameSpace].setTargetingForGPTAsync(); // todo we do not want this for Custom conroller OR better do it only for GPT controller
+		window[pbNameSpace].setTargetingForGPTAsync(); // todo: we do not want this for Custom conroller OR better do it only for GPT controller
 	}
 	// we may not request bids for all slots from Prebid if we do not find mapping for a slot thus looping on activeSlots
 	function setPossibleBidRecieved(){
@@ -1046,7 +1046,8 @@ exports.fetchBids = fetchBids;
 /* end-test-block */
 
 // returns the highest bid and its key value pairs
-function getBid(divID){	
+function getBid(divID){
+	//todo: do we have exactly same key-names as of required in findWinningBidAndGenerateTargeting in custom.js?
 	return {
 		wb: window[pbNameSpace].getHighestCpmBids([divID]) || null, 
 		kvp: window[pbNameSpace].getAdserverTargetingForAdUnitCode([divID]) || null
