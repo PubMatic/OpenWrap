@@ -1059,8 +1059,8 @@ describe('ADAPTER: Prebid', function() {
             window.owpbjs = {
 
             };
-            sinon.stub(AM, "getRandomNumberBelow100").returns(89);
-            sinon.stub(AM, "throttleAdapter").returns(true);
+            sinon.stub(UTIL, "getRandomNumberBelow100").returns(89);
+            sinon.stub(PREBID, "throttleAdapter").returns(true);
             sinon.stub(AM, "setInitTimeForSlotsForAdapter").returns(true);
             windowPbJS2Stub = {
                 onEvent: function () {
@@ -1114,8 +1114,8 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.getAwc.restore();
             PREBID.generatePbConf.restore();
 
-            AM.getRandomNumberBelow100.restore();
-            AM.throttleAdapter.restore();
+            UTIL.getRandomNumberBelow100.restore();
+            PREBID.throttleAdapter.restore();
             AM.setInitTimeForSlotsForAdapter.restore();
 
             windowPbJS2Stub.onEvent.restore();
@@ -1189,7 +1189,7 @@ describe('ADAPTER: Prebid', function() {
 
         it('should have called generatePbConf if adapterID for current adapterConfig is not parentAdapterID', function(done) {
             UTIL.isFunction.returns(true);
-            AM.throttleAdapter.returns(false);
+            PREBID.throttleAdapter.returns(false);
             PREBID.fetchBids(activeSlots, impressionID);
             CONFIG.forEachAdapter.called.should.be.true;
             PREBID.generatePbConf.called.should.be.true;
@@ -1198,7 +1198,7 @@ describe('ADAPTER: Prebid', function() {
 
         it('should have logged when adapter is throttled', function(done) {
             UTIL.isFunction.returns(true);
-            AM.throttleAdapter.returns(true);
+            PREBID.throttleAdapter.returns(true);
             PREBID.fetchBids(activeSlots, impressionID);
             CONFIG.forEachAdapter.called.should.be.true;
             PREBID.generatePbConf.called.should.be.false;
@@ -1229,7 +1229,7 @@ describe('ADAPTER: Prebid', function() {
             var adapterID = "pubmatic";
             CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED] = '1';
             UTIL.isFunction.returns(true);
-            AM.throttleAdapter.returns(true);
+            PREBID.throttleAdapter.returns(true);
             PREBID.fetchBids(activeSlots, impressionID);
             CONFIG.forEachAdapter.called.should.be.true;
             PREBID.generatePbConf.called.should.be.true;
