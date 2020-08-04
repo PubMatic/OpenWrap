@@ -1,7 +1,6 @@
 var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.js");
-// todo: include bidManager only if required
 var bidManager = require("../bidManager.js");
 // var GDPR = require("../gdpr.js");
 var SLOT = require("../slot.js");
