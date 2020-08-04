@@ -37,7 +37,8 @@ exports.COMMON = {
 	"DEFAULT": "default",
 	"ADSERVER":"adserver",
 	"SCHAINOBJECT":"sChainObj",
-	"SCHAIN":"sChain"
+	"SCHAIN":"sChain",
+	"PBJS_NAMESPACE":"prebidObjName"
 };
 
 exports.CONFIG = {

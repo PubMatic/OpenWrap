@@ -433,18 +433,32 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 
 	/* istanbul ignore else */
+	var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
+	mediaTypeConfig = adUnitConfig.mediaTypeObject;
+	if(mediaTypeConfig.partnerConfig){
+		partnerConfig = mediaTypeConfig.partnerConfig;
+	}
 	if(!util.isOwnProperty(adUnits, code)){
-		var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
-		mediaTypeConfig = adUnitConfig.mediaTypeObject;
 		//TODO: Remove sizes from below as it will be deprecated soon in prebid
 		// Need to check pubmaticServerBidAdapter in our fork after this change.
 		adUnits[code] = {
 			code: code,
-			mediaTypes:mediaTypeConfig ,
+			mediaTypes:{} ,
 			sizes: sizes,
 			bids: [],
 			divID : divID
 		};
+		//Assigning it individually since mediaTypes doesn't take any extra param apart from these.
+		// And We are now also getting partnerConfig for different partners
+		if(mediaTypeConfig.banner){
+			adUnits[code].mediaTypes["banner"] = mediaTypeConfig.banner;
+		}
+		if(mediaTypeConfig.native){
+			adUnits[code].mediaTypes["native"] = mediaTypeConfig.native;
+		}
+		if(mediaTypeConfig.video){
+			adUnits[code].mediaTypes["video"] = mediaTypeConfig.video;
+		}
 		if(adUnitConfig.renderer){
 			adUnits[code]["renderer"]= adUnitConfig.renderer;
 		}
@@ -470,6 +484,7 @@ exports.generatedKeyCallback = generatedKeyCallback;
 function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits){
 	var slotParams = {};
 	var mediaTypeConfig = adUnits[code].mediaTypes;
+	var partnerConfig;
 	var sizes = adUnits[code].sizes;
 	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video") && adapterID != "telaria"){
 		slotParams["video"]= mediaTypeConfig.video;
@@ -482,6 +497,17 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 	if(isPrebidPubMaticAnalyticsEnabled){
 		slotParams["kgpv"] = generatedKey;
 		//todo do we also need to pass regexPattern ??
+	}
+
+	if(partnerConfig && Object.keys(partnerConfig).length>0){
+		util.forEachOnObject(partnerConfig, function(key, value){
+			if(key == adapterID) {
+				util.forEachOnObject(value, function(key, value){
+					/* istanbul ignore next */
+					slotParams[key] = value;
+				});
+			}
+		});
 	}
 
 	// Logic : If for slot config for partner video parameter is present then use that
@@ -1081,13 +1107,14 @@ function setConfig(){
 			};
 		}
 
-		// Adding a hook for publishers to modify the Prebid Config we have generated
-		// util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+		
 
 		if(CONFIG.isUserIdModuleEnabled()){
 			prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 		}
-
+		
+		// Adding a hook for publishers to modify the Prebid Config we have generated
+		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 		window[pbNameSpace].setConfig(prebidConfig);
 		window[pbNameSpace].requestBids([]);
 	}

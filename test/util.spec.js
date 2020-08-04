@@ -2717,6 +2717,120 @@ describe('UTIL', function() {
             expect(result).to.be.deep.equal(expectedResult);
             done();
         });
+
+
+        it('should return partnerConfig if present with the div',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_1");
+            slotConfiguration["config"]["DIV_1"].video = {
+                enabled:true,
+                config: {
+                    "someconfig" :"someconfigvalue"
+                },
+                partnerConfig : {
+                    "pubmatic": {
+                        "outstreamAU" :"pubmatictest"
+                    }
+                }
+            };
+            var expectedResult = {
+                "pubmatic":{
+                    "outstreamAU" :"pubmatictest"
+                }
+            };
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig;
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return partnerConfig if not present with the div',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig
+            expect(result).to.be.undefined
+            done();
+        });
+
+        it('should return partnerConfig if present in default',function(done){
+            CONFIG.getSlotConfiguration.restore();
+            slotConfiguration ={
+                configPattern:"_DIV_", // Or it Could be _AU_
+                config:{
+                }
+            }
+            slotConfiguration.config["default"] ={
+                video:{
+                    enabled:true,
+                    config:{
+                        "someconfig" :"someconfigvalue"
+                    },
+                    partnerConfig : {
+                        "pubmatic":{
+                            "outstreamAU" :"pubmatictest"
+                        }
+                    }
+                },
+                native:{
+                    enabled:false
+                },
+                banner:{
+                    enabled:true
+                }
+            };
+            sinon.stub(CONFIG,"getSlotConfiguration").returns(slotConfiguration);
+            var expectedResult = {
+                "pubmatic":{
+                    "outstreamAU" :"pubmatictest"
+                }
+            }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig;
+            console.log('Result for the partnerConfig is ' , JSON.stringify(result));
+
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return partnerConfig if not present in default and div',function(done){
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig;
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.undefined;
+            done();
+        });
+
+        it('should return div partnerConfig if present in default and div',function(done){
+            slotConfiguration.config["default"] = {};
+            slotConfiguration.config["default"].video = {
+                enabled:true,
+                config:{
+                    "someconfig" :"defaultsomeconfigvalue"
+                },
+                partnerConfig : {
+                    "pubmatic":{
+                        "outstreamAU" :"defaultpubmatictest"
+                    }
+                }
+            };
+             slotConfiguration.config["DIV_1"].video = {
+                enabled:true,
+                config:{
+                    "someconfig" :"someconfigvalue"
+                },
+                partnerConfig : {
+                    "pubmatic":{
+                        "outstreamAU" :"pubmatictest"
+                    }
+                }
+            };
+            var expectedResult = {
+                "pubmatic":{
+                    "outstreamAU" :"pubmatictest"
+                }
+             }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
     });
 
     describe('#getAdFormatFromBidAd', function(){
