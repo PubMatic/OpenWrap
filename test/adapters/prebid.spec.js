@@ -1142,7 +1142,7 @@ describe('ADAPTER: Prebid', function() {
 
         if('should return if owpbjs namespace is not defined',function(done){
             delete window.owpbjs;
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             UTIL.logError.calledWith("PreBid js is not loaded").should.be.true;
             done();
         })
@@ -1150,7 +1150,7 @@ describe('ADAPTER: Prebid', function() {
         // TODO: Need to fix this testcase somehow
         it('returns while logging it when Prebid js is not loaded', function(done) {
             // sinon.stub(global.window || window, "pwtCreatePrebidNamespace").withArgs("owpbjs").returns(true);
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             // UTIL.log.calledWith("PreBid js is not loaded").should.be.true;
             CONFIG.forEachAdapter.called.should.be.false;
             done();
@@ -1158,13 +1158,13 @@ describe('ADAPTER: Prebid', function() {
 
         it('returns while logging when newly created namespace doenst have onEvent method', function (done) {
             UTIL.isFunction.returns(false);
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             UTIL.logWarning.calledWith("PreBid js onEvent method is not available").should.be.true;
             done();
         });
 
         it('should have called setConfig method', function (done) {
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             window.owpbjs = window.owpbjs || {};
             window.owpbjs.cmd = window.owpbjs.cmd || [];
             window.owpbjs.que = window.owpbjs.que || [];
@@ -1182,7 +1182,7 @@ describe('ADAPTER: Prebid', function() {
 
         it('should have called onEvent with bidResponse and prebid bid handler', function (done) {
             UTIL.isFunction.returns(true);
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             windowPbJS2Stub.onEvent.calledWith('bidResponse', PREBID.pbBidStreamHandler).should.be.true;
             done();
         });
@@ -1190,7 +1190,7 @@ describe('ADAPTER: Prebid', function() {
         it('should have called generatePbConf if adapterID for current adapterConfig is not parentAdapterID', function(done) {
             UTIL.isFunction.returns(true);
             PREBID.throttleAdapter.returns(false);
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             CONFIG.forEachAdapter.called.should.be.true;
             PREBID.generatePbConf.called.should.be.true;
             done();
@@ -1199,7 +1199,7 @@ describe('ADAPTER: Prebid', function() {
         it('should have logged when adapter is throttled', function(done) {
             UTIL.isFunction.returns(true);
             PREBID.throttleAdapter.returns(true);
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             CONFIG.forEachAdapter.called.should.be.true;
             PREBID.generatePbConf.called.should.be.false;
             UTIL.log.calledWith("pubmatic" + CONSTANTS.MESSAGES.M2).should.be.true;
@@ -1210,7 +1210,7 @@ describe('ADAPTER: Prebid', function() {
             UTIL.isFunction.returns(true);
             UTIL.isDebugLogEnabled.returns(false);
             window["owpbjs"].logging = false;
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             window["owpbjs"].logging.should.be.false;
             done();
         });
@@ -1220,7 +1220,7 @@ describe('ADAPTER: Prebid', function() {
             UTIL.isDebugLogEnabled.returns(true);
             window["owpbjs"].logging = false;
             window["owpbjs"].requestBids = function(){};
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             window["owpbjs"].logging.should.be.true;
             done();
         });
@@ -1230,7 +1230,7 @@ describe('ADAPTER: Prebid', function() {
             CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED] = '1';
             UTIL.isFunction.returns(true);
             PREBID.throttleAdapter.returns(true);
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             CONFIG.forEachAdapter.called.should.be.true;
             PREBID.generatePbConf.called.should.be.true;
             delete CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
@@ -1246,7 +1246,7 @@ describe('ADAPTER: Prebid', function() {
                     singleRequest:true
                 }
             }
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             window["owpbjs"].setConfig(expectedResult).should.be.called;
             var prebidConfig = window["owpbjs"].getConfig();
             expectedResult.should.be.equal(prebidConfig);
@@ -1255,7 +1255,7 @@ describe('ADAPTER: Prebid', function() {
 
         it('should not have set config for single request parnter if it is not present for bidding',function(done){
             var expectedResult = {};
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             window["owpbjs"].setConfig(expectedResult).should.be.called;
             var prebidConfig = window["owpbjs"].getConfig();
             expectedResult.should.be.equal(prebidConfig);

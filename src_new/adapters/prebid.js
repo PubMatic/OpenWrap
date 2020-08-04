@@ -984,19 +984,19 @@ function fetchBids(activeSlots){
 	//		if possible try to use the callback for all cases
 	//  TRY not make many changes in GPT controller
 
+	/* istanbul ignore else */
+	if(! window[pbNameSpace]){ // todo: move this code owt.js
+		util.logError("PreBid js is not loaded");
+		return;
+	}
+
 	// calling some bid-manager functions to reset, and set new sizes
 	// todo: can be moved to a function
 	util.forEachOnArray(activeSlots, function(key, slot){
         var divID = slot.getDivID();
         bidManager.resetBid(divID, impressionID);
         bidManager.setSizes(divID, util.generateSlotNamesFromPattern(slot, "_W_x_H_"));
-    });
-
-	/* istanbul ignore else */
-	if(! window[pbNameSpace]){ // todo: move this code owt.js
-		util.logError("PreBid js is not loaded");
-		return;
-	}
+    });	
 
 	// todo: this is the function that basically puts bidder params in all adUnits, expose it separately
 	var adUnitsArray = refThis.generateAdUnitsArray(activeSlots, impressionID);	
