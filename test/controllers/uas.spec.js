@@ -5,10 +5,10 @@ var expect = require("chai").expect;
 
 var UAS = require("../../src_new/controllers/uas.js");
 var UTIL = require("../../src_new/util.js");
-var AM = require("../../src_new/adapterManager.js");
 var CONSTANTS = require("../../src_new/constants.js");
 var CONFIG = require("../../src_new/config.js");
 var SLOT = require("../../src_new/slot.js");
+var PREBID = require("../../src_new/adapters/prebid.js");
 
 var commonDivID = "DIV_1";
 
@@ -843,8 +843,7 @@ describe("CONTROLLER: UAS", function() {
             sinon.stub(UAS, "arrayOfSelectedSlots");
             UAS.arrayOfSelectedSlots.returns(qualifyingSlots);
 
-            sinon.stub(AM, "callAdapters");
-            AM.callAdapters.returns(true);
+            sinon.stub(PREBID, 'fetchBids', function(){});
 
             done();
         });
@@ -852,8 +851,7 @@ describe("CONTROLLER: UAS", function() {
         afterEach(function(done) {
             UAS.updateStatusOfQualifyingSlotsBeforeCallingAdapters.restore();
             UAS.arrayOfSelectedSlots.restore();
-            AM.callAdapters.restore();
-
+            PREBID.fetchBids.restore();
             qualifyingSlotNames = null;
             qualifyingSlots = null;
 
@@ -872,7 +870,6 @@ describe("CONTROLLER: UAS", function() {
             UAS.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall);
             UAS.updateStatusOfQualifyingSlotsBeforeCallingAdapters.calledWith(qualifyingSlotNames, arg, isRefreshCall).should.be.true;
             UAS.arrayOfSelectedSlots.calledWith(qualifyingSlotNames).should.be.true;
-            AM.callAdapters.calledWith(qualifyingSlots).should.be.true;
             done();
         });
 
@@ -881,7 +878,6 @@ describe("CONTROLLER: UAS", function() {
             UAS.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshCall);
             UAS.updateStatusOfQualifyingSlotsBeforeCallingAdapters.called.should.be.false;
             UAS.arrayOfSelectedSlots.called.should.be.false;
-            AM.callAdapters.called.should.be.false;
             done();
         });
     });
@@ -901,18 +897,18 @@ describe("CONTROLLER: UAS", function() {
         beforeEach(function(done) {
             sinon.spy(UTIL, "isObject");
             sinon.spy(UAS, "setWindowReference");
-            sinon.spy(AM, "registerAdapters");
             sinon.spy(UAS, "initPhoenixScript");
             sinon.spy(UAS, "callJsLoadedIfRequired");
+            sinon.stub(PREBID, 'fetchBids', function(){});
             done();
         });
 
         afterEach(function(done) {
             UTIL.isObject.restore();
             UAS.setWindowReference.restore();
-            AM.registerAdapters.restore();
             UAS.initPhoenixScript.restore();
             UAS.callJsLoadedIfRequired.restore();
+            PREBID.fetchBids.restore();
             done();
         });
 
@@ -932,7 +928,6 @@ describe("CONTROLLER: UAS", function() {
             UTIL.isObject.returned(true).should.to.be.true;
 
             UAS.setWindowReference.called.should.be.true;
-            AM.registerAdapters.called.should.be.true;
             UAS.initPhoenixScript.called.should.be.true;
             UAS.callJsLoadedIfRequired.called.should.be.true;
             done();
@@ -946,7 +941,6 @@ describe("CONTROLLER: UAS", function() {
 
             UTIL.isObject.calledWith("NonObject").should.be.true;
             UAS.setWindowReference.called.should.be.false;
-            AM.registerAdapters.called.should.be.false;
             UAS.initPhoenixScript.called.should.be.false;
             UAS.callJsLoadedIfRequired.called.should.be.false;
             done();
