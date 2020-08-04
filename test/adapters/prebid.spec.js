@@ -1054,6 +1054,9 @@ describe('ADAPTER: Prebid', function() {
             sinon.spy(CONFIG, 'getCCPATimeout');
             sinon.stub(CONFIG, 'getCCPA').returns(true);
 
+            sinon.stub(BM, 'resetBid', function(){});
+            sinon.stub(BM, 'setSizes', function(){});
+
             sinon.stub(PREBID, 'generatePbConf');
             PREBID.generatePbConf.returns(true);
             window.owpbjs = {
@@ -1111,6 +1114,9 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.getCCPA.restore();
             CONFIG.getCCPATimeout.restore();
 
+            BM.resetBid.restore();
+            BM.setSizes.restore();
+
             CONFIG.getAwc.restore();
             PREBID.generatePbConf.restore();
 
@@ -1147,8 +1153,8 @@ describe('ADAPTER: Prebid', function() {
             done();
         })
 
-        // TODO: Need to fix this testcase somehow
-        it('returns while logging it when Prebid js is not loaded', function(done) {
+        // TODO: we need to remove unused test cases; as respective code is moved out of this function
+        xit('returns while logging it when Prebid js is not loaded', function(done) {
             // sinon.stub(global.window || window, "pwtCreatePrebidNamespace").withArgs("owpbjs").returns(true);
             PREBID.fetchBids(activeSlots);
             // UTIL.log.calledWith("PreBid js is not loaded").should.be.true;
@@ -1156,7 +1162,8 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('returns while logging when newly created namespace doenst have onEvent method', function (done) {
+        // TODO: we need to remove unused test cases; as respective code is moved out of this function
+        xit('returns while logging when newly created namespace doenst have onEvent method', function (done) {
             UTIL.isFunction.returns(false);
             PREBID.fetchBids(activeSlots);
             UTIL.logWarning.calledWith("PreBid js onEvent method is not available").should.be.true;
@@ -1180,14 +1187,16 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should have called onEvent with bidResponse and prebid bid handler', function (done) {
+        // TODO: we need to remove unused test cases; as respective code is moved out of this function
+        xit('should have called onEvent with bidResponse and prebid bid handler', function (done) {
             UTIL.isFunction.returns(true);
             PREBID.fetchBids(activeSlots);
             windowPbJS2Stub.onEvent.calledWith('bidResponse', PREBID.pbBidStreamHandler).should.be.true;
             done();
         });
 
-        it('should have called generatePbConf if adapterID for current adapterConfig is not parentAdapterID', function(done) {
+        // TODO: we need to remove unused test cases; as respective code is moved out of this function
+        xit('should have called generatePbConf if adapterID for current adapterConfig is not parentAdapterID', function(done) {
             UTIL.isFunction.returns(true);
             PREBID.throttleAdapter.returns(false);
             PREBID.fetchBids(activeSlots);
@@ -1215,7 +1224,8 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('prebid logging is enabled when ', function(done) {
+        // not needed as we have moved test-config in pbjsconfig
+        xit('prebid logging is enabled when ', function(done) {
             UTIL.isFunction.returns(true);
             UTIL.isDebugLogEnabled.returns(true);
             window["owpbjs"].logging = false;
@@ -1225,7 +1235,8 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('for serverSideEnabled, should have called generatePbConf even if adapterID is to be throttled', function(done) {
+        // TODO: we need to remove unused test cases; as respective code is moved out of this function
+        xit('for serverSideEnabled, should have called generatePbConf even if adapterID is to be throttled', function(done) {
             var adapterID = "pubmatic";
             CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED] = '1';
             UTIL.isFunction.returns(true);
