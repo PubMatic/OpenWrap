@@ -967,10 +967,7 @@ function pbjsBidsBackHandler(bidResponses, activeSlots) {
 	//TODO: this blockk is used only for analytics enabled thus it should be covered in callback function?
 	//		callback function behaviour will be different for different controllers?
 	//			diff behaviour can be managed in respective controller code
-	//		making the callback related code changes will be good to manage respective code
-	if(isPrebidPubMaticAnalyticsEnabled){
-		window[pbNameSpace].setTargetingForGPTAsync(); // todo: we do not want this for Custom conroller OR better do it only for GPT controller
-	}
+	//		making the callback related code changes will be good to manage respective code	
 	// we may not request bids for all slots from Prebid if we do not find mapping for a slot thus looping on activeSlots
 	function setPossibleBidRecieved(){
 		util.forEachOnArray(activeSlots, function(i, activeSlot){
