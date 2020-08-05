@@ -1416,10 +1416,10 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	else{
 		adapterId = theBid.bidderCode
 	}
-	// TODO: Uncomment below code in case hybrid profile is supported 
-	// if(adapterId == "pubmaticServer"){
-	// 	adapterId = "pubmatic";
-	// }
+	//Uncomment below code in case hybrid profile is supported 
+	if(adapterId == "pubmaticServer"){
+		adapterId = "pubmatic";
+	}
 	// Do we need all checks or we can just use one check
 	if(refThis.isFunction(theBid.getNetEcpm)) {
 		netEcpm = theBid.getNetEcpm(isAnalytics)
