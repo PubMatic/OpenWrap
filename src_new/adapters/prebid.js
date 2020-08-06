@@ -1070,16 +1070,9 @@ exports.fetchBids = fetchBids;
 
 // returns the highest bid and its key value pairs
 function getBid(divID){
-	var wb = window[pbNameSpace].getHighestCpmBids([divID])[0] || null;
-	if(wb){
-		wb.adHtml = wb.ad;
-		wb.adapterID = wb.bidder;
-		wb.netEcpm = wb.cpm;
-		wb.grossEcpm = wb.originalCpm;
-	}
-
+	//todo: do we have exactly same key-names as of required in findWinningBidAndGenerateTargeting in custom.js?
 	return {
-		wb: wb,
+		wb: window[pbNameSpace].getHighestCpmBids([divID]) || null, 
 		kvp: window[pbNameSpace].getAdserverTargetingForAdUnitCode([divID]) || null
 	};
 }
