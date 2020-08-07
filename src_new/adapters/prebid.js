@@ -547,8 +547,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		case "pubmatic":
 		case "pubmatic2":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
-			slotParams["adSlot"] = "pubmatic_test2@300x250"; //todo: remove this
-			// slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
+			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
 			slotParams["wiid"] = impressionID;
 			// slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID(); // todo: uncomment it
 			/* istanbul ignore else*/
