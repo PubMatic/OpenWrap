@@ -815,13 +815,14 @@ function setConfig(){
 			};
 		}
 
-		// Adding a hook for publishers to modify the Prebid Config we have generated
-		// util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+		
 
 		if(CONFIG.isUserIdModuleEnabled()){
 			prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 		}
-
+		
+		// Adding a hook for publishers to modify the Prebid Config we have generated
+		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 		window[pbNameSpace].setConfig(prebidConfig);
 		window[pbNameSpace].requestBids([]);
 	}
