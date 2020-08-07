@@ -230,7 +230,8 @@ exports.isSchainEnabled = function(){
 };
 
 exports.isPrebidPubMaticAnalyticsEnabled = function(){
-	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_PM_ANALYTICS]) === 1;
+	// note: not using window.parseInt as this function is also used in build.sh that runs in NodeJS environment
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_PM_ANALYTICS]) === 1;
 };
 
 exports.isUsePrebidKeysEnabled = function(){
