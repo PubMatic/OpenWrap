@@ -926,8 +926,8 @@ describe('ADAPTER: Prebid', function() {
         it('should have called UTIL.forEachGeneratedKey with proper input', function(done) {
             adapterConfig = {};
             adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] = "value_1",
-                adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = "value_2",
-                PREBID.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+            adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = "value_2",
+            PREBID.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
             UTIL.log.calledWith(adapterID + CONSTANTS.MESSAGES.M1);
             UTIL.forEachGeneratedKey.called.should.be.true;
             UTIL.forEachGeneratedKey.calledWith(adapterID,
