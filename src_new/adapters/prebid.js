@@ -549,7 +549,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["publisherId"] = adapterConfig["publisherId"];
 			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
 			slotParams["wiid"] = impressionID;
-			// slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID(); // todo: uncomment it
+			slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
 			if(adapterID != "pubmatic2" && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
@@ -637,7 +637,8 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 		impressionID,
 		[],
 		activeSlots,
-		(isPrebidPubMaticAnalyticsEnabled ? refThis.generatedKeyCallbackForPbAnalytics : refThis.generatedKeyCallback),
+		isPrebidPubMaticAnalyticsEnabled ? refThis.generatedKeyCallbackForPbAnalytics : refThis.generatedKeyCallback,
+		// refThis.generatedKeyCallback,
 		// serverSideEabled: do not set default bids as we do not want to throttle them at client-side
 		true // !CONFIG.isServerSideAdapter(adapterID)
 	);
