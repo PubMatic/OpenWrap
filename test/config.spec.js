@@ -522,7 +522,7 @@ describe('Config', function() {
         });
 
         it('should copy account level params in case of regex',function(done){
-            var expectedConfig = {zoneId: '869224', siteId: '178620', floor: '0', accountId: '10998', timeout: '1000', amp: 0, video: 0, "in-app": 0};
+            var expectedConfig = {zoneId: '869224', siteId: '178620', floor: '0', accountId: '10998', timeout: '1000', amp: 0, "in-app": 0};
             CONFIG.initConfig();
             expect(CONF.adapters["rubicon"].klm_rx[0].rx_config).to.be.deep.equal(expectedConfig);
             done();
@@ -1003,5 +1003,92 @@ describe('Config', function() {
             CONFIG.getCCPATimeout().should.be.equal(CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT);
 	done();
         });
-});
+    });
+
+    describe('#getSchainObject',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAINOBJECT] = {
+                "validation": "strict",
+                "config": {
+                    "ver": "1.0",
+                    "complete": 1,
+                    "nodes": [{
+                        "asi": "indirectseller.com",
+                        "sid": "00001",
+                        "hp": 1
+                    }]
+                }
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAINOBJECT];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getSchainObject.should.be.a('function');
+            done();
+        });
+
+        it('should return confing if present', function(done) {
+            var expectedResult = {
+                "validation": "strict",
+                "config": {
+                    "ver": "1.0",
+                    "complete": 1,
+                    "nodes": [{
+                        "asi": "indirectseller.com",
+                        "sid": "00001",
+                        "hp": 1
+                    }]
+                }
+            };
+            CONFIG.getSchainObject().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return empty object if config is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAINOBJECT];
+            CONFIG.getSchainObject().should.be.deep.equal({});
+            done();
+        });
+    });
+
+    describe('#isSchainEnabled',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.isSchainEnabled.should.be.a('function');
+            done();
+        });
+
+        it('should return 1 by reading from config', function(done) {
+            var expectedResult = 1;
+            CONFIG.isSchainEnabled().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return 0 if isSchainExnabled is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN];
+            expect(CONFIG.isSchainEnabled()).to.equal(0);
+            done();
+        });
+
+        it('should return 0 if isSchainEnabled set to "0"', function(done) {
+            var expectedResult = 0;
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN] = "0";
+            CONFIG.isSchainEnabled().should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
 });

@@ -348,6 +348,9 @@ describe('ADAPTER: Prebid', function() {
                 },
                 setAnalyticsCpm: function(){
                     return 5;
+                },
+                setPbBid:function(){
+                    return "thebid";
                 }
             };
             sinon.stub(UTIL, "isOwnProperty").returns(true);
@@ -366,6 +369,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.spy(theBid, "setAdUrl");
             sinon.spy(theBid, "setServerSideResponseTime");
             sinon.spy(theBid, "setOriginalCpm");
+            sinon.spy(theBid, "setPbBid");
 
             sinon.stub(BM, "setBidFromBidder").returns(true);
 
@@ -397,6 +401,7 @@ describe('ADAPTER: Prebid', function() {
             theBid.setServerSideResponseTime.restore();
 
             theBid.setAdUrl.restore();
+            theBid.setPbBid.restore();
 
             BM.setBidFromBidder.restore();
             BID.createBid.restore();

@@ -31,6 +31,12 @@ function Bid(adapterID, kgpv){
 	this.native = undefined;
 	this.adFormat = undefined;
 	this.regexPattern = undefined;
+	this.cacheUUID = undefined;
+	this.sspID = "";
+	this.vastUrl = undefined;
+	this.vastCache = undefined;
+	this.renderer = undefined;
+	this.pbBid = undefined;
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -320,6 +326,96 @@ Bid.prototype.getRegexPattern = function(){
 
 Bid.prototype.setRegexPattern = function(pattern){
 	this.regexPattern = pattern;
+	return this;
+};
+
+Bid.prototype.getcacheUUID = function(){
+	return this.cacheUUID;
+};
+
+Bid.prototype.setcacheUUID = function(cacheUUID){
+	this.cacheUUID = cacheUUID;
+	if(!this.adFormat){
+		this.adFormat = CONSTANTS.FORMAT_VALUES.VIDEO;
+	}
+	return this;
+};
+
+Bid.prototype.getsspID = function(){
+	return this.sspID;
+};
+
+Bid.prototype.setsspID = function(sspID){
+	this.sspID = sspID;
+	return this;
+};
+
+Bid.prototype.setRenderer = function(renderer){
+	if(!UTIL.isEmptyObject(renderer)){
+		this.renderer = renderer;
+	}
+	return this;
+};
+
+Bid.prototype.getRenderer = function(){
+	return this.renderer;
+};
+
+Bid.prototype.setVastCache = function(vastCache){
+	if(UTIL.isString(vastCache)){
+		this.vastCache = vastCache;
+	}
+	return this;
+};
+
+Bid.prototype.getVastCache = function(){
+	return this.vastCache;
+};
+
+Bid.prototype.setVastUrl = function(vastUrl){
+	if(UTIL.isString(vastUrl)){
+		this.vastUrl = vastUrl;
+	}
+	return this;
+};
+
+Bid.prototype.getVastUrl= function(){
+	return this.vastUrl;
+};
+
+Bid.prototype.setVastXml = function(xml){
+	if(UTIL.isString(xml)){
+		this.vastXml = xml;
+	}
+	return this;
+};
+
+Bid.prototype.getVastXml= function(){
+	return this.vastXml;
+};
+
+Bid.prototype.setPbBid = function(pbbid){
+	this.pbbid = pbbid;
+	return this;
+};
+
+Bid.prototype.getPbBid= function(){
+	return this.pbbid;
+};
+
+// This function is used to update the bid in case of video bid
+// this should only be called if bid is video so that there is no discrepancy in tracker and logger for bid Id
+Bid.prototype.updateBidId = function(slotID){
+	if(window.PWT.bidMap[slotID] && window.PWT.bidMap[slotID].adapters && Object.keys(window.PWT.bidMap[slotID].adapters).length>0){
+		var bidId = window.PWT.bidMap[slotID].adapters[this.adapterID].bids[Object.keys(window.PWT.bidMap[slotID].adapters[this.adapterID].bids)[0]].bidID;
+		if(bidId && this.adFormat == CONSTANTS.FORMAT_VALUES.VIDEO){
+			this.bidID = bidId;
+		}
+	}
+	else {
+		UTIL.logWarning("Error in Updating BidId. It might be possible singleImpressionEnabled is false");
+		console.warn("Setup for video might not be correct. Try setting up Optimize MultiSize AdSlot to true."); // eslint-disable-line no-console
+	}
 	return this;
 };
 

@@ -832,6 +832,9 @@ describe('UTIL', function() {
                 height: 210,
                 getAdapterID:function(){
                     return '';
+                },
+                pbbid:{
+                    mediaType:"banner"
                 }
             };
             sinon.stub(UTIL, "resizeWindow")
@@ -2328,53 +2331,80 @@ describe('UTIL', function() {
         });
     });
 
-    describe('#getMediaTypeObject', function() {
-        var nativeConfiguration, sizes, currentSlot;
-
+    describe('#getAdUnitConfig', function() {
+        var slotConfiguration, sizes, currentSlot;
+        
         beforeEach(function(done) {
-            nativeConfiguration =  {
-                kgp:"_DIV_", // Or it Could be _AU_
-                klm:{
+            sinon.spy(UTIL, "isOwnProperty");
+            slotConfiguration ={
+                configPattern:"_DIV_", // Or it Could be _AU_
+                config:{
                     "DIV_1":{
-                        "nativeOnly": false,
-                        config: {
-                            image: {
-                                required: true,
-                                sizes: [150, 50]
-                            },
-                            title: {
-                                required: true,
-                                len: 80
-                            },
-                            sponsoredBy: {
-                                required: true
-                            },
-                            body: {
-                                required: true
+                        banner:{
+                            enabled:true
+                        },
+                        native:{
+                            enabled: true,
+                            config: {
+                                image: {
+                                    required: true,
+                                    sizes: [150, 50]
+                                },
+                                title: {
+                                    required: true,
+                                    len: 80
+                                },
+                                sponsoredBy: {
+                                    required: true
+                                },
+                                body: {
+                                    required: true
+                                }
                             }
                         }
                     },
                     "DIV_2":{
-                        "nativeOnly": true,
-                        config: {
-                            image: {
-                                required: true,
-                                sizes: [150, 50]
-                            },
-                            title: {
-                                required: true,
-                                len: 80
-                            },
-                            sponsoredBy: {
-                                required: true
-                            },
-                            body: {
-                                required: true
+                        "banner":{
+                            enabled:true
+                        },
+                        "native":{
+                            enabled: true,
+                            config: {
+                                image: {
+                                    required: true,
+                                    sizes: [150, 50]
+                                },
+                                title: {
+                                    required: true,
+                                    len: 80
+                                },
+                                sponsoredBy: {
+                                    required: true
+                                },
+                                body: {
+                                    required: true
+                                }
+                            }
+                        },
+                        "video": {
+                            "enabled": true,
+                            "config": {
+                                "context":"instream",
+                                "connectiontype": [1, 2, 6],
+                                "minduration": 10,
+                                "maxduration": 50,
+                                "battr": [
+                                    6,
+                                    7
+                                ],
+                                "skip": 1,
+                                "skipmin": 10,
+                                "skipafter": 15
                             }
                         }
                     }
-                }
-            };
+            }};
+            sinon.stub(CONFIG,"getSlotConfiguration").returns(slotConfiguration);
             sizes = [[300,250]];
             currentSlot = { 
                 getSizes: function(){
@@ -2398,18 +2428,20 @@ describe('UTIL', function() {
         });
 
         afterEach(function(done) {
-            nativeConfiguration = null;
+            slotConfiguration = null;
             sizes = null;
             commonDivID = "DIV_1";
             currentSlot.getDivID.restore();
             currentSlot.getSizes.restore();
             currentSlot.getAdUnitID.restore();
             currentSlot.getAdUnitIndex.restore();
+            CONFIG.getSlotConfiguration.restore();
+            UTIL.isOwnProperty.restore();
             done();
         });
 
         it('is a function', function(done) {
-            UTIL.getMediaTypeObject.should.be.a('function');
+            UTIL.getAdUnitConfig.should.be.a('function');
             done();
         });
 
@@ -2435,13 +2467,14 @@ describe('UTIL', function() {
                     sizes: sizes
                 }
             }
-            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
-            result.should.deep.equal(expectedResult);
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
             done();
         });
         
-        it('should return mediaTypeObject with Native only if for that kgpv nativeOnly flag is set',function(done){
-            nativeConfiguration.klm["DIV_1"].nativeOnly = true;
+        it('should return mediaTypeObject with Native only if for that kgpv banner is disabled',function(done){
+            slotConfiguration["config"]["DIV_1"].banner.enabled= false;
             var expectedResult =  { 
                 native: {
                     image: {
@@ -2460,7 +2493,7 @@ describe('UTIL', function() {
                     }
                 }
             }
-            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -2472,20 +2505,313 @@ describe('UTIL', function() {
                 }
             };
             commonDivID = "DIV_3";
-            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject
             result.should.deep.equal(expectedResult);
             done();
         });
 
         it('should return only banner if no configuration found for native', function(done){
-            nativeConfiguration = undefined;
+            delete slotConfiguration["config"]["DIV_1"].native;
             var expectedResult =  { 
                 banner: {
                     sizes: sizes
                 }
             };
-            var result = UTIL.getMediaTypeObject(nativeConfiguration, sizes, currentSlot)
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject
             result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return only video if both banner and native is disabled for slot',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            slotConfiguration["config"]["DIV_2"].banner.enabled= false;
+            slotConfiguration["config"]["DIV_2"].native.enabled= false;
+            var expectedResult =  {"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15}};
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return video, banner and native if all are enabled ',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            var expectedResult = {"native":{"image":{"required":true,"sizes":[150,50]},"title":{"required":true,"len":80},"sponsoredBy":{"required":true},"body":{"required":true}},"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15},"banner":{"sizes":[[300,250]]}};
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return only banner if video and native are disbaled in default ',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            slotConfiguration.config["default"] ={
+                video:{
+                    enabled:false
+                },
+                native:{
+                    enabled:false
+                },
+                banner:{
+                    enabled:true
+                }
+            };
+            var expectedResult = {"banner":{"sizes":[[300,250]]}};
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return only native if banner and video are disbaled in default ',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            slotConfiguration.config["default"] ={
+                video:{
+                    enabled:false
+                },
+                native:{
+                    enabled:true
+                },
+                banner:{
+                    enabled:false
+                }
+            };
+            var expectedResult = {"native":{"image":{"required":true,"sizes":[150,50]},"title":{"required":true,"len":80},"sponsoredBy":{"required":true},"body":{"required":true}}};
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
+            result.should.deep.equal(expectedResult);
+            done();
+        });             
+
+        it('should return only video if banner and native are disbaled in default ',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            slotConfiguration.config["default"] ={
+                video:{
+                    enabled:true
+                },
+                native:{
+                    enabled:false
+                },
+                banner:{
+                    enabled:false
+                }
+            };
+            var expectedResult = {"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15}};
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return empty object if video, banner and native are disbaled in default ',function(done){
+            slotConfiguration.config["default"] ={
+                video:{
+                    enabled:false
+                },
+                native:{
+                    enabled:false
+                },
+                banner:{
+                    enabled:false
+                }
+            };
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
+            result.should.deep.equal({});
+            done();
+        });
+
+        it('should return video object from default if config not found for specific slot and default is on ',function(done){
+            slotConfiguration.config["default"] ={
+                video:{
+                    enabled:false,
+                    config:{
+                        "mimes":["mp4"]
+                    }
+                },
+                native:{
+                    enabled:false
+                },
+                banner:{
+                    enabled:false
+                }
+            };
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
+            result.should.deep.equal({});
+            done();
+        });
+
+        it('should return renderer if present with the div',function(done){
+            slotConfiguration.config["DIV_1"].renderer = {
+                "url" :"someUrl"
+            }
+            var expectedResult = {
+                "url" :"someUrl"
+            }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return renderer if not present with the div',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.undefined
+            done();
+        });
+
+        it('should return renderer if present in default',function(done){
+            slotConfiguration.config["default"] = {
+                renderer : {
+                    "url" :"someUrl"
+                }
+            }
+            var expectedResult = {
+                "url" :"someUrl"
+            }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return renderer if not present in default and div',function(done){
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.undefined;
+            done();
+        });
+
+        it('should return div renderer if present in default and div',function(done){
+            slotConfiguration.config["DIV_1"].renderer = {
+                "url" :"divurl"
+            }
+            slotConfiguration.config["default"] = {
+                renderer : {
+                    "url" :"defaulturl"
+                }
+            }
+            var expectedResult = {
+                "url" :"divurl"
+            }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).renderer
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+
+        it('should return partnerConfig if present with the div',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_1");
+            slotConfiguration["config"]["DIV_1"].video = {
+                enabled:true,
+                config: {
+                    "someconfig" :"someconfigvalue"
+                },
+                partnerConfig : {
+                    "pubmatic": {
+                        "outstreamAU" :"pubmatictest"
+                    }
+                }
+            };
+            var expectedResult = {
+                "pubmatic":{
+                    "outstreamAU" :"pubmatictest"
+                }
+            };
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig;
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return partnerConfig if not present with the div',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig
+            expect(result).to.be.undefined
+            done();
+        });
+
+        it('should return partnerConfig if present in default',function(done){
+            CONFIG.getSlotConfiguration.restore();
+            slotConfiguration ={
+                configPattern:"_DIV_", // Or it Could be _AU_
+                config:{
+                }
+            }
+            slotConfiguration.config["default"] ={
+                video:{
+                    enabled:true,
+                    config:{
+                        "someconfig" :"someconfigvalue"
+                    },
+                    partnerConfig : {
+                        "pubmatic":{
+                            "outstreamAU" :"pubmatictest"
+                        }
+                    }
+                },
+                native:{
+                    enabled:false
+                },
+                banner:{
+                    enabled:true
+                }
+            };
+            sinon.stub(CONFIG,"getSlotConfiguration").returns(slotConfiguration);
+            var expectedResult = {
+                "pubmatic":{
+                    "outstreamAU" :"pubmatictest"
+                }
+            }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig;
+            console.log('Result for the partnerConfig is ' , JSON.stringify(result));
+
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return partnerConfig if not present in default and div',function(done){
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig;
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.undefined;
+            done();
+        });
+
+        it('should return div partnerConfig if present in default and div',function(done){
+            slotConfiguration.config["default"] = {};
+            slotConfiguration.config["default"].video = {
+                enabled:true,
+                config:{
+                    "someconfig" :"defaultsomeconfigvalue"
+                },
+                partnerConfig : {
+                    "pubmatic":{
+                        "outstreamAU" :"defaultpubmatictest"
+                    }
+                }
+            };
+             slotConfiguration.config["DIV_1"].video = {
+                enabled:true,
+                config:{
+                    "someconfig" :"someconfigvalue"
+                },
+                partnerConfig : {
+                    "pubmatic":{
+                        "outstreamAU" :"pubmatictest"
+                    }
+                }
+            };
+            var expectedResult = {
+                "pubmatic":{
+                    "outstreamAU" :"pubmatictest"
+                }
+             }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
             done();
         });
     });
@@ -2962,4 +3288,131 @@ describe('UTIL', function() {
             done();
         });
     });
+
+    describe('#getDevicePlatform', function(){
+        it('is a function', function(done) {
+            UTIL.getDevicePlatform.should.be.a('function');
+            done();
+        });
+
+        it('returns device as desktop if navigator does not consists of mobi', function(done){
+            var result = UTIL.getDevicePlatform();
+            result.should.equal(1);
+            done();
+        });
+
+        // TODO: UnComment Below Test Cases once PhantomJs is replaced by ChromeHeadless in build.sh production and test mode
+        // it('returns device as mobile if navigator consists of mobi', function(done){
+        //     navigator.__defineGetter__('userAgent', function(){
+        //         return 'Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Mobile Safari/537.36';
+        //     });
+        //     var result = UTIL.getDevicePlatform();
+        //     result.should.equal(2);
+        //     done();
+        // });
+
+        // it('returns unknown if ua is not available', function(done){
+        //     navigator.__defineGetter__('userAgent', function(){
+        //         return '';
+        //     });
+        //     var result = UTIL.getDevicePlatform();
+        //     result.should.equal(3);
+        //     done();
+        // });
+    });
+
+    describe('updateAdUnitsWithEids',function(){
+        var adUnits
+        beforeEach(function(done){
+            sinon.spy(UTIL,'updateUserIds');
+            sinon.stub(UTIL,'getUserIds').returns({id:1})
+            sinon.stub(UTIL,'getUserIdsAsEids').returns([{"source":"myId",id:1}])
+            done();
+        });
+
+        afterEach(function(done){
+            adUnits = null;
+            UTIL.updateUserIds.restore();
+            UTIL.getUserIds.restore();
+            UTIL.getUserIdsAsEids.restore();    
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.updateAdUnits.should.be.a('function');
+            done();
+        });
+
+        it('should call updateUserIds if passed adUnit is array',function(done){
+            adUnits = [{bids:[{"ecpm":10}]}];
+            UTIL.updateAdUnits(adUnits);
+            UTIL.updateUserIds.calledOnce.should.be.true;
+            done();
+        });
+
+        it('should call updateUserIds if passed adUnit is object', function(done){
+            adUnits = {bids:[{"ecpm":10}]};
+            UTIL.updateAdUnits(adUnits);
+            UTIL.updateUserIds.calledOnce.should.be.true;          
+            done();
+        });
+
+        it('should call updateUserIds for each bid if multiple bids are present', function(done){
+            adUnits = {bids:[{"ecpm":10},{"ecpm":20}]};
+            UTIL.updateAdUnits(adUnits);
+            UTIL.updateUserIds.calledTwice.should.be.true;          
+            done();
+        });
+    });
+
+    describe('updateUserIds', function(){
+        var bid;
+        beforeEach(function(done){
+            bid = {
+                'ecpm':'10.00'
+            }
+            sinon.stub(UTIL,'getUserIds').returns({id:1})
+            sinon.stub(UTIL,'getUserIdsAsEids').returns([{"source":"myId",id:1}])
+            done();
+        });
+
+        afterEach(function(done){
+            bid=null;
+            UTIL.getUserIds.restore();
+            UTIL.getUserIdsAsEids.restore();
+            done();
+        });
+
+        it('is a function', function(done){
+            UTIL.updateUserIds.should.be.a('function');
+            done();
+        });
+
+        it('should add UserId in bid if userIds is not present', function(done){
+            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","id":1}]}
+            UTIL.updateUserIds(bid)
+            bid.should.be.deep.equal(expectedResult);
+            done();
+        })
+
+        // TODO: UnComment Below Test Cases once PhantomJs is replaced by ChromeHeadless in build.sh production and test mode
+        xit('should update UserID in bid if userIds is present',function(done){
+            var expectedResult = {"ecpm":"10.00","userId":{"existingId":2,"id":1},"userIdAsEids":[{"source":"myId","id":1},{"source":"existingMyId","existingId":2}]} 
+            bid['userId'] = {"existingId":2}
+            bid['userIdAsEids'] = [{"source":"existingMyId","existingId":2}]
+            UTIL.updateUserIds(bid)
+            bid.should.be.deep.equal(expectedResult);
+            done();
+        })
+        
+        // TODO: UnComment Below Test Cases once PhantomJs is replaced by ChromeHeadless in build.sh production and test mode
+        xit('should update with IH values if same id is present', function(done){
+            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","id":1}]}
+            bid['userId'] = {"id":2}
+            bid['userIdAsEids'] = [{"source":"myId","id":2}]
+            UTIL.updateUserIds(bid);
+            bid.should.be.deep.equal(expectedResult);
+            done();
+        })
+    })
 });

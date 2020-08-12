@@ -290,13 +290,16 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
     // this hook is not needed in custom controller
     util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);
-    if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
+    if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().split(",").includes(CONSTANTS.COMMON.GAM)>-1){
         util.setUserIdTargeting();
     }
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
+        if (!CONFIG.getSendAllBidsStatus() && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
+			delete keyValuePairs[key];
+		}
         /* istanbul ignore else*/
-        if (!util.isOwnProperty(ignoreTheseKeys, key)) {
+        else if (!util.isOwnProperty(ignoreTheseKeys, key)) {
             googleDefinedSlot.setTargeting(key, value);
             // adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
             refThis.defineWrapperTargetingKey(key);
@@ -439,11 +442,7 @@ function newAddAdUnitFunction(theObject, originalFunction) { // TDD, i/o : done
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             var adUnits = arguments[0];
-            adUnits.forEach(function(adUnit){
-                adUnit.bids.forEach(function(bid){
-                    bid["userId"] = util.getUserIds();
-                });
-            });
+            util.updateAdUnits(adUnits);
             return originalFunction.apply(theObject, arguments);
         };
     } else {
@@ -572,7 +571,7 @@ exports.forQualifyingSlotNamesCallAdapters = forQualifyingSlotNamesCallAdapters;
 
 function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
     // Initiating getUserConsentDataFromCMP method to get the updated consentData
-    GDPR.getUserConsentDataFromCMP();
+    // GDPR.getUserConsentDataFromCMP();
 
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         if(CONFIG.isIdentityOnly()){
@@ -742,7 +741,7 @@ exports.getQualifyingSlotNamesForRefresh = getQualifyingSlotNamesForRefresh;
 */
 function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // Note : not covering the function currying atm , if need be will add istanbul ignore
     // Initiating getUserConsentDataFromCMP method to get the updated consentData
-    GDPR.getUserConsentDataFromCMP();
+    // GDPR.getUserConsentDataFromCMP();
 
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         if(CONFIG.isIdentityOnly()){
@@ -827,20 +826,32 @@ function addHooksIfPossible(win) { // TDD, i/o : done
         //TODO : Check for Prebid loaded and debug logs 
         prebid.register().sC();
         if(CONFIG.isIdentityOnly()){
-            if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs) && !util.isUndefined(win.pbjs.que)){
-                pbjs.que.unshift(function(){
-                    util.log("Adding Hook on pbjs.addAddUnits()");
-                    var theObject = window.pbjs;
-                    var functionName = "addAdUnits"
-                    util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
+            if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE]) && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE].que)){
+                win[CONFIG.PBJS_NAMESPACE].que.unshift(function(){
+                    var vdetails = win[CONFIG.PBJS_NAMESPACE].version.split('.') 
+                    if(vdetails.length===3 && vdetails[0].includes("v3") && +vdetails[1] >= 3){
+                        win[CONFIG.PBJS_NAMESPACE].onEvent("addAdUnits", function () {
+                            util.updateAdUnits(win[CONFIG.PBJS_NAMESPACE]["adUnits"]);
+                        });
+                        win[CONFIG.PBJS_NAMESPACE].onEvent("beforeRequestBids", function (adUnits) {
+                            util.updateAdUnits(adUnits);
+                        });
+                    }
+                    else{
+                        util.log("Adding Hook on" + win[CONFIG.PBJS_NAMESPACE] + ".addAddUnits()");
+                        var theObject = win[CONFIG.PBJS_NAMESPACE];
+                        var functionName = "addAdUnits"
+                        util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
+                    }
                 });
+              
                 util.log("Identity Only Enabled and setting config");
             }else{
                 util.logWarning("window.pbjs is undefined")
             }
         }
     }
-    if (util.isUndefined(win.google_onload_fired) && util.isObject(win.googletag) && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)) {
+    if (util.isObject(win.googletag) && !win.googletag.apiReady && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)) {
         util.log("Succeeded to load before GPT");//todo
         var refThis = this; // TODO : check whether the global refThis works here
         win.googletag.cmd.unshift(function() {
