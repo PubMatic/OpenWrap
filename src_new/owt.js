@@ -40,14 +40,23 @@ window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	util.log("In sfDisplayCreative for: " + bidID);
 	this.isSafeFrame = true;
-	window.parent.postMessage(
-		JSON.stringify({
-			pwt_type: "1",
-			pwt_bidID: bidID,
-			pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
-		}),
-		"*"
-	);
+	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+		var message = JSON.stringify({
+			message: "Prebid Request",
+			adId: bidID
+		});
+		window.parent.postMessage(message, "*");
+	}
+	else {
+		window.parent.postMessage(
+			JSON.stringify({
+				pwt_type: "1",
+				pwt_bidID: bidID,
+				pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
+			}),
+			"*"
+		);
+	}
 };
 
 window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
