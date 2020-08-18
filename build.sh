@@ -88,7 +88,7 @@ if (task == CREATIVE_TASK) {
 		}
 		console.timeEnd("Executing Prebid Build");
 		
-		shell.cd("../../OpenWrap/");
+		shell.cd("../OpenWrap/");
 		if (argv.mode == "test-build") {
 			if(shell.exec("gulp testall" + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 				shell.echo('Error: test cases failed');
