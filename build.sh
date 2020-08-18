@@ -29,7 +29,7 @@ if (task == CREATIVE_TASK) {
 		}
 } else {
 
-		if(config.isUsePrebidKeysEnabled() === false){
+		if(config.isUsePrebidKeysEnabled() === false && config.isPrebidPubMaticAnalyticsEnabled() === true){
 			console.log("We need to use PWT keys, so changing targeting keys in PrebidJS config");
 			if(shell.exec("time gulp change-prebid-keys" + " --prebidpath=" + prebidRepoPath).code !== 0) {
 				shell.echo('Error: Changing PrebidJS targeting keys failed');
@@ -88,7 +88,7 @@ if (task == CREATIVE_TASK) {
 		}
 		console.timeEnd("Executing Prebid Build");
 		
-		shell.cd("../OpenWrap/");
+		shell.cd("../../OpenWrap/");
 		if (argv.mode == "test-build") {
 			if(shell.exec("gulp testall" + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 				shell.echo('Error: test cases failed');
