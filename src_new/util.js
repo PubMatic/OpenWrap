@@ -1132,6 +1132,9 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					if(CONFIG.getAdServer() != CONSTANTS.AD_SERVER.DFP){
 						if(config.video["config"]){
 							mediaTypeObject["video"] = config.video["config"];
+							if(config.video["partnerConfig"]){
+								mediaTypeObject["partnerConfig"] = config.video["partnerConfig"];
+							}
 						}
 						else{
 							refThis.logWarning("Video Config will not be considered as no config has been provided for slot" + JSON.stringify(currentSlot) + " or there is no configuration defined in default.");
@@ -1440,6 +1443,8 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	}
 	if(refThis.isFunction(theBid.getsspID)){
 		sspID = theBid.getsspID();
+	}else{
+		sspID = theBid.sspID || "";	
 	}
 
 	pixelURL += "pubid=" + pubId;
