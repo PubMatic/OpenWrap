@@ -41,11 +41,13 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	util.log("In sfDisplayCreative for: " + bidID);
 	this.isSafeFrame = true;
 	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
-		var message = JSON.stringify({
-			message: "Prebid Request",
-			adId: bidID
+		window[CONSTANTS.COMMON.PREBID_NAMESPACE].loadExternalScript("https://cdn.jsdelivr.net/npm/prebid-universal-creative@latest/dist/creative.js","uCreative",function(){
+			var message = JSON.stringify({
+				message: "Prebid Request",
+				adId: bidID
+			});
+			window.parent.postMessage(message, "*");
 		});
-		window.parent.postMessage(message, "*");
 	}
 	else {
 		window.parent.postMessage(
