@@ -740,11 +740,11 @@ exports.assignSchainConfigIfRequired = assignSchainConfigIfRequired;
 function enablePrebidPubMaticAnalyticIfRequired(){
 	if(isPrebidPubMaticAnalyticsEnabled && util.isFunction(window[pbNameSpace].enableAnalytics)){
 		window[pbNameSpace].enableAnalytics({
-			provider: 'pubmatic',
+			provider: "pubmatic",
 			options: {
 				publisherId: CONFIG.getPublisherId(),
 				profileId: CONFIG.getProfileID(),
-                profileVersionId: CONFIG.getProfileDisplayVersionID()
+				profileVersionId: CONFIG.getProfileDisplayVersionID()
 			}
 		});
 	}
@@ -818,6 +818,7 @@ function setPrebidConfig(){
 			},
 			bidderSequence: "random",					
 			disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
+			enableSendAllBids: CONFIG.getSendAllBidsStatus()
 		};
 
 		refThis.assignUserSyncConfig(prebidConfig);

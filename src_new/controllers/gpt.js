@@ -5,6 +5,7 @@ var bidManager = require("../bidManager.js");
 // var GDPR = require("../gdpr.js");
 var SLOT = require("../slot.js");
 var prebid = require("../adapters/prebid.js");
+var usePrebiKeys = CONFIG.isUsePrebidKeysEnabled();
 
 
 var displayHookIsAdded = false;
@@ -293,7 +294,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     }
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
-        if (!CONFIG.getSendAllBidsStatus() && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
+        if (!usePrebiKeys && !CONFIG.getSendAllBidsStatus() && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
 			delete keyValuePairs[key];
 		}
         /* istanbul ignore else*/

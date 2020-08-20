@@ -6,6 +6,7 @@ var bidManager = require("../bidManager.js");
 var SLOT = require("../slot.js");
 var prebid = require("../adapters/prebid.js");
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
+var usePrebiKeys = CONFIG.isUsePrebidKeysEnabled();
 
 //ToDo: add a functionality / API to remove extra added wrpper keys
 var wrapperTargetingKeys = {}; // key is div id
@@ -191,7 +192,7 @@ function findWinningBidAndGenerateTargeting(divId) {
 	util.forEachOnObject(keyValuePairs, function(key) {
 		// if winning bid is not pubmatic then remove buyId targeting key. Ref : UOE-5277
 		/* istanbul ignore else*/ 
-		if (util.isOwnProperty(ignoreTheseKeys, key) || (winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key))) {
+		if (!usePrebiKeys  && (util.isOwnProperty(ignoreTheseKeys, key) || (winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)))) {
 			delete keyValuePairs[key];
 		}
 		else {
@@ -470,7 +471,9 @@ exports.init = function(win) {
 	CONFIG.initConfig();
 	if (util.isObject(win)) {
 		refThis.setWindowReference(win);
-		refThis.initSafeFrameListener(win);
+		if(!usePrebiKeys){
+			refThis.initSafeFrameListener(win);
+		}
 		prebid.initPbjsConfig();
 		win.PWT.requestBids = refThis.customServerExposedAPI;
 		win.PWT.generateConfForGPT = refThis.generateConfForGPT;
