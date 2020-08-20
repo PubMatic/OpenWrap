@@ -818,7 +818,10 @@ function setPrebidConfig(){
 			},
 			bidderSequence: "random",					
 			disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
-			enableSendAllBids: CONFIG.getSendAllBidsStatus()
+			enableSendAllBids: CONFIG.getSendAllBidsStatus(),
+			targetingControls: {
+				alwaysIncludeDeals: true
+			}
 		};
 
 		refThis.assignUserSyncConfig(prebidConfig);

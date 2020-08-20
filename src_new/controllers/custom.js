@@ -6,7 +6,7 @@ var bidManager = require("../bidManager.js");
 var SLOT = require("../slot.js");
 var prebid = require("../adapters/prebid.js");
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
-var usePrebiKeys = CONFIG.isUsePrebidKeysEnabled();
+var usePrebidKeys = CONFIG.isUsePrebidKeysEnabled();
 
 //ToDo: add a functionality / API to remove extra added wrpper keys
 var wrapperTargetingKeys = {}; // key is div id
@@ -181,7 +181,7 @@ function findWinningBidAndGenerateTargeting(divId) {
 	}
 	var winningBid = data.wb || null;
 	var keyValuePairs = data.kvp || null;
-	var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
+	var ignoreTheseKeys = !usePrebidKeys ? CONSTANTS.IGNORE_PREBID_KEYS : {};
 
 	/* istanbul ignore else*/	
 	if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {
@@ -192,7 +192,7 @@ function findWinningBidAndGenerateTargeting(divId) {
 	util.forEachOnObject(keyValuePairs, function(key) {
 		// if winning bid is not pubmatic then remove buyId targeting key. Ref : UOE-5277
 		/* istanbul ignore else*/ 
-		if (!usePrebiKeys  && (util.isOwnProperty(ignoreTheseKeys, key) || (winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)))) {
+		if (util.isOwnProperty(ignoreTheseKeys, key) || (winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key))) {
 			delete keyValuePairs[key];
 		}
 		else {
@@ -471,7 +471,7 @@ exports.init = function(win) {
 	CONFIG.initConfig();
 	if (util.isObject(win)) {
 		refThis.setWindowReference(win);
-		if(!usePrebiKeys){
+		if(!isPrebidPubMaticAnalyticsEnabled){
 			refThis.initSafeFrameListener(win);
 		}
 		prebid.initPbjsConfig();

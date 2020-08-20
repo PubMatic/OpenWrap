@@ -5,7 +5,8 @@ var bidManager = require("../bidManager.js");
 // var GDPR = require("../gdpr.js");
 var SLOT = require("../slot.js");
 var prebid = require("../adapters/prebid.js");
-var usePrebiKeys = CONFIG.isUsePrebidKeysEnabled();
+var usePrebidKeys = CONFIG.isUsePrebidKeysEnabled();
+var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 
 
 var displayHookIsAdded = false;
@@ -270,20 +271,25 @@ exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
 function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
-    var data = bidManager.getBid(divID);
+    var data; 
+	if (isPrebidPubMaticAnalyticsEnabled){
+		data = prebid.getBid(divID);
+	} else {
+        data = bidManager.getBid(divID);
+    }
     var winningBid = data.wb || null;
     var keyValuePairs = data.kvp || {};
     var googleDefinedSlot = refThis.slotsMap[divID].getPubAdServerObject();
-    var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
+	var ignoreTheseKeys = !usePrebidKeys ? CONSTANTS.IGNORE_PREBID_KEYS : {};
 
     util.log("DIV: " + divID + " winningBid: ");
     util.log(winningBid);
 
     /* istanbul ignore else*/
-    if (winningBid && winningBid.getNetEcpm() > 0) {
-        refThis.slotsMap[divID].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
-        bidManager.setStandardKeys(winningBid, keyValuePairs);
-    };
+        if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {
+            refThis.slotsMap[divID].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
+            bidManager.setStandardKeys(winningBid, keyValuePairs);
+        };
 
     
     // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
@@ -294,7 +300,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     }
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
-        if (!usePrebiKeys && !CONFIG.getSendAllBidsStatus() && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
+        if (!CONFIG.getSendAllBidsStatus() && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
 			delete keyValuePairs[key];
 		}
         /* istanbul ignore else*/
