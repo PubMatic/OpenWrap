@@ -821,7 +821,8 @@ function setPrebidConfig(){
 			enableSendAllBids: CONFIG.getSendAllBidsStatus(),
 			targetingControls: {
 				alwaysIncludeDeals: true
-			}
+			},
+			testGroupId: parseInt(PWT.testGroupId || 0)
 		};
 
 		refThis.assignUserSyncConfig(prebidConfig);
