@@ -3,7 +3,7 @@ var controller = require("%%PATH_TO_CONTROLLER%%");
 var bidManager = require("./bidManager.js");
 var CONSTANTS = require("./constants.js");
 var CONFIG = require("./config.js");
-
+var ucTag = require("prebid-universal-creative");
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
 window.PWT.bidMap = window.PWT.bidMap || {};
@@ -34,20 +34,21 @@ window.PWT.displayCreative = function(theDocument, bidID){
 window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In displayPMPCreative for: " + values);
 	var bidID = util.getBididForPMP(values, priorityArray);
-	bidID && bidManager.displayCreative(theDocument, bidID);
+	if(bidID){
+		if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+			window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
+		} else {
+			bidManager.displayCreative(theDocument, bidID);	
+		}
+	}
 };
 
 window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	util.log("In sfDisplayCreative for: " + bidID);
+	ucTag = ucTag || {};
 	this.isSafeFrame = true;
 	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
-		window[CONSTANTS.COMMON.PREBID_NAMESPACE].loadExternalScript("https://cdn.jsdelivr.net/npm/prebid-universal-creative@latest/dist/creative.js","uCreative",function(){
-			var message = JSON.stringify({
-				message: "Prebid Request",
-				adId: bidID
-			});
-			window.parent.postMessage(message, "*");
-		});
+		ucTag.renderAd(theDocument, {adId: bidID});
 	}
 	else {
 		window.parent.postMessage(

@@ -895,9 +895,19 @@ function getPbjsAdServerTargetingConfig(){
         {
         	key: 'pwtdid', // hb_deal
         	val: function(bidResponse){ // todo: do we want to concat dealchannel as well?
-        		return bidResponse.dealId;
+        		return bidResponse.dealId || '';
         	}
-        },       
+		},  
+		{
+        	key: 'pwtdeal', // hb_deal
+			val: function(bidResponse){ // todo: do we want to concat dealchannel as well?
+				if(bidResponse.dealId){
+					bidResponse.dealChannel = bidResponse.dealChannel || "PMP";
+					return bidResponse.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidResponse.dealId + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidResponse.adId;
+				}
+				return '';
+			}
+        },     
         {
             key: 'pwtbst', // our custom
             val: function(bidResponse) {
@@ -928,7 +938,7 @@ function getPbjsAdServerTargetingConfig(){
         	// todo: value? is it meta-data feature? is it in use?
         		return '';
         	}
-        }
+		}
     ];
 }
 
@@ -1083,10 +1093,14 @@ function getBid(divID){
 		wb.grossEcpm = wb.originalCpm;
 	}
 
-	return {
+	var outputObj =  {
 		wb: wb,
 		kvp: window[pbNameSpace].getAdserverTargetingForAdUnitCode([divID]) || null
 	};
+	if(isPrebidPubMaticAnalyticsEnabled && outputObj.kvp['pwtdeal'] ){
+		delete outputObj.kvp['pwtdeal'];// Check for null object && usePrebidAnalyticsAdapter 
+	} 
+	return outputObj;
 }
 
 exports.getBid = getBid;
