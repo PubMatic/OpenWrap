@@ -6,7 +6,7 @@ exports.pwt = {
 	pubid: "9999",
 	dataURL: "t.test-domain.com/logger?",
 	winURL: "t.test-domain.com/tracker?",
-	adserver: "DFP",
+	adserver: "IDHUB",
 	gdpr: "0",
 	cmpApi: "iab",
 	gdprTimeout: "10000",
@@ -165,6 +165,15 @@ exports.identityPartners = {
 	},
 	digitrust: {
 		"name":"digitrust",
+		"params.init.member": "nQjyizbdyF",
+		"params.init.site":"FL6whbX1IW",
+		"redirects": "true",
+		"storage.type": "cookie",
+		"storage.name": "somenamevalue",
+		"storage.expires":"60"
+	},
+	identityLink:{
+		"name":"ats",
 		"params.init.member": "nQjyizbdyF",
 		"params.init.site":"FL6whbX1IW",
 		"redirects": "true",

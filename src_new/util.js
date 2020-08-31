@@ -1371,6 +1371,10 @@ exports.getUserIdParams = function(params){
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}	
+	if(params['name'] == 'liverampats'){
+		refThis.initLiveRampAts(userIdParams);
+		return {};
+	}
 	return userIdParams;
 };
 
@@ -1578,3 +1582,16 @@ exports.updateUserIds = function(bid){
 		bid.userIdAsEids = ids;
 	}
 };
+
+
+exports.initLiveRampAts = function(params){
+	document.onload(function(){
+		window.ats.start({
+			"placementID": params.placementID,
+			"storageType": params.storageType,
+			"detectionType": "scrape",
+			"cssSelectors": ["input[type=text]", "input[type=email]"],
+			"logging": "error"
+			});
+	});
+}
