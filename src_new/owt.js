@@ -48,7 +48,7 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	ucTag = ucTag || {};
 	this.isSafeFrame = true;
 	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
-		ucTag.renderAd(theDocument, {adId: bidID});
+		ucTag.renderAd(theDocument, {adId: bidID, pubUrl: document.referrer});
 	}
 	else {
 		window.parent.postMessage(
