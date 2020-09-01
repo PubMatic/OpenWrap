@@ -60,7 +60,7 @@ if (task == CREATIVE_TASK) {
 				break;
 		 	case "build" :
 				console.log("Executing build");
-				prebidTaskName = "bundle --modules=modules.json";
+				prebidTaskName = "build-bundle-prod --modules=modules.json";
 				openwrapBuildTaskName = "bundle-prod";
 				openwrapWebpackTaskName = "webpack";
 				break;
