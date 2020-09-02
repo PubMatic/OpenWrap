@@ -31,6 +31,7 @@ if (task == CREATIVE_TASK) {
 
 		if(config.isUsePrebidKeysEnabled() === false && config.isPrebidPubMaticAnalyticsEnabled() === true){
 			console.log("We need to use PWT keys, so changing targeting keys in PrebidJS config");
+			prebidTaskName = "build-bundle-prod --modules=modules.json";
 			if(shell.exec("time gulp change-prebid-keys" + " --prebidpath=" + prebidRepoPath).code !== 0) {
 				shell.echo('Error: Changing PrebidJS targeting keys failed');
 			  	shell.exit(1);
@@ -60,7 +61,9 @@ if (task == CREATIVE_TASK) {
 				break;
 		 	case "build" :
 				console.log("Executing build");
-				prebidTaskName = "build-bundle-prod --modules=modules.json";
+				if(!prebidTaskName){
+					prebidTaskName = "bundle --modules=modules.json";
+				}
 				openwrapBuildTaskName = "bundle-prod";
 				openwrapWebpackTaskName = "webpack";
 				break;
