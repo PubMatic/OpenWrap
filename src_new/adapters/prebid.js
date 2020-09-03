@@ -535,7 +535,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["adUnitId"] = currentSlot.getAdUnitID();
 			slotParams["divId"] = currentSlot.getDivID();
 			slotParams["adSlot"] = generatedKey;
-			slotParams["wiid"] = impressionID;
+			if(isPrebidPubMaticAnalyticsEnabled === false){
+				slotParams["wiid"] = impressionID;
+			}
 			slotParams["profId"] = CONFIG.getProfileID();
 			/* istanbul ignore else*/
 			if(window.PWT.udpv){
@@ -548,7 +550,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		case "pubmatic2":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
 			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
-			slotParams["wiid"] = impressionID;
+			if(isPrebidPubMaticAnalyticsEnabled === false){
+				slotParams["wiid"] = impressionID;
+			}
 			slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
 			if(adapterID != "pubmatic2" && window.PWT.udpv){
