@@ -815,8 +815,6 @@ function setConfig(){
 			};
 		}
 
-		
-
 		if(CONFIG.isUserIdModuleEnabled()){
 			prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 		}

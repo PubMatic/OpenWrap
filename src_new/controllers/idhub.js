@@ -41,7 +41,6 @@ exports.init = function(win) {
 	CONFIG.initConfig();
 	if (util.isObject(win)) {
 		refThis.initIdHub(win);
-		refThis.callJsLoadedIfRequired(win);
 		return true;
 	} else {
 		return false;
