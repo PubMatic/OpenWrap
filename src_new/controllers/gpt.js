@@ -577,7 +577,7 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
         if(CONFIG.isIdentityOnly()){
             util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " Original Display function");
             return function() {
-                if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
+                if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().split(",").includes(CONSTANTS.COMMON.GAM)>-1){
                     util.setUserIdTargeting(theObject);
                 }
 	            return originalFunction.apply(theObject, arguments);
@@ -829,7 +829,7 @@ function addHooksIfPossible(win) { // TDD, i/o : done
             if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE]) && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE].que)){
                 win[CONFIG.PBJS_NAMESPACE].que.unshift(function(){
                     var vdetails = win[CONFIG.PBJS_NAMESPACE].version.split('.') 
-                    if(vdetails.length===3 && vdetails[0].includes("v3") && +vdetails[1] >= 3){
+                    if(vdetails.length===3 && (+vdetails[0].split('v')[1] > 3 || (vdetails[0].includes("v3") && +vdetails[1] >= 3))){
                         win[CONFIG.PBJS_NAMESPACE].onEvent("addAdUnits", function () {
                             util.updateAdUnits(win[CONFIG.PBJS_NAMESPACE]["adUnits"]);
                         });
