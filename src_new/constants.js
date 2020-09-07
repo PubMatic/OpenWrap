@@ -225,5 +225,3 @@ exports.AD_SERVER = {
 	"DFP" : "DFP",
 	"CUSTOM": "CUSTOM"
 };
-
-exports.EXCLUDE_ID_PARTNER = ["liverampats"];

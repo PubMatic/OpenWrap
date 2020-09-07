@@ -30,7 +30,7 @@ refThis.setConfig = function(){
 		window[pbNameSpace].setConfig(prebidConfig);
 		window[pbNameSpace].requestBids([]);
 	}
-}
+};
 
 
 exports.initIdHub = function(win){

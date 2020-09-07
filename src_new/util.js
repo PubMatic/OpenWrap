@@ -1355,7 +1355,6 @@ exports.getUserIdParams = function(params){
 	}	
 	if(userIdParams && userIdParams.params && userIdParams.params['loadAts'] == 'true'){
 		refThis.initLiveRampAts(userIdParams);
-		return;
 	}
 	return userIdParams;
 };
@@ -1582,5 +1581,7 @@ exports.initLiveRampAts = function(params){
 		atsScript.src = 'https://ats.rlcdn.com/ats.js';
 		document.body.appendChild(atsScript);
 	}
-	addATS();
+	window.addEventListener("load", function()  {
+    	setTimeout(addATS, 1000);
+  	}); 
 }
