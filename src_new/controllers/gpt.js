@@ -2,11 +2,9 @@ var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
-var GDPR = require("../gdpr.js");
 var adapterManager = require("../adapterManager.js");
 var SLOT = require("../slot.js");
-var prebid = require("../adapters/prebid.js");
-
+var IdHub = require("../controllers/idhub.js");
 
 var displayHookIsAdded = false;
 
@@ -290,9 +288,6 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
     // this hook is not needed in custom controller
     util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);
-    if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().split(",").includes(CONSTANTS.COMMON.GAM)>-1){
-        util.setUserIdTargeting();
-    }
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
         if (!CONFIG.getSendAllBidsStatus() && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
@@ -577,9 +572,6 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
         if(CONFIG.isIdentityOnly()){
             util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " Original Display function");
             return function() {
-                if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().split(",").includes(CONSTANTS.COMMON.GAM)>-1){
-                    util.setUserIdTargeting(theObject);
-                }
 	            return originalFunction.apply(theObject, arguments);
             }
         }
@@ -822,35 +814,6 @@ exports.defineGPTVariables = defineGPTVariables;
 /* end-test-block */
 
 function addHooksIfPossible(win) { // TDD, i/o : done
-    // if(CONFIG.isUserIdModuleEnabled()  ){
-    //     //TODO : Check for Prebid loaded and debug logs 
-    //     prebid.register().sC();
-    //     if(CONFIG.isIdentityOnly()){
-    //         if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE]) && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE].que)){
-    //             win[CONFIG.PBJS_NAMESPACE].que.unshift(function(){
-    //                 var vdetails = win[CONFIG.PBJS_NAMESPACE].version.split('.') 
-    //                 if(vdetails.length===3 && (+vdetails[0].split('v')[1] > 3 || (vdetails[0].includes("v3") && +vdetails[1] >= 3))){
-    //                     win[CONFIG.PBJS_NAMESPACE].onEvent("addAdUnits", function () {
-    //                         util.updateAdUnits(win[CONFIG.PBJS_NAMESPACE]["adUnits"]);
-    //                     });
-    //                     win[CONFIG.PBJS_NAMESPACE].onEvent("beforeRequestBids", function (adUnits) {
-    //                         util.updateAdUnits(adUnits);
-    //                     });
-    //                 }
-    //                 else{
-    //                     util.log("Adding Hook on" + win[CONFIG.PBJS_NAMESPACE] + ".addAddUnits()");
-    //                     var theObject = win[CONFIG.PBJS_NAMESPACE];
-    //                     var functionName = "addAdUnits"
-    //                     util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
-    //                 }
-    //             });
-              
-    //             util.log("Identity Only Enabled and setting config");
-    //         }else{
-    //             util.logWarning("window.pbjs is undefined")
-    //         }
-    //     }
-    // }
     if (util.isObject(win.googletag) && !win.googletag.apiReady && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)) {
         util.log("Succeeded to load before GPT");//todo
         var refThis = this; // TODO : check whether the global refThis works here
@@ -904,6 +867,7 @@ exports.init = function(win) { // TDD, i/o : done
         adapterManager.registerAdapters();
         refThis.addHooksIfPossible(win);
         refThis.callJsLoadedIfRequired(win);
+        IdHub.initIdHub(win);
         return true;
     } else {
         return false;

@@ -1,18 +1,48 @@
 var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.js");
-var prebid = require("../adapters/prebid.js");
 var refThis = this;
+var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
 
-refThis.initIdHub = function(win){
-	if(CONFIG.isUserIdModuleEnabled()  ){
+refThis.setConfig = function(){
+	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
+		var prebidConfig = {
+			debug: util.isDebugLogEnabled(),
+			userSync: {
+				syncDelay: 2000
+			}
+		};
+
+		if (CONFIG.getGdpr()) {
+			prebidConfig["consentManagement"] = {
+				cmpApi: CONFIG.getCmpApi(),
+				timeout: CONFIG.getGdprTimeout(),
+				allowAuctionWithoutConsent: CONFIG.getAwc()
+			};
+		}
+
+		if(CONFIG.isUserIdModuleEnabled()){
+			prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+		}
+		
+		// Adding a hook for publishers to modify the Prebid Config we have generated
+		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+		window[pbNameSpace].setConfig(prebidConfig);
+		window[pbNameSpace].requestBids([]);
+	}
+}
+
+
+exports.initIdHub = function(win){
+	if(CONFIG.isUserIdModuleEnabled()){
         //TODO : Check for Prebid loaded and debug logs 
-		prebid.register().sC();
+		refThis.setConfig();
 		if(CONFIG.isIdentityOnly()){
 			if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE]) && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE].que)){
 				win[CONFIG.PBJS_NAMESPACE].que.unshift(function(){
 					var vdetails = win[CONFIG.PBJS_NAMESPACE].version.split("."); 
 					if(vdetails.length===3 && (+vdetails[0].split("v")[1] > 3 || (vdetails[0].includes("v3") && +vdetails[1] >= 3))){
+						util.log("Adding On Event " + win[CONFIG.PBJS_NAMESPACE] + ".addAddUnits()");						
 						win[CONFIG.PBJS_NAMESPACE].onEvent("addAdUnits", function () {
 							util.updateAdUnits(win[CONFIG.PBJS_NAMESPACE]["adUnits"]);
 						});
@@ -27,7 +57,6 @@ refThis.initIdHub = function(win){
 						util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
 					}
 				});
-              
 				util.log("Identity Only Enabled and setting config");
 			}else{
 				util.logWarning("window.pbjs is undefined");
@@ -37,8 +66,6 @@ refThis.initIdHub = function(win){
 };
 
 exports.init = function(win) { 
-
-	CONFIG.initConfig();
 	if (util.isObject(win)) {
 		refThis.initIdHub(win);
 		return true;

@@ -1296,24 +1296,6 @@ exports.clearPreviousTargeting = function(){
 	}
 };
 
-exports.setUserIdTargeting = function(){
-	refThis.clearPreviousTargeting();
-	if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
-		var userIds = refThis.getUserIds();
-		if(!refThis.isEmptyObject(userIds)){
-			refThis.setUserIdToGPT(userIds);
-		}
-	}else {
-		refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M1);
-		return;
-	}
-};
-
-exports.setUserIdToGPT = function(userIds){
-	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M2, userIds);
-	window.googletag.pubads().setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS,JSON.stringify(userIds));
-};
-
 exports.getUserIds = function(){
 	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
 		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
@@ -1371,9 +1353,9 @@ exports.getUserIdParams = function(params){
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}	
-	if(params['name'] == 'liverampats'){
+	if(userIdParams && userIdParams.params && userIdParams.params['loadAts'] == 'true'){
 		refThis.initLiveRampAts(userIdParams);
-		return {};
+		return;
 	}
 	return userIdParams;
 };
@@ -1585,13 +1567,20 @@ exports.updateUserIds = function(bid){
 
 
 exports.initLiveRampAts = function(params){
-	document.onload(function(){
-		window.ats.start({
-			"placementID": params.placementID,
-			"storageType": params.storageType,
-			"detectionType": "scrape",
-			"cssSelectors": ["input[type=text]", "input[type=email]"],
-			"logging": "error"
+	function addATS() {
+		var atsScript = document.createElement('script');
+		atsScript.onload = function() {
+		  window.ats.start(        {
+			  "placementID": params.params.placementID,
+			  "storageType":params.params.storageType,
+			  "detectionType": params.params.detectionType,
+			  "urlParameter": params.params.urlParameter,
+			  "cssSelectors":params.params.cssSelectors,// ["input[type=text]", "input[type=email]"],
+			  "logging": params.params.logging //"error"
 			});
-	});
+		};
+		atsScript.src = 'https://ats.rlcdn.com/ats.js';
+		document.body.appendChild(atsScript);
+	}
+	addATS();
 }

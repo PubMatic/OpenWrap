@@ -2,9 +2,10 @@ var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
-var GDPR = require("../gdpr.js");
 var adapterManager = require("../adapterManager.js");
 var SLOT = require("../slot.js");
+var IdHub = require("../controllers/idhub.js");
+
 
 //ToDo: add a functionality / API to remove extra added wrpper keys
 var wrapperTargetingKeys = {}; // key is div id
@@ -469,6 +470,7 @@ exports.init = function(win) {
 		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
 		adapterManager.registerAdapters();
 		refThis.callJsLoadedIfRequired(win);
+		IdHub.initIdHub(win);		
 		return true;
 	} else {
 		return false;

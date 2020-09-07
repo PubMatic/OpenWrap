@@ -6,7 +6,7 @@ exports.pwt = {
 	pubid: "9999",
 	dataURL: "t.test-domain.com/logger?",
 	winURL: "t.test-domain.com/tracker?",
-	adserver: "IDHUB",
+	adserver: "DFP",
 	gdpr: "0",
 	cmpApi: "iab",
 	gdprTimeout: "10000",
