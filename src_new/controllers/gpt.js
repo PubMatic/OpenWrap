@@ -290,9 +290,6 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
     // this hook is not needed in custom controller
     util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);
-    if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().split(",").includes(CONSTANTS.COMMON.GAM)>-1){
-        util.setUserIdTargeting();
-    }
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
         if (!CONFIG.getSendAllBidsStatus() && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
@@ -577,9 +574,6 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
         if(CONFIG.isIdentityOnly()){
             util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " Original Display function");
             return function() {
-                if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().split(",").includes(CONSTANTS.COMMON.GAM)>-1){
-                    util.setUserIdTargeting(theObject);
-                }
 	            return originalFunction.apply(theObject, arguments);
             }
         }

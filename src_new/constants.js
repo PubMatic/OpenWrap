@@ -29,8 +29,6 @@ exports.COMMON = {
 	"IDENTITY_PARTNERS":"identityPartners",
 	"IDENTITY_CONSUMERS": "identityConsumers",
 	"IDENTITY_ONLY":"identityOnly",
-	"GAM":"eb",
-	"TAM":"tam",
 	"PREBID":"prebid",	
 	"PROTOCOL" : "https://",
 	"SLOT_CONFIG": "slotConfig"	,
