@@ -35,7 +35,7 @@ refThis.setConfig = function(){
 
 exports.initIdHub = function(win){
 	if(CONFIG.isUserIdModuleEnabled()){
-        //TODO : Check for Prebid loaded and debug logs 
+		//TODO : Check for Prebid loaded and debug logs 
 		refThis.setConfig();
 		if(CONFIG.isIdentityOnly()){
 			if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE]) && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE].que)){

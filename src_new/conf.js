@@ -140,8 +140,8 @@ exports.identityPartners = {
 		name:"unifiedId",
 		"params.url" : "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
 		"storage.type": "cookie",
-				"storage.name": "_myUnifiedId",
-				"storage.expires": "1825"
+		"storage.name": "_myUnifiedId",
+		"storage.expires": "1825"
 	}
 };
 

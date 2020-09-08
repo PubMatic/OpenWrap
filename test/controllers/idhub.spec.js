@@ -1,11 +1,10 @@
-/* global describe, it, sinon, expect, beforeEach, afterEach */
+/* global describe, it, sinon, beforeEach, afterEach */
 // var sinon = require("sinon");
 // var should = require("chai").should();
 // var expect = require("chai").expect;
 
 var IDHUB = require("../../src_new/controllers/idhub.js");
 var UTIL = require("../../src_new/util.js");
-var CONSTANTS = require("../../src_new/constants.js");
 var CONFIG = require("../../src_new/config.js");
 
 describe("CONTROLLER: IDHUB", function() {
@@ -45,35 +44,35 @@ describe("CONTROLLER: IDHUB", function() {
 	
 			done();
 		});
-    });
+	});
     
 	describe("#initIdHub", function(){
-        beforeEach(function(done){
-            sinon.stub(CONFIG,"isUserIdModuleEnabled").returns(false);
-            sinon.stub(CONFIG,"isIdentityOnly").returns(false);
-            sinon.spy(IDHUB,"setConfig");
-            done();
-        });
+		beforeEach(function(done){
+			sinon.stub(CONFIG,"isUserIdModuleEnabled").returns(false);
+			sinon.stub(CONFIG,"isIdentityOnly").returns(false);
+			sinon.spy(IDHUB,"setConfig");
+			done();
+		});
 
-        afterEach(function(done){
-           CONFIG.isUserIdModuleEnabled.restore();
-           CONFIG.isIdentityOnly.restore();
-           IDHUB.setConfig.restore();
-           done();
-        })
+		afterEach(function(done){
+			CONFIG.isUserIdModuleEnabled.restore();
+			CONFIG.isIdentityOnly.restore();
+			IDHUB.setConfig.restore();
+			done();
+		});
 
-        it("should call prebid setConfig if identity is enabled",function(done){
+		it("should call prebid setConfig if identity is enabled",function(done){
 			CONFIG.isUserIdModuleEnabled.restore();
 			sinon.stub(CONFIG,"isUserIdModuleEnabled").returns(true);
 			IDHUB.init(window);
 			IDHUB.setConfig.called.should.be.true;
-            done();
+			done();
 		});
 		
 		it("should not call prebid setConfig if identity not is enabled",function(done){
 			IDHUB.init();
 			IDHUB.setConfig.called.should.be.false;
-            done();
-        });
-	})
+			done();
+		});
+	});
 });
