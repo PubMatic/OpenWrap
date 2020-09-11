@@ -182,6 +182,27 @@ gulp.task('lint', () => {
     .pipe(eslint.failAfterError());
 });
 
+gulp.task('change-prebid-keys', () => {
+    // Note: we have to execute this only when we have to use PubMatic OW keys
+    // todo: add gulp-json-editor entry in package.json and in backend build job?
+    var prebidConstantsPath = prebidRepoPath + '/src';
+    var jeditor = require("gulp-json-editor");
+    return gulp.src(prebidConstantsPath + '/constants.json')
+        .pipe(jeditor(function(json) {
+            json.TARGETING_KEYS.BIDDER = "pwtpid"; // hb_bidder
+            json.TARGETING_KEYS.AD_ID = "pwtsid"; // hb_adid
+            json.TARGETING_KEYS.PRICE_BUCKET = "pwtecp"; // hb_pb
+            json.TARGETING_KEYS.SIZE = "pwtsz"; // hb_size
+            json.TARGETING_KEYS.DEAL = "pwtdeal"; // hb_deal
+            json.TARGETING_KEYS.SOURCE = ""; // hb_source
+            json.TARGETING_KEYS.FORMAT = "pwtplt"; // hb_format
+            json.TARGETING_KEYS.UUID = ""; // hb_uuids
+            json.TARGETING_KEYS.CACHE_ID = "pwtcid"; // hb_cache_id
+            json.TARGETING_KEYS.CACHE_HOST = ""; // hb_cache_host
+            return json;
+        }))
+        .pipe(gulp.dest(prebidConstantsPath));
+});
 
 // Task to build minified version of owt.js
 gulp.task('bundle', function () {

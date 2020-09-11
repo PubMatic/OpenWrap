@@ -82,7 +82,9 @@ exports.CONFIG = {
 	"DEFAULT_CCPA_TIMEOUT": 10000,
 	"CACHE_PATH":"/cache",
 	"CACHE_URL":"https://ow.pubmatic.com",
-	"VIDEO_PARAM":"video"
+	"VIDEO_PARAM":"video",
+	"ENABLE_PB_PM_ANALYTICS": "pubAnalyticsAdapter",
+	"USE_PREBID_KEYS": "usePBJSKeys"
 };
 
 exports.METADATA_MACROS = {
