@@ -45,7 +45,7 @@ window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 
 window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	util.log("In sfDisplayCreative for: " + bidID);
-	ucTag = ucTag || {};
+	ucTag = window.ucTag || {};
 	this.isSafeFrame = true;
 	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
 		ucTag.renderAd(theDocument, {adId: bidID, pubUrl: document.referrer});
