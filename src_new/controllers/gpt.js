@@ -872,18 +872,6 @@ function addHooksIfPossible(win) { // TDD, i/o : done
 exports.addHooksIfPossible = addHooksIfPossible;
 /* end-test-block */
 
-function callJsLoadedIfRequired(win) { // TDD, i/o : done
-    if (util.isObject(win) && util.isObject(win.PWT) && util.isFunction(win.PWT.jsLoaded)) {
-        win.PWT.jsLoaded();
-        return true;
-    }
-    return false;
-}
-/* start-test-block */
-exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
-/* end-test-block */
-
-
 function initSafeFrameListener(theWindow){ // TDD, i/o : done
     if(!theWindow.PWT.safeFrameMessageListenerAdded){
         util.addMessageEventListenerForSafeFrame(theWindow);
@@ -903,7 +891,6 @@ exports.init = function(win) { // TDD, i/o : done
         refThis.defineGPTVariables(win);
         adapterManager.registerAdapters();
         refThis.addHooksIfPossible(win);
-        refThis.callJsLoadedIfRequired(win);
         return true;
     } else {
         return false;

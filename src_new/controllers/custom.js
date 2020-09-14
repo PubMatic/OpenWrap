@@ -74,17 +74,6 @@ function defineWrapperTargetingKeys(object) {
 exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
-function callJsLoadedIfRequired(win) {
-	if (util.isObject(win) && util.isObject(win.PWT) && util.isFunction(win.PWT.jsLoaded)) {
-		win.PWT.jsLoaded();
-		return true;
-	}
-	return false;
-}
-/* start-test-block */
-exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
-/* end-test-block */
-
 function initSafeFrameListener(theWindow) {
 	if (!theWindow.PWT.safeFrameMessageListenerAdded) {
 		util.addMessageEventListenerForSafeFrame(theWindow);
@@ -468,7 +457,6 @@ exports.init = function(win) {
 		win.PWT.removeKeyValuePairsFromGPTSlots = removeKeyValuePairsFromGPTSlots;
 		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
 		adapterManager.registerAdapters();
-		refThis.callJsLoadedIfRequired(win);
 		return true;
 	} else {
 		return false;

@@ -2902,69 +2902,6 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe("#callJsLoadedIfRequired", function() {
-
-        it("should return false when the object passed is string ", function() {
-            GPT.callJsLoadedIfRequired("").should.equal(false);
-        });
-
-        it("should return false when the object passed is number ", function() {
-            GPT.callJsLoadedIfRequired(1).should.equal(false);
-        });
-
-        it("should return false when the object passed is null ", function() {
-            GPT.callJsLoadedIfRequired(null).should.equal(false);
-        });
-
-        it("should return false when the object is not passed ", function() {
-            GPT.callJsLoadedIfRequired().should.equal(false);
-        });
-
-        it("should return false when the object passed is object but it does not have PWT property ", function() {
-            GPT.callJsLoadedIfRequired({}).should.equal(false);
-        });
-
-        it("should return false when the object passed is object but PWT property is set to null", function() {
-            GPT.callJsLoadedIfRequired({ PWT: null }).should.equal(false);
-        });
-
-        it("should return false when the object passed is object but PWT property is set to string", function() {
-            GPT.callJsLoadedIfRequired({ PWT: "" }).should.equal(false);
-        });
-
-        it("should return false when the object passed is object but PWT property is set to number", function() {
-            GPT.callJsLoadedIfRequired({ PWT: 1 }).should.equal(false);
-        });
-
-        it("should return false when the object passed is object but PWT property is set but does not have jsLoaded property", function() {
-            GPT.callJsLoadedIfRequired({ PWT: {} }).should.equal(false);
-        });
-
-        it("should return false when the object passed is object but PWT property is set but jsLoaded is set to null", function() {
-            GPT.callJsLoadedIfRequired({ PWT: { jsLoaded: null } }).should.equal(false);
-        });
-
-        it("should return false when the object passed is object but PWT property is set but jsLoaded is set to number", function() {
-            GPT.callJsLoadedIfRequired({ PWT: { jsLoaded: 1 } }).should.equal(false);
-        });
-
-        it("should return false when the object passed is object but PWT property is set but jsLoaded is set to string", function() {
-            GPT.callJsLoadedIfRequired({ PWT: { jsLoaded: "" } }).should.equal(false);
-        });
-
-        var _test = {
-            PWT: {}
-        };
-        _test.PWT.jsLoaded = function() {
-            flag = true;
-        };
-        var flag = false;
-        it("should return true when the object passed is object and PWT property is set and jsLoaded is set to function and the function is called", function() {
-            GPT.callJsLoadedIfRequired(_test).should.equal(true);
-            flag.should.equal(true);
-        });
-    });
-
     describe('#initSafeFrameListener', function () {
         var theWindow = null;
 
@@ -3016,7 +2953,6 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(GPT, "defineGPTVariables");
             sinon.spy(AM, "registerAdapters");
             sinon.spy(GPT, "addHooksIfPossible");
-            sinon.spy(GPT, "callJsLoadedIfRequired");
             sinon.spy(GPT, "initSafeFrameListener");
             done();
         });
@@ -3028,7 +2964,6 @@ describe("CONTROLLER: GPT", function() {
             GPT.defineGPTVariables.restore();
             AM.registerAdapters.restore();
             GPT.addHooksIfPossible.restore();
-            GPT.callJsLoadedIfRequired.restore();
             GPT.initSafeFrameListener.restore();
             done();
         });
@@ -3050,7 +2985,6 @@ describe("CONTROLLER: GPT", function() {
             GPT.defineGPTVariables.called.should.be.true;
             AM.registerAdapters.called.should.be.true;
             GPT.addHooksIfPossible.called.should.be.true;
-            GPT.callJsLoadedIfRequired.called.should.be.true;
             done();
         });
 
@@ -3066,7 +3000,6 @@ describe("CONTROLLER: GPT", function() {
             GPT.defineGPTVariables.called.should.be.false;
             AM.registerAdapters.called.should.be.false;
             GPT.addHooksIfPossible.called.should.be.false;
-            GPT.callJsLoadedIfRequired.called.should.be.false;
             done();
         });
     });
