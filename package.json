@@ -64,6 +64,7 @@
     "gulp-mocha": "^2.2.0",
     "gulp-optimize-js": "^1.1.0",
     "gulp-replace": "^0.4.0",
+    "gulp-replace-task": "^0.11.0",
     "gulp-strip-code": "^0.1.4",
     "gulp-strip-comments": "^2.4.5",
     "gulp-uglify": "^0.3.1",

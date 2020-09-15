@@ -29,17 +29,6 @@ if (task == CREATIVE_TASK) {
 		}
 } else {
 
-		if(config.isUsePrebidKeysEnabled() === false && config.isPrebidPubMaticAnalyticsEnabled() === true){
-			console.log("We need to use PWT keys, so changing targeting keys in PrebidJS config");
-			prebidTaskName = "build-bundle-prod --modules=modules.json";
-			if(shell.exec("time gulp change-prebid-keys" + " --prebidpath=" + prebidRepoPath).code !== 0) {
-				shell.echo('Error: Changing PrebidJS targeting keys failed');
-			  	shell.exit(1);
-			}
-		} else {
-			console.log("We need to use PrebidJS keys, NO need to change targeting keys in PrebidJS config");
-		}
-
 		console.log("Switching To Build Task");
 		if (shell.cd(prebidRepoPath).code !== 0) {
 			shell.echo("Couldnt change the dir to Prebid repo");
@@ -111,5 +100,20 @@ if (task == CREATIVE_TASK) {
 		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: wrapper build task failed');
 			shell.exit(1);
+		}
+
+		if(config.isUsePrebidKeysEnabled() === false && config.isPrebidPubMaticAnalyticsEnabled() === true){
+			console.log("We need to use PWT keys, so changing targeting keys in PrebidJS config");
+			prebidTaskName = "build-bundle-prod --modules=modules.json";
+			if(shell.exec("time gulp bundle-pwt-keys").code !== 0) {
+				shell.echo('Error: Changing PrebidJS targeting keys failed');
+			  	shell.exit(1);
+			}
+		} else {
+			console.log("We need to use Prebid keys, so changing targeting keys in PrebidJS config");
+			if(shell.exec("time gulp bundle-pb-keys").code !== 0) {
+				shell.echo('Error: Changing PrebidJS targeting keys failed');
+			  	shell.exit(1);
+			}		
 		}
 }
