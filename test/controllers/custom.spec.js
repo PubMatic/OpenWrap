@@ -1,13 +1,13 @@
-/* global describe, it, expect, sinon, beforeEach, afterEach */
+/* global describe, it, xit, expect, sinon, beforeEach, afterEach */
 // var sinon = require("sinon");
 //var should = require("chai").should();
 var CUSTOM = require("../../src_new/controllers/custom.js");
 var UTIL = require("../../src_new/util.js");
 var CONFIG = require("../../src_new/config.js");
-var AM = require("../../src_new/adapterManager.js");
 var BM = require("../../src_new/bidManager.js");
 var BID = require("../../src_new/bid.js");
 var CONSTANTS = require("../../src_new/constants.js");
+var PREBID = require("../../src_new/adapters/prebid.js");
 
 describe("CONTROLLER: CUSTOM", function() {
 
@@ -469,8 +469,7 @@ describe("CONTROLLER: CUSTOM", function() {
 		});
 
 		it("it should call addpter-manager", function(done){
-			sinon.stub(AM, "callAdapters");
-			AM.callAdapters.returns(true);
+			sinon.stub(PREBID, 'fetchBids', function(){});
 			sinon.stub(CONFIG, "getTimeout");
 			CONFIG.getTimeout.returns(10);
 			var flag = false;
@@ -487,8 +486,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			}], function(){
 				flag = true;
 			});
-			AM.callAdapters.called.should.be.true;
-			AM.callAdapters.restore();
+			PREBID.fetchBids.restore();
 			CONFIG.getTimeout.restore();
 			setTimeout(function(){
 				flag.should.equal(true);
@@ -498,8 +496,7 @@ describe("CONTROLLER: CUSTOM", function() {
 
 		it("should call the callback postimeout if allBid status is false ecverytime",function(done){
 			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
-			sinon.stub(AM, "callAdapters");
-			AM.callAdapters.returns(true);
+			sinon.stub(PREBID, 'fetchBids', function(){});
 			sinon.stub(CONFIG, "getTimeout");
 			CONFIG.getTimeout.returns(10);
 			BM.getAllPartnersBidStatuses.restore();
@@ -519,7 +516,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			});
 			setTimeout(function(){
 				flag.should.equal(true);
-				AM.callAdapters.restore();
+				PREBID.fetchBids.restore();
 				CONFIG.getTimeout.restore();
 				done();
 			}, 15);
@@ -528,8 +525,7 @@ describe("CONTROLLER: CUSTOM", function() {
 		// Uncomment below test case when change from Phantom to ChromeHeadless
 		xit("should not call the callback before timeout if allBid status is false ecverytime",function(done){
 			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
-			sinon.stub(AM, "callAdapters");
-			AM.callAdapters.returns(true);
+			sinon.stub(PREBID, 'fetchBids', function(){});
 			sinon.stub(CONFIG, "getTimeout");
 			CONFIG.getTimeout.returns(60);
 			BM.getAllPartnersBidStatuses.restore();
@@ -549,7 +545,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			});
 			setTimeout(function(){
 				flag.should.equal(false);
-				AM.callAdapters.restore();
+				PREBID.fetchBids.restore();
 				CONFIG.getTimeout.restore();
 				done();
 			}, 5);
@@ -861,7 +857,6 @@ describe("CONTROLLER: CUSTOM", function() {
 			sinon.spy(UTIL, "isObject");
 			sinon.spy(CUSTOM, "setWindowReference");
 			sinon.spy(CUSTOM, "defineWrapperTargetingKeys");
-			sinon.spy(AM, "registerAdapters");
 			sinon.spy(CUSTOM, "initSafeFrameListener");
 			done();
 		});
@@ -870,7 +865,6 @@ describe("CONTROLLER: CUSTOM", function() {
 			UTIL.isObject.restore();
 			CUSTOM.setWindowReference.restore();
 			CUSTOM.defineWrapperTargetingKeys.restore();
-			AM.registerAdapters.restore();
 			CUSTOM.initSafeFrameListener.restore();
 			done();
 		});
@@ -892,7 +886,6 @@ describe("CONTROLLER: CUSTOM", function() {
 			UTIL.isObject.returned(true).should.to.be.true;
 			CUSTOM.setWindowReference.called.should.be.true;
 			CUSTOM.defineWrapperTargetingKeys.called.should.be.true;
-			AM.registerAdapters.called.should.be.true;
 			done();
 		});
 
@@ -903,7 +896,6 @@ describe("CONTROLLER: CUSTOM", function() {
 			UTIL.isObject.calledWith("NonObject").should.be.true;
 			CUSTOM.setWindowReference.called.should.be.false;
 			CUSTOM.defineWrapperTargetingKeys.called.should.be.false;
-			AM.registerAdapters.called.should.be.false;
 			done();
 		});
 	});
