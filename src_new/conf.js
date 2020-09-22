@@ -6,7 +6,7 @@ exports.pwt = {
 	pubid: "9999",
 	dataURL: "t.test-domain.com/logger?",
 	winURL: "t.test-domain.com/tracker?",
-	adserver: "DFP",
+	adserver: "CUSTOM",
 	gdpr: "0",
 	cmpApi: "iab",
 	gdprTimeout: "10000",
@@ -19,7 +19,7 @@ exports.pwt = {
 	identityOnly:"0",
 	ccpa: "0",
 	ccpaCmpApi: "iab",
-	ccpaTimeout: "10000",
+	ccpaTimeout: "10000"
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes

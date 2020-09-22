@@ -1585,3 +1585,6 @@ exports.initLiveRampAts = function(params){
     	setTimeout(addATS, 1000);
   	}); 
 }
+exports.getRandomNumberBelow100 = function(){
+	return Math.floor(Math.random()*100);
+};
