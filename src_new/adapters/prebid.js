@@ -875,7 +875,7 @@ function getPbjsAdServerTargetingConfig(){
             key: "pwtecp", //hb_pb
             val: function(bidResponse) {
                 // return bidResponse.pbMg;
-                return bidResponse.cpm;
+                return window.parseFloat((bidResponse.cpm||0).toFixed(CONSTANTS.COMMON.BID_PRECISION));
             }
         }, {
             key: 'pwtsz', //hb_size
