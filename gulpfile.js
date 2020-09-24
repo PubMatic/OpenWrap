@@ -4,7 +4,7 @@ var argv = require('yargs').argv;
 var gulp = require('gulp');
 var concat = require('gulp-concat');
 var replace = require('gulp-replace-task');
-// var replace = require('gulp-replace');
+var greplace = require('gulp-replace');
 // var insert = require('gulp-insert');
 // var uglify = require('gulp-uglify');
 // var jshint = require('gulp-jshint');
@@ -38,9 +38,31 @@ gulp.task('clean', function() {
         .pipe(clean());
 });
 
+gulp.task('replace-controller', function(){
+    var conf = require('./src_new/conf.js');
+    var controllerPaths = {
+        DFP: "'./controllers/gpt.js'",
+        CUSTOM: "'./controllers/custom.js'"
+    };
+ 
+    return gulp.src('./src_new/owt.js')
+    .pipe(replace({
+      patterns: [
+        {
+          match: /"%%PATH_TO_CONTROLLER%%"/g,
+          replacement:  controllerPaths[conf.pwt.adserver || "DFP"] 
+        }
+      ]
+    })).pipe(gulp.dest('./src_new/'));
+});
 
 // What all processing needs to be done ?
-gulp.task('webpack', ['clean'], function() {
+gulp.task('webpack', ['clean','replace-controller'], function() {
+    var conf = require('./src_new/conf.js');
+    var controllerPaths = {
+        DFP: "'./controllers/gpt.js'",
+        CUSTOM: "./controllers/custom.js"
+    };
     var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
     var webpack = require('webpack-stream');
@@ -48,18 +70,25 @@ gulp.task('webpack', ['clean'], function() {
     var optimizejs = require('gulp-optimize-js');
     var fsCache = require('gulp-fs-cache');
     var jsFsCache = fsCache('.tmp/jscache');
-    webpackConfig.devtool = null;
 
-    return gulp.src('src_new/owt.js')
-        .pipe(webpack(webpackConfig))
-        .pipe(jsFsCache)
-        .pipe(uglify())
-        .pipe(optimizejs())
-        .pipe(jsFsCache.restore)
-        .pipe(gulp.dest('build/dist'))
-        .pipe(connect.reload())
+    return gulp.src('./src_new/owt.js')
+          .pipe(webpack(webpackConfig))
+          .pipe(uglify())
+          .pipe(optimizejs())
+          .pipe(gulp.dest('build/dist'))
+          .pipe(connect.reload())
+     
+        // .pipe(connect.reload())
+
+          // .pipe(jsFsCache)
+        // .pipe(uglify())
+        // .pipe(gulp.dest('build/dist'))
+        // .pipe(optimizejs())
+        // .pipe(jsFsCache.restore)
     ;
 });
+
+
 
 // Run below task to create owt.js for creative
 gulp.task('webpack-creative', ['clean'], function() {
