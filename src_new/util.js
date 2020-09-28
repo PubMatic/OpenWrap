@@ -1353,7 +1353,7 @@ exports.getUserIdParams = function(params){
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}	
-	if(userIdParams && userIdParams.params && userIdParams.params['loadAts'] == 'true'){
+	if(userIdParams && userIdParams.params && userIdParams.params['loadATS'] == 'true'){
 		refThis.initLiveRampAts(userIdParams);
 	}
 	return userIdParams;
@@ -1568,6 +1568,9 @@ exports.updateUserIds = function(bid){
 exports.initLiveRampAts = function(params){
 	function addATS() {
 		var atsScript = document.createElement('script');
+		if(params.params.cssSelectors && params.params.cssSelectors.length>0){
+			params.params.cssSelectors = params.params.cssSelectors.split(',');
+		}
 		atsScript.onload = function() {
 		  window.ats.start(        {
 			  "placementID": params.params.placementID,
