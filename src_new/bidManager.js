@@ -118,12 +118,16 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 exports.storeBidInBidMap = storeBidInBidMap;
 /* end-test-block */
 
-exports.resetBid = function(divID, impressionID){ // TDD, i/o : done
+function resetBid(divID, impressionID){ // TDD, i/o : done
 	util.vLogInfo(divID, {type: "hr"});
 	delete window.PWT.bidMap[divID];
 	refThis.createBidEntry(divID);
 	window.PWT.bidMap[divID].setImpressionID(impressionID);
-};
+}
+
+/* start-test-block */
+exports.resetBid = resetBid;
+/* end-test-block */
 
 function createMetaDataKey(pattern, bmEntry, keyValuePairs){
 	var output = "",

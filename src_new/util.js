@@ -1296,24 +1296,6 @@ exports.clearPreviousTargeting = function(){
 	}
 };
 
-exports.setUserIdTargeting = function(){
-	refThis.clearPreviousTargeting();
-	if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
-		var userIds = refThis.getUserIds();
-		if(!refThis.isEmptyObject(userIds)){
-			refThis.setUserIdToGPT(userIds);
-		}
-	}else {
-		refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M1);
-		return;
-	}
-};
-
-exports.setUserIdToGPT = function(userIds){
-	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M2, userIds);
-	window.googletag.pubads().setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS,JSON.stringify(userIds));
-};
-
 exports.getUserIds = function(){
 	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
 		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
@@ -1577,4 +1559,8 @@ exports.updateUserIds = function(bid){
 		}
 		bid.userIdAsEids = ids;
 	}
+};
+
+exports.getRandomNumberBelow100 = function(){
+	return Math.floor(Math.random()*100);
 };
