@@ -1,5 +1,5 @@
 var util = require("./util.js");
-var controller = require("%%PATH_TO_CONTROLLER%%");
+var controller = require('./controllers/gpt.js');
 var bidManager = require("./bidManager.js");
 var CONSTANTS = require("./constants.js");
 var CONFIG = require("./config.js");

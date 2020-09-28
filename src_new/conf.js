@@ -6,7 +6,7 @@ exports.pwt = {
 	pubid: "9999",
 	dataURL: "t.test-domain.com/logger?",
 	winURL: "t.test-domain.com/tracker?",
-	adserver: "CUSTOM",
+	adserver: "DFP",
 	gdpr: "0",
 	cmpApi: "iab",
 	gdprTimeout: "10000",
@@ -60,15 +60,18 @@ exports.adapters = {
 	appnexus: {
 		rev_share: "0.0",
 		throttle: "100",
-		kgp: "_DIV_",
+		kgp: "_DIV_@_W_x_H_",
 		klm: {
-			"Div_1": {
+			"Div1@300x250": {
 				placementId: "8801674",
 				"video.mimes":"",
 				"video.minduration":""
 			},
-			"Div-2": {
+			"Div2@728x90": {
 				placementId: "8801685"
+			},
+			"Div1@0x0":{
+				placementId:'videoWali'
 			}
 		}
 	},

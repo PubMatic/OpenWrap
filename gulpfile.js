@@ -57,7 +57,7 @@ gulp.task('replace-controller', function(){
 });
 
 // What all processing needs to be done ?
-gulp.task('webpack', ['clean','replace-controller'], function() {
+gulp.task('webpack',gulp.series('clean','replace-controller', function() {
     var conf = require('./src_new/conf.js');
     var controllerPaths = {
         DFP: "'./controllers/gpt.js'",
@@ -85,13 +85,12 @@ gulp.task('webpack', ['clean','replace-controller'], function() {
         // .pipe(gulp.dest('build/dist'))
         // .pipe(optimizejs())
         // .pipe(jsFsCache.restore)
-    ;
-});
+}));
 
 
 
 // Run below task to create owt.js for creative
-gulp.task('webpack-creative', ['clean'], function() {
+gulp.task('webpack-creative',gulp.series('clean', function() {
     var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
     var webpack = require('webpack-stream');
@@ -106,10 +105,10 @@ gulp.task('webpack-creative', ['clean'], function() {
         .pipe(gulp.dest('build/dist'))
         .pipe(connect.reload())
     ;
-});
+}));
 
 
-gulp.task('devpack', ['clean'],function () {
+gulp.task('devpack', gulp.series(['clean'],function () {
 var connect = require('gulp-connect');
 var webpack = require('webpack-stream');
 var webpackConfig = require('./webpack.config.js');
@@ -120,40 +119,39 @@ var webpackConfig = require('./webpack.config.js');
     .pipe(webpack(webpackConfig))
     .pipe(gulp.dest('build/dev'))
     .pipe(connect.reload());
-});
+}));
 
 
 // Test all code without private functions
-gulp.task('test', ['unexpose'], function (done) {
-    var karma = require('gulp-karma');
-    var karmaServer = require('karma').Server;
+// gulp.task('test', gulp.series('unexpose', function (done) {
+//     var karma = require('gulp-karma');
+//     var karmaServer = require('karma').Server;
 
-    var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
-    new karmaServer({
-        browsers: defaultBrowsers,
-        basePath: './temp',
-        configFile: __dirname + '/karma.conf.js',
-        singleRun: true
-    }, function (exitCode) {
-        console.log("exitCode ==>", exitCode);
-        gulp.src('temp', {
-            read: true
-        })
-        .pipe(clean())
-        .pipe(function () {
-            if (exitCode != 0) {
-                process.exit(exitCode);
-            }
-        });
-    }).start();
-});
+//     var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
+//     new karmaServer({
+//         browsers: defaultBrowsers,
+//         basePath: './temp',
+//         configFile: __dirname + '/karma.conf.js',
+//         singleRun: true
+//     }, function (exitCode) {
+//         console.log("exitCode ==>", exitCode);
+//         gulp.src('temp', {
+//             read: true
+//         })
+//         .pipe(clean())
+//         .pipe(function () {
+//             if (exitCode != 0) {
+//                 process.exit(exitCode);
+//             }
+//         });
+//     }).start();
+// }));
 
 
 // Test all code including private functions
 gulp.task('testall', function (done) {
-    var karma = require('gulp-karma');
     var karmaServer = require('karma').Server;
-    var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
+    var defaultBrowsers = CI_MODE ? ['ChromeHeadless'] : ['ChromeHeadless'];
     new karmaServer({
         browsers: defaultBrowsers,
         configFile: __dirname + '/karma.conf.js',
@@ -300,19 +298,19 @@ gulp.task('bundle-creative', function () {
 
 
 // Task to build non-minified version of owt.js
-gulp.task('devbundle',['devpack'], function () {
+gulp.task('devbundle',gulp.series('devpack', function() {
     console.log("Executing Dev Build");
     return gulp.src([prebidRepoPath + '/build/dev/prebid.js', './build/dev/owt.js'])
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
-});
+}));
 
 
-gulp.task('bundle-prod',['webpack'], function () {
+gulp.task('bundle-prod',gulp.series('webpack', function() {
     console.log("Executing bundling");
     return gulp.src([prebidRepoPath + '/build/dist/prebid.js', './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
-});
+}));
 
-gulp.task('build-gpt-prod',[''])
+// gulp.task('build-gpt-prod',[''])
