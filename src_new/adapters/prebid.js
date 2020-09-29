@@ -518,7 +518,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 
 	if(isPrebidPubMaticAnalyticsEnabled){
 		slotParams["kgpv"] = generatedKey;
-		slotParams["kgpvRegex"] = regexPattern;
+		slotParams["regexPattern"] = regexPattern;
 	}
 
 	if(partnerConfig && Object.keys(partnerConfig).length>0){
