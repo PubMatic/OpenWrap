@@ -372,6 +372,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 
 	var code, sizes, divID = currentSlot.getDivID();
 	var mediaTypeConfig;
+	var partnerConfig;
 
 	if(!refThis.isSingleImpressionSettingEnabled){
 		if(kgpConsistsWidthAndHeight){
@@ -474,17 +475,16 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		mediaTypeConfig = adUnits[code].mediaTypes;		
 	}
 
-	pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits);	
+	pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits, partnerConfig);	
 }
 
 /* start-test-block */
 exports.generatedKeyCallback = generatedKeyCallback;
 /* end-test-block */
 
-function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits){
+function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits, partnerConfig){
 	var slotParams = {};
 	var mediaTypeConfig = adUnits[code].mediaTypes;
-	var partnerConfig;
 	var sizes = adUnits[code].sizes;
 	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video") && adapterID != "telaria"){
 		slotParams["video"]= mediaTypeConfig.video;
@@ -608,13 +608,15 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			*/
 		
 			util.forEachOnArray(sizes, function(index, size) {
-				var slotParams = {};
-
-				if (keyConfig["siteID"]) {
-					slotParams["siteId"] = keyConfig["siteID"];
+				var sltParams = {};
+				if(slotParams && slotParams.video){
+					sltParams["video"] = slotParams["video"];
 				}
-				slotParams["size"] = size;
-				adUnits [code].bids.push({bidder: adapterID, params: slotParams});
+				if (keyConfig["siteID"]) {
+					sltParams["siteId"] = keyConfig["siteID"];
+				}
+				sltParams["size"] = size;
+				adUnits [code].bids.push({bidder: adapterID, params: sltParams});
 			});
 			break;
 
