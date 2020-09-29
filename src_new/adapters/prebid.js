@@ -608,13 +608,15 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			*/
 		
 			util.forEachOnArray(sizes, function(index, size) {
-				var slotParams = {};
-
-				if (keyConfig["siteID"]) {
-					slotParams["siteId"] = keyConfig["siteID"];
+				var sltParams = {};
+				if(slotParams && slotParams.video){
+					sltParams["video"] = slotParams["video"];
 				}
-				slotParams["size"] = size;
-				adUnits [code].bids.push({bidder: adapterID, params: slotParams});
+				if (keyConfig["siteID"]) {
+					sltParams["siteId"] = keyConfig["siteID"];
+				}
+				sltParams["size"] = size;
+				adUnits [code].bids.push({bidder: adapterID, params: sltParams});
 			});
 			break;
 
