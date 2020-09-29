@@ -561,7 +561,7 @@ describe('UTIL', function() {
             activeSlot.getSizes.calledOnce.should.be.true;
             activeSlot.getAdUnitID.calledOnce.should.be.true;
             activeSlot.getAdUnitIndex.calledOnce.should.be.true;
-            activeSlot.getDivID.calledOnce.should.be.true;
+            activeSlot.getDivID.calledTwice.should.be.true;
             done();
         });
 
