@@ -1159,7 +1159,6 @@ exports.getParenteAdapterID = getParenteAdapterID;
 exports.register = function(){
 	return {
 		fB: refThis.fetchBids,
-		ID: refThis.getParenteAdapterID,
-		sC:	refThis.setConfig
+		ID: refThis.getParenteAdapterID
 	};
 };
