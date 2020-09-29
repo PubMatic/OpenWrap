@@ -1573,7 +1573,7 @@ exports.initLiveRampAts = function(params){
 		}
 		atsScript.onload = function() {
 		  window.ats.start(        {
-			  "placementID": params.params.placementID,
+			  "placementID": params.params.pid,
 			  "storageType":params.params.storageType,
 			  "detectionType": params.params.detectionType,
 			  "urlParameter": params.params.urlParameter,
