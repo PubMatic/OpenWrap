@@ -2,8 +2,7 @@
 console.log("running from shell script");
 var shell = require('shelljs');
 var argv = require('yargs').argv;
-
-
+var config = require("./src_new/config.js");
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
 var task = argv.task || "wrapper";
 
@@ -29,6 +28,7 @@ if (task == CREATIVE_TASK) {
 			shell.exit(1);
 		}
 } else {
+
 		console.log("Switching To Build Task");
 		if (shell.cd(prebidRepoPath).code !== 0) {
 			shell.echo("Couldnt change the dir to Prebid repo");
@@ -50,7 +50,9 @@ if (task == CREATIVE_TASK) {
 				break;
 		 	case "build" :
 				console.log("Executing build");
-				prebidTaskName = "bundle --modules=modules.json";
+				if(!prebidTaskName){
+					prebidTaskName = "bundle --modules=modules.json";
+				}
 				openwrapBuildTaskName = "bundle-prod";
 				openwrapWebpackTaskName = "webpack";
 				break;
@@ -80,22 +82,38 @@ if (task == CREATIVE_TASK) {
 		
 		shell.cd("../OpenWrap/");
 		if (argv.mode == "test-build") {
-			if(shell.exec("gulp testall" + " --mode=" + argv.mode).code !== 0) {
+			if(shell.exec("gulp testall" + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 				shell.echo('Error: test cases failed');
 		  		shell.exit(1);
 			}
 		}
+
 		console.time("Cleaning Gulp");
 		// shell.exec("gulp clean");
 		console.timeEnd("Cleaning Gulp");
-		/*if(shell.exec("gulp " + openwrapWebpackTaskName + " --mode=" + argv.mode).code !== 0) {
+		/*if(shell.exec("gulp " + openwrapWebpackTaskName + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: webpack wrapper task failed');
 			shell.exit(1);
 		}*/
 
 
-		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode).code !== 0) {
+		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: wrapper build task failed');
 			shell.exit(1);
+		}
+
+		if(config.isUsePrebidKeysEnabled() === false && config.isPrebidPubMaticAnalyticsEnabled() === true){
+			console.log("We need to use PWT keys, so changing targeting keys in PrebidJS config");
+			prebidTaskName = "build-bundle-prod --modules=modules.json";
+			if(shell.exec("time gulp bundle-pwt-keys").code !== 0) {
+				shell.echo('Error: Changing PrebidJS targeting keys failed');
+			  	shell.exit(1);
+			}
+		} else {
+			console.log("We need to use Prebid keys, so changing targeting keys in PrebidJS config");
+			if(shell.exec("time gulp bundle-pb-keys").code !== 0) {
+				shell.echo('Error: Changing PrebidJS targeting keys failed');
+			  	shell.exit(1);
+			}		
 		}
 }

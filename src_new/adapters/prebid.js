@@ -9,7 +9,6 @@ var CONSTANTS = require("../constants.js");
 var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
-var adapterManager = require("../adapterManager.js");
 var CONF = require("../conf.js");
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
@@ -28,6 +27,7 @@ exports.kgpvMap = kgpvMap;
 var refThis = this;
 var timeoutForPrebid = CONFIG.getTimeout()-50;
 var onEventAdded = false;
+var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
 
 /* start-test-block */
@@ -69,6 +69,9 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 			theBid.setcacheUUID(bid.videoCacheKey);
 		}
 		theBid.updateBidId(bid.adUnitCode);
+	}
+	if (bid.sspID){
+		theBid.setsspID(bid.sspID);
 	}
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
@@ -331,10 +334,46 @@ function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
 
+function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
+	var code, sizes, divID;
+
+	if(CONFIG.isServerSideAdapter(adapterID)){
+		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
+		return;
+	}
+
+	divID = currentSlot.getDivID();
+	code = currentSlot.getDivID();
+	sizes = currentSlot.getSizes();
+
+	/* istanbul ignore else */
+	if(!util.isOwnProperty(adUnits, code)){
+		var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
+		adUnits[code] = {
+			code: code,
+			mediaTypes: adUnitConfig.mediaTypeObject,
+			sizes: sizes,
+			bids: [],
+			divID : divID
+		};
+	} else if(CONFIG.isSingleImpressionSettingEnabled()){
+		// following function call basically checks whether the adapter is already configured for the given code in adunits object
+		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
+			return;
+		}
+	}
+
+	pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits);	
+}
+
+exports.generatedKeyCallbackForPbAnalytics = generatedKeyCallbackForPbAnalytics;
+
 function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight,regexPattern){
 
 	var code, sizes, divID = currentSlot.getDivID();
 	var mediaTypeConfig;
+	var partnerConfig;
+
 	if(!refThis.isSingleImpressionSettingEnabled){
 		if(kgpConsistsWidthAndHeight){
 			code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
@@ -393,19 +432,34 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
 		return;
 	}
+
 	/* istanbul ignore else */
+	var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
+	mediaTypeConfig = adUnitConfig.mediaTypeObject;
+	if(mediaTypeConfig.partnerConfig){
+		partnerConfig = mediaTypeConfig.partnerConfig;
+	}
 	if(!util.isOwnProperty(adUnits, code)){
-		var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
-		mediaTypeConfig = adUnitConfig.mediaTypeObject;
 		//TODO: Remove sizes from below as it will be deprecated soon in prebid
 		// Need to check pubmaticServerBidAdapter in our fork after this change.
 		adUnits[code] = {
 			code: code,
-			mediaTypes:mediaTypeConfig ,
+			mediaTypes:{} ,
 			sizes: sizes,
 			bids: [],
 			divID : divID
 		};
+		//Assigning it individually since mediaTypes doesn't take any extra param apart from these.
+		// And We are now also getting partnerConfig for different partners
+		if(mediaTypeConfig.banner){
+			adUnits[code].mediaTypes["banner"] = mediaTypeConfig.banner;
+		}
+		if(mediaTypeConfig.native){
+			adUnits[code].mediaTypes["native"] = mediaTypeConfig.native;
+		}
+		if(mediaTypeConfig.video){
+			adUnits[code].mediaTypes["video"] = mediaTypeConfig.video;
+		}
 		if(adUnitConfig.renderer){
 			adUnits[code]["renderer"]= adUnitConfig.renderer;
 		}
@@ -415,12 +469,23 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		}
 	}
 
+	// todo: is this block required? isn't it covered in above if block?
 	// in case there are multiple bidders ,we don't generate the config again but utilize the existing mediatype.
 	if(util.isOwnProperty(adUnits, code)){
-		mediaTypeConfig = adUnits[code].mediaTypes;
+		mediaTypeConfig = adUnits[code].mediaTypes;		
 	}
 
+	pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits, partnerConfig);	
+}
+
+/* start-test-block */
+exports.generatedKeyCallback = generatedKeyCallback;
+/* end-test-block */
+
+function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits, partnerConfig){
 	var slotParams = {};
+	var mediaTypeConfig = adUnits[code].mediaTypes;
+	var sizes = adUnits[code].sizes;
 	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video") && adapterID != "telaria"){
 		slotParams["video"]= mediaTypeConfig.video;
 	}
@@ -428,6 +493,22 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		/* istanbul ignore next */
 		slotParams[key] = value;
 	});
+
+	if(isPrebidPubMaticAnalyticsEnabled){
+		slotParams["kgpv"] = generatedKey;
+		//todo do we also need to pass regexPattern ??
+	}
+
+	if(partnerConfig && Object.keys(partnerConfig).length>0){
+		util.forEachOnObject(partnerConfig, function(key, value){
+			if(key == adapterID) {
+				util.forEachOnObject(value, function(key, value){
+					/* istanbul ignore next */
+					slotParams[key] = value;
+				});
+			}
+		});
+	}
 
 	// Logic : If for slot config for partner video parameter is present then use that
 	// else take it from mediaType.video
@@ -454,7 +535,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			slotParams["adUnitId"] = currentSlot.getAdUnitID();
 			slotParams["divId"] = currentSlot.getDivID();
 			slotParams["adSlot"] = generatedKey;
-			slotParams["wiid"] = impressionID;
+			if(isPrebidPubMaticAnalyticsEnabled === false){
+				slotParams["wiid"] = impressionID;
+			}
 			slotParams["profId"] = CONFIG.getProfileID();
 			/* istanbul ignore else*/
 			if(window.PWT.udpv){
@@ -464,13 +547,15 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			break;
 
 		case "pubmatic":
-	case "pubmatic2":
+		case "pubmatic2":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
-		slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
-			slotParams["wiid"] = impressionID;
-		slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
+			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
+			if(isPrebidPubMaticAnalyticsEnabled === false){
+				slotParams["wiid"] = impressionID;
+			}
+			slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
-		if(adapterID != "pubmatic2" && window.PWT.udpv){
+			if(adapterID != "pubmatic2" && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
@@ -515,12 +600,12 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			}
 			});
 			break;
-	case "ix":
+		case "ix":
 		case "indexExchange":
-		/** Added case ix cause indexExchange bidder has changed its bidder code in server side 
-		 * this will have impact in codegen to change its adapter code from indexexchange to ix 
-		 * so added a case for the same.
-		*/
+			/** Added case ix cause indexExchange bidder has changed its bidder code in server side 
+			 * this will have impact in codegen to change its adapter code from indexexchange to ix 
+			 * so added a case for the same.
+			*/
 		
 			util.forEachOnArray(sizes, function(index, size) {
 				var slotParams = {};
@@ -539,10 +624,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 }
 
-/* start-test-block */
-exports.generatedKeyCallback = generatedKeyCallback;
-/* end-test-block */
-
+exports.pushAdapterParamsInAdunits = pushAdapterParamsInAdunits;
 
 function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID){
 	util.log(adapterID+CONSTANTS.MESSAGES.M1);
@@ -559,7 +641,8 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 		impressionID,
 		[],
 		activeSlots,
-		refThis.generatedKeyCallback,
+		isPrebidPubMaticAnalyticsEnabled ? refThis.generatedKeyCallbackForPbAnalytics : refThis.generatedKeyCallback,
+		// refThis.generatedKeyCallback,
 		// serverSideEabled: do not set default bids as we do not want to throttle them at client-side
 		true // !CONFIG.isServerSideAdapter(adapterID)
 	);
@@ -570,6 +653,7 @@ exports.generatePbConf = generatePbConf;
 /* end-test-block */
 
 function assignSingleRequestConfigForBidders(prebidConfig){
+	//todo: use forEachAdapter
 	util.forEachOnObject(CONSTANTS.SRA_ENABLED_BIDDERS,function(adapterName){
 		if(util.isOwnProperty(CONF.adapters, adapterName)){
 			prebidConfig[adapterName] = {
@@ -581,31 +665,106 @@ function assignSingleRequestConfigForBidders(prebidConfig){
 
 exports.assignSingleRequestConfigForBidders = assignSingleRequestConfigForBidders;
 
-function fetchBids(activeSlots, impressionID){
-
-	//window.pwtCreatePrebidNamespace(pbNameSpace);
-
-	/* istanbul ignore else */
-	if(! window[pbNameSpace]){ // todo: move this code to initial state of adhooks
-		util.logError("PreBid js is not loaded");
-		return;
+function assignUserSyncConfig(prebidConfig){
+	prebidConfig["userSync"] = {
+		enableOverride: true,
+		syncsPerBidder: 0,
+		iframeEnabled: true,
+		pixelEnabled: true,
+		filterSettings: {
+			iframe: {
+				bidders: "*", // '*' means all bidders
+				filter: "include"
+			}
+		},
+		enabledBidders: (function(){
+			var arr = [];
+			CONFIG.forEachAdapter(function(adapterID){
+				arr.push(adapterID);
+			});
+			return arr;
+		})(),
+		syncDelay: 2000, //todo: default is 3000 write image pixels 5 seconds after the auction
+	};
+	if(CONFIG.isUserIdModuleEnabled()){
+		prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 	}
+}
 
+exports.assignUserSyncConfig = assignUserSyncConfig;
 
-	if(util.isFunction(window[pbNameSpace].onEvent)){
-		if(!onEventAdded){
-			window[pbNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
-			onEventAdded = true;
-		}		
-	} else {
-		util.logWarning("PreBid js onEvent method is not available");
-		return;
+function assignGdprConfigIfRequired(prebidConfig){
+	if (CONFIG.getGdpr()) {
+		prebidConfig["consentManagement"] = {
+			cmpApi: CONFIG.getCmpApi(),
+			timeout: CONFIG.getGdprTimeout(),
+			allowAuctionWithoutConsent: CONFIG.getAwc() // Auction without consent
+		};
 	}
+}
 
-	window[pbNameSpace].logging = util.isDebugLogEnabled();
+exports.assignGdprConfigIfRequired = assignGdprConfigIfRequired;
 
+function assignCcpaConfigIfRequired(prebidConfig){
+	if (CONFIG.getCCPA()) {
+		if(!prebidConfig["consentManagement"]){
+			prebidConfig["consentManagement"] = {};
+		}
+		prebidConfig["consentManagement"]["usp"] = {
+			cmpApi: CONFIG.getCCPACmpApi(),
+			timeout: CONFIG.getCCPATimeout(),
+		};
+	}
+}
+
+exports.assignCcpaConfigIfRequired = assignCcpaConfigIfRequired;
+
+function assignCurrencyConfigIfRequired(prebidConfig){
+	if(CONFIG.getAdServerCurrency()){
+		// get AdServer currency from Config
+		// Log in console 
+		util.log(CONSTANTS.MESSAGES.M26 + CONFIG.getAdServerCurrency());
+		prebidConfig["currency"] = {
+			"adServerCurrency": CONFIG.getAdServerCurrency(), 
+			"granularityMultiplier": 1, 
+		};
+	}
+}
+
+exports.assignCurrencyConfigIfRequired = assignCurrencyConfigIfRequired;
+
+function assignSchainConfigIfRequired(prebidConfig){
+	if(CONFIG.isSchainEnabled){
+		prebidConfig["schain"] = CONFIG.getSchainObject();
+	}
+}
+
+exports.assignSchainConfigIfRequired = assignSchainConfigIfRequired;
+
+function enablePrebidPubMaticAnalyticIfRequired(){
+	if(isPrebidPubMaticAnalyticsEnabled && util.isFunction(window[pbNameSpace].enableAnalytics)){
+		window[pbNameSpace].enableAnalytics({
+			provider: "pubmatic",
+			options: {
+				publisherId: CONFIG.getPublisherId(),
+				profileId: CONFIG.getProfileID(),
+				profileVersionId: CONFIG.getProfileDisplayVersionID()
+			}
+		});
+	}
+}
+
+exports.enablePrebidPubMaticAnalyticIfRequired = enablePrebidPubMaticAnalyticIfRequired;
+
+function throttleAdapter(randomNumber, adapterID){
+	return !(randomNumber >= CONFIG.getAdapterThrottle(adapterID));
+}
+
+exports.throttleAdapter = throttleAdapter;
+
+function generateAdUnitsArray(activeSlots, impressionID){
 	var adUnits = {};// create ad-units for prebid
-	var randomNumberBelow100 = adapterManager.getRandomNumberBelow100();
+	var randomNumberBelow100 = util.getRandomNumberBelow100();
 
 	CONFIG.forEachAdapter(function(adapterID, adapterConfig){
 		// Assumption: all partners are running through PreBid,
@@ -615,8 +774,10 @@ function fetchBids(activeSlots, impressionID){
 
 			//serverSideEabled: we do not want to throttle them at client-side
 			/* istanbul ignore if */
-			if(CONFIG.isServerSideAdapter(adapterID) || adapterManager.throttleAdapter(randomNumberBelow100, adapterID) == false){
-				adapterManager.setInitTimeForSlotsForAdapter(activeSlots, adapterID);
+			if(CONFIG.isServerSideAdapter(adapterID) || refThis.throttleAdapter(randomNumberBelow100, adapterID) == false){
+				util.forEachOnObject(activeSlots, function(j, slot){
+					bidManager.setCallInitTime(slot.getDivID(), adapterID);
+				});
 				refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
 			}else{
 				util.log(adapterID+CONSTANTS.MESSAGES.M2);
@@ -633,86 +794,259 @@ function fetchBids(activeSlots, impressionID){
 		}
 	}
 
+	return adUnitsArray;
+}
+
+exports.generateAdUnitsArray = generateAdUnitsArray;
+
+function addOnBidResponseHandler(){
+	if(util.isFunction(window[pbNameSpace].onEvent)){
+		if(!onEventAdded){
+			window[pbNameSpace].onEvent('bidResponse', refThis.pbBidStreamHandler);
+			onEventAdded = true;
+		}		
+	} else {
+		util.logWarning("PreBid js onEvent method is not available");
+		return;
+	}
+}
+
+exports.addOnBidResponseHandler = addOnBidResponseHandler;
+
+function setPrebidConfig(){
+	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
+		var prebidConfig = {
+			debug: util.isDebugLogEnabled(),
+			cache: {
+				url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH
+			},
+			bidderSequence: "random",					
+			disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
+			enableSendAllBids: CONFIG.getSendAllBidsStatus(),
+			targetingControls: {
+				alwaysIncludeDeals: true
+			},
+			testGroupId: parseInt(PWT.testGroupId || 0)
+		};
+
+		refThis.assignUserSyncConfig(prebidConfig);
+		refThis.assignGdprConfigIfRequired(prebidConfig);
+		refThis.assignCcpaConfigIfRequired(prebidConfig);
+		refThis.assignCurrencyConfigIfRequired(prebidConfig);
+		refThis.assignSchainConfigIfRequired(prebidConfig);
+		refThis.assignSingleRequestConfigForBidders(prebidConfig);
+		// Adding a hook for publishers to modify the Prebid Config we have generated
+		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+		//todo: stop supporting this hook let pubs use pbjs.requestBids hook
+		// do not set any config below this line as we are executing the hook above
+		window[pbNameSpace].setConfig(prebidConfig);
+	} else {
+		util.logWarning("PreBidJS setConfig method is not available");
+	}
+}
+
+exports.setPrebidConfig = setPrebidConfig;
+
+
+function getPbjsAdServerTargetingConfig(){
+	// Todo: Handle send-all bids feature enabled case
+	//		we will need to add bidder specific keys?? do we?
+	// todo: refer constants for key names
+	/*
+		Todo: 
+			what if we do not add a handler for some keys? do we need to add handler to all if we want to add for one?
+			does custom keys do not get used in send-all-bids?
+			do we always need to update the prebid targeting keys config in?
+			what keys in prebid can be re-used?
+	*/
+	return [
+    	//todo: what abt hb_deal, hb_uuid(video?), hb_cache_id(video?), hb_cache_host(video?) ?
+        {
+            key: "pwtpid", //hb_bidder
+            val: function(bidResponse) {
+                return bidResponse.bidderCode;
+            }
+        }, {
+            key: "pwtsid", //hb_adid
+            val: function(bidResponse) {
+                return bidResponse.adId;
+            }
+        }, {
+            key: "pwtecp", //hb_pb
+            val: function(bidResponse) {
+                // return bidResponse.pbMg;
+                return (bidResponse.cpm||0).toFixed(CONSTANTS.COMMON.BID_PRECISION);
+            }
+        }, {
+            key: 'pwtsz', //hb_size
+            val: function (bidResponse) {
+                return bidResponse.size;
+            }
+        }, {
+            key: 'hb_source', //hb_source // we do not want it, so send empty, suppressEmptyKeys feature will prevent it being passed
+            // do not change it in prebid.js project constants file
+            val: function (bidResponse) {
+                // return bidResponse.source;
+                return '';
+            }
+        }, {
+            key: 'pwtplt', //hb_format
+            val: function (bidResponse) {
+                // return bidResponse.mediaType;
+                return (bidResponse.native ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
+            }
+        },
+        {
+        	key: 'pwtdid', // hb_deal
+        	val: function(bidResponse){ // todo: do we want to concat dealchannel as well?
+        		return bidResponse.dealId || '';
+        	}
+		},  
+		{
+        	key: 'pwtdeal', // hb_deal
+			val: function(bidResponse){ // todo: do we want to concat dealchannel as well?
+				if(bidResponse.dealId){
+					bidResponse.dealChannel = bidResponse.dealChannel || "PMP";
+					return bidResponse.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidResponse.dealId + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + bidResponse.adId;
+				}
+				return '';
+			}
+        },     
+        {
+            key: 'pwtbst', // our custom
+            val: function(bidResponse) {
+                return 1;
+            }
+        },               
+        {
+        	key: 'pwtpubid', // custom
+        	val: function(bidResponse){
+        		return CONFIG.getPublisherId();
+        	}
+        },
+        {
+        	key: 'pwtprofid', // custom
+        	val: function(bidResponse){
+        		return CONFIG.getProfileID();
+        	}
+        },
+        {
+        	key: 'pwtverid', // custom
+        	val: function(bidResponse){ // todo: empty value?
+        		return CONFIG.getProfileDisplayVersionID();
+        	}
+        },
+        {
+        	key: 'pwtm', // custom
+        	val: function(bidResponse){ 
+        	// todo: value? is it meta-data feature? is it in use?
+        		return '';
+        	}
+		}
+    ];
+}
+
+exports.getPbjsAdServerTargetingConfig = getPbjsAdServerTargetingConfig;
+
+function setPbjsBidderSettingsIfRequired(){
+	if(isPrebidPubMaticAnalyticsEnabled === false){
+		return;
+	}
+
+	window[pbNameSpace].bidderSettings = {
+		'standard': {
+			'suppressEmptyKeys': true, // this boolean flag can be used to avoid sending those empty values to the ad server.
+		}		
+	};
+
+	if(CONFIG.isUsePrebidKeysEnabled() === false){
+		window[pbNameSpace].bidderSettings['standard']['adserverTargeting'] = getPbjsAdServerTargetingConfig();
+	}
+
+	// adding bidder level settings
+	CONFIG.forEachAdapter(function(adapterID){
+		if(window[pbNameSpace].bidderSettings.hasOwnProperty(adapterID) === false){
+			window[pbNameSpace].bidderSettings[adapterID] = {};
+
+			// adding bidCpmAdjustment			
+			window[pbNameSpace].bidderSettings[adapterID]['bidCpmAdjustment'] = function(bidCpm, bid){
+				return window.parseFloat((bidCpm * CONFIG.getAdapterRevShare(adapterID)).toFixed(CONSTANTS.COMMON.BID_PRECISION));
+			}
+		}
+	});
+}
+
+exports.setPbjsBidderSettingsIfRequired = setPbjsBidderSettingsIfRequired;
+
+function pbjsBidsBackHandler(bidResponses, activeSlots) {
+	util.log("In PreBid bidsBackHandler with bidResponses: ");
+	util.log(bidResponses);
+	setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
+	//refThis.handleBidResponses(bidResponses);
+	//TODO: this blockk is used only for analytics enabled thus it should be covered in callback function?
+	//		callback function behaviour will be different for different controllers?
+	//			diff behaviour can be managed in respective controller code
+	//		making the callback related code changes will be good to manage respective code	
+	// we may not request bids for all slots from Prebid if we do not find mapping for a slot thus looping on activeSlots
+	function setPossibleBidRecieved(){
+		util.forEachOnArray(activeSlots, function(i, activeSlot){
+			bidManager.setAllPossibleBidsReceived(activeSlot.getDivID());
+		});
+	}
+	if(CONFIG.getAdServerCurrency()){
+		//Added timeout for issue in GPT should execute dfp as soon as all bids are available
+		setTimeout(setPossibleBidRecieved,300);
+	}
+	else{
+		setPossibleBidRecieved();
+	}
+}
+
+exports.pbjsBidsBackHandler = pbjsBidsBackHandler;
+
+// this function will be called by controllers, 
+// will take care of setting the config as it is configured thru UI
+function initPbjsConfig(){
+	if(! window[pbNameSpace]){ // todo: move this code owt.js
+		util.logError("PreBid js is not loaded");
+		return;
+	}
+	window[pbNameSpace].logging = util.isDebugLogEnabled();
+	refThis.setPrebidConfig();
+	refThis.enablePrebidPubMaticAnalyticIfRequired();
+	refThis.setPbjsBidderSettingsIfRequired();
+}
+exports.initPbjsConfig = initPbjsConfig;
+
+function fetchBids(activeSlots){
+
+	var impressionID = util.generateUUID();
+	// todo: 
+	// 	Accept a call back function, pass it from controllers only if pbjs-analytics is enabled
+	//		if possible try to use the callback for all cases
+	//  TRY not make many changes in GPT controller
+
+	/* istanbul ignore else */
+	if(! window[pbNameSpace]){ // todo: move this code owt.js
+		util.logError("PreBid js is not loaded");
+		return;
+	}
+
+	// calling some bid-manager functions to reset, and set new sizes
+	// todo: can be moved to a function
+	util.forEachOnArray(activeSlots, function(key, slot){
+        var divID = slot.getDivID();
+        bidManager.resetBid(divID, impressionID);
+        bidManager.setSizes(divID, util.generateSlotNamesFromPattern(slot, "_W_x_H_"));
+    });	
+
+	// todo: this is the function that basically puts bidder params in all adUnits, expose it separately
+	var adUnitsArray = refThis.generateAdUnitsArray(activeSlots, impressionID);	
+
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window[pbNameSpace]){
 
 		try{
-			/* istanbul ignore else */
-			//if(util.isFunction(window[pbNameSpace].setBidderSequence)){
-			//	window[pbNameSpace].setBidderSequence("random");
-			//}
-
-			if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
-				var prebidConfig = {
-					debug: util.isDebugLogEnabled(),
-					cache: {
-						url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH
-					},
-					bidderSequence: "random",
-					userSync: {
-						enableOverride: true,
-						syncsPerBidder: 0,
-						filterSettings: {
-							iframe: {
-								bidders: "*",   // '*' means all bidders
-								filter: "include"
-							}
-						},
-						enabledBidders: (function(){
-							var arr = [];
-							CONFIG.forEachAdapter(function(adapterID){
-								arr.push(adapterID);
-							});
-							return arr;
-						})(),
-						syncDelay: 2000, //todo: default is 3000 write image pixels 5 seconds after the auction
-					},
-					disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
-				};
-
-				if (CONFIG.getGdpr()) {
-					prebidConfig["consentManagement"] = {};
-					prebidConfig["consentManagement"]["gdpr"] = {
-						cmpApi: CONFIG.getCmpApi(),
-						timeout: CONFIG.getGdprTimeout(),
-						allowAuctionWithoutConsent: CONFIG.getAwc()
-					};
-				}
-				if (CONFIG.getCCPA()) {
-					if(!prebidConfig["consentManagement"]){
-						prebidConfig["consentManagement"] = {};
-					}
-					prebidConfig["consentManagement"]["usp"] = {
-						cmpApi: CONFIG.getCCPACmpApi(),
-						timeout: CONFIG.getCCPATimeout(),
-					};
-				}
-				//remove true and implement getCurrency() in config
-				// CONFIG.getCurrency()
-				if(CONFIG.getAdServerCurrency()){
-					// get AdServer currency from Config
-					// Log in console 
-					util.log(CONSTANTS.MESSAGES.M26 + CONFIG.getAdServerCurrency());
-					prebidConfig["currency"] = {
-						"adServerCurrency": CONFIG.getAdServerCurrency(), 
-						"granularityMultiplier": 1, 
-					};
-
-				}
-				if(CONFIG.isSchainEnabled){
-					prebidConfig["schain"] = CONFIG.getSchainObject();
-				}
-				refThis.assignSingleRequestConfigForBidders(prebidConfig);
-				// Adding a hook for publishers to modify the Prebid Config we have generated
-				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
-
-				if(CONFIG.isUserIdModuleEnabled()){
-					prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
-				}
-
-				window[pbNameSpace].setConfig(prebidConfig);
-			}
-
 			/* With prebid 2.0.0 it has started using FunHooks library which provides
 			   proxy object instead of wrapper function by default so in case of safari and IE 
 			   below check of util gives us Object instead of function hence return false and does
@@ -726,27 +1060,15 @@ function fetchBids(activeSlots, impressionID){
 				// Adding a hook for publishers to modify the adUnits we are passing to Prebid
 				util.handleHook(CONSTANTS.HOOKS.PREBID_REQUEST_BIDS, [ adUnitsArray ]);
 				
+				if(isPrebidPubMaticAnalyticsEnabled === false){
+					// we do not want this call when we have PrebidAnalytics enabled
+					refThis.addOnBidResponseHandler();	
+				}
+
 				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
-					// Note: Though we are not doing anything in the bidsBackHandler, it is required by PreBid
-					bidsBackHandler: function(bidResponses) {
-						util.log("In PreBid bidsBackHandler with bidResponses: ");
-						util.log(bidResponses);
-						setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
-						//refThis.handleBidResponses(bidResponses);						
-						// we may not request bids for all slots from Prebid if we do not find mapping for a slot thus looping on activeSlots
-						function setPossibleBidRecieved(){
-							util.forEachOnArray(activeSlots, function(i, activeSlot){
-								bidManager.setAllPossibleBidsReceived(activeSlot.getDivID());
-							});
-						}
-						if(CONFIG.getAdServerCurrency()){
-							//Added timeout for issue in GPT should execute dfp as soon as all bids are available
-							setTimeout(setPossibleBidRecieved,300);
-						}
-						else{
-							setPossibleBidRecieved();
-						}
+					bidsBackHandler: function(bidResponses){
+						refThis.pbjsBidsBackHandler(bidResponses, activeSlots);
 					},
 					timeout: timeoutForPrebid
 				});
@@ -765,11 +1087,36 @@ function fetchBids(activeSlots, impressionID){
 exports.fetchBids = fetchBids;
 /* end-test-block */
 
+// returns the highest bid and its key value pairs
+function getBid(divID){
+	var wb = window[pbNameSpace].getHighestCpmBids([divID])[0] || null;
+	if(wb){
+		wb.adHtml = wb.ad;
+		wb.adapterID = wb.bidder;
+		wb.netEcpm = wb.cpm;
+		wb.grossEcpm = wb.originalCpm;
+	}
 
+	var outputObj =  {
+		wb: wb,
+		kvp: window[pbNameSpace].getAdserverTargetingForAdUnitCode([divID]) || null
+	};
+	if(isPrebidPubMaticAnalyticsEnabled && outputObj.kvp['pwtdeal'] ){
+		delete outputObj.kvp['pwtdeal'];// Check for null object && usePrebidAnalyticsAdapter 
+	} 
+	return outputObj;
+}
+
+exports.getBid = getBid;
+
+
+// todo: is it needed?
 function getParenteAdapterID() {
 	return refThis.parentAdapterID;
 }
 
+// todo : rename to IDHub Config, change references
+//		check what is missing
 function setConfig(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 		var prebidConfig = {
@@ -787,13 +1134,14 @@ function setConfig(){
 			};
 		}
 
-		// Adding a hook for publishers to modify the Prebid Config we have generated
-		// util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+		
 
 		if(CONFIG.isUserIdModuleEnabled()){
 			prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 		}
-
+		
+		// Adding a hook for publishers to modify the Prebid Config we have generated
+		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 		window[pbNameSpace].setConfig(prebidConfig);
 		window[pbNameSpace].requestBids([]);
 	}
@@ -805,6 +1153,7 @@ exports.setConfig = setConfig;
 exports.getParenteAdapterID = getParenteAdapterID;
 /* end-test-block */
 
+// todo: remove this
 exports.register = function(){
 	return {
 		fB: refThis.fetchBids,

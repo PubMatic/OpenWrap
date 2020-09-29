@@ -19,7 +19,7 @@ exports.pwt = {
 	identityOnly:"0",
 	ccpa: "0",
 	ccpaCmpApi: "iab",
-	ccpaTimeout: "10000",
+	ccpaTimeout: "10000"
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
@@ -224,14 +224,14 @@ exports.slotConfig = {
 					"skip": 1,
 					"skipmin": 10,
 					"skipafter": 15
+				},
+				"partnerConfig":{
+					"pubmatic": {
+						"outstreamAU":"pubmatic-test"
+					}
 				}
 			},
-			"renderer":{
-				url: "https://acdn.adnxs.com/video/outstream/ANOutstreamVideo.js",
-				render: function () {
-					//some renderer function 
-				}
-			}
+		
 		},
 		"AU2": {
 			"banner": {}

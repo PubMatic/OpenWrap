@@ -22,6 +22,7 @@ var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
 var refThis = this;
+refThis.idsAppendedToAdUnits = false;
 var mediaTypeConfigPerSlot = {};
 exports.mediaTypeConfig = mediaTypeConfigPerSlot;
 
@@ -1131,6 +1132,9 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					if(CONFIG.getAdServer() != CONSTANTS.AD_SERVER.DFP){
 						if(config.video["config"]){
 							mediaTypeObject["video"] = config.video["config"];
+							if(config.video["partnerConfig"]){
+								mediaTypeObject["partnerConfig"] = config.video["partnerConfig"];
+							}
 						}
 						else{
 							refThis.logWarning("Video Config will not be considered as no config has been provided for slot" + JSON.stringify(currentSlot) + " or there is no configuration defined in default.");
@@ -1292,26 +1296,20 @@ exports.clearPreviousTargeting = function(){
 	}
 };
 
-exports.setUserIdTargeting = function(){
-	refThis.clearPreviousTargeting();
-	if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
-		var userIds = refThis.getUserIds();
-		if(!refThis.isEmptyObject(userIds)){
-			refThis.setUserIdToGPT(userIds);
-		}
-	}else {
-		refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M1);
-		return;
-	}
-};
-
-exports.setUserIdToGPT = function(userIds){
-	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M2, userIds);
-	window.googletag.pubads().setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS,JSON.stringify(userIds));
-};
-
 exports.getUserIds = function(){
-	return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
+	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
+		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
+	} else{
+		refThis.logWarning("getUserIds" + CONSTANTS.MESSAGES.IDENTITY.M6);
+	};
+};
+
+exports.getUserIdsAsEids = function(){
+	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids)) {
+		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids();
+	} else {
+		refThis.logWarning("getUserIdsAsEids" + CONSTANTS.MESSAGES.IDENTITY.M6);
+	};
 };
 
 exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
@@ -1375,6 +1373,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
 	var netEcpm, grossEcpm, kgpv, bidId, adapterId;
+	var sspID = "";
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 
 	/* istanbul ignore else */
@@ -1424,6 +1423,11 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	else {
 		kgpv = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].kgpv;
 	}
+	if(refThis.isFunction(theBid.getsspID)){
+		sspID = theBid.getsspID();
+	}else{
+		sspID = theBid.sspID || "";	
+	}
 
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
@@ -1437,6 +1441,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&en=" + window.encodeURIComponent(netEcpm);
 	pixelURL += "&eg=" + window.encodeURIComponent(grossEcpm);
 	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
+	pixelURL += "&piid=" + window.encodeURIComponent(sspID);
 
 	return CONSTANTS.COMMON.PROTOCOL + pixelURL;
 };
@@ -1509,4 +1514,53 @@ exports.getDevicePlatform = function(){
 		refThis.logError("Unable to get device platform" , ex);
 	}
 	return deviceType;
-}
+};
+
+exports.updateAdUnits = function(adUnits){
+	if(refThis.isArray(adUnits)){
+		adUnits.forEach(function(adUnit){
+			adUnit.bids.forEach(function(bid){
+				refThis.updateUserIds(bid);
+			});
+		});
+	} else if(!refThis.isEmptyObject(adUnits)){
+		adUnits.bids.forEach(function(bid){
+			refThis.updateUserIds(bid);
+		});
+	}
+};
+
+exports.updateUserIds = function(bid){
+	// refThis.idsAppendedToAdUnits =true;
+	if(refThis.isUndefined(bid.userId)){
+		bid["userId"] = refThis.getUserIds();
+	}
+	else if(bid.userId){
+		/* istanbul ignore next */
+		bid.userId = Object.assign(bid.userId, refThis.getUserIds());
+	}
+	if(refThis.isUndefined(bid.userIdAsEids)){
+		bid["userIdAsEids"] = refThis.getUserIdsAsEids();
+	}
+	else if(refThis.isArray(bid.userIdAsEids)){
+		var idsPresent = new Set();
+		var ids = refThis.getUserIdsAsEids().concat(bid.userIdAsEids);
+		if(refThis.isArray(ids) && ids.length > 0){
+			ids = ids.filter(function(id){
+				if(id.source){
+					if(idsPresent.has(id.source)){
+						return false;
+					}
+					idsPresent.add(id.source);
+				}
+				return true;
+				
+			})
+		}
+		bid.userIdAsEids = ids;
+	}
+};
+
+exports.getRandomNumberBelow100 = function(){
+	return Math.floor(Math.random()*100);
+};

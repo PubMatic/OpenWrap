@@ -13,18 +13,16 @@ exports.registeredAdapters = registeredAdapters;
 
 var refThis = this;
 
+// when this function executes, it is only called for prebid adapter; we can remove this flow totally
+// todo: this function can be removed
 exports.callAdapters = function(activeSlots){	
 	var impressionID = util.generateUUID();
 	refThis.resetSlots(activeSlots, impressionID);
 	refThis.callAdapter(registeredAdapters, activeSlots, impressionID);
 };
 
-function getRandomNumberBelow100(){
-	return Math.floor(Math.random()*100);
-}
-
-exports.getRandomNumberBelow100 = getRandomNumberBelow100;
-
+// when this function executes, it is only called for prebid adapter; we can remove this flow totally
+// todo: this function can be removed
 function callAdapter(adapters, slots, impressionID){
 	util.forEachOnObject(adapters, function(adapterID, theAdapter){
 		//Note: if you have any other parent-adapter like prebid, and 
@@ -39,6 +37,7 @@ function callAdapter(adapters, slots, impressionID){
 exports.callAdapter = callAdapter;
 /* end-test-block */
 
+// todo: this function can be removed
 function resetSlots(slots, impressionID){
 	util.forEachOnArray(slots, function(key, slot){
 		var divID = slot.getDivID();
@@ -51,12 +50,8 @@ function resetSlots(slots, impressionID){
 exports.resetSlots = resetSlots;
 /* end-test-block */
 
-function throttleAdapter(randomNumber, adapterID){
-	return !(randomNumber >= CONFIG.getAdapterThrottle(adapterID));
-}
-
-exports.throttleAdapter = throttleAdapter;
-
+// this function is also called by adapters/Prebid to log the init time
+// todo: this function can be removed
 function setInitTimeForSlotsForAdapter(slots, adapterID){
 	util.forEachOnObject(slots, function(j, slot){
 		bidManager.setCallInitTime(slot.getDivID(), adapterID);
@@ -65,6 +60,7 @@ function setInitTimeForSlotsForAdapter(slots, adapterID){
 
 exports.setInitTimeForSlotsForAdapter = setInitTimeForSlotsForAdapter;
 
+// todo: this function can be removed
 function registerAdapter(bidAdaptor) {
 	if (bidAdaptor) {
 		var adapterID = bidAdaptor.ID();
@@ -83,9 +79,9 @@ function registerAdapter(bidAdaptor) {
 exports.registerAdapter = registerAdapter;
 /* end-test-block */
 
+// todo: this function can be removed
 function registerAdapters(){
 	refThis.registerAdapter(prebid.register());
 };
-
 
 exports.registerAdapters = registerAdapters;

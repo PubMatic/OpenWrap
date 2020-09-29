@@ -228,3 +228,15 @@ exports.getSchainObject = function(){
 exports.isSchainEnabled = function(){
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN]) || 0;
 };
+
+exports.isPrebidPubMaticAnalyticsEnabled = function(){
+	// note: not using window.parseInt as this function is also used in build.sh that runs in NodeJS environment
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_PM_ANALYTICS]) === 1;
+};
+
+exports.isUsePrebidKeysEnabled = function(){
+	// note: not using window.parseInt as this function is also used in build.sh that runs in NodeJS environment
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.USE_PREBID_KEYS]) === 1;
+};
+
+exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";

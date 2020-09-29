@@ -29,15 +29,14 @@ exports.COMMON = {
 	"IDENTITY_PARTNERS":"identityPartners",
 	"IDENTITY_CONSUMERS": "identityConsumers",
 	"IDENTITY_ONLY":"identityOnly",
-	"GAM":"eb",
-	"TAM":"tam",
 	"PREBID":"prebid",	
 	"PROTOCOL" : "https://",
 	"SLOT_CONFIG": "slotConfig"	,
 	"DEFAULT": "default",
 	"ADSERVER":"adserver",
 	"SCHAINOBJECT":"sChainObj",
-	"SCHAIN":"sChain"
+	"SCHAIN":"sChain",
+	"PBJS_NAMESPACE":"prebidObjName"
 };
 
 exports.CONFIG = {
@@ -83,7 +82,9 @@ exports.CONFIG = {
 	"DEFAULT_CCPA_TIMEOUT": 10000,
 	"CACHE_PATH":"/cache",
 	"CACHE_URL":"https://ow.pubmatic.com",
-	"VIDEO_PARAM":"video"
+	"VIDEO_PARAM":"video",
+	"ENABLE_PB_PM_ANALYTICS": "pubAnalyticsAdapter",
+	"USE_PREBID_KEYS": "usePBJSKeys"
 };
 
 exports.METADATA_MACROS = {
@@ -184,7 +185,8 @@ exports.MESSAGES = {
 		M2: "Setting UserIds to EB ",
 		M3: "Unable to parse User ID configuration",
 		M4: "User Id Condiguration Sent to prebid ",
-		M5: "Identity only enabled, no need to process. Calling Original function "
+		M5: "Identity only enabled, no need to process. Calling Original function ",
+		M6: " function is not available. Make sure userId module is included."
 	}
 };
 
