@@ -217,7 +217,7 @@ var constCommonMacroForAdUnitIndexRegExp = new RegExp(CONSTANTS.MACROS.AD_UNIT_I
 var constCommonMacroForIntegerRegExp = new RegExp(CONSTANTS.MACROS.INTEGER, macroRegexFlag);
 var constCommonMacroForDivRegExp = new RegExp(CONSTANTS.MACROS.DIV, macroRegexFlag);
 
-exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheckMappingForVideo){
+exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheckMappingForVideo,videoSlotName){
 	var slotNames = [],
 		slotName,
 		slotNamesObj = {},
@@ -225,45 +225,43 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheck
 		sizeArrayLength,
 		i
 		;
-  	/* istanbul ignore else */
+	  /* istanbul ignore else */
 	if(refThis.isObject(activeSlot) && refThis.isFunction(activeSlot.getSizes)){
 		sizeArray = activeSlot.getSizes();
+		var divId = refThis.isFunction(activeSlot.getDivID) ? activeSlot.getDivID() : activeSlot.getSlotId().getDomId();		
+		if(shouldCheckMappingForVideo){
+			//TODO: remove below line and update above live for assigning sizeArray after remove phantom js and including chromeheadless
+			sizeArray = Array.from(activeSlot.getSizes());
+			var config = refThis.mediaTypeConfig[divId];
+			if(config && config.video){
+				sizeArray.unshift([0,0]);
+			}
+		}
 		sizeArrayLength = sizeArray.length;
 		/* istanbul ignore else */
 		if( sizeArrayLength > 0){
 			for(i = 0; i < sizeArrayLength; i++){
 				/* istanbul ignore else */
-				if((sizeArray[i].length == 2 && sizeArray[i][0] && sizeArray[i][1]) || (refThis.isFunction(sizeArray[i].getWidth) && refThis.isFunction(sizeArray[i].getHeight))){
+				if((sizeArray[i].length == 2 && (sizeArray[i][0] && sizeArray[i][1]) || (sizeArray[i][0] == 0 && sizeArray[i][1] ==0)) || (refThis.isFunction(sizeArray[i].getWidth) && refThis.isFunction(sizeArray[i].getHeight))){
 					var adUnitId = refThis.isFunction(activeSlot.getAdUnitID) ? activeSlot.getAdUnitID() : activeSlot.getSlotId().getAdUnitPath();
-					var divId = refThis.isFunction(activeSlot.getDivID) ? activeSlot.getDivID() : activeSlot.getSlotId().getDomId();
+					divId = refThis.isFunction(activeSlot.getDivID) ? activeSlot.getDivID() : activeSlot.getSlotId().getDomId();
 					var adUnitIndex = refThis.isFunction(activeSlot.getAdUnitIndex) ? activeSlot.getAdUnitIndex() : activeSlot.getSlotId().getId().split("_")[1];
-					var width = sizeArray[i][0] || sizeArray[i].getWidth();
-					var height = sizeArray[i][1] || sizeArray[i].getHeight();
+					var width = sizeArray[i][0] == 0 ? 0 : sizeArray[i][0] || sizeArray[i].getWidth();
+					var height = sizeArray[i][1] == 0 ? 0 : sizeArray[i][1] || sizeArray[i].getHeight();
 					slotName = pattern;
 					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, adUnitId)
-                    .replace(constCommonMacroForAdUnitIndexRegExp, adUnitIndex)
-                    .replace(constCommonMacroForIntegerRegExp, refThis.getIncrementalInteger())
+					.replace(constCommonMacroForAdUnitIndexRegExp, adUnitIndex)
+					.replace(constCommonMacroForIntegerRegExp, refThis.getIncrementalInteger())
 					.replace(constCommonMacroForDivRegExp, divId);
 					// .replace(constCommonMacroForWidthRegExp, width)
 					// .replace(constCommonMacroForHeightRegExp, height);
-					if(shouldCheckMappingForVideo){
-						var config = refThis.mediaTypeConfig[divId];
-						if(config && config.video){
-							slotName = slotName.replace(constCommonMacroForWidthRegExp, "0")
-									.replace(constCommonMacroForHeightRegExp, "0");
-						}
-						else{
-							slotName = slotName.replace(constCommonMacroForWidthRegExp, width)
-									.replace(constCommonMacroForHeightRegExp, height);
-						}
-					}
-					else{
 						slotName = slotName.replace(constCommonMacroForWidthRegExp, width)
-								.replace(constCommonMacroForHeightRegExp, height);
-					}
-					
-                    /* istanbul ignore else */
-					if(! refThis.isOwnProperty(slotNamesObj, slotName)){
+								.replace(constCommonMacroForHeightRegExp, height);						
+					/* istanbul ignore else */
+		if(width == 0 && height == 0){
+		  videoSlotName[0] = slotName;
+		}
+		else if(! refThis.isOwnProperty(slotNamesObj, slotName)){
 						slotNamesObj[slotName] = "";
 						slotNames.push(slotName);
 					}
@@ -346,22 +344,23 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
   *     identification in prebid resposne.
   */
 
-exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids){
+ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids){
 	var activeSlotsLength = activeSlots.length,
 		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_GENERATION_PATTERN] || "";
 	/* istanbul ignore else */
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
 		refThis.forEachOnArray(activeSlots, function(i, activeSlot){
-			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern, true);
+			var videoSlotName = [];
+			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern, true, videoSlotName);
 			if(generatedKeys.length > 0){
-				refThis.callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids, keyGenerationPattern);
+				refThis.callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids, keyGenerationPattern,videoSlotName);
 			} 		
 		});
 	}
 };
 
 // private
-function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern){
+function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern, videoSlotName){
 	var keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] || null,
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
@@ -386,8 +385,13 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				}
 			}
 			else{
-				keyConfig = keyLookupMap[generatedKey];
-			}
+	  if(videoSlotName && videoSlotName.length == 1){
+		keyConfig = keyLookupMap[videoSlotName[0]];
+	  }
+	  if(!keyConfig){
+		keyConfig = keyLookupMap[generatedKey];
+	  }
+	  }
 			if(!keyConfig){
 				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
 			}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
@@ -396,7 +400,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				callHandlerFunction = true;
 			}
 		}
-
+		
 		/* istanbul ignore else */
 		if(callHandlerFunction){
 
@@ -1353,6 +1357,9 @@ exports.getUserIdParams = function(params){
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}	
+	if(userIdParams && userIdParams.params && userIdParams.params['loadATS'] == 'true'){
+		refThis.initLiveRampAts(userIdParams);
+	}
 	return userIdParams;
 };
 
@@ -1561,6 +1568,30 @@ exports.updateUserIds = function(bid){
 	}
 };
 
+
+exports.initLiveRampAts = function(params){
+	function addATS() {
+		var atsScript = document.createElement('script');
+		if(params.params.cssSelectors && params.params.cssSelectors.length>0){
+			params.params.cssSelectors = params.params.cssSelectors.split(',');
+		}
+		atsScript.onload = function() {
+		  window.ats.start(        {
+			  "placementID": params.params.pid,
+			  "storageType":params.params.storageType,
+			  "detectionType": params.params.detectionType,
+			  "urlParameter": params.params.urlParameter,
+			  "cssSelectors":params.params.cssSelectors,// ["input[type=text]", "input[type=email]"],
+			  "logging": params.params.logging //"error"
+			});
+		};
+		atsScript.src = 'https://ats.rlcdn.com/ats.js';
+		document.body.appendChild(atsScript);
+	}
+	window.addEventListener("load", function()  {
+    	setTimeout(addATS, 1000);
+  	}); 
+}
 exports.getRandomNumberBelow100 = function(){
 	return Math.floor(Math.random()*100);
 };

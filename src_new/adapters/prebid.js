@@ -608,13 +608,15 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			*/
 		
 			util.forEachOnArray(sizes, function(index, size) {
-				var slotParams = {};
-
-				if (keyConfig["siteID"]) {
-					slotParams["siteId"] = keyConfig["siteID"];
+				var sltParams = {};
+				if(slotParams && slotParams.video){
+					sltParams["video"] = slotParams["video"];
 				}
-				slotParams["size"] = size;
-				adUnits [code].bids.push({bidder: adapterID, params: slotParams});
+				if (keyConfig["siteID"]) {
+					sltParams["siteId"] = keyConfig["siteID"];
+				}
+				sltParams["size"] = size;
+				adUnits [code].bids.push({bidder: adapterID, params: sltParams});
 			});
 			break;
 
@@ -875,7 +877,7 @@ function getPbjsAdServerTargetingConfig(){
             key: "pwtecp", //hb_pb
             val: function(bidResponse) {
                 // return bidResponse.pbMg;
-                return bidResponse.cpm;
+                return (bidResponse.cpm||0).toFixed(CONSTANTS.COMMON.BID_PRECISION);
             }
         }, {
             key: 'pwtsz', //hb_size
@@ -1157,7 +1159,6 @@ exports.getParenteAdapterID = getParenteAdapterID;
 exports.register = function(){
 	return {
 		fB: refThis.fetchBids,
-		ID: refThis.getParenteAdapterID,
-		sC:	refThis.setConfig
+		ID: refThis.getParenteAdapterID
 	};
 };
