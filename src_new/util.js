@@ -228,13 +228,6 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheck
   	/* istanbul ignore else */
 	if(refThis.isObject(activeSlot) && refThis.isFunction(activeSlot.getSizes)){
 		sizeArray = activeSlot.getSizes();
-		var divId = refThis.isFunction(activeSlot.getDivID) ? activeSlot.getDivID() : activeSlot.getSlotId().getDomId();		
-		if(shouldCheckMappingForVideo){
-			var config = refThis.mediaTypeConfig[divId];
-			if(config && config.video){
-				sizeArray.push([0,0]);
-			}
-		}
 		sizeArrayLength = sizeArray.length;
 		/* istanbul ignore else */
 		if( sizeArrayLength > 0){
@@ -242,7 +235,7 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheck
 				/* istanbul ignore else */
 				if((sizeArray[i].length == 2 && sizeArray[i][0] && sizeArray[i][1]) || (refThis.isFunction(sizeArray[i].getWidth) && refThis.isFunction(sizeArray[i].getHeight))){
 					var adUnitId = refThis.isFunction(activeSlot.getAdUnitID) ? activeSlot.getAdUnitID() : activeSlot.getSlotId().getAdUnitPath();
-					divId = refThis.isFunction(activeSlot.getDivID) ? activeSlot.getDivID() : activeSlot.getSlotId().getDomId();
+					var divId = refThis.isFunction(activeSlot.getDivID) ? activeSlot.getDivID() : activeSlot.getSlotId().getDomId();
 					var adUnitIndex = refThis.isFunction(activeSlot.getAdUnitIndex) ? activeSlot.getAdUnitIndex() : activeSlot.getSlotId().getId().split("_")[1];
 					var width = sizeArray[i][0] || sizeArray[i].getWidth();
 					var height = sizeArray[i][1] || sizeArray[i].getHeight();
