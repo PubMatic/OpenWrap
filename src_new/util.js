@@ -387,6 +387,9 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			else{
 	  if(videoSlotName && videoSlotName.length == 1){
 		keyConfig = keyLookupMap[videoSlotName[0]];
+		if(keyConfig){
+			generatedKey = videoSlotName[0];
+		}
 	  }
 	  if(!keyConfig){
 		keyConfig = keyLookupMap[generatedKey];
