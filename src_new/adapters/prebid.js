@@ -334,8 +334,10 @@ function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
 
-function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight){
+function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight, regexPattern){
 	var code, sizes, divID;
+	var mediaTypeConfig;
+	var partnerConfig;
 
 	if(CONFIG.isServerSideAdapter(adapterID)){
 		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
@@ -347,15 +349,35 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 	sizes = currentSlot.getSizes();
 
 	/* istanbul ignore else */
+	var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
+	mediaTypeConfig = adUnitConfig.mediaTypeObject;
+	if(mediaTypeConfig.partnerConfig){
+		partnerConfig = mediaTypeConfig.partnerConfig;
+	}
 	if(!util.isOwnProperty(adUnits, code)){
-		var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
+		//TODO: Remove sizes from below as it will be deprecated soon in prebid
+		// Need to check pubmaticServerBidAdapter in our fork after this change.
 		adUnits[code] = {
 			code: code,
-			mediaTypes: adUnitConfig.mediaTypeObject,
+			mediaTypes:{} ,
 			sizes: sizes,
 			bids: [],
 			divID : divID
 		};
+		//Assigning it individually since mediaTypes doesn't take any extra param apart from these.
+		// And We are now also getting partnerConfig for different partners
+		if(mediaTypeConfig.banner){
+			adUnits[code].mediaTypes["banner"] = mediaTypeConfig.banner;
+		}
+		if(mediaTypeConfig.native){
+			adUnits[code].mediaTypes["native"] = mediaTypeConfig.native;
+		}
+		if(mediaTypeConfig.video){
+			adUnits[code].mediaTypes["video"] = mediaTypeConfig.video;
+		}
+		if(adUnitConfig.renderer){
+			adUnits[code]["renderer"]= adUnitConfig.renderer;
+		}
 	} else if(CONFIG.isSingleImpressionSettingEnabled()){
 		// following function call basically checks whether the adapter is already configured for the given code in adunits object
 		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
@@ -363,7 +385,7 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 		}
 	}
 
-	pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits);	
+	pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits, partnerConfig, regexPattern);	
 }
 
 exports.generatedKeyCallbackForPbAnalytics = generatedKeyCallbackForPbAnalytics;
@@ -475,14 +497,14 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		mediaTypeConfig = adUnits[code].mediaTypes;		
 	}
 
-	pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits, partnerConfig);	
+	pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits, partnerConfig, regexPattern);	
 }
 
 /* start-test-block */
 exports.generatedKeyCallback = generatedKeyCallback;
 /* end-test-block */
 
-function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits, partnerConfig){
+function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits, partnerConfig, regexPattern){
 	var slotParams = {};
 	var mediaTypeConfig = adUnits[code].mediaTypes;
 	var sizes = adUnits[code].sizes;
@@ -496,7 +518,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 
 	if(isPrebidPubMaticAnalyticsEnabled){
 		slotParams["kgpv"] = generatedKey;
-		//todo do we also need to pass regexPattern ??
+		slotParams["regexPattern"] = regexPattern;
 	}
 
 	if(partnerConfig && Object.keys(partnerConfig).length>0){
