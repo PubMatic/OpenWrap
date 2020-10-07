@@ -1353,6 +1353,9 @@ exports.getUserIdParams = function(params){
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}	
+	if(userIdParams && userIdParams.params && userIdParams.params['loadATS'] == 'true'){
+		refThis.initLiveRampAts(userIdParams);
+	}
 	return userIdParams;
 };
 
@@ -1561,6 +1564,30 @@ exports.updateUserIds = function(bid){
 	}
 };
 
+
+exports.initLiveRampAts = function(params){
+	function addATS() {
+		var atsScript = document.createElement('script');
+		if(params.params.cssSelectors && params.params.cssSelectors.length>0){
+			params.params.cssSelectors = params.params.cssSelectors.split(',');
+		}
+		atsScript.onload = function() {
+		  window.ats.start(        {
+			  "placementID": params.params.pid,
+			  "storageType":params.params.storageType,
+			  "detectionType": params.params.detectionType,
+			  "urlParameter": params.params.urlParameter,
+			  "cssSelectors":params.params.cssSelectors,// ["input[type=text]", "input[type=email]"],
+			  "logging": params.params.logging //"error"
+			});
+		};
+		atsScript.src = 'https://ats.rlcdn.com/ats.js';
+		document.body.appendChild(atsScript);
+	}
+	window.addEventListener("load", function()  {
+    	setTimeout(addATS, 1000);
+  	}); 
+}
 exports.getRandomNumberBelow100 = function(){
 	return Math.floor(Math.random()*100);
 };
