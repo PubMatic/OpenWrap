@@ -477,7 +477,8 @@ describe('UTIL', function() {
 
     describe('#generateSlotNamesFromPattern', function() {
         var activeSlot = null,
-            pattern = null;
+            pattern = null,
+            videoSlot = [];
 
         beforeEach(function(done) {
             sinon.spy(UTIL, "isObject");
@@ -520,6 +521,8 @@ describe('UTIL', function() {
             activeSlot.getDivID.restore();
             activeSlot = null;
             pattern = null;
+            videoSlot = null;
+            UTIL.mediaTypeConfig ={};
             done();
         });
 
@@ -565,7 +568,67 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should have assigned videoSlot if video config is present',function(done){
+            videoSlot = [];
+            UTIL.mediaTypeConfig = {
+                "Div_1":{
+                    video:{
+                        'test':'property'
+                    }
+                }
+            }
+            // sinon.stub(UTIL, "mediaTypeConfig").returns();
+            pattern = '_DIV_@_W_x_H_';
+            var expectedResult = "Div_1@0x0";
+            var generatedKeys = UTIL.generateSlotNamesFromPattern(activeSlot, pattern, true, videoSlot);
+            expect(videoSlot[0]).to.be.equal(expectedResult);
+            done();
+        });
 
+        it('should not have assigned videoSlot if video config is not present',function(done){
+            videoSlot = [];
+            UTIL.mediaTypeConfig ={};
+            pattern = '_DIV_@_W_x_H_';
+            var expectedResult = "Div_1@0x0";
+            var generatedKeys = UTIL.generateSlotNamesFromPattern(activeSlot, pattern, true, videoSlot);
+            expect(videoSlot).to.be.deep.equal([]);
+            done();
+        });
+
+
+        it('should not have assigned videoSlot if video config is present but flag for video is false',function(done){
+            videoSlot = [];
+            UTIL.mediaTypeConfig = {
+                "Div_1":{
+                    video:{
+                        'test':'property'
+                    }
+                }
+            }
+            // sinon.stub(UTIL, "mediaTypeConfig").returns();
+            pattern = '_DIV_@_W_x_H_';
+            var expectedResult = "Div_1@0x0";
+            var generatedKeys = UTIL.generateSlotNamesFromPattern(activeSlot, pattern, false, videoSlot);
+            expect(videoSlot).to.be.deep.equal([]);
+            done();
+        });
+
+        it('should not update the sizes of active slot', function(){
+            videoSlot = [];
+            UTIL.mediaTypeConfig = {
+                "Div_1":{
+                    video:{
+                        'test':'property'
+                    }
+                }
+            }
+            UTIL.generateSlotNamesFromPattern(activeSlot, pattern, true, videoSlot);
+            var sizes = activeSlot.getSizes()
+            expect(sizes).to.be.deep.equal([
+                [1024, 120]
+            ]);
+
+        })
     });
 
     describe('#checkMandatoryParams', function() {
@@ -3238,18 +3301,23 @@ describe('UTIL', function() {
 
         describe('flow for normal mapping',function(){
 
-            if('should  call handler function',function(done){
+            it('should  call handler function',function(done){
                 adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] = undefined;
                 UTIL.forEachOnArray.should.be.calledOnce;
                 UTIL.getConfigFromRegex.should.not.be.called;
                 done();
             });
 
+            it('should called handler function with video mapping',function(done){
+                
+                done();
+            })
+
         });
 
         describe('flow for regex mapping',function(){
 
-            if('should  call handler function',function(done){
+            it('should  call handler function',function(done){
                 adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = undefined;
                 UTIL.forEachOnArray.should.be.calledOnce;
                 UTIL.getConfigFromRegex.should.be.calledOnce;
