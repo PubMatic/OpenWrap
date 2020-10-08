@@ -564,7 +564,7 @@ describe('UTIL', function() {
             activeSlot.getSizes.calledOnce.should.be.true;
             activeSlot.getAdUnitID.calledOnce.should.be.true;
             activeSlot.getAdUnitIndex.calledOnce.should.be.true;
-            activeSlot.getDivID.calledTwice.should.be.true;
+            activeSlot.getDivID.calledOnce.should.be.true;
             done();
         });
 
@@ -774,8 +774,7 @@ describe('UTIL', function() {
             done();
         });
 
-        //TODO : UnComment after changing phatomjs
-        xit('should check whether activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
+        it('should check whether activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
             UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
             UTIL.forEachOnArray.should.be.calledOnce;
             UTIL.generateSlotNamesFromPattern.should.be.calledOnce;
@@ -801,8 +800,7 @@ describe('UTIL', function() {
             done();
         });
 
-        //TODO : UnComment after changing phatomjs
-        xit('should check call handler function if activeslots is not empty ad key generation pattern is regex pattern', function(done) {
+        it('should check call handler function if activeslots is not empty ad key generation pattern is regex pattern', function(done) {
             adapterConfig.kgp = undefined;
             adapterConfig.kgp_rx = "_AU_@_DIV_@_W_x_H_";
             UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
