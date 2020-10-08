@@ -3262,25 +3262,37 @@ describe('UTIL', function() {
     });
     
     describe('#callHandlerFunctionForMapping',function(){
-        var adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern;
+        var adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern,videoSlotName,keyGenerationPattern,obj;
 
         beforeEach(function(done){
             adapterID  = commonAdapterID;
             adUnits = "adUnits";
+            keyGenerationPattern =  "_W_x_H_";
             adapterConfig = {
                 kgp: "_W_x_H_",
                 klm: {
-                    "generatedKeys": "some_vale"
+                    "0x0": "some_value"
                 }
             };
+            generatedKeys = ["300x250"];
+            videoSlotName = ["0x0"];
             impressionID = "impressionID";
             slotConfigMandatoryParams = "slotConfigMandatoryParams";
             activeSlots = [new SLOT("slot_1"), new SLOT("slot_2")];
+            activeSlots[0].setSizes([300,250]);
+            activeSlots[1].setSizes([300,250]);
             obj = {
-                handlerFunction: function() {
+                handlerFunction : function(a,b,c,d,e,f,g,h,i,j) {
                     return "handlerFunction"
                 }
-            };
+            }
+            UTIL.getPartnerParams = function(){
+                return "parnterParams";
+            }
+            UTIL.checkMandatoryParams = function(){
+                return true;
+            }
+            sinon.spy(UTIL,"checkMandatoryParams")
             sinon.spy(obj, "handlerFunction");
             addZeroBids = true;
             done();
@@ -3291,11 +3303,15 @@ describe('UTIL', function() {
             adUnits = null;
             adapterConfig = null;
             impressionID = null;
+            videoSlotName = null;
             slotConfigMandatoryParams = null;
+            keyGenerationPattern = null;
             activeSlots = null;
-            obj.handlerFunction.restore();
-            obj.handlerFunction = null;
+            generatedKeys = null;
+            handlerFunction = null;
             addZeroBids = null;
+            obj.handlerFunction.restore();
+            UTIL.checkMandatoryParams.restore();
             done();
         });
 
@@ -3309,7 +3325,12 @@ describe('UTIL', function() {
             });
 
             it('should called handler function with video mapping',function(done){
-                
+                adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] = undefined;
+                UTIL.callHandlerFunctionForMapping(adapterID,adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,addZeroBids,keyGenerationPattern,videoSlotName);
+                // handlerFunction.should.be.calledOnce;
+                // expect(obj.handlerFunction).to.have.been.called.withArgs();
+                // obj.handlerFunction.calledWith(null,null,null).should.be.true;
+                obj.handlerFunction.calledWith(adapterID,adUnits,adapterConfig,impressionID,videoSlotName,true,activeSlots[0],"parnterParams",activeSlots[0].getSizes()[0][0],activeSlots[0].getSizes()[0][1],undefined).should.be.true;
                 done();
             })
 

@@ -385,13 +385,16 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				}
 			}
 			else{
-	  if(videoSlotName && videoSlotName.length == 1){
-		keyConfig = keyLookupMap[videoSlotName[0]];
-	  }
-	  if(!keyConfig){
-		keyConfig = keyLookupMap[generatedKey];
-	  }
-	  }
+			if(videoSlotName && videoSlotName.length == 1){
+				keyConfig = keyLookupMap[videoSlotName[0]];
+				if(keyConfig){
+					generatedKey = videoSlotName[0];
+				}
+			}
+			if(!keyConfig){
+				keyConfig = keyLookupMap[generatedKey];
+			}
+			}
 			if(!keyConfig){
 				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
 			}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
@@ -411,7 +414,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
 				bid.setRegexPattern(regexPattern);
 			}
-
+			
 			handlerFunction(
 				adapterID,
 				adUnits,
