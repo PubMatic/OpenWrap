@@ -217,7 +217,7 @@ var constCommonMacroForAdUnitIndexRegExp = new RegExp(CONSTANTS.MACROS.AD_UNIT_I
 var constCommonMacroForIntegerRegExp = new RegExp(CONSTANTS.MACROS.INTEGER, macroRegexFlag);
 var constCommonMacroForDivRegExp = new RegExp(CONSTANTS.MACROS.DIV, macroRegexFlag);
 
-exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheckMappingForVideo,videoSlotName){
+exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheckMappingForVideo){
 	var slotNames = [],
 		slotName,
 		slotNamesObj = {},
@@ -225,43 +225,45 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheck
 		sizeArrayLength,
 		i
 		;
-	  /* istanbul ignore else */
+  	/* istanbul ignore else */
 	if(refThis.isObject(activeSlot) && refThis.isFunction(activeSlot.getSizes)){
 		sizeArray = activeSlot.getSizes();
-		var divId = refThis.isFunction(activeSlot.getDivID) ? activeSlot.getDivID() : activeSlot.getSlotId().getDomId();		
-		if(shouldCheckMappingForVideo){
-			//TODO: remove below line and update above live for assigning sizeArray after remove phantom js and including chromeheadless
-			sizeArray = Array.from(activeSlot.getSizes());
-			var config = refThis.mediaTypeConfig[divId];
-			if(config && config.video){
-				sizeArray.unshift([0,0]);
-			}
-		}
 		sizeArrayLength = sizeArray.length;
 		/* istanbul ignore else */
 		if( sizeArrayLength > 0){
 			for(i = 0; i < sizeArrayLength; i++){
 				/* istanbul ignore else */
-				if((sizeArray[i].length == 2 && (sizeArray[i][0] && sizeArray[i][1]) || (sizeArray[i][0] == 0 && sizeArray[i][1] ==0)) || (refThis.isFunction(sizeArray[i].getWidth) && refThis.isFunction(sizeArray[i].getHeight))){
+				if((sizeArray[i].length == 2 && sizeArray[i][0] && sizeArray[i][1]) || (refThis.isFunction(sizeArray[i].getWidth) && refThis.isFunction(sizeArray[i].getHeight))){
 					var adUnitId = refThis.isFunction(activeSlot.getAdUnitID) ? activeSlot.getAdUnitID() : activeSlot.getSlotId().getAdUnitPath();
-					divId = refThis.isFunction(activeSlot.getDivID) ? activeSlot.getDivID() : activeSlot.getSlotId().getDomId();
+					var divId = refThis.isFunction(activeSlot.getDivID) ? activeSlot.getDivID() : activeSlot.getSlotId().getDomId();
 					var adUnitIndex = refThis.isFunction(activeSlot.getAdUnitIndex) ? activeSlot.getAdUnitIndex() : activeSlot.getSlotId().getId().split("_")[1];
-					var width = sizeArray[i][0] == 0 ? 0 : sizeArray[i][0] || sizeArray[i].getWidth();
-					var height = sizeArray[i][1] == 0 ? 0 : sizeArray[i][1] || sizeArray[i].getHeight();
+					var width = sizeArray[i][0] || sizeArray[i].getWidth();
+					var height = sizeArray[i][1] || sizeArray[i].getHeight();
 					slotName = pattern;
 					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, adUnitId)
-					.replace(constCommonMacroForAdUnitIndexRegExp, adUnitIndex)
-					.replace(constCommonMacroForIntegerRegExp, refThis.getIncrementalInteger())
+                    .replace(constCommonMacroForAdUnitIndexRegExp, adUnitIndex)
+                    .replace(constCommonMacroForIntegerRegExp, refThis.getIncrementalInteger())
 					.replace(constCommonMacroForDivRegExp, divId);
 					// .replace(constCommonMacroForWidthRegExp, width)
 					// .replace(constCommonMacroForHeightRegExp, height);
+					if(shouldCheckMappingForVideo){
+						var config = refThis.mediaTypeConfig[divId];
+						if(config && config.video){
+							slotName = slotName.replace(constCommonMacroForWidthRegExp, "0")
+									.replace(constCommonMacroForHeightRegExp, "0");
+						}
+						else{
+							slotName = slotName.replace(constCommonMacroForWidthRegExp, width)
+									.replace(constCommonMacroForHeightRegExp, height);
+						}
+					}
+					else{
 						slotName = slotName.replace(constCommonMacroForWidthRegExp, width)
-								.replace(constCommonMacroForHeightRegExp, height);						
-					/* istanbul ignore else */
-		if(width == 0 && height == 0){
-		  videoSlotName[0] = slotName;
-		}
-		else if(! refThis.isOwnProperty(slotNamesObj, slotName)){
+								.replace(constCommonMacroForHeightRegExp, height);
+					}
+					
+                    /* istanbul ignore else */
+					if(! refThis.isOwnProperty(slotNamesObj, slotName)){
 						slotNamesObj[slotName] = "";
 						slotNames.push(slotName);
 					}
@@ -344,23 +346,22 @@ exports.checkMandatoryParams = function(object, keys, adapterID){
   *     identification in prebid resposne.
   */
 
- exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids){
+exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids){
 	var activeSlotsLength = activeSlots.length,
 		keyGenerationPattern = adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_GENERATION_PATTERN] || "";
 	/* istanbul ignore else */
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
 		refThis.forEachOnArray(activeSlots, function(i, activeSlot){
-			var videoSlotName = [];
-			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern, true, videoSlotName);
+			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern, true);
 			if(generatedKeys.length > 0){
-				refThis.callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids, keyGenerationPattern,videoSlotName);
+				refThis.callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids, keyGenerationPattern);
 			} 		
 		});
 	}
 };
 
 // private
-function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern, videoSlotName){
+function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern){
 	var keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] || null,
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
@@ -385,16 +386,16 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				}
 			}
 			else{
-	  if(videoSlotName && videoSlotName.length == 1){
-		keyConfig = keyLookupMap[videoSlotName[0]];
-		if(keyConfig){
-			generatedKey = videoSlotName[0];
-		}
-	  }
-	  if(!keyConfig){
-		keyConfig = keyLookupMap[generatedKey];
-	  }
-	  }
+				if(videoSlotName && videoSlotName.length == 1){
+					keyConfig = keyLookupMap[videoSlotName[0]];
+					if(keyConfig){
+						generatedKey = videoSlotName[0];
+					}
+				}
+				if(!keyConfig){
+					keyConfig = keyLookupMap[generatedKey];
+				}
+	  		}
 			if(!keyConfig){
 				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
 			}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
@@ -403,7 +404,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				callHandlerFunction = true;
 			}
 		}
-		
+
 		/* istanbul ignore else */
 		if(callHandlerFunction){
 
@@ -1410,7 +1411,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	}
 	//Uncomment below code in case hybrid profile is supported 
 	if(adapterId == "pubmaticServer"){
-		adapterId = "pubmatic";
+		adapterId = theBid.originalBidder || "pubmatic"; // in case of pubmaticServer we will get originalBidder, assigning pubmatic just in case originalBidder is not there.
 	}
 	// Do we need all checks or we can just use one check
 	if(refThis.isFunction(theBid.getNetEcpm)) {
