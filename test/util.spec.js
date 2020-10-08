@@ -3271,7 +3271,8 @@ describe('UTIL', function() {
             adapterConfig = {
                 kgp: "_W_x_H_",
                 klm: {
-                    "0x0": "some_value"
+                    "0x0": "some_value",
+                    "300x250":"some_other_value"
                 }
             };
             generatedKeys = ["300x250"];
@@ -3279,7 +3280,7 @@ describe('UTIL', function() {
             impressionID = "impressionID";
             slotConfigMandatoryParams = "slotConfigMandatoryParams";
             activeSlots = [new SLOT("slot_1"), new SLOT("slot_2")];
-            activeSlots[0].setSizes([300,250]);
+            activeSlots[0].setSizes([[300,250]]);
             activeSlots[1].setSizes([300,250]);
             obj = {
                 handlerFunction : function(a,b,c,d,e,f,g,h,i,j) {
@@ -3326,13 +3327,18 @@ describe('UTIL', function() {
 
             it('should called handler function with video mapping',function(done){
                 adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] = undefined;
-                UTIL.callHandlerFunctionForMapping(adapterID,adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,addZeroBids,keyGenerationPattern,videoSlotName);
-                // handlerFunction.should.be.calledOnce;
-                // expect(obj.handlerFunction).to.have.been.called.withArgs();
-                // obj.handlerFunction.calledWith(null,null,null).should.be.true;
-                obj.handlerFunction.calledWith(adapterID,adUnits,adapterConfig,impressionID,videoSlotName,true,activeSlots[0],"parnterParams",activeSlots[0].getSizes()[0][0],activeSlots[0].getSizes()[0][1],undefined).should.be.true;
+                UTIL.callHandlerFunctionForMapping(adapterID,adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,false,keyGenerationPattern,videoSlotName);
+                obj.handlerFunction.calledWith(adapterID,adUnits,adapterConfig,impressionID,videoSlotName[0],true,activeSlots[0],"parnterParams",activeSlots[0].getSizes()[0][0],activeSlots[0].getSizes()[0][1],undefined).should.be.true;
                 done();
-            })
+            });
+
+
+            it('should called handler function with generated key if video mapping is not available',function(done){
+                adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] = undefined;
+                UTIL.callHandlerFunctionForMapping(adapterID,adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,false,keyGenerationPattern,undefined);
+                obj.handlerFunction.calledWith(adapterID,adUnits,adapterConfig,impressionID,generatedKeys[0],true,activeSlots[0],"parnterParams",activeSlots[0].getSizes()[0][0],activeSlots[0].getSizes()[0][1],undefined).should.be.true;
+                done();
+            });
 
         });
 

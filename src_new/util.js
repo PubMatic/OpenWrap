@@ -406,15 +406,14 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 		
 		/* istanbul ignore else */
 		if(callHandlerFunction){
-
+			console.log('Calling handler function');
 			/* istanbul ignore else */
 			if(addZeroBids == true){
 				var bid = BID.createBid(adapterID, generatedKey);
 				bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
 				bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
 				bid.setRegexPattern(regexPattern);
-			}
-			
+			}	
 			handlerFunction(
 				adapterID,
 				adUnits,
