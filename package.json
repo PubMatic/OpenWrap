@@ -33,6 +33,7 @@
     "prebid-universal-creative": "1.1.1",
     "shelljs": "^0.7.7",
     "string-replace-webpack-plugin": "0.0.3",
+    "uas-adclient": "0.0.1-master.24",
     "webpack": "^1.15.0",
     "webpack-stream": "^3.1.0",
     "yargs": "^1.3.1"
@@ -64,6 +65,7 @@
     "gulp-mocha": "^2.2.0",
     "gulp-optimize-js": "^1.1.0",
     "gulp-replace": "^0.4.0",
+    "gulp-replace-task": "^0.11.0",
     "gulp-strip-code": "^0.1.4",
     "gulp-strip-comments": "^2.4.5",
     "gulp-uglify": "^0.3.1",

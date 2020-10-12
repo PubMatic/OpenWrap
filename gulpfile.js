@@ -3,6 +3,8 @@ console.time("Loading plugins");
 var argv = require('yargs').argv;
 var gulp = require('gulp');
 var concat = require('gulp-concat');
+var replace = require('gulp-replace-task');
+// var replace = require('gulp-replace');
 // var insert = require('gulp-insert');
 // var uglify = require('gulp-uglify');
 // var jshint = require('gulp-jshint');
@@ -210,6 +212,53 @@ gulp.task('bundle', function () {
     return gulp.src([prebidRepoPath + '/build/dist/prebid.js', './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
+});
+
+gulp.task('bundle-pb-keys', function(){
+      return gulp.src('./build/owt.min.js')
+      .pipe(replace({
+        patterns: [
+          {
+            match: /"%%TG_KEYS%%"/g,
+            replacement: {
+                        "BIDDER": "hb_bidder",
+                        "AD_ID": "hb_adid",
+                        "PRICE_BUCKET": "hb_pb",
+                        "SIZE": "hb_size",
+                        "DEAL": "hb_deal",
+                        "SOURCE": "hb_source",
+                        "FORMAT": "hb_format",
+                        "UUID": "hb_uuid",
+                        "CACHE_ID": "hb_cache_id",
+                        "CACHE_HOST": "hb_cache_host"
+                }
+          }
+        ]
+      }))
+      .pipe(gulp.dest('build'));
+});
+
+gulp.task('bundle-pwt-keys', function(){
+      return gulp.src('./build/owt.min.js')
+      .pipe(replace({
+        patterns: [
+          {
+            match: /"%%TG_KEYS%%"/g,
+            replacement: { "BIDDER": "pwtpid",
+                "AD_ID": "pwtsid",
+                "PRICE_BUCKET": "pwtecp",
+                "SIZE": "pwtsz",
+                "DEAL": "pwtdeal",
+                "SOURCE": "",
+                "FORMAT": "pwtplt",
+                "UUID": "",
+                "CACHE_ID": "pwtcid",
+                "CACHE_HOST": ""
+            }
+          }
+        ]
+      }))
+      .pipe(gulp.dest('build'));
 });
 
 // Task to build minified version of owt.js
