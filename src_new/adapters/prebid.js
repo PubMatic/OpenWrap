@@ -917,7 +917,7 @@ function getPbjsAdServerTargetingConfig(){
             key: 'pwtplt', //hb_format
             val: function (bidResponse) {
                 // return bidResponse.mediaType;
-                return (bidResponse.native ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
+                return bidResponse.mediaType == "video" ? CONSTANTS.PLATFORM_VALUES.VIDEO : (bidResponse.native ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
             }
         },
         {
@@ -959,14 +959,7 @@ function getPbjsAdServerTargetingConfig(){
         	val: function(bidResponse){ // todo: empty value?
         		return CONFIG.getProfileDisplayVersionID();
         	}
-        },
-        {
-        	key: 'pwtm', // custom
-        	val: function(bidResponse){ 
-        	// todo: value? is it meta-data feature? is it in use?
-        		return '';
-        	}
-		}
+        }
     ];
 }
 
