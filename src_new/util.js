@@ -386,8 +386,16 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				}
 			}
 			else{
-				keyConfig = keyLookupMap[generatedKey];
-			}
+				if(videoSlotName && videoSlotName.length == 1){
+					keyConfig = keyLookupMap[videoSlotName[0]];
+					if(keyConfig){
+						generatedKey = videoSlotName[0];
+					}
+				}
+				if(!keyConfig){
+					keyConfig = keyLookupMap[generatedKey];
+				}
+	  		}
 			if(!keyConfig){
 				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
 			}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
@@ -1401,10 +1409,10 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	else{
 		adapterId = theBid.bidderCode
 	}
-	// TODO: Uncomment below code in case hybrid profile is supported 
-	// if(adapterId == "pubmaticServer"){
-	// 	adapterId = "pubmatic";
-	// }
+	//Uncomment below code in case hybrid profile is supported 
+	if(adapterId == "pubmaticServer"){
+		adapterId = theBid.originalBidder || "pubmatic"; // in case of pubmaticServer we will get originalBidder, assigning pubmatic just in case originalBidder is not there.
+	}
 	// Do we need all checks or we can just use one check
 	if(refThis.isFunction(theBid.getNetEcpm)) {
 		netEcpm = theBid.getNetEcpm(isAnalytics)
