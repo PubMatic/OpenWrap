@@ -161,9 +161,12 @@ Bid.prototype.getWidth = function(){
 	return this.width;
 };
 
-Bid.prototype.getKGPV = function(isActualValueRequired){
+Bid.prototype.getKGPV = function(isActualValueRequired, mediaType){
 	if(!isActualValueRequired && this.regexPattern){
 		return this.regexPattern;
+	}
+	if(this.adFormat == CONSTANTS.FORMAT_VALUES.VIDEO || mediaType ==  CONSTANTS.FORMAT_VALUES.VIDEO){
+		return UTIL.getUpdatedKGPVForVideo(this.kgpv, CONSTANTS.FORMAT_VALUES.VIDEO);
 	}
 	return this.kgpv;
 };
