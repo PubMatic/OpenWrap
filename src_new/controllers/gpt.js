@@ -829,7 +829,7 @@ function addHooksIfPossible(win) { // TDD, i/o : done
             if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE]) && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE].que)){
                 win[CONFIG.PBJS_NAMESPACE].que.unshift(function(){
                     var vdetails = win[CONFIG.PBJS_NAMESPACE].version.split('.') 
-                    if(vdetails.length===3 && (+vdetails[0].split('v')[1] > 3 || (vdetails[0].includes("v3") && +vdetails[1] >= 3))){
+                    if(vdetails.length===3 && (+vdetails[0].split('v')[1] > 3 || (vdetails[0] == "v3" && +vdetails[1] >= 3))){
                         win[CONFIG.PBJS_NAMESPACE].onEvent("addAdUnits", function () {
                             util.updateAdUnits(win[CONFIG.PBJS_NAMESPACE]["adUnits"]);
                         });
