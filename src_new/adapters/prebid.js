@@ -959,6 +959,22 @@ function getPbjsAdServerTargetingConfig(){
         	val: function(bidResponse){ // todo: empty value?
         		return CONFIG.getProfileDisplayVersionID();
         	}
+        },
+        {
+        	key: 'pwtcid', // custom
+			val: function(bidResponse){ // todo: empty value?
+        		return bidResponse.mediaType == "video" ?  bidResponse.videoCacheKey : "";
+        	}
+        }, {
+        	key: 'pwtcurl', // custom
+        	val: function(bidResponse){ // todo: empty value?	
+				return bidResponse.mediaType == "video" ? CONSTANTS.CONFIG.CACHE_URL : "";			
+        	}
+        }, {
+        	key: 'pwtcpath', // custom
+        	val: function(bidResponse){ // todo: empty value?
+        		return bidResponse.mediaType == "video" ? CONSTANTS.CONFIG.CACHE_PATH : "";
+        	}
         }
     ];
 }
