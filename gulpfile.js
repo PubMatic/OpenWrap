@@ -41,26 +41,26 @@ gulp.task('clean', function() {
 function getRemoveCodeConfig(){
     // Here we will define the flags/tags that we need to use in code comments
     var removeCodeConfig = {
-        disableLegacyAnalyticsRelatedCode: false,
-        disableNativeRelatedCode: false,
-        disableInStreamRelatedCode: false,
-        disableOutStreamRelatedCode: false
+        removeLegacyAnalyticsRelatedCode: false,
+        removeNativeRelatedCode: false,
+        removeInStreamRelatedCode: false,
+        removeOutStreamRelatedCode: false
     };
     
     var config = require("./src_new/config.js");
 
     var slotConfig = config.getSlotConfiguration();
     if(!slotConfig){
-        removeCodeConfig.disableNativeRelatedCode = true;
-        removeCodeConfig.disableOutStreamRelatedCode = true;
-        removeCodeConfig.disableInStreamRelatedCode = true;
+        removeCodeConfig.removeNativeRelatedCode = true;
+        removeCodeConfig.removeOutStreamRelatedCode = true;
+        removeCodeConfig.removeInStreamRelatedCode = true;
     } else {
         //todo: Add logic to set the flags by checking the config
         //      might be a case where only one of these is enabled: Native, in-stream or out-stream
     }
 
     if(config.isPrebidPubMaticAnalyticsEnabled()===true){
-        removeCodeConfig.disableLegacyAnalyticsRelatedCode = true;
+        removeCodeConfig.removeLegacyAnalyticsRelatedCode = true;
     }
 
     return removeCodeConfig;
