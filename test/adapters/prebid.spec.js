@@ -1107,22 +1107,7 @@ describe('ADAPTER: Prebid', function() {
             expectedResult.should.be.equal(prebidConfig);
             done();
         });
-    });
-
-    describe('#register', function() {
-        it('is a function', function(done) {
-            PREBID.register.should.be.a('function');
-            done();
-        });
-
-        it('returns object with methods to use', function(done) {
-            PREBID.register().should.deep.equal({
-                fB: PREBID.fetchBids,
-                ID: PREBID.getParenteAdapterID
-            });
-            done();
-        });
-    });
+    });    
 
     describe('checkAndModifySizeOfKGPVIfRequired',function(){
         var bid= {};

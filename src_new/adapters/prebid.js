@@ -1176,11 +1176,3 @@ function setConfig(){
 }
 
 exports.setConfig = setConfig;
-
-// todo: remove this
-exports.register = function(){
-	return {
-		fB: refThis.fetchBids,
-		ID: refThis.getParenteAdapterID
-	};
-};
