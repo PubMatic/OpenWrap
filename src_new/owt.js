@@ -23,10 +23,11 @@ window.PWT.udpv = window.PWT.udpv || util.findQueryParamInURL(metaInfo.isIframe 
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc") && util.enableVisualDebugLog();
 
+var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
+
 window.PWT.displayCreative = function(theDocument, bidID){
 	util.log("In displayCreative for: " + bidID);
-	//todo: move value of CONFIG.isPrebidPubMaticAnalyticsEnabled() if used multiple times
-	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+	if(isPrebidPubMaticAnalyticsEnabled){
 		window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
 	} else {
 		bidManager.displayCreative(theDocument, bidID);	
@@ -37,7 +38,7 @@ window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In displayPMPCreative for: " + values);
 	var bidID = util.getBididForPMP(values, priorityArray);
 	if(bidID){
-		if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+		if(isPrebidPubMaticAnalyticsEnabled){
 			window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
 		} else {
 			bidManager.displayCreative(theDocument, bidID);	
@@ -50,7 +51,7 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	this.isSafeFrame = true;
 	// removeIf(!removeLegacyAnalyticsRelatedCode)
 	ucTag = window.ucTag || {};	
-	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+	if(isPrebidPubMaticAnalyticsEnabled){
 		ucTag.renderAd(theDocument, {adId: bidID, pubUrl: document.referrer});
 	}
 	else {
