@@ -77,15 +77,20 @@ function defineWrapperTargetingKeys(object) {
 exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function initSafeFrameListener(theWindow) {
 	if (!theWindow.PWT.safeFrameMessageListenerAdded) {
 		util.addMessageEventListenerForSafeFrame(theWindow);
 		theWindow.PWT.safeFrameMessageListenerAdded = true;
 	}
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.initSafeFrameListener = initSafeFrameListener;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 function validateAdUnitObject(anAdUnitObject) {
 	if (!util.isObject(anAdUnitObject)) {
@@ -463,9 +468,12 @@ exports.init = function(win) {
 	CONFIG.initConfig();
 	if (util.isObject(win)) {
 		refThis.setWindowReference(win);
+
+		// removeIf(removeLegacyAnalyticsRelatedCode)
 		if(!isPrebidPubMaticAnalyticsEnabled){
 			refThis.initSafeFrameListener(win);
 		}
+		// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 		prebid.initPbjsConfig();
 		win.PWT.requestBids = refThis.customServerExposedAPI;
 		win.PWT.generateConfForGPT = refThis.generateConfForGPT;

@@ -729,6 +729,7 @@ exports.createInvisibleIframe = function() {
 }
 // endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.addMessageEventListener = function(theWindow, eventHandler){
 	/* istanbul ignore else */
 	if(typeof eventHandler !== "function"){
@@ -743,7 +744,9 @@ exports.addMessageEventListener = function(theWindow, eventHandler){
 	}
 	return true;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.safeFrameCommunicationProtocol = function(msg){
 	try{
 		msgData = window.JSON.parse(msg.data);
@@ -863,10 +866,13 @@ exports.safeFrameCommunicationProtocol = function(msg){
 		}
 	}catch(e){}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.addMessageEventListenerForSafeFrame = function(theWindow){
 	refThis.addMessageEventListener(theWindow, refThis.safeFrameCommunicationProtocol);
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 //todo: this function is not in use
 exports.getElementLocation = function( el ) {
