@@ -34,6 +34,7 @@ var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled()
 exports.isSingleImpressionSettingEnabled = isSingleImpressionSettingEnabled;
 /* end-test-block */
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	var rxPattern = regexPattern || bid.regexPattern || undefined;
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
@@ -129,10 +130,13 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	theBid.setPbBid(bid);
 	return theBid;
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.transformPBBidToOWBid = transformPBBidToOWBid;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 // This function is used to check size for the winning kgpv and if size is different then winning then modify it
