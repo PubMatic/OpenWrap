@@ -554,7 +554,9 @@ exports.analyticalPixelCallback = analyticalPixelCallback;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 
-
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// todo: using removeLegacyAnalyticsRelatedCode will make this function unavailable with PBJS analytics, 
+//			i assume we will not be using this function for Native when PBJS analytics is enabled
 /**
  * function which takes url and creates an image and executes them
  * used to execute trackers
@@ -573,6 +575,7 @@ exports.setImageSrcToPixelURL = function (pixelURL, useProtocol) { // TDD, i/o :
 	}
 	img.src = pixelURL;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 
 exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
