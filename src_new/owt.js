@@ -3,7 +3,9 @@ var controller = require("%%PATH_TO_CONTROLLER%%");
 var bidManager = require("./bidManager.js");
 var CONSTANTS = require("./constants.js");
 var CONFIG = require("./config.js");
+// removeIf(!removeLegacyAnalyticsRelatedCode)
 var ucTag = require("prebid-universal-creative");
+// endRemoveIf(!removeLegacyAnalyticsRelatedCode)
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
 window.PWT.bidMap = window.PWT.bidMap || {};
@@ -45,12 +47,14 @@ window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 
 window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	util.log("In sfDisplayCreative for: " + bidID);
-	ucTag = window.ucTag || {};
 	this.isSafeFrame = true;
+	// removeIf(!removeLegacyAnalyticsRelatedCode)
+	ucTag = window.ucTag || {};	
 	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
 		ucTag.renderAd(theDocument, {adId: bidID, pubUrl: document.referrer});
 	}
 	else {
+	// endRemoveIf(!removeLegacyAnalyticsRelatedCode)	
 		window.parent.postMessage(
 			JSON.stringify({
 				pwt_type: "1",
@@ -59,7 +63,9 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 			}),
 			"*"
 		);
+	// removeIf(!removeLegacyAnalyticsRelatedCode)	
 	}
+	// endRemoveIf(!removeLegacyAnalyticsRelatedCode)
 };
 
 window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
@@ -75,11 +81,14 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	);
 };
 
+
+// removeIf(removeNativeRelatedCode)
 window.PWT.initNativeTrackers = function(theDocument,bidID){
 	util.log("In startTrackers for: " + bidID);
 	util.addEventListenerForClass(window,"click", CONSTANTS.COMMON.OW_CLICK_NATIVE,bidManager.loadTrackers);
 	bidManager.executeTracker(bidID);
 };
+// endRemoveIf(removeNativeRelatedCode)
 
 window.PWT.getUserIds = function(){
 	return util.getUserIds();
@@ -120,6 +129,7 @@ window.PWT.UpdateVastWithTracker = function(bid, vast){
 	return util.UpdateVastWithTracker(bid, vast);
 };
 
+// removeIf(removeInStreamRelatedCode)
 window.PWT.generateDFPURL= function(adUnit,cust_params){
 	var dfpurl = "";
 	if(!adUnit || !util.isObject(adUnit)) {
@@ -151,5 +161,6 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 window.PWT.getCustomParamsForDFPVideo = function(customParams, bid){
 	return util.getCustomParamsForDFPVideo(customParams, bid);
 };
+// endRemoveIf(removeInStreamRelatedCode)
 
 controller.init(window);
