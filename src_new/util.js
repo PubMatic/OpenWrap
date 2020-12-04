@@ -709,6 +709,7 @@ exports.getBididForPMP = function(values, priorityArray){
 	return bidID;
 };
 
+// removeIf(removeNativeRelatedCode)
 exports.createInvisibleIframe = function() {
 	var f = refThis.createDocElement(window, 'iframe');
 	f.id = refThis.getUniqueIdentifierStr();
@@ -726,6 +727,7 @@ exports.createInvisibleIframe = function() {
 	f.style = 'display:none';
 	return f;
 }
+// endRemoveIf(removeNativeRelatedCode)
 
 exports.addMessageEventListener = function(theWindow, eventHandler){
 	/* istanbul ignore else */
@@ -841,6 +843,8 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 				}
 			break;
+		
+		// removeIf(removeNativeRelatedCode)	
 		case 3:
 			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
@@ -855,6 +859,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					bidManager.fireTracker(theBid,msgData.pwt_action);							
 				}
 			break;
+		// endRemoveIf(removeNativeRelatedCode)	
 		}
 	}catch(e){}
 };

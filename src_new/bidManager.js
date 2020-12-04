@@ -581,6 +581,7 @@ exports.loadTrackers = function(event){
 };
 // endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeNativeRelatedCode)
 /**
  * function takes bidID and post a message to parent pwt.js to execute monetization pixels.
  * @param {*} bidID
@@ -596,7 +597,9 @@ exports.executeTracker = function(bidID){
 		"*"
 	);
 };
+// endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeNativeRelatedCode)
 /**
  * based on action it executes either the clickTrackers or
  * impressionTrackers and javascriptTrackers.
@@ -630,6 +633,7 @@ exports.fireTracker = function(bidDetails, action) {
 	}
 	(trackers || []).forEach(function(url){refThis.setImageSrcToPixelURL(url,false);});
 };
+// endRemoveIf(removeNativeRelatedCode)
 
 
 // this function generates all satndard key-value pairs for a given bid and setup, set these key-value pairs in an object
