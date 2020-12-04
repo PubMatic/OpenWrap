@@ -7,7 +7,9 @@ var SLOT = require("../slot.js");
 var prebid = require("../adapters/prebid.js");
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var usePrebidKeys = CONFIG.isUsePrebidKeysEnabled();
+// removeIf(removeIdHubRelatedCode)
 var IdHub = require("../controllers/idhub.js");
+// endRemoveIf(removeIdHubRelatedCode)
 
 //ToDo: add a functionality / API to remove extra added wrpper keys
 var wrapperTargetingKeys = {}; // key is div id
@@ -484,7 +486,9 @@ exports.init = function(win) {
 		win.PWT.addKeyValuePairsToGPTSlots = addKeyValuePairsToGPTSlots;
 		win.PWT.removeKeyValuePairsFromGPTSlots = removeKeyValuePairsFromGPTSlots;
 		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
+		// removeIf(removeIdHubRelatedCode)
 		IdHub.initIdHub(win);		
+		// endRemoveIf(removeIdHubRelatedCode)
 		return true;
 	} else {
 		return false;

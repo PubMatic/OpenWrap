@@ -50,8 +50,9 @@ function getRemoveCodeConfig(){
         removeLegacyAnalyticsRelatedCode: true,
         removeNativeRelatedCode: true,
         removeInStreamRelatedCode: true,
-        removeOutStreamRelatedCode: false,
-        removeUserIdRelatedCode: true
+        removeOutStreamRelatedCode: true,
+        removeUserIdRelatedCode: true,
+        removeIdHubRelatedCode: true
     };
 
     return removeCodeConfig; // todo: only for dev purpose; remove later
@@ -74,6 +75,10 @@ function getRemoveCodeConfig(){
         removeCodeConfig.removeUserIdRelatedCode = true;
     }
 
+    if(config.isIdentityOnly()===false){
+        removeCodeConfig.removeIdHubRelatedCode = true;
+    }
+
     return removeCodeConfig;
 }
 
@@ -90,7 +95,7 @@ gulp.task('webpack', ['clean'], function() {
     webpackConfig.devtool = null;
 
     return gulp.src('src_new/owt.js')
-        .pipe(webpack(webpackConfig))        
+        .pipe(webpack(webpackConfig))
         .pipe(jsFsCache)
         .pipe(removeCode(getRemoveCodeConfig()))
         .pipe(uglify())
