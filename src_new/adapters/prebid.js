@@ -1143,12 +1143,6 @@ function getBid(divID){
 
 exports.getBid = getBid;
 
-
-// todo: is it needed?
-function getParenteAdapterID() {
-	return refThis.parentAdapterID;
-}
-
 // todo : rename to IDHub Config, change references
 //		check what is missing
 function setConfig(){
@@ -1182,10 +1176,6 @@ function setConfig(){
 }
 
 exports.setConfig = setConfig;
-
-/* start-test-block */
-exports.getParenteAdapterID = getParenteAdapterID;
-/* end-test-block */
 
 // todo: remove this
 exports.register = function(){
