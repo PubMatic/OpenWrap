@@ -310,21 +310,29 @@ function handleBidResponses(bidResponses){
 exports.handleBidResponses = handleBidResponses;
 /* end-test-block */
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function getPBCodeWithWidthAndHeight(divID, adapterID, width, height){
 	return divID + "@" + adapterID + "@" + width + "X" + height;
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.getPBCodeWithWidthAndHeight = getPBCodeWithWidthAndHeight;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function getPBCodeWithoutWidthAndHeight(divID, adapterID){
 	return divID + "@" + adapterID;
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
-exports.isAdUnitsCodeContainBidder = isAdUnitsCodeContainBidder;
+exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
 	var bidderPresent = false;
@@ -339,7 +347,7 @@ function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
 }
 
 /* start-test-block */
-exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
+exports.isAdUnitsCodeContainBidder = isAdUnitsCodeContainBidder;
 /* end-test-block */
 
 function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight, regexPattern){
