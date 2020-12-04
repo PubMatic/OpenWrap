@@ -390,6 +390,7 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 
 exports.generatedKeyCallbackForPbAnalytics = generatedKeyCallbackForPbAnalytics;
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight,regexPattern){
 
 	var code, sizes, divID = currentSlot.getDivID();
@@ -503,6 +504,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 /* start-test-block */
 exports.generatedKeyCallback = generatedKeyCallback;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits, partnerConfig, regexPattern){
 	var slotParams = {};
