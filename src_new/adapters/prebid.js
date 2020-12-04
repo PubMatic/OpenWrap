@@ -134,7 +134,6 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 exports.transformPBBidToOWBid = transformPBBidToOWBid;
 /* end-test-block */
 
-// removeIf(removeLegacyAnalyticsRelatedCode)
 // This function is used to check size for the winning kgpv and if size is different then winning then modify it
 // to have same code for logging and tracking 
 function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
@@ -191,15 +190,11 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 	}
 	return responseObject;
 }
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.checkAndModifySizeOfKGPVIfRequired = checkAndModifySizeOfKGPVIfRequired;
 /* end-test-block */
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-// removeIf(removeLegacyAnalyticsRelatedCode)
 function pbBidStreamHandler(pbBid){
 	var responseID = pbBid.adUnitCode || "";
 
@@ -279,13 +274,10 @@ function pbBidStreamHandler(pbBid){
 		util.logWarning("Failed to find pbBid.adUnitCode in kgpvMap, pbBid.adUnitCode:"+ pbBid.adUnitCode);
 	}
 }
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.pbBidStreamHandler = pbBidStreamHandler;
 /* end-test-block */
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // this function is no more used
 function handleBidResponses(bidResponses){
@@ -310,23 +302,21 @@ function handleBidResponses(bidResponses){
 exports.handleBidResponses = handleBidResponses;
 /* end-test-block */
 
-// removeIf(removeLegacyAnalyticsRelatedCode)
 function getPBCodeWithWidthAndHeight(divID, adapterID, width, height){
 	return divID + "@" + adapterID + "@" + width + "X" + height;
 }
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.getPBCodeWithWidthAndHeight = getPBCodeWithWidthAndHeight;
 /* end-test-block */
-// removeIf(removeLegacyAnalyticsRelatedCode)
 
-// removeIf(removeLegacyAnalyticsRelatedCode)
 function getPBCodeWithoutWidthAndHeight(divID, adapterID){
 	return divID + "@" + adapterID;
 }
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+/* start-test-block */
+exports.isAdUnitsCodeContainBidder = isAdUnitsCodeContainBidder;
+/* end-test-block */
 
 function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
 	var bidderPresent = false;
@@ -341,15 +331,8 @@ function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
 }
 
 /* start-test-block */
-exports.isAdUnitsCodeContainBidder = isAdUnitsCodeContainBidder;
-/* end-test-block */
-
-
-// removeIf(removeLegacyAnalyticsRelatedCode)
-/* start-test-block */
 exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight, regexPattern){
 	var code, sizes, divID;
@@ -517,9 +500,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 
 	pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits, partnerConfig, regexPattern);	
 }
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.generatedKeyCallback = generatedKeyCallback;
 /* end-test-block */
@@ -844,7 +825,6 @@ function generateAdUnitsArray(activeSlots, impressionID){
 
 exports.generateAdUnitsArray = generateAdUnitsArray;
 
-// removeIf(removeLegacyAnalyticsRelatedCode)
 function addOnBidResponseHandler(){
 	if(util.isFunction(window[pbNameSpace].onEvent)){
 		if(!onEventAdded){
@@ -856,11 +836,8 @@ function addOnBidResponseHandler(){
 		return;
 	}
 }
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.addOnBidResponseHandler = addOnBidResponseHandler;
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 function setPrebidConfig(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
@@ -1118,12 +1095,10 @@ function fetchBids(activeSlots){
 				// Adding a hook for publishers to modify the adUnits we are passing to Prebid
 				util.handleHook(CONSTANTS.HOOKS.PREBID_REQUEST_BIDS, [ adUnitsArray ]);
 				
-				// removeIf(removeLegacyAnalyticsRelatedCode)
 				if(isPrebidPubMaticAnalyticsEnabled === false){
 					// we do not want this call when we have PrebidAnalytics enabled
 					refThis.addOnBidResponseHandler();	
 				}
-				// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 				window[pbNameSpace].requestBids({
 					adUnits: adUnitsArray,
