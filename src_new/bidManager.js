@@ -169,6 +169,7 @@ exports.createMetaDataKey = createMetaDataKey;
 /* end-test-block */
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function replaceMetaDataMacros(pattern, theBid){
 	var macros = CONSTANTS.METADATA_MACROS,
 		macroRegexFlag = "g"
@@ -180,9 +181,13 @@ function replaceMetaDataMacros(pattern, theBid){
 		.replace(new RegExp(macros.GROSS_ECPM, macroRegexFlag), theBid.getGrossEcpm())
 		.replace(new RegExp(macros.NET_ECPM, macroRegexFlag), theBid.getNetEcpm());
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.replaceMetaDataMacros = replaceMetaDataMacros;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function auctionBids(bmEntry) { // TDD, i/o : done
@@ -230,7 +235,7 @@ exports.updateNativeTargtingKeys = updateNativeTargtingKeys;
 /* end-test-block */
 // endRemoveIf(removeNativeRelatedCode)
 
-
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) { // TDD, i/o : done
 	var refThis = this;
     if (adapterEntry.getLastBidID() != "") {
@@ -279,10 +284,13 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
     	return { winningBid: winningBid , keyValuePairs: keyValuePairs };
     }
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.auctionBidsCallBack = auctionBidsCallBack;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 exports.getBid = function(divID){ // TDD, i/o : done
@@ -316,6 +324,7 @@ exports.getBid = function(divID){ // TDD, i/o : done
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.getBidById = function(bidID) { // TDD, i/o : done
 	/* istanbul ignore else */
     if (!util.isOwnProperty(window.PWT.bidIdMap, bidID)) {
@@ -344,8 +353,9 @@ exports.getBidById = function(bidID) { // TDD, i/o : done
     util.log(CONSTANTS.MESSAGES.M25 + bidID);
     return null;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 	var bidDetails = refThis.getBidById(bidID);
 	/* istanbul ignore else */
@@ -358,6 +368,7 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 		refThis.executeMonetizationPixel(divID, theBid);
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
@@ -422,6 +433,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	var pixelURL = util.generateMonetizationPixel(slotID,theBid);
 	if(!pixelURL){
@@ -429,6 +441,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	}
 	refThis.setImageSrcToPixelURL(pixelURL);
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done

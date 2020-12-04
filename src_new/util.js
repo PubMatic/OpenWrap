@@ -148,6 +148,7 @@ exports.getUniqueIdentifierStr = function() {
 	return utilGetIncrementalInteger() + window.Math.random().toString(16).substr(2);
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.copyKeyValueObject = function(copyTo, copyFrom){
 	/* istanbul ignore else */
 	if(refThis.isObject(copyTo) && refThis.isObject(copyFrom)){
@@ -167,6 +168,7 @@ exports.copyKeyValueObject = function(copyTo, copyFrom){
 		});
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.getIncrementalInteger = (function() {
 	var count = 0;
@@ -438,6 +440,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 exports.callHandlerFunctionForMapping = callHandlerFunctionForMapping;
 /* end-test-block */
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
 	if(height && width){
@@ -465,6 +468,7 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 		} // eslint-disable-line no-empty
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.writeIframe = function(theDocument, src, width, height, style){
 	theDocument.write("<iframe"
@@ -476,6 +480,7 @@ exports.writeIframe = function(theDocument, src, width, height, style){
     + "></ifr" + "ame>");
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.displayCreative = function(theDocument, bid){
 	if(bid && bid.pbbid && bid.pbbid.mediaType == "video" && bid.renderer && refThis.isObject(bid.renderer)){
 		if(refThis.isFunction(bid.renderer.render)){
@@ -500,6 +505,7 @@ exports.displayCreative = function(theDocument, bid){
 		}
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.getScreenWidth = function(win){
 	var screenWidth = -1;
@@ -1401,6 +1407,7 @@ exports.getPartnerParams = function(params){
 	return pparams;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
@@ -1477,7 +1484,9 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 
 	return CONSTANTS.COMMON.PROTOCOL + pixelURL;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.UpdateVastWithTracker= function(bid, vast){
 	try{
 		var domParser = new DOMParser();
@@ -1497,6 +1506,7 @@ exports.UpdateVastWithTracker= function(bid, vast){
 	}
     
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.getDomainFromURL = function(url){
 	var a = window.document.createElement("a");
@@ -1504,11 +1514,14 @@ exports.getDomainFromURL = function(url){
 	return a.hostname;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.replaceAuctionPrice = function(str, cpm) {
 	if (!str) return;
 	return str.replace(/\$\{AUCTION_PRICE\}/g, cpm);
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeInStreamRelatedCode)
 exports.getCustomParamsForDFPVideo = function(customParams, bid){
 	const adserverTargeting = (bid && bid.adserverTargeting) || {};
 	var targetingKeys = {}
@@ -1526,6 +1539,7 @@ exports.getCustomParamsForDFPVideo = function(customParams, bid){
 		customParams);
 	return customParams;
 };
+// endRemoveIf(removeInStreamRelatedCode)
 
 exports.getDevicePlatform = function(){
 	var deviceType = 3;

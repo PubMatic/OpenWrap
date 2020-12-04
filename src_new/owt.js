@@ -30,7 +30,9 @@ window.PWT.displayCreative = function(theDocument, bidID){
 	if(isPrebidPubMaticAnalyticsEnabled){
 		window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
 	} else {
+		// removeIf(removeLegacyAnalyticsRelatedCode)
 		bidManager.displayCreative(theDocument, bidID);	
+		// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 	}
 };
 
@@ -41,7 +43,9 @@ window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 		if(isPrebidPubMaticAnalyticsEnabled){
 			window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
 		} else {
-			bidManager.displayCreative(theDocument, bidID);	
+			// removeIf(removeLegacyAnalyticsRelatedCode)
+			bidManager.displayCreative(theDocument, bidID);
+			// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 		}
 	}
 };
@@ -126,9 +130,11 @@ window.OWT.notifyExternalBiddingComplete = function(notifyId) {
 	});
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 window.PWT.UpdateVastWithTracker = function(bid, vast){
 	return util.UpdateVastWithTracker(bid, vast);
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeInStreamRelatedCode)
 window.PWT.generateDFPURL= function(adUnit,cust_params){
