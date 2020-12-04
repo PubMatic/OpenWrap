@@ -172,16 +172,20 @@ function findWinningBidAndGenerateTargeting(divId) {
 		data = prebid.getBid(divId);
 		//todo: we might need to change some proprty names in wb (from PBJS)
 	} else {
+		// removeIf(removeLegacyAnalyticsRelatedCode)
 		data = bidManager.getBid(divId);
+		// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 	}
 	var winningBid = data.wb || null;
 	var keyValuePairs = data.kvp || null;
 	var ignoreTheseKeys = !usePrebidKeys ? CONSTANTS.IGNORE_PREBID_KEYS : {};
 
-	/* istanbul ignore else*/	
-	if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {
-		bidManager.setStandardKeys(winningBid, keyValuePairs);
+	// removeIf(removeLegacyAnalyticsRelatedCode)
+	/* istanbul ignore else*/
+	if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {		
+		bidManager.setStandardKeys(winningBid, keyValuePairs);		
 	}
+	// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 	// attaching keyValuePairs from adapters
 	util.forEachOnObject(keyValuePairs, function(key) {

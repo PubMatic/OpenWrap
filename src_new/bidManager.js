@@ -266,6 +266,7 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
 exports.auctionBidsCallBack = auctionBidsCallBack;
 /* end-test-block */
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.getBid = function(divID){ // TDD, i/o : done
 
 	var winningBid = null;
@@ -295,6 +296,7 @@ exports.getBid = function(divID){ // TDD, i/o : done
 
 	return {wb: winningBid, kvp: keyValuePairs};
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.getBidById = function(bidID) { // TDD, i/o : done
 	/* istanbul ignore else */
@@ -638,6 +640,7 @@ exports.fireTracker = function(bidDetails, action) {
 
 // this function generates all satndard key-value pairs for a given bid and setup, set these key-value pairs in an object
 // todo: write unit test cases
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.setStandardKeys = function(winningBid, keyValuePairs){
 	if (winningBid) {
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ] = winningBid.getBidID();
@@ -663,3 +666,4 @@ exports.setStandardKeys = function(winningBid, keyValuePairs){
     	util.logWarning(winningBid);
     }
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
