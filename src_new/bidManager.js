@@ -555,6 +555,7 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 };
 
 
+// removeIf(removeNativeRelatedCode)
 /**
  * This function is used to execute trackers on event
  * in case of native. On click of native create element
@@ -572,6 +573,7 @@ exports.loadTrackers = function(event){
 		"*"
 	);
 };
+// endRemoveIf(removeNativeRelatedCode)
 
 /**
  * function takes bidID and post a message to parent pwt.js to execute monetization pixels.

@@ -1178,6 +1178,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 	return adUnitConfig;
 };
 
+// removeIf(removeNativeRelatedCode)
 exports.addEventListenerForClass = function(theWindow, theEvent, theClass, eventHandler){
 
 	if(typeof eventHandler !== "function"){
@@ -1193,14 +1194,19 @@ exports.addEventListenerForClass = function(theWindow, theEvent, theClass, event
 	}
 	return true;
 };
- 
+// endRemoveIf(removeNativeRelatedCode)
+
+// removeIf(removeNativeRelatedCode) 
 exports.findElementsByClass = function(theWindow, theClass){
 	return theWindow.document.getElementsByClassName(theClass) || [];
 };
+// endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeNativeRelatedCode)
 exports.getBidFromEvent = function (theEvent) {
 	return (theEvent && theEvent.target && theEvent.target.attributes &&  theEvent.target.attributes[CONSTANTS.COMMON.BID_ID] && theEvent.target.attributes[CONSTANTS.COMMON.BID_ID].value) || "";
 };
+// endRemoveIf(removeNativeRelatedCode)
 
 exports.getAdFormatFromBidAd = function(ad){
 	var format = undefined;
