@@ -134,6 +134,7 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 exports.transformPBBidToOWBid = transformPBBidToOWBid;
 /* end-test-block */
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 // This function is used to check size for the winning kgpv and if size is different then winning then modify it
 // to have same code for logging and tracking 
 function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
@@ -190,10 +191,13 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 	}
 	return responseObject;
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.checkAndModifySizeOfKGPVIfRequired = checkAndModifySizeOfKGPVIfRequired;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function pbBidStreamHandler(pbBid){
