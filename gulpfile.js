@@ -47,10 +47,11 @@ function getRemoveCodeConfig(){
 
     // Here we will define the flags/tags that we need to use in code comments
     var removeCodeConfig = {
-        removeLegacyAnalyticsRelatedCode: false,
-        removeNativeRelatedCode: false,
-        removeInStreamRelatedCode: false,
-        removeOutStreamRelatedCode: false
+        removeLegacyAnalyticsRelatedCode: true,
+        removeNativeRelatedCode: true,
+        removeInStreamRelatedCode: true,
+        removeOutStreamRelatedCode: false,
+        removeUserIdRelatedCode: true
     };    
 
     var slotConfig = config.getSlotConfiguration();
@@ -65,6 +66,10 @@ function getRemoveCodeConfig(){
 
     if(config.isPrebidPubMaticAnalyticsEnabled()===true){
         removeCodeConfig.removeLegacyAnalyticsRelatedCode = true;
+    }
+
+    if(config.isUserIdModuleEnabled()===false){
+        removeCodeConfig.removeUserIdRelatedCode = true;
     }
 
     return removeCodeConfig;

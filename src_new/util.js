@@ -1315,6 +1315,7 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 	return rxConfig;
 };
 
+// removeIf(removeUserIdRelatedCode)
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
@@ -1323,6 +1324,7 @@ exports.getUserIdConfiguration = function(){
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4+ JSON.stringify(userIdConfs));
 	return userIdConfs;
 };
+// endRemoveIf(removeUserIdRelatedCode)
 
 exports.clearPreviousTargeting = function(){
 	var targetingKeys = window.googletag.pubads().getTargetingKeys();
@@ -1331,6 +1333,7 @@ exports.clearPreviousTargeting = function(){
 	}
 };
 
+// removeIf(removeUserIdRelatedCode)
 exports.getUserIds = function(){
 	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
 		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
@@ -1338,7 +1341,9 @@ exports.getUserIds = function(){
 		refThis.logWarning("getUserIds" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	};
 };
+// endRemoveIf(removeUserIdRelatedCode)
 
+// removeIf(removeUserIdRelatedCode)
 exports.getUserIdsAsEids = function(){
 	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids)) {
 		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids();
@@ -1346,6 +1351,7 @@ exports.getUserIdsAsEids = function(){
 		refThis.logWarning("getUserIdsAsEids" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	};
 };
+// endRemoveIf(removeUserIdRelatedCode)
 
 exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
 	var convertedObject = sourceObject;
