@@ -129,6 +129,7 @@ function resetBid(divID, impressionID){ // TDD, i/o : done
 exports.resetBid = resetBid;
 /* end-test-block */
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function createMetaDataKey(pattern, bmEntry, keyValuePairs){
 	var output = "",
 		validBidCount = 0,
@@ -160,10 +161,13 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
     output = output.replace(new RegExp(macros.PARTNER_COUNT, macroRegexFlag), partnerCount);
     keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.META_DATA] = encodeURIComponent(output);
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.createMetaDataKey = createMetaDataKey;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 function replaceMetaDataMacros(pattern, theBid){
 	var macros = CONSTANTS.METADATA_MACROS,
@@ -180,7 +184,7 @@ function replaceMetaDataMacros(pattern, theBid){
 exports.replaceMetaDataMacros = replaceMetaDataMacros;
 /* end-test-block */
 
-
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function auctionBids(bmEntry) { // TDD, i/o : done
     var winningBid = null,
         keyValuePairs = {};
@@ -191,18 +195,24 @@ function auctionBids(bmEntry) { // TDD, i/o : done
         keyValuePairs = obj.keyValuePairs;
     });
 
+    // removeIf(removeLegacyAnalyticsRelatedCode)
     if(CONFIG.getMataDataPattern() !== null){
     	createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);
-    }	
+    }
+    // endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
     return {
         wb: winningBid,
         kvp: keyValuePairs
     };
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.auctionBids = auctionBids;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 function updateNativeTargtingKeys(keyValuePairs) {
 	for(var key in keyValuePairs) {
