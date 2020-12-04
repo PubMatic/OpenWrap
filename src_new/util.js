@@ -1048,6 +1048,7 @@ exports.resetExternalBidderStatus = function(divIds) {
 	});
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.ajaxRequest = function(url, callback, data, options) {
 	try {
 
@@ -1097,6 +1098,7 @@ exports.ajaxRequest = function(url, callback, data, options) {
 		refThis.log(error);
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // Returns mediaTypes for adUnits which are sent to prebid
 exports.getAdUnitConfig = function(sizes, currentSlot){
