@@ -1109,18 +1109,6 @@ describe('ADAPTER: Prebid', function() {
         });
     });
 
-    describe('#getParenteAdapterID', function() {
-        it('is a function', function(done) {
-            PREBID.getParenteAdapterID.should.be.a('function');
-            done();
-        });
-
-        it('returns parentAdapterID', function(done) {
-            PREBID.getParenteAdapterID().should.equal(PREBID.parentAdapterID);
-            done();
-        });
-    });
-
     describe('#register', function() {
         it('is a function', function(done) {
             PREBID.register.should.be.a('function');
