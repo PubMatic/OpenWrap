@@ -287,29 +287,6 @@ exports.pbBidStreamHandler = pbBidStreamHandler;
 /* end-test-block */
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-// this function is no more used
-function handleBidResponses(bidResponses){
-	for(var responseID in bidResponses){
-		/* istanbul ignore else */
-		if(util.isOwnProperty(bidResponses, responseID) && util.isOwnProperty(refThis.kgpvMap, responseID)){
-			var bidObject = bidResponses[responseID];
-			var bids = bidObject.bids || [];
-
-			for(var i = 0; i<bids.length; i++){
-				var bid = bids[i];
-				/* istanbul ignore else */
-				if(bid.bidderCode){
-					bidManager.setBidFromBidder(refThis.kgpvMap[responseID].divID, transformPBBidToOWBid(bid, refThis.kgpvMap[responseID].kgpv));
-				}
-			}
-		}
-	}
-}
-
-/* start-test-block */
-exports.handleBidResponses = handleBidResponses;
-/* end-test-block */
-
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function getPBCodeWithWidthAndHeight(divID, adapterID, width, height){
 	return divID + "@" + adapterID + "@" + width + "X" + height;
@@ -1034,7 +1011,6 @@ function pbjsBidsBackHandler(bidResponses, activeSlots) {
 	util.log("In PreBid bidsBackHandler with bidResponses: ");
 	util.log(bidResponses);
 	setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
-	//refThis.handleBidResponses(bidResponses);
 	//TODO: this blockk is used only for analytics enabled thus it should be covered in callback function?
 	//		callback function behaviour will be different for different controllers?
 	//			diff behaviour can be managed in respective controller code
