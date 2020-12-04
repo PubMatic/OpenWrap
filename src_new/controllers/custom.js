@@ -283,12 +283,14 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 		if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || Date.now() >= posTimeoutTime) {
 
 			clearInterval(intervalId);
+			// removeIf(removeLegacyAnalyticsRelatedCode)
 			if(isPrebidPubMaticAnalyticsEnabled === false){
 				// after some time call fire the analytics pixel
 				setTimeout(function() {
 					bidManager.executeAnalyticsPixel();
 				}, 2000);	
-			}			
+			}
+			// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 			var winningBids = {}; // object:: { code : response bid or just key value pairs }
 			// we should loop on qualifyingSlotDivIds to avoid confusion if two parallel calls are fired to our PWT.requestBids 

@@ -339,6 +339,7 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 	}
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	var outputObj = {
 			s: []
@@ -399,6 +400,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		}
 	});
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	var pixelURL = util.generateMonetizationPixel(slotID,theBid);
@@ -408,6 +410,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	refThis.setImageSrcToPixelURL(pixelURL);
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
 	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = undefined;
@@ -509,10 +512,13 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 		}
     }
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.analyticalPixelCallback = analyticalPixelCallback;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 
 
