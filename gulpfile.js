@@ -52,7 +52,9 @@ function getRemoveCodeConfig(){
         removeInStreamRelatedCode: true,
         removeOutStreamRelatedCode: false,
         removeUserIdRelatedCode: true
-    };    
+    };
+
+    return removeCodeConfig; // todo: only for dev purpose; remove later
 
     var slotConfig = config.getSlotConfiguration();
     if(!slotConfig){
