@@ -49,13 +49,17 @@ Bid.prototype.setServerSideResponseTime = function (ssResponseTime) {
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getServerSideResponseTime = function () {
 	return this.serverSideResponseTime;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getServerSideStatus = function () {
 	return this.isServerSide;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.setServerSideStatus = function (isServerSide) {
 	this.isServerSide = isServerSide;
