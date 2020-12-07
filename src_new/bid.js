@@ -61,9 +61,12 @@ Bid.prototype.getServerSideStatus = function () {
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// should be always removed; not in use at all
 Bid.prototype.setServerSideStatus = function (isServerSide) {
 	this.isServerSide = isServerSide;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getAdapterID = function(){
 	return this.adapterID;
@@ -140,9 +143,12 @@ Bid.prototype.setAdHtml = function(adHtml){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// should be always removed; not in use at all
 Bid.prototype.getAdHtml = function(){
 	return this.adHtml;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setAdUrl = function(adUrl){
@@ -151,9 +157,12 @@ Bid.prototype.setAdUrl = function(adUrl){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// should be always removed; not in use at all
 Bid.prototype.getAdUrl = function(){
 	return this.adUrl;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setHeight = function(height){
@@ -177,6 +186,7 @@ Bid.prototype.getWidth = function(){
 	return this.width;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getKGPV = function(isActualValueRequired, mediaType){
 	if(!isActualValueRequired && this.regexPattern){
 		return this.regexPattern;
@@ -186,6 +196,7 @@ Bid.prototype.getKGPV = function(isActualValueRequired, mediaType){
 	}
 	return this.kgpv;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setKeyValuePair = function(key, value){
@@ -195,9 +206,11 @@ Bid.prototype.setKeyValuePair = function(key, value){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getKeyValuePairs = function(){
 	return this.keyValuePairs;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.setPostTimeoutStatus = function(){
 	this.isPostTimeout = true;
@@ -232,9 +245,11 @@ Bid.prototype.setDealID = function(dealID){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getDealID = function(){
 	return this.dealID;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setDealChannel = function(dealChannel){
@@ -250,18 +265,24 @@ Bid.prototype.setDealChannel = function(dealChannel){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getDealChannel = function(){
 	return this.dealChannel;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setWinningBidStatus = function(){
 	this.isWinningBid = true;
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getWinningBidStatus = function(){
 	return this.isWinningBid;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.setStatus = function(status){
 	this.status = status;
