@@ -1227,6 +1227,7 @@ exports.getBidFromEvent = function (theEvent) {
 };
 // endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.getAdFormatFromBidAd = function(ad){
 	var format = undefined;
 	if(ad && refThis.isString(ad)){
@@ -1250,6 +1251,7 @@ exports.getAdFormatFromBidAd = function(ad){
 	}
 	return format;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // This common function can be used add hooks for publishers to make changes in flows
 exports.handleHook = function(hookName, arrayOfDataToPass) {

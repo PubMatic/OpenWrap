@@ -67,6 +67,7 @@ Bid.prototype.getBidID = function(){
 	return this.bidID;
 };
 
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setGrossEcpm = function(ecpm){
 	/* istanbul ignore else */
 	if(ecpm === null){
@@ -99,6 +100,7 @@ Bid.prototype.setGrossEcpm = function(ecpm){
 
 	return this;
 };
+// removeIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getGrossEcpm = function(forAnalytics){
 	// Check config if currency module is enabled.
@@ -124,20 +126,24 @@ Bid.prototype.getDefaultBidStatus = function(){
 	return this.defaultBid;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setAdHtml = function(adHtml){
 	this.adHtml = adHtml;
 	this.setAdFormat(adHtml);
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getAdHtml = function(){
 	return this.adHtml;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setAdUrl = function(adUrl){
 	this.adUrl = adUrl;
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getAdUrl = function(){
 	return this.adUrl;
@@ -199,6 +205,7 @@ Bid.prototype.getReceivedTime = function(){
 	return this.receivedTime;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setDealID = function(dealID){
 	/* istanbul ignore else */
 	if(dealID){
@@ -211,11 +218,13 @@ Bid.prototype.setDealID = function(dealID){
 	}
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getDealID = function(){
 	return this.dealID;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setDealChannel = function(dealChannel){
 	/* istanbul ignore else */
 	if(this.dealID && dealChannel){
@@ -227,6 +236,7 @@ Bid.prototype.setDealChannel = function(dealChannel){
 	}
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getDealChannel = function(){
 	return this.dealChannel;
@@ -318,10 +328,12 @@ Bid.prototype.getAdFormat = function(){
 	return this.adFormat;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setAdFormat = function(ad){
 	this.adFormat = UTIL.getAdFormatFromBidAd(ad);
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getRegexPattern = function(){
 	return this.regexPattern;
