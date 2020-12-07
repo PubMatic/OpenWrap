@@ -183,11 +183,13 @@ Bid.prototype.getKGPV = function(isActualValueRequired, mediaType){
 	return this.kgpv;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setKeyValuePair = function(key, value){
 	// max length of key is restricted to 20 characters
 	this.keyValuePairs[key.substr(0, 20)] = value;
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getKeyValuePairs = function(){
 	return this.keyValuePairs;
@@ -266,6 +268,7 @@ Bid.prototype.getStatus = function(){
 	return this.status;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setSendAllBidsKeys = function(){
 	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID+'_'+this.adapterID, this.bidID);
 	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS+'_'+this.adapterID, this.getNetEcpm() > 0 ? 1 : 0);
@@ -281,6 +284,7 @@ Bid.prototype.setSendAllBidsKeys = function(){
 		});
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setMi = function(mi){
