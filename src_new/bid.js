@@ -43,9 +43,11 @@ var getNetECPM = function(grossEcpm, adapterID){
 	return window.parseFloat((grossEcpm * CONFIG.getAdapterRevShare(adapterID)).toFixed(CONSTANTS.COMMON.BID_PRECISION));
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setServerSideResponseTime = function (ssResponseTime) {
 	this.serverSideResponseTime = ssResponseTime;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getServerSideResponseTime = function () {
 	return this.serverSideResponseTime;
@@ -149,19 +151,23 @@ Bid.prototype.getAdUrl = function(){
 	return this.adUrl;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setHeight = function(height){
 	this.height = height;
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getHeight = function(){
 	return this.height;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setWidth = function(width){
 	this.width = width;
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getWidth = function(){
 	return this.width;
@@ -276,40 +282,46 @@ Bid.prototype.setSendAllBidsKeys = function(){
 	}
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setMi = function(mi){
 	this.mi = mi;
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode) 
 
 Bid.prototype.getMi = function(){
 	return this.mi;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode) 
 Bid.prototype.setOriginalCpm = function(originalCpm){
 	this.originalCpm = window.parseFloat(originalCpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode) 
 
 Bid.prototype.getOriginalCpm = function(){
 	return this.originalCpm;
 };
 
-
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setOriginalCurrency = function(originalCurrency){
 	this.originalCurrency = originalCurrency;
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getOriginalCurrency = function(){
 	return this.originalCurrency;
 };
 
-
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setAnalyticsCpm = function(analyticsCpm){
 	this.analyticsGrossCpm = window.parseFloat(analyticsCpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
 	this.analyticsNetCpm = getNetECPM(this.analyticsGrossCpm,this.getAdapterID());
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getAnalyticsCpm = function(){
 	return this.analyticsGrossCpm;
@@ -319,10 +331,12 @@ Bid.prototype.getNative = function(){
 	return this.native;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setNative = function(native){
 	this.native = native;
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getAdFormat = function(){
 	return this.adFormat;
@@ -348,6 +362,7 @@ Bid.prototype.getcacheUUID = function(){
 	return this.cacheUUID;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setcacheUUID = function(cacheUUID){
 	this.cacheUUID = cacheUUID;
 	if(!this.adFormat){
@@ -355,44 +370,53 @@ Bid.prototype.setcacheUUID = function(cacheUUID){
 	}
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getsspID = function(){
 	return this.sspID;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setsspID = function(sspID){
 	this.sspID = sspID;
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setRenderer = function(renderer){
 	if(!UTIL.isEmptyObject(renderer)){
 		this.renderer = renderer;
 	}
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getRenderer = function(){
 	return this.renderer;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setVastCache = function(vastCache){
 	if(UTIL.isString(vastCache)){
 		this.vastCache = vastCache;
 	}
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getVastCache = function(){
 	return this.vastCache;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setVastUrl = function(vastUrl){
 	if(UTIL.isString(vastUrl)){
 		this.vastUrl = vastUrl;
 	}
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getVastUrl= function(){
 	return this.vastUrl;
@@ -418,6 +442,7 @@ Bid.prototype.getPbBid= function(){
 	return this.pbbid;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 // This function is used to update the bid in case of video bid
 // this should only be called if bid is video so that there is no discrepancy in tracker and logger for bid Id
 Bid.prototype.updateBidId = function(slotID){
@@ -433,6 +458,7 @@ Bid.prototype.updateBidId = function(slotID){
 	}
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 /* start-test-block */
 module.exports.Bid = Bid;
