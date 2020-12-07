@@ -437,10 +437,12 @@ Bid.prototype.getVastXml= function(){
 	return this.vastXml;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setPbBid = function(pbbid){
 	this.pbbid = pbbid;
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.getPbBid= function(){
 	return this.pbbid;
