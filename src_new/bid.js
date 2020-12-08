@@ -284,14 +284,18 @@ Bid.prototype.getWinningBidStatus = function(){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setStatus = function(status){
 	this.status = status;
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getStatus = function(){
 	return this.status;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setSendAllBidsKeys = function(){
@@ -316,22 +320,26 @@ Bid.prototype.setMi = function(mi){
 	this.mi = mi;
 	return this;
 };
-// endRemoveIf(removeLegacyAnalyticsRelatedCode) 
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getMi = function(){
 	return this.mi;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode) 
 Bid.prototype.setOriginalCpm = function(originalCpm){
 	this.originalCpm = window.parseFloat(originalCpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
 	return this;
 };
-// endRemoveIf(removeLegacyAnalyticsRelatedCode) 
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getOriginalCpm = function(){
 	return this.originalCpm;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setOriginalCurrency = function(originalCurrency){
@@ -340,9 +348,11 @@ Bid.prototype.setOriginalCurrency = function(originalCurrency){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getOriginalCurrency = function(){
 	return this.originalCurrency;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setAnalyticsCpm = function(analyticsCpm){
@@ -352,13 +362,18 @@ Bid.prototype.setAnalyticsCpm = function(analyticsCpm){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// should be always removed; not in use at all
 Bid.prototype.getAnalyticsCpm = function(){
 	return this.analyticsGrossCpm;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getNative = function(){
 	return this.native;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setNative = function(native){
@@ -367,9 +382,11 @@ Bid.prototype.setNative = function(native){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getAdFormat = function(){
 	return this.adFormat;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setAdFormat = function(ad){
@@ -378,18 +395,24 @@ Bid.prototype.setAdFormat = function(ad){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// should be always removed; not in use at all
 Bid.prototype.getRegexPattern = function(){
 	return this.regexPattern;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 Bid.prototype.setRegexPattern = function(pattern){
 	this.regexPattern = pattern;
 	return this;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// should be always removed; not in use at all
 Bid.prototype.getcacheUUID = function(){
 	return this.cacheUUID;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setcacheUUID = function(cacheUUID){
@@ -401,9 +424,11 @@ Bid.prototype.setcacheUUID = function(cacheUUID){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getsspID = function(){
 	return this.sspID;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setsspID = function(sspID){
@@ -421,9 +446,12 @@ Bid.prototype.setRenderer = function(renderer){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// should be always removed; not in use at all
 Bid.prototype.getRenderer = function(){
 	return this.renderer;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setVastCache = function(vastCache){
@@ -434,9 +462,12 @@ Bid.prototype.setVastCache = function(vastCache){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// should be always removed; not in use at all
 Bid.prototype.getVastCache = function(){
 	return this.vastCache;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setVastUrl = function(vastUrl){
@@ -447,20 +478,29 @@ Bid.prototype.setVastUrl = function(vastUrl){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// should be always removed; not in use at all
 Bid.prototype.getVastUrl= function(){
 	return this.vastUrl;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// should be always removed; not in use at all
 Bid.prototype.setVastXml = function(xml){
 	if(UTIL.isString(xml)){
 		this.vastXml = xml;
 	}
 	return this;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// should be always removed; not in use at all
 Bid.prototype.getVastXml= function(){
 	return this.vastXml;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setPbBid = function(pbbid){
@@ -469,9 +509,11 @@ Bid.prototype.setPbBid = function(pbbid){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.getPbBid= function(){
 	return this.pbbid;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 // This function is used to update the bid in case of video bid
