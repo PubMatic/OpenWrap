@@ -1,4 +1,4 @@
-// removeIf(removeIdHubRelatedCode)
+// removeIf(removeIdHubOnlyRelatedCode)
 var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.js");
@@ -74,4 +74,4 @@ exports.init = function(win) {
 		return false;
 	}
 };
-// endRemoveIf(removeIdHubRelatedCode)
+// endRemoveIf(removeIdHubOnlyRelatedCode)

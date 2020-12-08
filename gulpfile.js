@@ -52,7 +52,7 @@ function getRemoveCodeConfig(){
         removeInStreamRelatedCode: true,
         removeOutStreamRelatedCode: true,
         removeUserIdRelatedCode: true,
-        removeIdHubRelatedCode: true
+        removeIdHubOnlyRelatedCode: true
     };
 
     return removeCodeConfig; // todo: only for dev purpose; remove later
