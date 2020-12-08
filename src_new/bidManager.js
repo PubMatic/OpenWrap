@@ -1,7 +1,7 @@
 var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
-var GDPR = require("./gdpr.js");
+// var GDPR = require("./gdpr.js");
 var bmEntry = require("./bmEntry.js");
 
 var refThis = this;
