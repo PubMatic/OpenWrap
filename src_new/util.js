@@ -1276,13 +1276,6 @@ exports.getUserIdConfiguration = function(){
 };
 // endRemoveIf(removeUserIdRelatedCode)
 
-exports.clearPreviousTargeting = function(){
-	var targetingKeys = window.googletag.pubads().getTargetingKeys();
-	if(targetingKeys.indexOf(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS)>-1){
-		window.googletag.pubads().clearTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS);
-	}
-};
-
 // removeIf(removeUserIdRelatedCode)
 exports.getUserIds = function(){
 	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
