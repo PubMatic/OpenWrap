@@ -829,7 +829,6 @@ exports.addMessageEventListenerForSafeFrame = function(theWindow){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-//todo: this function is not in use
 exports.getElementLocation = function( el ) {
 	var rect,
 		x = 0,
