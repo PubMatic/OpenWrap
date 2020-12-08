@@ -434,6 +434,7 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.writeIframe = function(theDocument, src, width, height, style){
 	theDocument.write("<iframe"
     + " frameborder=\"0\" allowtransparency=\"true\" marginheight=\"0\" marginwidth=\"0\" scrolling=\"no\" width=\""
@@ -443,6 +444,7 @@ exports.writeIframe = function(theDocument, src, width, height, style){
     + " src=\"" + src + "\""
     + "></ifr" + "ame>");
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 exports.displayCreative = function(theDocument, bid){
@@ -471,17 +473,23 @@ exports.displayCreative = function(theDocument, bid){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// should be always removed; not in use at all
 exports.getScreenWidth = function(win){
 	var screenWidth = -1;
 	win.innerHeight ? (screenWidth = win.innerWidth) : win.document && win.document.documentElement && win.document.documentElement.clientWidth ? (screenWidth = win.document.documentElement.clientWidth) : win.document.body && (screenWidth = win.document.body.clientWidth);
 	return screenWidth;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// should be always removed; not in use at all
 exports.getScreenHeight = function(win){
 	var screenHeight = -1;
 	win.innerHeight ? (screenHeight = win.innerHeight) : win.document && win.document.documentElement && win.document.documentElement.clientHeight ? (screenHeight = win.document.documentElement.clientHeight) : win.document.body && (screenHeight = win.document.body.clientHeight);
 	return screenHeight;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // todo: how about accepting array of arguments to be passed to callback function after key, value, arrayOfArguments
 exports.forEachOnObject = function(theObject, callback){
