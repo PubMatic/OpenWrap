@@ -46,6 +46,7 @@ function getRemoveCodeConfig(){
     // return {};
 
     // Here we will define the flags/tags that we need to use in code comments
+    //todo: set these all to false by default
     var removeCodeConfig = {
         removeLegacyAnalyticsRelatedCode: true,
         removeNativeRelatedCode: true,

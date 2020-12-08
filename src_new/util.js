@@ -1513,6 +1513,7 @@ exports.getDevicePlatform = function(){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeIdHubOnlyRelatedCode)
 exports.updateAdUnits = function(adUnits){
 	if(refThis.isArray(adUnits)){
 		adUnits.forEach(function(adUnit){
@@ -1526,7 +1527,9 @@ exports.updateAdUnits = function(adUnits){
 		});
 	}
 };
+// endRemoveIf(removeIdHubOnlyRelatedCode)
 
+// removeIf(removeIdHubOnlyRelatedCode)
 exports.updateUserIds = function(bid){
 	// refThis.idsAppendedToAdUnits =true;
 	if(refThis.isUndefined(bid.userId)){
@@ -1557,6 +1560,7 @@ exports.updateUserIds = function(bid){
 		bid.userIdAsEids = ids;
 	}
 };
+// endRemoveIf(removeIdHubOnlyRelatedCode)
 
 exports.initLiveRampAts = function(params){
 	function addATS() {
