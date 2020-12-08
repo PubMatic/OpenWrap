@@ -473,24 +473,6 @@ exports.displayCreative = function(theDocument, bid){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-// removeIf(removeLegacyAnalyticsRelatedCode)
-// should be always removed; not in use at all
-exports.getScreenWidth = function(win){
-	var screenWidth = -1;
-	win.innerHeight ? (screenWidth = win.innerWidth) : win.document && win.document.documentElement && win.document.documentElement.clientWidth ? (screenWidth = win.document.documentElement.clientWidth) : win.document.body && (screenWidth = win.document.body.clientWidth);
-	return screenWidth;
-};
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
-
-// removeIf(removeLegacyAnalyticsRelatedCode)
-// should be always removed; not in use at all
-exports.getScreenHeight = function(win){
-	var screenHeight = -1;
-	win.innerHeight ? (screenHeight = win.innerHeight) : win.document && win.document.documentElement && win.document.documentElement.clientHeight ? (screenHeight = win.document.documentElement.clientHeight) : win.document.body && (screenHeight = win.document.body.clientHeight);
-	return screenHeight;
-};
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
-
 // todo: how about accepting array of arguments to be passed to callback function after key, value, arrayOfArguments
 exports.forEachOnObject = function(theObject, callback){
 	/* istanbul ignore else */
@@ -589,11 +571,6 @@ exports.isIframe = function(theWindow){
 	}catch(e){
 		return false;
 	}
-};
-
-//todo: this function is not used
-exports.findInString = function(theString, find){
-	return theString.indexOf(find) >= 0;
 };
 
 exports.findQueryParamInURL = function(url, name){
