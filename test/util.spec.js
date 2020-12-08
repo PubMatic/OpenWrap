@@ -634,7 +634,7 @@ describe('UTIL', function() {
         })
     });
 
-    describe('#checkMandatoryParams', function() {
+    xdescribe('#checkMandatoryParams', function() {
         var object = null,
             keys = null,
             adapterID = null;
@@ -3290,10 +3290,6 @@ describe('UTIL', function() {
             UTIL.getPartnerParams = function(){
                 return "parnterParams";
             }
-            UTIL.checkMandatoryParams = function(){
-                return true;
-            }
-            sinon.spy(UTIL,"checkMandatoryParams")
             sinon.spy(obj, "handlerFunction");
             addZeroBids = true;
             done();
@@ -3312,7 +3308,6 @@ describe('UTIL', function() {
             handlerFunction = null;
             addZeroBids = null;
             obj.handlerFunction.restore();
-            UTIL.checkMandatoryParams.restore();
             done();
         });
 

@@ -276,40 +276,6 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheck
 	return slotNames;
 };
 
-//todo: is it required ?
-exports.checkMandatoryParams = function(object, keys, adapterID){
-	var error = false,
-		success = true
-	;
-	/* istanbul ignore else */
-	if(!object || !refThis.isObject(object) || refThis.isArray(object)){
-		refThis.logWarning(adapterID + "provided object is invalid.");
-		return error;
-	}
-	/* istanbul ignore else */
-	if(!refThis.isArray(keys)){
-		refThis.logWarning(adapterID + "provided keys must be in an array.");
-		return error;
-	}
-
-	var arrayLength = keys.length;
-	/* istanbul ignore else */
-	if(arrayLength == 0){
-		return success;
-	}
-
-	// can not change following for loop to refThis.forEachOnArray
-	for(var i=0; i<arrayLength; i++){
-		/* istanbul ignore else */
-		if(!refThis.isOwnProperty(object, keys[i])){
-			refThis.logError(adapterID + ": "+keys[i]+", mandatory parameter not present.");
-			return error;
-		}
-	}
-
-	return success;
-};
-
 /**
  * todo:
  * 		if direct mapping is not found 
@@ -402,9 +368,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				}
 			}
 			if(!keyConfig){
-				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
-			}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);			
 			}else{
 				callHandlerFunction = true;
 			}

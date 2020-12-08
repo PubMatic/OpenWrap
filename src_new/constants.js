@@ -159,7 +159,7 @@ exports.MESSAGES = {
 	"M6": "bidAlreadExists : ",
 	"M7": ": Exiting from fetchBids.",
 	"M8": ". Config not found, ignored.",
-	"M9": ". Config ignored.",
+	// "M9": ". Config ignored.",
 	"M10": "Bid is rejected as ecpm is NULL.",
 	"M11": "Bid is rejected as ecpm is NaN: ",
 	"M12": "Existing bid ecpm: ",
