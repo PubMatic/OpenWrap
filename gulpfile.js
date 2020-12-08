@@ -77,7 +77,7 @@ function getRemoveCodeConfig(){
     }
 
     if(config.isIdentityOnly()===false){
-        removeCodeConfig.removeIdHubRelatedCode = true;
+        removeCodeConfig.removeIdHubOnlyRelatedCode = true;
     }
 
     return removeCodeConfig;
