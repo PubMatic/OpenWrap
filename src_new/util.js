@@ -1490,6 +1490,7 @@ exports.getCustomParamsForDFPVideo = function(customParams, bid){
 };
 // endRemoveIf(removeInStreamRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.getDevicePlatform = function(){
 	var deviceType = 3;
 	try{
@@ -1510,6 +1511,7 @@ exports.getDevicePlatform = function(){
 	}
 	return deviceType;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.updateAdUnits = function(adUnits){
 	if(refThis.isArray(adUnits)){
