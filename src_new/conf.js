@@ -11,19 +11,25 @@ exports.pwt = {
 	cmpApi: "iab",
 	gdprTimeout: "10000",
 	awc: "1",
-	disableAjaxTimeout:true,
+	disableAjaxTimeout: true,
 	adServerCurrency: "INR",
 	singleImpression: "1",
-	identityEnabled:"0",
-	identityConsumers:"EB,TAM,Prebid",
-	identityOnly:"0",
+	identityEnabled: "0",
+	identityConsumers: "EB,TAM,Prebid",
+	identityOnly: "0",
 	ccpa: "0",
 	ccpaCmpApi: "iab",
 	ccpaTimeout: "10000"
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
-
+exports.testConfigDetails = {
+	"testGroupSize": 50
+};
+exports.test_pwt = {
+	"otherTestParam": 1000,
+	"t": 6767
+};
 exports.adapters = {
 	pubmatic: {
 		rev_share: "0.0",
@@ -64,8 +70,8 @@ exports.adapters = {
 		klm: {
 			"Div_1": {
 				placementId: "8801674",
-				"video.mimes":"",
-				"video.minduration":""
+				"video.mimes": "",
+				"video.minduration": ""
 			},
 			"Div-2": {
 				placementId: "8801685"
@@ -123,22 +129,22 @@ exports.identityPartners = {
 		name: "identityLink",
 		"params.pid": "23",
 		"storage.type": "cookie",
-		"params.loadAts":"true", // or false// boolean default is false,
+		"params.loadAts": "true", // or false// boolean default is false,
 		"params.placementID": "23",
-		"params.storageType":"localstorage",
-		"params.detectionType":"scrapeAndUrl",
-		"params.urlParameter":"eparam",
-		"params.cssSelectors":["input[type=text]", "input[type=email]"],
-		"params.logging":"info",
+		"params.storageType": "localstorage",
+		"params.detectionType": "scrapeAndUrl",
+		"params.urlParameter": "eparam",
+		"params.cssSelectors": ["input[type=text]", "input[type=email]"],
+		"params.logging": "info",
 		"storage.name": "somenamevalue",
 		"storage.expires": "60"
 	},
-	criteo:{
+	criteo: {
 		name: "criteo",
 	},
-	unifiedId:{
-		name:"unifiedId",
-		"params.url" : "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+	unifiedId: {
+		name: "unifiedId",
+		"params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
 		"storage.type": "cookie",
 		"storage.name": "_myUnifiedId",
 		"storage.expires": "1825"
@@ -184,7 +190,7 @@ exports.slotConfig = {
 			"video": {
 				"enabled": true,
 				"config": {
-					"context":"instream",
+					"context": "instream",
 					"connectiontype": [1, 2, 6],
 					"minduration": 10,
 					"maxduration": 50,
@@ -196,13 +202,13 @@ exports.slotConfig = {
 					"skipmin": 10,
 					"skipafter": 15
 				},
-				"partnerConfig":{
+				"partnerConfig": {
 					"pubmatic": {
-						"outstreamAU":"pubmatic-test"
+						"outstreamAU": "pubmatic-test"
 					}
 				}
 			},
-		
+
 		},
 		"AU2": {
 			"banner": {}
