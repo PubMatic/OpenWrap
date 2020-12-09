@@ -1130,14 +1130,14 @@ describe('Config', function() {
 
     describe('#getTestGroupDetails',function(){
         beforeEach(function(done){
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.TEST_GROUP_DETAILS] = {
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS] = {
                 "testGroupSize":50
             };
             done();
         });
 
         afterEach(function(done){
-            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.TEST_GROUP_DETAILS];
+            delete CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS];
             done();
         })
         
@@ -1155,7 +1155,7 @@ describe('Config', function() {
         });
 
         it('should return empty object if config is not present',function(done){
-            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.TEST_GROUP_DETAILS];
+            delete CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS];
             CONFIG.getTestGroupDetails().should.be.deep.equal({});
             done();
         });
@@ -1163,14 +1163,14 @@ describe('Config', function() {
 
     describe('#getTestPWTConfig',function(){
         beforeEach(function(done){
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.TEST_PWT] = {
+            CONF[CONSTANTS.COMMON.TEST_PWT] = {
                 "t":5000
             };
             done();
         });
 
         afterEach(function(done){
-            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.TEST_PWT];
+            delete CONF[CONSTANTS.COMMON.TEST_PWT];
             done();
         })
         
@@ -1188,8 +1188,32 @@ describe('Config', function() {
         });
 
         it('should return empty object if config is not present',function(done){
-            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.TEST_PWT];
+            delete CONF[CONSTANTS.COMMON.TEST_PWT];
             CONFIG.getTestPWTConfig().should.be.deep.equal({});
+            done();
+        });
+    });
+
+    describe('#updateABTestConfig',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "0";            
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.updateABTestConfig.should.be.a('function');
+            done();
+        });
+
+        it('should update the conf if random number is less than test group size', function(done) {
+            var expectedTimeout = CONFIG.getTestPWTConfig().t;
+            // CONFIG.updateABTestConfig()
+            CONFIG.getTimeout().should.be.deep.equal(expectedTimeout);
             done();
         });
     });

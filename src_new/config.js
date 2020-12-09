@@ -250,7 +250,9 @@ exports.updateABTestConfig = function () {
 			var testConfig = refThis.getTestPWTConfig();
 			if (testConfig && Object.keys(testConfig).length > 0) {
 				for (var key in testConfig) {
-					config[CONSTANTS.CONFIG.COMMON][key] = testConfig[key];
+					if (config[CONSTANTS.CONFIG.COMMON][key]) {
+						config[CONSTANTS.CONFIG.COMMON][key] = testConfig[key];
+					}
 				}
 			}
 		}
@@ -262,9 +264,9 @@ exports.isAbTestEnabled = function () {
 };
 
 exports.getTestPWTConfig = function () {
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.TEST_PWT] || {};
+	return config[CONSTANTS.COMMON.TEST_PWT] || {};
 };
 
 exports.getTestGroupDetails = function () {
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.TEST_GROUP_DETAILS] || {};
+	return config[CONSTANTS.COMMON.TEST_GROUP_DETAILS] || {};
 };

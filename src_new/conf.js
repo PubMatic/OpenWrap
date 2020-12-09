@@ -19,16 +19,16 @@ exports.pwt = {
 	identityOnly: "0",
 	ccpa: "0",
 	ccpaCmpApi: "iab",
-	ccpaTimeout: "10000"
+	ccpaTimeout: "10000",
+	abTestEnabled:"0"
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
 exports.testConfigDetails = {
-	"testGroupSize": 50
+	"testGroupSize": 99
 };
 exports.test_pwt = {
-	"otherTestParam": 1000,
-	"t": 6767
+	"t": 5000
 };
 exports.adapters = {
 	pubmatic: {
