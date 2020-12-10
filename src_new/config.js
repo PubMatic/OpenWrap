@@ -243,12 +243,13 @@ exports.isUsePrebidKeysEnabled = function () {
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";
 
 exports.updateABTestConfig = function () {
-	if (refThis.isAbTestEnabled) {
+	if (refThis.isAbTestEnabled()) {
 		var randomNumberBelow100 = util.getRandomNumberBelow100();
 		var testGroupDetails = refThis.getTestGroupDetails();
 		if (testGroupDetails && testGroupDetails.testGroupSize && randomNumberBelow100 < testGroupDetails.testGroupSize) {
 			var testConfig = refThis.getTestPWTConfig();
 			if (testConfig && Object.keys(testConfig).length > 0) {
+				util.log(CONSTANTS.MESSAGES.M30, JSON.stringify(testConfig));
 				for (var key in testConfig) {
 					if (config[CONSTANTS.CONFIG.COMMON][key]) {
 						config[CONSTANTS.CONFIG.COMMON][key] = testConfig[key];

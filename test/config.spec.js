@@ -1099,7 +1099,7 @@ describe('Config', function() {
         });
 
         afterEach(function(done){
-            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED];
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "0";
             done();
         })
         
@@ -1197,11 +1197,17 @@ describe('Config', function() {
     describe('#updateABTestConfig',function(){
         beforeEach(function(done){
             CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "1";
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS]  = {
+                "testGroupSize": 99
+            };
+            CONF[CONSTANTS.COMMON.TEST_PWT]  = {
+                "t": 5000
+            };
             done();
         });
 
         afterEach(function(done){
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "0";            
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "0";     
             done();
         })
         
@@ -1212,7 +1218,17 @@ describe('Config', function() {
 
         it('should update the conf if random number is less than test group size', function(done) {
             var expectedTimeout = CONFIG.getTestPWTConfig().t;
-            // CONFIG.updateABTestConfig()
+            CONFIG.updateABTestConfig()
+            CONFIG.getTimeout().should.be.deep.equal(expectedTimeout);
+            done();
+        });
+
+        it('should not update the conf if random number is greater than test group size', function(done) {
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS]  = {
+                "testGroupSize": 1
+            };
+            var expectedTimeout = CONFIG.getTimeout();
+            CONFIG.updateABTestConfig()
             CONFIG.getTimeout().should.be.deep.equal(expectedTimeout);
             done();
         });
