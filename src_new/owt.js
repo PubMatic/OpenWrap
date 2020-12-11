@@ -131,7 +131,6 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 	}
 	else{
 		util.logWarning("No bid found for given adUnit");
-		return;
 	}
 	var params = {
 		adUnit: adUnit,
