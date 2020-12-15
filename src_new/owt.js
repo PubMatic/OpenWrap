@@ -65,14 +65,21 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In sfDisplayPMPCreative for: " + values);
 	this.isSafeFrame = true;
-	window.parent.postMessage(
-		JSON.stringify({
-			pwt_type: "1",
-			pwt_bidID: util.getBididForPMP(values, priorityArray),
-			pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
-		}),
-		"*"
-	);
+	var bidID = util.getBididForPMP(values, priorityArray);
+	if(bidID){
+		if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+			ucTag.renderAd(theDocument, {adId: bidID, pubUrl: document.referrer});
+		} else{
+			window.parent.postMessage(
+				JSON.stringify({
+					pwt_type: "1",
+					pwt_bidID: bidID,
+					pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
+				}),
+				"*"
+			);
+		}
+	}
 };
 
 window.PWT.initNativeTrackers = function(theDocument,bidID){
