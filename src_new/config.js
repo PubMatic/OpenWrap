@@ -255,6 +255,7 @@ exports.updateABTestConfig = function () {
 						config[CONSTANTS.CONFIG.COMMON][key] = testConfig[key];
 					}
 				}
+				window.PWT.testGroupId = 1;
 			}
 		}
 	}
