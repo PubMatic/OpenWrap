@@ -975,6 +975,11 @@ function getPbjsAdServerTargetingConfig(){
         	val: function(bidResponse){ // todo: empty value?
         		return bidResponse.mediaType == "video" ? CONSTANTS.CONFIG.CACHE_PATH : "";
         	}
+        }, {
+        	key: 'pwtuuid', // custom
+        	val: function(bidResponse){ // todo: empty value?
+        		return "";
+        	}
         }
     ];
 }
