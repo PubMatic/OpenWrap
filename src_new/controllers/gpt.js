@@ -166,6 +166,11 @@ exports.updateSlotsMapFromGoogleSlots = updateSlotsMapFromGoogleSlots;
 
 //todo: pass slotsMap in every function that uses it
 function getStatusOfSlotForDivId(divID) { // TDD, i/o : done
+    if (typeof divID == "object" && typeof(divID.getSlotId) == "function") {
+        if(typeof(divID.getSlotId().getDomId) == "function"){
+            divID  = divID.getSlotId().getDomId();
+        }
+    }
     /* istanbul ignore else */
     if (util.isOwnProperty(refThis.slotsMap, divID)) {
         return refThis.slotsMap[divID].getStatus();
