@@ -1,7 +1,11 @@
 // removeIf(removeIdHubOnlyRelatedCode)
-var CONFIG = require("../config.js");
+// tdod: we can still reduce the build size for idhub by,
+// 			- create a separate util.js, config.js, constants.js with limited required functions
+//					bring required code in this file itself :p
+//			- changes in prebid repo
+var CONFIG = require("../config.idhub.js");
 var CONSTANTS = require("../constants.js");
-var util = require("../util.js");
+var util = require("../util.idhub.js");
 var refThis = this;
 var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
 

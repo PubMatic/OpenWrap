@@ -48,12 +48,12 @@ function getRemoveCodeConfig(){
     // Here we will define the flags/tags that we need to use in code comments
     //todo: set these all to false by default
     var removeCodeConfig = {
-        removeLegacyAnalyticsRelatedCode: true,
+        removeLegacyAnalyticsRelatedCode: (config.isIdentityOnly() === true || config.isPrebidPubMaticAnalyticsEnabled()===true),
         removeNativeRelatedCode: true,
         removeInStreamRelatedCode: true,
         removeOutStreamRelatedCode: true,
-        removeUserIdRelatedCode: true,
-        removeIdHubOnlyRelatedCode: true
+        removeUserIdRelatedCode: (config.isUserIdModuleEnabled()===false),
+        removeIdHubOnlyRelatedCode: (config.isIdentityOnly()===false)
     };
 
     return removeCodeConfig; // todo: only for dev purpose; remove later
@@ -66,25 +66,14 @@ function getRemoveCodeConfig(){
     } else {
         //todo: Add logic to set the flags by checking the config
         //      might be a case where only one of these is enabled: Native, in-stream or out-stream
-    }
-
-    if(config.isPrebidPubMaticAnalyticsEnabled()===true){
-        removeCodeConfig.removeLegacyAnalyticsRelatedCode = true;
-    }
-
-    if(config.isUserIdModuleEnabled()===false){
-        removeCodeConfig.removeUserIdRelatedCode = true;
-    }
-
-    if(config.isIdentityOnly()===false){
-        removeCodeConfig.removeIdHubOnlyRelatedCode = true;
-    }
+    }    
 
     return removeCodeConfig;
 }
 
 // What all processing needs to be done ?
 gulp.task('webpack', ['clean'], function() {
+    var config = require("./src_new/config.js");
     var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
     var webpack = require('webpack-stream');
@@ -95,7 +84,7 @@ gulp.task('webpack', ['clean'], function() {
     var jsFsCache = fsCache('.tmp/jscache');
     webpackConfig.devtool = null;
 
-    return gulp.src('src_new/owt.js')
+    return gulp.src(config.isIdentityOnly() ? 'src_new/idhub.js' : 'src_new/owt.js')
         .pipe(webpack(webpackConfig))
         .pipe(jsFsCache)
         .pipe(removeCode(getRemoveCodeConfig()))
@@ -127,6 +116,7 @@ gulp.task('webpack-creative', ['clean'], function() {
 
 
 gulp.task('devpack', ['clean'],function () {
+var config = require("./src_new/config.js");
 var connect = require('gulp-connect');
 var webpack = require('webpack-stream');
 var removeCode = require('gulp-remove-code');
@@ -134,7 +124,7 @@ var webpackConfig = require('./webpack.config.js');
 
   webpackConfig.devtool = 'source-map';
 
-  return gulp.src('src_new/owt.js')
+  return gulp.src(config.isIdentityOnly() ? 'src_new/idhub.js' : 'src_new/owt.js')
     .pipe(webpack(webpackConfig))
     .pipe(removeCode(getRemoveCodeConfig()))
     .pipe(gulp.dest('build/dev'))
