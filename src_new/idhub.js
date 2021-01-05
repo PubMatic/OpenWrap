@@ -20,3 +20,5 @@ util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL,
 window.PWT.getUserIds = function(){
 	return util.getUserIds();
 };
+
+controller.init(window);
