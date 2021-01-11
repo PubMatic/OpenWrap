@@ -1402,7 +1402,11 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 			grossEcpm = window.parseFloat(theBid.getCpmInNewCurrency(CONSTANTS.COMMON.ANALYTICS_CURRENCY));
 		}
 		else {
-			grossEcpm = theBid.cpm;
+			if(CONFIG.isPrebidPubMaticAnalyticsEnabled() && theBid.originalCpm){
+				grossEcpm = theBid.originalCpm;
+			}else{
+				grossEcpm = theBid.cpm;
+			}
 		}
 	}
 	if(refThis.isFunction(theBid.getAdapterID)){
@@ -1411,10 +1415,10 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	else{
 		adapterId = theBid.bidderCode
 	}
-	// TODO: Uncomment below code in case hybrid profile is supported 
-	// if(adapterId == "pubmaticServer"){
-	// 	adapterId = "pubmatic";
-	// }
+	//Uncomment below code in case hybrid profile is supported 
+	if(adapterId == "pubmaticServer"){
+		adapterId = theBid.originalBidder || "pubmatic"; // in case of pubmaticServer we will get originalBidder, assigning pubmatic just in case originalBidder is not there.
+	}
 	// Do we need all checks or we can just use one check
 	if(refThis.isFunction(theBid.getNetEcpm)) {
 		netEcpm = theBid.getNetEcpm(isAnalytics)
@@ -1434,7 +1438,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		kgpv = theBid.getKGPV()
 	}
 	else {
-		kgpv = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].kgpv;
+		kgpv = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].getKGPV(false, theBid.mediaType);
 	}
 	if(refThis.isFunction(theBid.getsspID)){
 		sspID = theBid.getsspID();
@@ -1574,7 +1578,6 @@ exports.updateUserIds = function(bid){
 	}
 };
 
-
 exports.initLiveRampAts = function(params){
 	function addATS() {
 		var atsScript = document.createElement('script');
@@ -1597,7 +1600,24 @@ exports.initLiveRampAts = function(params){
 	window.addEventListener("load", function()  {
     	setTimeout(addATS, 1000);
   	}); 
-}
+};
+
 exports.getRandomNumberBelow100 = function(){
 	return Math.floor(Math.random()*100);
+};
+
+exports.getUpdatedKGPVForVideo = function(kgpv, adFormat){
+	if(adFormat == CONSTANTS.FORMAT_VALUES.VIDEO){
+		var videoKgpv = ["","0x0"];
+		var splitKgpv = kgpv.split("@");
+		if(splitKgpv.length == 2){
+			if(splitKgpv[1].indexOf(":") > -1){
+				var kgpvIndex = splitKgpv[1].split(":");
+				videoKgpv[1] = videoKgpv[1] + ":" + kgpvIndex[1];
+			}
+			videoKgpv[0] = splitKgpv[0];
+		}
+		kgpv = videoKgpv.join("@");
+	}
+	return kgpv;
 };
