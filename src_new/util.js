@@ -1347,6 +1347,7 @@ exports.getNestedObjectFromString = function(sourceObject,separator, key, value)
 
 exports.getUserIdParams = function(params){
 	var userIdParams= {};
+	refThis.applyDataTypeChangesIfApplicable(params);
 	for(var key in params){
 		try{
 			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
@@ -1617,3 +1618,18 @@ exports.getUpdatedKGPVForVideo = function(kgpv, adFormat){
 	}
 	return kgpv;
 };
+
+exports.applyDataTypeChangesIfApplicable = function(params) {
+	if(CONSTANTS.SPECIAL_CASE_PARTNERS.indexOf(params.name) > -1) {
+		switch(params.name) {
+			case 'intentIqId':
+				//intentIqId expects partner value to be number and not string. so converting it into a number.
+				if(params['params.partner'] && typeof params['params.partner'] === 'string') {
+					params['params.partner'] = parseInt(params['params.partner'])
+				}
+				break;
+			default:
+				return;
+		}
+	}
+}

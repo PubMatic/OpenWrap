@@ -225,3 +225,5 @@ exports.AD_SERVER = {
 	"DFP" : "DFP",
 	"CUSTOM": "CUSTOM"
 };
+
+exports.SPECIAL_CASE_PARTNERS = ["intentIqId"]; //list of ID partners for whom special handling of datatype is required
