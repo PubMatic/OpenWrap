@@ -1620,12 +1620,14 @@ exports.getUpdatedKGPVForVideo = function(kgpv, adFormat){
 };
 
 exports.applyDataTypeChangesIfApplicable = function(params) {
+	var value;
 	if(CONSTANTS.SPECIAL_CASE_PARTNERS.indexOf(params.name) > -1) {
 		switch(params.name) {
 			case 'intentIqId':
 				//intentIqId expects partner value to be number and not string. so converting it into a number.
 				if(params['params.partner'] && typeof params['params.partner'] === 'string') {
-					params['params.partner'] = parseInt(params['params.partner'])
+					value = parseInt(params['params.partner'])
+					params['params.partner'] = !isNaN(value) ? value : params['params.partner'];
 				}
 				break;
 			default:
