@@ -1621,17 +1621,20 @@ exports.getUpdatedKGPVForVideo = function(kgpv, adFormat){
 
 exports.applyDataTypeChangesIfApplicable = function(params) {
 	var value;
-	if(CONSTANTS.SPECIAL_CASE_PARTNERS.indexOf(params.name) > -1) {
-		switch(params.name) {
-			case 'intentIqId':
-				//intentIqId expects partner value to be number and not string. so converting it into a number.
-				if(params['params.partner'] && typeof params['params.partner'] === 'string') {
-					value = parseInt(params['params.partner'])
-					params['params.partner'] = !isNaN(value) ? value : params['params.partner'];
-				}
-				break;
-			default:
-				return;
+	for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
+		for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
+			switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
+				case 'number':
+					if(params[key] && typeof params[key] !== 'number') {
+						value = parseInt(params[key])
+						isNaN(value) ?
+							refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
+							params[key] = value;
+					}
+					break;
+				default:
+					return;
+			}
 		}
 	}
 }

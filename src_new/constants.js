@@ -226,4 +226,8 @@ exports.AD_SERVER = {
 	"CUSTOM": "CUSTOM"
 };
 
-exports.SPECIAL_CASE_PARTNERS = ["intentIqId"]; //list of ID partners for whom special handling of datatype is required
+exports.SPECIAL_CASE_ID_PARTNERS = {
+	"intentIqId": {
+		'params.partner': 'number'
+	}
+}; //list of ID partners for whom special handling of datatype is required
