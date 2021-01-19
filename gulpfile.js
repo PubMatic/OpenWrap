@@ -50,6 +50,7 @@ function getRemoveCodeConfig(){
     // Here we will define the flags/tags that we need to use in code comments
     //todo: set these all to false by default
     var removeCodeConfig = {
+        removeAlways: true, // some code that should never be part of the final build
         removeLegacyAnalyticsRelatedCode: (config.isIdentityOnly() === true || config.isPrebidPubMaticAnalyticsEnabled()===true),
         removeNativeRelatedCode: true,
         removeInStreamRelatedCode: true,
