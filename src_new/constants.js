@@ -38,7 +38,8 @@ exports.COMMON = {
 	"SCHAIN": "sChain",
 	"PBJS_NAMESPACE": "prebidObjName",
 	"TEST_GROUP_DETAILS": "testConfigDetails",
-	"TEST_PWT": "test_pwt"
+	"TEST_PWT": "test_pwt",
+	"TEST_PARTNER": "adapters_test"
 };
 
 exports.CONFIG = {
@@ -184,6 +185,7 @@ exports.MESSAGES = {
 	"M28": "Unable to match regex pattern as kgpv length is not 3",
 	"M29": "Unable to parse Partner configuration",
 	"M30": "AB Test Enabled With Config",
+	"M31": "AB Test Enabled With Partner Config",
 	IDENTITY: {
 		M1: "Unable to get User Id from OpenIdentity",
 		M2: "Setting UserIds to EB ",

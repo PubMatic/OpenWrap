@@ -247,17 +247,40 @@ exports.updateABTestConfig = function () {
 		var randomNumberBelow100 = util.getRandomNumberBelow100();
 		var testGroupDetails = refThis.getTestGroupDetails();
 		if (testGroupDetails && testGroupDetails.testGroupSize && randomNumberBelow100 < testGroupDetails.testGroupSize) {
-			var testConfig = refThis.getTestPWTConfig();
-			if (testConfig && Object.keys(testConfig).length > 0) {
-				util.log(CONSTANTS.MESSAGES.M30, JSON.stringify(testConfig));
-				for (var key in testConfig) {
-					if (config[CONSTANTS.CONFIG.COMMON][key]) {
-						config[CONSTANTS.CONFIG.COMMON][key] = testConfig[key];
-					}
-				}
-				window.PWT.testGroupId = 1;
+			refThis.updatePWTConfig();
+			refThis.updatePartnerConfig();
+		}
+	}
+};
+
+exports.updatePWTConfig = function () {
+	var testConfig = refThis.getTestPWTConfig();
+	if (testConfig && Object.keys(testConfig).length > 0) {
+		util.log(CONSTANTS.MESSAGES.M30, JSON.stringify(testConfig));
+		for (var key in testConfig) {
+			if (config[CONSTANTS.CONFIG.COMMON][key]) {
+				config[CONSTANTS.CONFIG.COMMON][key] = testConfig[key];
 			}
 		}
+		window.PWT.testGroupId = 1;
+	}
+};
+
+exports.updatePartnerConfig = function () {
+	var testConfig = refThis.getTestPartnerConfig();
+	if (testConfig && Object.keys(testConfig).length > 0) {
+		util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(testConfig));
+		for (var key in testConfig) {
+			if (util.isObject(testConfig[key])) {
+				if (Object.keys(testConfig[key]).length == 0 && config.adapters[key] && Object.keys(config.adapters[key]).length > 0) {
+					testConfig[key] = config.adapters[key];
+				} else if (Object.keys(testConfig[key]).length > 0 && config.adapters[key] && Object.keys(config.adapters[key]).length > 0) {
+					testConfig[key] = refThis.getMergedConfig(testConfig[key], config.adapters[key]);
+				}
+			}
+		}
+		window.PWT.testGroupId = 1;
+		config.adapters = testConfig;
 	}
 };
 
@@ -271,4 +294,21 @@ exports.getTestPWTConfig = function () {
 
 exports.getTestGroupDetails = function () {
 	return config[CONSTANTS.COMMON.TEST_GROUP_DETAILS] || {};
+};
+
+exports.getTestPartnerConfig = function () {
+	return config[CONSTANTS.COMMON.TEST_PARTNER] || {};
+};
+
+exports.getMergedConfig = function(toObject, fromObject){
+	for(var key in fromObject){
+		if(!toObject[key]) {
+			if(util.isObject(fromObject[key]) || util.isArray(fromObject[key])) {
+				toObject[key] = JSON.parse(JSON.stringify(fromObject[key]));
+			}else{
+				toObject[key] = fromObject[key];
+			}
+		}
+	}
+	return toObject;
 };
