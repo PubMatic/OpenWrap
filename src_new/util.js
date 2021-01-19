@@ -1160,7 +1160,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 											// Takes bid, element ID and configuration object as parameters
 											setTimeout(function(){
 												outstreamPlayer(bid, bid.adUnitCode, obj);											
-											})
+											},50);
 										} catch (e) {
 											console.error(e);
 											console.error("Error in ad rendering!");
