@@ -240,3 +240,11 @@ exports.isUsePrebidKeysEnabled = function(){
 };
 
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";
+
+exports.getPriceGranularity = function(){
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PRICE_GRANULARITY] || null;
+};
+
+exports.getGranularityMultiplier = function(){
+	return parseFloat(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GRANULARITY_MULTIPLIER]) || 1;
+};

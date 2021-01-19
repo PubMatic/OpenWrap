@@ -36,7 +36,9 @@ exports.COMMON = {
 	"ADSERVER":"adserver",
 	"SCHAINOBJECT":"sChainObj",
 	"SCHAIN":"sChain",
-	"PBJS_NAMESPACE":"prebidObjName"
+	"PBJS_NAMESPACE":"prebidObjName",
+	"PRICE_GRANULARITY" : "priceGranularity",
+	"GRANULARITY_MULTIPLIER" : "granularityMultiplier"
 };
 
 exports.CONFIG = {
