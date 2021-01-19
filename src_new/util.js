@@ -1148,7 +1148,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 							if(config.video.config['context'] && config.video.config['context']=="outstream"){
 								refThis.loadRenderer();
 								adUnitConfig['renderer'] ={
-									url: 'https://ads.pubmatic.com/adserver/js/outstreamplayer.js',   // URL of the renderer
+									url: 'https://ads.pubmatic.com/AdServer/js/outstreamplayer.js',   // URL of the renderer
 									render: function (bid) {
 										try {
 											// Object to configure the behaviour of outstream renderer from HTML page.
@@ -1159,7 +1159,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 											// Call to Global object of renderer.
 											// Takes bid, element ID and configuration object as parameters
 											setTimeout(function(){
-												outstreamPlayer(bid, bid.code, obj);											
+												outstreamPlayer(bid, bid.adUnitCode, obj);											
 											})
 										} catch (e) {
 											console.error(e);
@@ -1648,7 +1648,7 @@ exports.getUpdatedKGPVForVideo = function(kgpv, adFormat){
 exports.loadRenderer = function(){
 	function addRenderer() {
 		var rendererScript = document.createElement('script');
-		rendererScript.src = 'https://ads.pubmatic.com/adserver/js/outstreamplayer.js';
+		rendererScript.src = 'https://ads.pubmatic.com/AdServer/js/outstreamplayer.js';
 		document.body.appendChild(rendererScript);
 	}
 	window.addEventListener("load", function()  {
