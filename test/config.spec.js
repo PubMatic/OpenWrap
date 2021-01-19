@@ -1091,4 +1091,38 @@ describe('Config', function() {
             done();
         });
     });
+
+    describe('#isReduceCodeSizeFeatureEnabled', function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.REDUCE_CODE_SIZE] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.REDUCE_CODE_SIZE];
+            done();
+        });
+
+        it('is a function', function(done) {
+            CONFIG.isReduceCodeSizeFeatureEnabled.should.be.a('function');
+            done();
+        });
+
+        it('should return true by reading reduceCodeSize from config', function(done) {            
+            CONFIG.isReduceCodeSizeFeatureEnabled().should.be.deep.equal(true);
+            done();
+        });
+
+        it('should return false if reduceCodeSize is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.REDUCE_CODE_SIZE];
+            expect(CONFIG.isReduceCodeSizeFeatureEnabled()).to.equal(false);
+            done();
+        });
+
+        it('should return false if reduceCodeSize set to "0"', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.reduceCodeSize] = "0";
+            CONFIG.isReduceCodeSizeFeatureEnabled().should.be.deep.equal(false);
+            done();
+        });
+    })
 });

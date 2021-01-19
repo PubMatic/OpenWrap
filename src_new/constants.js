@@ -36,7 +36,8 @@ exports.COMMON = {
 	"ADSERVER":"adserver",
 	"SCHAINOBJECT":"sChainObj",
 	"SCHAIN":"sChain",
-	"PBJS_NAMESPACE":"prebidObjName"
+	"PBJS_NAMESPACE":"prebidObjName",
+	"REDUCE_CODE_SIZE": "reduceCodeSize"
 };
 
 exports.CONFIG = {

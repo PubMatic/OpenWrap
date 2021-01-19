@@ -41,9 +41,11 @@ gulp.task('clean', function() {
 function getRemoveCodeConfig(){
 
     var config = require("./src_new/config.js");
-    // todo: add a way to read a flag from config which can disable this whole code-removal feature if needed 
-    //          we should have a controlled way to completely disable this feature as we are using ( flag and !flag too)
-    return {};
+    
+    // a controlled way to completely disable this feature
+    if(config.isReduceCodeSizeFeatureEnabled() === false){
+        return {};    
+    }
 
     // Here we will define the flags/tags that we need to use in code comments
     //todo: set these all to false by default

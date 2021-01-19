@@ -240,3 +240,8 @@ exports.isUsePrebidKeysEnabled = function(){
 };
 
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";
+
+exports.isReduceCodeSizeFeatureEnabled = function(){
+	// note: not using window.parseInt as this function is also used in build.sh that runs in NodeJS environment
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.REDUCE_CODE_SIZE]) === 1;
+};
