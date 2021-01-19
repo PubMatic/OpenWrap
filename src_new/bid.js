@@ -33,6 +33,11 @@ function Bid(adapterID, kgpv){
 	this.regexPattern = undefined;
 	this.cacheUUID = undefined;
 	this.liftMetrics = 0;
+	this.sspID = "";
+	this.vastUrl = undefined;
+	this.vastCache = undefined;
+	this.renderer = undefined;
+	this.pbBid = undefined;
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -157,9 +162,12 @@ Bid.prototype.getWidth = function(){
 	return this.width;
 };
 
-Bid.prototype.getKGPV = function(isActualValueRequired){
+Bid.prototype.getKGPV = function(isActualValueRequired, mediaType){
 	if(!isActualValueRequired && this.regexPattern){
 		return this.regexPattern;
+	}
+	if(this.adFormat == CONSTANTS.FORMAT_VALUES.VIDEO || mediaType ==  CONSTANTS.FORMAT_VALUES.VIDEO){
+		return UTIL.getUpdatedKGPVForVideo(this.kgpv, CONSTANTS.FORMAT_VALUES.VIDEO);
 	}
 	return this.kgpv;
 };
@@ -345,6 +353,67 @@ Bid.prototype.setLiftMetrics = function(previousBidNetCpm){
 	this.liftMetrics = this.netEcpm - previousBidNetCpm >0 ? this.netEcpm - previousBidNetCpm:0;
 };
 
+Bid.prototype.getsspID = function(){
+	return this.sspID;
+};
+
+Bid.prototype.setsspID = function(sspID){
+	this.sspID = sspID;
+	return this;
+};
+
+Bid.prototype.setRenderer = function(renderer){
+	if(!UTIL.isEmptyObject(renderer)){
+		this.renderer = renderer;
+	}
+	return this;
+};
+
+Bid.prototype.getRenderer = function(){
+	return this.renderer;
+};
+
+Bid.prototype.setVastCache = function(vastCache){
+	if(UTIL.isString(vastCache)){
+		this.vastCache = vastCache;
+	}
+	return this;
+};
+
+Bid.prototype.getVastCache = function(){
+	return this.vastCache;
+};
+
+Bid.prototype.setVastUrl = function(vastUrl){
+	if(UTIL.isString(vastUrl)){
+		this.vastUrl = vastUrl;
+	}
+	return this;
+};
+
+Bid.prototype.getVastUrl= function(){
+	return this.vastUrl;
+};
+
+Bid.prototype.setVastXml = function(xml){
+	if(UTIL.isString(xml)){
+		this.vastXml = xml;
+	}
+	return this;
+};
+
+Bid.prototype.getVastXml= function(){
+	return this.vastXml;
+};
+
+Bid.prototype.setPbBid = function(pbbid){
+	this.pbbid = pbbid;
+	return this;
+};
+
+Bid.prototype.getPbBid= function(){
+	return this.pbbid;
+};
 
 // This function is used to update the bid in case of video bid
 // this should only be called if bid is video so that there is no discrepancy in tracker and logger for bid Id

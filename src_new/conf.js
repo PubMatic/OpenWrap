@@ -19,7 +19,7 @@ exports.pwt = {
 	identityOnly:"0",
 	ccpa: "0",
 	ccpaCmpApi: "iab",
-	ccpaTimeout: "10000",
+	ccpaTimeout: "10000"
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
@@ -112,65 +112,36 @@ exports.adapters = {
 	}
 };
 
-exports.nativeConfig = {
-	kgp:"_DIV_",
-	klm:{
-		"DIV1":{
-			"nativeOnly": true,
-			config: {
-				image: {
-					required: true,
-					sizes: [150, 50]
-				},
-				title: {
-					required: true,
-					len: 80
-				},
-				sponsoredBy: {
-					required: true
-				},
-				body: {
-					required: true
-				}
-			}
-		},
-		"DIV2":{
-			"nativeOnly": true,
-			config: {
-				image: {
-					required: true,
-					sizes: [150, 50]
-				},
-				title: {
-					required: true,
-					len: 80
-				},
-				sponsoredBy: {
-					required: true
-				},
-				body: {
-					required: true
-				}
-			}
-		}
-	}
-};
-
 exports.identityPartners = {
 	pubCommonId: {
 		name: "pubCommonId",
 		"storage.type": "cookie",
-		"storage.name": "_pubCommonId",
+		"storage.name": "_myPubCommonId",
 		"storage.expires": "1825"
 	},
-	digitrust: {
-		"name":"digitrust",
-		"params.init.member": "nQjyizbdyF",
-		"params.init.site":"FL6whbX1IW",
-		"redirects": "true",
+	identityLink: {
+		name: "identityLink",
+		"params.pid": "23",
 		"storage.type": "cookie",
+		"params.loadAts":"true", // or false// boolean default is false,
+		"params.placementID": "23",
+		"params.storageType":"localstorage",
+		"params.detectionType":"scrapeAndUrl",
+		"params.urlParameter":"eparam",
+		"params.cssSelectors":["input[type=text]", "input[type=email]"],
+		"params.logging":"info",
 		"storage.name": "somenamevalue",
-		"storage.expires":"60"
+		"storage.expires": "60"
+	},
+	criteo:{
+		name: "criteo",
+	},
+	unifiedId:{
+		name:"unifiedId",
+		"params.url" : "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+		"storage.type": "cookie",
+		"storage.name": "_myUnifiedId",
+		"storage.expires": "1825"
 	}
 };
 
@@ -224,8 +195,14 @@ exports.slotConfig = {
 					"skip": 1,
 					"skipmin": 10,
 					"skipafter": 15
+				},
+				"partnerConfig":{
+					"pubmatic": {
+						"outstreamAU":"pubmatic-test"
+					}
 				}
-			}
+			},
+		
 		},
 		"AU2": {
 			"banner": {}

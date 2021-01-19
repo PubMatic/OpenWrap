@@ -3,7 +3,7 @@ var StringReplacePlugin = require('string-replace-webpack-plugin');
 var path = require('path');
 
 var controllerPaths = {
-	UAS: "./controllers/uas.js",
+	IDHUB: "./controllers/idhub.js",
 	DFP: "./controllers/gpt.js",
 	CUSTOM: "./controllers/custom.js"
 };
