@@ -1,6 +1,9 @@
-var CONFIG = require("../config.js");
+// removeIf(removeIdHubOnlyRelatedCode)
+// tdod: we can still reduce the build size for idhub by,
+// 			- create a separate constants.js with limited required functions
+var CONFIG = require("../config.idhub.js");
 var CONSTANTS = require("../constants.js");
-var util = require("../util.js");
+var util = require("../util.idhub.js");
 var refThis = this;
 var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
 
@@ -18,6 +21,16 @@ refThis.setConfig = function(){
 				cmpApi: CONFIG.getCmpApi(),
 				timeout: CONFIG.getGdprTimeout(),
 				allowAuctionWithoutConsent: CONFIG.getAwc()
+			};
+		}
+
+		if (CONFIG.getCCPA()) {
+			if(!prebidConfig["consentManagement"]){
+				prebidConfig["consentManagement"] = {};
+			}
+			prebidConfig["consentManagement"]["usp"] = {
+				cmpApi: CONFIG.getCCPACmpApi(),
+				timeout: CONFIG.getCCPATimeout(),
 			};
 		}
 
@@ -73,3 +86,4 @@ exports.init = function(win) {
 		return false;
 	}
 };
+// endRemoveIf(removeIdHubOnlyRelatedCode)
