@@ -37,40 +37,40 @@ exports.isArray = function (object) {
 	return refThis.isA(object, typeArray);
 };
 
-exports.isNumber = function(object) {
+exports.isNumber = function (object) {
 	return refThis.isA(object, typeNumber);
 };
 
-exports.isObject = function(object){
+exports.isObject = function (object) {
 	return typeof object === "object" && object !== null;
 };
 
-exports.isOwnProperty = function(theObject, proertyName){
+exports.isOwnProperty = function (theObject, proertyName) {
 	/* istanbul ignore else */
-	if(refThis.isObject(theObject) && theObject.hasOwnProperty){
+	if (refThis.isObject(theObject) && theObject.hasOwnProperty) {
 		return theObject.hasOwnProperty(proertyName);
 	}
 	return false;
 };
 
-exports.isUndefined = function(object){
+exports.isUndefined = function (object) {
 	return typeof object === "undefined";
 };
 
-exports.enableDebugLog = function(){
+exports.enableDebugLog = function () {
 	refThis.debugLogIsEnabled = true;
 };
 
-exports.isDebugLogEnabled = function(){
+exports.isDebugLogEnabled = function () {
 	return refThis.debugLogIsEnabled;
 };
 
-exports.enableVisualDebugLog = function(){
+exports.enableVisualDebugLog = function () {
 	refThis.debugLogIsEnabled = true;
 	refThis.visualDebugLogIsEnabled = true;
 };
 
-exports.isEmptyObject= function(object){
+exports.isEmptyObject = function (object) {
 	return refThis.isObject(object) && Object.keys(object).length === 0;
 };
 
@@ -79,76 +79,75 @@ var constDebugInConsolePrependWith = "[OpenWrap] : ";
 var constErrorInConsolePrependWith = "[OpenWrap] : [Error]";
 
 
-exports.log = function(data){
-	if( refThis.debugLogIsEnabled && console && this.isFunction(console.log) ){ // eslint-disable-line no-console
-		if(this.isString(data)){
-			console.log( (new Date()).getTime()+ " : " + constDebugInConsolePrependWith + data ); // eslint-disable-line no-console
-		}else{
+exports.log = function (data) {
+	if (refThis.debugLogIsEnabled && console && this.isFunction(console.log)) { // eslint-disable-line no-console
+		if (this.isString(data)) {
+			console.log((new Date()).getTime() + " : " + constDebugInConsolePrependWith + data); // eslint-disable-line no-console
+		} else {
 			console.log(data); // eslint-disable-line no-console
 		}
 	}
 };
 
-exports.logError = function(data){
-	if( refThis.debugLogIsEnabled && console && this.isFunction(console.log) ){ // eslint-disable-line no-console
-		if(this.isString(data)){
-			console.error( (new Date()).getTime()+ " : " + constDebugInConsolePrependWith + data ); // eslint-disable-line no-console
-		}else{
+exports.logError = function (data) {
+	if (refThis.debugLogIsEnabled && console && this.isFunction(console.log)) { // eslint-disable-line no-console
+		if (this.isString(data)) {
+			console.error((new Date()).getTime() + " : " + constDebugInConsolePrependWith + data); // eslint-disable-line no-console
+		} else {
 			console.error(data); // eslint-disable-line no-console
 		}
 	}
 };
 
-exports.logWarning = function(data){
-	if( refThis.debugLogIsEnabled && console && this.isFunction(console.log) ){ // eslint-disable-line no-console
-		if(this.isString(data)){
-			console.warn( (new Date()).getTime()+ " : " + constDebugInConsolePrependWith + data ); // eslint-disable-line no-console
-		}else{
+exports.logWarning = function (data) {
+	if (refThis.debugLogIsEnabled && console && this.isFunction(console.log)) { // eslint-disable-line no-console
+		if (this.isString(data)) {
+			console.warn((new Date()).getTime() + " : " + constDebugInConsolePrependWith + data); // eslint-disable-line no-console
+		} else {
 			console.warn(data); // eslint-disable-line no-console
 		}
 	}
 };
 
-exports.error = function(data){
-	console.log( (new Date()).getTime()+ " : " + constErrorInConsolePrependWith, data ); // eslint-disable-line no-console
+exports.error = function (data) {
+	console.log((new Date()).getTime() + " : " + constErrorInConsolePrependWith, data); // eslint-disable-line no-console
 };
 
-exports.forEachOnObject = function(theObject, callback){
+exports.forEachOnObject = function (theObject, callback) {
 	/* istanbul ignore else */
-	if(!refThis.isObject(theObject)){
+	if (!refThis.isObject(theObject)) {
 		return;
 	}
 
 	/* istanbul ignore else */
-	if(!refThis.isFunction(callback)){
+	if (!refThis.isFunction(callback)) {
 		return;
 	}
 
-	for(var key in theObject){
+	for (var key in theObject) {
 		/* istanbul ignore else */
-		if(refThis.isOwnProperty(theObject, key)){
+		if (refThis.isOwnProperty(theObject, key)) {
 			callback(key, theObject[key]);
 		}
 	}
 };
 
-exports.getTopFrameOfSameDomain = function(cWin) {
+exports.getTopFrameOfSameDomain = function (cWin) {
 	try {
 		/* istanbul ignore else */
-		if (cWin.parent.document != cWin.document){
-		  return refThis.getTopFrameOfSameDomain(cWin.parent);
+		if (cWin.parent.document != cWin.document) {
+			return refThis.getTopFrameOfSameDomain(cWin.parent);
 		}
-	} catch(e) {}
+	} catch (e) {}
 	return cWin;
 };
 
 exports.metaInfo = {};
 
-exports.getMetaInfo = function(cWin){
-	var  obj = {}
-		, MAX_PAGE_URL_LEN = 512
-		, frame
-		;
+exports.getMetaInfo = function (cWin) {
+	var obj = {},
+		MAX_PAGE_URL_LEN = 512,
+		frame;
 
 	obj.pageURL = "";
 	obj.refURL = "";
@@ -156,14 +155,14 @@ exports.getMetaInfo = function(cWin){
 	obj.secure = 1;
 	obj.isInIframe = refThis.isIframe(cWin);
 
-	try{
+	try {
 		frame = refThis.getTopFrameOfSameDomain(cWin);
-		obj.refURL = ( frame.refurl || frame.document.referrer || '' ).substr( 0, MAX_PAGE_URL_LEN );
-		obj.pageURL = ( frame !== window.top && frame.document.referrer != ""  ? frame.document.referrer : frame.location.href).substr(0, MAX_PAGE_URL_LEN );
+		obj.refURL = (frame.refurl || frame.document.referrer || '').substr(0, MAX_PAGE_URL_LEN);
+		obj.pageURL = (frame !== window.top && frame.document.referrer != "" ? frame.document.referrer : frame.location.href).substr(0, MAX_PAGE_URL_LEN);
 
-		obj.protocol = (function(frame){
+		obj.protocol = (function (frame) {
 			/* istanbul ignore else */
-			if(frame.location.protocol ===  "http:"){
+			if (frame.location.protocol === "http:") {
 				obj.secure = 0;
 				return "http://";
 			}
@@ -171,7 +170,7 @@ exports.getMetaInfo = function(cWin){
 			return "https://";
 		})(frame);
 
-	}catch(e){}
+	} catch (e) {}
 
 	obj.pageDomain = refThis.getDomainFromURL(obj.pageURL);
 
@@ -180,31 +179,31 @@ exports.getMetaInfo = function(cWin){
 	return obj;
 };
 
-exports.isIframe = function(theWindow){
-	try{
+exports.isIframe = function (theWindow) {
+	try {
 		return theWindow.self !== theWindow.top;
-	}catch(e){
+	} catch (e) {
 		return false;
 	}
 };
 
-exports.findQueryParamInURL = function(url, name){
+exports.findQueryParamInURL = function (url, name) {
 	return refThis.isOwnProperty(refThis.parseQueryParams(url), name);
 };
 
-exports.parseQueryParams = function(url){
+exports.parseQueryParams = function (url) {
 	var parser = refThis.createDocElement(window, 'a');
 	parser.href = url;
 	var params = {};
 
 	/* istanbul ignore else */
-	if(parser.search){
+	if (parser.search) {
 		var queryString = parser.search.replace('?', '');
 		queryString = queryString.split('&');
-		refThis.forEachOnArray(queryString, function(index, keyValue){
+		refThis.forEachOnArray(queryString, function (index, keyValue) {
 			var keyValue = keyValue.split('=');
 			var key = keyValue[0] || '';
-			var value = keyValue [1] || '';
+			var value = keyValue[1] || '';
 			params[key] = value;
 		});
 	}
@@ -213,58 +212,190 @@ exports.parseQueryParams = function(url){
 };
 
 
-exports.createDocElement = function(win, elementName) {
+exports.createDocElement = function (win, elementName) {
 	return win.document.createElement(elementName);
 };
 
-exports.addHookOnFunction = function(theObject, useProto, functionName, newFunction){
+exports.addHookOnFunction = function (theObject, useProto, functionName, newFunction) {
 	var callMethodOn = theObject;
 	theObject = useProto ? theObject.__proto__ : theObject;
-	if(refThis.isObject(theObject) && refThis.isFunction(theObject[functionName])){
+	if (refThis.isObject(theObject) && refThis.isFunction(theObject[functionName])) {
 		var originalFunction = theObject[functionName];
 		theObject[functionName] = newFunction(callMethodOn, originalFunction);
-	}else{
+	} else {
 		refThis.logWarning("in assignNewDefination: oldReference is not a function");
 	}
 };
 
-exports.getUserIdConfiguration = function(){
+exports.getUserIdConfiguration = function () {
 	var userIdConfs = [];
-	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
+	refThis.forEachOnObject(CONFIG.getIdentityPartners(), function (parterId, partnerValues) {
 		userIdConfs.push(refThis.getUserIdParams(partnerValues));
 	});
-	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4+ JSON.stringify(userIdConfs));
+	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIdConfs));
 	return userIdConfs;
 };
 
-exports.getUserIdParams = function(params){
-	var userIdParams= {};
-	for(var key in params){
-		try{
-			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
-				if(CONSTANTS.TOLOWERCASE_IDENTITY_PARAMS.indexOf(key)>-1){
+exports.getUserIdParams = function (params) {
+	var userIdParams = {};
+	for (var key in params) {
+		try {
+			if (CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
+				if (CONSTANTS.TOLOWERCASE_IDENTITY_PARAMS.indexOf(key) > -1) {
 					params[key] = params[key].toLowerCase();
 				}
-				if(CONSTANTS.JSON_VALUE_KEYS.indexOf(key)>-1){
+				if (CONSTANTS.JSON_VALUE_KEYS.indexOf(key) > -1) {
 					params[key] = JSON.parse(params[key]);
 				}
-				userIdParams = refThis.getNestedObjectFromString(userIdParams,".",key,params[key]);
+				userIdParams = refThis.getNestedObjectFromString(userIdParams, ".", key, params[key]);
 			}
-		}
-		catch(ex){
+		} catch (ex) {
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
-	}	
-	if(userIdParams && userIdParams.params && userIdParams.params['loadATS'] == 'true'){
+	}
+	if (userIdParams && userIdParams.params && userIdParams.params['loadATS'] == 'true') {
 		refThis.initLiveRampAts(userIdParams);
 	}
 	return userIdParams;
 };
 
-exports.getUserIds = function(){
-	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
+exports.getUserIds = function () {
+	if (refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
 		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
-	} else{
+	} else {
 		refThis.logWarning("getUserIds" + CONSTANTS.MESSAGES.IDENTITY.M6);
-	};
+	}
+};
+
+exports.getDomainFromURL = function (url) {
+	var a = window.document.createElement("a");
+	a.href = url;
+	return a.hostname;
+};
+
+exports.handleHook = function (hookName, arrayOfDataToPass) {
+	// Adding a hook for publishers to modify the data we have
+	if (refThis.isFunction(window.PWT[hookName])) {
+		refThis.log('For Hook-name: ' + hookName + ', calling window.PWT.' + hookName + 'function.');
+		window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
+	}
+	// else {
+	// 	refThis.log('Hook-name: '+hookName+', window.PWT.'+hookName+' is not a function.' );
+	// }
+};
+
+exports.forEachOnArray = function (theArray, callback) {
+	/* istanbul ignore else */
+	if (!refThis.isArray(theArray)) {
+		return;
+	}
+
+	/* istanbul ignore else */
+	if (!refThis.isFunction(callback)) {
+		return;
+	}
+
+	for (var index = 0, arrayLength = theArray.length; index < arrayLength; index++) {
+		callback(index, theArray[index]);
+	}
+};
+
+exports.getUserIdsAsEids = function () {
+	if (refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids)) {
+		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids();
+	} else {
+		refThis.logWarning("getUserIdsAsEids" + CONSTANTS.MESSAGES.IDENTITY.M6);
+	}
+};
+// endRemoveIf(removeUserIdRelatedCode)
+
+exports.getNestedObjectFromArray = function (sourceObject, sourceArray, valueOfLastNode) {
+	var convertedObject = sourceObject;
+	var referenceForNesting = convertedObject;
+	for (var i = 0; i < sourceArray.length - 1; i++) {
+		if (!referenceForNesting[sourceArray[i]]) {
+			referenceForNesting[sourceArray[i]] = {};
+		}
+		referenceForNesting = referenceForNesting[sourceArray[i]];
+	}
+	referenceForNesting[sourceArray[sourceArray.length - 1]] = valueOfLastNode;
+	return convertedObject;
+};
+
+exports.getNestedObjectFromString = function (sourceObject, separator, key, value) {
+	var splitParams = key.split(separator);
+	if (splitParams.length == 1) {
+		sourceObject[key] = value;
+	} else {
+		sourceObject = refThis.getNestedObjectFromArray(sourceObject, splitParams, value);
+	}
+	return sourceObject;
+};
+
+
+exports.initLiveRampAts = function (params) {
+	function addATS() {
+		var atsScript = document.createElement('script');
+		if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
+			params.params.cssSelectors = params.params.cssSelectors.split(',');
+		}
+		atsScript.onload = function () {
+			window.ats.start({
+				"placementID": params.params.pid,
+				"storageType": params.params.storageType,
+				"detectionType": params.params.detectionType,
+				"urlParameter": params.params.urlParameter,
+				"cssSelectors": params.params.cssSelectors, // ["input[type=text]", "input[type=email]"],
+				"logging": params.params.logging //"error"
+			});
+		};
+		atsScript.src = "https://ats.rlcdn.com/ats.js";
+		document.body.appendChild(atsScript);
+	}
+	window.addEventListener("load", function () {
+		setTimeout(addATS, 1000);
+	});
+};
+
+exports.updateAdUnits = function (adUnits) {
+	if (refThis.isArray(adUnits)) {
+		adUnits.forEach(function (adUnit) {
+			adUnit.bids.forEach(function (bid) {
+				refThis.updateUserIds(bid);
+			});
+		});
+	} else if (!refThis.isEmptyObject(adUnits)) {
+		adUnits.bids.forEach(function (bid) {
+			refThis.updateUserIds(bid);
+		});
+	}
+};
+
+exports.updateUserIds = function (bid) {
+	// refThis.idsAppendedToAdUnits =true;
+	if (refThis.isUndefined(bid.userId)) {
+		bid["userId"] = refThis.getUserIds();
+	} else if (bid.userId) {
+		/* istanbul ignore next */
+		bid.userId = Object.assign(bid.userId, refThis.getUserIds());
+	}
+	if (refThis.isUndefined(bid.userIdAsEids)) {
+		bid["userIdAsEids"] = refThis.getUserIdsAsEids();
+	} else if (refThis.isArray(bid.userIdAsEids)) {
+		var idsPresent = new Set();
+		var ids = refThis.getUserIdsAsEids().concat(bid.userIdAsEids);
+		if (refThis.isArray(ids) && ids.length > 0) {
+			ids = ids.filter(function (id) {
+				if (id.source) {
+					if (idsPresent.has(id.source)) {
+						return false;
+					}
+					idsPresent.add(id.source);
+				}
+				return true;
+
+			});
+		}
+		bid.userIdAsEids = ids;
+	}
 };

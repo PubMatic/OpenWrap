@@ -16,7 +16,7 @@ exports.pwt = {
 	singleImpression: "1",
 	identityEnabled:"1",
 	identityConsumers:"EB,TAM,Prebid",
-	identityOnly:"0",
+	identityOnly:"1",
 	ccpa: "0",
 	ccpaCmpApi: "iab",
 	ccpaTimeout: "10000",
