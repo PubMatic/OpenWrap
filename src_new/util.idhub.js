@@ -307,7 +307,6 @@ exports.getUserIdsAsEids = function () {
 		refThis.logWarning("getUserIdsAsEids" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	}
 };
-// endRemoveIf(removeUserIdRelatedCode)
 
 exports.getNestedObjectFromArray = function (sourceObject, sourceArray, valueOfLastNode) {
 	var convertedObject = sourceObject;
