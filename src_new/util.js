@@ -1347,6 +1347,7 @@ exports.getNestedObjectFromString = function(sourceObject,separator, key, value)
 
 exports.getUserIdParams = function(params){
 	var userIdParams= {};
+	refThis.applyDataTypeChangesIfApplicable(params);
 	for(var key in params){
 		try{
 			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
@@ -1621,3 +1622,23 @@ exports.getUpdatedKGPVForVideo = function(kgpv, adFormat){
 	}
 	return kgpv;
 };
+
+exports.applyDataTypeChangesIfApplicable = function(params) {
+	var value;
+	for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
+		for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
+			switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
+				case 'number':
+					if(params[key] && typeof params[key] !== 'number') {
+						value = parseInt(params[key])
+						isNaN(value) ?
+							refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
+							params[key] = value;
+					}
+					break;
+				default:
+					return;
+			}
+		}
+	}
+}
