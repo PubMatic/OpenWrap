@@ -3529,8 +3529,8 @@ describe('UTIL', function() {
             done();
         })
     })
-
-    describe('#applyDataTypeChangesIfApplicable', function() {
+  
+   describe('#applyDataTypeChangesIfApplicable', function() {
         var params;
         beforeEach(function(done) {
             params = {"name": "intentIqId","params.partner":"123","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
@@ -3564,5 +3564,6 @@ describe('UTIL', function() {
 
             done();
         });
-    });
+    });  
+  
 });

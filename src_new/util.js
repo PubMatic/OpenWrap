@@ -1403,7 +1403,11 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 			grossEcpm = window.parseFloat(theBid.getCpmInNewCurrency(CONSTANTS.COMMON.ANALYTICS_CURRENCY));
 		}
 		else {
-			grossEcpm = theBid.cpm;
+			if(CONFIG.isPrebidPubMaticAnalyticsEnabled() && theBid.originalCpm){
+				grossEcpm = theBid.originalCpm;
+			}else{
+				grossEcpm = theBid.cpm;
+			}
 		}
 	}
 	if(refThis.isFunction(theBid.getAdapterID)){
