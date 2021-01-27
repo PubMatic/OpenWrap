@@ -1433,7 +1433,12 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		bidId = theBid.getBidID()
 	}
 	else{
-		bidId = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].bidID;
+		if(CONFIG.isPrebidPubMaticAnalyticsEnabled() && theBid.adId){
+			bidId = theBid.adId;
+		}
+		else{
+			bidId = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].bidID;
+		}
 	}
 	if(refThis.isFunction(theBid.getKGPV)) {
 		kgpv = theBid.getKGPV()
