@@ -1145,6 +1145,29 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 							if(config.video["partnerConfig"]){
 								mediaTypeObject["partnerConfig"] = config.video["partnerConfig"];
 							}
+							if(config.video.config['context'] && config.video.config['context']=="outstream"){
+								refThis.loadRenderer();
+								adUnitConfig['renderer'] ={
+									url: 'https://ads.pubmatic.com/AdServer/js/outstreamplayer.js',   // URL of the renderer
+									render: function (bid) {
+										try {
+											// Object to configure the behaviour of outstream renderer from HTML page.
+											var obj = {
+												width: bid.width,
+												height: bid.height,
+											}
+											// Call to Global object of renderer.
+											// Takes bid, element ID and configuration object as parameters
+											setTimeout(function(){
+												outstreamPlayer(bid, bid.adUnitCode, obj);											
+											},50);
+										} catch (e) {
+											console.error(e);
+											console.error("Error in ad rendering!");
+										}
+									}
+								}    
+							}
 						}
 						else{
 							refThis.logWarning("Video Config will not be considered as no config has been provided for slot" + JSON.stringify(currentSlot) + " or there is no configuration defined in default.");
@@ -1620,4 +1643,15 @@ exports.getUpdatedKGPVForVideo = function(kgpv, adFormat){
 		kgpv = videoKgpv.join("@");
 	}
 	return kgpv;
+};
+
+exports.loadRenderer = function(){
+	function addRenderer() {
+		var rendererScript = document.createElement('script');
+		rendererScript.src = 'https://ads.pubmatic.com/AdServer/js/outstreamplayer.js';
+		document.body.appendChild(rendererScript);
+	}
+	window.addEventListener("load", function()  {
+    	setTimeout(addRenderer, 100);
+  	}); 
 };
