@@ -850,7 +850,7 @@ function setPrebidConfig(){
 			targetingControls: {
 				alwaysIncludeDeals: true
 			},
-			testGroupId: parseInt(PWT.testGroupId || 0)
+			testGroupId: parseInt(window.PWT.testGroupId || 0)
 		};
 		if(CONFIG.getPriceGranularity()){
 			prebidConfig["priceGranularity"] = CONFIG.getPriceGranularity();
@@ -1053,6 +1053,7 @@ function initPbjsConfig(){
 		return;
 	}
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
+	timeoutForPrebid = CONFIG.getTimeout() - 50;
 	refThis.setPrebidConfig();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
 	refThis.setPbjsBidderSettingsIfRequired();
