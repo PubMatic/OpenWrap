@@ -242,48 +242,6 @@ exports.isUsePrebidKeysEnabled = function () {
 
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";
 
-exports.updateABTestConfig = function () {
-	if (refThis.isAbTestEnabled()) {
-		var randomNumberBelow100 = util.getRandomNumberBelow100();
-		var testGroupDetails = refThis.getTestGroupDetails();
-		if (testGroupDetails && testGroupDetails.testGroupSize && randomNumberBelow100 < testGroupDetails.testGroupSize) {
-			refThis.updatePWTConfig();
-			refThis.updatePartnerConfig();
-		}
-	}
-};
-
-exports.updatePWTConfig = function () {
-	var testConfig = refThis.getTestPWTConfig();
-	if (testConfig && Object.keys(testConfig).length > 0) {
-		util.log(CONSTANTS.MESSAGES.M30, JSON.stringify(testConfig));
-		for (var key in testConfig) {
-			if (config[CONSTANTS.CONFIG.COMMON][key]) {
-				config[CONSTANTS.CONFIG.COMMON][key] = testConfig[key];
-			}
-		}
-		window.PWT.testGroupId = 1;
-	}
-};
-
-exports.updatePartnerConfig = function () {
-	var testConfig = refThis.getTestPartnerConfig();
-	if (testConfig && Object.keys(testConfig).length > 0) {
-		util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(testConfig));
-		for (var key in testConfig) {
-			if (util.isObject(testConfig[key])) {
-				if (Object.keys(testConfig[key]).length == 0 && config.adapters[key] && Object.keys(config.adapters[key]).length > 0) {
-					testConfig[key] = config.adapters[key];
-				} else if (Object.keys(testConfig[key]).length > 0 && config.adapters[key] && Object.keys(config.adapters[key]).length > 0) {
-					testConfig[key] = refThis.getMergedConfig(testConfig[key], config.adapters[key]);
-				}
-			}
-		}
-		window.PWT.testGroupId = 1;
-		config.adapters = testConfig;
-	}
-};
-
 exports.isAbTestEnabled = function () {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED]) === 1;
 };
@@ -300,6 +258,52 @@ exports.getTestPartnerConfig = function () {
 	return config[CONSTANTS.COMMON.TEST_PARTNER] || {};
 };
 
+exports.updateABTestConfig = function () {
+	if (refThis.isAbTestEnabled()) {
+		var randomNumberBelow100 = util.getRandomNumberBelow100();
+		var testGroupDetails = refThis.getTestGroupDetails();
+		if (testGroupDetails && testGroupDetails.testGroupSize && randomNumberBelow100 < testGroupDetails.testGroupSize) {
+			refThis.updatePWTConfig();
+			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters);			
+		}
+	}
+};
+
+exports.updatePWTConfig = function () {
+	var testConfig = refThis.getTestPWTConfig();
+	if (testConfig && Object.keys(testConfig).length > 0) {
+		util.log(CONSTANTS.MESSAGES.M30, JSON.stringify(testConfig));
+		for (var key in testConfig) {
+			if (config[CONSTANTS.CONFIG.COMMON][key]) {
+				config[CONSTANTS.CONFIG.COMMON][key] = testConfig[key];
+			}
+		}
+		// Uncomment Below code after updating phatomjs or using chrome headless 
+		// Object.assign(config[CONSTANTS.CONFIG.COMMON], testConfig);
+		window.PWT.testGroupId = 1;
+	}
+};
+
+exports.updatePartnerConfig = function (testConfig, controlConfig) {
+	if (testConfig && Object.keys(testConfig).length > 0) {
+		util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(testConfig));
+		for (var key in testConfig) {
+			if (util.isOwnProperty(testConfig, key) && util.isObject(testConfig[key])) {
+				if (Object.keys(testConfig[key]).length == 0 && controlConfig[key] && Object.keys(controlConfig[key]).length > 0) {
+					testConfig[key] = controlConfig[key];
+				} else if (Object.keys(testConfig[key]).length > 0 && controlConfig[key] && Object.keys(controlConfig[key]).length > 0) {
+					testConfig[key] = refThis.getMergedConfig(testConfig[key], controlConfig[key]);
+				}
+			}
+		}
+		window.PWT.testGroupId = 1;
+		return testConfig;
+	} else{
+		return {};
+	}
+};
+
+// This will keep toObject config as is and only merge objects common in both from and toobject 
 exports.getMergedConfig = function(toObject, fromObject){
 	for(var key in fromObject){
 		if(!toObject[key]) {
