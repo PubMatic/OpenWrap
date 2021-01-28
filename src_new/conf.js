@@ -25,10 +25,11 @@ exports.pwt = {
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
 
-//below is the config for 
+//below is the config for test purpose only
 exports.testConfigDetails = {
 	"testGroupSize": 99
 };
+//below is the config for test purpose only
 exports.test_pwt = {
 	"t": 5000
 };
