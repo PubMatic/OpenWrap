@@ -1256,7 +1256,7 @@ describe('Config', function() {
             done();
         });
 
-        it('should return null if isSchainExnabled is not present',function(done){
+        it('should return null if priceGranularity is not present',function(done){
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PRICE_GRANULARITY];
             expect(CONFIG.getPriceGranularity()).to.equal(null);
             done();
