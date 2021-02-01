@@ -279,7 +279,7 @@ exports.updatePWTConfig = function () {
 				config[CONSTANTS.CONFIG.COMMON][key] = testConfig[key];
 			}
 		}
-		// Uncomment Below code after updating phatomjs or using chrome headless 
+		//TODO: Uncomment Below code after updating phatomjs or using chrome headless 
 		// Object.assign(config[CONSTANTS.CONFIG.COMMON], testConfig);
 		window.PWT.testGroupId = 1;
 	}
@@ -300,7 +300,8 @@ exports.updatePartnerConfig = function (testConfig, controlConfig) {
 		window.PWT.testGroupId = 1;
 		return testConfig;
 	} else{
-		return {};
+		// since only test type can be enabled test config will be empty if other test config is enabled and hence return control config
+		return controlConfig;
 	}
 };
 

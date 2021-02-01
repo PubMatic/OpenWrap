@@ -1682,10 +1682,10 @@ describe('Config', function() {
             done();
         });
 
-        it('should return empty object if test config is not present but test is enabled',function(done){
+        it('should return control object if test config is not present but test is enabled',function(done){
             CONF[CONSTANTS.COMMON.TEST_PARTNER]= {};
             var updatedPartners = CONFIG.updatePartnerConfig(CONF[CONSTANTS.COMMON.TEST_PARTNER],adapters);
-            expect(updatedPartners).to.be.deep.equal({});
+            expect(updatedPartners).to.be.deep.equal(adapters);
             done();
         });
 
@@ -1859,10 +1859,10 @@ describe('Config', function() {
                 done();
             });
 
-            it('should return empty object if test config is not present but test is enabled',function(done){
+            it('should return control object if test config is not present but test is enabled',function(done){
                 testIdentityPartners = {};
                 var updatedPartners = CONFIG.updatePartnerConfig(testIdentityPartners, identityPartners);
-                expect(updatedPartners).to.be.deep.equal({});
+                expect(updatedPartners).to.be.deep.equal(identityPartners);
                 done();
             }); 
         });
