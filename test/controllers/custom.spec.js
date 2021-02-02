@@ -1,13 +1,13 @@
-/* global describe, it, expect, sinon, beforeEach, afterEach */
+/* global describe, it, xit, expect, sinon, beforeEach, afterEach */
 // var sinon = require("sinon");
 //var should = require("chai").should();
 var CUSTOM = require("../../src_new/controllers/custom.js");
 var UTIL = require("../../src_new/util.js");
 var CONFIG = require("../../src_new/config.js");
-var AM = require("../../src_new/adapterManager.js");
 var BM = require("../../src_new/bidManager.js");
 var BID = require("../../src_new/bid.js");
 var CONSTANTS = require("../../src_new/constants.js");
+var PREBID = require("../../src_new/adapters/prebid.js");
 
 describe("CONTROLLER: CUSTOM", function() {
 
@@ -193,69 +193,6 @@ describe("CONTROLLER: CUSTOM", function() {
 				UTIL.forEachOnObject.calledOnce.should.equal(true);
 				done();
 			});
-		});
-	});
-
-	describe("#callJsLoadedIfRequired", function() {
-
-		it("should return false when the object passed is string ", function() {
-			CUSTOM.callJsLoadedIfRequired("").should.equal(false);
-		});
-
-		it("should return false when the object passed is number ", function() {
-			CUSTOM.callJsLoadedIfRequired(1).should.equal(false);
-		});
-
-		it("should return false when the object passed is null ", function() {
-			CUSTOM.callJsLoadedIfRequired(null).should.equal(false);
-		});
-
-		it("should return false when the object is not passed ", function() {
-			CUSTOM.callJsLoadedIfRequired().should.equal(false);
-		});
-
-		it("should return false when the object passed is object but it does not have PWT property ", function() {
-			CUSTOM.callJsLoadedIfRequired({}).should.equal(false);
-		});
-
-		it("should return false when the object passed is object but PWT property is set to null", function() {
-			CUSTOM.callJsLoadedIfRequired({ PWT: null }).should.equal(false);
-		});
-
-		it("should return false when the object passed is object but PWT property is set to string", function() {
-			CUSTOM.callJsLoadedIfRequired({ PWT: "" }).should.equal(false);
-		});
-
-		it("should return false when the object passed is object but PWT property is set to number", function() {
-			CUSTOM.callJsLoadedIfRequired({ PWT: 1 }).should.equal(false);
-		});
-
-		it("should return false when the object passed is object but PWT property is set but does not have jsLoaded property", function() {
-			CUSTOM.callJsLoadedIfRequired({ PWT: {} }).should.equal(false);
-		});
-
-		it("should return false when the object passed is object but PWT property is set but jsLoaded is set to null", function() {
-			CUSTOM.callJsLoadedIfRequired({ PWT: { jsLoaded: null } }).should.equal(false);
-		});
-
-		it("should return false when the object passed is object but PWT property is set but jsLoaded is set to number", function() {
-			CUSTOM.callJsLoadedIfRequired({ PWT: { jsLoaded: 1 } }).should.equal(false);
-		});
-
-		it("should return false when the object passed is object but PWT property is set but jsLoaded is set to string", function() {
-			CUSTOM.callJsLoadedIfRequired({ PWT: { jsLoaded: "" } }).should.equal(false);
-		});
-
-		var _test = {
-			PWT: {}
-		};
-		_test.PWT.jsLoaded = function() {
-			flag = true;
-		};
-		var flag = false;
-		it("should return true when the object passed is object and PWT property is set and jsLoaded is set to function and the function is called", function() {
-			CUSTOM.callJsLoadedIfRequired(_test).should.equal(true);
-			flag.should.equal(true);
 		});
 	});
 
@@ -532,8 +469,7 @@ describe("CONTROLLER: CUSTOM", function() {
 		});
 
 		it("it should call addpter-manager", function(done){
-			sinon.stub(AM, "callAdapters");
-			AM.callAdapters.returns(true);
+			sinon.stub(PREBID, 'fetchBids', function(){});
 			sinon.stub(CONFIG, "getTimeout");
 			CONFIG.getTimeout.returns(10);
 			var flag = false;
@@ -550,12 +486,69 @@ describe("CONTROLLER: CUSTOM", function() {
 			}], function(){
 				flag = true;
 			});
-			AM.callAdapters.called.should.be.true;
-			AM.callAdapters.restore();
+			PREBID.fetchBids.restore();
+			CONFIG.getTimeout.restore();
 			setTimeout(function(){
 				flag.should.equal(true);
 				done();
+			}, 20);
+		});
+
+		it("should call the callback postimeout if allBid status is false ecverytime",function(done){
+			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
+			sinon.stub(PREBID, 'fetchBids', function(){});
+			sinon.stub(CONFIG, "getTimeout");
+			CONFIG.getTimeout.returns(10);
+			BM.getAllPartnersBidStatuses.restore();
+			var flag = false;
+			CUSTOM.customServerExposedAPI([{
+				code: "some-pub-friendly-unique-name",
+				divId: "div-id-where-slot-will-render",
+				adUnitId: "ad_unit-id-from-DFP",
+				adUnitIndex: "ad-unit-index",
+				mediaTypes: {
+					banner: {
+						sizes: [ [300, 250], [300, 300] ]
+					}
+				}
+			}], function(){
+				flag = true;
+			});
+			setTimeout(function(){
+				flag.should.equal(true);
+				PREBID.fetchBids.restore();
+				CONFIG.getTimeout.restore();
+				done();
 			}, 15);
+		});
+
+		// Uncomment below test case when change from Phantom to ChromeHeadless
+		xit("should not call the callback before timeout if allBid status is false ecverytime",function(done){
+			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
+			sinon.stub(PREBID, 'fetchBids', function(){});
+			sinon.stub(CONFIG, "getTimeout");
+			CONFIG.getTimeout.returns(60);
+			BM.getAllPartnersBidStatuses.restore();
+			var flag = false;
+			CUSTOM.customServerExposedAPI([{
+				code: "some-pub-friendly-unique-name",
+				divId: "div-id-where-slot-will-render",
+				adUnitId: "ad_unit-id-from-DFP",
+				adUnitIndex: "ad-unit-index",
+				mediaTypes: {
+					banner: {
+						sizes: [ [300, 250], [300, 300] ]
+					}
+				}
+			}], function(){
+				flag = true;
+			});
+			setTimeout(function(){
+				flag.should.equal(false);
+				PREBID.fetchBids.restore();
+				CONFIG.getTimeout.restore();
+				done();
+			}, 5);
 		});
 
 	});
@@ -580,6 +573,12 @@ describe("CONTROLLER: CUSTOM", function() {
 					return {
 						getDomId: function(){
 							return "div_1";
+						},
+						getAdUnitPath: function(){
+							return "1234";
+						},
+						getId: function(){
+							return "1234_0";
 						}
 					};
 				},
@@ -604,6 +603,12 @@ describe("CONTROLLER: CUSTOM", function() {
 					return {
 						getDomId: function(){
 							return "div_2";
+						},
+						getAdUnitPath: function(){
+							return "9876";
+						},
+						getId: function(){
+							return "9876_0";
 						}
 					};
 				},
@@ -631,7 +636,8 @@ describe("CONTROLLER: CUSTOM", function() {
 					banner: {
 						sizes: [[728, 90]]
 					}
-				}
+				},
+				sizes:[[728, 90]]
 			});
 			op[1].should.deep.equal({
 				code: googleSlot2.getSlotId().getDomId(),
@@ -642,7 +648,8 @@ describe("CONTROLLER: CUSTOM", function() {
 					banner: {
 						sizes: [[300, 250]]
 					}
-				}
+				},
+				sizes: [[300, 250]]
 			});
 			done();
 		});
@@ -850,8 +857,6 @@ describe("CONTROLLER: CUSTOM", function() {
 			sinon.spy(UTIL, "isObject");
 			sinon.spy(CUSTOM, "setWindowReference");
 			sinon.spy(CUSTOM, "defineWrapperTargetingKeys");
-			sinon.spy(AM, "registerAdapters");
-			sinon.spy(CUSTOM, "callJsLoadedIfRequired");
 			sinon.spy(CUSTOM, "initSafeFrameListener");
 			done();
 		});
@@ -860,8 +865,6 @@ describe("CONTROLLER: CUSTOM", function() {
 			UTIL.isObject.restore();
 			CUSTOM.setWindowReference.restore();
 			CUSTOM.defineWrapperTargetingKeys.restore();
-			AM.registerAdapters.restore();
-			CUSTOM.callJsLoadedIfRequired.restore();
 			CUSTOM.initSafeFrameListener.restore();
 			done();
 		});
@@ -883,8 +886,6 @@ describe("CONTROLLER: CUSTOM", function() {
 			UTIL.isObject.returned(true).should.to.be.true;
 			CUSTOM.setWindowReference.called.should.be.true;
 			CUSTOM.defineWrapperTargetingKeys.called.should.be.true;
-			AM.registerAdapters.called.should.be.true;
-			CUSTOM.callJsLoadedIfRequired.called.should.be.true;
 			done();
 		});
 
@@ -895,8 +896,6 @@ describe("CONTROLLER: CUSTOM", function() {
 			UTIL.isObject.calledWith("NonObject").should.be.true;
 			CUSTOM.setWindowReference.called.should.be.false;
 			CUSTOM.defineWrapperTargetingKeys.called.should.be.false;
-			AM.registerAdapters.called.should.be.false;
-			CUSTOM.callJsLoadedIfRequired.called.should.be.false;
 			done();
 		});
 	});

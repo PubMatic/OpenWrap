@@ -522,7 +522,7 @@ describe('Config', function() {
         });
 
         it('should copy account level params in case of regex',function(done){
-            var expectedConfig = {zoneId: '869224', siteId: '178620', floor: '0', accountId: '10998', timeout: '1000', amp: 0, video: 0, "in-app": 0};
+            var expectedConfig = {zoneId: '869224', siteId: '178620', floor: '0', accountId: '10998', timeout: '1000', amp: 0, "in-app": 0};
             CONFIG.initConfig();
             expect(CONF.adapters["rubicon"].klm_rx[0].rx_config).to.be.deep.equal(expectedConfig);
             done();
@@ -1003,5 +1003,235 @@ describe('Config', function() {
             CONFIG.getCCPATimeout().should.be.equal(CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT);
 	done();
         });
-});
+    });
+
+    describe('#getSchainObject',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAINOBJECT] = {
+                "validation": "strict",
+                "config": {
+                    "ver": "1.0",
+                    "complete": 1,
+                    "nodes": [{
+                        "asi": "indirectseller.com",
+                        "sid": "00001",
+                        "hp": 1
+                    }]
+                }
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAINOBJECT];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getSchainObject.should.be.a('function');
+            done();
+        });
+
+        it('should return confing if present', function(done) {
+            var expectedResult = {
+                "validation": "strict",
+                "config": {
+                    "ver": "1.0",
+                    "complete": 1,
+                    "nodes": [{
+                        "asi": "indirectseller.com",
+                        "sid": "00001",
+                        "hp": 1
+                    }]
+                }
+            };
+            CONFIG.getSchainObject().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return empty object if config is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAINOBJECT];
+            CONFIG.getSchainObject().should.be.deep.equal({});
+            done();
+        });
+    });
+
+    describe('#isSchainEnabled',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.isSchainEnabled.should.be.a('function');
+            done();
+        });
+
+        it('should return 1 by reading from config', function(done) {
+            var expectedResult = 1;
+            CONFIG.isSchainEnabled().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return 0 if isSchainExnabled is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN];
+            expect(CONFIG.isSchainEnabled()).to.equal(0);
+            done();
+        });
+
+        it('should return 0 if isSchainEnabled set to "0"', function(done) {
+            var expectedResult = 0;
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN] = "0";
+            CONFIG.isSchainEnabled().should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#isAbTestEnabled',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "0";
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.isAbTestEnabled.should.be.a('function');
+            done();
+        });
+
+        it('should return 1 by reading from config', function(done) {
+            var expectedResult = true;
+            expect(CONFIG.isAbTestEnabled()).to.be.equal(expectedResult);
+            done();
+        });
+
+        it('should return 0 if isAbTestEnabled is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED];
+            expect(CONFIG.isAbTestEnabled()).to.equal(false);
+            done();
+        });
+
+        it('should return 0 if isAbTestEnabled set to "0"', function(done) {
+            var expectedResult = false;
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "0";
+            CONFIG.isAbTestEnabled().should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getTestGroupDetails',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS] = {
+                "testGroupSize":50
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getTestGroupDetails.should.be.a('function');
+            done();
+        });
+
+        it('should return confing if present', function(done) {
+            var expectedResult = {
+                "testGroupSize":50
+            };
+            CONFIG.getTestGroupDetails().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return empty object if config is not present',function(done){
+            delete CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS];
+            CONFIG.getTestGroupDetails().should.be.deep.equal({});
+            done();
+        });
+    });
+
+    describe('#getTestPWTConfig',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.COMMON.TEST_PWT] = {
+                "t":5000
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.COMMON.TEST_PWT];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getTestPWTConfig.should.be.a('function');
+            done();
+        });
+
+        it('should return confing if present', function(done) {
+            var expectedResult = {
+                "t":5000
+            }
+            CONFIG.getTestPWTConfig().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return empty object if config is not present',function(done){
+            delete CONF[CONSTANTS.COMMON.TEST_PWT];
+            CONFIG.getTestPWTConfig().should.be.deep.equal({});
+            done();
+        });
+    });
+
+    describe('#updateABTestConfig',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "1";
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS]  = {
+                "testGroupSize": 99
+            };
+            CONF[CONSTANTS.COMMON.TEST_PWT]  = {
+                "t": 5000
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "0";     
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.updateABTestConfig.should.be.a('function');
+            done();
+        });
+
+        it('should update the conf if random number is less than test group size', function(done) {
+            var expectedTimeout = CONFIG.getTestPWTConfig().t;
+            CONFIG.updateABTestConfig()
+            CONFIG.getTimeout().should.be.deep.equal(expectedTimeout);
+            done();
+        });
+
+        it('should not update the conf if random number is greater than test group size', function(done) {
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS]  = {
+                "testGroupSize": 1
+            };
+            var expectedTimeout = CONFIG.getTimeout();
+            CONFIG.updateABTestConfig()
+            CONFIG.getTimeout().should.be.deep.equal(expectedTimeout);
+            done();
+        });
+    });
+    
 });

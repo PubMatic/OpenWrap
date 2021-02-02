@@ -2,9 +2,12 @@ var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
-var GDPR = require("../gdpr.js");
-var adapterManager = require("../adapterManager.js");
+// var GDPR = require("../gdpr.js");
 var SLOT = require("../slot.js");
+var prebid = require("../adapters/prebid.js");
+var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
+var usePrebidKeys = CONFIG.isUsePrebidKeysEnabled();
+var IdHub = require("../controllers/idhub.js");
 
 //ToDo: add a functionality / API to remove extra added wrpper keys
 var wrapperTargetingKeys = {}; // key is div id
@@ -74,17 +77,6 @@ function defineWrapperTargetingKeys(object) {
 exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
-function callJsLoadedIfRequired(win) {
-	if (util.isObject(win) && util.isObject(win.PWT) && util.isFunction(win.PWT.jsLoaded)) {
-		win.PWT.jsLoaded();
-		return true;
-	}
-	return false;
-}
-/* start-test-block */
-exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
-/* end-test-block */
-
 function initSafeFrameListener(theWindow) {
 	if (!theWindow.PWT.safeFrameMessageListenerAdded) {
 		util.addMessageEventListenerForSafeFrame(theWindow);
@@ -97,44 +89,42 @@ exports.initSafeFrameListener = initSafeFrameListener;
 
 function validateAdUnitObject(anAdUnitObject) {
 	if (!util.isObject(anAdUnitObject)) {
-		util.error("An AdUnitObject should be an object", anAdUnitObject);
+		util.logError("An AdUnitObject should be an object", anAdUnitObject);
 		return false;
 	}
 
 	if (!util.isString(anAdUnitObject.code)) {
-		util.error("An AdUnitObject should have a property named code and it should be a string", anAdUnitObject);
+		util.logError("An AdUnitObject should have a property named code and it should be a string", anAdUnitObject);
 		return false;
 	}
 
 	if (!util.isString(anAdUnitObject.divId)) {
-		util.error("An AdUnitObject should have a property named divId and it should be a string", anAdUnitObject);
+		util.logError("An AdUnitObject should have a property named divId and it should be a string", anAdUnitObject);
 		return false;
 	}
 
 	if (!util.isString(anAdUnitObject.adUnitId)) {
-		util.error("An AdUnitObject should have a property named adUnitId and it should be a string", anAdUnitObject);
+		util.logError("An AdUnitObject should have a property named adUnitId and it should be a string", anAdUnitObject);
 		return false;
 	}
 
 	if (!util.isString(anAdUnitObject.adUnitIndex)) {
-		util.error("An AdUnitObject should have a property named adUnitIndex and it should be a string", anAdUnitObject);
+		util.logError("An AdUnitObject should have a property named adUnitIndex and it should be a string", anAdUnitObject);
 		return false;
 	}
 
 	if (!util.isObject(anAdUnitObject.mediaTypes)) {
-		util.error("An AdUnitObject should have a property named mediaTypes and it should be an object", anAdUnitObject);
+		util.logError("An AdUnitObject should have a property named mediaTypes and it should be an object", anAdUnitObject);
 		return false;
 	}
 
-	// ToDo: in future we need to support native as well
-
-	if (!util.isObject(anAdUnitObject.mediaTypes.banner)) {
-		util.error("An anAdUnitObject.mediaTypes should have a property named banner and it should be an object", anAdUnitObject);
+	if (!util.isObject(anAdUnitObject.mediaTypes.banner) && !util.isObject(anAdUnitObject.mediaTypes.native) && !util.isObject(anAdUnitObject.mediaTypes.video)) {
+		util.logError("An anAdUnitObject.mediaTypes should atleast have a property named banner or native or video and it should be an object", anAdUnitObject);
 		return false;
 	}
 
-	if (!util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
-		util.error("An anAdUnitObject.mediaTypes.banner should have a property named sizes and it should be an array", anAdUnitObject);
+	if (util.isObject(anAdUnitObject.mediaTypes.banner) && !util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
+		util.logError("An anAdUnitObject.mediaTypes.banner should have a property named sizes and it should be an array", anAdUnitObject);
 		return false;
 	}
 
@@ -147,8 +137,23 @@ exports.validateAdUnitObject = validateAdUnitObject;
 function getAdSlotSizesArray(anAdUnitObject) {
 	//ToDo: need to habdle fluid sizes
 	// ToDo: for now supporting only banner sizes, need to support native as well
-	if (anAdUnitObject && anAdUnitObject.mediaTypes && anAdUnitObject.mediaTypes.banner && util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
-		return anAdUnitObject.mediaTypes.banner.sizes;
+	if (anAdUnitObject && anAdUnitObject.mediaTypes){
+		if(anAdUnitObject.mediaTypes.banner && util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
+			return anAdUnitObject.mediaTypes.banner.sizes;
+		}
+		//TODO : Confirm about the below configuration and correct if needed
+		// Commenting below code to remove custom handling of sizes and will be handled using adSlot.sizes
+		// Uncommenting and making behaviour same as to have player size or w and h as mandatory.
+		if(anAdUnitObject.mediaTypes.video) {
+			if(!util.isArray(anAdUnitObject.mediaTypes.video.playerSize) && !(anAdUnitObject.mediaTypes.video.w && anAdUnitObject.mediaTypes.video.h)){
+				util.logError("For slot video playersize or w,h is not defined and may not request bids from SSP for this slot. " + JSON.stringify(anAdUnitObject));
+				return [];
+			}
+		}
+		if(anAdUnitObject.mediaTypes.native || anAdUnitObject.mediaTypes.video){
+			return anAdUnitObject.sizes;
+		}
+		//TODO : Also handle native only configuration
 	}
 	return [];
 }
@@ -157,23 +162,32 @@ exports.getAdSlotSizesArray = getAdSlotSizesArray;
 /* end-test-block */
 
 function findWinningBidAndGenerateTargeting(divId) {
-	var data = bidManager.getBid(divId);
+	var data;
+	if(isPrebidPubMaticAnalyticsEnabled === true){
+		data = prebid.getBid(divId);
+		//todo: we might need to change some proprty names in wb (from PBJS)
+	} else {
+		data = bidManager.getBid(divId);
+	}
 	var winningBid = data.wb || null;
 	var keyValuePairs = data.kvp || null;
-	var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
+	var ignoreTheseKeys = !usePrebidKeys ? CONSTANTS.IGNORE_PREBID_KEYS : {};
 
-	/* istanbul ignore else*/
-	if (winningBid && winningBid.getNetEcpm() > 0) {
-		bidManager.setStandardKeys(winningBid, keyValuePairs);		
+	/* istanbul ignore else*/	
+	if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {
+		bidManager.setStandardKeys(winningBid, keyValuePairs);
 	}
 
 	// attaching keyValuePairs from adapters
 	util.forEachOnObject(keyValuePairs, function(key) {
-		/* istanbul ignore else*/
-		if (util.isOwnProperty(ignoreTheseKeys, key)) {
+		// if winning bid is not pubmatic then remove buyId targeting key. Ref : UOE-5277
+		/* istanbul ignore else*/ 
+		if (util.isOwnProperty(ignoreTheseKeys, key) || (winningBid && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key))) {
 			delete keyValuePairs[key];
 		}
-		refThis.defineWrapperTargetingKey(key);
+		else {
+			refThis.defineWrapperTargetingKey(key);
+		}
 	});
 
 	var wb = null;
@@ -219,7 +233,7 @@ exports.findWinningBidAndGenerateTargeting = findWinningBidAndGenerateTargeting;
 */
 function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 
-	GDPR.getUserConsentDataFromCMP();
+	//GDPR.getUserConsentDataFromCMP(); // Commenting this as GDPR will be handled by Prebid and we won't be seding GDPR info to tracker and logger
 
 	if (!util.isArray(arrayOfAdUnits)) {
 		util.error("First argument to PWT.requestBids API, arrayOfAdUnits is mandatory and it should be an array.");
@@ -260,27 +274,27 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 		return;
 	}
 
-	// calling adapters
-	adapterManager.callAdapters(qualifyingSlots);
+	// new approach without adapter-managers
+	prebid.fetchBids(qualifyingSlots);
 
-	var timeoutTicker = 0; // here we will calculate time elapsed
-	// Note: some time has already elapsed since we started 
-	var timeoutIncrementer = 10; // in ms
+	var posTimeoutTime = Date.now() + CONFIG.getTimeout(); // post timeout condition
 	var intervalId = window.setInterval(function() {
 		// todo: can we move this code to a function?
-		if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || timeoutTicker >= CONFIG.getTimeout()) {
+		if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || Date.now() >= posTimeoutTime) {
 
 			clearInterval(intervalId);
-			// after some time call fire the analytics pixel
-			setTimeout(function() {
-				bidManager.executeAnalyticsPixel();
-			}, 2000);
+			if(isPrebidPubMaticAnalyticsEnabled === false){
+				// after some time call fire the analytics pixel
+				setTimeout(function() {
+					bidManager.executeAnalyticsPixel();
+				}, 2000);	
+			}			
 
 			var winningBids = {}; // object:: { code : response bid or just key value pairs }
 			// we should loop on qualifyingSlotDivIds to avoid confusion if two parallel calls are fired to our PWT.requestBids 
 			util.forEachOnArray(qualifyingSlotDivIds, function(index, divId) {
-				var code = mapOfDivToCode[divId];
-				winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId, code);
+				var code = mapOfDivToCode[divId];				
+				winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId);
 				// we need to delay the realignment as we need to do it post creative rendering :)
 				// delaying by 1000ms as creative rendering may tke time
 				setTimeout(util.realignVLogInfoPanel, 1000, divId);
@@ -295,8 +309,7 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 
 			callbackFunction(arrayOfAdUnits);
 		}
-		timeoutTicker += timeoutIncrementer;
-	}, timeoutIncrementer);
+	}, 10); // check every 10 milliseconds if we have all bids or timeout has been happened.
 }
 /* start-test-block */
 exports.customServerExposedAPI = customServerExposedAPI;
@@ -363,11 +376,8 @@ function generateConfForGPT(arrayOfGPTSlots) {
 			divId: divId,
 			adUnitId: adUnitId,
 			adUnitIndex: adUnitIndex,
-			mediaTypes: {
-				banner: {
-					sizes: sizes
-				}
-			}
+			mediaTypes: util.getAdUnitConfig(sizes, googleSlot).mediaTypeObject,
+			sizes: sizes
 		});
 	});
 
@@ -451,14 +461,16 @@ exports.init = function(win) {
 	CONFIG.initConfig();
 	if (util.isObject(win)) {
 		refThis.setWindowReference(win);
-		refThis.initSafeFrameListener(win);
+		if(!isPrebidPubMaticAnalyticsEnabled){
+			refThis.initSafeFrameListener(win);
+		}
+		prebid.initPbjsConfig();
 		win.PWT.requestBids = refThis.customServerExposedAPI;
 		win.PWT.generateConfForGPT = refThis.generateConfForGPT;
 		win.PWT.addKeyValuePairsToGPTSlots = addKeyValuePairsToGPTSlots;
 		win.PWT.removeKeyValuePairsFromGPTSlots = removeKeyValuePairsFromGPTSlots;
 		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
-		adapterManager.registerAdapters();
-		refThis.callJsLoadedIfRequired(win);
+		IdHub.initIdHub(win);		
 		return true;
 	} else {
 		return false;
