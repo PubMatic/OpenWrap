@@ -39,7 +39,7 @@ exports.COMMON = {
 	"PBJS_NAMESPACE": "prebidObjName",
 	"TEST_GROUP_DETAILS": "testConfigDetails",
 	"TEST_PWT": "test_pwt",
-	"TEST_PARTNER": "adapters_test"
+	"TEST_PARTNER": "test_adapters"
 };
 
 exports.CONFIG = {
