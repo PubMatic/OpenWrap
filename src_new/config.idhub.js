@@ -1,8 +1,5 @@
 var config = require("./conf.js");
 var CONSTANTS = require("./constants.js");
-var util = require("./util.idhub.js");
-
-var refThis = this;
 
 // needed
 exports.getGdpr = function () {
