@@ -33,10 +33,12 @@ refThis.setConfig = function(){
 };
 
 
-exports.initIdHub = function(win){
+exports.initIdHub = function(win, prebidConfigPopulated){
 	if(CONFIG.isUserIdModuleEnabled()){
-		//TODO : Check for Prebid loaded and debug logs 
-		refThis.setConfig();
+		//TODO : Check for Prebid loaded and debug logs
+		if(!prebidConfigPopulated) { //Do not call setConfig if prebidConfig is already populated by custom controller.
+			refThis.setConfig();
+		}
 		if(CONFIG.isIdentityOnly()){
 			if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE]) && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE].que)){
 				win[CONFIG.PBJS_NAMESPACE].que.unshift(function(){

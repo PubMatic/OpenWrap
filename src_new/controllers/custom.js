@@ -459,6 +459,7 @@ exports.removeKeyValuePairsFromGPTSlots = removeKeyValuePairsFromGPTSlots;
 
 exports.init = function(win) {
 	CONFIG.initConfig();
+	var prebidConfigPopulated = true;
 	if (util.isObject(win)) {
 		refThis.setWindowReference(win);
 		if(!isPrebidPubMaticAnalyticsEnabled){
@@ -470,7 +471,7 @@ exports.init = function(win) {
 		win.PWT.addKeyValuePairsToGPTSlots = addKeyValuePairsToGPTSlots;
 		win.PWT.removeKeyValuePairsFromGPTSlots = removeKeyValuePairsFromGPTSlots;
 		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
-		IdHub.initIdHub(win);		
+		IdHub.initIdHub(win, prebidConfigPopulated);
 		return true;
 	} else {
 		return false;
