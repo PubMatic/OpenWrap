@@ -1,6 +1,5 @@
-//todo
-//  pageURL refURL protocol related functions
-// forEachOnArray
+/*global Set*/
+
 var CONFIG = require("./config.idhub.js");
 var CONSTANTS = require("./constants.js");
 var debugLogIsEnabled = false;
