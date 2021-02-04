@@ -157,7 +157,7 @@ exports.getMetaInfo = function (cWin) {
 
 	try {
 		frame = refThis.getTopFrameOfSameDomain(cWin);
-		obj.refURL = (frame.refurl || frame.document.referrer || '').substr(0, MAX_PAGE_URL_LEN);
+		obj.refURL = (frame.refurl || frame.document.referrer || "").substr(0, MAX_PAGE_URL_LEN);
 		obj.pageURL = (frame !== window.top && frame.document.referrer != "" ? frame.document.referrer : frame.location.href).substr(0, MAX_PAGE_URL_LEN);
 
 		obj.protocol = (function (frame) {
@@ -192,18 +192,18 @@ exports.findQueryParamInURL = function (url, name) {
 };
 
 exports.parseQueryParams = function (url) {
-	var parser = refThis.createDocElement(window, 'a');
+	var parser = refThis.createDocElement(window, "a");
 	parser.href = url;
 	var params = {};
 
 	/* istanbul ignore else */
 	if (parser.search) {
-		var queryString = parser.search.replace('?', '');
-		queryString = queryString.split('&');
+		var queryString = parser.search.replace('?', "");
+		queryString = queryString.split("&");
 		refThis.forEachOnArray(queryString, function (index, keyValue) {
-			var keyValue = keyValue.split('=');
-			var key = keyValue[0] || '';
-			var value = keyValue[1] || '';
+			var keyValue = keyValue.split("=");
+			var key = keyValue[0] || "";
+			var value = keyValue[1] || "";
 			params[key] = value;
 		});
 	}
@@ -253,7 +253,7 @@ exports.getUserIdParams = function (params) {
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}
-	if (userIdParams && userIdParams.params && userIdParams.params['loadATS'] == 'true') {
+	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
 		refThis.initLiveRampAts(userIdParams);
 	}
 	return userIdParams;
@@ -276,7 +276,7 @@ exports.getDomainFromURL = function (url) {
 exports.handleHook = function (hookName, arrayOfDataToPass) {
 	// Adding a hook for publishers to modify the data we have
 	if (refThis.isFunction(window.PWT[hookName])) {
-		refThis.log('For Hook-name: ' + hookName + ', calling window.PWT.' + hookName + 'function.');
+		refThis.log("For Hook-name: " + hookName + ", calling window.PWT." + hookName + "function.");
 		window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
 	}
 	// else {
@@ -334,9 +334,9 @@ exports.getNestedObjectFromString = function (sourceObject, separator, key, valu
 
 exports.initLiveRampAts = function (params) {
 	function addATS() {
-		var atsScript = document.createElement('script');
+		var atsScript = document.createElement("script");
 		if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
-			params.params.cssSelectors = params.params.cssSelectors.split(',');
+			params.params.cssSelectors = params.params.cssSelectors.split(",");
 		}
 		atsScript.onload = function () {
 			window.ats.start({
