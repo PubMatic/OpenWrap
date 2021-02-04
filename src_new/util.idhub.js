@@ -48,7 +48,8 @@ exports.isObject = function (object) {
 exports.isOwnProperty = function (theObject, proertyName) {
 	/* istanbul ignore else */
 	if (refThis.isObject(theObject) && theObject.hasOwnProperty) {
-		return theObject.hasOwnProperty(proertyName);
+		// return theObject.hasOwnProperty(proertyName);
+		return Object.prototype.hasOwnProperty.call(theObject, proertyName);
 	}
 	return false;
 };
@@ -138,7 +139,9 @@ exports.getTopFrameOfSameDomain = function (cWin) {
 		if (cWin.parent.document != cWin.document) {
 			return refThis.getTopFrameOfSameDomain(cWin.parent);
 		}
-	} catch (e) {}
+	} catch (e) {
+		// continue regardless of error
+	}
 	return cWin;
 };
 
@@ -170,7 +173,9 @@ exports.getMetaInfo = function (cWin) {
 			return "https://";
 		})(frame);
 
-	} catch (e) {}
+	} catch (e) {
+		// continue regardless of error
+	}
 
 	obj.pageDomain = refThis.getDomainFromURL(obj.pageURL);
 
@@ -198,10 +203,10 @@ exports.parseQueryParams = function (url) {
 
 	/* istanbul ignore else */
 	if (parser.search) {
-		var queryString = parser.search.replace('?', "");
+		var queryString = parser.search.replace("?", "");
 		queryString = queryString.split("&");
 		refThis.forEachOnArray(queryString, function (index, keyValue) {
-			var keyValue = keyValue.split("=");
+			keyValue = keyValue.split("=");
 			var key = keyValue[0] || "";
 			var value = keyValue[1] || "";
 			params[key] = value;
