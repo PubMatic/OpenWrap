@@ -853,6 +853,12 @@ function setPrebidConfig(){
 			testGroupId: parseInt(PWT.testGroupId || 0)
 		};
 
+		if(isPrebidPubMaticAnalyticsEnabled === true){
+			prebidConfig['instreamTracking'] = {
+				enabled: true
+			}
+		}
+
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
