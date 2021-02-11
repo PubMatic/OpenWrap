@@ -517,7 +517,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 	});
 
 	if(isPrebidPubMaticAnalyticsEnabled){
-		slotParams["kgpv"] = generatedKey;
+		slotParams["kgpv"] = generatedKey; // TODO : Update this in case of video, change the size to 0x0 
 		slotParams["regexPattern"] = regexPattern;
 	}
 
@@ -850,7 +850,7 @@ function setPrebidConfig(){
 			targetingControls: {
 				alwaysIncludeDeals: true
 			},
-			testGroupId: parseInt(PWT.testGroupId || 0)
+			testGroupId: parseInt(window.PWT.testGroupId || 0)
 		};
 
 		if(isPrebidPubMaticAnalyticsEnabled === true){
@@ -923,7 +923,7 @@ function getPbjsAdServerTargetingConfig(){
             key: 'pwtplt', //hb_format
             val: function (bidResponse) {
                 // return bidResponse.mediaType;
-                return (bidResponse.native ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
+                return bidResponse.mediaType == "video" ? CONSTANTS.PLATFORM_VALUES.VIDEO : (bidResponse.native ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
             }
         },
         {
@@ -967,12 +967,26 @@ function getPbjsAdServerTargetingConfig(){
         	}
         },
         {
-        	key: 'pwtm', // custom
-        	val: function(bidResponse){ 
-        	// todo: value? is it meta-data feature? is it in use?
-        		return '';
+        	key: 'pwtcid', // custom
+			val: function(bidResponse){ // todo: empty value?
+        		return bidResponse.mediaType == "video" ?  bidResponse.videoCacheKey : "";
         	}
-		}
+        }, {
+        	key: 'pwtcurl', // custom
+        	val: function(bidResponse){ // todo: empty value?	
+				return bidResponse.mediaType == "video" ? CONSTANTS.CONFIG.CACHE_URL : "";			
+        	}
+        }, {
+        	key: 'pwtcpath', // custom
+        	val: function(bidResponse){ // todo: empty value?
+        		return bidResponse.mediaType == "video" ? CONSTANTS.CONFIG.CACHE_PATH : "";
+        	}
+        }, {
+        	key: 'pwtuuid', // custom
+        	val: function(bidResponse){ // todo: empty value?
+        		return "";
+        	}
+        }
     ];
 }
 
@@ -1042,6 +1056,7 @@ function initPbjsConfig(){
 		return;
 	}
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
+	timeoutForPrebid = CONFIG.getTimeout() - 50;
 	refThis.setPrebidConfig();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
 	refThis.setPbjsBidderSettingsIfRequired();
