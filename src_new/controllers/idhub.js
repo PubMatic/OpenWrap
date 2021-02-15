@@ -35,7 +35,7 @@ refThis.setConfig = function(){
 };
 
 
-exports.initIdHub = function(win, prebidConfigPopulated){
+exports.initIdHub = function(win){
 	if(CONFIG.isUserIdModuleEnabled()){
 		//TODO : Check for Prebid loaded and debug logs
 		refThis.setConfig();
