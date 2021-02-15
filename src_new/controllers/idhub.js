@@ -6,28 +6,30 @@ var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
 
 refThis.setConfig = function(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
-		var prebidConfig = {
-			debug: util.isDebugLogEnabled(),
-			userSync: {
-				syncDelay: 2000
-			}
-		};
-
-		if (CONFIG.getGdpr()) {
-			prebidConfig["consentManagement"] = {
-				cmpApi: CONFIG.getCmpApi(),
-				timeout: CONFIG.getGdprTimeout(),
-				allowAuctionWithoutConsent: CONFIG.getAwc()
+		if(CONFIG.isIdentityOnly()) {
+			var prebidConfig = {
+				debug: util.isDebugLogEnabled(),
+				userSync: {
+					syncDelay: 2000
+				}
 			};
-		}
 
-		if(CONFIG.isUserIdModuleEnabled()){
-			prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+			if (CONFIG.getGdpr()) {
+				prebidConfig["consentManagement"] = {
+					cmpApi: CONFIG.getCmpApi(),
+					timeout: CONFIG.getGdprTimeout(),
+					allowAuctionWithoutConsent: CONFIG.getAwc()
+				};
+			}
+
+			if(CONFIG.isUserIdModuleEnabled()){
+				prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+			}
+
+			// Adding a hook for publishers to modify the Prebid Config we have generated
+			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+			window[pbNameSpace].setConfig(prebidConfig);
 		}
-		
-		// Adding a hook for publishers to modify the Prebid Config we have generated
-		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
-		window[pbNameSpace].setConfig(prebidConfig);
 		window[pbNameSpace].requestBids([]);
 	}
 };
@@ -36,9 +38,7 @@ refThis.setConfig = function(){
 exports.initIdHub = function(win, prebidConfigPopulated){
 	if(CONFIG.isUserIdModuleEnabled()){
 		//TODO : Check for Prebid loaded and debug logs
-		if(!prebidConfigPopulated) { //Do not call setConfig if prebidConfig is already populated by custom controller.
-			refThis.setConfig();
-		}
+		refThis.setConfig();
 		if(CONFIG.isIdentityOnly()){
 			if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE]) && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE].que)){
 				win[CONFIG.PBJS_NAMESPACE].que.unshift(function(){
