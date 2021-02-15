@@ -470,7 +470,7 @@ exports.init = function(win) {
 		win.PWT.addKeyValuePairsToGPTSlots = addKeyValuePairsToGPTSlots;
 		win.PWT.removeKeyValuePairsFromGPTSlots = removeKeyValuePairsFromGPTSlots;
 		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
-		IdHub.initIdHub(win);
+		IdHub.initIdHub(win);		
 		return true;
 	} else {
 		return false;
