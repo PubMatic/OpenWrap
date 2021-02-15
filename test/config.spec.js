@@ -1236,12 +1236,12 @@ describe('Config', function() {
 
     describe('#getPriceGranularity',function(){
         beforeEach(function(done){
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PRICE_GRANULARITY]  = "high";
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY]  = "high";
             done();
         });
 
         afterEach(function(done){
-            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PRICE_GRANULARITY] ;
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] ;
             done();
         })
         
@@ -1257,7 +1257,7 @@ describe('Config', function() {
         });
 
         it('should return null if priceGranularity is not present',function(done){
-            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PRICE_GRANULARITY];
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY];
             expect(CONFIG.getPriceGranularity()).to.equal(null);
             done();
         });
@@ -1265,12 +1265,12 @@ describe('Config', function() {
 
     describe('#getGranularityMultiplier',function(){
         beforeEach(function(done){
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GRANULARITY_MULTIPLIER] = "1.1";
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.GRANULARITY_MULTIPLIER] = "1.1";
             done();
         });
 
         afterEach(function(done){
-            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GRANULARITY_MULTIPLIER];
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.GRANULARITY_MULTIPLIER];
             done();
         })
         
@@ -1286,7 +1286,7 @@ describe('Config', function() {
         });
 
         it('should return 1 if isSchainExnabled is not present',function(done){
-            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GRANULARITY_MULTIPLIER];
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.GRANULARITY_MULTIPLIER];
             expect(CONFIG.getGranularityMultiplier()).to.equal(1);
             done();
         });
