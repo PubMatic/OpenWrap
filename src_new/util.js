@@ -1630,19 +1630,21 @@ exports.getUpdatedKGPVForVideo = function(kgpv, adFormat){
 
 exports.applyDataTypeChangesIfApplicable = function(params) {
 	var value;
-	for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
-		for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
-			switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
-				case 'number':
-					if(params[key] && typeof params[key] !== 'number') {
-						value = parseInt(params[key])
-						isNaN(value) ?
-							refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
-							params[key] = value;
-					}
-					break;
-				default:
-					return;
+	if(params.name in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
+		for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
+			for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
+				switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
+					case 'number':
+						if(params[key] && typeof params[key] !== 'number') {
+							value = parseInt(params[key])
+							isNaN(value) ?
+								refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
+								params[key] = value;
+						}
+						break;
+					default:
+						return;
+				}
 			}
 		}
 	}
