@@ -1091,4 +1091,883 @@ describe('Config', function() {
             done();
         });
     });
+
+    describe('#isAbTestEnabled',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "0";
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.isAbTestEnabled.should.be.a('function');
+            done();
+        });
+
+        it('should return 1 by reading from config', function(done) {
+            var expectedResult = true;
+            expect(CONFIG.isAbTestEnabled()).to.be.equal(expectedResult);
+            done();
+        });
+
+        it('should return 0 if isAbTestEnabled is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED];
+            expect(CONFIG.isAbTestEnabled()).to.equal(false);
+            done();
+        });
+
+        it('should return 0 if isAbTestEnabled set to "0"', function(done) {
+            var expectedResult = false;
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "0";
+            CONFIG.isAbTestEnabled().should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getTestGroupDetails',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS] = {
+                "testGroupSize":50
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getTestGroupDetails.should.be.a('function');
+            done();
+        });
+
+        it('should return confing if present', function(done) {
+            var expectedResult = {
+                "testGroupSize":50
+            };
+            CONFIG.getTestGroupDetails().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return empty object if config is not present',function(done){
+            delete CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS];
+            CONFIG.getTestGroupDetails().should.be.deep.equal({});
+            done();
+        });
+    });
+
+    describe('#getTestPWTConfig',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.COMMON.TEST_PWT] = {
+                "t":5000
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.COMMON.TEST_PWT];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getTestPWTConfig.should.be.a('function');
+            done();
+        });
+
+        it('should return confing if present', function(done) {
+            var expectedResult = {
+                "t":5000
+            }
+            CONFIG.getTestPWTConfig().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return empty object if config is not present',function(done){
+            delete CONF[CONSTANTS.COMMON.TEST_PWT];
+            CONFIG.getTestPWTConfig().should.be.deep.equal({});
+            done();
+        });
+    });
+
+    describe('#updateABTestConfig',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "1";
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS]  = {
+                "testGroupSize": 99
+            };
+            CONF[CONSTANTS.COMMON.TEST_PWT]  = {
+                "t": 5000
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "0";     
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.updateABTestConfig.should.be.a('function');
+            done();
+        });
+
+        it('should update the conf if random number is less than test group size', function(done) {
+            var expectedTimeout = CONFIG.getTestPWTConfig().t;
+            CONFIG.updateABTestConfig()
+            CONFIG.getTimeout().should.be.deep.equal(expectedTimeout);
+            done();
+        });
+
+        it('should not update the conf if random number is greater than test group size', function(done) {
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS]  = {
+                "testGroupSize": 1
+            };
+            var expectedTimeout = CONFIG.getTimeout();
+            CONFIG.updateABTestConfig()
+            CONFIG.getTimeout().should.be.deep.equal(expectedTimeout);
+            done();
+        });
+    });
+
+    describe('#getTestPartnerConfig',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.COMMON.TEST_PARTNER] = {
+                pulsepoint: {
+                    cp: "521732",
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div_1": {
+                            ct: "76835"
+                        },
+                        "Div-2": {
+                            ct: "147007"
+                        }
+                    }
+                },
+                rubicon: {
+                    accountId: "10998",
+                    rev_share: "0.0",
+                    timeout: "1000",
+                    throttle: "100",
+                    pt: 0,
+                    serverSideEnabled: "0",
+                    amp: 0,
+                    video: 0,
+                    "in-app": 0,
+                    kgp_rx: "_AU_@_DIV_@_W_x_H_",
+                    klm_rx: [{
+                        rx: {
+                            DIV: ".*",
+                            AU: "^/43743431/DMDemo",
+                            SIZE: "728x90"
+                        },
+                        rx_config: {
+                            zoneId: "869224",
+                            siteId: "178620",
+                            floor: "0"
+                        }
+                    }]
+                }
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.COMMON.TEST_PARTNER];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getTestPartnerConfig.should.be.a('function');
+            done();
+        });
+
+        it('should return confing if present', function(done) {
+            var expectedResult = {
+                pulsepoint: {
+                    cp: "521732",
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div_1": {
+                            ct: "76835"
+                        },
+                        "Div-2": {
+                            ct: "147007"
+                        }
+                    }
+                },
+                rubicon: {
+                    accountId: "10998",
+                    rev_share: "0.0",
+                    timeout: "1000",
+                    throttle: "100",
+                    pt: 0,
+                    serverSideEnabled: "0",
+                    amp: 0,
+                    video: 0,
+                    "in-app": 0,
+                    kgp_rx: "_AU_@_DIV_@_W_x_H_",
+                    klm_rx: [{
+                        rx: {
+                            DIV: ".*",
+                            AU: "^/43743431/DMDemo",
+                            SIZE: "728x90"
+                        },
+                        rx_config: {
+                            zoneId: "869224",
+                            siteId: "178620",
+                            floor: "0"
+                        }
+                    }]
+                }
+            };
+            CONFIG.getTestPartnerConfig().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return empty object if config is not present',function(done){
+            delete CONF[CONSTANTS.COMMON.TEST_PARTNER];
+            CONFIG.getTestPartnerConfig().should.be.deep.equal({});
+            done();
+        });
+    });
+
+    describe('#updatePartnerConfig',function(){
+        var adapters;
+        beforeEach(function(done){
+            CONF[CONSTANTS.COMMON.TEST_PARTNER] = {
+                pulsepoint: {
+                    cp: "521732",
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div_1": {
+                            ct: "76835"
+                        },
+                        "Div-2": {
+                            ct: "147007"
+                        }
+                    }
+                },
+                rubicon: {
+                    accountId: "10998",
+                    rev_share: "0.0",
+                    timeout: "1000",
+                    throttle: "100",
+                    pt: 0,
+                    serverSideEnabled: "0",
+                    amp: 0,
+                    video: 0,
+                    "in-app": 0,
+                    kgp_rx: "_AU_@_DIV_@_W_x_H_",
+                    klm_rx: [{
+                        rx: {
+                            DIV: ".*",
+                            AU: "^/43743431/DMDemo",
+                            SIZE: "728x90"
+                        },
+                        rx_config: {
+                            zoneId: "869224",
+                            siteId: "178620",
+                            floor: "0"
+                        }
+                    }]
+                }
+            };
+            adapters = {
+                pubmatic: {
+                    rev_share: "0.0",
+                    throttle: "100",
+                    publisherId: "156209",
+                    kgp: "_W_x_H_@_W_x_H_:_AUI_"
+                },
+                audienceNetwork: {
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div1": {
+                            placementId: "8801674"
+                        },
+                        "Div2": {
+                            placementId: "8801685"
+                        }
+                    }
+                }
+            }
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.COMMON.TEST_PARTNER];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.updatePartnerConfig.should.be.a('function');
+            done();
+        });
+
+        it('should return only test partner when there are no common partners in control and test', function(done) {
+            var expectedResult = {
+                pulsepoint: {
+                    cp: "521732",
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div_1": {
+                            ct: "76835"
+                        },
+                        "Div-2": {
+                            ct: "147007"
+                        }
+                    }
+                },
+                rubicon: {
+                    accountId: "10998",
+                    rev_share: "0.0",
+                    timeout: "1000",
+                    throttle: "100",
+                    pt: 0,
+                    serverSideEnabled: "0",
+                    amp: 0,
+                    video: 0,
+                    "in-app": 0,
+                    kgp_rx: "_AU_@_DIV_@_W_x_H_",
+                    klm_rx: [{
+                        rx: {
+                            DIV: ".*",
+                            AU: "^/43743431/DMDemo",
+                            SIZE: "728x90"
+                        },
+                        rx_config: {
+                            zoneId: "869224",
+                            siteId: "178620",
+                            floor: "0"
+                        }
+                    }]
+                }
+            };
+            var updatedPartners = CONFIG.updatePartnerConfig(CONF[CONSTANTS.COMMON.TEST_PARTNER],adapters);
+            expect(updatedPartners).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return test partner along with control when there are common partners in control and test', function(done) {
+            CONF[CONSTANTS.COMMON.TEST_PARTNER] = {
+                pubmatic:{},
+                audienceNetwork:{},
+                pulsepoint: {
+                    cp: "521732",
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div_1": {
+                            ct: "76835"
+                        },
+                        "Div-2": {
+                            ct: "147007"
+                        }
+                    }
+                },
+                rubicon: {
+                    accountId: "10998",
+                    rev_share: "0.0",
+                    timeout: "1000",
+                    throttle: "100",
+                    pt: 0,
+                    serverSideEnabled: "0",
+                    amp: 0,
+                    video: 0,
+                    "in-app": 0,
+                    kgp_rx: "_AU_@_DIV_@_W_x_H_",
+                    klm_rx: [{
+                        rx: {
+                            DIV: ".*",
+                            AU: "^/43743431/DMDemo",
+                            SIZE: "728x90"
+                        },
+                        rx_config: {
+                            zoneId: "869224",
+                            siteId: "178620",
+                            floor: "0"
+                        }
+                    }]
+                }
+            };
+            var expectedResult = {
+                pubmatic: {
+                    rev_share: "0.0",
+                    throttle: "100",
+                    publisherId: "156209",
+                    kgp: "_W_x_H_@_W_x_H_:_AUI_"
+                },
+                audienceNetwork: {
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div1": {
+                            placementId: "8801674"
+                        },
+                        "Div2": {
+                            placementId: "8801685"
+                        }
+                    }
+                },
+                pulsepoint: {
+                    cp: "521732",
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div_1": {
+                            ct: "76835"
+                        },
+                        "Div-2": {
+                            ct: "147007"
+                        }
+                    }
+                },
+                rubicon: {
+                    accountId: "10998",
+                    rev_share: "0.0",
+                    timeout: "1000",
+                    throttle: "100",
+                    pt: 0,
+                    serverSideEnabled: "0",
+                    amp: 0,
+                    video: 0,
+                    "in-app": 0,
+                    kgp_rx: "_AU_@_DIV_@_W_x_H_",
+                    klm_rx: [{
+                        rx: {
+                            DIV: ".*",
+                            AU: "^/43743431/DMDemo",
+                            SIZE: "728x90"
+                        },
+                        rx_config: {
+                            zoneId: "869224",
+                            siteId: "178620",
+                            floor: "0"
+                        }
+                    }]
+                }
+            };
+            var updatedPartners = CONFIG.updatePartnerConfig(CONF[CONSTANTS.COMMON.TEST_PARTNER],adapters);
+            expect(updatedPartners).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return test partner along with control with updated values when there are common partners in control and test', function(done) {
+            CONF[CONSTANTS.COMMON.TEST_PARTNER] = {
+                pubmatic:{  
+                    rev_share: "98.0",
+                    timeout: "500",
+                },
+                audienceNetwork:{},
+                pulsepoint: {
+                    cp: "521732",
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div_1": {
+                            ct: "76835"
+                        },
+                        "Div-2": {
+                            ct: "147007"
+                        }
+                    }
+                },
+                rubicon: {
+                    accountId: "10998",
+                    rev_share: "0.0",
+                    timeout: "1000",
+                    throttle: "100",
+                    pt: 0,
+                    serverSideEnabled: "0",
+                    amp: 0,
+                    video: 0,
+                    "in-app": 0,
+                    kgp_rx: "_AU_@_DIV_@_W_x_H_",
+                    klm_rx: [{
+                        rx: {
+                            DIV: ".*",
+                            AU: "^/43743431/DMDemo",
+                            SIZE: "728x90"
+                        },
+                        rx_config: {
+                            zoneId: "869224",
+                            siteId: "178620",
+                            floor: "0"
+                        }
+                    }]
+                }
+            };
+            var expectedResult = {
+                "pubmatic": {
+                    "rev_share": "98.0",
+                    "timeout": "500",
+                    "publisherId": "156209",
+                    "throttle": "100",
+                    "kgp": "_W_x_H_@_W_x_H_:_AUI_"
+                },
+                "audienceNetwork": {
+                    "rev_share": "0.0",
+                    "throttle": "100",
+                    "kgp": "_DIV_",
+                    "klm": {
+                        "Div1": {
+                            "placementId": "8801674"
+                        },
+                        "Div2": {
+                            "placementId": "8801685"
+                        }
+                    }
+                },
+                "pulsepoint": {
+                    "cp": "521732",
+                    "rev_share": "0.0",
+                    "throttle": "100",
+                    "kgp": "_DIV_",
+                    "klm": {
+                        "Div_1": {
+                            "ct": "76835"
+                        },
+                        "Div-2": {
+                            "ct": "147007"
+                        }
+                    }
+                },
+                "rubicon": {
+                    "accountId": "10998",
+                    "rev_share": "0.0",
+                    "timeout": "1000",
+                    "throttle": "100",
+                    "pt": 0,
+                    "serverSideEnabled": "0",
+                    "amp": 0,
+                    "video": 0,
+                    "in-app": 0,
+                    "kgp_rx": "_AU_@_DIV_@_W_x_H_",
+                    "klm_rx": [{
+                        "rx": {
+                            "DIV": ".*",
+                            "AU": "^/43743431/DMDemo",
+                            "SIZE": "728x90"
+                        },
+                        "rx_config": {
+                            "zoneId": "869224",
+                            "siteId": "178620",
+                            "floor": "0"
+                        }
+                    }]
+                }
+            };
+            var updatedPartners = CONFIG.updatePartnerConfig(CONF[CONSTANTS.COMMON.TEST_PARTNER],adapters);
+            expect(updatedPartners).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return control object if test config is not present but test is enabled',function(done){
+            CONF[CONSTANTS.COMMON.TEST_PARTNER]= {};
+            var updatedPartners = CONFIG.updatePartnerConfig(CONF[CONSTANTS.COMMON.TEST_PARTNER],adapters);
+            expect(updatedPartners).to.be.deep.equal(adapters);
+            done();
+        });
+
+        //Test Cases for Idenentity Partners
+        describe('updateIdentityPartners', function(){
+            var identityPartners,testIdentityPartners;
+            beforeEach(function(done){
+                identityPartners = {
+                    pubCommonId: {
+                        name: "pubCommonId",
+                        "storage.type": "cookie",
+                        "storage.name": "_myPubCommonId",
+                        "storage.expires": "1825"
+                    },
+                    identityLink: {
+                        name: "identityLink",
+                        "params.pid": "23",
+                        "storage.type": "cookie",
+                        "params.loadAts": "true", // or false// boolean default is false,
+                        "params.placementID": "23",
+                        "params.storageType": "localstorage",
+                        "params.detectionType": "scrapeAndUrl",
+                        "params.urlParameter": "eparam",
+                        "params.cssSelectors": ["input[type=text]", "input[type=email]"],
+                        "params.logging": "info",
+                        "storage.name": "somenamevalue",
+                        "storage.expires": "60"
+                    }
+                };
+                testIdentityPartners = {
+                    criteo: {
+                        name: "criteo",
+                    },
+                    unifiedId: {
+                        name: "unifiedId",
+                        "params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+                        "storage.type": "cookie",
+                        "storage.name": "_myUnifiedId",
+                        "storage.expires": "1825"
+                    }
+                }
+                done();
+            });
+
+            afterEach(function(done){
+                // identityPartners = null;
+                // testIdeneityPartners = null;
+                done();
+            })
+
+            it('should return only test partner when there are no common partners in control and test', function(done) {
+                var expectedResult = {
+                    criteo: {
+                        name: "criteo",
+                    },
+                    unifiedId: {
+                        name: "unifiedId",
+                        "params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+                        "storage.type": "cookie",
+                        "storage.name": "_myUnifiedId",
+                        "storage.expires": "1825"
+                    }
+                };
+                var updatedPartners = CONFIG.updatePartnerConfig(testIdentityPartners,identityPartners);
+                expect(updatedPartners).to.be.deep.equal(expectedResult);
+                done();
+            });
+
+            it('should return test partner along with control when there are common partners in control and test', function(done) {
+                testIdentityPartners = {
+                    pubCommonId:{},
+                    identityLink:{},
+                    criteo: {
+                        name: "criteo",
+                    },
+                    unifiedId: {
+                        name: "unifiedId",
+                        "params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+                        "storage.type": "cookie",
+                        "storage.name": "_myUnifiedId",
+                        "storage.expires": "1825"
+                    }
+                };
+                var expectedResult = {
+                    criteo: {
+                        name: "criteo",
+                    },
+                    unifiedId: {
+                        name: "unifiedId",
+                        "params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+                        "storage.type": "cookie",
+                        "storage.name": "_myUnifiedId",
+                        "storage.expires": "1825"
+                    }, 
+                    pubCommonId: {
+                        name: "pubCommonId",
+                        "storage.type": "cookie",
+                        "storage.name": "_myPubCommonId",
+                        "storage.expires": "1825"
+                    },
+                    identityLink: {
+                        name: "identityLink",
+                        "params.pid": "23",
+                        "storage.type": "cookie",
+                        "params.loadAts": "true", // or false// boolean default is false,
+                        "params.placementID": "23",
+                        "params.storageType": "localstorage",
+                        "params.detectionType": "scrapeAndUrl",
+                        "params.urlParameter": "eparam",
+                        "params.cssSelectors": ["input[type=text]", "input[type=email]"],
+                        "params.logging": "info",
+                        "storage.name": "somenamevalue",
+                        "storage.expires": "60"
+                    }
+                };
+                var updatedPartners = CONFIG.updatePartnerConfig(testIdentityPartners, identityPartners);
+                expect(updatedPartners).to.be.deep.equal(expectedResult);
+                done();
+            });
+
+            it('should return test partner along with control with updated values when there are common partners in control and test', function(done) {
+                testIdentityPartners = {
+                    pubCommonId:{  "storage.name": "_testPubCommonId",},
+                    identityLink:{},
+                    criteo: {
+                        name: "criteo",
+                    },
+                    unifiedId: {
+                        name: "unifiedId",
+                        "params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+                        "storage.type": "cookie",
+                        "storage.name": "_myUnifiedId",
+                        "storage.expires": "1825"
+                    }
+                };
+                var expectedResult = {
+                    criteo: {
+                        name: "criteo",
+                    },
+                    unifiedId: {
+                        name: "unifiedId",
+                        "params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+                        "storage.type": "cookie",
+                        "storage.name": "_myUnifiedId",
+                        "storage.expires": "1825"
+                    }, 
+                    pubCommonId: {
+                        name: "pubCommonId",
+                        "storage.type": "cookie",
+                        "storage.name": "_testPubCommonId",
+                        "storage.expires": "1825"
+                    },
+                    identityLink: {
+                        name: "identityLink",
+                        "params.pid": "23",
+                        "storage.type": "cookie",
+                        "params.loadAts": "true", // or false// boolean default is false,
+                        "params.placementID": "23",
+                        "params.storageType": "localstorage",
+                        "params.detectionType": "scrapeAndUrl",
+                        "params.urlParameter": "eparam",
+                        "params.cssSelectors": ["input[type=text]", "input[type=email]"],
+                        "params.logging": "info",
+                        "storage.name": "somenamevalue",
+                        "storage.expires": "60"
+                    }
+                };
+                var updatedPartners = CONFIG.updatePartnerConfig(testIdentityPartners,identityPartners);
+                console.log("Updated Partners are ", JSON.stringify(updatedPartners));  
+                expect(updatedPartners).to.be.deep.equal(expectedResult);
+                done();
+            });
+
+            it('should return control object if test config is not present but test is enabled',function(done){
+                testIdentityPartners = {};
+                var updatedPartners = CONFIG.updatePartnerConfig(testIdentityPartners, identityPartners);
+                expect(updatedPartners).to.be.deep.equal(identityPartners);
+                done();
+            }); 
+        });
+    });
+
+    
+    describe("#getMergedConfig",function(){
+        var toObject,fromObject;
+        beforeEach(function(done){
+            toObject = {
+                rev_share: "20"
+            }
+            fromObject = {
+                rev_share: "0.0",
+                throttle: "100",
+                kgp: "_DIV_",
+                klm: {
+                    "Div_1": {
+                        placementId: "8801674",
+                        "video.mimes": "",
+                        "video.minduration": ""
+                    },
+                    "Div-2": {
+                        placementId: "8801685"
+                    }
+                }
+            }
+            done();
+        });
+
+        afterEach(function(done){
+            toObject = null;
+            fromObject = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            CONFIG.getMergedConfig.should.be.a('function');
+            done();
+        });
+
+        it('should copy all properties fromObject into toObject for common objects',function(done){
+            var expectedResult = {
+                rev_share: "20",
+                throttle: "100",
+                kgp: "_DIV_",
+                klm: {
+                    "Div_1": {
+                        placementId: "8801674",
+                        "video.mimes": "",
+                        "video.minduration": ""
+                    },
+                    "Div-2": {
+                        placementId: "8801685"
+                    }
+                }
+            }
+            var output = CONFIG.getMergedConfig(toObject, fromObject);
+            expect(output).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return all properties of fromObject if there is no common props in to and from',function(done){
+            toObject = {};
+            var expectedResult = {
+                rev_share: "0.0",
+                throttle: "100",
+                kgp: "_DIV_",
+                klm: {
+                    "Div_1": {
+                        placementId: "8801674",
+                        "video.mimes": "",
+                        "video.minduration": ""
+                    },
+                    "Div-2": {
+                        placementId: "8801685"
+                    }
+                }
+            }
+            var output = CONFIG.getMergedConfig(toObject, fromObject);
+            expect(output).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return all properties of fromObject if there is no common props in to and from',function(done){
+            toObject = {};
+            var expectedResult = {
+                rev_share: "0.0",
+                throttle: "100",
+                kgp: "_DIV_",
+                klm: {
+                    "Div_1": {
+                        placementId: "8801674",
+                        "video.mimes": "",
+                        "video.minduration": ""
+                    },
+                    "Div-2": {
+                        placementId: "8801685"
+                    }
+                }
+            }
+            var output = CONFIG.getMergedConfig(toObject, fromObject);
+            expect(output).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+    })
 });

@@ -1,4 +1,4 @@
-/* global describe, it, expect, sinon, beforeEach, afterEach */
+/* global describe, it, xit, expect, sinon, beforeEach, afterEach */
 // var sinon = require("sinon");
 //var should = require("chai").should();
 var CUSTOM = require("../../src_new/controllers/custom.js");
@@ -193,69 +193,6 @@ describe("CONTROLLER: CUSTOM", function() {
 				UTIL.forEachOnObject.calledOnce.should.equal(true);
 				done();
 			});
-		});
-	});
-
-	describe("#callJsLoadedIfRequired", function() {
-
-		it("should return false when the object passed is string ", function() {
-			CUSTOM.callJsLoadedIfRequired("").should.equal(false);
-		});
-
-		it("should return false when the object passed is number ", function() {
-			CUSTOM.callJsLoadedIfRequired(1).should.equal(false);
-		});
-
-		it("should return false when the object passed is null ", function() {
-			CUSTOM.callJsLoadedIfRequired(null).should.equal(false);
-		});
-
-		it("should return false when the object is not passed ", function() {
-			CUSTOM.callJsLoadedIfRequired().should.equal(false);
-		});
-
-		it("should return false when the object passed is object but it does not have PWT property ", function() {
-			CUSTOM.callJsLoadedIfRequired({}).should.equal(false);
-		});
-
-		it("should return false when the object passed is object but PWT property is set to null", function() {
-			CUSTOM.callJsLoadedIfRequired({ PWT: null }).should.equal(false);
-		});
-
-		it("should return false when the object passed is object but PWT property is set to string", function() {
-			CUSTOM.callJsLoadedIfRequired({ PWT: "" }).should.equal(false);
-		});
-
-		it("should return false when the object passed is object but PWT property is set to number", function() {
-			CUSTOM.callJsLoadedIfRequired({ PWT: 1 }).should.equal(false);
-		});
-
-		it("should return false when the object passed is object but PWT property is set but does not have jsLoaded property", function() {
-			CUSTOM.callJsLoadedIfRequired({ PWT: {} }).should.equal(false);
-		});
-
-		it("should return false when the object passed is object but PWT property is set but jsLoaded is set to null", function() {
-			CUSTOM.callJsLoadedIfRequired({ PWT: { jsLoaded: null } }).should.equal(false);
-		});
-
-		it("should return false when the object passed is object but PWT property is set but jsLoaded is set to number", function() {
-			CUSTOM.callJsLoadedIfRequired({ PWT: { jsLoaded: 1 } }).should.equal(false);
-		});
-
-		it("should return false when the object passed is object but PWT property is set but jsLoaded is set to string", function() {
-			CUSTOM.callJsLoadedIfRequired({ PWT: { jsLoaded: "" } }).should.equal(false);
-		});
-
-		var _test = {
-			PWT: {}
-		};
-		_test.PWT.jsLoaded = function() {
-			flag = true;
-		};
-		var flag = false;
-		it("should return true when the object passed is object and PWT property is set and jsLoaded is set to function and the function is called", function() {
-			CUSTOM.callJsLoadedIfRequired(_test).should.equal(true);
-			flag.should.equal(true);
 		});
 	});
 
@@ -920,7 +857,6 @@ describe("CONTROLLER: CUSTOM", function() {
 			sinon.spy(UTIL, "isObject");
 			sinon.spy(CUSTOM, "setWindowReference");
 			sinon.spy(CUSTOM, "defineWrapperTargetingKeys");
-			sinon.spy(CUSTOM, "callJsLoadedIfRequired");
 			sinon.spy(CUSTOM, "initSafeFrameListener");
 			done();
 		});
@@ -929,7 +865,6 @@ describe("CONTROLLER: CUSTOM", function() {
 			UTIL.isObject.restore();
 			CUSTOM.setWindowReference.restore();
 			CUSTOM.defineWrapperTargetingKeys.restore();
-			CUSTOM.callJsLoadedIfRequired.restore();
 			CUSTOM.initSafeFrameListener.restore();
 			done();
 		});
@@ -951,7 +886,6 @@ describe("CONTROLLER: CUSTOM", function() {
 			UTIL.isObject.returned(true).should.to.be.true;
 			CUSTOM.setWindowReference.called.should.be.true;
 			CUSTOM.defineWrapperTargetingKeys.called.should.be.true;
-			CUSTOM.callJsLoadedIfRequired.called.should.be.true;
 			done();
 		});
 
@@ -962,7 +896,6 @@ describe("CONTROLLER: CUSTOM", function() {
 			UTIL.isObject.calledWith("NonObject").should.be.true;
 			CUSTOM.setWindowReference.called.should.be.false;
 			CUSTOM.defineWrapperTargetingKeys.called.should.be.false;
-			CUSTOM.callJsLoadedIfRequired.called.should.be.false;
 			done();
 		});
 	});

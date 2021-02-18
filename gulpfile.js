@@ -273,16 +273,19 @@ gulp.task('bundle-pwt-keys', function(){
         patterns: [
           {
             match: /"%%TG_KEYS%%"/g,
-            replacement: { "BIDDER": "pwtpid",
+            replacement: { 
+                "STATUS": "pwtbst",
+                "BIDDER": "pwtpid",
                 "AD_ID": "pwtsid",
                 "PRICE_BUCKET": "pwtecp",
                 "SIZE": "pwtsz",
                 "DEAL": "pwtdeal",
+                "DEAL_ID": "pwtdid",
                 "SOURCE": "",
                 "FORMAT": "pwtplt",
-                "UUID": "",
+                "UUID": "pwtuuid",
                 "CACHE_ID": "pwtcid",
-                "CACHE_HOST": ""
+                "CACHE_HOST": "pwtcurl"
             }
           }
         ]

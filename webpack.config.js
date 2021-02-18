@@ -1,5 +1,11 @@
 var path = require('path');
 
+var controllerPaths = {
+	IDHUB: "./controllers/idhub.js",
+	DFP: "./controllers/gpt.js",
+	CUSTOM: "./controllers/custom.js"
+};
+
 module.exports = {
     devtool:false,
     mode: "production",
