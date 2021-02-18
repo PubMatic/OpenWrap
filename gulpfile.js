@@ -264,6 +264,21 @@ gulp.task('bundle-pwt-keys', function(){
       .pipe(gulp.dest('build'));
 });
 
+gulp.task('update-adserver', function(){
+    console.log("Executing update-adserver");
+    gulp.src(['./src_new/conf.js'])
+      .pipe(replace({
+        patterns: [
+          {
+            match: /adserver:[\s]*['"]*DFP['"]*/,
+            replacement: 'adserver: "IDHUB"'
+          }
+        ]
+      }))
+      .pipe(gulp.dest('./src_new/'));
+});
+
+
 // Task to build minified version of owt.js
 gulp.task('bundle-creative', function () {
     console.log("Executing creative-build");

@@ -96,6 +96,9 @@ if (task == CREATIVE_TASK) {
 			shell.exit(1);
 		}*/
 
+		if (config.isIdentityOnly()) {
+			openwrapBuildTaskName = "update-adserver " + openwrapBuildTaskName;
+		}
 
 		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: wrapper build task failed');
