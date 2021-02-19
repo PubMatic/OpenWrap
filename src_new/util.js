@@ -843,10 +843,8 @@ exports.safeFrameCommunicationProtocol = function(msg){
 			break;
 		case 3:
 			if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
-				window.postMessage(JSON.stringify({
-					nativeTracker: true,
-					bidId: msgData.pwt_bidID
-				}), "*");
+				window.owpbjs.fireNativeTrackerForBid(msgData.pwt_bidID)
+
 			}else{
 				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
