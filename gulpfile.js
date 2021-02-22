@@ -4,6 +4,8 @@ var argv = require('yargs').argv;
 var gulp = require('gulp');
 var concat = require('gulp-concat');
 var replace = require('gulp-replace-task');
+var config = require("./src_new/config.js");
+
 // var replace = require('gulp-replace');
 // var insert = require('gulp-insert');
 // var uglify = require('gulp-uglify');
@@ -24,7 +26,8 @@ var eslint = require('gulp-eslint');
 // var stripComments = require('gulp-strip-comments');
 console.timeEnd("Loading plugins");
 var CI_MODE = (argv.mode === 'test-build') ? true : false;
-
+var isIdentityOnly = config.isIdentityOnly();
+console.log("isIdentityOnly = "+isIdentityOnly);
 console.log("argv ==>", argv);
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
@@ -207,7 +210,7 @@ gulp.task('change-prebid-keys', () => {
 });
 
 // Task to build minified version of owt.js
-gulp.task('bundle', function () {
+gulp.task('bundle', ['update-adserver'], function () {
     console.log("Executing build");
     return gulp.src([prebidRepoPath + '/build/dist/prebid.js', './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
@@ -265,17 +268,21 @@ gulp.task('bundle-pwt-keys', function(){
 });
 
 gulp.task('update-adserver', function(){
-    console.log("Executing update-adserver");
-    return gulp.src(['./src_new/conf.js'])
-      .pipe(replace({
-        patterns: [
-          {
-            match: /adserver:[\s]*['"]*DFP['"]*/,
-            replacement: 'adserver: "IDHUB"'
-          }
-        ]
-      }))
-      .pipe(gulp.dest('./src_new/'));
+    console.log("################################# " + config.isIdentityOnly());
+    console.log("In update-adserver isIdentityOnly = " + isIdentityOnly);
+    if (isIdentityOnly) {
+        console.log("Executing update-adserver - START");
+        return gulp.src(['./src_new/conf.js'])
+          .pipe(replace({
+            patterns: [
+              {
+                match: /adserver:[\s]*['"]*DFP['"]*/,
+                replacement: 'adserver: "IDHUB"'
+              }
+            ]
+          }))
+          .pipe(gulp.dest('./src_new/'));
+    }
 });
 
 
@@ -289,7 +296,7 @@ gulp.task('bundle-creative', function () {
 
 
 // Task to build non-minified version of owt.js
-gulp.task('devbundle',['devpack'], function () {
+gulp.task('devbundle',['update-adserver', 'devpack'], function () {
     console.log("Executing Dev Build");
     return gulp.src([prebidRepoPath + '/build/dev/prebid.js', './build/dev/owt.js'])
         .pipe(concat('owt.js'))
@@ -297,7 +304,7 @@ gulp.task('devbundle',['devpack'], function () {
 });
 
 
-gulp.task('bundle-prod',['webpack'], function () {
+gulp.task('bundle-prod',['update-adserver', 'webpack'], function () {
     console.log("Executing bundling");
     return gulp.src([prebidRepoPath + '/build/dist/prebid.js', './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
