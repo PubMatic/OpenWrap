@@ -266,7 +266,7 @@ gulp.task('bundle-pwt-keys', function(){
 
 gulp.task('update-adserver', function(){
     console.log("Executing update-adserver");
-    gulp.src(['./src_new/conf.js'])
+    return gulp.src(['./src_new/conf.js'])
       .pipe(replace({
         patterns: [
           {
