@@ -32,7 +32,7 @@ console.log("argv ==>", argv);
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
 
-gulp.task('clean', function() {
+gulp.task('clean', ['update-adserver'], function() {
     var clean = require('gulp-clean');
     return gulp.src(['dist/**/*.js', 'build/'], {
             read: false,
@@ -44,6 +44,7 @@ gulp.task('clean', function() {
 
 // What all processing needs to be done ?
 gulp.task('webpack', ['clean'], function() {
+    console.log("Executing webpack");
     var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
     var webpack = require('webpack-stream');
@@ -268,11 +269,10 @@ gulp.task('bundle-pwt-keys', function(){
 });
 
 gulp.task('update-adserver', function(){
-    console.log("################################# " + config.isIdentityOnly());
     console.log("In update-adserver isIdentityOnly = " + isIdentityOnly);
     if (isIdentityOnly) {
         console.log("Executing update-adserver - START");
-        return gulp.src(['./src_new/conf.js'])
+        var result = gulp.src(['./src_new/conf.js'])
           .pipe(replace({
             patterns: [
               {
@@ -282,7 +282,10 @@ gulp.task('update-adserver', function(){
             ]
           }))
           .pipe(gulp.dest('./src_new/'));
+        console.log("Executing update-adserver - END - in If");
+        return result;
     }
+    console.log("Executing update-adserver - END - outside If");
 });
 
 
@@ -296,7 +299,7 @@ gulp.task('bundle-creative', function () {
 
 
 // Task to build non-minified version of owt.js
-gulp.task('devbundle',['update-adserver', 'devpack'], function () {
+gulp.task('devbundle',['devpack'], function () {
     console.log("Executing Dev Build");
     return gulp.src([prebidRepoPath + '/build/dev/prebid.js', './build/dev/owt.js'])
         .pipe(concat('owt.js'))
@@ -304,7 +307,7 @@ gulp.task('devbundle',['update-adserver', 'devpack'], function () {
 });
 
 
-gulp.task('bundle-prod',['update-adserver', 'webpack'], function () {
+gulp.task('bundle-prod',['webpack'], function () {
     console.log("Executing bundling");
     return gulp.src([prebidRepoPath + '/build/dist/prebid.js', './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
