@@ -299,7 +299,7 @@ gulp.task('update-adserver', function(){
           .pipe(replace({
             patterns: [
               {
-                match: /adserver:[\s]*['"]*DFP['"]*/,
+                match: /['"]*adserver['"]*:[\s]*['"]*DFP['"]*/,
                 replacement: 'adserver: "IDHUB"'
               }
             ]
