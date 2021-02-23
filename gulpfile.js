@@ -27,12 +27,10 @@ var eslint = require('gulp-eslint');
 console.timeEnd("Loading plugins");
 var CI_MODE = (argv.mode === 'test-build') ? true : false;
 var isIdentityOnly = config.isIdentityOnly();
-console.log("isIdentityOnly = "+isIdentityOnly);
-console.log("argv ==>", argv);
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
 
-gulp.task('clean', ['update-adserver'], function() {
+gulp.task('clean', function() {
     var clean = require('gulp-clean');
     return gulp.src(['dist/**/*.js', 'build/'], {
             read: false,
@@ -268,27 +266,6 @@ gulp.task('bundle-pwt-keys', function(){
       .pipe(gulp.dest('build'));
 });
 
-gulp.task('update-adserver', function(){
-    console.log("In update-adserver isIdentityOnly = " + isIdentityOnly);
-    if (isIdentityOnly) {
-        console.log("Executing update-adserver - START");
-        var result = gulp.src(['./src_new/conf.js'])
-          .pipe(replace({
-            patterns: [
-              {
-                match: /adserver:[\s]*['"]*DFP['"]*/,
-                replacement: 'adserver: "IDHUB"'
-              }
-            ]
-          }))
-          .pipe(gulp.dest('./src_new/'));
-        console.log("Executing update-adserver - END - in If");
-        return result;
-    }
-    console.log("Executing update-adserver - END - outside If");
-});
-
-
 // Task to build minified version of owt.js
 gulp.task('bundle-creative', function () {
     console.log("Executing creative-build");
@@ -312,6 +289,28 @@ gulp.task('bundle-prod',['webpack'], function () {
     return gulp.src([prebidRepoPath + '/build/dist/prebid.js', './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
+});
+
+gulp.task('update-adserver', function(){
+    console.log("In update-adserver isIdentityOnly = " + isIdentityOnly + " and mode = "+argv.mode);
+    var fileSrc = (argv.mode === 'build-all') ? './build/owt.js' : './build/owt.min.js';
+    if (isIdentityOnly) {
+        console.log("Executing update-adserver - START");
+        var result = gulp.src([fileSrc])
+          .pipe(replace({
+            patterns: [
+              {
+                match: /adserver:[\s]*['"]*DFP['"]*/,
+                replacement: 'adserver:"IDHUB"'
+              }
+            ]
+          }))
+          .pipe(gulp.dest('./build/'));
+        console.log("Executing update-adserver - END - in If ");
+
+        return result;
+    }
+    console.log("Executing update-adserver - END - outside If");
 });
 
 gulp.task('build-gpt-prod',[''])
