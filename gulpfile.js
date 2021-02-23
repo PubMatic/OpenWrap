@@ -30,7 +30,7 @@ var isIdentityOnly = config.isIdentityOnly();
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
 
-gulp.task('clean', function() {
+gulp.task('clean', ['update-adserver'], function() {
     var clean = require('gulp-clean');
     return gulp.src(['dist/**/*.js', 'build/'], {
             read: false,
@@ -292,22 +292,20 @@ gulp.task('bundle-prod',['webpack'], function () {
 });
 
 gulp.task('update-adserver', function(){
-    console.log("In update-adserver isIdentityOnly = " + isIdentityOnly + " and mode = "+argv.mode);
-    var fileSrc = (argv.mode === 'build-all') ? './build/owt.js' : './build/owt.min.js';
+    console.log("In update-adserver isIdentityOnly = " + isIdentityOnly);
     if (isIdentityOnly) {
         console.log("Executing update-adserver - START");
-        var result = gulp.src([fileSrc])
+        var result = gulp.src(['./src_new/conf.js'])
           .pipe(replace({
             patterns: [
               {
                 match: /adserver:[\s]*['"]*DFP['"]*/,
-                replacement: 'adserver:"IDHUB"'
+                replacement: 'adserver: "IDHUB"'
               }
             ]
           }))
-          .pipe(gulp.dest('./build/'));
-        console.log("Executing update-adserver - END - in If ");
-
+          .pipe(gulp.dest('./src_new/'));
+        console.log("Executing update-adserver - END - in If");
         return result;
     }
     console.log("Executing update-adserver - END - outside If");

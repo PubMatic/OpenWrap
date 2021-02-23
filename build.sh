@@ -116,11 +116,11 @@ if (task == CREATIVE_TASK) {
 			}		
 		}
 
-		if (config.isIdentityOnly()) {
+		/*if (config.isIdentityOnly()) {
 			console.log("***Updating adserver because isIdentityOnly is TRUE***");
 			if(shell.exec("time gulp update-adserver --mode="+argv.mode).code !== 0) {
 				shell.echo('Error: Changing adserver to IDHUB.');
 			  	shell.exit(1);
 			}
-		}
+		}*/
 }
