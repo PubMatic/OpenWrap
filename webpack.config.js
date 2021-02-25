@@ -1,14 +1,13 @@
 var conf = require('./src_new/conf.js');
 var StringReplacePlugin = require('string-replace-webpack-plugin');
 var path = require('path');
+var adserver = "%%ADSERVER%%";
 
 var controllerPaths = {
 	IDHUB: "./controllers/idhub.js",
 	DFP: "./controllers/gpt.js",
 	CUSTOM: "./controllers/custom.js"
 };
-console.log("***** conf.pwt.adserver = "+conf.pwt.adserver);
-console.log("***** controllerPaths = "+controllerPaths[conf.pwt.adserver]);
 module.exports = {
     output: {
         filename: 'owt.js'
@@ -30,8 +29,8 @@ module.exports = {
                     {
                       pattern: /%%PATH_TO_CONTROLLER%%/g,
                       replacement: function (match, p1, offset, string) {
-                        console.log("***** Returning controller path as -> "+controllerPaths[conf.pwt.adserver || "DFP"]+" and adserver = " + conf.pwt.adserver);
-                        return controllerPaths[conf.pwt.adserver || "DFP"];
+                        console.log("***** Returning controller path as -> "+controllerPaths[adserver]+" and adserver = " + adserver);
+                        return controllerPaths[adserver];
                       }
                     }
                   ]

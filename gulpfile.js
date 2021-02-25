@@ -305,8 +305,31 @@ gulp.task('update-adserver', function(){
             ]
           }))
           .pipe(gulp.dest('./src_new/'));
+        var result2 = gulp.src(['webpack.config.js'])
+          .pipe(replace({
+            patterns: [
+              {
+                match: /%%ADSERVER%%/,
+                replacement: "IDHUB"
+              }
+            ]
+          }))
+          .pipe(gulp.dest('.'));
         console.log("Executing update-adserver - END - in If");
         return result;
+    } else {
+        console.log("In If - isIdentityOnly is false")
+        var conf = require('./src_new/conf.js');
+        return gulp.src(['webpack.config.js'])
+          .pipe(replace({
+            patterns: [
+              {
+                match: /%%ADSERVER%%/,
+                replacement: conf.pwt.adserver
+              }
+            ]
+          }))
+          .pipe(gulp.dest('.'));
     }
     console.log("Executing update-adserver - END - outside If");
 });
