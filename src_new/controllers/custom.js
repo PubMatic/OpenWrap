@@ -461,9 +461,7 @@ exports.init = function(win) {
 	CONFIG.initConfig();
 	if (util.isObject(win)) {
 		refThis.setWindowReference(win);
-		if(!isPrebidPubMaticAnalyticsEnabled){
-			refThis.initSafeFrameListener(win);
-		}
+		refThis.initSafeFrameListener(win);
 		prebid.initPbjsConfig();
 		win.PWT.requestBids = refThis.customServerExposedAPI;
 		win.PWT.generateConfForGPT = refThis.generateConfForGPT;
