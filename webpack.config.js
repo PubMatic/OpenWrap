@@ -1,7 +1,6 @@
 var conf = require('./src_new/conf.js');
 var StringReplacePlugin = require('string-replace-webpack-plugin');
 var path = require('path');
-var adserver = "%%ADSERVER%%";
 
 var controllerPaths = {
 	IDHUB: "./controllers/idhub.js",
@@ -29,8 +28,13 @@ module.exports = {
                     {
                       pattern: /%%PATH_TO_CONTROLLER%%/g,
                       replacement: function (match, p1, offset, string) {
-                        console.log("***** Returning controller path as -> "+controllerPaths[adserver]+" and adserver = " + adserver);
-                        return controllerPaths[adserver];
+                        console.log("***** in Webpack - isIdentityOnly = " + conf.pwt.identityOnly);
+                        if (conf.pwt.identityOnly == "1") {
+                            console.log("***** Returning controller path as -> IDHUB");
+                            return controllerPaths['IDHUB'];
+                        }
+                        console.log("***** Returning controller path as -> "+conf.pwt.adserver);
+                        return controllerPaths[conf.pwt.adserver || 'DFP']
                       }
                     }
                   ]
