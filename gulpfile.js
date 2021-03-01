@@ -305,10 +305,9 @@ gulp.task('update-adserver', function(){
             ]
           }))
           .pipe(gulp.dest('./src_new/'));
-        console.log("Executing update-adserver - END - in If");
+        console.log("Executing update-adserver - END");
         return result;
     }
-    console.log("Executing update-adserver - END - outside If");
 });
 
 gulp.task('build-gpt-prod',[''])
