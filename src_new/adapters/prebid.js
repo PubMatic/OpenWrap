@@ -65,6 +65,7 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 		theBid.setRegexPattern(rxPattern);
 	}
 	if(bid.mediaType == CONSTANTS.FORMAT_VALUES.VIDEO){
+		theBid.setAdFormat(bid.ad,CONSTANTS.FORMAT_VALUES.VIDEO)
 		if(bid.videoCacheKey){
 			theBid.setcacheUUID(bid.videoCacheKey);
 		}

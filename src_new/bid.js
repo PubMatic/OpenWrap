@@ -318,7 +318,11 @@ Bid.prototype.getAdFormat = function(){
 	return this.adFormat;
 };
 
-Bid.prototype.setAdFormat = function(ad){
+Bid.prototype.setAdFormat = function(ad, adFormat){
+	if(adFormat){
+		this.adFormat = adFormat;
+		return this;
+	}
 	this.adFormat = UTIL.getAdFormatFromBidAd(ad);
 	return this;
 };
