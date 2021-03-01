@@ -1622,6 +1622,7 @@ exports.getUpdatedKGPVForVideo = function(kgpv, adFormat){
 	if(adFormat == CONSTANTS.FORMAT_VALUES.VIDEO){
 		var videoKgpv = ["","0x0"];
 		var splitKgpv = kgpv.split("@");
+		// Adding this check for Div Mapping Only
 		if(splitKgpv.length>1){
 			if(splitKgpv.length == 2){
 				if(splitKgpv[1].indexOf(":") > -1){
