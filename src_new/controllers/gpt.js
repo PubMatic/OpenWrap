@@ -865,9 +865,7 @@ exports.init = function(win) { // TDD, i/o : done
 	CONFIG.initConfig();
     if (util.isObject(win)) {
         refThis.setWindowReference(win);
-        if(!isPrebidPubMaticAnalyticsEnabled){
-			refThis.initSafeFrameListener(win);
-		}
+        refThis.initSafeFrameListener(win);
         prebid.initPbjsConfig();
         refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
         refThis.defineGPTVariables(win);
