@@ -21,6 +21,16 @@ refThis.setConfig = function(){
 			};
 		}
 
+		if (CONFIG.getCCPA()) {
+			if(!prebidConfig["consentManagement"]){
+				prebidConfig["consentManagement"] = {};
+			}
+			prebidConfig["consentManagement"]["usp"] = {
+				cmpApi: CONFIG.getCCPACmpApi(),
+				timeout: CONFIG.getCCPATimeout(),
+			};
+		}
+
 		if(CONFIG.isUserIdModuleEnabled()){
 			prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 		}
