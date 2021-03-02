@@ -1234,6 +1234,742 @@ describe('Config', function() {
         });
     });
 
+    describe('#getTestPartnerConfig',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.COMMON.TEST_PARTNER] = {
+                pulsepoint: {
+                    cp: "521732",
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div_1": {
+                            ct: "76835"
+                        },
+                        "Div-2": {
+                            ct: "147007"
+                        }
+                    }
+                },
+                rubicon: {
+                    accountId: "10998",
+                    rev_share: "0.0",
+                    timeout: "1000",
+                    throttle: "100",
+                    pt: 0,
+                    serverSideEnabled: "0",
+                    amp: 0,
+                    video: 0,
+                    "in-app": 0,
+                    kgp_rx: "_AU_@_DIV_@_W_x_H_",
+                    klm_rx: [{
+                        rx: {
+                            DIV: ".*",
+                            AU: "^/43743431/DMDemo",
+                            SIZE: "728x90"
+                        },
+                        rx_config: {
+                            zoneId: "869224",
+                            siteId: "178620",
+                            floor: "0"
+                        }
+                    }]
+                }
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.COMMON.TEST_PARTNER];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getTestPartnerConfig.should.be.a('function');
+            done();
+        });
+
+        it('should return confing if present', function(done) {
+            var expectedResult = {
+                pulsepoint: {
+                    cp: "521732",
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div_1": {
+                            ct: "76835"
+                        },
+                        "Div-2": {
+                            ct: "147007"
+                        }
+                    }
+                },
+                rubicon: {
+                    accountId: "10998",
+                    rev_share: "0.0",
+                    timeout: "1000",
+                    throttle: "100",
+                    pt: 0,
+                    serverSideEnabled: "0",
+                    amp: 0,
+                    video: 0,
+                    "in-app": 0,
+                    kgp_rx: "_AU_@_DIV_@_W_x_H_",
+                    klm_rx: [{
+                        rx: {
+                            DIV: ".*",
+                            AU: "^/43743431/DMDemo",
+                            SIZE: "728x90"
+                        },
+                        rx_config: {
+                            zoneId: "869224",
+                            siteId: "178620",
+                            floor: "0"
+                        }
+                    }]
+                }
+            };
+            CONFIG.getTestPartnerConfig().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return empty object if config is not present',function(done){
+            delete CONF[CONSTANTS.COMMON.TEST_PARTNER];
+            CONFIG.getTestPartnerConfig().should.be.deep.equal({});
+            done();
+        });
+    });
+
+    describe('#updatePartnerConfig',function(){
+        var adapters;
+        beforeEach(function(done){
+            CONF[CONSTANTS.COMMON.TEST_PARTNER] = {
+                pulsepoint: {
+                    cp: "521732",
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div_1": {
+                            ct: "76835"
+                        },
+                        "Div-2": {
+                            ct: "147007"
+                        }
+                    }
+                },
+                rubicon: {
+                    accountId: "10998",
+                    rev_share: "0.0",
+                    timeout: "1000",
+                    throttle: "100",
+                    pt: 0,
+                    serverSideEnabled: "0",
+                    amp: 0,
+                    video: 0,
+                    "in-app": 0,
+                    kgp_rx: "_AU_@_DIV_@_W_x_H_",
+                    klm_rx: [{
+                        rx: {
+                            DIV: ".*",
+                            AU: "^/43743431/DMDemo",
+                            SIZE: "728x90"
+                        },
+                        rx_config: {
+                            zoneId: "869224",
+                            siteId: "178620",
+                            floor: "0"
+                        }
+                    }]
+                }
+            };
+            adapters = {
+                pubmatic: {
+                    rev_share: "0.0",
+                    throttle: "100",
+                    publisherId: "156209",
+                    kgp: "_W_x_H_@_W_x_H_:_AUI_"
+                },
+                audienceNetwork: {
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div1": {
+                            placementId: "8801674"
+                        },
+                        "Div2": {
+                            placementId: "8801685"
+                        }
+                    }
+                }
+            }
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.COMMON.TEST_PARTNER];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.updatePartnerConfig.should.be.a('function');
+            done();
+        });
+
+        it('should return only test partner when there are no common partners in control and test', function(done) {
+            var expectedResult = {
+                pulsepoint: {
+                    cp: "521732",
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div_1": {
+                            ct: "76835"
+                        },
+                        "Div-2": {
+                            ct: "147007"
+                        }
+                    }
+                },
+                rubicon: {
+                    accountId: "10998",
+                    rev_share: "0.0",
+                    timeout: "1000",
+                    throttle: "100",
+                    pt: 0,
+                    serverSideEnabled: "0",
+                    amp: 0,
+                    video: 0,
+                    "in-app": 0,
+                    kgp_rx: "_AU_@_DIV_@_W_x_H_",
+                    klm_rx: [{
+                        rx: {
+                            DIV: ".*",
+                            AU: "^/43743431/DMDemo",
+                            SIZE: "728x90"
+                        },
+                        rx_config: {
+                            zoneId: "869224",
+                            siteId: "178620",
+                            floor: "0"
+                        }
+                    }]
+                }
+            };
+            var updatedPartners = CONFIG.updatePartnerConfig(CONF[CONSTANTS.COMMON.TEST_PARTNER],adapters);
+            expect(updatedPartners).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return test partner along with control when there are common partners in control and test', function(done) {
+            CONF[CONSTANTS.COMMON.TEST_PARTNER] = {
+                pubmatic:{},
+                audienceNetwork:{},
+                pulsepoint: {
+                    cp: "521732",
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div_1": {
+                            ct: "76835"
+                        },
+                        "Div-2": {
+                            ct: "147007"
+                        }
+                    }
+                },
+                rubicon: {
+                    accountId: "10998",
+                    rev_share: "0.0",
+                    timeout: "1000",
+                    throttle: "100",
+                    pt: 0,
+                    serverSideEnabled: "0",
+                    amp: 0,
+                    video: 0,
+                    "in-app": 0,
+                    kgp_rx: "_AU_@_DIV_@_W_x_H_",
+                    klm_rx: [{
+                        rx: {
+                            DIV: ".*",
+                            AU: "^/43743431/DMDemo",
+                            SIZE: "728x90"
+                        },
+                        rx_config: {
+                            zoneId: "869224",
+                            siteId: "178620",
+                            floor: "0"
+                        }
+                    }]
+                }
+            };
+            var expectedResult = {
+                pubmatic: {
+                    rev_share: "0.0",
+                    throttle: "100",
+                    publisherId: "156209",
+                    kgp: "_W_x_H_@_W_x_H_:_AUI_"
+                },
+                audienceNetwork: {
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div1": {
+                            placementId: "8801674"
+                        },
+                        "Div2": {
+                            placementId: "8801685"
+                        }
+                    }
+                },
+                pulsepoint: {
+                    cp: "521732",
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div_1": {
+                            ct: "76835"
+                        },
+                        "Div-2": {
+                            ct: "147007"
+                        }
+                    }
+                },
+                rubicon: {
+                    accountId: "10998",
+                    rev_share: "0.0",
+                    timeout: "1000",
+                    throttle: "100",
+                    pt: 0,
+                    serverSideEnabled: "0",
+                    amp: 0,
+                    video: 0,
+                    "in-app": 0,
+                    kgp_rx: "_AU_@_DIV_@_W_x_H_",
+                    klm_rx: [{
+                        rx: {
+                            DIV: ".*",
+                            AU: "^/43743431/DMDemo",
+                            SIZE: "728x90"
+                        },
+                        rx_config: {
+                            zoneId: "869224",
+                            siteId: "178620",
+                            floor: "0"
+                        }
+                    }]
+                }
+            };
+            var updatedPartners = CONFIG.updatePartnerConfig(CONF[CONSTANTS.COMMON.TEST_PARTNER],adapters);
+            expect(updatedPartners).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return test partner along with control with updated values when there are common partners in control and test', function(done) {
+            CONF[CONSTANTS.COMMON.TEST_PARTNER] = {
+                pubmatic:{  
+                    rev_share: "98.0",
+                    timeout: "500",
+                },
+                audienceNetwork:{},
+                pulsepoint: {
+                    cp: "521732",
+                    rev_share: "0.0",
+                    throttle: "100",
+                    kgp: "_DIV_",
+                    klm: {
+                        "Div_1": {
+                            ct: "76835"
+                        },
+                        "Div-2": {
+                            ct: "147007"
+                        }
+                    }
+                },
+                rubicon: {
+                    accountId: "10998",
+                    rev_share: "0.0",
+                    timeout: "1000",
+                    throttle: "100",
+                    pt: 0,
+                    serverSideEnabled: "0",
+                    amp: 0,
+                    video: 0,
+                    "in-app": 0,
+                    kgp_rx: "_AU_@_DIV_@_W_x_H_",
+                    klm_rx: [{
+                        rx: {
+                            DIV: ".*",
+                            AU: "^/43743431/DMDemo",
+                            SIZE: "728x90"
+                        },
+                        rx_config: {
+                            zoneId: "869224",
+                            siteId: "178620",
+                            floor: "0"
+                        }
+                    }]
+                }
+            };
+            var expectedResult = {
+                "pubmatic": {
+                    "rev_share": "98.0",
+                    "timeout": "500",
+                    "publisherId": "156209",
+                    "throttle": "100",
+                    "kgp": "_W_x_H_@_W_x_H_:_AUI_"
+                },
+                "audienceNetwork": {
+                    "rev_share": "0.0",
+                    "throttle": "100",
+                    "kgp": "_DIV_",
+                    "klm": {
+                        "Div1": {
+                            "placementId": "8801674"
+                        },
+                        "Div2": {
+                            "placementId": "8801685"
+                        }
+                    }
+                },
+                "pulsepoint": {
+                    "cp": "521732",
+                    "rev_share": "0.0",
+                    "throttle": "100",
+                    "kgp": "_DIV_",
+                    "klm": {
+                        "Div_1": {
+                            "ct": "76835"
+                        },
+                        "Div-2": {
+                            "ct": "147007"
+                        }
+                    }
+                },
+                "rubicon": {
+                    "accountId": "10998",
+                    "rev_share": "0.0",
+                    "timeout": "1000",
+                    "throttle": "100",
+                    "pt": 0,
+                    "serverSideEnabled": "0",
+                    "amp": 0,
+                    "video": 0,
+                    "in-app": 0,
+                    "kgp_rx": "_AU_@_DIV_@_W_x_H_",
+                    "klm_rx": [{
+                        "rx": {
+                            "DIV": ".*",
+                            "AU": "^/43743431/DMDemo",
+                            "SIZE": "728x90"
+                        },
+                        "rx_config": {
+                            "zoneId": "869224",
+                            "siteId": "178620",
+                            "floor": "0"
+                        }
+                    }]
+                }
+            };
+            var updatedPartners = CONFIG.updatePartnerConfig(CONF[CONSTANTS.COMMON.TEST_PARTNER],adapters);
+            expect(updatedPartners).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return control object if test config is not present but test is enabled',function(done){
+            CONF[CONSTANTS.COMMON.TEST_PARTNER]= {};
+            var updatedPartners = CONFIG.updatePartnerConfig(CONF[CONSTANTS.COMMON.TEST_PARTNER],adapters);
+            expect(updatedPartners).to.be.deep.equal(adapters);
+            done();
+        });
+
+        //Test Cases for Idenentity Partners
+        describe('updateIdentityPartners', function(){
+            var identityPartners,testIdentityPartners;
+            beforeEach(function(done){
+                identityPartners = {
+                    pubCommonId: {
+                        name: "pubCommonId",
+                        "storage.type": "cookie",
+                        "storage.name": "_myPubCommonId",
+                        "storage.expires": "1825"
+                    },
+                    identityLink: {
+                        name: "identityLink",
+                        "params.pid": "23",
+                        "storage.type": "cookie",
+                        "params.loadAts": "true", // or false// boolean default is false,
+                        "params.placementID": "23",
+                        "params.storageType": "localstorage",
+                        "params.detectionType": "scrapeAndUrl",
+                        "params.urlParameter": "eparam",
+                        "params.cssSelectors": ["input[type=text]", "input[type=email]"],
+                        "params.logging": "info",
+                        "storage.name": "somenamevalue",
+                        "storage.expires": "60"
+                    }
+                };
+                testIdentityPartners = {
+                    criteo: {
+                        name: "criteo",
+                    },
+                    unifiedId: {
+                        name: "unifiedId",
+                        "params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+                        "storage.type": "cookie",
+                        "storage.name": "_myUnifiedId",
+                        "storage.expires": "1825"
+                    }
+                }
+                done();
+            });
+
+            afterEach(function(done){
+                // identityPartners = null;
+                // testIdeneityPartners = null;
+                done();
+            })
+
+            it('should return only test partner when there are no common partners in control and test', function(done) {
+                var expectedResult = {
+                    criteo: {
+                        name: "criteo",
+                    },
+                    unifiedId: {
+                        name: "unifiedId",
+                        "params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+                        "storage.type": "cookie",
+                        "storage.name": "_myUnifiedId",
+                        "storage.expires": "1825"
+                    }
+                };
+                var updatedPartners = CONFIG.updatePartnerConfig(testIdentityPartners,identityPartners);
+                expect(updatedPartners).to.be.deep.equal(expectedResult);
+                done();
+            });
+
+            it('should return test partner along with control when there are common partners in control and test', function(done) {
+                testIdentityPartners = {
+                    pubCommonId:{},
+                    identityLink:{},
+                    criteo: {
+                        name: "criteo",
+                    },
+                    unifiedId: {
+                        name: "unifiedId",
+                        "params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+                        "storage.type": "cookie",
+                        "storage.name": "_myUnifiedId",
+                        "storage.expires": "1825"
+                    }
+                };
+                var expectedResult = {
+                    criteo: {
+                        name: "criteo",
+                    },
+                    unifiedId: {
+                        name: "unifiedId",
+                        "params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+                        "storage.type": "cookie",
+                        "storage.name": "_myUnifiedId",
+                        "storage.expires": "1825"
+                    }, 
+                    pubCommonId: {
+                        name: "pubCommonId",
+                        "storage.type": "cookie",
+                        "storage.name": "_myPubCommonId",
+                        "storage.expires": "1825"
+                    },
+                    identityLink: {
+                        name: "identityLink",
+                        "params.pid": "23",
+                        "storage.type": "cookie",
+                        "params.loadAts": "true", // or false// boolean default is false,
+                        "params.placementID": "23",
+                        "params.storageType": "localstorage",
+                        "params.detectionType": "scrapeAndUrl",
+                        "params.urlParameter": "eparam",
+                        "params.cssSelectors": ["input[type=text]", "input[type=email]"],
+                        "params.logging": "info",
+                        "storage.name": "somenamevalue",
+                        "storage.expires": "60"
+                    }
+                };
+                var updatedPartners = CONFIG.updatePartnerConfig(testIdentityPartners, identityPartners);
+                expect(updatedPartners).to.be.deep.equal(expectedResult);
+                done();
+            });
+
+            it('should return test partner along with control with updated values when there are common partners in control and test', function(done) {
+                testIdentityPartners = {
+                    pubCommonId:{  "storage.name": "_testPubCommonId",},
+                    identityLink:{},
+                    criteo: {
+                        name: "criteo",
+                    },
+                    unifiedId: {
+                        name: "unifiedId",
+                        "params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+                        "storage.type": "cookie",
+                        "storage.name": "_myUnifiedId",
+                        "storage.expires": "1825"
+                    }
+                };
+                var expectedResult = {
+                    criteo: {
+                        name: "criteo",
+                    },
+                    unifiedId: {
+                        name: "unifiedId",
+                        "params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+                        "storage.type": "cookie",
+                        "storage.name": "_myUnifiedId",
+                        "storage.expires": "1825"
+                    }, 
+                    pubCommonId: {
+                        name: "pubCommonId",
+                        "storage.type": "cookie",
+                        "storage.name": "_testPubCommonId",
+                        "storage.expires": "1825"
+                    },
+                    identityLink: {
+                        name: "identityLink",
+                        "params.pid": "23",
+                        "storage.type": "cookie",
+                        "params.loadAts": "true", // or false// boolean default is false,
+                        "params.placementID": "23",
+                        "params.storageType": "localstorage",
+                        "params.detectionType": "scrapeAndUrl",
+                        "params.urlParameter": "eparam",
+                        "params.cssSelectors": ["input[type=text]", "input[type=email]"],
+                        "params.logging": "info",
+                        "storage.name": "somenamevalue",
+                        "storage.expires": "60"
+                    }
+                };
+                var updatedPartners = CONFIG.updatePartnerConfig(testIdentityPartners,identityPartners);
+                console.log("Updated Partners are ", JSON.stringify(updatedPartners));  
+                expect(updatedPartners).to.be.deep.equal(expectedResult);
+                done();
+            });
+
+            it('should return control object if test config is not present but test is enabled',function(done){
+                testIdentityPartners = {};
+                var updatedPartners = CONFIG.updatePartnerConfig(testIdentityPartners, identityPartners);
+                expect(updatedPartners).to.be.deep.equal(identityPartners);
+                done();
+            }); 
+        });
+    });
+
+    
+    describe("#getMergedConfig",function(){
+        var toObject,fromObject;
+        beforeEach(function(done){
+            toObject = {
+                rev_share: "20"
+            }
+            fromObject = {
+                rev_share: "0.0",
+                throttle: "100",
+                kgp: "_DIV_",
+                klm: {
+                    "Div_1": {
+                        placementId: "8801674",
+                        "video.mimes": "",
+                        "video.minduration": ""
+                    },
+                    "Div-2": {
+                        placementId: "8801685"
+                    }
+                }
+            }
+            done();
+        });
+
+        afterEach(function(done){
+            toObject = null;
+            fromObject = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            CONFIG.getMergedConfig.should.be.a('function');
+            done();
+        });
+
+        it('should copy all properties fromObject into toObject for common objects',function(done){
+            var expectedResult = {
+                rev_share: "20",
+                throttle: "100",
+                kgp: "_DIV_",
+                klm: {
+                    "Div_1": {
+                        placementId: "8801674",
+                        "video.mimes": "",
+                        "video.minduration": ""
+                    },
+                    "Div-2": {
+                        placementId: "8801685"
+                    }
+                }
+            }
+            var output = CONFIG.getMergedConfig(toObject, fromObject);
+            expect(output).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return all properties of fromObject if there is no common props in to and from',function(done){
+            toObject = {};
+            var expectedResult = {
+                rev_share: "0.0",
+                throttle: "100",
+                kgp: "_DIV_",
+                klm: {
+                    "Div_1": {
+                        placementId: "8801674",
+                        "video.mimes": "",
+                        "video.minduration": ""
+                    },
+                    "Div-2": {
+                        placementId: "8801685"
+                    }
+                }
+            }
+            var output = CONFIG.getMergedConfig(toObject, fromObject);
+            expect(output).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return all properties of fromObject if there is no common props in to and from',function(done){
+            toObject = {};
+            var expectedResult = {
+                rev_share: "0.0",
+                throttle: "100",
+                kgp: "_DIV_",
+                klm: {
+                    "Div_1": {
+                        placementId: "8801674",
+                        "video.mimes": "",
+                        "video.minduration": ""
+                    },
+                    "Div-2": {
+                        placementId: "8801685"
+                    }
+                }
+            }
+            var output = CONFIG.getMergedConfig(toObject, fromObject);
+            expect(output).to.be.deep.equal(expectedResult);
+            done();
+        });
+    })
+
     describe('#getPriceGranularity',function(){
         beforeEach(function(done){
             CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY]  = "high";
@@ -1244,7 +1980,7 @@ describe('Config', function() {
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] ;
             done();
         })
-        
+
         it('is a function', function(done) {
             CONFIG.getPriceGranularity.should.be.a('function');
             done();
@@ -1273,7 +2009,7 @@ describe('Config', function() {
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.GRANULARITY_MULTIPLIER];
             done();
         })
-        
+
         it('is a function', function(done) {
             CONFIG.getGranularityMultiplier.should.be.a('function');
             done();
@@ -1291,5 +2027,4 @@ describe('Config', function() {
             done();
         });
     });
-    
 });

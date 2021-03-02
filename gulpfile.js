@@ -230,7 +230,8 @@ gulp.task('bundle-pb-keys', function(){
                         "FORMAT": "hb_format",
                         "UUID": "hb_uuid",
                         "CACHE_ID": "hb_cache_id",
-                        "CACHE_HOST": "hb_cache_host"
+                        "CACHE_HOST": "hb_cache_host",
+                        "ADOMAIN" : "hb_adomain"
                 }
           }
         ]
@@ -256,7 +257,8 @@ gulp.task('bundle-pwt-keys', function(){
                 "FORMAT": "pwtplt",
                 "UUID": "pwtuuid",
                 "CACHE_ID": "pwtcid",
-                "CACHE_HOST": "pwtcurl"
+                "CACHE_HOST": "pwtcurl",
+                "ADOMAIN" : "pwtadomain"
             }
           }
         ]

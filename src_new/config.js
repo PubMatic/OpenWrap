@@ -249,12 +249,30 @@ exports.getPriceGranularity = function(){
 exports.getGranularityMultiplier = function(){
 	return parseFloat(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.GRANULARITY_MULTIPLIER]) || 1;
 };
+exports.isAbTestEnabled = function () {
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED]) === 1;
+};
+
+exports.getTestPWTConfig = function () {
+	return config[CONSTANTS.COMMON.TEST_PWT] || {};
+};
+
+exports.getTestGroupDetails = function () {
+	return config[CONSTANTS.COMMON.TEST_GROUP_DETAILS] || {};
+};
+
+exports.getTestPartnerConfig = function () {
+	return config[CONSTANTS.COMMON.TEST_PARTNER] || {};
+};
+
 exports.updateABTestConfig = function () {
 	if (refThis.isAbTestEnabled()) {
 		var randomNumberBelow100 = util.getRandomNumberBelow100();
 		var testGroupDetails = refThis.getTestGroupDetails();
+		// if Random number is smaller than the test group size then test config will be applied 
 		if (testGroupDetails && testGroupDetails.testGroupSize && randomNumberBelow100 < testGroupDetails.testGroupSize) {
 			refThis.updatePWTConfig();
+			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters);			
 		}
 	}
 };
@@ -268,18 +286,45 @@ exports.updatePWTConfig = function () {
 				config[CONSTANTS.CONFIG.COMMON][key] = testConfig[key];
 			}
 		}
+		//TODO: Uncomment Below code after updating phatomjs or using chrome headless 
+		// Object.assign(config[CONSTANTS.CONFIG.COMMON], testConfig);
 		window.PWT.testGroupId = 1;
 	}
 };
 
-exports.isAbTestEnabled = function () {
-	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED]) === 1;
-};
-
-exports.getTestPWTConfig = function () {
-	return config[CONSTANTS.COMMON.TEST_PWT] || {};
+exports.updatePartnerConfig = function (testConfig, controlConfig) {
+	if (testConfig && Object.keys(testConfig).length > 0) {
+		util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(testConfig));
+		for (var key in testConfig) {
+			if (util.isOwnProperty(testConfig, key) && util.isObject(testConfig[key])) {
+				if (Object.keys(testConfig[key]).length == 0 && controlConfig[key] && Object.keys(controlConfig[key]).length > 0) {
+					testConfig[key] = controlConfig[key];
+				} else if (Object.keys(testConfig[key]).length > 0 && controlConfig[key] && Object.keys(controlConfig[key]).length > 0) {
+					testConfig[key] = refThis.getMergedConfig(testConfig[key], controlConfig[key]);
+				}
+			}
+		}
+		window.PWT.testGroupId = 1;
+		return testConfig;
+	} else{
+		// since only test type can be enabled test config will be empty if other test config is enabled and hence return control config
+		return controlConfig;
+	}
 };
 
 exports.getTestGroupDetails = function () {
 	return config[CONSTANTS.COMMON.TEST_GROUP_DETAILS] || {};
+};
+// This will keep toObject config as is and only merge objects common in both from and toobject 
+exports.getMergedConfig = function(toObject, fromObject){
+	for(var key in fromObject){
+		if(!toObject[key]) {
+			if(util.isObject(fromObject[key]) || util.isArray(fromObject[key])) {
+				toObject[key] = JSON.parse(JSON.stringify(fromObject[key]));
+			}else{
+				toObject[key] = fromObject[key];
+			}
+		}
+	}
+	return toObject;
 };
