@@ -856,6 +856,12 @@ function setPrebidConfig(){
 			prebidConfig["priceGranularity"] = CONFIG.getPriceGranularity();
 		}
 
+		if(isPrebidPubMaticAnalyticsEnabled === true){
+			prebidConfig['instreamTracking'] = {
+				enabled: true
+			}
+		}
+
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
