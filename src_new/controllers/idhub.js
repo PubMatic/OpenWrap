@@ -6,28 +6,30 @@ var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
 
 refThis.setConfig = function(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
-		var prebidConfig = {
-			debug: util.isDebugLogEnabled(),
-			userSync: {
-				syncDelay: 2000
-			}
-		};
-
-		if (CONFIG.getGdpr()) {
-			prebidConfig["consentManagement"] = {
-				cmpApi: CONFIG.getCmpApi(),
-				timeout: CONFIG.getGdprTimeout(),
-				allowAuctionWithoutConsent: CONFIG.getAwc()
+		if(CONFIG.isIdentityOnly()) {
+			var prebidConfig = {
+				debug: util.isDebugLogEnabled(),
+				userSync: {
+					syncDelay: 2000
+				}
 			};
-		}
 
-		if(CONFIG.isUserIdModuleEnabled()){
-			prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
-		}
+			if (CONFIG.getGdpr()) {
+				prebidConfig["consentManagement"] = {
+					cmpApi: CONFIG.getCmpApi(),
+					timeout: CONFIG.getGdprTimeout(),
+					allowAuctionWithoutConsent: CONFIG.getAwc()
+				};
+			}
+
+			if(CONFIG.isUserIdModuleEnabled()){
+				prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+			}
 		
-		// Adding a hook for publishers to modify the Prebid Config we have generated
-		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
-		window[pbNameSpace].setConfig(prebidConfig);
+			// Adding a hook for publishers to modify the Prebid Config we have generated
+			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+			window[pbNameSpace].setConfig(prebidConfig);
+		}
 		window[pbNameSpace].requestBids([]);
 	}
 };
@@ -41,7 +43,7 @@ exports.initIdHub = function(win){
 			if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE]) && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE].que)){
 				win[CONFIG.PBJS_NAMESPACE].que.unshift(function(){
 					var vdetails = win[CONFIG.PBJS_NAMESPACE].version.split("."); 
-					if(vdetails.length===3 && (+vdetails[0].split("v")[1] > 3 || (vdetails[0].includes("v3") && +vdetails[1] >= 3))){
+					if(vdetails.length===3 && (+vdetails[0].split("v")[1] > 3 || (vdetails[0] === "v3" && +vdetails[1] >= 3))){
 						util.log("Adding On Event " + win[CONFIG.PBJS_NAMESPACE] + ".addAddUnits()");						
 						win[CONFIG.PBJS_NAMESPACE].onEvent("addAdUnits", function () {
 							util.updateAdUnits(win[CONFIG.PBJS_NAMESPACE]["adUnits"]);

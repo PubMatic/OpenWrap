@@ -166,6 +166,11 @@ exports.updateSlotsMapFromGoogleSlots = updateSlotsMapFromGoogleSlots;
 
 //todo: pass slotsMap in every function that uses it
 function getStatusOfSlotForDivId(divID) { // TDD, i/o : done
+    if (typeof divID == "object" && typeof(divID.getSlotId) == "function") {
+        if(typeof(divID.getSlotId().getDomId) == "function"){
+            divID  = divID.getSlotId().getDomId();
+        }
+    }
     /* istanbul ignore else */
     if (util.isOwnProperty(refThis.slotsMap, divID)) {
         return refThis.slotsMap[divID].getStatus();
@@ -297,7 +302,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
-        if (!CONFIG.getSendAllBidsStatus() && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
+        if (!CONFIG.getSendAllBidsStatus() && winningBid && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
 			delete keyValuePairs[key];
 		}
         /* istanbul ignore else*/
