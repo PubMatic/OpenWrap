@@ -375,6 +375,11 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			;
 
 		if(keyLookupMap == null){
+			// This block executes for pubmatic only where there are no KLM's 
+			// Adding this check for pubmatic only to send the correct tagId for Size Level mapping. UOE-6156
+			if(videoSlotName && videoSlotName.length == 1){
+				generatedKey = videoSlotName[0];
+			}
 			callHandlerFunction = true;
 		}else{
 			if(isRegexMapping){ 
@@ -388,6 +393,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				}
 			}
 			else{
+				// Added Below Check Because of UOE-5600
 				if(videoSlotName && videoSlotName.length == 1){
 					keyConfig = keyLookupMap[videoSlotName[0]];
 					// We are updating the generatedKey because we want to log kgpv as 0x0 in case of video 
@@ -1616,14 +1622,17 @@ exports.getUpdatedKGPVForVideo = function(kgpv, adFormat){
 	if(adFormat == CONSTANTS.FORMAT_VALUES.VIDEO){
 		var videoKgpv = ["","0x0"];
 		var splitKgpv = kgpv.split("@");
-		if(splitKgpv.length == 2){
-			if(splitKgpv[1].indexOf(":") > -1){
-				var kgpvIndex = splitKgpv[1].split(":");
-				videoKgpv[1] = videoKgpv[1] + ":" + kgpvIndex[1];
+		// Adding this check for Div Mapping Only
+		if(splitKgpv.length>1){
+			if(splitKgpv.length == 2){
+				if(splitKgpv[1].indexOf(":") > -1){
+					var kgpvIndex = splitKgpv[1].split(":");
+					videoKgpv[1] = videoKgpv[1] + ":" + kgpvIndex[1];
+				}
+				videoKgpv[0] = splitKgpv[0];
 			}
-			videoKgpv[0] = splitKgpv[0];
+			kgpv = videoKgpv.join("@");
 		}
-		kgpv = videoKgpv.join("@");
 	}
 	return kgpv;
 };
