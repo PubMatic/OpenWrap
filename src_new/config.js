@@ -242,6 +242,13 @@ exports.isUsePrebidKeysEnabled = function () {
 
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";
 
+exports.getPriceGranularity = function(){
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
+};
+
+exports.getGranularityMultiplier = function(){
+	return parseFloat(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.GRANULARITY_MULTIPLIER]) || 1;
+};
 exports.isAbTestEnabled = function () {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED]) === 1;
 };
@@ -305,6 +312,9 @@ exports.updatePartnerConfig = function (testConfig, controlConfig) {
 	}
 };
 
+exports.getTestGroupDetails = function () {
+	return config[CONSTANTS.COMMON.TEST_GROUP_DETAILS] || {};
+};
 // This will keep toObject config as is and only merge objects common in both from and toobject 
 exports.getMergedConfig = function(toObject, fromObject){
 	for(var key in fromObject){

@@ -1968,6 +1968,63 @@ describe('Config', function() {
             expect(output).to.be.deep.equal(expectedResult);
             done();
         });
-
     })
+
+    describe('#getPriceGranularity',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY]  = "high";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] ;
+            done();
+        })
+
+        it('is a function', function(done) {
+            CONFIG.getPriceGranularity.should.be.a('function');
+            done();
+        });
+
+        it('should return high by reading from config', function(done) {
+            var expectedResult = "high"
+            expect(CONFIG.getPriceGranularity()).to.equal(expectedResult);
+            done();
+        });
+
+        it('should return null if priceGranularity is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY];
+            expect(CONFIG.getPriceGranularity()).to.equal(null);
+            done();
+        });
+    });
+
+    describe('#getGranularityMultiplier',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.GRANULARITY_MULTIPLIER] = "1.1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.GRANULARITY_MULTIPLIER];
+            done();
+        })
+
+        it('is a function', function(done) {
+            CONFIG.getGranularityMultiplier.should.be.a('function');
+            done();
+        });
+
+        it('should return 1.1 by reading from config', function(done) {
+            var expectedResult = 1.1;
+            CONFIG.getGranularityMultiplier().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return 1 if isSchainExnabled is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.GRANULARITY_MULTIPLIER];
+            expect(CONFIG.getGranularityMultiplier()).to.equal(1);
+            done();
+        });
+    });
 });

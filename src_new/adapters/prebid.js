@@ -750,7 +750,7 @@ function assignCurrencyConfigIfRequired(prebidConfig){
 		util.log(CONSTANTS.MESSAGES.M26 + CONFIG.getAdServerCurrency());
 		prebidConfig["currency"] = {
 			"adServerCurrency": CONFIG.getAdServerCurrency(), 
-			"granularityMultiplier": 1, 
+			"granularityMultiplier": CONFIG.getGranularityMultiplier(), 
 		};
 	}
 }
@@ -852,6 +852,9 @@ function setPrebidConfig(){
 			},
 			testGroupId: parseInt(window.PWT.testGroupId || 0)
 		};
+		if(CONFIG.getPriceGranularity()){
+			prebidConfig["priceGranularity"] = CONFIG.getPriceGranularity();
+		}
 
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
