@@ -39,6 +39,8 @@ exports.COMMON = {
 	"PBJS_NAMESPACE": "prebidObjName",
 	"TEST_GROUP_DETAILS": "testConfigDetails",
 	"TEST_PWT": "test_pwt",
+	"PRICE_GRANULARITY" : "priceGranularity",
+	"GRANULARITY_MULTIPLIER" : "granularityMultiplier",
 	"TEST_PARTNER": "test_adapters"
 };
 
@@ -143,7 +145,8 @@ exports.IGNORE_PREBID_KEYS = {
 	"hb_deal": 1,
 	"hb_uuid": 1,
 	"hb_cache_host": 1,
-	"hb_cache_id": 1
+	"hb_cache_id": 1,
+	"hb_adomain": 1
 };
 
 //todo: mention all params here and use accordigly
