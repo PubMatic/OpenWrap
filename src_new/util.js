@@ -1370,6 +1370,7 @@ exports.getNestedObjectFromString = function(sourceObject,separator, key, value)
 
 exports.getUserIdParams = function(params){
 	var userIdParams= {};
+	refThis.applyDataTypeChangesIfApplicable(params);
 	for(var key in params){
 		try{
 			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
@@ -1455,7 +1456,12 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		bidId = theBid.getBidID()
 	}
 	else{
-		bidId = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].bidID;
+		if(CONFIG.isPrebidPubMaticAnalyticsEnabled() && theBid.adId){
+			bidId = theBid.adId;
+		}
+		else{
+			bidId = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].bidID;
+		}
 	}
 	if(refThis.isFunction(theBid.getKGPV)) {
 		kgpv = theBid.getKGPV()
@@ -1655,3 +1661,22 @@ exports.loadRenderer = function(){
     	setTimeout(addRenderer, 100);
   	}); 
 };
+exports.applyDataTypeChangesIfApplicable = function(params) {
+	var value;
+	for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
+		for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
+			switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
+				case 'number':
+					if(params[key] && typeof params[key] !== 'number') {
+						value = parseInt(params[key])
+						isNaN(value) ?
+							refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
+							params[key] = value;
+					}
+					break;
+				default:
+					return;
+			}
+		}
+	}
+}
