@@ -102,16 +102,16 @@ if (task == CREATIVE_TASK) {
 			shell.exit(1);
 		}
 
-		if(config.isUsePrebidKeysEnabled() === false && config.isPrebidPubMaticAnalyticsEnabled() === true){
-			console.log("We need to use PWT keys, so changing targeting keys in PrebidJS config");
-			prebidTaskName = "build-bundle-prod --modules=modules.json";
-			if(shell.exec("time gulp bundle-pwt-keys").code !== 0) {
+		if(config.isUsePrebidKeysEnabled() === true && config.isPrebidPubMaticAnalyticsEnabled() === true){
+			console.log("We need to use Prebid keys, so changing targeting keys in PrebidJS config");
+			if(shell.exec("time gulp bundle-pb-keys").code !== 0) {
 				shell.echo('Error: Changing PrebidJS targeting keys failed');
 			  	shell.exit(1);
 			}
 		} else {
-			console.log("We need to use Prebid keys, so changing targeting keys in PrebidJS config");
-			if(shell.exec("time gulp bundle-pb-keys").code !== 0) {
+			console.log("We need to use PWT keys, so changing targeting keys in PrebidJS config");
+			prebidTaskName = "build-bundle-prod --modules=modules.json";
+			if(shell.exec("time gulp bundle-pwt-keys").code !== 0) {
 				shell.echo('Error: Changing PrebidJS targeting keys failed');
 			  	shell.exit(1);
 			}		
