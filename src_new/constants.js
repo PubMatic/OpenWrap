@@ -39,6 +39,8 @@ exports.COMMON = {
 	"PBJS_NAMESPACE": "prebidObjName",
 	"TEST_GROUP_DETAILS": "testConfigDetails",
 	"TEST_PWT": "test_pwt",
+	"PRICE_GRANULARITY" : "priceGranularity",
+	"GRANULARITY_MULTIPLIER" : "granularityMultiplier",
 	"TEST_PARTNER": "test_adapters"
 };
 
