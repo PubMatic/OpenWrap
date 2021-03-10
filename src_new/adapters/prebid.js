@@ -750,7 +750,7 @@ function assignCurrencyConfigIfRequired(prebidConfig){
 		util.log(CONSTANTS.MESSAGES.M26 + CONFIG.getAdServerCurrency());
 		prebidConfig["currency"] = {
 			"adServerCurrency": CONFIG.getAdServerCurrency(), 
-			"granularityMultiplier": 1, 
+			"granularityMultiplier": CONFIG.getGranularityMultiplier(), 
 		};
 	}
 }
@@ -850,8 +850,17 @@ function setPrebidConfig(){
 			targetingControls: {
 				alwaysIncludeDeals: true
 			},
-			testGroupId: parseInt(PWT.testGroupId || 0)
+			testGroupId: parseInt(window.PWT.testGroupId || 0)
 		};
+		if(CONFIG.getPriceGranularity()){
+			prebidConfig["priceGranularity"] = CONFIG.getPriceGranularity();
+		}
+
+		if(isPrebidPubMaticAnalyticsEnabled === true){
+			prebidConfig['instreamTracking'] = {
+				enabled: true
+			}
+		}
 
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
@@ -1050,6 +1059,7 @@ function initPbjsConfig(){
 		return;
 	}
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
+	timeoutForPrebid = CONFIG.getTimeout() - 50;
 	refThis.setPrebidConfig();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
 	refThis.setPbjsBidderSettingsIfRequired();
