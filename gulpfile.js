@@ -3,10 +3,8 @@ console.time("Loading plugins");
 var argv = require('yargs').argv;
 var gulp = require('gulp');
 var concat = require('gulp-concat');
-var replace = require('gulp-replace-task');
-var config = require("./src_new/config.js");
-
-// var replace = require('gulp-replace');
+//var replace = require('gulp-replace-task');
+ var replace = require('gulp-replace');
 // var insert = require('gulp-insert');
 // var uglify = require('gulp-uglify');
 // var jshint = require('gulp-jshint');

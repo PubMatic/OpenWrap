@@ -1061,6 +1061,7 @@ function initPbjsConfig(){
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
 	timeoutForPrebid = CONFIG.getTimeout() - 50;
 	refThis.setPrebidConfig();
+	// refThis.setBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
 	refThis.setPbjsBidderSettingsIfRequired();
 }
