@@ -11,19 +11,28 @@ exports.pwt = {
 	cmpApi: "iab",
 	gdprTimeout: "10000",
 	awc: "1",
-	disableAjaxTimeout:true,
+	disableAjaxTimeout: true,
 	adServerCurrency: "INR",
 	singleImpression: "1",
-	identityEnabled:"0",
-	identityConsumers:"EB,TAM,Prebid",
-	identityOnly:"0",
+	identityEnabled: "0",
+	identityConsumers: "EB,TAM,Prebid",
+	identityOnly: "0",
 	ccpa: "0",
 	ccpaCmpApi: "iab",
-	ccpaTimeout: "10000"
+	ccpaTimeout: "10000",
+	abTestEnabled:"0"
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
 
+//below is the config for test purpose only
+exports.testConfigDetails = {
+	"testGroupSize": 99
+};
+//below is the config for test purpose only
+exports.test_pwt = {
+	"t": 5000
+};
 exports.adapters = {
 	pubmatic: {
 		rev_share: "0.0",
@@ -64,8 +73,8 @@ exports.adapters = {
 		klm: {
 			"Div_1": {
 				placementId: "8801674",
-				"video.mimes":"",
-				"video.minduration":""
+				"video.mimes": "",
+				"video.minduration": ""
 			},
 			"Div-2": {
 				placementId: "8801685"
@@ -112,65 +121,36 @@ exports.adapters = {
 	}
 };
 
-exports.nativeConfig = {
-	kgp:"_DIV_",
-	klm:{
-		"DIV1":{
-			"nativeOnly": true,
-			config: {
-				image: {
-					required: true,
-					sizes: [150, 50]
-				},
-				title: {
-					required: true,
-					len: 80
-				},
-				sponsoredBy: {
-					required: true
-				},
-				body: {
-					required: true
-				}
-			}
-		},
-		"DIV2":{
-			"nativeOnly": true,
-			config: {
-				image: {
-					required: true,
-					sizes: [150, 50]
-				},
-				title: {
-					required: true,
-					len: 80
-				},
-				sponsoredBy: {
-					required: true
-				},
-				body: {
-					required: true
-				}
-			}
-		}
-	}
-};
-
 exports.identityPartners = {
 	pubCommonId: {
 		name: "pubCommonId",
 		"storage.type": "cookie",
-		"storage.name": "_pubCommonId",
+		"storage.name": "_myPubCommonId",
 		"storage.expires": "1825"
 	},
-	digitrust: {
-		"name":"digitrust",
-		"params.init.member": "nQjyizbdyF",
-		"params.init.site":"FL6whbX1IW",
-		"redirects": "true",
+	identityLink: {
+		name: "identityLink",
+		"params.pid": "23",
 		"storage.type": "cookie",
+		"params.loadAts": "true", // or false// boolean default is false,
+		"params.placementID": "23",
+		"params.storageType": "localstorage",
+		"params.detectionType": "scrapeAndUrl",
+		"params.urlParameter": "eparam",
+		"params.cssSelectors": ["input[type=text]", "input[type=email]"],
+		"params.logging": "info",
 		"storage.name": "somenamevalue",
-		"storage.expires":"60"
+		"storage.expires": "60"
+	},
+	criteo: {
+		name: "criteo",
+	},
+	unifiedId: {
+		name: "unifiedId",
+		"params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+		"storage.type": "cookie",
+		"storage.name": "_myUnifiedId",
+		"storage.expires": "1825"
 	}
 };
 
@@ -213,7 +193,7 @@ exports.slotConfig = {
 			"video": {
 				"enabled": true,
 				"config": {
-					"context":"instream",
+					"context": "instream",
 					"connectiontype": [1, 2, 6],
 					"minduration": 10,
 					"maxduration": 50,
@@ -225,13 +205,13 @@ exports.slotConfig = {
 					"skipmin": 10,
 					"skipafter": 15
 				},
-				"partnerConfig":{
+				"partnerConfig": {
 					"pubmatic": {
-						"outstreamAU":"pubmatic-test"
+						"outstreamAU": "pubmatic-test"
 					}
 				}
 			},
-		
+
 		},
 		"AU2": {
 			"banner": {}
