@@ -3529,4 +3529,85 @@ describe('UTIL', function() {
             done();
         })
     })
+  
+   describe('#applyDataTypeChangesIfApplicable', function() {
+        var params;
+        beforeEach(function(done) {
+            params = {"name": "intentIqId","params.partner":"123","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+            done();
+        });
+
+        afterEach(function(done) {
+            params = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.applyDataTypeChangesIfApplicable.should.be.a('function');
+            done();
+        });
+
+        it('should update the param value with correct datatype',function(done){
+            var expectedResult = {"name": "intentIqId","params.partner":123,"storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+            UTIL.applyDataTypeChangesIfApplicable(params);
+            params.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should keep the param value unchanged and print a log message if datatype conversion is not possible',function(done){
+            params = {"name": "intentIqId","params.partner":"abc","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+            var expectedResult = {"name": "intentIqId","params.partner":"abc","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+
+            UTIL.applyDataTypeChangesIfApplicable(params);
+            params.should.deep.equal(expectedResult);
+            UTIL.logError.should.be.calledOnce;
+
+            done();
+        });
+    });  
+
+
+      
+   describe('#getUpdatedKGPVForVideo', function() {
+    var kgpv, adFormat;
+        beforeEach(function(done) {
+            kgpv = "Div1@728x90";
+            adFormat = "video"
+            done();
+        });
+
+        afterEach(function(done) {
+            params = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.getUpdatedKGPVForVideo.should.be.a('function');
+            done();
+        });
+
+        it('should update the kgpv value with 0x0 for video',function(done){
+            var expectedResult = "Div1@0x0"
+            UTIL.getUpdatedKGPVForVideo(kgpv, adFormat).should.deep.equal(expectedResult);
+            done();
+        });
+        
+
+        it('should not update kgpv if adformat is not video',function(done){
+            adFormat = "banner";
+            var expectedResult = "Div1@728x90";
+            UTIL.getUpdatedKGPVForVideo(kgpv, adFormat).should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not update kgpv if adformat is video and kgpv is Div',function(done){
+            adFormat = "video";
+            kgpv = "Div1";
+            var expectedResult = "Div1";
+            UTIL.getUpdatedKGPVForVideo(kgpv, adFormat).should.deep.equal(expectedResult);
+            done();
+        });
+    });  
+    
+  
 });

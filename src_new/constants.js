@@ -39,7 +39,11 @@ exports.COMMON = {
 	"PBJS_NAMESPACE": "prebidObjName",
 	"TEST_GROUP_DETAILS": "testConfigDetails",
 	"TEST_PWT": "test_pwt",
-	"TEST_PARTNER": "adapters_test"
+	"PRICE_GRANULARITY" : "priceGranularity",
+	"GRANULARITY_MULTIPLIER" : "granularityMultiplier",
+	"TEST_PARTNER": "test_adapters",
+	"TEST_IDENTITY_PARTNER": "test_identityPartners"
+
 };
 
 exports.CONFIG = {
@@ -143,7 +147,8 @@ exports.IGNORE_PREBID_KEYS = {
 	"hb_deal": 1,
 	"hb_uuid": 1,
 	"hb_cache_host": 1,
-	"hb_cache_id": 1
+	"hb_cache_id": 1,
+	"hb_adomain": 1
 };
 
 //todo: mention all params here and use accordigly
@@ -231,3 +236,12 @@ exports.AD_SERVER = {
 	"DFP": "DFP",
 	"CUSTOM": "CUSTOM"
 };
+
+exports.SPECIAL_CASE_ID_PARTNERS = {
+	"intentIqId": {
+		"params.partner": "number"
+	},
+	"sharedId": {
+		"params.syncTime": "number"
+	}
+}; //list of ID partners for whom special handling of datatype is required

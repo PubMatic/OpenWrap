@@ -29,7 +29,12 @@ module.exports = {
                     {
                       pattern: /%%PATH_TO_CONTROLLER%%/g,
                       replacement: function (match, p1, offset, string) {
-                        return controllerPaths[conf.pwt.adserver || "DFP"];
+			if (conf.pwt.identityOnly == "1") {
+				console.log("Returning controller path as -> IDHUB");
+				return controllerPaths["IDHUB"];
+			}
+                        console.log("Returning controller path as -> "+conf.pwt.adserver);
+                        return controllerPaths[conf.pwt.adserver || 'DFP']
                       }
                     }
                   ]
