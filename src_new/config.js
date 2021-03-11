@@ -298,7 +298,7 @@ exports.updatePWTConfig = function () {
 };
 
 exports.updatePartnerConfig = function (testConfig, controlConfig) {
-	if (testConfig && Object.keys(testConfig).length > 0 && Object.keys(controlConfig).length > 0) {
+	if (testConfig && controlConfig && Object.keys(testConfig).length > 0 && Object.keys(controlConfig).length > 0) {
 		util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(testConfig));
 		for (var key in testConfig) {
 			if (util.isOwnProperty(testConfig, key) && util.isObject(testConfig[key])) {
