@@ -1112,9 +1112,8 @@ function fetchBids(activeSlots){
 					// we do not want this call when we have PrebidAnalytics enabled
 					refThis.addOnBidResponseHandler();	
 				}
-
+				window[pbNameSpace].addAdUnits(adUnitsArray);
 				window[pbNameSpace].requestBids({
-					adUnits: adUnitsArray,
 					bidsBackHandler: function(bidResponses){
 						refThis.pbjsBidsBackHandler(bidResponses, activeSlots);
 					},
