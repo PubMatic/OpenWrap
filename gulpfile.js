@@ -289,8 +289,7 @@ gulp.task('bundle-pwt-keys', function(){
                 "FORMAT": "pwtplt",
                 "UUID": "pwtuuid",
                 "CACHE_ID": "pwtcid",
-                "CACHE_HOST": "pwtcurl",
-                "ADOMAIN" : "pwtadomain"
+                "CACHE_HOST": "pwtcurl"
             }
           }
         ]
