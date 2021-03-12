@@ -728,7 +728,7 @@ exports.createInvisibleIframe = function() {
 	f.style.border = '0';
 	f.scrolling = 'no';
 	f.frameBorder = '0';
-	f.src = 'about:self';//todo: test by setting empty src on safari
+	//f.src = 'about:self';//todo: test by setting empty src on safari
 	f.style = 'display:none';
 	return f;
 }
