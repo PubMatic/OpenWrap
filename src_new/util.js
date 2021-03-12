@@ -728,7 +728,7 @@ exports.createInvisibleIframe = function() {
 	f.style.border = '0';
 	f.scrolling = 'no';
 	f.frameBorder = '0';
-	f.src = 'about:self';//todo: test by setting empty src on safari
+	//f.src = 'about:self';//todo: test by setting empty src on safari
 	f.style = 'display:none';
 	return f;
 }
@@ -816,7 +816,17 @@ exports.safeFrameCommunicationProtocol = function(msg){
 								throw {message: 'Unable to access frame window.', name:""};
 							}
 
-							var iframeDoc = iframe.contentWindow.document;
+							// UOE-6208: 
+							var iframeDoc;
+							try{
+								iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+							}
+							catch(e){
+								console.log("for Safari");
+								iframeDoc = iframe.contentWindow.parent.document;
+							}
+
 							/* istanbul ignore else */
 							if(!iframeDoc){
 								throw {message: 'Unable to access frame window document.', name:""};
