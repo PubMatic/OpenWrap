@@ -816,17 +816,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 								throw {message: 'Unable to access frame window.', name:""};
 							}
 
-							// UOE-6208: 
-							var iframeDoc;
-							try{
-								iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-
-							}
-							catch(e){
-								console.log("for Safari");
-								iframeDoc = iframe.contentWindow.parent.document;
-							}
-
+							var iframeDoc = iframe.contentWindow.document;
 							/* istanbul ignore else */
 							if(!iframeDoc){
 								throw {message: 'Unable to access frame window document.', name:""};
