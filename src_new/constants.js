@@ -243,3 +243,12 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 		"params.syncTime": "number"
 	}
 }; //list of ID partners for whom special handling of datatype is required
+
+exports.ID_PARTNERS_CUSTOM_VALUES = {
+	"parrableId": [
+		{
+			"key": "params.timezoneFilter",
+			"value": {"allowedZones": [ "Pacific/Honolulu"]}
+		}
+	]
+}
