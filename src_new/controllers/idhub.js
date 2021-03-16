@@ -6,28 +6,30 @@ var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
 
 refThis.setConfig = function(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
-		var prebidConfig = {
-			debug: util.isDebugLogEnabled(),
-			userSync: {
-				syncDelay: 2000
-			}
-		};
-
-		if (CONFIG.getGdpr()) {
-			prebidConfig["consentManagement"] = {
-				cmpApi: CONFIG.getCmpApi(),
-				timeout: CONFIG.getGdprTimeout(),
-				allowAuctionWithoutConsent: CONFIG.getAwc()
+		if(CONFIG.isIdentityOnly()) {
+			var prebidConfig = {
+				debug: util.isDebugLogEnabled(),
+				userSync: {
+					syncDelay: 2000
+				}
 			};
-		}
 
-		if(CONFIG.isUserIdModuleEnabled()){
-			prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
-		}
+			if (CONFIG.getGdpr()) {
+				prebidConfig["consentManagement"] = {
+					cmpApi: CONFIG.getCmpApi(),
+					timeout: CONFIG.getGdprTimeout(),
+					allowAuctionWithoutConsent: CONFIG.getAwc()
+				};
+			}
+
+			if(CONFIG.isUserIdModuleEnabled()){
+				prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+			}
 		
-		// Adding a hook for publishers to modify the Prebid Config we have generated
-		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
-		window[pbNameSpace].setConfig(prebidConfig);
+			// Adding a hook for publishers to modify the Prebid Config we have generated
+			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+			window[pbNameSpace].setConfig(prebidConfig);
+		}
 		window[pbNameSpace].requestBids([]);
 	}
 };

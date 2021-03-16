@@ -3565,5 +3565,49 @@ describe('UTIL', function() {
             done();
         });
     });  
+
+
+      
+   describe('#getUpdatedKGPVForVideo', function() {
+    var kgpv, adFormat;
+        beforeEach(function(done) {
+            kgpv = "Div1@728x90";
+            adFormat = "video"
+            done();
+        });
+
+        afterEach(function(done) {
+            params = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.getUpdatedKGPVForVideo.should.be.a('function');
+            done();
+        });
+
+        it('should update the kgpv value with 0x0 for video',function(done){
+            var expectedResult = "Div1@0x0"
+            UTIL.getUpdatedKGPVForVideo(kgpv, adFormat).should.deep.equal(expectedResult);
+            done();
+        });
+        
+
+        it('should not update kgpv if adformat is not video',function(done){
+            adFormat = "banner";
+            var expectedResult = "Div1@728x90";
+            UTIL.getUpdatedKGPVForVideo(kgpv, adFormat).should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not update kgpv if adformat is video and kgpv is Div',function(done){
+            adFormat = "video";
+            kgpv = "Div1";
+            var expectedResult = "Div1";
+            UTIL.getUpdatedKGPVForVideo(kgpv, adFormat).should.deep.equal(expectedResult);
+            done();
+        });
+    });  
+    
   
 });
