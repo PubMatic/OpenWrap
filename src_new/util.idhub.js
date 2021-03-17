@@ -1,6 +1,5 @@
-//todo
-//  pageURL refURL protocol related functions
-// forEachOnArray
+/*global Set*/
+
 var CONFIG = require("./config.idhub.js");
 var CONSTANTS = require("./constants.js");
 var debugLogIsEnabled = false;
@@ -48,7 +47,8 @@ exports.isObject = function (object) {
 exports.isOwnProperty = function (theObject, proertyName) {
 	/* istanbul ignore else */
 	if (refThis.isObject(theObject) && theObject.hasOwnProperty) {
-		return theObject.hasOwnProperty(proertyName);
+		// return theObject.hasOwnProperty(proertyName);
+		return Object.prototype.hasOwnProperty.call(theObject, proertyName);
 	}
 	return false;
 };
@@ -138,7 +138,9 @@ exports.getTopFrameOfSameDomain = function (cWin) {
 		if (cWin.parent.document != cWin.document) {
 			return refThis.getTopFrameOfSameDomain(cWin.parent);
 		}
-	} catch (e) {}
+	} catch (e) {
+		// continue regardless of error
+	}
 	return cWin;
 };
 
@@ -157,7 +159,7 @@ exports.getMetaInfo = function (cWin) {
 
 	try {
 		frame = refThis.getTopFrameOfSameDomain(cWin);
-		obj.refURL = (frame.refurl || frame.document.referrer || '').substr(0, MAX_PAGE_URL_LEN);
+		obj.refURL = (frame.refurl || frame.document.referrer || "").substr(0, MAX_PAGE_URL_LEN);
 		obj.pageURL = (frame !== window.top && frame.document.referrer != "" ? frame.document.referrer : frame.location.href).substr(0, MAX_PAGE_URL_LEN);
 
 		obj.protocol = (function (frame) {
@@ -170,7 +172,9 @@ exports.getMetaInfo = function (cWin) {
 			return "https://";
 		})(frame);
 
-	} catch (e) {}
+	} catch (e) {
+		// continue regardless of error
+	}
 
 	obj.pageDomain = refThis.getDomainFromURL(obj.pageURL);
 
@@ -192,18 +196,18 @@ exports.findQueryParamInURL = function (url, name) {
 };
 
 exports.parseQueryParams = function (url) {
-	var parser = refThis.createDocElement(window, 'a');
+	var parser = refThis.createDocElement(window, "a");
 	parser.href = url;
 	var params = {};
 
 	/* istanbul ignore else */
 	if (parser.search) {
-		var queryString = parser.search.replace('?', '');
-		queryString = queryString.split('&');
+		var queryString = parser.search.replace("?", "");
+		queryString = queryString.split("&");
 		refThis.forEachOnArray(queryString, function (index, keyValue) {
-			var keyValue = keyValue.split('=');
-			var key = keyValue[0] || '';
-			var value = keyValue[1] || '';
+			keyValue = keyValue.split("=");
+			var key = keyValue[0] || "";
+			var value = keyValue[1] || "";
 			params[key] = value;
 		});
 	}
@@ -253,7 +257,7 @@ exports.getUserIdParams = function (params) {
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}
-	if (userIdParams && userIdParams.params && userIdParams.params['loadATS'] == 'true') {
+	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
 		refThis.initLiveRampAts(userIdParams);
 	}
 	return userIdParams;
@@ -276,7 +280,7 @@ exports.getDomainFromURL = function (url) {
 exports.handleHook = function (hookName, arrayOfDataToPass) {
 	// Adding a hook for publishers to modify the data we have
 	if (refThis.isFunction(window.PWT[hookName])) {
-		refThis.log('For Hook-name: ' + hookName + ', calling window.PWT.' + hookName + 'function.');
+		refThis.log("For Hook-name: " + hookName + ", calling window.PWT." + hookName + "function.");
 		window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
 	}
 	// else {
@@ -307,7 +311,6 @@ exports.getUserIdsAsEids = function () {
 		refThis.logWarning("getUserIdsAsEids" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	}
 };
-// endRemoveIf(removeUserIdRelatedCode)
 
 exports.getNestedObjectFromArray = function (sourceObject, sourceArray, valueOfLastNode) {
 	var convertedObject = sourceObject;
@@ -335,9 +338,9 @@ exports.getNestedObjectFromString = function (sourceObject, separator, key, valu
 
 exports.initLiveRampAts = function (params) {
 	function addATS() {
-		var atsScript = document.createElement('script');
+		var atsScript = document.createElement("script");
 		if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
-			params.params.cssSelectors = params.params.cssSelectors.split(',');
+			params.params.cssSelectors = params.params.cssSelectors.split(",");
 		}
 		atsScript.onload = function () {
 			window.ats.start({

@@ -27,23 +27,23 @@ describe("CONTROLLER: IDHUB", function() {
 			done();
 		});
 
-		xit("should have called respective internal functions ", function(done) {
-			IDHUB.init(window).should.equal(true);
-			UTIL.isObject.called.should.be.true;
-			UTIL.isObject.returned(true).should.to.be.true;
-			IDHUB.initIdHub.called.should.be.true;
-			done();
-		});
+		// it("should have called respective internal functions ", function(done) {
+		// 	IDHUB.init(window).should.equal(true);
+		// 	UTIL.isObject.called.should.be.true;
+		// 	UTIL.isObject.returned(true).should.to.be.true;
+		// 	IDHUB.initIdHub.called.should.be.true;
+		// 	done();
+		// });
 
-		xit("should not proceed if passed window object is invalid", function (done) {
-			IDHUB.init("NonObject").should.be.false;
-			UTIL.isObject.called.should.be.true;
-			UTIL.isObject.returned(false).should.be.true;
-			UTIL.isObject.calledWith("NonObject").should.be.true;
-			IDHUB.initIdHub.called.should.be.false;
+		// it("should not proceed if passed window object is invalid", function (done) {
+		// 	IDHUB.init("NonObject").should.be.false;
+		// 	UTIL.isObject.called.should.be.true;
+		// 	UTIL.isObject.returned(false).should.be.true;
+		// 	UTIL.isObject.calledWith("NonObject").should.be.true;
+		// 	IDHUB.initIdHub.called.should.be.false;
 	
-			done();
-		});
+		// 	done();
+		// });
 	});
     
 	describe("#initIdHub", function(){

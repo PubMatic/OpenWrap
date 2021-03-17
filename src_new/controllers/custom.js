@@ -7,9 +7,6 @@ var SLOT = require("../slot.js");
 var prebid = require("../adapters/prebid.js");
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var usePrebidKeys = CONFIG.isUsePrebidKeysEnabled();
-// removeIf(removeIdHubOnlyRelatedCode)
-var IdHub = require("../controllers/idhub.js");
-// endRemoveIf(removeIdHubOnlyRelatedCode)
 
 //ToDo: add a functionality / API to remove extra added wrpper keys
 var wrapperTargetingKeys = {}; // key is div id
@@ -25,7 +22,6 @@ exports.slotSizeMapping = slotSizeMapping;
 
 var windowReference = null;
 var refThis = this;
-
 
 function setWindowReference(win) {
 	if (util.isObject(win)) {
@@ -485,10 +481,7 @@ exports.init = function(win) {
 		win.PWT.generateConfForGPT = refThis.generateConfForGPT;
 		win.PWT.addKeyValuePairsToGPTSlots = addKeyValuePairsToGPTSlots;
 		win.PWT.removeKeyValuePairsFromGPTSlots = removeKeyValuePairsFromGPTSlots;
-		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
-		// removeIf(removeIdHubOnlyRelatedCode)
-		IdHub.initIdHub(win);		
-		// endRemoveIf(removeIdHubOnlyRelatedCode)
+		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);		
 		return true;
 	} else {
 		return false;
