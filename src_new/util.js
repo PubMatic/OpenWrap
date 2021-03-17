@@ -728,7 +728,7 @@ exports.createInvisibleIframe = function() {
 	f.style.border = '0';
 	f.scrolling = 'no';
 	f.frameBorder = '0';
-	f.src = 'about:self';//todo: test by setting empty src on safari
+	//f.src = 'about:self';//todo: test by setting empty src on safari
 	f.style = 'display:none';
 	return f;
 }
@@ -1354,6 +1354,7 @@ exports.getNestedObjectFromString = function(sourceObject,separator, key, value)
 exports.getUserIdParams = function(params){
 	var userIdParams= {};
 	refThis.applyDataTypeChangesIfApplicable(params);
+	refThis.applyCustomParamValuesfApplicable(params);
 	for(var key in params){
 		try{
 			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
@@ -1655,6 +1656,16 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 						return;
 				}
 			}
+		}
+	}
+}
+
+exports.applyCustomParamValuesfApplicable = function(params) {
+	if (params.name in CONSTANTS.ID_PARTNERS_CUSTOM_VALUES) {
+		var partnerValues = CONSTANTS.ID_PARTNERS_CUSTOM_VALUES[params.name];
+		var i = 0;
+		for (;i<partnerValues.length;i++) {
+			params[partnerValues[i]["key"]] = partnerValues[i]["value"];
 		}
 	}
 }
