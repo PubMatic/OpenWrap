@@ -283,7 +283,6 @@ gulp.task('bundle-pwt-keys', function(){
                 "AD_ID": "pwtsid",
                 "PRICE_BUCKET": "pwtecp",
                 "SIZE": "pwtsz",
-                "DEAL": "pwtdeal",
                 "DEAL_ID": "pwtdid",
                 "SOURCE": "",
                 "FORMAT": "pwtplt",
