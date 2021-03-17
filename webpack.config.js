@@ -29,7 +29,7 @@ module.exports = {
                     {
                       pattern: /%%PATH_TO_CONTROLLER%%/g,
                       replacement: function (match, p1, offset, string) {
-                        return controllerPaths[conf.pwt.adserver || "DFP"];
+                        return controllerPaths[conf.pwt.adserver || 'DFP']
                       }
                     }
                   ]
