@@ -54,9 +54,9 @@ function getRemoveCodeConfig(){
     var removeCodeConfig = {
         removeAlways: true, // some code that should never be part of the final build
         removeLegacyAnalyticsRelatedCode: (config.isIdentityOnly() === true || config.isPrebidPubMaticAnalyticsEnabled()===true),
-        removeNativeRelatedCode: true,
-        removeInStreamRelatedCode: true,
-        removeOutStreamRelatedCode: true,
+        removeNativeRelatedCode: false, //TODO: Make this flags as true based on conditions of slot config
+        removeInStreamRelatedCode: false,//TODO: Make this flags as true based on conditions of slot config
+        removeOutStreamRelatedCode: false,//TODO: Make this flags as true based on conditions of slot config
         removeUserIdRelatedCode: (config.isUserIdModuleEnabled()===false),
         removeIdHubOnlyRelatedCode: (config.isIdentityOnly()===false)
     };
