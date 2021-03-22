@@ -241,6 +241,9 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 	},
 	"sharedId": {
 		"params.syncTime": "number"
+	},
+	"id5Id": {
+		"params.partner": "number"
 	}
 }; //list of ID partners for whom special handling of datatype is required
 
@@ -251,4 +254,4 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 			"value": {"allowedZones": [ "Pacific/Honolulu"]}
 		}
 	]
-}
+};
