@@ -637,6 +637,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				if (keyConfig["siteID"]) {
 				sltParams["siteId"] = keyConfig["siteID"];
 				}
+				if (keyConfig["id"]) {
+				sltParams["id"] = keyConfig["id"];
+				}
 			sltParams["size"] = size;
 			adUnits [code].bids.push({bidder: adapterID, params: sltParams});
 			});
@@ -1112,9 +1115,9 @@ function fetchBids(activeSlots){
 					// we do not want this call when we have PrebidAnalytics enabled
 					refThis.addOnBidResponseHandler();	
 				}
-
+				window[pbNameSpace].removeAdUnit();
+				window[pbNameSpace].addAdUnits(adUnitsArray);
 				window[pbNameSpace].requestBids({
-					adUnits: adUnitsArray,
 					bidsBackHandler: function(bidResponses){
 						refThis.pbjsBidsBackHandler(bidResponses, activeSlots);
 					},
