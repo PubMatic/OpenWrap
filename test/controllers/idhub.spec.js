@@ -51,6 +51,7 @@ describe("CONTROLLER: IDHUB", function() {
 			sinon.stub(CONFIG,"isUserIdModuleEnabled").returns(false);
 			sinon.stub(CONFIG,"isIdentityOnly").returns(false);
 			sinon.spy(IDHUB,"setConfig");
+			sinon.spy(IDHUB,"initIdHub");
 			done();
 		});
 
@@ -58,6 +59,7 @@ describe("CONTROLLER: IDHUB", function() {
 			CONFIG.isUserIdModuleEnabled.restore();
 			CONFIG.isIdentityOnly.restore();
 			IDHUB.setConfig.restore();
+			IDHUB.initIdHub.restore();
 			done();
 		});
 
@@ -65,7 +67,7 @@ describe("CONTROLLER: IDHUB", function() {
 			CONFIG.isUserIdModuleEnabled.restore();
 			sinon.stub(CONFIG,"isUserIdModuleEnabled").returns(true);
 			IDHUB.init(window);
-			IDHUB.setConfig.called.should.be.true;
+			IDHUB.initIdHub.calledOnce.should.be.true;
 			done();
 		});
 		
