@@ -283,12 +283,14 @@ gulp.task('bundle-pwt-keys', function(){
                 "AD_ID": "pwtsid",
                 "PRICE_BUCKET": "pwtecp",
                 "SIZE": "pwtsz",
+                "DEAL": "pwtdeal",
                 "DEAL_ID": "pwtdid",
                 "SOURCE": "",
                 "FORMAT": "pwtplt",
                 "UUID": "pwtuuid",
                 "CACHE_ID": "pwtcid",
-                "CACHE_HOST": "pwtcurl"
+                "CACHE_HOST": "pwtcurl",
+                "ADOMAIN" : "hb_adomain"
             }
           }
         ]

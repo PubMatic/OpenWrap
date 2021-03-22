@@ -1149,7 +1149,7 @@ function getBid(divID){
 		wb: wb,
 		kvp: window[pbNameSpace].getAdserverTargetingForAdUnitCode([divID]) || null
 	};
-	if(outputObj.kvp['pwtdeal'] ){
+	if(isPrebidPubMaticAnalyticsEnabled && outputObj.kvp['pwtdeal'] ){
 		delete outputObj.kvp['pwtdeal'];// Check for null object && usePrebidAnalyticsAdapter 
 	} 
 	return outputObj;
