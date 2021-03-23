@@ -3,6 +3,10 @@ console.time("Loading plugins");
 var argv = require('yargs').argv;
 var gulp = require('gulp');
 var concat = require('gulp-concat');
+var replace = require('gulp-replace-task');
+var config = require("./src_new/config.js");
+
+// var replace = require('gulp-replace');
 // var insert = require('gulp-insert');
 // var uglify = require('gulp-uglify');
 // var jshint = require('gulp-jshint');
@@ -22,12 +26,12 @@ var eslint = require('gulp-eslint');
 // var stripComments = require('gulp-strip-comments');
 console.timeEnd("Loading plugins");
 var CI_MODE = (argv.mode === 'test-build') ? true : false;
-
+var isIdentityOnly = config.isIdentityOnly();
 console.log("argv ==>", argv);
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
 
-gulp.task('clean', function() {
+gulp.task('clean', ['update-adserver'], function() {
     var clean = require('gulp-clean');
     return gulp.src(['dist/**/*.js', 'build/'], {
             read: false,
@@ -39,6 +43,7 @@ gulp.task('clean', function() {
 
 // What all processing needs to be done ?
 gulp.task('webpack', ['clean'], function() {
+    console.log("Executing webpack");
     var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
     var webpack = require('webpack-stream');
@@ -182,13 +187,86 @@ gulp.task('lint', () => {
     .pipe(eslint.failAfterError());
 });
 
+gulp.task('change-prebid-keys', () => {
+    // Note: we have to execute this only when we have to use PubMatic OW keys
+    // todo: add gulp-json-editor entry in package.json and in backend build job?
+    var prebidConstantsPath = prebidRepoPath + '/src';
+    var jeditor = require("gulp-json-editor");
+    return gulp.src(prebidConstantsPath + '/constants.json')
+        .pipe(jeditor(function(json) {
+            json.TARGETING_KEYS.BIDDER = "pwtpid"; // hb_bidder
+            json.TARGETING_KEYS.AD_ID = "pwtsid"; // hb_adid
+            json.TARGETING_KEYS.PRICE_BUCKET = "pwtecp"; // hb_pb
+            json.TARGETING_KEYS.SIZE = "pwtsz"; // hb_size
+            json.TARGETING_KEYS.DEAL = "pwtdeal"; // hb_deal
+            json.TARGETING_KEYS.SOURCE = ""; // hb_source
+            json.TARGETING_KEYS.FORMAT = "pwtplt"; // hb_format
+            json.TARGETING_KEYS.UUID = ""; // hb_uuids
+            json.TARGETING_KEYS.CACHE_ID = "pwtcid"; // hb_cache_id
+            json.TARGETING_KEYS.CACHE_HOST = ""; // hb_cache_host
+            return json;
+        }))
+        .pipe(gulp.dest(prebidConstantsPath));
+});
 
 // Task to build minified version of owt.js
-gulp.task('bundle', function () {
+gulp.task('bundle', ['update-adserver'], function () {
     console.log("Executing build");
     return gulp.src([prebidRepoPath + '/build/dist/prebid.js', './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
+});
+
+gulp.task('bundle-pb-keys', function(){
+      return gulp.src('./build/owt.min.js')
+      .pipe(replace({
+        patterns: [
+          {
+            match: /"%%TG_KEYS%%"/g,
+            replacement: {
+                        "BIDDER": "hb_bidder",
+                        "AD_ID": "hb_adid",
+                        "PRICE_BUCKET": "hb_pb",
+                        "SIZE": "hb_size",
+                        "DEAL": "hb_deal",
+                        "SOURCE": "hb_source",
+                        "FORMAT": "hb_format",
+                        "UUID": "hb_uuid",
+                        "CACHE_ID": "hb_cache_id",
+                        "CACHE_HOST": "hb_cache_host",
+                        "ADOMAIN" : "hb_adomain"
+                }
+          }
+        ]
+      }))
+      .pipe(gulp.dest('build'));
+});
+
+gulp.task('bundle-pwt-keys', function(){
+      return gulp.src('./build/owt.min.js')
+      .pipe(replace({
+        patterns: [
+          {
+            match: /"%%TG_KEYS%%"/g,
+            replacement: { 
+                "STATUS": "pwtbst",
+                "BIDDER": "pwtpid",
+                "AD_ID": "pwtsid",
+                "PRICE_BUCKET": "pwtecp",
+                "SIZE": "pwtsz",
+                "DEAL": "pwtdeal",
+                "DEAL_ID": "pwtdid",
+                "SOURCE": "",
+                "FORMAT": "pwtplt",
+                "UUID": "pwtuuid",
+                "CACHE_ID": "pwtcid",
+                "CACHE_HOST": "pwtcurl",
+                "ADOMAIN" : "pwtadomain"
+            }
+          }
+        ]
+      }))
+      .pipe(gulp.dest('build'));
 });
 
 // Task to build minified version of owt.js
@@ -214,6 +292,25 @@ gulp.task('bundle-prod',['webpack'], function () {
     return gulp.src([prebidRepoPath + '/build/dist/prebid.js', './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
+});
+
+gulp.task('update-adserver', function(){
+    console.log("In update-adserver isIdentityOnly = " + isIdentityOnly);
+    if (isIdentityOnly) {
+        console.log("Executing update-adserver - START");
+        var result = gulp.src(['./src_new/conf.js'])
+          .pipe(replace({
+            patterns: [
+              {
+                match: /['"]*adserver['"]*:[\s]*['"]*DFP['"]*/,
+                replacement: '"adserver": "IDHUB"'
+              }
+            ]
+          }))
+          .pipe(gulp.dest('./src_new/'));
+        console.log("Executing update-adserver - END");
+        return result;
+    }
 });
 
 gulp.task('build-gpt-prod',[''])
