@@ -375,6 +375,11 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			;
 
 		if(keyLookupMap == null){
+			// This block executes for pubmatic only where there are no KLM's 
+			// Adding this check for pubmatic only to send the correct tagId for Size Level mapping. UOE-6156
+			if(videoSlotName && videoSlotName.length == 1){
+				generatedKey = videoSlotName[0];
+			}
 			callHandlerFunction = true;
 		}else{
 			if(isRegexMapping){ 
@@ -388,6 +393,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				}
 			}
 			else{
+				// Added Below Check Because of UOE-5600
 				if(videoSlotName && videoSlotName.length == 1){
 					keyConfig = keyLookupMap[videoSlotName[0]];
 					// We are updating the generatedKey because we want to log kgpv as 0x0 in case of video 
@@ -722,7 +728,7 @@ exports.createInvisibleIframe = function() {
 	f.style.border = '0';
 	f.scrolling = 'no';
 	f.frameBorder = '0';
-	f.src = 'about:self';//todo: test by setting empty src on safari
+	//f.src = 'about:self';//todo: test by setting empty src on safari
 	f.style = 'display:none';
 	return f;
 }
@@ -1370,6 +1376,8 @@ exports.getNestedObjectFromString = function(sourceObject,separator, key, value)
 
 exports.getUserIdParams = function(params){
 	var userIdParams= {};
+	refThis.applyDataTypeChangesIfApplicable(params);
+	refThis.applyCustomParamValuesfApplicable(params);
 	for(var key in params){
 		try{
 			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
@@ -1455,7 +1463,12 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		bidId = theBid.getBidID()
 	}
 	else{
-		bidId = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].bidID;
+		if(CONFIG.isPrebidPubMaticAnalyticsEnabled() && theBid.adId){
+			bidId = theBid.adId;
+		}
+		else{
+			bidId = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].bidID;
+		}
 	}
 	if(refThis.isFunction(theBid.getKGPV)) {
 		kgpv = theBid.getKGPV()
@@ -1633,14 +1646,17 @@ exports.getUpdatedKGPVForVideo = function(kgpv, adFormat){
 	if(adFormat == CONSTANTS.FORMAT_VALUES.VIDEO){
 		var videoKgpv = ["","0x0"];
 		var splitKgpv = kgpv.split("@");
-		if(splitKgpv.length == 2){
-			if(splitKgpv[1].indexOf(":") > -1){
-				var kgpvIndex = splitKgpv[1].split(":");
-				videoKgpv[1] = videoKgpv[1] + ":" + kgpvIndex[1];
+		// Adding this check for Div Mapping Only
+		if(splitKgpv.length>1){
+			if(splitKgpv.length == 2){
+				if(splitKgpv[1].indexOf(":") > -1){
+					var kgpvIndex = splitKgpv[1].split(":");
+					videoKgpv[1] = videoKgpv[1] + ":" + kgpvIndex[1];
+				}
+				videoKgpv[0] = splitKgpv[0];
 			}
-			videoKgpv[0] = splitKgpv[0];
+			kgpv = videoKgpv.join("@");
 		}
-		kgpv = videoKgpv.join("@");
 	}
 	return kgpv;
 };
@@ -1655,3 +1671,34 @@ exports.loadRenderer = function(){
     	setTimeout(addRenderer, 100);
   	}); 
 };
+exports.applyDataTypeChangesIfApplicable = function(params) {
+	var value;
+	if(params.name in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
+		for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
+			for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
+				switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
+					case 'number':
+						if(params[key] && typeof params[key] !== 'number') {
+							value = parseInt(params[key])
+							isNaN(value) ?
+								refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
+								params[key] = value;
+						}
+						break;
+					default:
+						return;
+				}
+			}
+		}
+	}
+}
+
+exports.applyCustomParamValuesfApplicable = function(params) {
+	if (params.name in CONSTANTS.ID_PARTNERS_CUSTOM_VALUES) {
+		var partnerValues = CONSTANTS.ID_PARTNERS_CUSTOM_VALUES[params.name];
+		var i = 0;
+		for (;i<partnerValues.length;i++) {
+			params[partnerValues[i]["key"]] = partnerValues[i]["value"];
+		}
+	}
+}
