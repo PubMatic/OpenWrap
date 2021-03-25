@@ -867,13 +867,7 @@ function setPrebidConfig(){
 				enabled: true
 			}
 		}
-
-		if(isPrebidPubMaticAnalyticsEnabled === true){
-			prebidConfig['instreamTracking'] = {
-				enabled: true
-			}
-		}
-
+		
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
