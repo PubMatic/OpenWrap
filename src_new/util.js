@@ -1167,7 +1167,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 											var noTimeToCheck = 1;
 											var timer = setInterval(function() {
 												noTimeToCheck++;
-												if(noTimeToCheck > 20 || outstreamPlayer){ // We will check for max upto 2 sec to see if outstreamPlayer is been loaded, this is the for experimental nightly only.
+												if(noTimeToCheck > 20 || outstreamPlayer){ // We will check for max upto 2 sec to see if outstreamPlayer is been loaded, this is for experimental nightly only and should be done correctly if moving to stable/nightly.
 													clearInterval(timer);
 													outstreamPlayer(bid, bid.adUnitCode, obj)
 				
