@@ -1164,15 +1164,15 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 											}
 											// Call to Global object of renderer.
 											// Takes bid, element ID and configuration object as parameters
-											var interval = 50;
+											var noTimeToCheck = 1;
 											var timer = setInterval(function() {
-												interval+=interval;
-												if(interval > 800 || outstreamPlayer){
+												noTimeToCheck++;
+												if(noTimeToCheck > 20 || outstreamPlayer){ // We will check for max upto 2 sec to see if outstreamPlayer is been loaded, this is the for experimental nightly only.
 													clearInterval(timer);
-													outstreamPlayer(e, e.adUnitCode, t)
+													outstreamPlayer(bid, bid.adUnitCode, obj)
 				
 												}
-											},interval);
+											},100);
 										} catch (e) {
 											console.error(e);
 											console.error("Error in ad rendering!");
