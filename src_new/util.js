@@ -1672,7 +1672,7 @@ exports.loadRenderer = function(){
 		rendererScript.src = 'https://ads.pubmatic.com/AdServer/js/outstreamplayer.js';
 		document.body.appendChild(rendererScript);
 	}
-	window.addEventListener("load", function()  {
+	window.addEventListener("DOMContentLoaded", function()  {
     	setTimeout(addRenderer, 100);
   	}); 
 };
