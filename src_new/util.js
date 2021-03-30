@@ -1164,9 +1164,15 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 											}
 											// Call to Global object of renderer.
 											// Takes bid, element ID and configuration object as parameters
-											setTimeout(function(){
-												outstreamPlayer(bid, bid.adUnitCode, obj);											
-											},50);
+											var noTimeToCheck = 1;
+											var timer = setInterval(function() {
+												noTimeToCheck++;
+												if(noTimeToCheck > 20 || outstreamPlayer){ // We will check for max upto 2 sec to see if outstreamPlayer is been loaded, this is for experimental nightly only and should be done correctly if moving to stable/nightly.
+													clearInterval(timer);
+													outstreamPlayer(bid, bid.adUnitCode, obj)
+				
+												}
+											},100);
 										} catch (e) {
 											console.error(e);
 											console.error("Error in ad rendering!");
@@ -1667,7 +1673,7 @@ exports.loadRenderer = function(){
 		rendererScript.src = 'https://ads.pubmatic.com/AdServer/js/outstreamplayer.js';
 		document.body.appendChild(rendererScript);
 	}
-	window.addEventListener("load", function()  {
+	window.addEventListener("DOMContentLoaded", function()  {
     	setTimeout(addRenderer, 100);
   	}); 
 };
