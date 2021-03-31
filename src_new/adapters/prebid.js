@@ -569,15 +569,15 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			break;
 
 		case "pubmatic":
-		case "pubmatic2":
+	case "pubmatic2":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
-			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
-			if(isPrebidPubMaticAnalyticsEnabled === false){
+		slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
+		if(isPrebidPubMaticAnalyticsEnabled === false){
 				slotParams["wiid"] = impressionID;
 			}
 			slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
-			if(adapterID != "pubmatic2" && window.PWT.udpv){
+		if(adapterID != "pubmatic2" && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
@@ -622,9 +622,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			}
 			});
 			break;
-		case "ix":
+	case "ix":
 		case "indexExchange":
-			/** Added case ix cause indexExchange bidder has changed its bidder code in server side 
+		/** Added case ix cause indexExchange bidder has changed its bidder code in server side 
 			 * this will have impact in codegen to change its adapter code from indexexchange to ix 
 			 * so added a case for the same.
 			*/
@@ -896,11 +896,11 @@ function getPbjsAdServerTargetingConfig(){
 			what keys in prebid can be re-used?
 	*/
 	return [
-    	//todo: what abt hb_deal, hb_uuid(video?), hb_cache_id(video?), hb_cache_host(video?) ?
+	//todo: what abt hb_deal, hb_uuid(video?), hb_cache_id(video?), hb_cache_host(video?) ?
         {
-            key: "pwtpid", //hb_bidder
+			key: "pwtpid", //hb_bidder
             val: function(bidResponse) {
-                return bidResponse.bidderCode;
+				return bidResponse.bidderCode;
             }
         }, {
             key: "pwtsid", //hb_adid
@@ -972,7 +972,7 @@ function getPbjsAdServerTargetingConfig(){
         		return CONFIG.getProfileDisplayVersionID();
         	}
         },
-        {
+		{
         	key: 'pwtcid', // custom
 			val: function(bidResponse){ // todo: empty value?
         		return bidResponse.mediaType == "video" ?  bidResponse.videoCacheKey : "";
@@ -991,7 +991,7 @@ function getPbjsAdServerTargetingConfig(){
         	key: 'pwtuuid', // custom
         	val: function(bidResponse){ // todo: empty value?
         		return "";
-        	}
+			}
         }
     ];
 }
@@ -1004,8 +1004,8 @@ function setPbjsBidderSettingsIfRequired(){
 	}
 
 	window[pbNameSpace].bidderSettings = {
-		'standard': {
-			'suppressEmptyKeys': true, // this boolean flag can be used to avoid sending those empty values to the ad server.
+		"standard": {
+			"suppressEmptyKeys": true, // this boolean flag can be used to avoid sending those empty values to the ad server.
 		}		
 	};
 
