@@ -323,7 +323,7 @@ exports.getTestGroupDetails = function () {
 // This will keep toObject config as is and only merge objects common in both from and toobject 
 exports.getMergedConfig = function(toObject, fromObject){
 	for(var key in fromObject){
-		if(!toObject.hasOwnProperty(key)) {
+		if(!Object.prototype.hasOwnProperty.call(toObject, key)) {
 			if(util.isObject(fromObject[key]) || util.isArray(fromObject[key])) {
 				toObject[key] = JSON.parse(JSON.stringify(fromObject[key]));
 			}else{
