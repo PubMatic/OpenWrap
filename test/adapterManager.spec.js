@@ -4,7 +4,6 @@ var should = require("chai").should();
 var expect = require("chai").expect;
 
 var ADPTMgr = require('../src_new/adapterManager');
-var CONFIG = require("../src_new/config.js");
 var CONSTANTS = require("../src_new/constants.js");
 var UTIL = require("../src_new/util.js");
 var BIDMANAGER = require("../src_new/bidManager.js");
@@ -66,25 +65,7 @@ describe("adapterManager : ADPTMgr", function() {
 
             done();
         });
-    });
-
-
-    /* start-test-block */
-    describe('#getRandomNumberBelow100', function() {
-
-        it('is a function', function (done) {
-            ADPTMgr.getRandomNumberBelow100.should.be.a('function');
-            done();
-        });
-
-        it('returns numeric value below 100', function(done) {
-            var result = ADPTMgr.getRandomNumberBelow100();
-
-            result.should.be.below(100);
-            done();
-        });
-    });
-    /* end-test-block */
+    });    
 
 
     /* start-test-block */
@@ -98,7 +79,7 @@ describe("adapterManager : ADPTMgr", function() {
         beforeEach(function(done) {
             bidAdaptor = {
                 ID: function() {
-                    return adapterID;
+                    // return adapterID;
                 },
                 fB: function() {
                     return true;
@@ -106,7 +87,7 @@ describe("adapterManager : ADPTMgr", function() {
             };
 
             sinon.spy(UTIL, 'forEachOnObject');
-            sinon.spy(ADPTMgr, 'throttleAdapter');
+            sinon.spy(prebid, "throttleAdapter");
             sinon.spy(ADPTMgr, 'setInitTimeForSlotsForAdapter');
             adapters = conf.adapters, slots = {}, impressionID = {};
             UTIL.forEachOnObject(adapters, function(key, value) {
@@ -118,7 +99,7 @@ describe("adapterManager : ADPTMgr", function() {
 
         afterEach(function(done) {
             UTIL.forEachOnObject.restore();
-            ADPTMgr.throttleAdapter.restore();
+            prebid.throttleAdapter.restore();
             ADPTMgr.setInitTimeForSlotsForAdapter.restore();
             adapters = null, slots = null, impressionID = null;
             done();
@@ -136,9 +117,9 @@ describe("adapterManager : ADPTMgr", function() {
         });
 
         it('should have called setInitTimeForSlotsForAdapter when not throttling', function(done) {
-            ADPTMgr.throttleAdapter.restore();
-            sinon.stub(ADPTMgr, 'throttleAdapter');
-            ADPTMgr.throttleAdapter.returns(false);
+            prebid.throttleAdapter.restore();
+            sinon.stub(prebid, 'throttleAdapter');
+            prebid.throttleAdapter.returns(false);
 
             ADPTMgr.callAdapter(adapters, slots, impressionID);
             ADPTMgr.setInitTimeForSlotsForAdapter.called.should.be.true;
@@ -198,55 +179,6 @@ describe("adapterManager : ADPTMgr", function() {
             UTIL.generateSlotNamesFromPattern.calledWith(slots[0], "_W_x_H_").should.be.true;
             done();
 
-        });
-    });
-    /* end-test-block */
-    
-
-    /* start-test-block */
-    describe('#throttleAdapter', function() {
-        var adapterID = null;
-
-        beforeEach(function(done) {
-            adapterID = commonAdapterID;
-            sinon.stub(CONFIG, 'getAdapterThrottle');
-            CONFIG.getAdapterThrottle.returns(true);
-            done();
-        });
-
-        afterEach(function(done) {
-            CONFIG.getAdapterThrottle.restore();
-            adapterID = null;
-            done();
-        });
-
-
-        it('is a function', function(done) {
-            ADPTMgr.throttleAdapter.should.be.a('function');
-            done();
-        });
-
-        it('should have called CONFIG.getAdapterThrottle', function(done) {
-            ADPTMgr.throttleAdapter(90, adapterID);
-            CONFIG.getAdapterThrottle.calledOnce.should.be.true;
-            done();
-        });
-
-        it('should return true when passed randomNumber is less than passed adapter ids throttle value ', function(done) {
-            CONFIG.getAdapterThrottle.restore();
-            sinon.stub(CONFIG, 'getAdapterThrottle');
-            CONFIG.getAdapterThrottle.withArgs(adapterID).returns(90);
-            ADPTMgr.throttleAdapter(80, adapterID).should.be.true;
-            done();
-        });
-
-
-        it('should return false when passed randomNumber is greater than passed adapter ids throttle value ', function(done) {
-            CONFIG.getAdapterThrottle.restore();
-            sinon.stub(CONFIG, 'getAdapterThrottle');
-            CONFIG.getAdapterThrottle.withArgs(adapterID).returns(90);
-            ADPTMgr.throttleAdapter(99, adapterID).should.be.false;
-            done();
         });
     });
     /* end-test-block */

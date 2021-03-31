@@ -2,7 +2,8 @@ var util = require("./util.js");
 var controller = require("%%PATH_TO_CONTROLLER%%");
 var bidManager = require("./bidManager.js");
 var CONSTANTS = require("./constants.js");
-
+var CONFIG = require("./config.js");
+var ucTag = require("prebid-universal-creative");
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
 window.PWT.bidMap = window.PWT.bidMap || {};
@@ -22,39 +23,63 @@ util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL,
 
 window.PWT.displayCreative = function(theDocument, bidID){
 	util.log("In displayCreative for: " + bidID);
-	bidManager.displayCreative(theDocument, bidID);
+	//todo: move value of CONFIG.isPrebidPubMaticAnalyticsEnabled() if used multiple times
+	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+		window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
+	} else {
+		bidManager.displayCreative(theDocument, bidID);	
+	}
 };
 
 window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In displayPMPCreative for: " + values);
 	var bidID = util.getBididForPMP(values, priorityArray);
-	bidID && bidManager.displayCreative(theDocument, bidID);
+	if(bidID){
+		if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+			window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
+		} else {
+			bidManager.displayCreative(theDocument, bidID);	
+		}
+	}
 };
 
 window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	util.log("In sfDisplayCreative for: " + bidID);
+	ucTag = window.ucTag || {};
 	this.isSafeFrame = true;
-	window.parent.postMessage(
-		JSON.stringify({
-			pwt_type: "1",
-			pwt_bidID: bidID,
-			pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
-		}),
-		"*"
-	);
+	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+		ucTag.renderAd(theDocument, {adId: bidID, pubUrl: document.referrer});
+	}
+	else {
+		window.parent.postMessage(
+			JSON.stringify({
+				pwt_type: "1",
+				pwt_bidID: bidID,
+				pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
+			}),
+			"*"
+		);
+	}
 };
 
 window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In sfDisplayPMPCreative for: " + values);
 	this.isSafeFrame = true;
-	window.parent.postMessage(
-		JSON.stringify({
-			pwt_type: "1",
-			pwt_bidID: util.getBididForPMP(values, priorityArray),
-			pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
-		}),
-		"*"
-	);
+	var bidID = util.getBididForPMP(values, priorityArray);
+	if(bidID){
+		if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+			ucTag.renderAd(theDocument, {adId: bidID, pubUrl: document.referrer});
+		} else{
+			window.parent.postMessage(
+				JSON.stringify({
+					pwt_type: "1",
+					pwt_bidID: bidID,
+					pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
+				}),
+				"*"
+			);
+		}
+	}
 };
 
 window.PWT.initNativeTrackers = function(theDocument,bidID){
@@ -113,7 +138,6 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 	}
 	else{
 		util.logWarning("No bid found for given adUnit");
-		return;
 	}
 	var params = {
 		adUnit: adUnit,
