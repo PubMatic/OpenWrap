@@ -94,7 +94,7 @@ prebidNpmInstall $prebid_path
 
 if [ "$platform" = "$PLATFORM_DISPLAY" ] || [ -z $platform ]
   then
-   time ./build.sh --prebidpath=$prebid_path --mode=$mode --profile="IH"
+   time ./build.sh --prebidpath=$prebid_path --mode=$mode --profile=$profile
 
 elif [ "$platform" = "$PLATFORM_AMP" ]
    then
