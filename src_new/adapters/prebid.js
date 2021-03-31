@@ -557,7 +557,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["adUnitId"] = currentSlot.getAdUnitID();
 			slotParams["divId"] = currentSlot.getDivID();
 			slotParams["adSlot"] = generatedKey;
-			if(isPrebidPubMaticAnalyticsEnabled === false){
+		if(isPrebidPubMaticAnalyticsEnabled === false){
 				slotParams["wiid"] = impressionID;
 			}
 			slotParams["profId"] = CONFIG.getProfileID();
@@ -575,7 +575,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		if(isPrebidPubMaticAnalyticsEnabled === false){
 				slotParams["wiid"] = impressionID;
 			}
-			slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
+		slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
 		if(adapterID != "pubmatic2" && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
@@ -637,7 +637,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				if (keyConfig["siteID"]) {
 				sltParams["siteId"] = keyConfig["siteID"];
 				}
-				if (keyConfig["id"]) {
+			if (keyConfig["id"]) {
 				sltParams["id"] = keyConfig["id"];
 				}
 			sltParams["size"] = size;
@@ -860,7 +860,7 @@ function setPrebidConfig(){
 		}
 
 		if(isPrebidPubMaticAnalyticsEnabled === true){
-			prebidConfig['instreamTracking'] = {
+			prebidConfig["instreamTracking"] = {
 				enabled: true
 			}
 		}
@@ -903,43 +903,43 @@ function getPbjsAdServerTargetingConfig(){
 				return bidResponse.bidderCode;
             }
         }, {
-            key: "pwtsid", //hb_adid
+			key: "pwtsid", //hb_adid
             val: function(bidResponse) {
-                return bidResponse.adId;
+				return bidResponse.adId;
             }
         }, {
-            key: "pwtecp", //hb_pb
+			key: "pwtecp", //hb_pb
             val: function(bidResponse) {
-                // return bidResponse.pbMg;
-                return (bidResponse.cpm||0).toFixed(CONSTANTS.COMMON.BID_PRECISION);
+				// return bidResponse.pbMg;
+				return (bidResponse.cpm||0).toFixed(CONSTANTS.COMMON.BID_PRECISION);
             }
         }, {
-            key: 'pwtsz', //hb_size
+            key: "pwtsz", //hb_size
             val: function (bidResponse) {
                 return bidResponse.size;
             }
         }, {
-            key: 'hb_source', //hb_source // we do not want it, so send empty, suppressEmptyKeys feature will prevent it being passed
+            key: "hb_source", //hb_source // we do not want it, so send empty, suppressEmptyKeys feature will prevent it being passed
             // do not change it in prebid.js project constants file
             val: function (bidResponse) {
                 // return bidResponse.source;
                 return '';
             }
         }, {
-            key: 'pwtplt', //hb_format
+            key: "pwtplt", //hb_format
             val: function (bidResponse) {
                 // return bidResponse.mediaType;
                 return bidResponse.mediaType == "video" ? CONSTANTS.PLATFORM_VALUES.VIDEO : (bidResponse.native ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
             }
         },
         {
-        	key: 'pwtdid', // hb_deal
+        	key: "pwtdid", // hb_deal
         	val: function(bidResponse){ // todo: do we want to concat dealchannel as well?
         		return bidResponse.dealId || '';
         	}
 		},  
 		{
-        	key: 'pwtdeal', // hb_deal
+        	key: "pwtdeal", // hb_deal
 			val: function(bidResponse){ // todo: do we want to concat dealchannel as well?
 				if(bidResponse.dealId){
 					bidResponse.dealChannel = bidResponse.dealChannel || "PMP";
@@ -949,7 +949,7 @@ function getPbjsAdServerTargetingConfig(){
 			}
         },     
         {
-            key: 'pwtbst', // our custom
+            key: "pwtbst", // our custom
             val: function(bidResponse) {
                 return 1;
             }
@@ -966,7 +966,7 @@ function getPbjsAdServerTargetingConfig(){
         		return CONFIG.getProfileID();
         	}
         },
-        {
+				{
         	key: 'pwtverid', // custom
         	val: function(bidResponse){ // todo: empty value?
         		return CONFIG.getProfileDisplayVersionID();
@@ -986,7 +986,7 @@ function getPbjsAdServerTargetingConfig(){
         	key: 'pwtcpath', // custom
         	val: function(bidResponse){ // todo: empty value?
         		return bidResponse.mediaType == "video" ? CONSTANTS.CONFIG.CACHE_PATH : "";
-        	}
+			}
         }, {
         	key: 'pwtuuid', // custom
         	val: function(bidResponse){ // todo: empty value?

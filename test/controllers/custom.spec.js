@@ -525,7 +525,7 @@ describe("CONTROLLER: CUSTOM", function() {
 		// Uncomment below test case when change from Phantom to ChromeHeadless
 		xit("should not call the callback before timeout if allBid status is false ecverytime",function(done){
 			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
-			sinon.stub(PREBID, 'fetchBids', function(){});
+			sinon.stub(PREBID, "fetchBids", function(){});
 			sinon.stub(CONFIG, "getTimeout");
 			CONFIG.getTimeout.returns(60);
 			BM.getAllPartnersBidStatuses.restore();

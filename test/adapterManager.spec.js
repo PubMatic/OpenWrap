@@ -4,7 +4,6 @@ var should = require("chai").should();
 var expect = require("chai").expect;
 
 var ADPTMgr = require('../src_new/adapterManager');
-var CONFIG = require("../src_new/config.js");
 var CONSTANTS = require("../src_new/constants.js");
 var UTIL = require("../src_new/util.js");
 var BIDMANAGER = require("../src_new/bidManager.js");
@@ -80,7 +79,7 @@ describe("adapterManager : ADPTMgr", function() {
         beforeEach(function(done) {
             bidAdaptor = {
                 ID: function() {
-                    return adapterID;
+                    // return adapterID;
                 },
                 fB: function() {
                     return true;
@@ -88,7 +87,7 @@ describe("adapterManager : ADPTMgr", function() {
             };
 
             sinon.spy(UTIL, 'forEachOnObject');
-            sinon.spy(prebid, 'throttleAdapter');
+            sinon.spy(prebid, "throttleAdapter");
             sinon.spy(ADPTMgr, 'setInitTimeForSlotsForAdapter');
             adapters = conf.adapters, slots = {}, impressionID = {};
             UTIL.forEachOnObject(adapters, function(key, value) {
