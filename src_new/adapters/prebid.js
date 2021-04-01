@@ -932,7 +932,7 @@ function getPbjsAdServerTargetingConfig(){
             key: 'pwtplt', //hb_format
             val: function (bidResponse) {
                 // return bidResponse.mediaType;
-                return bidResponse.mediaType == "video" ? CONSTANTS.PLATFORM_VALUES.VIDEO : (bidResponse.native ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
+                return (bidResponse.mediaType == "video" && bidResponse.videoCacheKey) ? CONSTANTS.PLATFORM_VALUES.VIDEO : (bidResponse.native ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
             }
         },
         {
