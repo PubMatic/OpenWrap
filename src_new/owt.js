@@ -3,9 +3,7 @@ var controller = require("%%PATH_TO_CONTROLLER%%");
 var bidManager = require("./bidManager.js");
 var CONSTANTS = require("./constants.js");
 var CONFIG = require("./config.js");
-// removeIf(!removeLegacyAnalyticsRelatedCode)
 var ucTag = require("prebid-universal-creative");
-// endRemoveIf(!removeLegacyAnalyticsRelatedCode)
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
 window.PWT.bidMap = window.PWT.bidMap || {};
@@ -53,13 +51,11 @@ window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	util.log("In sfDisplayCreative for: " + bidID);
 	this.isSafeFrame = true;
-	// removeIf(!removeLegacyAnalyticsRelatedCode)
 	ucTag = window.ucTag || {};	
 	if(isPrebidPubMaticAnalyticsEnabled){
 		ucTag.renderAd(theDocument, {adId: bidID, pubUrl: document.referrer});
 	}
 	else {
-	// endRemoveIf(!removeLegacyAnalyticsRelatedCode)	
 		window.parent.postMessage(
 			JSON.stringify({
 				pwt_type: "1",
@@ -68,9 +64,7 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 			}),
 			"*"
 		);
-	// removeIf(!removeLegacyAnalyticsRelatedCode)	
 	}
-	// endRemoveIf(!removeLegacyAnalyticsRelatedCode)
 };
 
 window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
