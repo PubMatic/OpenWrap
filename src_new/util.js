@@ -728,7 +728,7 @@ exports.createInvisibleIframe = function() {
 	f.style.border = '0';
 	f.scrolling = 'no';
 	f.frameBorder = '0';
-	f.src = 'about:self';//todo: test by setting empty src on safari
+	//f.src = 'about:self';//todo: test by setting empty src on safari
 	f.style = 'display:none';
 	return f;
 }
@@ -1383,6 +1383,7 @@ exports.getNestedObjectFromString = function(sourceObject,separator, key, value)
 exports.getUserIdParams = function(params){
 	var userIdParams= {};
 	refThis.applyDataTypeChangesIfApplicable(params);
+	refThis.applyCustomParamValuesfApplicable(params);
 	for(var key in params){
 		try{
 			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
@@ -1678,20 +1679,32 @@ exports.loadRenderer = function(){
 };
 exports.applyDataTypeChangesIfApplicable = function(params) {
 	var value;
-	for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
-		for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
-			switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
-				case 'number':
-					if(params[key] && typeof params[key] !== 'number') {
-						value = parseInt(params[key])
-						isNaN(value) ?
-							refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
-							params[key] = value;
-					}
-					break;
-				default:
-					return;
+	if(params.name in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
+		for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
+			for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
+				switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
+					case 'number':
+						if(params[key] && typeof params[key] !== 'number') {
+							value = parseInt(params[key])
+							isNaN(value) ?
+								refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
+								params[key] = value;
+						}
+						break;
+					default:
+						return;
+				}
 			}
+		}
+	}
+}
+
+exports.applyCustomParamValuesfApplicable = function(params) {
+	if (params.name in CONSTANTS.ID_PARTNERS_CUSTOM_VALUES) {
+		var partnerValues = CONSTANTS.ID_PARTNERS_CUSTOM_VALUES[params.name];
+		var i = 0;
+		for (;i<partnerValues.length;i++) {
+			params[partnerValues[i]["key"]] = partnerValues[i]["value"];
 		}
 	}
 }

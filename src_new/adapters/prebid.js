@@ -637,6 +637,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				if (keyConfig["siteID"]) {
 				sltParams["siteId"] = keyConfig["siteID"];
 				}
+				if (keyConfig["id"]) {
+				sltParams["id"] = keyConfig["id"];
+				}
 			sltParams["size"] = size;
 			adUnits [code].bids.push({bidder: adapterID, params: sltParams});
 			});
@@ -750,7 +753,7 @@ function assignCurrencyConfigIfRequired(prebidConfig){
 		util.log(CONSTANTS.MESSAGES.M26 + CONFIG.getAdServerCurrency());
 		prebidConfig["currency"] = {
 			"adServerCurrency": CONFIG.getAdServerCurrency(), 
-			"granularityMultiplier": 1, 
+			"granularityMultiplier": CONFIG.getGranularityMultiplier(), 
 		};
 	}
 }
@@ -852,6 +855,15 @@ function setPrebidConfig(){
 			},
 			testGroupId: parseInt(window.PWT.testGroupId || 0)
 		};
+		if(CONFIG.getPriceGranularity()){
+			prebidConfig["priceGranularity"] = CONFIG.getPriceGranularity();
+		}
+
+		if(isPrebidPubMaticAnalyticsEnabled === true){
+			prebidConfig['instreamTracking'] = {
+				enabled: true
+			}
+		}
 
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
@@ -1103,9 +1115,9 @@ function fetchBids(activeSlots){
 					// we do not want this call when we have PrebidAnalytics enabled
 					refThis.addOnBidResponseHandler();	
 				}
-
+				window[pbNameSpace].removeAdUnit();
+				window[pbNameSpace].addAdUnits(adUnitsArray);
 				window[pbNameSpace].requestBids({
-					adUnits: adUnitsArray,
 					bidsBackHandler: function(bidResponses){
 						refThis.pbjsBidsBackHandler(bidResponses, activeSlots);
 					},
