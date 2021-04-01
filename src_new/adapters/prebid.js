@@ -978,17 +978,17 @@ function getPbjsAdServerTargetingConfig(){
         {
         	key: 'pwtcid', // custom
 			val: function(bidResponse){ // todo: empty value?
-        		return bidResponse.mediaType == "video" ?  bidResponse.videoCacheKey : "";
+        		return (bidResponse.mediaType == "video" && bidResponse.videoCacheKey ) ?  bidResponse.videoCacheKey : "";
         	}
         }, {
         	key: 'pwtcurl', // custom
         	val: function(bidResponse){ // todo: empty value?	
-				return bidResponse.mediaType == "video" ? CONSTANTS.CONFIG.CACHE_URL : "";			
+				return (bidResponse.mediaType == "video" && bidResponse.videoCacheKey ) ? CONSTANTS.CONFIG.CACHE_URL : "";			
         	}
         }, {
         	key: 'pwtcpath', // custom
         	val: function(bidResponse){ // todo: empty value?
-        		return bidResponse.mediaType == "video" ? CONSTANTS.CONFIG.CACHE_PATH : "";
+        		return (bidResponse.mediaType == "video" && bidResponse.videoCacheKey )  ? CONSTANTS.CONFIG.CACHE_PATH : "";
         	}
         }, {
         	key: 'pwtuuid', // custom
