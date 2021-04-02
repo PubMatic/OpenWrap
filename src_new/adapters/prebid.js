@@ -636,6 +636,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				if (keyConfig["siteID"]) {
 				sltParams["siteId"] = keyConfig["siteID"];
 				}
+				if (keyConfig["id"]) {
+				sltParams["id"] = keyConfig["id"];
+				}
 			sltParams["size"] = size;
 			adUnits [code].bids.push({bidder: adapterID, params: sltParams});
 			});
