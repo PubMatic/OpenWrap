@@ -41,7 +41,9 @@ exports.COMMON = {
 	"TEST_PWT": "test_pwt",
 	"PRICE_GRANULARITY" : "priceGranularity",
 	"GRANULARITY_MULTIPLIER" : "granularityMultiplier",
-	"TEST_PARTNER": "test_adapters"
+	"TEST_PARTNER": "test_adapters",
+	"REDUCE_CODE_SIZE": "reduceCodeSize",
+	"TEST_IDENTITY_PARTNER": "test_identityPartners"
 };
 
 exports.CONFIG = {
@@ -166,7 +168,7 @@ exports.MESSAGES = {
 	"M6": "bidAlreadExists : ",
 	"M7": ": Exiting from fetchBids.",
 	"M8": ". Config not found, ignored.",
-	"M9": ". Config ignored.",
+	// "M9": ". Config ignored.",
 	"M10": "Bid is rejected as ecpm is NULL.",
 	"M11": "Bid is rejected as ecpm is NaN: ",
 	"M12": "Existing bid ecpm: ",

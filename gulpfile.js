@@ -40,9 +40,45 @@ gulp.task('clean', ['update-adserver'], function() {
         .pipe(clean());
 });
 
+function getRemoveCodeConfig(){
+
+    var config = require("./src_new/config.js");
+    
+    // a controlled way to completely disable this feature
+    if(config.isReduceCodeSizeFeatureEnabled() === false){
+        return {};    
+    }
+
+    // Here we will define the flags/tags that we need to use in code comments
+    //todo: set these all to false by default
+    var removeCodeConfig = {
+        removeAlways: true, // some code that should never be part of the final build
+        removeLegacyAnalyticsRelatedCode: false, // Condition -> (config.isIdentityOnly() === true || config.isPrebidPubMaticAnalyticsEnabled()===true)
+        removeNativeRelatedCode: false, //TODO: Make this flags as true based on conditions of slot config
+        removeInStreamRelatedCode: false,//TODO: Make this flags as true based on conditions of slot config
+        removeOutStreamRelatedCode: false,//TODO: Make this flags as true based on conditions of slot config
+        removeUserIdRelatedCode: false, // Condition -> (config.isUserIdModuleEnabled()===false)
+        removeIdHubOnlyRelatedCode: (config.isIdentityOnly()===false)
+    };
+
+    return removeCodeConfig; // todo: only for dev purpose; remove later
+
+    var slotConfig = config.getSlotConfiguration();
+    if(!slotConfig){
+        removeCodeConfig.removeNativeRelatedCode = true;
+        removeCodeConfig.removeOutStreamRelatedCode = true;
+        removeCodeConfig.removeInStreamRelatedCode = true;
+    } else {
+        //todo: Add logic to set the flags by checking the config
+        //      might be a case where only one of these is enabled: Native, in-stream or out-stream
+    }    
+
+    return removeCodeConfig;
+}
 
 // What all processing needs to be done ?
 gulp.task('webpack', ['clean'], function() {
+    var config = require("./src_new/config.js");
     console.log("Executing webpack");
     var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
@@ -50,12 +86,15 @@ gulp.task('webpack', ['clean'], function() {
     var webpackConfig = require('./webpack.config.js');
     var optimizejs = require('gulp-optimize-js');
     var fsCache = require('gulp-fs-cache');
+    var removeCode = require('gulp-remove-code');
     var jsFsCache = fsCache('.tmp/jscache');
     webpackConfig.devtool = null;
 
-    return gulp.src('src_new/owt.js')
+    return gulp.src(config.isIdentityOnly() ? 'src_new/idhub.js' : 'src_new/owt.js')
+    // return gulp.src('src_new/owt.js')
         .pipe(webpack(webpackConfig))
         .pipe(jsFsCache)
+        .pipe(removeCode(getRemoveCodeConfig()))
         .pipe(uglify())
         .pipe(optimizejs())
         .pipe(jsFsCache.restore)
@@ -84,14 +123,18 @@ gulp.task('webpack-creative', ['clean'], function() {
 
 
 gulp.task('devpack', ['clean'],function () {
+var config = require("./src_new/config.js");
 var connect = require('gulp-connect');
 var webpack = require('webpack-stream');
+var removeCode = require('gulp-remove-code');
 var webpackConfig = require('./webpack.config.js');
 
   webpackConfig.devtool = 'source-map';
 
-  return gulp.src('src_new/owt.js')
+  return gulp.src(config.isIdentityOnly() ? 'src_new/idhub.js' : 'src_new/owt.js')
+  // return gulp.src('src_new/owt.js')
     .pipe(webpack(webpackConfig))
+    .pipe(removeCode(getRemoveCodeConfig()))
     .pipe(gulp.dest('build/dev'))
     .pipe(connect.reload());
 });
