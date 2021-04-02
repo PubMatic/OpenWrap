@@ -12,7 +12,7 @@ var prebidTaskName = "";
 var openwrapBuildTaskName = "";
 var openwrapWebpackTaskName = "";
 var CREATIVE_TASK = "creative"
-var profileMode = "--profile="+(argv.profile === undefined ? "OW" : argv.profile);
+var profileMode = " --profile="+(argv.profile === undefined ? "OW" : argv.profile);
 
 if (task == CREATIVE_TASK) {
 		console.log("inside creative");
@@ -98,7 +98,7 @@ if (task == CREATIVE_TASK) {
 		}*/
 
 
-		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
+		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode + profileMode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: wrapper build task failed');
 			shell.exit(1);
 		}
