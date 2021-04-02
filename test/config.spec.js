@@ -1865,6 +1865,26 @@ describe('Config', function() {
                 expect(updatedPartners).to.be.deep.equal(identityPartners);
                 done();
             }); 
+
+            it('should not break the flow if control partner is not present',function(done){
+                testIdentityPartners = {
+                    pubCommonId:{  "storage.name": "_testPubCommonId",},
+                    identityLink:{},
+                    criteo: {
+                        name: "criteo",
+                    },
+                    unifiedId: {
+                        name: "unifiedId",
+                        "params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+                        "storage.type": "cookie",
+                        "storage.name": "_myUnifiedId",
+                        "storage.expires": "1825"
+                    }
+                };
+                var updatedPartners = CONFIG.updatePartnerConfig(testIdentityPartners, undefined);
+                expect(updatedPartners).to.equal(undefined);
+                done();
+            })
         });
     });
 
