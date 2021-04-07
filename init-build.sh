@@ -13,14 +13,15 @@ if [ $# -eq 0 ]
     echo " Provide build mode using -m flag"
     echo " Provide type of build using -t flag"
     echo " Provide what to build using -w flag"
-    echo " Example: ./init-build.sh -p \"../Prebid.js\" -m \"build\" -t amp -w creative"
+    echo " Provide the profile whether IH or OW using the -x flag"
+    echo " Example: ./init-build.sh -p \"../Prebid.js\" -m \"build\" -t amp -w creative -x \"IH\" "
     exit 1
 fi
 
 PLATFORM_DISPLAY="display"
 PLATFORM_AMP="amp"
 echo "$(date) This is Reading Params"
-while getopts ":p:m:t:w:" opt; do
+while getopts ":p:m:t:w:x:" opt; do
   case $opt in
     p) prebid_path="$OPTARG"
     ;;
@@ -29,6 +30,8 @@ while getopts ":p:m:t:w:" opt; do
     t) platform="$OPTARG"
     ;;
     w) task="$OPTARG"
+    ;;
+    x) profile="$OPTARG"
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     ;;
@@ -91,7 +94,7 @@ prebidNpmInstall $prebid_path
 
 if [ "$platform" = "$PLATFORM_DISPLAY" ] || [ -z $platform ]
   then
-   time ./build.sh --prebidpath=$prebid_path --mode=$mode
+   time ./build.sh --prebidpath=$prebid_path --mode=$mode --profile=$profile
 
 elif [ "$platform" = "$PLATFORM_AMP" ]
    then

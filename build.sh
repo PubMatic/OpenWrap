@@ -12,6 +12,7 @@ var prebidTaskName = "";
 var openwrapBuildTaskName = "";
 var openwrapWebpackTaskName = "";
 var CREATIVE_TASK = "creative"
+var profileMode = " --profile="+(argv.profile === undefined ? "OW" : argv.profile);
 
 if (task == CREATIVE_TASK) {
 		console.log("inside creative");
@@ -38,27 +39,27 @@ if (task == CREATIVE_TASK) {
 		 switch (argv.mode) {
 			 case "test-build":
 				console.log("Executing test-build");
-				prebidTaskName = "build-bundle-dev --modules=modules.json";
+				prebidTaskName = "build-bundle-dev --modules=modules.json "+profileMode;
 				openwrapBuildTaskName = "devbundle";
 				openwrapWebpackTaskName = "devpack";
 				break;
 		 	case  "dev-build":
 				console.log("Executing build");
-				prebidTaskName = "build --modules=modules.json";
+				prebidTaskName = "build --modules=modules.json "+profileMode;
 				openwrapBuildTaskName = "bundle";
 				openwrapWebpackTaskName = "webpack";
 				break;
 		 	case "build" :
 				console.log("Executing build");
 				if(!prebidTaskName){
-					prebidTaskName = "bundle --modules=modules.json";
+					prebidTaskName = "bundle --modules=modules.json "+profileMode;
 				}
 				openwrapBuildTaskName = "bundle-prod";
 				openwrapWebpackTaskName = "webpack";
 				break;
 			case "build-all" :
 				console.log("Executing build");
-				prebidTaskName = "build-bundle-dev --modules=modules.json";
+				prebidTaskName = "build-bundle-dev --modules=modules.json "+profileMode;
 				openwrapBuildTaskName = "devbundle";
 				openwrapWebpackTaskName = "devpack";
 			break;	
@@ -97,7 +98,7 @@ if (task == CREATIVE_TASK) {
 		}*/
 
 
-		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
+		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode + profileMode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: wrapper build task failed');
 			shell.exit(1);
 		}
