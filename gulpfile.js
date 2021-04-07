@@ -27,6 +27,8 @@ var eslint = require('gulp-eslint');
 console.timeEnd("Loading plugins");
 var CI_MODE = (argv.mode === 'test-build') ? true : false;
 var isIdentityOnly = config.isIdentityOnly();
+var profileMode = argv.profile;
+console.log("In openwrap gulp.sh profileMode = " + profileMode);
 console.log("argv ==>", argv);
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
@@ -255,7 +257,9 @@ gulp.task('change-prebid-keys', () => {
 // Task to build minified version of owt.js
 gulp.task('bundle', ['update-adserver'], function () {
     console.log("Executing build");
-    return gulp.src([prebidRepoPath + '/build/dist/prebid.js', './build/dist/owt.js'])
+    var prebidFileName = (profileMode === "IH" ? '/build/dist/prebid.idhub.js' : '/build/dist/prebid.js')
+    console.log("##################### prebidfilename picked = "+prebidFileName);
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 });
@@ -324,7 +328,9 @@ gulp.task('bundle-creative', function () {
 // Task to build non-minified version of owt.js
 gulp.task('devbundle',['devpack'], function () {
     console.log("Executing Dev Build");
-    return gulp.src([prebidRepoPath + '/build/dev/prebid.js', './build/dev/owt.js'])
+    var prebidFileName = (profileMode === "IH" ? '/build/dev/prebid.idhub.js' : '/build/dev/prebid.js')
+    console.log("##################### prebidfilename picked = "+prebidFileName);
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'])
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
 });
@@ -332,7 +338,9 @@ gulp.task('devbundle',['devpack'], function () {
 
 gulp.task('bundle-prod',['webpack'], function () {
     console.log("Executing bundling");
-    return gulp.src([prebidRepoPath + '/build/dist/prebid.js', './build/dist/owt.js'])
+    var prebidFileName = (profileMode === "IH" ? '/build/dist/prebid.idhub.js' : '/build/dist/prebid.js')
+    console.log("##################### prebidfilename picked = "+prebidFileName);
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 });
