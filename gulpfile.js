@@ -328,7 +328,7 @@ gulp.task('bundle-creative', function () {
 // Task to build non-minified version of owt.js
 gulp.task('devbundle',['devpack'], function () {
     console.log("Executing Dev Build");
-    var prebidFileName = (profileMode === "IH" ? '/build/dev/prebid.idhub.js' : '/build/dev/prebid.js')
+    var prebidFileName = (profileMode === "IH" ? '/build/devIH/prebid.idhub.js' : '/build/dev/prebid.js')
     console.log("##################### prebidfilename picked = "+prebidFileName);
     return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'])
         .pipe(concat('owt.js'))
@@ -338,7 +338,7 @@ gulp.task('devbundle',['devpack'], function () {
 
 gulp.task('bundle-prod',['webpack'], function () {
     console.log("Executing bundling");
-    var prebidFileName = (profileMode === "IH" ? '/build/dist/prebid.idhub.js' : '/build/dist/prebid.js')
+    var prebidFileName = (profileMode === "IH" ? '/build/distIH/prebid.idhub.js' : '/build/dist/prebid.js')
     console.log("##################### prebidfilename picked = "+prebidFileName);
     return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
