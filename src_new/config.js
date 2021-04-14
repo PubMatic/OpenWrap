@@ -265,6 +265,10 @@ exports.getTestPartnerConfig = function () {
 	return config[CONSTANTS.COMMON.TEST_PARTNER] || {};
 };
 
+exports.getTestIdentityPartners = function () {
+	return config[CONSTANTS.COMMON.TEST_IDENTITY_PARTNER] || {};
+};
+
 exports.updateABTestConfig = function () {
 	if (refThis.isAbTestEnabled()) {
 		var randomNumberBelow100 = util.getRandomNumberBelow100();
@@ -273,6 +277,7 @@ exports.updateABTestConfig = function () {
 		if (testGroupDetails && testGroupDetails.testGroupSize && randomNumberBelow100 < testGroupDetails.testGroupSize) {
 			refThis.updatePWTConfig();
 			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters);			
+			config.identityPartners = refThis.updatePartnerConfig(refThis.getTestIdentityPartners(), refThis.getIdentityPartners());			
 		}
 	}
 };
@@ -293,7 +298,7 @@ exports.updatePWTConfig = function () {
 };
 
 exports.updatePartnerConfig = function (testConfig, controlConfig) {
-	if (testConfig && Object.keys(testConfig).length > 0) {
+	if (testConfig && controlConfig && Object.keys(testConfig).length > 0 && Object.keys(controlConfig).length > 0) {
 		util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(testConfig));
 		for (var key in testConfig) {
 			if (util.isOwnProperty(testConfig, key) && util.isObject(testConfig[key])) {
@@ -318,7 +323,7 @@ exports.getTestGroupDetails = function () {
 // This will keep toObject config as is and only merge objects common in both from and toobject 
 exports.getMergedConfig = function(toObject, fromObject){
 	for(var key in fromObject){
-		if(!toObject[key]) {
+		if(!Object.prototype.hasOwnProperty.call(toObject, key)) {
 			if(util.isObject(fromObject[key]) || util.isArray(fromObject[key])) {
 				toObject[key] = JSON.parse(JSON.stringify(fromObject[key]));
 			}else{
