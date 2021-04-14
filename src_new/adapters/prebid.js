@@ -70,6 +70,9 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 		}
 		theBid.updateBidId(bid.adUnitCode);
 	}
+	if(bid.mediaType && parseFloat(bid.cpm) > 0 ){
+		theBid.setAdFormat(bid.adHtml, bid.mediaType);
+	}
 	if (bid.sspID){
 		theBid.setsspID(bid.sspID);
 	}
@@ -864,7 +867,7 @@ function setPrebidConfig(){
 				enabled: true
 			}
 		}
-
+		
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
@@ -929,7 +932,7 @@ function getPbjsAdServerTargetingConfig(){
             key: 'pwtplt', //hb_format
             val: function (bidResponse) {
                 // return bidResponse.mediaType;
-                return bidResponse.mediaType == "video" ? CONSTANTS.PLATFORM_VALUES.VIDEO : (bidResponse.native ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
+                return (bidResponse.mediaType == "video" && bidResponse.videoCacheKey) ? CONSTANTS.PLATFORM_VALUES.VIDEO : (bidResponse.native ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
             }
         },
         {
@@ -975,17 +978,17 @@ function getPbjsAdServerTargetingConfig(){
         {
         	key: 'pwtcid', // custom
 			val: function(bidResponse){ // todo: empty value?
-        		return bidResponse.mediaType == "video" ?  bidResponse.videoCacheKey : "";
+        		return (bidResponse.mediaType == "video" && bidResponse.videoCacheKey ) ?  bidResponse.videoCacheKey : "";
         	}
         }, {
         	key: 'pwtcurl', // custom
         	val: function(bidResponse){ // todo: empty value?	
-				return bidResponse.mediaType == "video" ? CONSTANTS.CONFIG.CACHE_URL : "";			
+				return (bidResponse.mediaType == "video" && bidResponse.videoCacheKey ) ? CONSTANTS.CONFIG.CACHE_URL : "";			
         	}
         }, {
         	key: 'pwtcpath', // custom
         	val: function(bidResponse){ // todo: empty value?
-        		return bidResponse.mediaType == "video" ? CONSTANTS.CONFIG.CACHE_PATH : "";
+        		return (bidResponse.mediaType == "video" && bidResponse.videoCacheKey )  ? CONSTANTS.CONFIG.CACHE_PATH : "";
         	}
         }, {
         	key: 'pwtuuid', // custom
