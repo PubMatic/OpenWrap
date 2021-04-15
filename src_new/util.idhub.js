@@ -411,16 +411,16 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 		for(var partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
 			for(var key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
 				switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
-					case "number":
-						if(params[key] && typeof params[key] !== "number") {
-							value = parseInt(params[key]);
-							isNaN(value) ?
-								refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
-								params[key] = value;
+				case "number":
+					if(params[key] && typeof params[key] !== "number") {
+						value = parseInt(params[key]);
+						isNaN(value) ?
+							refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
+							params[key] = value;
 						}
-						break;
-					default:
-						return;
+					break;
+				default:
+					return;
 				}
 			}
 		}
