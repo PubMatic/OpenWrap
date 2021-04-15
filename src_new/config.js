@@ -10,12 +10,14 @@ exports.getPublisherId = function () {
 	return util.trim(config.pwt.pubid) || "0";
 };
 
-exports.getMataDataPattern = function () {
-	if (util.isString(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN])) {
+// removeIf(removeLegacyAnalyticsRelatedCode)
+exports.getMataDataPattern = function(){
+	if(util.isString(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN])){
 		return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN];
 	}
 	return null;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.getSendAllBidsStatus = function () {
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SEND_ALL_BIDS]) || 0;
@@ -58,7 +60,8 @@ exports.isServerSideAdapter = function (adapterID) {
 	return false;
 };
 
-exports.getAdapterMaskBidsStatus = function (adapterID) {
+// removeIf(removeLegacyAnalyticsRelatedCode)
+exports.getAdapterMaskBidsStatus = function(adapterID){
 	var adapterConfig = config.adapters;
 	var tempSettings = {
 		'audienceNetwork': 1
@@ -73,8 +76,10 @@ exports.getAdapterMaskBidsStatus = function (adapterID) {
 	}
 	return 0;
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-exports.getBidPassThroughStatus = function (adapterID) {
+// TODO: do we need this feature?
+exports.getBidPassThroughStatus = function(adapterID){
 	var adapterConfig = config.adapters;
 	if (util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.BID_PASS_THROUGH)) {
 		return window.parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.BID_PASS_THROUGH]);
@@ -90,13 +95,17 @@ exports.getProfileDisplayVersionID = function () {
 	return util.trim(config.pwt[CONSTANTS.CONFIG.PROFILE_VERSION_ID]) || "0";
 };
 
-exports.getAnalyticsPixelURL = function () {
+// removeIf(removeLegacyAnalyticsRelatedCode)
+exports.getAnalyticsPixelURL = function(){
 	return config.pwt[CONSTANTS.CONFIG.LOGGER_URL] || false;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-exports.getMonetizationPixelURL = function () {
+// removeIf(removeLegacyAnalyticsRelatedCode)
+exports.getMonetizationPixelURL = function(){
 	return config.pwt[CONSTANTS.CONFIG.TRACKER_URL] || false;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.forEachAdapter = function (callback) {
 	util.forEachOnObject(config.adapters, callback);
@@ -242,6 +251,12 @@ exports.isUsePrebidKeysEnabled = function () {
 
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";
 
+// removeIf(removeAlways)
+exports.isReduceCodeSizeFeatureEnabled = function(){
+	// note: not using window.parseInt as this function is also used in build.sh that runs in NodeJS environment
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.REDUCE_CODE_SIZE]) === 1;
+};
+// endRemoveIf(removeAlways)
 exports.getPriceGranularity = function(){
 	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
 };

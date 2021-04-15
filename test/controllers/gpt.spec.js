@@ -2653,6 +2653,7 @@ describe("CONTROLLER: GPT", function() {
 
 
         it('the returned function when called should call refersh functionality', function (done) {
+            sinon.stub(CONFIG, "isIdentityOnly").returns(0);            
             var returnedFn = GPT.newRefreshFuncton(theObject, function() {
                 console.log("inside function");
             });
@@ -2663,6 +2664,7 @@ describe("CONTROLLER: GPT", function() {
             UTIL.log.calledWith("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms").should.be.true;
             GPT.updateSlotsMapFromGoogleSlots.called.should.be.true;
             GPT.forQualifyingSlotNamesCallAdapters.called.should.be.true;
+            CONFIG.isIdentityOnly.restore();
             done();
         });
     });
@@ -2842,6 +2844,8 @@ describe("CONTROLLER: GPT", function() {
                     cmd: []
                 }
             }
+            sinon.stub(CONFIG, "isIdentityOnly").returns(0);            
+
             done();
         });
 
@@ -2853,6 +2857,7 @@ describe("CONTROLLER: GPT", function() {
             UTIL.log.restore();
             UTIL.logError.restore();
             UTIL.logWarning.restore();
+            CONFIG.isIdentityOnly.restore();
             done();
         });
 
