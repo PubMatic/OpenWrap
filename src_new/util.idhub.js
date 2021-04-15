@@ -408,12 +408,12 @@ exports.updateUserIds = function (bid) {
 exports.applyDataTypeChangesIfApplicable = function(params) {
 	var value;
 	if(params.name in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
-		for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
-			for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
+		for(var partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
+			for(var key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
 				switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
-					case 'number':
-						if(params[key] && typeof params[key] !== 'number') {
-							value = parseInt(params[key])
+					case "number":
+						if(params[key] && typeof params[key] !== "number") {
+							value = parseInt(params[key]);
 							isNaN(value) ?
 								refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
 								params[key] = value;
@@ -425,7 +425,7 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 			}
 		}
 	}
-}
+};
 
 exports.applyCustomParamValuesfApplicable = function(params) {
 	if (params.name in CONSTANTS.ID_PARTNERS_CUSTOM_VALUES) {
@@ -435,4 +435,4 @@ exports.applyCustomParamValuesfApplicable = function(params) {
 			params[partnerValues[i]["key"]] = partnerValues[i]["value"];
 		}
 	}
-}
+};
