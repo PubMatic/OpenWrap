@@ -318,9 +318,6 @@ exports.getBid = function(divID){ // TDD, i/o : done
 				type: "win-bid-fail",
 			});
 		}
-		if(keyValuePairs['pwtdeal'] ){
-			delete keyValuePairs['pwtdeal'];
-		} 
 	}
 
 	return {wb: winningBid, kvp: keyValuePairs};
