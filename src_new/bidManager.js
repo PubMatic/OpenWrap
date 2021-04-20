@@ -443,6 +443,7 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function getAdUnitSizes(bmEntry){
 	var _adapter = Object.values(bmEntry.adapters).filter(function(adapter){
 		if( Object.values(adapter.bids).filter(function(bid){
