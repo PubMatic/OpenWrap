@@ -309,13 +309,11 @@ describe("adapterManager : ADPTMgr", function() {
 
         beforeEach(function(done) {
             sinon.spy(ADPTMgr, "registerAdapter");
-            sinon.spy(prebid, 'register');
             done();
         });
 
         afterEach(function(done) {
             ADPTMgr.registerAdapter.restore();
-            prebid.register.restore();
             done();
         });
 
@@ -324,10 +322,9 @@ describe("adapterManager : ADPTMgr", function() {
             done();
         });
 
-        it('should have called ADPTMgr.registerAdapter and prebid.register', function(done) {
+        it('should have called ADPTMgr.registerAdapter', function(done) {
             ADPTMgr.registerAdapters();
             ADPTMgr.registerAdapter.calledOnce.should.be.true;
-            prebid.register.calledOnce.should.be.true;
             done();
         });
     });
