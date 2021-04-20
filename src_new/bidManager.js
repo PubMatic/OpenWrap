@@ -420,7 +420,7 @@ function getAdUnitSizes(bmEntry){
 			return adapter;
 	})
 	if(!!_adapter.length){
-	  	return "[1x1]";
+	  	return ["1x1"];
 	}
 	return bmEntry.getSizes();
 }
