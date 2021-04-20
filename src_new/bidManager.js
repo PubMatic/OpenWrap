@@ -457,11 +457,15 @@ function getAdUnitSizes(bmEntry){
 	}
 	return bmEntry.getSizes();
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.getAdUnitSizes = getAdUnitSizes;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
 	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = undefined;
