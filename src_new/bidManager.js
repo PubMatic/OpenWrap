@@ -411,6 +411,24 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	refThis.setImageSrcToPixelURL(pixelURL);
 };
 
+function getAdUnitSizes(bmEntry){
+	var _adapter = Object.values(bmEntry.adapters).filter(function(adapter){
+		if( Object.values(adapter.bids).filter(function(bid){
+			if(!!bid.isWinningBid && bid.adFormat === "native")
+				return bid;
+			}).length == 1)
+			return adapter;
+	})
+	if(!!_adapter.length){
+	  	return "[1x1]";
+	}
+	return bmEntry.getSizes();
+}
+
+/* start-test-block */
+exports.getAdUnitSizes = getAdUnitSizes;
+/* end-test-block */
+
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
 	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = undefined;
@@ -420,7 +438,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
     if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
         var slotObject = {
             "sn": slotID,
-            "sz": bmEntry.getSizes(),
+            "sz": refThis.getAdUnitSizes(bmEntry),
             "ps": []
         };
 
