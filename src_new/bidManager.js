@@ -445,10 +445,10 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function getAdUnitSizes(bmEntry){
-	var _adapter = Object.values(bmEntry.adapters).filter(function(adapter){
-		if( Object.values(adapter.bids).filter(function(bid){
-			if(!!bid.isWinningBid && bid.adFormat === "native")
-				return bid;
+	var _adapter = Object.keys(bmEntry.adapters).filter(function(adapter){
+		if( Object.keys(bmEntry.adapters[adapter].bids).filter(function(bid){
+			if(!!bmEntry.adapters[adapter].bids[bid].isWinningBid && bmEntry.adapters[adapter].bids[bid].adFormat === "native")
+				return bmEntry.adapters[adapter].bids[bid];
 			}).length == 1)
 			return adapter;
 	})
