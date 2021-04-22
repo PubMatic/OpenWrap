@@ -1,26 +1,39 @@
-function fetchAsyncSignals(mode) {
-        switch (mode) {
+function fetchAsyncSignals(mode, customFunction, customKey) {
+    console.log("Going to fetch signals");
+    var eids = "";
+    switch (mode) {
         case 1:
-          var eids=""
-          if(pbjs && pbjs.getUserIdsAsEids && typeof pbjs.getUserIdsAsEids === "function"){
-            eids=pbjs.getUserIdsAsEids(); // Get Identities from Prebid API in oRTB eids structure
-          }
-          break;
+            if (pbjs && pbjs.getUserIdsAsEids && typeof pbjs.getUserIdsAsEids === "function") {
+                eids = pbjs.getUserIdsAsEids(); // Get Identities from Prebid API in oRTB eids structure
+            }
+            break;
         case 2:
-          var eids=""
-          if(owpbjs && owpbjs.getUserIdsAsEids && typeof owpbjs.getUserIdsAsEids === "function"){
-            eids=owpbjs.getUserIdsAsEids(); //Get Identities from Identity Hub  API in oRTB eids structure
-          }
-          break;
+            if (owpbjs && owpbjs.getUserIdsAsEids && typeof owpbjs.getUserIdsAsEids === "function") {
+                eids = owpbjs.getUserIdsAsEids(); //Get Identities from Identity Hub  API in oRTB eids structure
+            }
+            break;
+        case 3:
+            if (typeof customFunction === "function") {
+                eids = customFunction(); //Get Identities from Custom function provided
+            }
+            break;
+
         default:
-          eids="Hello eids"; // Demo data
-         
-      }
-      signals= encryptSignals(JSON.stringify({"eids":eids}))
-      promise = Promise.resolve(signals);       
-      return promise;
+            eids = "Hello eids"; // Demo data
+
+    }
+    var dataKey = "eids" // Default key is eids
+    if (customKey && customKey.length > 0) {
+        dataKey = customKey; // Using custom key for data if passed  
+    }
+    var rawSignal = {}
+    rawSignal[dataKey] = eids;
+    signals = encryptSignals(JSON.stringify(rawSignal))
+    promise = Promise.resolve(signals);
+    console.log("fetching Signals: " + signals);
+    return promise;
 };
 
-function encryptSignals(signals){
+function encryptSignals(signals) {
     return btoa(signals); // Test encryption. To be replaced with better algo
 };
