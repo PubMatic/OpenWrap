@@ -24,16 +24,16 @@ function fetchAsyncSignals(mode, customFunction, customKey) {
 	}
 	var dataKey = "eids" // Default key is eids
 	if (customKey && customKey.length > 0) {
-		dataKey = customKey; // Using custom key for data if passed  
+		dataKey = customKey; // Using custom key for data if passed
 	}
-	var rawSignal = {}
+	var rawSignal = {};
 	rawSignal[dataKey] = eids;
-	var signals = encryptSignals(JSON.stringify(rawSignal))
+	var signals = encryptSignals(JSON.stringify(rawSignal));
 	promise = Promise.resolve(signals);
 	console.log("fetching Signals: " + signals);
 	return promise;
-};
+}
 
 function encryptSignals(signals) {
 	return btoa(signals); // Test encryption. To be replaced with better algo
-};
+}
