@@ -1,0 +1,95 @@
+<html>
+<title>Demo ESP</title>
+
+<head>
+    <link rel="icon" type="image/png" href="/favicon.png">
+  
+    <!-- IE Compatibility Script for ESP (Promise) -->
+    <script type="text/javascript">
+        // Handling for Promise in IE
+        (function() {
+            if (typeof Promise !== "function") {
+                var es6 = document.createElement('script');
+                es6.type = 'text/javascript';
+                es6.src = 'https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js';
+                var es6auto = document.createElement('script');
+                es6auto.type = 'text/javascript';
+                es6auto.src = 'https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js';
+                var node = document.getElementsByTagName('script')[0];
+                node.parentNode.insertBefore(es6, node);
+                node.parentNode.insertBefore(es6auto, node);
+            }
+        })();
+    </script>
+
+    <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+    <!-- ESP Script -->
+    <script async src="eids-esp-1.0.js" data-encrypted-signal-source-id="pubmatic"></script>
+
+    <script type="text/javascript">
+        //Custom Signal Function
+        function getEids() {
+            return "[{\"source\":\"pubcid.org\",\"uids\":[{\"id\":\"0fe1a0e1-1f28-4472-b3b6-26618d8495fa\",\"atype\":1}]}]" // eids array in oRTB format
+        }
+    </script>
+    <script type="text/javascript">
+        var div_1_sizes = [
+            [300, 250],
+            [300, 600]
+        ];
+        var div_2_sizes = [
+            [728, 90],
+            [970, 250]
+        ];
+
+        var googletag = googletag || {};
+        googletag.cmd = googletag.cmd || [];
+        googletag.cmd.push(function() {
+            googletag.encryptedSignalSource = googletag.encryptedSignalSource || {};
+            googletag.encryptedSignalSource["pubmatic"] = function() {
+                mode=3 // 1= eids from Prebid , 2= eids from Identity Hub , 3= Custom Function 
+                return fetchAsyncSignals(3, getEids).then(function(signals) {
+                    return signals;
+                });
+            };
+        });
+
+        googletag.cmd.push(function() {
+            googletag.defineSlot('/19968336/header-bid-tag-0', div_1_sizes, 'div-1').addService(googletag.pubads());
+            googletag.pubads().enableSingleRequest();
+            googletag.enableServices();
+        });
+        googletag.cmd.push(function() {
+            googletag.defineSlot('/19968336/header-bid-tag-1', div_2_sizes, 'div-2').addService(googletag.pubads());
+            googletag.pubads().enableSingleRequest();
+            googletag.enableServices();
+        });
+    </script>
+
+</head>
+
+<body>
+    <h2>Demo ESP with custom Signal Function</h2>
+    <h5>Div-1</h5>
+    <div id='div-1'>
+        <script type='text/javascript'>
+            googletag.cmd.push(function() {
+                googletag.display('div-1');
+            });
+        </script>
+    </div>
+
+    <br>
+
+    <h5>Div-2</h5>
+    <div id='div-2'>
+        <script type='text/javascript'>
+            googletag.cmd.push(function() {
+                googletag.display('div-2');
+            });
+        </script>
+    </div>
+
+</body>
+
+</html>
