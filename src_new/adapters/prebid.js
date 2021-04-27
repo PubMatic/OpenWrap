@@ -76,6 +76,9 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	if (bid.sspID){
 		theBid.setsspID(bid.sspID);
 	}
+	if(bid.wppid){
+		theBid.setWppid(bid.wppid);
+	}
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
 	// Check if currency conversion is enabled or not
@@ -574,6 +577,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		case "pubmatic":
 		case "pubmatic2":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
+			slotParams["wppid"] = adapterConfig["wppid"];
 			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
 			if(isPrebidPubMaticAnalyticsEnabled === false){
 				slotParams["wiid"] = impressionID;

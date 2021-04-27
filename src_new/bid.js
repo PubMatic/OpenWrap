@@ -275,6 +275,15 @@ Bid.prototype.getMi = function(){
 	return this.mi;
 };
 
+Bid.prototype.setWppid = function(wppid){
+	this.wppid = wppid;
+	return this;
+};
+
+Bid.prototype.getWppid = function(){
+	return this.wppid;
+};
+
 Bid.prototype.setOriginalCpm = function(originalCpm){
 	this.originalCpm = window.parseFloat(originalCpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
 	return this;
