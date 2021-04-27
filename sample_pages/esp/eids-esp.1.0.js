@@ -3,12 +3,12 @@ function fetchAsyncSignals(mode, customFunction, customKey) {
 	var eids = "";
 	switch (mode) {
 		case 1:
-			if (pbjs && pbjs.getUserIdsAsEids && typeof pbjs.getUserIdsAsEids === "function") {
+			if (typeof pbjs !== "undefined" && typeof pbjs.getUserIdsAsEids === "function") {
 				eids = pbjs.getUserIdsAsEids(); // Get Identities from Prebid API in oRTB eids structure
 			}
 			break;
 		case 2:
-			if (owpbjs && owpbjs.getUserIdsAsEids && typeof owpbjs.getUserIdsAsEids === "function") {
+			if (typeof owpbjs !== "undefined" && typeof owpbjs.getUserIdsAsEids === "function") {
 				eids = owpbjs.getUserIdsAsEids(); //Get Identities from Identity Hub  API in oRTB eids structure
 			}
 			break;
@@ -29,7 +29,7 @@ function fetchAsyncSignals(mode, customFunction, customKey) {
 	var rawSignal = {};
 	rawSignal[dataKey] = eids;
 	var signals = encryptSignals(JSON.stringify(rawSignal));
-	promise = Promise.resolve(signals);
+	var promise = Promise.resolve(signals);
 	console.log("fetching Signals: " + signals);
 	return promise;
 }
