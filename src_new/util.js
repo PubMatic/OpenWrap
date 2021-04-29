@@ -810,9 +810,13 @@ exports.safeFrameCommunicationProtocol = function(msg){
 		
 		// removeIf(removeNativeRelatedCode)	
 		case 3:
-			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+			if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+				var msg = { message: 'Prebid Native', adId: msgData.pwt_bidID, action: msgData.pwt_action };
+				window.postMessage(JSON.stringify(msg), "*");
+			}else{
+				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
-			if(bidDetails){
+				if(bidDetails){
 					var theBid = bidDetails.bid,
 						adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid;
@@ -822,7 +826,8 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 					bidManager.fireTracker(theBid,msgData.pwt_action);							
 				}
-			break;
+				break;
+			}
 		// endRemoveIf(removeNativeRelatedCode)	
 		}
 	}catch(e){}

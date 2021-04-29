@@ -1369,6 +1369,60 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
+    describe('#getAdUnitSizes', function(){
+        var bmEntryObj = null;
+        var theBid = null;
+
+        beforeEach(function(done) {
+            bmEntryObj = new bmEntryContstuctor("pubmatic");
+            bmEntryObj.setSizes(["720x80"]);
+
+            theBid = new bid(commonAdpterID, commonKGPV);
+
+            sinon.spy(theBid, "getPostTimeoutStatus");
+            bmEntryObj.setAdapterEntry(commonAdpterID);
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+
+            done();
+        })
+
+        afterEach(function(done) {
+            bmEntry = null;
+            theBid = null;
+            done();
+        })
+        it('Should return single size of adunit in case of non-native bid', function(done) {
+            BIDMgr.getAdUnitSizes(bmEntryObj)[0].should.be.equal('720x80');
+            done();
+        });
+
+        it('Should return multiple size of adunit in case of non-native bid', function(done) {
+            bmEntryObj.setSizes(["720x80","640x480"]);
+
+            BIDMgr.getAdUnitSizes(bmEntryObj)[0].should.be.equal('720x80');
+            BIDMgr.getAdUnitSizes(bmEntryObj)[1].should.be.equal('640x480');
+            done();
+        });
+
+        it('Should return 1x1 in case of native bid', function(done) {
+            bmEntryObj.setSizes(["720x80","640x480"]);
+            theBid.isWinningBid = true;
+            theBid.adFormat="native";
+
+            BIDMgr.getAdUnitSizes(bmEntryObj)[0].should.be.equal('1x1');
+            done();
+        });
+
+        it('Should return size of adUnit in case of native with NO-BID', function(done) {
+            theBid.getPostTimeoutStatus.restore();
+            sinon.stub(theBid,"getPostTimeoutStatus").returns(1);
+            theBid.setGrossEcpm(0);
+
+            BIDMgr.getAdUnitSizes(bmEntryObj)[0].should.be.equal('720x80');
+            done();
+        });
+    });
+
     describe('#analyticalPixelCallback', function() {
         var slotID = null,
             bmEntryObj = null,
