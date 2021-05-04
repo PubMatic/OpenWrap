@@ -2,7 +2,7 @@ var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var UTIL = require("./util.js");
 
-function Bid(adapterID, kgpv){
+function Bid(adapterID, kgpv, adapterConfig){
 	this.adapterID = adapterID;
 	this.kgpv = kgpv;
 	this.bidID = UTIL.getUniqueIdentifierStr();
@@ -37,6 +37,8 @@ function Bid(adapterID, kgpv){
 	this.vastCache = undefined;
 	this.renderer = undefined;
 	this.pbBid = undefined;
+	this.wppid = adapterConfig && adapterConfig.wppid || undefined;
+	this.alias = adapterConfig && adapterConfig.alias || 0;
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -284,6 +286,15 @@ Bid.prototype.getWppid = function(){
 	return this.wppid;
 };
 
+Bid.prototype.setAlias = function(alias){
+	this.alias = alias;
+	return this;
+};
+
+Bid.prototype.getAlias = function(){
+	return this.alias;
+};
+
 Bid.prototype.setOriginalCpm = function(originalCpm){
 	this.originalCpm = window.parseFloat(originalCpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
 	return this;
@@ -436,8 +447,8 @@ module.exports.Bid = Bid;
 /* end-test-block */
 
 
-exports.createBid = function(adapterID, kgpv){
-	return new Bid(adapterID, kgpv);
+exports.createBid = function(adapterID, kgpv, adapterConfig){
+	return new Bid(adapterID, kgpv, adapterConfig);
 };
 
 //todo:

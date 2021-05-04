@@ -419,7 +419,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			console.log('Calling handler function');
 			/* istanbul ignore else */
 			if(addZeroBids == true){
-				var bid = BID.createBid(adapterID, generatedKey);
+				var bid = BID.createBid(adapterID, generatedKey, adapterConfig);
 				bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
 				bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
 				bid.setRegexPattern(regexPattern);
@@ -1393,7 +1393,7 @@ exports.getPartnerParams = function(params){
 exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
-	var netEcpm, grossEcpm, kgpv, bidId, adapterId;
+	var netEcpm, grossEcpm, kgpv, bidId, adapterId, wppid, alias;
 	var sspID = "";
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 
@@ -1459,6 +1459,18 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		sspID = theBid.sspID || "";	
 	}
 
+	if(refThis.isFunction(theBid.getWppid)){
+		wppid = theBid.getWppid();
+	}else{
+		wppid = theBid.wppid || undefined;	
+	}
+
+	if(refThis.isFunction(theBid.getAlias)){
+		alias = theBid.getAlias();
+	}else{
+		alias = theBid.alias || 0;	
+	}
+
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
 	pixelURL += "&tst=" + refThis.getCurrentTimestamp();
@@ -1472,6 +1484,8 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&eg=" + window.encodeURIComponent(grossEcpm);
 	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
 	pixelURL += "&piid=" + window.encodeURIComponent(sspID);
+	pixelURL += "&wppid=" + window.encodeURIComponent(wppid);
+	pixelURL += "&alias=" + window.encodeURIComponent(alias);
 
 	return CONSTANTS.COMMON.PROTOCOL + pixelURL;
 };

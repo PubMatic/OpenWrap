@@ -498,7 +498,9 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"af": theBid.getAdFormat(),
 					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
-					"piid": theBid.getsspID()
+					"piid": theBid.getsspID(),
+					"wppid": theBid.getWppid() ? theBid.getWppid() : undefined,
+					"alias": theBid.getAlias() ? theBid.getAlias() : 0,
 				});
             })
         });

@@ -79,6 +79,9 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	if(bid.wppid){
 		theBid.setWppid(bid.wppid);
 	}
+	if(bid.alias){
+		theBid.setAlias(bid.alias);
+	}
 	theBid.setReceivedTime(bid.responseTimestamp);
 	theBid.setServerSideResponseTime(bid.serverSideResponseTime);
 	// Check if currency conversion is enabled or not
@@ -552,7 +555,17 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["video"]= mediaTypeConfig.video;
 		}
 	}
-	
+
+	if(!!adapterConfig["wppid"]){
+		slotParams["wppid"] = adapterConfig["wppid"];
+	}
+
+	if(!!adapterConfig["alias"]){
+		slotParams["alias"] = 1;
+	}else{
+		slotParams["alias"] = 0;
+	}
+
 	//processing for each partner
 	switch(adapterID){
 
@@ -577,7 +590,6 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		case "pubmatic":
 		case "pubmatic2":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
-			slotParams["wppid"] = adapterConfig["wppid"];
 			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
 			if(isPrebidPubMaticAnalyticsEnabled === false){
 				slotParams["wiid"] = impressionID;
@@ -805,6 +817,12 @@ function generateAdUnitsArray(activeSlots, impressionID){
 		//				if we add any new parent-adapter, then code changes will be required
 		/* istanbul ignore else */
 		if(adapterID !== refThis.parentAdapterID){
+
+			if(CONF.alias && CONF.alias[adapterID]){
+				adapterConfig.alias = 1;
+			}else{
+				adapterConfig.alias = 0;
+			}
 
 			//serverSideEabled: we do not want to throttle them at client-side
 			/* istanbul ignore if */
