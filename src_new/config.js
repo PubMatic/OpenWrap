@@ -348,3 +348,14 @@ exports.getMergedConfig = function(toObject, fromObject){
 	}
 	return toObject;
 };
+
+exports.forEachBidderAlias = function (callback) {
+	util.forEachOnObject(config.alias, callback);
+};
+
+exports.getAdapterNameForAlias = function(aliasName){
+	if(config.alias && config.alias[aliasName]){
+		return config.alias[aliasName];
+	}
+	return aliasName;
+};

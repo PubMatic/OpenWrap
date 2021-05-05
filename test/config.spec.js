@@ -2081,4 +2081,71 @@ describe('Config', function() {
             done();
         });
     })
+
+    describe('#forEachBidderAlias', function() {
+        var obj = null;
+
+        beforeEach(function(done) {
+            sinon.spy(UTIL, "forEachOnObject");
+            obj = {
+                callback: function() {
+                    return "callback";
+                }
+            };
+            sinon.spy(obj, "callback");
+            CONF.alias = {
+                appnexus2 : "appnexus"
+            }
+            done();
+        });
+
+        afterEach(function(done) {
+            UTIL.forEachOnObject.restore();
+            obj.callback.restore();
+            CONF.alias = {};
+            done();
+        });
+
+        it('is a function', function(done) {
+            CONFIG.forEachBidderAlias.should.be.a('function');
+            done();
+        });
+
+        it('should have called UTIL.forEachOnObject with conf alias and callback function being passed', function(done) {
+            CONFIG.forEachBidderAlias(obj.callback);
+            UTIL.forEachOnObject.calledWith(CONF.alias, obj.callback).should.be.true;
+            obj.callback.called.should.be.true;
+            done();
+        });
+    });
+
+    describe('#getAdapterNameForAlias', function() {
+
+        beforeEach(function(done) {
+            CONF.alias = {
+                appnexus2 : "appnexus"
+            }
+            done();
+        });
+
+        afterEach(function(done) {
+            CONF.alias = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            CONFIG.getAdapterNameForAlias.should.be.a('function');
+            done();
+        });
+
+        it('should return adapter name when alias name is passed', function(done) {
+            expect(CONFIG.getAdapterNameForAlias("appnexus2")).to.equal("appnexus");
+            done();
+        });
+
+        it('should return the input value , if alias name is not present in alias array', function(done) {
+            expect(CONFIG.getAdapterNameForAlias("pubmatic")).to.equal("pubmatic");
+            done();
+        });
+    });
 });

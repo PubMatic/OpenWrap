@@ -1292,4 +1292,51 @@ describe('ADAPTER: Prebid', function() {
 
     })
 
+    describe("#configureBidderAliasesIfAvailable", function(){
+
+        beforeEach(function(done) {
+            sinon.stub(UTIL, 'isFunction');
+            sinon.spy(UTIL, 'logWarning');
+            sinon.spy(CONFIG, 'forEachBidderAlias');
+
+            window.owpbjs = {};
+
+            windowPbJS2Stub = {
+                aliasBidder: function () {
+                    return "aliasBidder";
+                }
+            };
+            sinon.spy(windowPbJS2Stub, "aliasBidder");
+            window["owpbjs"] = windowPbJS2Stub;
+            done();
+        });
+
+        afterEach(function(done){
+            UTIL.isFunction.restore();
+            UTIL.logWarning.restore();
+            CONFIG.forEachBidderAlias.restore();
+            windowPbJS2Stub.aliasBidder.restore();
+            delete window.owpbjs;
+            done();
+        })
+        
+        it('should be a functiion',function(done){
+            PREBID.configureBidderAliasesIfAvailable.should.be.a('function');
+            done();
+        });
+
+        it('returns log message when aliasBidder function is not available', function (done) {
+            UTIL.isFunction.returns(false);
+            PREBID.configureBidderAliasesIfAvailable();
+            UTIL.logWarning.calledWith("PreBid js aliasBidder method is not available").should.be.true;
+            done();
+        });
+
+        it('call forEachBidderAlias function if bidders are present', function (done) {
+            UTIL.isFunction.returns(true);
+            PREBID.configureBidderAliasesIfAvailable();
+            CONFIG.forEachBidderAlias.called.should.be.true;
+            done();
+        });  
+    })
 });
