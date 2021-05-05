@@ -348,3 +348,10 @@ exports.getMergedConfig = function(toObject, fromObject){
 	}
 	return toObject;
 };
+
+exports.isAliasedBidder = function(adapterID){
+	if(config.alias && config.alias[adapterID]){
+		return 1;
+	}
+	return 0;
+}
