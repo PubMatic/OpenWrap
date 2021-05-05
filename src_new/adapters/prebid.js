@@ -722,7 +722,10 @@ exports.assignUserSyncConfig = assignUserSyncConfig;
 
 function assignGdprConfigIfRequired(prebidConfig){
 	if (CONFIG.getGdpr()) {
-		prebidConfig["consentManagement"] = {
+		if(!prebidConfig["consentManagement"]){
+			prebidConfig["consentManagement"] = {};
+		}
+		prebidConfig["consentManagement"]["gdpr"] = {
 			cmpApi: CONFIG.getCmpApi(),
 			timeout: CONFIG.getGdprTimeout(),
 			allowAuctionWithoutConsent: CONFIG.getAwc() // Auction without consent
