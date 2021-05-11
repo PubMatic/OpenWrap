@@ -826,8 +826,8 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 					bidManager.fireTracker(theBid,msgData.pwt_action);							
 				}
-				break;
 			}
+			break;
 		// endRemoveIf(removeNativeRelatedCode)	
 		}
 	}catch(e){}
