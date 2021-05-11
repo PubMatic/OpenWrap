@@ -3332,7 +3332,7 @@ describe('UTIL', function() {
         });
 
         it('should return timeout, owversion and pbversion',function(done){
-            var expectedResult = {"timeout":3000,"openwrap_version":"v19.0.0","prebid_version":"v3.14.0","profileId":"46","profileVersionId":"4"} ;
+            var expectedResult = {"timeout":3000,"openwrap_version":"v21.4.0","prebid_version":"v4.33.0","profileId":"46","profileVersionId":"4"} ;
             var result = UTIL.getOWConfig();
             console.log("Version Details:"+ JSON.stringify(result));
             result.should.be.deep.equal(expectedResult);
