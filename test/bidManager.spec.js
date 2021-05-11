@@ -1233,7 +1233,7 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(CONFIG, 'getPublisherId');
             sinon.spy(CONFIG, 'getProfileID');
             sinon.spy(CONFIG, 'getProfileDisplayVersionID');
-            sinon.spy(CONFIG, 'getAdapterNameForAlias');
+            sinon.stub(CONFIG, 'getAdapterNameForAlias');
             sinon.stub(theBid, 'getBidID');
             theBid.getBidID.returns('784b05cc03a84a');
             sinon.spy(theBid, 'getAdapterID');
@@ -1350,6 +1350,32 @@ describe('bidManager BIDMgr', function() {
          // TODO 17 JAn 2020 Make below test cases as pass.
         it('should generate proper pixelURL ', function(done) {
 
+            var pixelURL = CONSTANTS.COMMON.PROTOCOL + CONFIG.getMonetizationPixelURL();
+            pixelURL += "pubid=" + CONFIG.getPublisherId();
+            pixelURL += "&purl=" + window.encodeURIComponent(UTIL.metaInfo.pageURL);
+            pixelURL += "&tst=" + UTIL.getCurrentTimestamp();
+            pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
+            pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
+            pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
+            pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
+            pixelURL += "&slot=" + window.encodeURIComponent(slotID);
+            pixelURL += "&bc=" + window.encodeURIComponent(theBid.getAdapterID());
+            pixelURL += "&pn=" + window.encodeURIComponent(CONFIG.getAdapterNameForAlias(theBid.getAdapterID()));
+            pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
+            pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
+            pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
+            pixelURL += "&piid=" + window.encodeURIComponent(theBid.getsspID());
+
+            BIDMgr.executeMonetizationPixel(slotID, theBid);
+            BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;
+
+            done();
+        });
+
+        it('should generate proper pixelURL for bidder aliases', function(done) {
+
+            theBid.adapterID = "pubmatic21";
+            CONFIG.getAdapterNameForAlias.returns('pubmatic');
             var pixelURL = CONSTANTS.COMMON.PROTOCOL + CONFIG.getMonetizationPixelURL();
             pixelURL += "pubid=" + CONFIG.getPublisherId();
             pixelURL += "&purl=" + window.encodeURIComponent(UTIL.metaInfo.pageURL);
