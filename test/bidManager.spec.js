@@ -1239,6 +1239,7 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, 'getNetEcpm');
             sinon.spy(theBid, 'getGrossEcpm');
             sinon.spy(theBid, 'getKGPV');
+            sinon.spy(theBid, 'getsspID');
             origImage = window.Image;
             window.Image = sinon.stub();
             window.Image.returns({});
@@ -1277,6 +1278,7 @@ describe('bidManager BIDMgr', function() {
             theBid.getNetEcpm.restore();
             theBid.getGrossEcpm.restore();
             theBid.getKGPV.restore();
+            theBid.getsspID.restore();
             theBid = null;
 
             window.Image = origImage;
@@ -1337,7 +1339,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(10);
+            window.encodeURIComponent.callCount.should.be.equal(11);
 
             done();
         });
@@ -1358,6 +1360,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
+            pixelURL += "&piid=" + window.encodeURIComponent(theBid.getsspID());
 
             BIDMgr.executeMonetizationPixel(slotID, theBid);
             BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;

@@ -1,7 +1,7 @@
 var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
-var GDPR = require("./gdpr.js");
+// var GDPR = require("./gdpr.js");
 var bmEntry = require("./bmEntry.js");
 
 var refThis = this;
@@ -57,16 +57,17 @@ exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
 	if(lastBidID != ""){
 
 		var lastBid = bidMapEntry.getBid(bidderID, lastBidID), //todo: what if the lastBid is null
-			lastBidWasDefaultBid = lastBid.getDefaultBidStatus() === 1
+			lastBidWasDefaultBid = lastBid.getDefaultBidStatus() === 1,
+			lastBidWasErrorBid = lastBid.getDefaultBidStatus() === -1
 			;
 
-		if( lastBidWasDefaultBid || !isPostTimeout){
+		if( lastBidWasDefaultBid || !isPostTimeout || lastBidWasErrorBid){
 			/* istanbul ignore else */
 			if(lastBidWasDefaultBid){
 				util.log(CONSTANTS.MESSAGES.M23 + bidderID);
 			}
 
-			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() ){
+			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() || lastBidWasErrorBid){
 				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14 + bidderID);
 				refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 			}else{
@@ -117,13 +118,18 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 exports.storeBidInBidMap = storeBidInBidMap;
 /* end-test-block */
 
-exports.resetBid = function(divID, impressionID){ // TDD, i/o : done
+function resetBid(divID, impressionID){ // TDD, i/o : done
 	util.vLogInfo(divID, {type: "hr"});
 	delete window.PWT.bidMap[divID];
 	refThis.createBidEntry(divID);
 	window.PWT.bidMap[divID].setImpressionID(impressionID);
-};
+}
 
+/* start-test-block */
+exports.resetBid = resetBid;
+/* end-test-block */
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function createMetaDataKey(pattern, bmEntry, keyValuePairs){
 	var output = "",
 		validBidCount = 0,
@@ -155,11 +161,15 @@ function createMetaDataKey(pattern, bmEntry, keyValuePairs){
     output = output.replace(new RegExp(macros.PARTNER_COUNT, macroRegexFlag), partnerCount);
     keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.META_DATA] = encodeURIComponent(output);
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.createMetaDataKey = createMetaDataKey;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function replaceMetaDataMacros(pattern, theBid){
 	var macros = CONSTANTS.METADATA_MACROS,
 		macroRegexFlag = "g"
@@ -171,11 +181,15 @@ function replaceMetaDataMacros(pattern, theBid){
 		.replace(new RegExp(macros.GROSS_ECPM, macroRegexFlag), theBid.getGrossEcpm())
 		.replace(new RegExp(macros.NET_ECPM, macroRegexFlag), theBid.getNetEcpm());
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.replaceMetaDataMacros = replaceMetaDataMacros;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function auctionBids(bmEntry) { // TDD, i/o : done
     var winningBid = null,
         keyValuePairs = {};
@@ -186,19 +200,26 @@ function auctionBids(bmEntry) { // TDD, i/o : done
         keyValuePairs = obj.keyValuePairs;
     });
 
+    // removeIf(removeLegacyAnalyticsRelatedCode)
     if(CONFIG.getMataDataPattern() !== null){
     	createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);
-    }	
+    }
+    // endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
     return {
         wb: winningBid,
         kvp: keyValuePairs
     };
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.auctionBids = auctionBids;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeNativeRelatedCode)
 function updateNativeTargtingKeys(keyValuePairs) {
 	for(var key in keyValuePairs) {
 		if (key.indexOf("native") >= 0 && key.split("_").length === 3) {
@@ -206,12 +227,15 @@ function updateNativeTargtingKeys(keyValuePairs) {
 		}
 	}
 }
+// endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeNativeRelatedCode)
 /* start-test-block */
 exports.updateNativeTargtingKeys = updateNativeTargtingKeys;
 /* end-test-block */
+// endRemoveIf(removeNativeRelatedCode)
 
-
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) { // TDD, i/o : done
 	var refThis = this;
     if (adapterEntry.getLastBidID() != "") {
@@ -230,11 +254,15 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
 			if (winningBid !== null ) {
 				if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
 					// i.e. the current bid is the winning bid, so remove the native keys from keyValuePairs
+					// removeIf(removeNativeRelatedCode)
 					refThis.updateNativeTargtingKeys(keyValuePairs);
+					// endRemoveIf(removeNativeRelatedCode)
 				} else {
 					// i.e. the current bid is not the winning bid, so remove the native keys from theBid.keyValuePairs
 					var bidKeyValuePairs = theBid.getKeyValuePairs();
+					// removeIf(removeNativeRelatedCode)
 					refThis.updateNativeTargtingKeys(bidKeyValuePairs);
+					// endRemoveIf(removeNativeRelatedCode)
 					theBid.keyValuePairs = bidKeyValuePairs;
 				}
 			}
@@ -256,11 +284,15 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
     	return { winningBid: winningBid , keyValuePairs: keyValuePairs };
     }
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.auctionBidsCallBack = auctionBidsCallBack;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.getBid = function(divID){ // TDD, i/o : done
 
 	var winningBid = null;
@@ -290,7 +322,9 @@ exports.getBid = function(divID){ // TDD, i/o : done
 
 	return {wb: winningBid, kvp: keyValuePairs};
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.getBidById = function(bidID) { // TDD, i/o : done
 	/* istanbul ignore else */
     if (!util.isOwnProperty(window.PWT.bidIdMap, bidID)) {
@@ -319,8 +353,9 @@ exports.getBidById = function(bidID) { // TDD, i/o : done
     util.log(CONSTANTS.MESSAGES.M25 + bidID);
     return null;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 	var bidDetails = refThis.getBidById(bidID);
 	/* istanbul ignore else */
@@ -333,7 +368,9 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 		refThis.executeMonetizationPixel(divID, theBid);
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	var outputObj = {
 			s: []
@@ -358,6 +395,13 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
+	outputObj["tgid"] = (function() {
+	    var testGroupId = parseInt(PWT.testGroupId || 0);
+	    if (testGroupId <= 15 && testGroupId >= 0) {
+	      return testGroupId;
+	    }
+	    return 0;
+	})();
 
 	// As discussed we won't be seding gdpr data to logger
 	// if (CONFIG.getGdpr()) {
@@ -387,7 +431,9 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		}
 	});
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	var pixelURL = util.generateMonetizationPixel(slotID,theBid);
 	if(!pixelURL){
@@ -395,7 +441,9 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 	}
 	refThis.setImageSrcToPixelURL(pixelURL);
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
 	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = undefined;
@@ -486,6 +534,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"af": theBid.getAdFormat(),
 					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
+					"piid": theBid.getsspID()
 				});
             })
         });
@@ -496,13 +545,18 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 		}
     }
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.analyticalPixelCallback = analyticalPixelCallback;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 
-
+// removeIf(removeLegacyAnalyticsRelatedCode)
+// todo: using removeLegacyAnalyticsRelatedCode will make this function unavailable with PBJS analytics, 
+//			i assume we will not be using this function for Native when PBJS analytics is enabled
 /**
  * function which takes url and creates an image and executes them
  * used to execute trackers
@@ -521,6 +575,7 @@ exports.setImageSrcToPixelURL = function (pixelURL, useProtocol) { // TDD, i/o :
 	}
 	img.src = pixelURL;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 
 exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
@@ -542,6 +597,7 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 };
 
 
+// removeIf(removeNativeRelatedCode)
 /**
  * This function is used to execute trackers on event
  * in case of native. On click of native create element
@@ -559,7 +615,9 @@ exports.loadTrackers = function(event){
 		"*"
 	);
 };
+// endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeNativeRelatedCode)
 /**
  * function takes bidID and post a message to parent pwt.js to execute monetization pixels.
  * @param {*} bidID
@@ -575,7 +633,9 @@ exports.executeTracker = function(bidID){
 		"*"
 	);
 };
+// endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeNativeRelatedCode)
 /**
  * based on action it executes either the clickTrackers or
  * impressionTrackers and javascriptTrackers.
@@ -609,10 +669,12 @@ exports.fireTracker = function(bidDetails, action) {
 	}
 	(trackers || []).forEach(function(url){refThis.setImageSrcToPixelURL(url,false);});
 };
+// endRemoveIf(removeNativeRelatedCode)
 
 
 // this function generates all satndard key-value pairs for a given bid and setup, set these key-value pairs in an object
 // todo: write unit test cases
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.setStandardKeys = function(winningBid, keyValuePairs){
 	if (winningBid) {
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ] = winningBid.getBidID();
@@ -627,8 +689,8 @@ exports.setStandardKeys = function(winningBid, keyValuePairs){
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID ] = CONFIG.getProfileID();
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID ] = CONFIG.getProfileDisplayVersionID();
         keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ] = winningBid.width + 'x' + winningBid.height;
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ] = winningBid.getAdFormat() == CONSTANTS.FORMAT_VALUES.VIDEO ? CONSTANTS.PLATFORM_VALUES.VIDEO : (winningBid.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
-		if(winningBid.getAdFormat() == CONSTANTS.FORMAT_VALUES.VIDEO){
+        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ] = (winningBid.getAdFormat() == CONSTANTS.FORMAT_VALUES.VIDEO && winningBid.getcacheUUID()) ? CONSTANTS.PLATFORM_VALUES.VIDEO : (winningBid.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
+		if(winningBid.getAdFormat() == CONSTANTS.FORMAT_VALUES.VIDEO && winningBid.getcacheUUID()){
 			keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_PATH ] = CONSTANTS.CONFIG.CACHE_PATH;
 			keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_URL ] = CONSTANTS.CONFIG.CACHE_URL;
 			keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_ID ] = winningBid.getcacheUUID();
@@ -638,3 +700,4 @@ exports.setStandardKeys = function(winningBid, keyValuePairs){
     	util.logWarning(winningBid);
     }
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)

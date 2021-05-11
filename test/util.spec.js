@@ -86,6 +86,23 @@ describe('UTIL', function() {
         });
     });
 
+    /* start-test-block */
+    describe('#getRandomNumberBelow100', function() {
+
+        it('is a function', function (done) {
+            UTIL.getRandomNumberBelow100.should.be.a('function');
+            done();
+        });
+
+        it('returns numeric value below 100', function(done) {
+            var result = UTIL.getRandomNumberBelow100();
+            result.should.be.below(100);
+            done();
+        });
+    });
+    /* end-test-block */
+
+
     describe('#isFunction', function() {
 
         it('is a function', function(done) {
@@ -460,7 +477,8 @@ describe('UTIL', function() {
 
     describe('#generateSlotNamesFromPattern', function() {
         var activeSlot = null,
-            pattern = null;
+            pattern = null,
+            videoSlot = [];
 
         beforeEach(function(done) {
             sinon.spy(UTIL, "isObject");
@@ -503,6 +521,8 @@ describe('UTIL', function() {
             activeSlot.getDivID.restore();
             activeSlot = null;
             pattern = null;
+            videoSlot = null;
+            UTIL.mediaTypeConfig ={};
             done();
         });
 
@@ -544,14 +564,77 @@ describe('UTIL', function() {
             activeSlot.getSizes.calledOnce.should.be.true;
             activeSlot.getAdUnitID.calledOnce.should.be.true;
             activeSlot.getAdUnitIndex.calledOnce.should.be.true;
-            activeSlot.getDivID.calledOnce.should.be.true;
+            activeSlot.getDivID.calledTwice.should.be.true;
             done();
         });
 
+        // Uncomment Below code once phantom js has been replaced with chrome headless
+        xit('should have assigned videoSlot if video config is present',function(done){
+            videoSlot = [];
+            UTIL.mediaTypeConfig = {
+                "Div_1":{
+                    video:{
+                        'test':'property'
+                    }
+                }
+            }
+            // sinon.stub(UTIL, "mediaTypeConfig").returns();
+            pattern = '_DIV_@_W_x_H_';
+            var expectedResult = "Div_1@0x0";
+            var generatedKeys = UTIL.generateSlotNamesFromPattern(activeSlot, pattern, true, videoSlot);
+            expect(videoSlot[0]).to.be.equal(expectedResult);
+            done();
+        });
 
+        //TODO: Uncomment Below code once phantom js has been replaced with chrome headless
+        xit('should not have assigned videoSlot if video config is not present',function(done){
+            videoSlot = [];
+            UTIL.mediaTypeConfig ={};
+            pattern = '_DIV_@_W_x_H_';
+            var expectedResult = "Div_1@0x0";
+            var generatedKeys = UTIL.generateSlotNamesFromPattern(activeSlot, pattern, true, videoSlot);
+            expect(videoSlot).to.be.deep.equal([]);
+            done();
+        });
+
+        //TODO: Uncomment Below code once phantom js has been replaced with chrome headless
+        xit('should not have assigned videoSlot if video config is present but flag for video is false',function(done){
+            videoSlot = [];
+            UTIL.mediaTypeConfig = {
+                "Div_1":{
+                    video:{
+                        'test':'property'
+                    }
+                }
+            }
+            // sinon.stub(UTIL, "mediaTypeConfig").returns();
+            pattern = '_DIV_@_W_x_H_';
+            var expectedResult = "Div_1@0x0";
+            var generatedKeys = UTIL.generateSlotNamesFromPattern(activeSlot, pattern, false, videoSlot);
+            expect(videoSlot).to.be.deep.equal([]);
+            done();
+        });
+
+        //TODO: Uncomment Below code once phantom js has been replaced with chrome headless
+        xit('should not update the sizes of active slot', function(done){
+            videoSlot = [];
+            UTIL.mediaTypeConfig = {
+                "Div_1":{
+                    video:{
+                        'test':'property'
+                    }
+                }
+            }
+            UTIL.generateSlotNamesFromPattern(activeSlot, pattern, true, videoSlot);
+            var sizes = activeSlot.getSizes()
+            expect(sizes).to.be.deep.equal([
+                [1024, 120]
+            ]);
+            done();
+        })
     });
 
-    describe('#checkMandatoryParams', function() {
+    xdescribe('#checkMandatoryParams', function() {
         var object = null,
             keys = null,
             adapterID = null;
@@ -694,7 +777,7 @@ describe('UTIL', function() {
             done();
         });
 
-        it('should check whether activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
+        xit('should check whether activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
             UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
             UTIL.forEachOnArray.should.be.calledOnce;
             UTIL.generateSlotNamesFromPattern.should.be.calledOnce;
@@ -720,7 +803,7 @@ describe('UTIL', function() {
             done();
         });
 
-        it('should check call handler function if activeslots is not empty ad key generation pattern is regex pattern', function(done) {
+        xit('should check call handler function if activeslots is not empty ad key generation pattern is regex pattern', function(done) {
             adapterConfig.kgp = undefined;
             adapterConfig.kgp_rx = "_AU_@_DIV_@_W_x_H_";
             UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
@@ -911,90 +994,6 @@ describe('UTIL', function() {
             done();
         });
 
-    });
-
-    describe('#getScreenWidth', function() {
-        var win = null;
-
-        beforeEach(function(done) {
-            win = {
-                innerHeight: 1024,
-                innerWidth: 768,
-                document: {
-                    documentElement: {
-                        clientWidth: 768
-                    },
-                    body: {
-                        clientWidth: 921
-                    }
-                }
-            };
-            done();
-        });
-
-        afterEach(function(done) {
-            done();
-        });
-
-        it('is a function', function(done) {
-            UTIL.getScreenWidth.should.be.a('function');
-            done();
-        });
-
-        it('should return screen width of given window object', function(done) {
-            delete win.innerHeight;
-            UTIL.getScreenWidth(win).should.be.equal(768);
-            done();
-        });
-
-        it('should return screen width of given window object', function(done) {
-            delete win.innerHeight;
-            delete win.document.documentElement.clientWidth;
-            UTIL.getScreenWidth(win).should.be.equal(921);
-            done();
-        });
-    });
-
-    describe('#getScreenHeight', function() {
-        var win = null;
-
-        beforeEach(function(done) {
-            win = {
-                innerHeight: 1024,
-                innerWidth: 768,
-                document: {
-                    documentElement: {
-                        clientHeight: 768
-                    },
-                    body: {
-                        clientHeight: 921
-                    }
-                }
-            };
-            done();
-        });
-
-        afterEach(function(done) {
-            done();
-        });
-
-        it('is a function', function(done) {
-            UTIL.getScreenHeight.should.be.a('function');
-            done();
-        });
-
-        it('should return screen width of given window object', function(done) {
-            delete win.innerHeight;
-            UTIL.getScreenHeight(win).should.be.equal(768);
-            done();
-        });
-
-        it('should return screen width of given window object', function(done) {
-            delete win.innerHeight;
-            delete win.document.documentElement.clientHeight;
-            UTIL.getScreenHeight(win).should.be.equal(921);
-            done();
-        });
     });
 
     describe('#forEachOnObject', function() {
@@ -1278,38 +1277,6 @@ describe('UTIL', function() {
 
         it('should return whether given window object is iframe or not', function(done) {
             UTIL.isIframe(theWindow).should.be.true;
-            done();
-        });
-    });
-
-    describe('#findInString', function() {
-        var theString = null,
-            find = null;
-
-        beforeEach(function(done) {
-            theString = "lorem Ipsum";
-            find = "Ipsum";
-            done();
-        });
-
-        afterEach(function(done) {
-            theString = null;
-            find = null;
-            done();
-        });
-
-        it('is a function', function(done) {
-            UTIL.findInString.should.be.a('function');
-            done();
-        });
-
-        it('should return false when given substring is not found in given main string', function(done) {
-            UTIL.findInString(theString, "nomatch").should.be.false;
-            done();
-        });
-
-        it('should return true when given substring is found in given main string', function(done) {
-            UTIL.findInString(theString, find).should.be.true;
             done();
         });
     });
@@ -2700,6 +2667,120 @@ describe('UTIL', function() {
             expect(result).to.be.deep.equal(expectedResult);
             done();
         });
+
+
+        it('should return partnerConfig if present with the div',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_1");
+            slotConfiguration["config"]["DIV_1"].video = {
+                enabled:true,
+                config: {
+                    "someconfig" :"someconfigvalue"
+                },
+                partnerConfig : {
+                    "pubmatic": {
+                        "outstreamAU" :"pubmatictest"
+                    }
+                }
+            };
+            var expectedResult = {
+                "pubmatic":{
+                    "outstreamAU" :"pubmatictest"
+                }
+            };
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig;
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return partnerConfig if not present with the div',function(done){
+            currentSlot.getDivID.restore();
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig
+            expect(result).to.be.undefined
+            done();
+        });
+
+        it('should return partnerConfig if present in default',function(done){
+            CONFIG.getSlotConfiguration.restore();
+            slotConfiguration ={
+                configPattern:"_DIV_", // Or it Could be _AU_
+                config:{
+                }
+            }
+            slotConfiguration.config["default"] ={
+                video:{
+                    enabled:true,
+                    config:{
+                        "someconfig" :"someconfigvalue"
+                    },
+                    partnerConfig : {
+                        "pubmatic":{
+                            "outstreamAU" :"pubmatictest"
+                        }
+                    }
+                },
+                native:{
+                    enabled:false
+                },
+                banner:{
+                    enabled:true
+                }
+            };
+            sinon.stub(CONFIG,"getSlotConfiguration").returns(slotConfiguration);
+            var expectedResult = {
+                "pubmatic":{
+                    "outstreamAU" :"pubmatictest"
+                }
+            }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig;
+            console.log('Result for the partnerConfig is ' , JSON.stringify(result));
+
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return partnerConfig if not present in default and div',function(done){
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig;
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.undefined;
+            done();
+        });
+
+        it('should return div partnerConfig if present in default and div',function(done){
+            slotConfiguration.config["default"] = {};
+            slotConfiguration.config["default"].video = {
+                enabled:true,
+                config:{
+                    "someconfig" :"defaultsomeconfigvalue"
+                },
+                partnerConfig : {
+                    "pubmatic":{
+                        "outstreamAU" :"defaultpubmatictest"
+                    }
+                }
+            };
+             slotConfiguration.config["DIV_1"].video = {
+                enabled:true,
+                config:{
+                    "someconfig" :"someconfigvalue"
+                },
+                partnerConfig : {
+                    "pubmatic":{
+                        "outstreamAU" :"pubmatictest"
+                    }
+                }
+            };
+            var expectedResult = {
+                "pubmatic":{
+                    "outstreamAU" :"pubmatictest"
+                }
+             }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject.partnerConfig
+            console.log("Result is " + JSON.stringify(result));
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
     });
 
     describe('#getAdFormatFromBidAd', function(){
@@ -3066,25 +3147,37 @@ describe('UTIL', function() {
     });
     
     describe('#callHandlerFunctionForMapping',function(){
-        var adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern;
-
+        var adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern,videoSlotName,keyGenerationPattern,obj;
         beforeEach(function(done){
             adapterID  = commonAdapterID;
             adUnits = "adUnits";
+            keyGenerationPattern =  "_W_x_H_";
             adapterConfig = {
                 kgp: "_W_x_H_",
                 klm: {
-                    "generatedKeys": "some_vale"
+                    "0x0": "some_value",
+                    "300x250":"some_other_value"
                 }
             };
+            generatedKeys = ["300x250"];
+            videoSlotName = ["0x0"];
             impressionID = "impressionID";
             slotConfigMandatoryParams = "slotConfigMandatoryParams";
             activeSlots = [new SLOT("slot_1"), new SLOT("slot_2")];
+            activeSlots[0].setSizes([[300,250]]);
+            activeSlots[1].setSizes([300,250]);
             obj = {
-                handlerFunction: function() {
+                handlerFunction : function(a,b,c,d,e,f,g,h,i,j) {
                     return "handlerFunction"
                 }
-            };
+            }
+            UTIL.getPartnerParams = function(){
+                return "parnterParams";
+            }
+            UTIL.checkMandatoryParams = function(){
+                return true;
+            }
+            sinon.spy(UTIL,"checkMandatoryParams")
             sinon.spy(obj, "handlerFunction");
             addZeroBids = true;
             done();
@@ -3095,20 +3188,39 @@ describe('UTIL', function() {
             adUnits = null;
             adapterConfig = null;
             impressionID = null;
+            videoSlotName = null;
             slotConfigMandatoryParams = null;
+            keyGenerationPattern = null;
             activeSlots = null;
-            obj.handlerFunction.restore();
-            obj.handlerFunction = null;
+            generatedKeys = null;
+            handlerFunction = null;
             addZeroBids = null;
+            obj.handlerFunction.restore();
+            UTIL.checkMandatoryParams.restore();
             done();
         });
 
         describe('flow for normal mapping',function(){
 
-            if('should  call handler function',function(done){
+            it('should  call handler function',function(done){
                 adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] = undefined;
                 UTIL.forEachOnArray.should.be.calledOnce;
                 UTIL.getConfigFromRegex.should.not.be.called;
+                done();
+            });
+
+            it('should called handler function with video mapping',function(done){
+                adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] = undefined;
+                UTIL.callHandlerFunctionForMapping(adapterID,adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,false,keyGenerationPattern,videoSlotName);
+                obj.handlerFunction.calledWith(adapterID,adUnits,adapterConfig,impressionID,videoSlotName[0],true,activeSlots[0],"parnterParams",activeSlots[0].getSizes()[0][0],activeSlots[0].getSizes()[0][1],undefined).should.be.true;
+                done();
+            });
+
+
+            it('should called handler function with generated key if video mapping is not available',function(done){
+                adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] = undefined;
+                UTIL.callHandlerFunctionForMapping(adapterID,adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,false,keyGenerationPattern,undefined);
+                obj.handlerFunction.calledWith(adapterID,adUnits,adapterConfig,impressionID,generatedKeys[0],true,activeSlots[0],"parnterParams",activeSlots[0].getSizes()[0][0],activeSlots[0].getSizes()[0][1],undefined).should.be.true;
                 done();
             });
 
@@ -3116,7 +3228,7 @@ describe('UTIL', function() {
 
         describe('flow for regex mapping',function(){
 
-            if('should  call handler function',function(done){
+            it('should  call handler function',function(done){
                 adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = undefined;
                 UTIL.forEachOnArray.should.be.calledOnce;
                 UTIL.getConfigFromRegex.should.be.calledOnce;
@@ -3330,4 +3442,85 @@ describe('UTIL', function() {
             done();
         })
     })
+  
+   describe('#applyDataTypeChangesIfApplicable', function() {
+        var params;
+        beforeEach(function(done) {
+            params = {"name": "intentIqId","params.partner":"123","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+            done();
+        });
+
+        afterEach(function(done) {
+            params = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.applyDataTypeChangesIfApplicable.should.be.a('function');
+            done();
+        });
+
+        it('should update the param value with correct datatype',function(done){
+            var expectedResult = {"name": "intentIqId","params.partner":123,"storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+            UTIL.applyDataTypeChangesIfApplicable(params);
+            params.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should keep the param value unchanged and print a log message if datatype conversion is not possible',function(done){
+            params = {"name": "intentIqId","params.partner":"abc","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+            var expectedResult = {"name": "intentIqId","params.partner":"abc","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+
+            UTIL.applyDataTypeChangesIfApplicable(params);
+            params.should.deep.equal(expectedResult);
+            UTIL.logError.should.be.calledOnce;
+
+            done();
+        });
+    });  
+
+
+      
+   describe('#getUpdatedKGPVForVideo', function() {
+    var kgpv, adFormat;
+        beforeEach(function(done) {
+            kgpv = "Div1@728x90";
+            adFormat = "video"
+            done();
+        });
+
+        afterEach(function(done) {
+            params = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.getUpdatedKGPVForVideo.should.be.a('function');
+            done();
+        });
+
+        it('should update the kgpv value with 0x0 for video',function(done){
+            var expectedResult = "Div1@0x0"
+            UTIL.getUpdatedKGPVForVideo(kgpv, adFormat).should.deep.equal(expectedResult);
+            done();
+        });
+        
+
+        it('should not update kgpv if adformat is not video',function(done){
+            adFormat = "banner";
+            var expectedResult = "Div1@728x90";
+            UTIL.getUpdatedKGPVForVideo(kgpv, adFormat).should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not update kgpv if adformat is video and kgpv is Div',function(done){
+            adFormat = "video";
+            kgpv = "Div1";
+            var expectedResult = "Div1";
+            UTIL.getUpdatedKGPVForVideo(kgpv, adFormat).should.deep.equal(expectedResult);
+            done();
+        });
+    });  
+    
+  
 });

@@ -3,7 +3,7 @@ var StringReplacePlugin = require('string-replace-webpack-plugin');
 var path = require('path');
 
 var controllerPaths = {
-	UAS: "./controllers/uas.js",
+	IDHUB: "./controllers/idhub.js",
 	DFP: "./controllers/gpt.js",
 	CUSTOM: "./controllers/custom.js"
 };
@@ -29,7 +29,7 @@ module.exports = {
                     {
                       pattern: /%%PATH_TO_CONTROLLER%%/g,
                       replacement: function (match, p1, offset, string) {
-                        return controllerPaths[conf.pwt.adserver || "DFP"];
+                        return controllerPaths[conf.pwt.adserver || 'DFP']
                       }
                     }
                   ]

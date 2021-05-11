@@ -2,7 +2,8 @@ var util = require("./util.js");
 var controller = require("%%PATH_TO_CONTROLLER%%");
 var bidManager = require("./bidManager.js");
 var CONSTANTS = require("./constants.js");
-
+var CONFIG = require("./config.js");
+var ucTag = require("prebid-universal-creative");
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
 window.PWT.bidMap = window.PWT.bidMap || {};
@@ -20,48 +21,80 @@ window.PWT.udpv = window.PWT.udpv || util.findQueryParamInURL(metaInfo.isIframe 
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc") && util.enableVisualDebugLog();
 
+var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
+
 window.PWT.displayCreative = function(theDocument, bidID){
 	util.log("In displayCreative for: " + bidID);
-	bidManager.displayCreative(theDocument, bidID);
+	if(isPrebidPubMaticAnalyticsEnabled){
+		window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
+	} else {
+		// removeIf(removeLegacyAnalyticsRelatedCode)
+		bidManager.displayCreative(theDocument, bidID);	
+		// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+	}
 };
 
 window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In displayPMPCreative for: " + values);
 	var bidID = util.getBididForPMP(values, priorityArray);
-	bidID && bidManager.displayCreative(theDocument, bidID);
+	if(bidID){
+		if(isPrebidPubMaticAnalyticsEnabled){
+			window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
+		} else {
+			// removeIf(removeLegacyAnalyticsRelatedCode)
+			bidManager.displayCreative(theDocument, bidID);
+			// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+		}
+	}
 };
 
 window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	util.log("In sfDisplayCreative for: " + bidID);
 	this.isSafeFrame = true;
-	window.parent.postMessage(
-		JSON.stringify({
-			pwt_type: "1",
-			pwt_bidID: bidID,
-			pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
-		}),
-		"*"
-	);
+	ucTag = window.ucTag || {};	
+	if(isPrebidPubMaticAnalyticsEnabled){
+		ucTag.renderAd(theDocument, {adId: bidID, pubUrl: document.referrer});
+	}
+	else {
+		window.parent.postMessage(
+			JSON.stringify({
+				pwt_type: "1",
+				pwt_bidID: bidID,
+				pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
+			}),
+			"*"
+		);
+	}
 };
 
 window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In sfDisplayPMPCreative for: " + values);
 	this.isSafeFrame = true;
-	window.parent.postMessage(
-		JSON.stringify({
-			pwt_type: "1",
-			pwt_bidID: util.getBididForPMP(values, priorityArray),
-			pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
-		}),
-		"*"
-	);
+	var bidID = util.getBididForPMP(values, priorityArray);
+	if(bidID){
+		if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+			ucTag.renderAd(theDocument, {adId: bidID, pubUrl: document.referrer});
+		} else{
+			window.parent.postMessage(
+				JSON.stringify({
+					pwt_type: "1",
+					pwt_bidID: bidID,
+					pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
+				}),
+				"*"
+			);
+		}
+	}
 };
 
+
+// removeIf(removeNativeRelatedCode)
 window.PWT.initNativeTrackers = function(theDocument,bidID){
 	util.log("In startTrackers for: " + bidID);
 	util.addEventListenerForClass(window,"click", CONSTANTS.COMMON.OW_CLICK_NATIVE,bidManager.loadTrackers);
 	bidManager.executeTracker(bidID);
 };
+// endRemoveIf(removeNativeRelatedCode)
 
 window.PWT.getUserIds = function(){
 	return util.getUserIds();
@@ -98,10 +131,13 @@ window.OWT.notifyExternalBiddingComplete = function(notifyId) {
 	});
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 window.PWT.UpdateVastWithTracker = function(bid, vast){
 	return util.UpdateVastWithTracker(bid, vast);
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeInStreamRelatedCode)
 window.PWT.generateDFPURL= function(adUnit,cust_params){
 	var dfpurl = "";
 	if(!adUnit || !util.isObject(adUnit)) {
@@ -113,7 +149,6 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 	}
 	else{
 		util.logWarning("No bid found for given adUnit");
-		return;
 	}
 	var params = {
 		adUnit: adUnit,
@@ -129,10 +164,13 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 	dfpurl = window.owpbjs.adServers.dfp.buildVideoUrl(params);
 	return dfpurl;
 };
+// endRemoveIf(removeInStreamRelatedCode)
 
+// removeIf(removeInStreamRelatedCode)
 window.PWT.getCustomParamsForDFPVideo = function(customParams, bid){
 	return util.getCustomParamsForDFPVideo(customParams, bid);
 };
+// endRemoveIf(removeInStreamRelatedCode)
 
 window.PWT.versionDetails =  util.getOWConfig();
 

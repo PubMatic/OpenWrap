@@ -148,6 +148,7 @@ exports.getUniqueIdentifierStr = function() {
 	return utilGetIncrementalInteger() + window.Math.random().toString(16).substr(2);
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.copyKeyValueObject = function(copyTo, copyFrom){
 	/* istanbul ignore else */
 	if(refThis.isObject(copyTo) && refThis.isObject(copyFrom)){
@@ -167,6 +168,7 @@ exports.copyKeyValueObject = function(copyTo, copyFrom){
 		});
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.getIncrementalInteger = (function() {
 	var count = 0;
@@ -217,7 +219,7 @@ var constCommonMacroForAdUnitIndexRegExp = new RegExp(CONSTANTS.MACROS.AD_UNIT_I
 var constCommonMacroForIntegerRegExp = new RegExp(CONSTANTS.MACROS.INTEGER, macroRegexFlag);
 var constCommonMacroForDivRegExp = new RegExp(CONSTANTS.MACROS.DIV, macroRegexFlag);
 
-exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheckMappingForVideo){
+exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheckMappingForVideo, videoSlotName){
 	var slotNames = [],
 		slotName,
 		slotNamesObj = {},
@@ -228,42 +230,42 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheck
   	/* istanbul ignore else */
 	if(refThis.isObject(activeSlot) && refThis.isFunction(activeSlot.getSizes)){
 		sizeArray = activeSlot.getSizes();
+		var divId = refThis.isFunction(activeSlot.getDivID) ? activeSlot.getDivID() : activeSlot.getSlotId().getDomId();		
+		if(shouldCheckMappingForVideo){
+			//TODO: remove below line and update above live for assigning sizeArray after remove phantom js and including chromeheadless
+			// This adds an size 0x0 to sizes so that multiple kgpvs can be generated
+			sizeArray = Array.from(activeSlot.getSizes());
+			var config = refThis.mediaTypeConfig[divId];
+			if(config && config.video){
+				sizeArray.unshift([0,0]);
+			}
+		}
 		sizeArrayLength = sizeArray.length;
 		/* istanbul ignore else */
 		if( sizeArrayLength > 0){
 			for(i = 0; i < sizeArrayLength; i++){
 				/* istanbul ignore else */
-				if((sizeArray[i].length == 2 && sizeArray[i][0] && sizeArray[i][1]) || (refThis.isFunction(sizeArray[i].getWidth) && refThis.isFunction(sizeArray[i].getHeight))){
-					var adUnitId = refThis.isFunction(activeSlot.getAdUnitID) ? activeSlot.getAdUnitID() : activeSlot.getSlotId().getAdUnitPath();
+				if((sizeArray[i].length == 2 && (sizeArray[i][0] && sizeArray[i][1]) || (sizeArray[i][0] == 0 && sizeArray[i][1] ==0)) || (refThis.isFunction(sizeArray[i].getWidth) && refThis.isFunction(sizeArray[i].getHeight))){					var adUnitId = refThis.isFunction(activeSlot.getAdUnitID) ? activeSlot.getAdUnitID() : activeSlot.getSlotId().getAdUnitPath();
 					var divId = refThis.isFunction(activeSlot.getDivID) ? activeSlot.getDivID() : activeSlot.getSlotId().getDomId();
 					var adUnitIndex = refThis.isFunction(activeSlot.getAdUnitIndex) ? activeSlot.getAdUnitIndex() : activeSlot.getSlotId().getId().split("_")[1];
-					var width = sizeArray[i][0] || sizeArray[i].getWidth();
-					var height = sizeArray[i][1] || sizeArray[i].getHeight();
+					var width = sizeArray[i][0] == 0 ? 0 : sizeArray[i][0] || sizeArray[i].getWidth();
+					var height = sizeArray[i][1] == 0 ? 0 : sizeArray[i][1] || sizeArray[i].getHeight();
 					slotName = pattern;
 					slotName = slotName.replace(constCommonMacroForAdUnitIDRegExp, adUnitId)
                     .replace(constCommonMacroForAdUnitIndexRegExp, adUnitIndex)
                     .replace(constCommonMacroForIntegerRegExp, refThis.getIncrementalInteger())
-					.replace(constCommonMacroForDivRegExp, divId);
-					// .replace(constCommonMacroForWidthRegExp, width)
-					// .replace(constCommonMacroForHeightRegExp, height);
-					if(shouldCheckMappingForVideo){
-						var config = refThis.mediaTypeConfig[divId];
-						if(config && config.video){
-							slotName = slotName.replace(constCommonMacroForWidthRegExp, "0")
-									.replace(constCommonMacroForHeightRegExp, "0");
-						}
-						else{
-							slotName = slotName.replace(constCommonMacroForWidthRegExp, width)
-									.replace(constCommonMacroForHeightRegExp, height);
-						}
-					}
-					else{
-						slotName = slotName.replace(constCommonMacroForWidthRegExp, width)
-								.replace(constCommonMacroForHeightRegExp, height);
-					}
+					.replace(constCommonMacroForDivRegExp, divId)
+					.replace(constCommonMacroForWidthRegExp, width)
+					.replace(constCommonMacroForHeightRegExp, height);
 					
-                    /* istanbul ignore else */
-					if(! refThis.isOwnProperty(slotNamesObj, slotName)){
+					// if size is 0x0 then we don't want to add it in slotNames since it will be looped in another function
+					// we just want to check the config for 0x0 mapping hence updating it in videoSlotName
+					/* istanbul ignore else */
+					if(width == 0 && height == 0){
+						videoSlotName[0] = slotName;
+								  /* istanbul ignore else */
+					}
+					else if(! refThis.isOwnProperty(slotNamesObj, slotName)){ 
 						slotNamesObj[slotName] = "";
 						slotNames.push(slotName);
 					}
@@ -272,40 +274,6 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheck
 		}
 	}
 	return slotNames;
-};
-
-//todo: is it required ?
-exports.checkMandatoryParams = function(object, keys, adapterID){
-	var error = false,
-		success = true
-	;
-	/* istanbul ignore else */
-	if(!object || !refThis.isObject(object) || refThis.isArray(object)){
-		refThis.logWarning(adapterID + "provided object is invalid.");
-		return error;
-	}
-	/* istanbul ignore else */
-	if(!refThis.isArray(keys)){
-		refThis.logWarning(adapterID + "provided keys must be in an array.");
-		return error;
-	}
-
-	var arrayLength = keys.length;
-	/* istanbul ignore else */
-	if(arrayLength == 0){
-		return success;
-	}
-
-	// can not change following for loop to refThis.forEachOnArray
-	for(var i=0; i<arrayLength; i++){
-		/* istanbul ignore else */
-		if(!refThis.isOwnProperty(object, keys[i])){
-			refThis.logError(adapterID + ": "+keys[i]+", mandatory parameter not present.");
-			return error;
-		}
-	}
-
-	return success;
 };
 
 /**
@@ -352,16 +320,18 @@ exports.forEachGeneratedKey = function(adapterID, adUnits, adapterConfig, impres
 	/* istanbul ignore else */
 	if(activeSlotsLength > 0 && keyGenerationPattern.length > 3){
 		refThis.forEachOnArray(activeSlots, function(i, activeSlot){
-			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern, true);
+			var videoSlotName = [];
+			// We are passing videoSlotName because we don't want to update the sizes and just check for 0x0 config if video and banner is both enabeld
+			var generatedKeys = refThis.generateSlotNamesFromPattern( activeSlot, keyGenerationPattern, true, videoSlotName);
 			if(generatedKeys.length > 0){
-				refThis.callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids, keyGenerationPattern);
+				refThis.callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids, keyGenerationPattern, videoSlotName);
 			} 		
 		});
 	}
 };
 
 // private
-function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern){
+function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern, videoSlotName){
 	var keyLookupMap = adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] || adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] || null,
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
@@ -373,6 +343,11 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			;
 
 		if(keyLookupMap == null){
+			// This block executes for pubmatic only where there are no KLM's 
+			// Adding this check for pubmatic only to send the correct tagId for Size Level mapping. UOE-6156
+			if(videoSlotName && videoSlotName.length == 1){
+				generatedKey = videoSlotName[0];
+			}
 			callHandlerFunction = true;
 		}else{
 			if(isRegexMapping){ 
@@ -386,12 +361,20 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				}
 			}
 			else{
-				keyConfig = keyLookupMap[generatedKey];
+				// Added Below Check Because of UOE-5600
+				if(videoSlotName && videoSlotName.length == 1){
+					keyConfig = keyLookupMap[videoSlotName[0]];
+					// We are updating the generatedKey because we want to log kgpv as 0x0 in case of video 
+					if(keyConfig){
+						generatedKey = videoSlotName[0];
+					}
+				}
+				if(!keyConfig){
+					keyConfig = keyLookupMap[generatedKey];
+				}
 			}
 			if(!keyConfig){
-				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
-			}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);			
 			}else{
 				callHandlerFunction = true;
 			}
@@ -399,15 +382,13 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 
 		/* istanbul ignore else */
 		if(callHandlerFunction){
-
 			/* istanbul ignore else */
 			if(addZeroBids == true){
 				var bid = BID.createBid(adapterID, generatedKey);
 				bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
 				bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
 				bid.setRegexPattern(regexPattern);
-			}
-
+			}	
 			handlerFunction(
 				adapterID,
 				adUnits,
@@ -428,6 +409,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 exports.callHandlerFunctionForMapping = callHandlerFunctionForMapping;
 /* end-test-block */
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
 	if(height && width){
@@ -455,7 +437,9 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 		} // eslint-disable-line no-empty
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.writeIframe = function(theDocument, src, width, height, style){
 	theDocument.write("<iframe"
     + " frameborder=\"0\" allowtransparency=\"true\" marginheight=\"0\" marginwidth=\"0\" scrolling=\"no\" width=\""
@@ -465,7 +449,9 @@ exports.writeIframe = function(theDocument, src, width, height, style){
     + " src=\"" + src + "\""
     + "></ifr" + "ame>");
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.displayCreative = function(theDocument, bid){
 	if(bid && bid.pbbid && bid.pbbid.mediaType == "video" && bid.renderer && refThis.isObject(bid.renderer)){
 		if(refThis.isFunction(bid.renderer.render)){
@@ -490,18 +476,7 @@ exports.displayCreative = function(theDocument, bid){
 		}
 	}
 };
-
-exports.getScreenWidth = function(win){
-	var screenWidth = -1;
-	win.innerHeight ? (screenWidth = win.innerWidth) : win.document && win.document.documentElement && win.document.documentElement.clientWidth ? (screenWidth = win.document.documentElement.clientWidth) : win.document.body && (screenWidth = win.document.body.clientWidth);
-	return screenWidth;
-};
-
-exports.getScreenHeight = function(win){
-	var screenHeight = -1;
-	win.innerHeight ? (screenHeight = win.innerHeight) : win.document && win.document.documentElement && win.document.documentElement.clientHeight ? (screenHeight = win.document.documentElement.clientHeight) : win.document.body && (screenHeight = win.document.body.clientHeight);
-	return screenHeight;
-};
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // todo: how about accepting array of arguments to be passed to callback function after key, value, arrayOfArguments
 exports.forEachOnObject = function(theObject, callback){
@@ -603,11 +578,6 @@ exports.isIframe = function(theWindow){
 	}
 };
 
-//todo: this function is not used
-exports.findInString = function(theString, find){
-	return theString.indexOf(find) >= 0;
-};
-
 exports.findQueryParamInURL = function(url, name){
 	return refThis.isOwnProperty(refThis.parseQueryParams(url), name);
 };
@@ -699,6 +669,7 @@ exports.getBididForPMP = function(values, priorityArray){
 	return bidID;
 };
 
+// removeIf(removeNativeRelatedCode)
 exports.createInvisibleIframe = function() {
 	var f = refThis.createDocElement(window, 'iframe');
 	f.id = refThis.getUniqueIdentifierStr();
@@ -712,11 +683,13 @@ exports.createInvisibleIframe = function() {
 	f.style.border = '0';
 	f.scrolling = 'no';
 	f.frameBorder = '0';
-	f.src = 'about:self';//todo: test by setting empty src on safari
+	//f.src = 'about:self';//todo: test by setting empty src on safari
 	f.style = 'display:none';
 	return f;
 }
+// endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.addMessageEventListener = function(theWindow, eventHandler){
 	/* istanbul ignore else */
 	if(typeof eventHandler !== "function"){
@@ -731,7 +704,9 @@ exports.addMessageEventListener = function(theWindow, eventHandler){
 	}
 	return true;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.safeFrameCommunicationProtocol = function(msg){
 	try{
 		msgData = window.JSON.parse(msg.data);
@@ -831,6 +806,8 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 				}
 			break;
+		
+		// removeIf(removeNativeRelatedCode)	
 		case 3:
 			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
@@ -845,15 +822,18 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					bidManager.fireTracker(theBid,msgData.pwt_action);							
 				}
 			break;
+		// endRemoveIf(removeNativeRelatedCode)	
 		}
 	}catch(e){}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.addMessageEventListenerForSafeFrame = function(theWindow){
 	refThis.addMessageEventListener(theWindow, refThis.safeFrameCommunicationProtocol);
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-//todo: this function is not in use
 exports.getElementLocation = function( el ) {
 	var rect,
 		x = 0,
@@ -1027,6 +1007,7 @@ exports.resetExternalBidderStatus = function(divIds) {
 	});
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.ajaxRequest = function(url, callback, data, options) {
 	try {
 
@@ -1076,6 +1057,7 @@ exports.ajaxRequest = function(url, callback, data, options) {
 		refThis.log(error);
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // Returns mediaTypes for adUnits which are sent to prebid
 exports.getAdUnitConfig = function(sizes, currentSlot){
@@ -1132,6 +1114,9 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					if(CONFIG.getAdServer() != CONSTANTS.AD_SERVER.DFP){
 						if(config.video["config"]){
 							mediaTypeObject["video"] = config.video["config"];
+							if(config.video["partnerConfig"]){
+								mediaTypeObject["partnerConfig"] = config.video["partnerConfig"];
+							}
 						}
 						else{
 							refThis.logWarning("Video Config will not be considered as no config has been provided for slot" + JSON.stringify(currentSlot) + " or there is no configuration defined in default.");
@@ -1165,6 +1150,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 	return adUnitConfig;
 };
 
+// removeIf(removeNativeRelatedCode)
 exports.addEventListenerForClass = function(theWindow, theEvent, theClass, eventHandler){
 
 	if(typeof eventHandler !== "function"){
@@ -1180,15 +1166,21 @@ exports.addEventListenerForClass = function(theWindow, theEvent, theClass, event
 	}
 	return true;
 };
- 
+// endRemoveIf(removeNativeRelatedCode)
+
+// removeIf(removeNativeRelatedCode) 
 exports.findElementsByClass = function(theWindow, theClass){
 	return theWindow.document.getElementsByClassName(theClass) || [];
 };
+// endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeNativeRelatedCode)
 exports.getBidFromEvent = function (theEvent) {
 	return (theEvent && theEvent.target && theEvent.target.attributes &&  theEvent.target.attributes[CONSTANTS.COMMON.BID_ID] && theEvent.target.attributes[CONSTANTS.COMMON.BID_ID].value) || "";
 };
+// endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.getAdFormatFromBidAd = function(ad){
 	var format = undefined;
 	if(ad && refThis.isString(ad)){
@@ -1212,6 +1204,7 @@ exports.getAdFormatFromBidAd = function(ad){
 	}
 	return format;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // This common function can be used add hooks for publishers to make changes in flows
 exports.handleHook = function(hookName, arrayOfDataToPass) {
@@ -1277,6 +1270,7 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 	return rxConfig;
 };
 
+// removeIf(removeUserIdRelatedCode)
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
@@ -1285,32 +1279,9 @@ exports.getUserIdConfiguration = function(){
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4+ JSON.stringify(userIdConfs));
 	return userIdConfs;
 };
+// endRemoveIf(removeUserIdRelatedCode)
 
-exports.clearPreviousTargeting = function(){
-	var targetingKeys = window.googletag.pubads().getTargetingKeys();
-	if(targetingKeys.indexOf(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS)>-1){
-		window.googletag.pubads().clearTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS);
-	}
-};
-
-exports.setUserIdTargeting = function(){
-	refThis.clearPreviousTargeting();
-	if(window[CONSTANTS.COMMON.PREBID_NAMESPACE] && refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)){
-		var userIds = refThis.getUserIds();
-		if(!refThis.isEmptyObject(userIds)){
-			refThis.setUserIdToGPT(userIds);
-		}
-	}else {
-		refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M1);
-		return;
-	}
-};
-
-exports.setUserIdToGPT = function(userIds){
-	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M2, userIds);
-	window.googletag.pubads().setTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS,JSON.stringify(userIds));
-};
-
+// removeIf(removeUserIdRelatedCode)
 exports.getUserIds = function(){
 	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
 		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
@@ -1318,7 +1289,9 @@ exports.getUserIds = function(){
 		refThis.logWarning("getUserIds" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	};
 };
+// endRemoveIf(removeUserIdRelatedCode)
 
+// removeIf(removeUserIdRelatedCode)
 exports.getUserIdsAsEids = function(){
 	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids)) {
 		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids();
@@ -1326,6 +1299,7 @@ exports.getUserIdsAsEids = function(){
 		refThis.logWarning("getUserIdsAsEids" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	};
 };
+// endRemoveIf(removeUserIdRelatedCode)
 
 exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
 	var convertedObject = sourceObject;
@@ -1352,6 +1326,8 @@ exports.getNestedObjectFromString = function(sourceObject,separator, key, value)
 
 exports.getUserIdParams = function(params){
 	var userIdParams= {};
+	refThis.applyDataTypeChangesIfApplicable(params);
+	refThis.applyCustomParamValuesfApplicable(params);
 	for(var key in params){
 		try{
 			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
@@ -1368,6 +1344,9 @@ exports.getUserIdParams = function(params){
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}	
+	if(userIdParams && userIdParams.params && userIdParams.params['loadATS'] == 'true'){
+		refThis.initLiveRampAts(userIdParams);
+	}
 	return userIdParams;
 };
 
@@ -1384,10 +1363,12 @@ exports.getPartnerParams = function(params){
 	return pparams;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
 	var netEcpm, grossEcpm, kgpv, bidId, adapterId;
+	var sspID = "";
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 
 	/* istanbul ignore else */
@@ -1403,7 +1384,11 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 			grossEcpm = window.parseFloat(theBid.getCpmInNewCurrency(CONSTANTS.COMMON.ANALYTICS_CURRENCY));
 		}
 		else {
-			grossEcpm = theBid.cpm;
+			if(CONFIG.isPrebidPubMaticAnalyticsEnabled() && theBid.originalCpm){
+				grossEcpm = theBid.originalCpm;
+			}else{
+				grossEcpm = theBid.cpm;
+			}
 		}
 	}
 	if(refThis.isFunction(theBid.getAdapterID)){
@@ -1412,10 +1397,10 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	else{
 		adapterId = theBid.bidderCode
 	}
-	// TODO: Uncomment below code in case hybrid profile is supported 
-	// if(adapterId == "pubmaticServer"){
-	// 	adapterId = "pubmatic";
-	// }
+	//Uncomment below code in case hybrid profile is supported 
+	if(adapterId == "pubmaticServer"){
+		adapterId = theBid.originalBidder || "pubmatic"; // in case of pubmaticServer we will get originalBidder, assigning pubmatic just in case originalBidder is not there.
+	}
 	// Do we need all checks or we can just use one check
 	if(refThis.isFunction(theBid.getNetEcpm)) {
 		netEcpm = theBid.getNetEcpm(isAnalytics)
@@ -1429,13 +1414,23 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		bidId = theBid.getBidID()
 	}
 	else{
-		bidId = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].bidID;
+		if(CONFIG.isPrebidPubMaticAnalyticsEnabled() && theBid.adId){
+			bidId = theBid.adId;
+		}
+		else{
+			bidId = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].bidID;
+		}
 	}
 	if(refThis.isFunction(theBid.getKGPV)) {
 		kgpv = theBid.getKGPV()
 	}
 	else {
-		kgpv = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].kgpv;
+		kgpv = window.PWT.bidMap[slotID].adapters[adapterId].bids[Object.keys(window.PWT.bidMap[slotID].adapters[adapterId].bids)[0]].getKGPV(false, theBid.mediaType);
+	}
+	if(refThis.isFunction(theBid.getsspID)){
+		sspID = theBid.getsspID();
+	}else{
+		sspID = theBid.sspID || "";	
 	}
 
 	pixelURL += "pubid=" + pubId;
@@ -1450,10 +1445,13 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&en=" + window.encodeURIComponent(netEcpm);
 	pixelURL += "&eg=" + window.encodeURIComponent(grossEcpm);
 	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
+	pixelURL += "&piid=" + window.encodeURIComponent(sspID);
 
 	return CONSTANTS.COMMON.PROTOCOL + pixelURL;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.UpdateVastWithTracker= function(bid, vast){
 	try{
 		var domParser = new DOMParser();
@@ -1473,6 +1471,7 @@ exports.UpdateVastWithTracker= function(bid, vast){
 	}
     
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.getDomainFromURL = function(url){
 	var a = window.document.createElement("a");
@@ -1480,11 +1479,14 @@ exports.getDomainFromURL = function(url){
 	return a.hostname;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.replaceAuctionPrice = function(str, cpm) {
 	if (!str) return;
 	return str.replace(/\$\{AUCTION_PRICE\}/g, cpm);
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeInStreamRelatedCode)
 exports.getCustomParamsForDFPVideo = function(customParams, bid){
 	const adserverTargeting = (bid && bid.adserverTargeting) || {};
 	var targetingKeys = {}
@@ -1502,7 +1504,9 @@ exports.getCustomParamsForDFPVideo = function(customParams, bid){
 		customParams);
 	return customParams;
 };
+// endRemoveIf(removeInStreamRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.getDevicePlatform = function(){
 	var deviceType = 3;
 	try{
@@ -1523,6 +1527,7 @@ exports.getDevicePlatform = function(){
 	}
 	return deviceType;
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.getOWConfig = function(){
 	var obj = {
@@ -1535,6 +1540,7 @@ exports.getOWConfig = function(){
 	return obj;
 }
 
+// removeIf(removeIdHubOnlyRelatedCode)
 exports.updateAdUnits = function(adUnits){
 	if(refThis.isArray(adUnits)){
 		adUnits.forEach(function(adUnit){
@@ -1548,7 +1554,9 @@ exports.updateAdUnits = function(adUnits){
 		});
 	}
 };
+// endRemoveIf(removeIdHubOnlyRelatedCode)
 
+// removeIf(removeIdHubOnlyRelatedCode)
 exports.updateUserIds = function(bid){
 	// refThis.idsAppendedToAdUnits =true;
 	if(refThis.isUndefined(bid.userId)){
@@ -1579,3 +1587,83 @@ exports.updateUserIds = function(bid){
 		bid.userIdAsEids = ids;
 	}
 };
+// endRemoveIf(removeIdHubOnlyRelatedCode)
+
+exports.initLiveRampAts = function(params){
+	function addATS() {
+		var atsScript = document.createElement('script');
+		if(params.params.cssSelectors && params.params.cssSelectors.length>0){
+			params.params.cssSelectors = params.params.cssSelectors.split(',');
+		}
+		atsScript.onload = function() {
+		  window.ats.start(        {
+			  "placementID": params.params.pid,
+			  "storageType":params.params.storageType,
+			  "detectionType": params.params.detectionType,
+			  "urlParameter": params.params.urlParameter,
+			  "cssSelectors":params.params.cssSelectors,// ["input[type=text]", "input[type=email]"],
+			  "logging": params.params.logging //"error"
+			});
+		};
+		atsScript.src = 'https://ats.rlcdn.com/ats.js';
+		document.body.appendChild(atsScript);
+	}
+	window.addEventListener("load", function()  {
+    	setTimeout(addATS, 1000);
+  	}); 
+};
+
+exports.getRandomNumberBelow100 = function(){
+	return Math.floor(Math.random()*100);
+};
+
+exports.getUpdatedKGPVForVideo = function(kgpv, adFormat){
+	if(adFormat == CONSTANTS.FORMAT_VALUES.VIDEO){
+		var videoKgpv = ["","0x0"];
+		var splitKgpv = kgpv.split("@");
+		// Adding this check for Div Mapping Only
+		if(splitKgpv.length>1){
+			if(splitKgpv.length == 2){
+				if(splitKgpv[1].indexOf(":") > -1){
+					var kgpvIndex = splitKgpv[1].split(":");
+					videoKgpv[1] = videoKgpv[1] + ":" + kgpvIndex[1];
+				}
+				videoKgpv[0] = splitKgpv[0];
+			}
+			kgpv = videoKgpv.join("@");
+		}
+	}
+	return kgpv;
+};
+
+exports.applyDataTypeChangesIfApplicable = function(params) {
+	var value;
+	if(params.name in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
+		for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
+			for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
+				switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
+					case 'number':
+						if(params[key] && typeof params[key] !== 'number') {
+							value = parseInt(params[key])
+							isNaN(value) ?
+								refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
+								params[key] = value;
+						}
+						break;
+					default:
+						return;
+				}
+			}
+		}
+	}
+}
+
+exports.applyCustomParamValuesfApplicable = function(params) {
+	if (params.name in CONSTANTS.ID_PARTNERS_CUSTOM_VALUES) {
+		var partnerValues = CONSTANTS.ID_PARTNERS_CUSTOM_VALUES[params.name];
+		var i = 0;
+		for (;i<partnerValues.length;i++) {
+			params[partnerValues[i]["key"]] = partnerValues[i]["value"];
+		}
+	}
+}

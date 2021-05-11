@@ -14,7 +14,7 @@ var SLOT = require("../../src_new/slot.js").Slot;
 var PREBID = require("../../src_new/adapters/prebid.js");
 
 var parentAdapterID = "prebid";
-var commonAdpterID = "pubmatic";
+var commonAdapterID = "pubmatic";
 var commonDivID = "DIV_1";
 var commonKGPV = "XYZ";
 var isSingleImpressionSettingEnabled = 0;
@@ -40,6 +40,54 @@ var isSingleImpressionSettingEnabled = 0;
 
 
 describe('ADAPTER: Prebid', function() {
+
+    /* start-test-block */
+    describe('#throttleAdapter', function() {
+        var adapterID = null;
+
+        beforeEach(function(done) {
+            adapterID = commonAdapterID;
+            sinon.stub(CONFIG, 'getAdapterThrottle');
+            CONFIG.getAdapterThrottle.returns(true);
+            done();
+        });
+
+        afterEach(function(done) {
+            CONFIG.getAdapterThrottle.restore();
+            adapterID = null;
+            done();
+        });
+
+
+        it('is a function', function(done) {
+            PREBID.throttleAdapter.should.be.a('function');
+            done();
+        });
+
+        it('should have called CONFIG.getAdapterThrottle', function(done) {
+            PREBID.throttleAdapter(90, adapterID);
+            CONFIG.getAdapterThrottle.calledOnce.should.be.true;
+            done();
+        });
+
+        it('should return true when passed randomNumber is less than passed adapter ids throttle value ', function(done) {
+            CONFIG.getAdapterThrottle.restore();
+            sinon.stub(CONFIG, 'getAdapterThrottle');
+            CONFIG.getAdapterThrottle.withArgs(adapterID).returns(90);
+            PREBID.throttleAdapter(80, adapterID).should.be.true;
+            done();
+        });
+
+
+        it('should return false when passed randomNumber is greater than passed adapter ids throttle value ', function(done) {
+            CONFIG.getAdapterThrottle.restore();
+            sinon.stub(CONFIG, 'getAdapterThrottle');
+            CONFIG.getAdapterThrottle.withArgs(adapterID).returns(90);
+            PREBID.throttleAdapter(99, adapterID).should.be.false;
+            done();
+        });
+    });
+    /* end-test-block */
 
     describe('#transformPBBidToOWBid', function () {
         var bid = null, kgpv = null, errorBid = null;
@@ -274,172 +322,7 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-    });
-
-    describe('#handleBidResponses', function() {
-        var bidResponses = null,
-            theBid = null;
-
-        beforeEach(function(done) {
-            bidResponses = {
-                "DIV_1": {
-                    "bids": [{
-                        bidderCode: "pulsepoint",
-                        cpm: 0,
-                        // ad: '<a id="aw0" onclick="ha('aw0')" onmouseover="ss('aw0')" onmousedown="st('aw0')"" href="http://www.googleadservices.com/pagead/aclk?sa=L&ai=CK7b0v3L_UefCMcq5igfJnYHAAt3X2IUDndattT3AjbcBEAEg0fv0CFDv-vz5-v____8BYOWCgIC8DqABw9iz3gPIAQLgAgCoAwHIA50EqgSTAU_Qwzp3CT6oJYbrzshQtFMB7rUGKBJO7Xs6mvz3XsycXn_AxTrZKhyHKjA2k2h44OdylJfUCBdmoQCv-9dEQWdzWiLucOpWTfWbQUgWXEcuW2K1OCGvIKJfs_4yvd8i6iHvJ5Qd3f-nV_G-yTQ-X9tjdwZvk6Uj56bvfun6fbhALaQBl1HGmLypN7rJ2l4men7QBuAEAYgGAaAGAoAHpafMIQ&num=1&cid=5Gj7aYzg3dHUFbEK-2-85FjM&sig=AOD64_2cCfX2QlpmV0FPZauMfRl1LZ2S8w&client=ca-pub-4798227666512375&adurl=http://www.junglee.com/Home-Cinema-TV-Video/b/802980031/%3Ftag%3Dgoogjudisp113239-21&nm=3" target="_top"><img class="img_ad" width="728" border="0" onload="" src="http://pagead2.googlesyndication.com/simgad/10320243368604073893"></a><iframe frameborder="0" allowtransparency="true" marginheight="0" marginwidth="0" width="0" hspace="0" vspace="0" height="0" style="height:0p;width:0p;display:none;" scrolling="no" src="http://haso.pubmatic.com/ads/9999/GRPBID/2.gif?trackid=12345"></iframe>',
-                        ad: " html goes here",
-                        width: "728",
-                        height: "90:0",
-                        responseTimestamp: 1500286874559,
-                        serverSideResponseTime: 5,
-                        adserverTargeting: {
-                            "hb_adid": "34c5f7266bb81a6",
-                            "hb_bidder": "pubmatic",
-                            "hb_deal": "PMERW36842",
-                            "hb_pb": "9.00",
-                            "hb_size": "728x90:0",
-                        }
-                    }]
-                }
-            };
-
-            theBid = {
-                setGrossEcpm: function() {
-                    return "setGrossEcpm";
-                },
-                getGrossEcpm: function() {
-                    return "getGrossEcpm";
-                },
-                setDealID: function() {
-                    return "setDealID";
-                },
-                setDealChannel: function() {
-                    return "setDealChannel";
-                },
-                setAdHtml: function() {
-                    return "setAdHtml";
-                },
-                setWidth: function() {
-                    return "setWidth";
-                },
-                setHeight: function() {
-                    return "setHeight";
-                },
-                setReceivedTime: function() {
-                    return "setReceivedTime";
-                },
-                setKeyValuePair: function() {
-                    return "setKeyValuePair";
-                },
-                setAdUrl: function() {
-                    return "setAdUrl";
-                },
-                setServerSideResponseTime: function() {
-                    return 5;
-                },
-                setMi: function() {
-                    return "setMi";
-                },
-                setOriginalCpm:function(){
-                    return 5;
-                },
-                setOriginalCurrency: function(){
-                    return 'USD';
-                },
-                setAnalyticsCpm: function(){
-                    return 5;
-                },
-                setPbBid:function(){
-                    return "thebid";
-                }
-            };
-            sinon.stub(UTIL, "isOwnProperty").returns(true);
-            sinon.spy(UTIL, "forEachOnObject");
-
-            sinon.spy(theBid, "setGrossEcpm");
-            sinon.spy(theBid, "setDealID");
-            sinon.spy(theBid, "setDealChannel");
-            sinon.spy(theBid, "setAdHtml");
-            sinon.spy(theBid, "setWidth");
-            sinon.spy(theBid, "setHeight");
-            sinon.spy(theBid, "setReceivedTime");
-
-            sinon.spy(theBid, "setKeyValuePair");
-
-            sinon.spy(theBid, "setAdUrl");
-            sinon.spy(theBid, "setServerSideResponseTime");
-            sinon.spy(theBid, "setOriginalCpm");
-            sinon.spy(theBid, "setPbBid");
-
-            sinon.stub(BM, "setBidFromBidder").returns(true);
-
-            PREBID.kgpvMap = {};
-            PREBID.kgpvMap["DIV_1"] = {
-                "kgpv": "kgpv_value"
-            };
-
-            sinon.stub(BID, "createBid").returns(theBid);
-
-            done();
-        });
-
-        afterEach(function(done) {
-
-            UTIL.isOwnProperty.restore();
-            UTIL.forEachOnObject.restore();
-
-            theBid.setGrossEcpm.restore();
-            theBid.setDealID.restore();
-            theBid.setDealChannel.restore();
-            theBid.setAdHtml.restore();
-            theBid.setWidth.restore();
-            theBid.setHeight.restore();
-            theBid.setReceivedTime.restore();
-            theBid.setOriginalCpm.restore();
-
-            theBid.setKeyValuePair.restore();
-            theBid.setServerSideResponseTime.restore();
-
-            theBid.setAdUrl.restore();
-            theBid.setPbBid.restore();
-
-            BM.setBidFromBidder.restore();
-            BID.createBid.restore();
-            done();
-        });
-
-        it('is a function', function(done) {
-            PREBID.handleBidResponses.should.be.a('function');
-            done();
-        });
-
-        it('should have called UTIL.isOwnProperty ', function(done) {
-            PREBID.handleBidResponses(bidResponses);
-            // console.log("UTIL.isOwnProperty.callCount ==>", UTIL.isOwnProperty.callCount);
-            UTIL.isOwnProperty.called.should.be.true;
-            done();
-        });
-
-        it('should have called bid Object\'s methods if it has bidderCode', function(done) {
-            PREBID.handleBidResponses(bidResponses);
-            theBid.setGrossEcpm.called.should.be.true;
-            theBid.setDealID.called.should.be.true;
-            theBid.setDealChannel.called.should.be.true;
-            theBid.setAdHtml.called.should.be.true;
-            theBid.setWidth.called.should.be.true;
-            theBid.setHeight.called.should.be.true;
-            theBid.setReceivedTime.called.should.be.true;
-            done();
-        });
-
-        it('should have called bid manager\'s setBidFromBidder', function(done) {
-            PREBID.handleBidResponses(bidResponses);
-            BM.setBidFromBidder.called.should.be.true;
-            UTIL.forEachOnObject.called.should.be.true;
-            theBid.setKeyValuePair.called.should.be.true;
-            done();
-        });
-    });
+    });    
 
     describe('#getPBCodeWithWidthAndHeight', function() {
         it('is a function', function(done) {
@@ -504,7 +387,7 @@ describe('ADAPTER: Prebid', function() {
             adapterConfig = {
                 "publisherId": 121
             };
-            adapterID = commonAdpterID;
+            adapterID = commonAdapterID;
             generatedKey = "generatedKey_1";
             impressionID = 123123123;
             adUnits = {};
@@ -553,8 +436,8 @@ describe('ADAPTER: Prebid', function() {
 
         it('should have created bid object by composing from passed in params', function(done) {
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
-            CONFIG.getProfileID.called.should.be.true;
-            CONFIG.getProfileDisplayVersionID.called.should.be.true;
+            // CONFIG.getProfileID.called.should.be.true;
+            // CONFIG.getProfileDisplayVersionID.called.should.be.true;
             UTIL.forEachOnArray.called.should.be.false;
             done();
         });
@@ -701,7 +584,7 @@ describe('ADAPTER: Prebid', function() {
 
 
 
-        it('should have constructed proper slotParams', function(done) {
+        xit('should have constructed proper slotParams', function(done) {
             kgpConsistsWidthAndHeight = false;
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             // sizes => [[340, 210], [1024, 768]]
@@ -716,7 +599,7 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should have constructed proper slotParams', function(done) {
+        xit('should have constructed proper slotParams', function(done) {
             kgpConsistsWidthAndHeight = false;
             adapterID = "different";
             CONF.adapters[adapterID] = {};
@@ -838,7 +721,7 @@ describe('ADAPTER: Prebid', function() {
         var impressionID = null;
 
         beforeEach(function(done) {
-            adapterID = commonAdpterID;
+            adapterID = commonAdapterID;
             adapterConfig = {};
             activeSlots = [new SLOT("Slot_1"), new SLOT("Slot_2")];
             adUnits = "ad_unit_1";
@@ -878,8 +761,8 @@ describe('ADAPTER: Prebid', function() {
         it('should have called UTIL.forEachGeneratedKey with proper input', function(done) {
             adapterConfig = {};
             adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] = "value_1",
-                adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = "value_2",
-                PREBID.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+            adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = "value_2",
+            PREBID.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
             UTIL.log.calledWith(adapterID + CONSTANTS.MESSAGES.M1);
             UTIL.forEachGeneratedKey.called.should.be.true;
             UTIL.forEachGeneratedKey.calledWith(adapterID,
@@ -1006,13 +889,16 @@ describe('ADAPTER: Prebid', function() {
             sinon.spy(CONFIG, 'getCCPATimeout');
             sinon.stub(CONFIG, 'getCCPA').returns(true);
 
+            sinon.stub(BM, 'resetBid', function(){});
+            sinon.stub(BM, 'setSizes', function(){});
+
             sinon.stub(PREBID, 'generatePbConf');
             PREBID.generatePbConf.returns(true);
             window.owpbjs = {
 
             };
-            sinon.stub(AM, "getRandomNumberBelow100").returns(89);
-            sinon.stub(AM, "throttleAdapter").returns(true);
+            sinon.stub(UTIL, "getRandomNumberBelow100").returns(89);
+            sinon.stub(PREBID, "throttleAdapter").returns(true);
             sinon.stub(AM, "setInitTimeForSlotsForAdapter").returns(true);
             windowPbJS2Stub = {
                 onEvent: function () {
@@ -1063,11 +949,14 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.getCCPA.restore();
             CONFIG.getCCPATimeout.restore();
 
+            BM.resetBid.restore();
+            BM.setSizes.restore();
+
             CONFIG.getAwc.restore();
             PREBID.generatePbConf.restore();
 
-            AM.getRandomNumberBelow100.restore();
-            AM.throttleAdapter.restore();
+            UTIL.getRandomNumberBelow100.restore();
+            PREBID.throttleAdapter.restore();
             AM.setInitTimeForSlotsForAdapter.restore();
 
             windowPbJS2Stub.onEvent.restore();
@@ -1094,29 +983,30 @@ describe('ADAPTER: Prebid', function() {
 
         if('should return if owpbjs namespace is not defined',function(done){
             delete window.owpbjs;
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             UTIL.logError.calledWith("PreBid js is not loaded").should.be.true;
             done();
         })
 
-        // TODO: Need to fix this testcase somehow
-        it('returns while logging it when Prebid js is not loaded', function(done) {
+        // TODO: we need to remove unused test cases; as respective code is moved out of this function
+        xit('returns while logging it when Prebid js is not loaded', function(done) {
             // sinon.stub(global.window || window, "pwtCreatePrebidNamespace").withArgs("owpbjs").returns(true);
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             // UTIL.log.calledWith("PreBid js is not loaded").should.be.true;
             CONFIG.forEachAdapter.called.should.be.false;
             done();
         });
 
-        it('returns while logging when newly created namespace doenst have onEvent method', function (done) {
+        // TODO: we need to remove unused test cases; as respective code is moved out of this function
+        xit('returns while logging when newly created namespace doenst have onEvent method', function (done) {
             UTIL.isFunction.returns(false);
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             UTIL.logWarning.calledWith("PreBid js onEvent method is not available").should.be.true;
             done();
         });
 
         it('should have called setConfig method', function (done) {
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             window.owpbjs = window.owpbjs || {};
             window.owpbjs.cmd = window.owpbjs.cmd || [];
             window.owpbjs.que = window.owpbjs.que || [];
@@ -1132,17 +1022,19 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should have called onEvent with bidResponse and prebid bid handler', function (done) {
+        // TODO: we need to remove unused test cases; as respective code is moved out of this function
+        xit('should have called onEvent with bidResponse and prebid bid handler', function (done) {
             UTIL.isFunction.returns(true);
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             windowPbJS2Stub.onEvent.calledWith('bidResponse', PREBID.pbBidStreamHandler).should.be.true;
             done();
         });
 
-        it('should have called generatePbConf if adapterID for current adapterConfig is not parentAdapterID', function(done) {
+        // TODO: we need to remove unused test cases; as respective code is moved out of this function
+        xit('should have called generatePbConf if adapterID for current adapterConfig is not parentAdapterID', function(done) {
             UTIL.isFunction.returns(true);
-            AM.throttleAdapter.returns(false);
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.throttleAdapter.returns(false);
+            PREBID.fetchBids(activeSlots);
             CONFIG.forEachAdapter.called.should.be.true;
             PREBID.generatePbConf.called.should.be.true;
             done();
@@ -1150,8 +1042,8 @@ describe('ADAPTER: Prebid', function() {
 
         it('should have logged when adapter is throttled', function(done) {
             UTIL.isFunction.returns(true);
-            AM.throttleAdapter.returns(true);
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.throttleAdapter.returns(true);
+            PREBID.fetchBids(activeSlots);
             CONFIG.forEachAdapter.called.should.be.true;
             PREBID.generatePbConf.called.should.be.false;
             UTIL.log.calledWith("pubmatic" + CONSTANTS.MESSAGES.M2).should.be.true;
@@ -1162,27 +1054,29 @@ describe('ADAPTER: Prebid', function() {
             UTIL.isFunction.returns(true);
             UTIL.isDebugLogEnabled.returns(false);
             window["owpbjs"].logging = false;
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             window["owpbjs"].logging.should.be.false;
             done();
         });
 
-        it('prebid logging is enabled when ', function(done) {
+        // not needed as we have moved test-config in pbjsconfig
+        xit('prebid logging is enabled when ', function(done) {
             UTIL.isFunction.returns(true);
             UTIL.isDebugLogEnabled.returns(true);
             window["owpbjs"].logging = false;
             window["owpbjs"].requestBids = function(){};
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             window["owpbjs"].logging.should.be.true;
             done();
         });
 
-        it('for serverSideEnabled, should have called generatePbConf even if adapterID is to be throttled', function(done) {
+        // TODO: we need to remove unused test cases; as respective code is moved out of this function
+        xit('for serverSideEnabled, should have called generatePbConf even if adapterID is to be throttled', function(done) {
             var adapterID = "pubmatic";
             CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED] = '1';
             UTIL.isFunction.returns(true);
-            AM.throttleAdapter.returns(true);
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.throttleAdapter.returns(true);
+            PREBID.fetchBids(activeSlots);
             CONFIG.forEachAdapter.called.should.be.true;
             PREBID.generatePbConf.called.should.be.true;
             delete CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
@@ -1198,7 +1092,7 @@ describe('ADAPTER: Prebid', function() {
                     singleRequest:true
                 }
             }
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             window["owpbjs"].setConfig(expectedResult).should.be.called;
             var prebidConfig = window["owpbjs"].getConfig();
             expectedResult.should.be.equal(prebidConfig);
@@ -1207,41 +1101,13 @@ describe('ADAPTER: Prebid', function() {
 
         it('should not have set config for single request parnter if it is not present for bidding',function(done){
             var expectedResult = {};
-            PREBID.fetchBids(activeSlots, impressionID);
+            PREBID.fetchBids(activeSlots);
             window["owpbjs"].setConfig(expectedResult).should.be.called;
             var prebidConfig = window["owpbjs"].getConfig();
             expectedResult.should.be.equal(prebidConfig);
             done();
         });
-    });
-
-    describe('#getParenteAdapterID', function() {
-        it('is a function', function(done) {
-            PREBID.getParenteAdapterID.should.be.a('function');
-            done();
-        });
-
-        it('returns parentAdapterID', function(done) {
-            PREBID.getParenteAdapterID().should.equal(PREBID.parentAdapterID);
-            done();
-        });
-    });
-
-    describe('#register', function() {
-        it('is a function', function(done) {
-            PREBID.register.should.be.a('function');
-            done();
-        });
-
-        it('returns object with methods to use', function(done) {
-            PREBID.register().should.deep.equal({
-                fB: PREBID.fetchBids,
-                ID: PREBID.getParenteAdapterID,
-                sC: PREBID.setConfig
-            });
-            done();
-        });
-    });
+    });    
 
     describe('checkAndModifySizeOfKGPVIfRequired',function(){
         var bid= {};

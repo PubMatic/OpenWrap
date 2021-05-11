@@ -2,11 +2,12 @@ var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
-var GDPR = require("../gdpr.js");
-var adapterManager = require("../adapterManager.js");
+// var GDPR = require("../gdpr.js");
 var SLOT = require("../slot.js");
 var prebid = require("../adapters/prebid.js");
-
+var usePrebidKeys = CONFIG.isUsePrebidKeysEnabled();
+var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
+var IdHub = require("../controllers/idhub.js");
 
 var displayHookIsAdded = false;
 
@@ -165,6 +166,11 @@ exports.updateSlotsMapFromGoogleSlots = updateSlotsMapFromGoogleSlots;
 
 //todo: pass slotsMap in every function that uses it
 function getStatusOfSlotForDivId(divID) { // TDD, i/o : done
+    if (typeof divID == "object" && typeof(divID.getSlotId) == "function") {
+        if(typeof(divID.getSlotId().getDomId) == "function"){
+            divID  = divID.getSlotId().getDomId();
+        }
+    }
     /* istanbul ignore else */
     if (util.isOwnProperty(refThis.slotsMap, divID)) {
         return refThis.slotsMap[divID].getStatus();
@@ -270,32 +276,33 @@ exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
 function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
-    var data = bidManager.getBid(divID);
+    var data; 
+	if (isPrebidPubMaticAnalyticsEnabled){
+		data = prebid.getBid(divID);
+	} else {
+        data = bidManager.getBid(divID);
+    }
     var winningBid = data.wb || null;
     var keyValuePairs = data.kvp || {};
-    var wbKeyValuePairs = null;
     var googleDefinedSlot = refThis.slotsMap[divID].getPubAdServerObject();
-    var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
+	var ignoreTheseKeys = !usePrebidKeys ? CONSTANTS.IGNORE_PREBID_KEYS : {};
 
     util.log("DIV: " + divID + " winningBid: ");
     util.log(winningBid);
 
     /* istanbul ignore else*/
-    if (winningBid && winningBid.getNetEcpm() > 0) {
-        refThis.slotsMap[divID].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
-        bidManager.setStandardKeys(winningBid, keyValuePairs);
-    };
+        if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {
+            refThis.slotsMap[divID].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
+            bidManager.setStandardKeys(winningBid, keyValuePairs);
+        };
 
     
     // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
     // this hook is not needed in custom controller
     util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);
-    if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().split(",").includes(CONSTANTS.COMMON.GAM)>-1){
-        util.setUserIdTargeting();
-    }
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
-        if (!CONFIG.getSendAllBidsStatus() && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
+        if (!CONFIG.getSendAllBidsStatus() && winningBid && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
 			delete keyValuePairs[key];
 		}
         /* istanbul ignore else*/
@@ -561,7 +568,8 @@ function forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arg, isRefreshC
     if (qualifyingSlotNames.length > 0) {
         refThis.updateStatusOfQualifyingSlotsBeforeCallingAdapters(qualifyingSlotNames, arg, isRefreshCall);
         var qualifyingSlots = refThis.arrayOfSelectedSlots(qualifyingSlotNames);
-        adapterManager.callAdapters(qualifyingSlots);
+        // new approach without adapter-manager
+        prebid.fetchBids(qualifyingSlots);
     }
 }
 
@@ -577,9 +585,6 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
         if(CONFIG.isIdentityOnly()){
             util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " Original Display function");
             return function() {
-                if(CONFIG.isUserIdModuleEnabled() && CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.GAM)>-1){
-                    util.setUserIdTargeting(theObject);
-                }
 	            return originalFunction.apply(theObject, arguments);
             }
         }
@@ -822,36 +827,10 @@ exports.defineGPTVariables = defineGPTVariables;
 /* end-test-block */
 
 function addHooksIfPossible(win) { // TDD, i/o : done
-    if(CONFIG.isUserIdModuleEnabled()  ){
-        //TODO : Check for Prebid loaded and debug logs 
-        prebid.register().sC();
-        if(CONFIG.isIdentityOnly()){
-            if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win.pbjs) && !util.isUndefined(win.pbjs.que)){
-                pbjs.que.unshift(function(){
-                    var vdetails = pbjs.version.split('.') 
-                    if(vdetails.length===3 && vdetails[0].includes("v3") && +vdetails[1] >= 3){
-                        pbjs.onEvent("addAdUnits", function () {
-                            util.updateAdUnits(pbjs["adUnits"]);
-                        });
-                        pbjs.onEvent("beforeRequestBids", function (adUnits) {
-                            util.updateAdUnits(adUnits);
-                        });
-                    }
-                    else{
-                        util.log("Adding Hook on pbjs.addAddUnits()");
-                        var theObject = window.pbjs;
-                        var functionName = "addAdUnits"
-                        util.addHookOnFunction(theObject, false, functionName, refThis.newAddAdUnitFunction);
-                    }
-                });
-              
-                util.log("Identity Only Enabled and setting config");
-            }else{
-                util.logWarning("window.pbjs is undefined")
-            }
-        }
+    if(CONFIG.isIdentityOnly()){
+        return false;
     }
-    if (util.isUndefined(win.google_onload_fired) && util.isObject(win.googletag) && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)) {
+    if (util.isObject(win.googletag) && !win.googletag.apiReady && util.isArray(win.googletag.cmd) && util.isFunction(win.googletag.cmd.unshift)) {
         util.log("Succeeded to load before GPT");//todo
         var refThis = this; // TODO : check whether the global refThis works here
         win.googletag.cmd.unshift(function() {
@@ -872,18 +851,6 @@ function addHooksIfPossible(win) { // TDD, i/o : done
 exports.addHooksIfPossible = addHooksIfPossible;
 /* end-test-block */
 
-function callJsLoadedIfRequired(win) { // TDD, i/o : done
-    if (util.isObject(win) && util.isObject(win.PWT) && util.isFunction(win.PWT.jsLoaded)) {
-        win.PWT.jsLoaded();
-        return true;
-    }
-    return false;
-}
-/* start-test-block */
-exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
-/* end-test-block */
-
-
 function initSafeFrameListener(theWindow){ // TDD, i/o : done
     if(!theWindow.PWT.safeFrameMessageListenerAdded){
         util.addMessageEventListenerForSafeFrame(theWindow);
@@ -898,12 +865,14 @@ exports.init = function(win) { // TDD, i/o : done
 	CONFIG.initConfig();
     if (util.isObject(win)) {
         refThis.setWindowReference(win);
-        refThis.initSafeFrameListener(win);
+        if(!isPrebidPubMaticAnalyticsEnabled){
+			refThis.initSafeFrameListener(win);
+		}
+        prebid.initPbjsConfig();
         refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
         refThis.defineGPTVariables(win);
-        adapterManager.registerAdapters();
         refThis.addHooksIfPossible(win);
-        refThis.callJsLoadedIfRequired(win);
+        IdHub.initIdHub(win);
         return true;
     } else {
         return false;

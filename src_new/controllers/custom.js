@@ -2,9 +2,11 @@ var CONFIG = require("../config.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
-var GDPR = require("../gdpr.js");
-var adapterManager = require("../adapterManager.js");
+// var GDPR = require("../gdpr.js");
 var SLOT = require("../slot.js");
+var prebid = require("../adapters/prebid.js");
+var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
+var usePrebidKeys = CONFIG.isUsePrebidKeysEnabled();
 
 //ToDo: add a functionality / API to remove extra added wrpper keys
 var wrapperTargetingKeys = {}; // key is div id
@@ -20,7 +22,6 @@ exports.slotSizeMapping = slotSizeMapping;
 
 var windowReference = null;
 var refThis = this;
-
 
 function setWindowReference(win) {
 	if (util.isObject(win)) {
@@ -74,26 +75,20 @@ function defineWrapperTargetingKeys(object) {
 exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
-function callJsLoadedIfRequired(win) {
-	if (util.isObject(win) && util.isObject(win.PWT) && util.isFunction(win.PWT.jsLoaded)) {
-		win.PWT.jsLoaded();
-		return true;
-	}
-	return false;
-}
-/* start-test-block */
-exports.callJsLoadedIfRequired = callJsLoadedIfRequired;
-/* end-test-block */
-
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function initSafeFrameListener(theWindow) {
 	if (!theWindow.PWT.safeFrameMessageListenerAdded) {
 		util.addMessageEventListenerForSafeFrame(theWindow);
 		theWindow.PWT.safeFrameMessageListenerAdded = true;
 	}
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.initSafeFrameListener = initSafeFrameListener;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 function validateAdUnitObject(anAdUnitObject) {
 	if (!util.isObject(anAdUnitObject)) {
@@ -170,21 +165,31 @@ exports.getAdSlotSizesArray = getAdSlotSizesArray;
 /* end-test-block */
 
 function findWinningBidAndGenerateTargeting(divId) {
-	var data = bidManager.getBid(divId);
+	var data;
+	if(isPrebidPubMaticAnalyticsEnabled === true){
+		data = prebid.getBid(divId);
+		//todo: we might need to change some proprty names in wb (from PBJS)
+	} else {
+		// removeIf(removeLegacyAnalyticsRelatedCode)
+		data = bidManager.getBid(divId);
+		// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+	}
 	var winningBid = data.wb || null;
 	var keyValuePairs = data.kvp || null;
-	var ignoreTheseKeys = CONSTANTS.IGNORE_PREBID_KEYS;
+	var ignoreTheseKeys = !usePrebidKeys ? CONSTANTS.IGNORE_PREBID_KEYS : {};
 
+	// removeIf(removeLegacyAnalyticsRelatedCode)
 	/* istanbul ignore else*/
-	if (winningBid && winningBid.getNetEcpm() > 0) {
+	if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {		
 		bidManager.setStandardKeys(winningBid, keyValuePairs);		
 	}
+	// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 	// attaching keyValuePairs from adapters
 	util.forEachOnObject(keyValuePairs, function(key) {
 		// if winning bid is not pubmatic then remove buyId targeting key. Ref : UOE-5277
 		/* istanbul ignore else*/ 
-		if (util.isOwnProperty(ignoreTheseKeys, key) || (winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key))) {
+		if (util.isOwnProperty(ignoreTheseKeys, key) || (winningBid && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key))) {
 			delete keyValuePairs[key];
 		}
 		else {
@@ -276,8 +281,8 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 		return;
 	}
 
-	// calling adapters
-	adapterManager.callAdapters(qualifyingSlots);
+	// new approach without adapter-managers
+	prebid.fetchBids(qualifyingSlots);
 
 	var posTimeoutTime = Date.now() + CONFIG.getTimeout(); // post timeout condition
 	var intervalId = window.setInterval(function() {
@@ -285,16 +290,20 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 		if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || Date.now() >= posTimeoutTime) {
 
 			clearInterval(intervalId);
-			// after some time call fire the analytics pixel
-			setTimeout(function() {
-				bidManager.executeAnalyticsPixel();
-			}, 2000);
+			// removeIf(removeLegacyAnalyticsRelatedCode)
+			if(isPrebidPubMaticAnalyticsEnabled === false){
+				// after some time call fire the analytics pixel
+				setTimeout(function() {
+					bidManager.executeAnalyticsPixel();
+				}, 2000);	
+			}
+			// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 			var winningBids = {}; // object:: { code : response bid or just key value pairs }
 			// we should loop on qualifyingSlotDivIds to avoid confusion if two parallel calls are fired to our PWT.requestBids 
 			util.forEachOnArray(qualifyingSlotDivIds, function(index, divId) {
-				var code = mapOfDivToCode[divId];
-				winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId, code);
+				var code = mapOfDivToCode[divId];				
+				winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId);
 				// we need to delay the realignment as we need to do it post creative rendering :)
 				// delaying by 1000ms as creative rendering may tke time
 				setTimeout(util.realignVLogInfoPanel, 1000, divId);
@@ -461,14 +470,18 @@ exports.init = function(win) {
 	CONFIG.initConfig();
 	if (util.isObject(win)) {
 		refThis.setWindowReference(win);
-		refThis.initSafeFrameListener(win);
+
+		// removeIf(removeLegacyAnalyticsRelatedCode)
+		if(!isPrebidPubMaticAnalyticsEnabled){
+			refThis.initSafeFrameListener(win);
+		}
+		// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+		prebid.initPbjsConfig();
 		win.PWT.requestBids = refThis.customServerExposedAPI;
 		win.PWT.generateConfForGPT = refThis.generateConfForGPT;
 		win.PWT.addKeyValuePairsToGPTSlots = addKeyValuePairsToGPTSlots;
 		win.PWT.removeKeyValuePairsFromGPTSlots = removeKeyValuePairsFromGPTSlots;
-		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
-		adapterManager.registerAdapters();
-		refThis.callJsLoadedIfRequired(win);
+		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);		
 		return true;
 	} else {
 		return false;
