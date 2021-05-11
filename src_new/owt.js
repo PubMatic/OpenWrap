@@ -172,4 +172,8 @@ window.PWT.getCustomParamsForDFPVideo = function(customParams, bid){
 };
 // endRemoveIf(removeInStreamRelatedCode)
 
+window.PWT.getAdapterNameForAlias = function(adapterId){
+	return CONFIG.getAdapterNameForAlias(adapterId);
+}
+
 controller.init(window);
