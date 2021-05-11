@@ -1233,6 +1233,7 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(CONFIG, 'getPublisherId');
             sinon.spy(CONFIG, 'getProfileID');
             sinon.spy(CONFIG, 'getProfileDisplayVersionID');
+            sinon.spy(CONFIG, 'getAdapterNameForAlias');
             sinon.stub(theBid, 'getBidID');
             theBid.getBidID.returns('784b05cc03a84a');
             sinon.spy(theBid, 'getAdapterID');
@@ -1271,6 +1272,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getPublisherId.restore();
             CONFIG.getProfileID.restore();
             CONFIG.getProfileDisplayVersionID.restore();
+            CONFIG.getAdapterNameForAlias.restore();
             window.encodeURIComponent.restore();
 
             theBid.getBidID.restore();
@@ -1330,6 +1332,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getPublisherId.called.should.be.true;
             CONFIG.getProfileID.called.should.be.true;
             CONFIG.getProfileDisplayVersionID.called.should.be.true;
+            CONFIG.getAdapterNameForAlias.called.should.be.true;
 
             theBid.getBidID.called.should.be.true;
             theBid.getAdapterID.called.should.be.true;
@@ -1339,7 +1342,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(11);
+            window.encodeURIComponent.callCount.should.be.equal(12);
 
             done();
         });
@@ -1356,7 +1359,8 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
             pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
             pixelURL += "&slot=" + window.encodeURIComponent(slotID);
-            pixelURL += "&pn=" + window.encodeURIComponent(theBid.getAdapterID());
+            pixelURL += "&bc=" + window.encodeURIComponent(theBid.getAdapterID());
+            pixelURL += "&pn=" + window.encodeURIComponent(CONFIG.getAdapterNameForAlias(theBid.getAdapterID()));
             pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());

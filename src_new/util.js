@@ -1368,7 +1368,7 @@ exports.getPartnerParams = function(params){
 exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
-	var netEcpm, grossEcpm, kgpv, bidId, adapterId;
+	var netEcpm, grossEcpm, kgpv, bidId, adapterId, adapterName;
 	var sspID = "";
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 
@@ -1402,6 +1402,9 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	if(adapterId == "pubmaticServer"){
 		adapterId = theBid.originalBidder || "pubmatic"; // in case of pubmaticServer we will get originalBidder, assigning pubmatic just in case originalBidder is not there.
 	}
+
+	adapterName = CONFIG.getAdapterNameForAlias(adapterId);
+
 	// Do we need all checks or we can just use one check
 	if(refThis.isFunction(theBid.getNetEcpm)) {
 		netEcpm = theBid.getNetEcpm(isAnalytics)
@@ -1442,7 +1445,8 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
 	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
 	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
-	pixelURL += "&pn=" + window.encodeURIComponent(adapterId);
+	pixelURL += "&bc=" + window.encodeURIComponent(adapterId);
+	pixelURL += "&pn=" + window.encodeURIComponent(adapterName);
 	pixelURL += "&en=" + window.encodeURIComponent(netEcpm);
 	pixelURL += "&eg=" + window.encodeURIComponent(grossEcpm);
 	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
