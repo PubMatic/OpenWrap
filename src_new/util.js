@@ -234,7 +234,7 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheck
 		if(shouldCheckMappingForVideo){
 			//TODO: remove below line and update above live for assigning sizeArray after remove phantom js and including chromeheadless
 			// This adds an size 0x0 to sizes so that multiple kgpvs can be generated
-			sizeArray = Array.from(activeSlot.getSizes());
+			sizeArray = [].concat(activeSlot.getSizes());
 			var config = refThis.mediaTypeConfig[divId];
 			if(config && config.video){
 				sizeArray.unshift([0,0]);
