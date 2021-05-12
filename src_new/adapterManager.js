@@ -3,7 +3,7 @@ var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
 var bidManager = require("./bidManager.js");
 // todo: how we can do it optionally (include only iff required) ?
-var prebid = require("./adapters/prebid.js");
+// var prebid = require("./adapters/prebid.js");
 
 var registeredAdapters = {};
 
@@ -81,7 +81,9 @@ exports.registerAdapter = registerAdapter;
 
 // todo: this function can be removed
 function registerAdapters(){
-	refThis.registerAdapter(prebid.register());
+	refThis.registerAdapter(
+		// prebid.register()
+	);
 };
 
 exports.registerAdapters = registerAdapters;

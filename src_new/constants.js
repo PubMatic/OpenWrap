@@ -42,8 +42,8 @@ exports.COMMON = {
 	"PRICE_GRANULARITY" : "priceGranularity",
 	"GRANULARITY_MULTIPLIER" : "granularityMultiplier",
 	"TEST_PARTNER": "test_adapters",
+	"REDUCE_CODE_SIZE": "reduceCodeSize",
 	"TEST_IDENTITY_PARTNER": "test_identityPartners"
-
 };
 
 exports.CONFIG = {
@@ -168,7 +168,7 @@ exports.MESSAGES = {
 	"M6": "bidAlreadExists : ",
 	"M7": ": Exiting from fetchBids.",
 	"M8": ". Config not found, ignored.",
-	"M9": ". Config ignored.",
+	// "M9": ". Config ignored.",
 	"M10": "Bid is rejected as ecpm is NULL.",
 	"M11": "Bid is rejected as ecpm is NaN: ",
 	"M12": "Existing bid ecpm: ",
@@ -243,5 +243,17 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 	},
 	"sharedId": {
 		"params.syncTime": "number"
+	},
+	"id5Id": {
+		"params.partner": "number"
 	}
 }; //list of ID partners for whom special handling of datatype is required
+
+exports.ID_PARTNERS_CUSTOM_VALUES = {
+	"parrableId": [
+		{
+			"key": "params.timezoneFilter",
+			"value": {"allowedZones": [ "Pacific/Honolulu"]}
+		}
+	]
+};
