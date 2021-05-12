@@ -298,8 +298,9 @@ exports.updateABTestConfig = function () {
 				} else if(Object.keys(refThis.getTestIdentityPartners()).length == 0 && Object.keys(refThis.getIdentityPartners()).length > 0){
 					config.identityPartners = {};
 				}
-			}else{
-				config.identityPartners = refThis.updatePartnerConfig(refThis.getTestIdentityPartners(), refThis.getIdentityPartners());			
+				else{
+					config.identityPartners = refThis.updatePartnerConfig(refThis.getTestIdentityPartners(), refThis.getIdentityPartners());			
+				}
 			}
 		}
 	}
