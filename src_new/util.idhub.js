@@ -446,4 +446,4 @@ exports.getOWConfig = function(){
 		"profileVersionId": CONFIG.getProfileDisplayVersionID()
 	};
 	return obj;
-}
+};
