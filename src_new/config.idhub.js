@@ -61,4 +61,12 @@ exports.getCCPATimeout = function() {
 	return ccpaTimeout ? window.parseInt(ccpaTimeout) : CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT;
 };
 
+exports.getProfileID = function () {
+	return util.trim(config.pwt[CONSTANTS.CONFIG.PROFILE_ID]) || "0";
+};
+
+exports.getProfileDisplayVersionID = function () {
+	return util.trim(config.pwt[CONSTANTS.CONFIG.PROFILE_VERSION_ID]) || "0";
+};
+
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";
