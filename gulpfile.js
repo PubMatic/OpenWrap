@@ -289,6 +289,40 @@ gulp.task('bundle-pb-keys', function(){
       .pipe(gulp.dest('build'));
 });
 
+gulp.task('bundle-native-pb-keys', function(){
+    return gulp.src('./build/owt.min.js')
+    .pipe(replace({
+      patterns: [
+        {
+          match: /"%%TG_NATIVE_KEYS%%"/g,
+          replacement: {
+              "title": "hb_native_title",
+              "body": "hb_native_body",
+              "body2": "hb_native_body2",
+              "privacyLink": "hb_native_privacy",
+              "privacyIcon": "hb_native_privicon",
+              "sponsoredBy": "hb_native_brand",
+              "image": "hb_native_image",
+              "icon": "hb_native_icon",
+              "clickUrl": "hb_native_linkurl",
+              "displayUrl": "hb_native_displayurl",
+              "cta": "hb_native_cta",
+              "rating": "hb_native_rating",
+              "address": "hb_native_address",
+              "downloads": "hb_native_downloads",
+              "likes": "hb_native_likes",
+              "phone": "hb_native_phone",
+              "price": "hb_native_price",
+              "salePrice": "hb_native_saleprice",
+              "rendererUrl": "hb_renderer_url",
+              "adTemplate": "hb_adTemplate",
+          }
+        }
+      ]
+    }))
+    .pipe(gulp.dest('build'));
+});
+
 gulp.task('bundle-pwt-keys', function(){
       return gulp.src('./build/owt.min.js')
       .pipe(replace({
@@ -314,6 +348,37 @@ gulp.task('bundle-pwt-keys', function(){
         ]
       }))
       .pipe(gulp.dest('build'));
+});
+
+gulp.task('bundle-native-pwt-keys', function(){
+    return gulp.src('./build/owt.min.js')
+    .pipe(replace({
+      patterns: [
+        {
+          match: /"%%TG_NATIVE_KEYS%%"/g,
+          replacement: { 
+              "title": "pwt_native_title",
+              "body": "pwt_native_body",
+              "body2": "pwt_native_body2",
+              "privacyLink": "pwt_native_privacy",
+              "sponsoredBy": "pwt_native_brand",
+              "image": "pwt_native_image",
+              "icon": "pwt_native_icon",
+              "clickUrl": "pwt_native_linkurl",
+              "displayUrl": "pwt_native_displayurl",
+              "cta": "pwt_native_cta",
+              "rating": "pwt_native_rating",
+              "address": "pwt_native_address",
+              "downloads": "pwt_native_downloads",
+              "likes": "pwt_native_likes",
+              "phone": "pwt_native_phone",
+              "price": "pwt_native_price",
+              "salePrice": "pwt_native_saleprice"
+          }
+        }
+      ]
+    }))
+    .pipe(gulp.dest('build'));
 });
 
 // Task to build minified version of owt.js
