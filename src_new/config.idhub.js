@@ -1,6 +1,9 @@
 var config = require("./conf.js");
 var CONSTANTS = require("./constants.js");
-
+var refThis = null;
+refThis = this;
+refThis[CONSTANTS.COMMON.OWVERSION] = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.OWVERSION];
+refThis[CONSTANTS.COMMON.PBVERSION] = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBVERSION];
 // needed
 exports.getGdpr = function () {
 	var gdpr = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT] || CONSTANTS.CONFIG.DEFAULT_GDPR_CONSENT;
@@ -62,11 +65,11 @@ exports.getCCPATimeout = function() {
 };
 
 exports.getProfileID = function () {
-	return util.trim(config.pwt[CONSTANTS.CONFIG.PROFILE_ID]) || "0";
+	return config.pwt[CONSTANTS.CONFIG.PROFILE_ID] || "0";
 };
 
 exports.getProfileDisplayVersionID = function () {
-	return util.trim(config.pwt[CONSTANTS.CONFIG.PROFILE_VERSION_ID]) || "0";
+	return config.pwt[CONSTANTS.CONFIG.PROFILE_VERSION_ID] || "0";
 };
 
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";
