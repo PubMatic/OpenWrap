@@ -1596,7 +1596,8 @@ exports.initLiveRampAts = function(params){
 			  "detectionType": params.params.detectionType,
 			  "urlParameter": params.params.urlParameter,
 			  "cssSelectors":params.params.cssSelectors,// ["input[type=text]", "input[type=email]"],
-			  "logging": params.params.logging //"error"
+			  "logging": params.params.logging, //"error"
+			  "detectDynamicNodes": params.params.detectDynamicNodes
 			});
 		};
 		atsScript.src = 'https://ats.rlcdn.com/ats.js';
