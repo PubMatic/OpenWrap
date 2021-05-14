@@ -234,7 +234,7 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheck
 		if(shouldCheckMappingForVideo){
 			//TODO: remove below line and update above live for assigning sizeArray after remove phantom js and including chromeheadless
 			// This adds an size 0x0 to sizes so that multiple kgpvs can be generated
-			sizeArray = Array.from(activeSlot.getSizes());
+			sizeArray = [].concat(activeSlot.getSizes());
 			var config = refThis.mediaTypeConfig[divId];
 			if(config && config.video){
 				sizeArray.unshift([0,0]);
@@ -809,9 +809,13 @@ exports.safeFrameCommunicationProtocol = function(msg){
 		
 		// removeIf(removeNativeRelatedCode)	
 		case 3:
-			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+			if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+				var msg = { message: 'Prebid Native', adId: msgData.pwt_bidID, action: msgData.pwt_action };
+				window.postMessage(JSON.stringify(msg), "*");
+			}else{
+				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
-			if(bidDetails){
+				if(bidDetails){
 					var theBid = bidDetails.bid,
 						adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid;
@@ -821,6 +825,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 					bidManager.fireTracker(theBid,msgData.pwt_action);							
 				}
+			}
 			break;
 		// endRemoveIf(removeNativeRelatedCode)	
 		}
@@ -1602,7 +1607,8 @@ exports.initLiveRampAts = function(params){
 			  "detectionType": params.params.detectionType,
 			  "urlParameter": params.params.urlParameter,
 			  "cssSelectors":params.params.cssSelectors,// ["input[type=text]", "input[type=email]"],
-			  "logging": params.params.logging //"error"
+			  "logging": params.params.logging, //"error"
+			  "detectDynamicNodes": params.params.detectDynamicNodes
 			});
 		};
 		atsScript.src = 'https://ats.rlcdn.com/ats.js';
