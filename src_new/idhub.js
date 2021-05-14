@@ -21,4 +21,6 @@ window.PWT.getUserIds = function(){
 	return util.getUserIds();
 };
 
+window.PWT.versionDetails =  util.getOWConfig();
+
 controller.init(window);

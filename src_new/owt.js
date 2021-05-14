@@ -172,4 +172,6 @@ window.PWT.getCustomParamsForDFPVideo = function(customParams, bid){
 };
 // endRemoveIf(removeInStreamRelatedCode)
 
+window.PWT.versionDetails =  util.getOWConfig();
+
 controller.init(window);

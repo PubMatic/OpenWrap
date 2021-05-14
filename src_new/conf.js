@@ -20,6 +20,8 @@ exports.pwt = {
 	ccpa: "0",
 	ccpaCmpApi: "iab",
 	ccpaTimeout: "10000",
+	pbv:"v4.33.0",
+	owv:"v21.4.0",
 	abTestEnabled:"0",
 	pubAnalyticsAdapter: "0",
 	reduceCodeSize:1

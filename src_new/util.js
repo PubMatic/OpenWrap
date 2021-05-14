@@ -1531,8 +1531,19 @@ exports.getDevicePlatform = function(){
 		refThis.logError("Unable to get device platform" , ex);
 	}
 	return deviceType;
-};
+}
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+exports.getOWConfig = function(){
+	var obj = {
+		"timeout":CONFIG.getTimeout(),
+		"openwrap_version": CONFIG[CONSTANTS.COMMON.OWVERSION],
+		"prebid_version":CONFIG[CONSTANTS.COMMON.PBVERSION],
+		"profileId": CONFIG.getProfileID(),
+		"profileVersionId": CONFIG.getProfileDisplayVersionID()
+	};
+	return obj;
+}
 
 // removeIf(removeIdHubOnlyRelatedCode)
 exports.updateAdUnits = function(adUnits){
