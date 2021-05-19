@@ -117,4 +117,18 @@ if (task == CREATIVE_TASK) {
 			  	shell.exit(1);
 			}		
 		}
+		if(config.isUsePrebidKeysEnabled() === true){
+			console.log("We need to use Prebid keys for Native, so changing targeting keys in PrebidJS config");
+			prebidTaskName = "build-bundle-prod --modules=modules.json";
+			if(shell.exec("time gulp bundle-native-pb-keys").code !== 0) {
+				shell.echo('Error: Changing PrebidJS targeting keys for Native failed');
+			  	shell.exit(1);
+			}
+		} else {
+			console.log("We need to use PWT keys for Native, so changing targeting keys in PrebidJS config");
+			if(shell.exec("time gulp bundle-native-pwt-keys").code !== 0) {
+				shell.echo('Error: Changing PrebidJS targeting keys for Native failed');
+			  	shell.exit(1);
+			}
+		}
 }

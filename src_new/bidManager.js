@@ -444,6 +444,28 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
+function getAdUnitSizes(bmEntry){
+	var _adapter = Object.keys(bmEntry.adapters).filter(function(adapter){
+		if( Object.keys(bmEntry.adapters[adapter].bids).filter(function(bid){
+			if(!!bmEntry.adapters[adapter].bids[bid].isWinningBid && bmEntry.adapters[adapter].bids[bid].adFormat === "native")
+				return bmEntry.adapters[adapter].bids[bid];
+			}).length == 1)
+			return adapter;
+	})
+	if(!!_adapter.length){
+	  	return ["1x1"];
+	}
+	return bmEntry.getSizes();
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+/* start-test-block */
+exports.getAdUnitSizes = getAdUnitSizes;
+/* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
 	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = undefined;
@@ -453,7 +475,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
     if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
         var slotObject = {
             "sn": slotID,
-            "sz": bmEntry.getSizes(),
+            "sz": refThis.getAdUnitSizes(bmEntry),
             "ps": []
         };
 
@@ -515,7 +537,8 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 				}
 				//todo: take all these key names from constants
                 slotObject["ps"].push({
-                    "pn": adapterID,
+                    "pn": CONFIG.getAdapterNameForAlias(adapterID),
+                    "bc": adapterID,
                     "bidid": bidID,
                     "db": theBid.getDefaultBidStatus(),
                     "kgpv": theBid.getKGPV(),

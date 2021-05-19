@@ -472,9 +472,7 @@ exports.init = function(win) {
 		refThis.setWindowReference(win);
 
 		// removeIf(removeLegacyAnalyticsRelatedCode)
-		if(!isPrebidPubMaticAnalyticsEnabled){
-			refThis.initSafeFrameListener(win);
-		}
+		refThis.initSafeFrameListener(win);
 		// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 		prebid.initPbjsConfig();
 		win.PWT.requestBids = refThis.customServerExposedAPI;

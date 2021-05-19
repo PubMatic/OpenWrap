@@ -351,7 +351,8 @@ exports.initLiveRampAts = function (params) {
 				"detectionType": params.params.detectionType,
 				"urlParameter": params.params.urlParameter,
 				"cssSelectors": params.params.cssSelectors, // ["input[type=text]", "input[type=email]"],
-				"logging": params.params.logging //"error"
+				"logging": params.params.logging, //"error"
+				"detectDynamicNodes": params.params.detectDynamicNodes
 			});
 		};
 		atsScript.src = "https://ats.rlcdn.com/ats.js";
@@ -435,4 +436,14 @@ exports.applyCustomParamValuesfApplicable = function(params) {
 			params[partnerValues[i]["key"]] = partnerValues[i]["value"];
 		}
 	}
+};
+
+exports.getOWConfig = function(){
+	var obj = {
+		"openwrap_version": CONFIG[CONSTANTS.COMMON.OWVERSION],
+		"prebid_version":CONFIG[CONSTANTS.COMMON.PBVERSION],
+		"profileId": CONFIG.getProfileID(),
+		"profileVersionId": CONFIG.getProfileDisplayVersionID()
+	};
+	return obj;
 };

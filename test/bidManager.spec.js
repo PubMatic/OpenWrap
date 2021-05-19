@@ -1233,6 +1233,7 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(CONFIG, 'getPublisherId');
             sinon.spy(CONFIG, 'getProfileID');
             sinon.spy(CONFIG, 'getProfileDisplayVersionID');
+            sinon.stub(CONFIG, 'getAdapterNameForAlias');
             sinon.stub(theBid, 'getBidID');
             theBid.getBidID.returns('784b05cc03a84a');
             sinon.spy(theBid, 'getAdapterID');
@@ -1271,6 +1272,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getPublisherId.restore();
             CONFIG.getProfileID.restore();
             CONFIG.getProfileDisplayVersionID.restore();
+            CONFIG.getAdapterNameForAlias.restore();
             window.encodeURIComponent.restore();
 
             theBid.getBidID.restore();
@@ -1330,6 +1332,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getPublisherId.called.should.be.true;
             CONFIG.getProfileID.called.should.be.true;
             CONFIG.getProfileDisplayVersionID.called.should.be.true;
+            CONFIG.getAdapterNameForAlias.called.should.be.true;
 
             theBid.getBidID.called.should.be.true;
             theBid.getAdapterID.called.should.be.true;
@@ -1339,7 +1342,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(11);
+            window.encodeURIComponent.callCount.should.be.equal(12);
 
             done();
         });
@@ -1356,7 +1359,8 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
             pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
             pixelURL += "&slot=" + window.encodeURIComponent(slotID);
-            pixelURL += "&pn=" + window.encodeURIComponent(theBid.getAdapterID());
+            pixelURL += "&bc=" + window.encodeURIComponent(theBid.getAdapterID());
+            pixelURL += "&pn=" + window.encodeURIComponent(CONFIG.getAdapterNameForAlias(theBid.getAdapterID()));
             pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
@@ -1365,6 +1369,86 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.executeMonetizationPixel(slotID, theBid);
             BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;
 
+            done();
+        });
+
+        it('should generate proper pixelURL for bidder aliases', function(done) {
+
+            theBid.adapterID = "pubmatic21";
+            CONFIG.getAdapterNameForAlias.returns('pubmatic');
+            var pixelURL = CONSTANTS.COMMON.PROTOCOL + CONFIG.getMonetizationPixelURL();
+            pixelURL += "pubid=" + CONFIG.getPublisherId();
+            pixelURL += "&purl=" + window.encodeURIComponent(UTIL.metaInfo.pageURL);
+            pixelURL += "&tst=" + UTIL.getCurrentTimestamp();
+            pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
+            pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
+            pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
+            pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
+            pixelURL += "&slot=" + window.encodeURIComponent(slotID);
+            pixelURL += "&bc=" + window.encodeURIComponent(theBid.getAdapterID());
+            pixelURL += "&pn=" + window.encodeURIComponent(CONFIG.getAdapterNameForAlias(theBid.getAdapterID()));
+            pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
+            pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
+            pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
+            pixelURL += "&piid=" + window.encodeURIComponent(theBid.getsspID());
+
+            BIDMgr.executeMonetizationPixel(slotID, theBid);
+            BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;
+
+            done();
+        });
+    });
+
+    describe('#getAdUnitSizes', function(){
+        var bmEntryObj = null;
+        var theBid = null;
+
+        beforeEach(function(done) {
+            bmEntryObj = new bmEntryContstuctor("pubmatic");
+            bmEntryObj.setSizes(["720x80"]);
+
+            theBid = new bid(commonAdpterID, commonKGPV);
+
+            sinon.spy(theBid, "getPostTimeoutStatus");
+            bmEntryObj.setAdapterEntry(commonAdpterID);
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+
+            done();
+        })
+
+        afterEach(function(done) {
+            bmEntry = null;
+            theBid = null;
+            done();
+        })
+        it('Should return single size of adunit in case of non-native bid', function(done) {
+            BIDMgr.getAdUnitSizes(bmEntryObj)[0].should.be.equal('720x80');
+            done();
+        });
+
+        it('Should return multiple size of adunit in case of non-native bid', function(done) {
+            bmEntryObj.setSizes(["720x80","640x480"]);
+
+            BIDMgr.getAdUnitSizes(bmEntryObj)[0].should.be.equal('720x80');
+            BIDMgr.getAdUnitSizes(bmEntryObj)[1].should.be.equal('640x480');
+            done();
+        });
+
+        it('Should return 1x1 in case of native bid', function(done) {
+            bmEntryObj.setSizes(["720x80","640x480"]);
+            theBid.isWinningBid = true;
+            theBid.adFormat="native";
+
+            BIDMgr.getAdUnitSizes(bmEntryObj)[0].should.be.equal('1x1');
+            done();
+        });
+
+        it('Should return size of adUnit in case of native with NO-BID', function(done) {
+            theBid.getPostTimeoutStatus.restore();
+            sinon.stub(theBid,"getPostTimeoutStatus").returns(1);
+            theBid.setGrossEcpm(0);
+
+            BIDMgr.getAdUnitSizes(bmEntryObj)[0].should.be.equal('720x80');
             done();
         });
     });

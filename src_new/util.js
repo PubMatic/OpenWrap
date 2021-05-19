@@ -382,7 +382,6 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 
 		/* istanbul ignore else */
 		if(callHandlerFunction){
-			console.log('Calling handler function');
 			/* istanbul ignore else */
 			if(addZeroBids == true){
 				var bid = BID.createBid(adapterID, generatedKey);
@@ -810,9 +809,13 @@ exports.safeFrameCommunicationProtocol = function(msg){
 		
 		// removeIf(removeNativeRelatedCode)	
 		case 3:
-			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+			if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+				var msg = { message: 'Prebid Native', adId: msgData.pwt_bidID, action: msgData.pwt_action };
+				window.postMessage(JSON.stringify(msg), "*");
+			}else{
+				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
-			if(bidDetails){
+				if(bidDetails){
 					var theBid = bidDetails.bid,
 						adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid;
@@ -822,6 +825,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 					bidManager.fireTracker(theBid,msgData.pwt_action);							
 				}
+			}
 			break;
 		// endRemoveIf(removeNativeRelatedCode)	
 		}
@@ -1368,7 +1372,7 @@ exports.getPartnerParams = function(params){
 exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
-	var netEcpm, grossEcpm, kgpv, bidId, adapterId;
+	var netEcpm, grossEcpm, kgpv, bidId, adapterId, adapterName;
 	var sspID = "";
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 
@@ -1402,6 +1406,9 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	if(adapterId == "pubmaticServer"){
 		adapterId = theBid.originalBidder || "pubmatic"; // in case of pubmaticServer we will get originalBidder, assigning pubmatic just in case originalBidder is not there.
 	}
+
+	adapterName = CONFIG.getAdapterNameForAlias(adapterId);
+
 	// Do we need all checks or we can just use one check
 	if(refThis.isFunction(theBid.getNetEcpm)) {
 		netEcpm = theBid.getNetEcpm(isAnalytics)
@@ -1442,7 +1449,8 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
 	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
 	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
-	pixelURL += "&pn=" + window.encodeURIComponent(adapterId);
+	pixelURL += "&bc=" + window.encodeURIComponent(adapterId);
+	pixelURL += "&pn=" + window.encodeURIComponent(adapterName);
 	pixelURL += "&en=" + window.encodeURIComponent(netEcpm);
 	pixelURL += "&eg=" + window.encodeURIComponent(grossEcpm);
 	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
@@ -1527,8 +1535,19 @@ exports.getDevicePlatform = function(){
 		refThis.logError("Unable to get device platform" , ex);
 	}
 	return deviceType;
-};
+}
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+exports.getOWConfig = function(){
+	var obj = {
+		"timeout":CONFIG.getTimeout(),
+		"openwrap_version": CONFIG[CONSTANTS.COMMON.OWVERSION],
+		"prebid_version":CONFIG[CONSTANTS.COMMON.PBVERSION],
+		"profileId": CONFIG.getProfileID(),
+		"profileVersionId": CONFIG.getProfileDisplayVersionID()
+	};
+	return obj;
+}
 
 // removeIf(removeIdHubOnlyRelatedCode)
 exports.updateAdUnits = function(adUnits){
@@ -1592,7 +1611,8 @@ exports.initLiveRampAts = function(params){
 			  "detectionType": params.params.detectionType,
 			  "urlParameter": params.params.urlParameter,
 			  "cssSelectors":params.params.cssSelectors,// ["input[type=text]", "input[type=email]"],
-			  "logging": params.params.logging //"error"
+			  "logging": params.params.logging, //"error"
+			  "detectDynamicNodes": params.params.detectDynamicNodes
 			});
 		};
 		atsScript.src = 'https://ats.rlcdn.com/ats.js';

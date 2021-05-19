@@ -176,4 +176,6 @@ window.PWT.getAdapterNameForAlias = function(adapterId){
 	return CONFIG.getAdapterNameForAlias(adapterId);
 }
 
+window.PWT.versionDetails =  util.getOWConfig();
+
 controller.init(window);
