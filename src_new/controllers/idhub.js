@@ -18,7 +18,10 @@ refThis.setConfig = function(){
 			};
 
 			if (CONFIG.getGdpr()) {
-				prebidConfig["consentManagement"] = {
+				if(!prebidConfig["consentManagement"]){
+					prebidConfig["consentManagement"] = {};
+				}
+				prebidConfig["consentManagement"]['gdpr'] = {
 					cmpApi: CONFIG.getCmpApi(),
 					timeout: CONFIG.getGdprTimeout(),
 					allowAuctionWithoutConsent: CONFIG.getAwc()
