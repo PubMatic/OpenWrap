@@ -359,7 +359,7 @@ exports.initLiveRampAts = function (params) {
 		document.body.appendChild(atsScript);
 	}
 	if (document.readyState == 'complete') {
-		setTimeout(addATS, 1000);
+		addATS();
 	} else {
 		window.addEventListener("load", function () {
 			setTimeout(addATS, 1000);
