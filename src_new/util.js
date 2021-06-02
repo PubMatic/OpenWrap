@@ -148,6 +148,7 @@ exports.getUniqueIdentifierStr = function() {
 	return utilGetIncrementalInteger() + window.Math.random().toString(16).substr(2);
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.copyKeyValueObject = function(copyTo, copyFrom){
 	/* istanbul ignore else */
 	if(refThis.isObject(copyTo) && refThis.isObject(copyFrom)){
@@ -167,6 +168,7 @@ exports.copyKeyValueObject = function(copyTo, copyFrom){
 		});
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.getIncrementalInteger = (function() {
 	var count = 0;
@@ -232,7 +234,7 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheck
 		if(shouldCheckMappingForVideo){
 			//TODO: remove below line and update above live for assigning sizeArray after remove phantom js and including chromeheadless
 			// This adds an size 0x0 to sizes so that multiple kgpvs can be generated
-			sizeArray = Array.from(activeSlot.getSizes());
+			sizeArray = [].concat(activeSlot.getSizes());
 			var config = refThis.mediaTypeConfig[divId];
 			if(config && config.video){
 				sizeArray.unshift([0,0]);
@@ -272,40 +274,6 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheck
 		}
 	}
 	return slotNames;
-};
-
-//todo: is it required ?
-exports.checkMandatoryParams = function(object, keys, adapterID){
-	var error = false,
-		success = true
-	;
-	/* istanbul ignore else */
-	if(!object || !refThis.isObject(object) || refThis.isArray(object)){
-		refThis.logWarning(adapterID + "provided object is invalid.");
-		return error;
-	}
-	/* istanbul ignore else */
-	if(!refThis.isArray(keys)){
-		refThis.logWarning(adapterID + "provided keys must be in an array.");
-		return error;
-	}
-
-	var arrayLength = keys.length;
-	/* istanbul ignore else */
-	if(arrayLength == 0){
-		return success;
-	}
-
-	// can not change following for loop to refThis.forEachOnArray
-	for(var i=0; i<arrayLength; i++){
-		/* istanbul ignore else */
-		if(!refThis.isOwnProperty(object, keys[i])){
-			refThis.logError(adapterID + ": "+keys[i]+", mandatory parameter not present.");
-			return error;
-		}
-	}
-
-	return success;
 };
 
 /**
@@ -406,9 +374,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				}
 			}
 			if(!keyConfig){
-				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
-			}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);			
 			}else{
 				callHandlerFunction = true;
 			}
@@ -416,7 +382,6 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 
 		/* istanbul ignore else */
 		if(callHandlerFunction){
-			console.log('Calling handler function');
 			/* istanbul ignore else */
 			if(addZeroBids == true){
 				var bid = BID.createBid(adapterID, generatedKey);
@@ -444,6 +409,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 exports.callHandlerFunctionForMapping = callHandlerFunctionForMapping;
 /* end-test-block */
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
 	if(height && width){
@@ -471,7 +437,9 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 		} // eslint-disable-line no-empty
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.writeIframe = function(theDocument, src, width, height, style){
 	theDocument.write("<iframe"
     + " frameborder=\"0\" allowtransparency=\"true\" marginheight=\"0\" marginwidth=\"0\" scrolling=\"no\" width=\""
@@ -481,7 +449,9 @@ exports.writeIframe = function(theDocument, src, width, height, style){
     + " src=\"" + src + "\""
     + "></ifr" + "ame>");
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.displayCreative = function(theDocument, bid){
 	if(bid && bid.pbbid && bid.pbbid.mediaType == "video" && bid.renderer && refThis.isObject(bid.renderer)){
 		if(refThis.isFunction(bid.renderer.render)){
@@ -506,18 +476,7 @@ exports.displayCreative = function(theDocument, bid){
 		}
 	}
 };
-
-exports.getScreenWidth = function(win){
-	var screenWidth = -1;
-	win.innerHeight ? (screenWidth = win.innerWidth) : win.document && win.document.documentElement && win.document.documentElement.clientWidth ? (screenWidth = win.document.documentElement.clientWidth) : win.document.body && (screenWidth = win.document.body.clientWidth);
-	return screenWidth;
-};
-
-exports.getScreenHeight = function(win){
-	var screenHeight = -1;
-	win.innerHeight ? (screenHeight = win.innerHeight) : win.document && win.document.documentElement && win.document.documentElement.clientHeight ? (screenHeight = win.document.documentElement.clientHeight) : win.document.body && (screenHeight = win.document.body.clientHeight);
-	return screenHeight;
-};
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // todo: how about accepting array of arguments to be passed to callback function after key, value, arrayOfArguments
 exports.forEachOnObject = function(theObject, callback){
@@ -619,11 +578,6 @@ exports.isIframe = function(theWindow){
 	}
 };
 
-//todo: this function is not used
-exports.findInString = function(theString, find){
-	return theString.indexOf(find) >= 0;
-};
-
 exports.findQueryParamInURL = function(url, name){
 	return refThis.isOwnProperty(refThis.parseQueryParams(url), name);
 };
@@ -715,6 +669,7 @@ exports.getBididForPMP = function(values, priorityArray){
 	return bidID;
 };
 
+// removeIf(removeNativeRelatedCode)
 exports.createInvisibleIframe = function() {
 	var f = refThis.createDocElement(window, 'iframe');
 	f.id = refThis.getUniqueIdentifierStr();
@@ -732,7 +687,9 @@ exports.createInvisibleIframe = function() {
 	f.style = 'display:none';
 	return f;
 }
+// endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.addMessageEventListener = function(theWindow, eventHandler){
 	/* istanbul ignore else */
 	if(typeof eventHandler !== "function"){
@@ -747,7 +704,9 @@ exports.addMessageEventListener = function(theWindow, eventHandler){
 	}
 	return true;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.safeFrameCommunicationProtocol = function(msg){
 	try{
 		msgData = window.JSON.parse(msg.data);
@@ -847,10 +806,16 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 				}
 			break;
+		
+		// removeIf(removeNativeRelatedCode)	
 		case 3:
-			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+			if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+				var msg = { message: 'Prebid Native', adId: msgData.pwt_bidID, action: msgData.pwt_action };
+				window.postMessage(JSON.stringify(msg), "*");
+			}else{
+				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
-			if(bidDetails){
+				if(bidDetails){
 					var theBid = bidDetails.bid,
 						adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid;
@@ -860,16 +825,20 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 					bidManager.fireTracker(theBid,msgData.pwt_action);							
 				}
+			}
 			break;
+		// endRemoveIf(removeNativeRelatedCode)	
 		}
 	}catch(e){}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.addMessageEventListenerForSafeFrame = function(theWindow){
 	refThis.addMessageEventListener(theWindow, refThis.safeFrameCommunicationProtocol);
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-//todo: this function is not in use
 exports.getElementLocation = function( el ) {
 	var rect,
 		x = 0,
@@ -1043,6 +1012,7 @@ exports.resetExternalBidderStatus = function(divIds) {
 	});
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.ajaxRequest = function(url, callback, data, options) {
 	try {
 
@@ -1092,6 +1062,7 @@ exports.ajaxRequest = function(url, callback, data, options) {
 		refThis.log(error);
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // Returns mediaTypes for adUnits which are sent to prebid
 exports.getAdUnitConfig = function(sizes, currentSlot){
@@ -1184,6 +1155,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 	return adUnitConfig;
 };
 
+// removeIf(removeNativeRelatedCode)
 exports.addEventListenerForClass = function(theWindow, theEvent, theClass, eventHandler){
 
 	if(typeof eventHandler !== "function"){
@@ -1199,15 +1171,21 @@ exports.addEventListenerForClass = function(theWindow, theEvent, theClass, event
 	}
 	return true;
 };
- 
+// endRemoveIf(removeNativeRelatedCode)
+
+// removeIf(removeNativeRelatedCode) 
 exports.findElementsByClass = function(theWindow, theClass){
 	return theWindow.document.getElementsByClassName(theClass) || [];
 };
+// endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeNativeRelatedCode)
 exports.getBidFromEvent = function (theEvent) {
 	return (theEvent && theEvent.target && theEvent.target.attributes &&  theEvent.target.attributes[CONSTANTS.COMMON.BID_ID] && theEvent.target.attributes[CONSTANTS.COMMON.BID_ID].value) || "";
 };
+// endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.getAdFormatFromBidAd = function(ad){
 	var format = undefined;
 	if(ad && refThis.isString(ad)){
@@ -1231,6 +1209,7 @@ exports.getAdFormatFromBidAd = function(ad){
 	}
 	return format;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // This common function can be used add hooks for publishers to make changes in flows
 exports.handleHook = function(hookName, arrayOfDataToPass) {
@@ -1296,6 +1275,7 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 	return rxConfig;
 };
 
+// removeIf(removeUserIdRelatedCode)
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
@@ -1304,14 +1284,9 @@ exports.getUserIdConfiguration = function(){
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4+ JSON.stringify(userIdConfs));
 	return userIdConfs;
 };
+// endRemoveIf(removeUserIdRelatedCode)
 
-exports.clearPreviousTargeting = function(){
-	var targetingKeys = window.googletag.pubads().getTargetingKeys();
-	if(targetingKeys.indexOf(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS)>-1){
-		window.googletag.pubads().clearTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS);
-	}
-};
-
+// removeIf(removeUserIdRelatedCode)
 exports.getUserIds = function(){
 	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
 		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
@@ -1319,7 +1294,9 @@ exports.getUserIds = function(){
 		refThis.logWarning("getUserIds" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	};
 };
+// endRemoveIf(removeUserIdRelatedCode)
 
+// removeIf(removeUserIdRelatedCode)
 exports.getUserIdsAsEids = function(){
 	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids)) {
 		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids();
@@ -1327,6 +1304,7 @@ exports.getUserIdsAsEids = function(){
 		refThis.logWarning("getUserIdsAsEids" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	};
 };
+// endRemoveIf(removeUserIdRelatedCode)
 
 exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
 	var convertedObject = sourceObject;
@@ -1390,6 +1368,7 @@ exports.getPartnerParams = function(params){
 	return pparams;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
@@ -1475,7 +1454,9 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 
 	return CONSTANTS.COMMON.PROTOCOL + pixelURL;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.UpdateVastWithTracker= function(bid, vast){
 	try{
 		var domParser = new DOMParser();
@@ -1495,6 +1476,7 @@ exports.UpdateVastWithTracker= function(bid, vast){
 	}
     
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.getDomainFromURL = function(url){
 	var a = window.document.createElement("a");
@@ -1502,11 +1484,14 @@ exports.getDomainFromURL = function(url){
 	return a.hostname;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.replaceAuctionPrice = function(str, cpm) {
 	if (!str) return;
 	return str.replace(/\$\{AUCTION_PRICE\}/g, cpm);
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeInStreamRelatedCode)
 exports.getCustomParamsForDFPVideo = function(customParams, bid){
 	const adserverTargeting = (bid && bid.adserverTargeting) || {};
 	var targetingKeys = {}
@@ -1524,7 +1509,9 @@ exports.getCustomParamsForDFPVideo = function(customParams, bid){
 		customParams);
 	return customParams;
 };
+// endRemoveIf(removeInStreamRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.getDevicePlatform = function(){
 	var deviceType = 3;
 	try{
@@ -1544,8 +1531,21 @@ exports.getDevicePlatform = function(){
 		refThis.logError("Unable to get device platform" , ex);
 	}
 	return deviceType;
-};
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+exports.getOWConfig = function(){
+	var obj = {
+		"timeout":CONFIG.getTimeout(),
+		"openwrap_version": CONFIG[CONSTANTS.COMMON.OWVERSION],
+		"prebid_version":CONFIG[CONSTANTS.COMMON.PBVERSION],
+		"profileId": CONFIG.getProfileID(),
+		"profileVersionId": CONFIG.getProfileDisplayVersionID()
+	};
+	return obj;
+}
+
+// removeIf(removeIdHubOnlyRelatedCode)
 exports.updateAdUnits = function(adUnits){
 	if(refThis.isArray(adUnits)){
 		adUnits.forEach(function(adUnit){
@@ -1559,7 +1559,9 @@ exports.updateAdUnits = function(adUnits){
 		});
 	}
 };
+// endRemoveIf(removeIdHubOnlyRelatedCode)
 
+// removeIf(removeIdHubOnlyRelatedCode)
 exports.updateUserIds = function(bid){
 	// refThis.idsAppendedToAdUnits =true;
 	if(refThis.isUndefined(bid.userId)){
@@ -1590,6 +1592,7 @@ exports.updateUserIds = function(bid){
 		bid.userIdAsEids = ids;
 	}
 };
+// endRemoveIf(removeIdHubOnlyRelatedCode)
 
 exports.initLiveRampAts = function(params){
 	function addATS() {
@@ -1604,7 +1607,8 @@ exports.initLiveRampAts = function(params){
 			  "detectionType": params.params.detectionType,
 			  "urlParameter": params.params.urlParameter,
 			  "cssSelectors":params.params.cssSelectors,// ["input[type=text]", "input[type=email]"],
-			  "logging": params.params.logging //"error"
+			  "logging": params.params.logging, //"error"
+			  "detectDynamicNodes": params.params.detectDynamicNodes
 			});
 		};
 		atsScript.src = 'https://ats.rlcdn.com/ats.js';

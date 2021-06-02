@@ -11,7 +11,8 @@ console.log("ARGV ==>", argv);
 var prebidTaskName = "";
 var openwrapBuildTaskName = "";
 var openwrapWebpackTaskName = "";
-var CREATIVE_TASK = "creative"
+var CREATIVE_TASK = "creative";
+var profileMode = "--profile="+(argv.profile == undefined ? "OW" : argv.profile);
 
 if (task == CREATIVE_TASK) {
 		console.log("inside creative");
@@ -38,27 +39,27 @@ if (task == CREATIVE_TASK) {
 		 switch (argv.mode) {
 			 case "test-build":
 				console.log("Executing test-build");
-				prebidTaskName = "build-bundle-dev --modules=modules.json";
+				prebidTaskName = "build-bundle-dev --modules=modules.json "+profileMode;
 				openwrapBuildTaskName = "devbundle";
 				openwrapWebpackTaskName = "devpack";
 				break;
 		 	case  "dev-build":
 				console.log("Executing build");
-				prebidTaskName = "build --modules=modules.json";
+				prebidTaskName = "build --modules=modules.json "+profileMode;
 				openwrapBuildTaskName = "bundle";
 				openwrapWebpackTaskName = "webpack";
 				break;
 		 	case "build" :
 				console.log("Executing build");
 				if(!prebidTaskName){
-					prebidTaskName = "bundle --modules=modules.json";
+					prebidTaskName = "bundle --modules=modules.json "+profileMode;
 				}
 				openwrapBuildTaskName = "bundle-prod";
 				openwrapWebpackTaskName = "webpack";
 				break;
 			case "build-all" :
 				console.log("Executing build");
-				prebidTaskName = "build-bundle-dev --modules=modules.json";
+				prebidTaskName = "build-bundle-dev --modules=modules.json "+profileMode;
 				openwrapBuildTaskName = "devbundle";
 				openwrapWebpackTaskName = "devpack";
 			break;	
@@ -86,7 +87,7 @@ if (task == CREATIVE_TASK) {
 				shell.echo('Error: test cases failed');
 		  		shell.exit(1);
 			}
-		}
+		} 
 
 		console.time("Cleaning Gulp");
 		// shell.exec("gulp clean");
@@ -97,7 +98,7 @@ if (task == CREATIVE_TASK) {
 		}*/
 
 
-		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
+		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode + " " + profileMode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: wrapper build task failed');
 			shell.exit(1);
 		}
@@ -115,5 +116,19 @@ if (task == CREATIVE_TASK) {
 				shell.echo('Error: Changing PrebidJS targeting keys failed');
 			  	shell.exit(1);
 			}		
+		}
+		if(config.isUsePrebidKeysEnabled() === true){
+			console.log("We need to use Prebid keys for Native, so changing targeting keys in PrebidJS config");
+			prebidTaskName = "build-bundle-prod --modules=modules.json";
+			if(shell.exec("time gulp bundle-native-pb-keys").code !== 0) {
+				shell.echo('Error: Changing PrebidJS targeting keys for Native failed');
+			  	shell.exit(1);
+			}
+		} else {
+			console.log("We need to use PWT keys for Native, so changing targeting keys in PrebidJS config");
+			if(shell.exec("time gulp bundle-native-pwt-keys").code !== 0) {
+				shell.echo('Error: Changing PrebidJS targeting keys for Native failed');
+			  	shell.exit(1);
+			}
 		}
 }

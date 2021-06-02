@@ -634,7 +634,7 @@ describe('UTIL', function() {
         })
     });
 
-    describe('#checkMandatoryParams', function() {
+    xdescribe('#checkMandatoryParams', function() {
         var object = null,
             keys = null,
             adapterID = null;
@@ -996,90 +996,6 @@ describe('UTIL', function() {
 
     });
 
-    describe('#getScreenWidth', function() {
-        var win = null;
-
-        beforeEach(function(done) {
-            win = {
-                innerHeight: 1024,
-                innerWidth: 768,
-                document: {
-                    documentElement: {
-                        clientWidth: 768
-                    },
-                    body: {
-                        clientWidth: 921
-                    }
-                }
-            };
-            done();
-        });
-
-        afterEach(function(done) {
-            done();
-        });
-
-        it('is a function', function(done) {
-            UTIL.getScreenWidth.should.be.a('function');
-            done();
-        });
-
-        it('should return screen width of given window object', function(done) {
-            delete win.innerHeight;
-            UTIL.getScreenWidth(win).should.be.equal(768);
-            done();
-        });
-
-        it('should return screen width of given window object', function(done) {
-            delete win.innerHeight;
-            delete win.document.documentElement.clientWidth;
-            UTIL.getScreenWidth(win).should.be.equal(921);
-            done();
-        });
-    });
-
-    describe('#getScreenHeight', function() {
-        var win = null;
-
-        beforeEach(function(done) {
-            win = {
-                innerHeight: 1024,
-                innerWidth: 768,
-                document: {
-                    documentElement: {
-                        clientHeight: 768
-                    },
-                    body: {
-                        clientHeight: 921
-                    }
-                }
-            };
-            done();
-        });
-
-        afterEach(function(done) {
-            done();
-        });
-
-        it('is a function', function(done) {
-            UTIL.getScreenHeight.should.be.a('function');
-            done();
-        });
-
-        it('should return screen width of given window object', function(done) {
-            delete win.innerHeight;
-            UTIL.getScreenHeight(win).should.be.equal(768);
-            done();
-        });
-
-        it('should return screen width of given window object', function(done) {
-            delete win.innerHeight;
-            delete win.document.documentElement.clientHeight;
-            UTIL.getScreenHeight(win).should.be.equal(921);
-            done();
-        });
-    });
-
     describe('#forEachOnObject', function() {
         var theObject = null,
             callback = null;
@@ -1361,38 +1277,6 @@ describe('UTIL', function() {
 
         it('should return whether given window object is iframe or not', function(done) {
             UTIL.isIframe(theWindow).should.be.true;
-            done();
-        });
-    });
-
-    describe('#findInString', function() {
-        var theString = null,
-            find = null;
-
-        beforeEach(function(done) {
-            theString = "lorem Ipsum";
-            find = "Ipsum";
-            done();
-        });
-
-        afterEach(function(done) {
-            theString = null;
-            find = null;
-            done();
-        });
-
-        it('is a function', function(done) {
-            UTIL.findInString.should.be.a('function');
-            done();
-        });
-
-        it('should return false when given substring is not found in given main string', function(done) {
-            UTIL.findInString(theString, "nomatch").should.be.false;
-            done();
-        });
-
-        it('should return true when given substring is found in given main string', function(done) {
-            UTIL.findInString(theString, find).should.be.true;
             done();
         });
     });
@@ -3435,6 +3319,35 @@ describe('UTIL', function() {
         // });
     });
 
+    describe('#getOWConfig', function() {
+        beforeEach(function(done){
+            done();
+        });
+        afterEach(function(done){
+            done();
+        });
+        it("is a function", function(done) {
+            UTIL.getOWConfig.should.be.a('function');
+            done();
+        });
+
+        it('should return timeout, owversion and pbversion',function(done){
+            var expectedResult = {"timeout":3000,"openwrap_version":"v21.4.0","prebid_version":"v4.33.0","profileId":"46","profileVersionId":"4"} ;
+            var result = UTIL.getOWConfig();
+            console.log("Version Details:"+ JSON.stringify(result));
+            result.should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return owversion and pbversion if not defined',function(done){
+            delete CONFIG[CONSTANTS.COMMON.PBVERSION];
+            delete CONFIG[CONSTANTS.COMMON.OWVERSION];
+            var expectedResult = {"timeout":3000,"openwrap_version":undefined,"prebid_version":undefined,"profileId":"46","profileVersionId":"4"};
+            var result = UTIL.getOWConfig();
+            result.should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
     describe('updateAdUnitsWithEids',function(){
         var adUnits
         beforeEach(function(done){

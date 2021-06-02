@@ -34,6 +34,7 @@ var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled()
 exports.isSingleImpressionSettingEnabled = isSingleImpressionSettingEnabled;
 /* end-test-block */
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	var rxPattern = regexPattern || bid.regexPattern || undefined;
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
@@ -69,6 +70,9 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 			theBid.setcacheUUID(bid.videoCacheKey);
 		}
 		theBid.updateBidId(bid.adUnitCode);
+	}
+	if(bid.mediaType && parseFloat(bid.cpm) > 0 ){
+		theBid.setAdFormat(bid.adHtml, bid.mediaType);
 	}
 	if (bid.sspID){
 		theBid.setsspID(bid.sspID);
@@ -129,11 +133,15 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	theBid.setPbBid(bid);
 	return theBid;
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.transformPBBidToOWBid = transformPBBidToOWBid;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 // This function is used to check size for the winning kgpv and if size is different then winning then modify it
 // to have same code for logging and tracking 
 function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
@@ -190,11 +198,15 @@ function checkAndModifySizeOfKGPVIfRequired(bid, kgpv){
 	}
 	return responseObject;
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.checkAndModifySizeOfKGPVIfRequired = checkAndModifySizeOfKGPVIfRequired;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function pbBidStreamHandler(pbBid){
 	var responseID = pbBid.adUnitCode || "";
 
@@ -274,49 +286,37 @@ function pbBidStreamHandler(pbBid){
 		util.logWarning("Failed to find pbBid.adUnitCode in kgpvMap, pbBid.adUnitCode:"+ pbBid.adUnitCode);
 	}
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.pbBidStreamHandler = pbBidStreamHandler;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-// this function is no more used
-function handleBidResponses(bidResponses){
-	for(var responseID in bidResponses){
-		/* istanbul ignore else */
-		if(util.isOwnProperty(bidResponses, responseID) && util.isOwnProperty(refThis.kgpvMap, responseID)){
-			var bidObject = bidResponses[responseID];
-			var bids = bidObject.bids || [];
-
-			for(var i = 0; i<bids.length; i++){
-				var bid = bids[i];
-				/* istanbul ignore else */
-				if(bid.bidderCode){
-					bidManager.setBidFromBidder(refThis.kgpvMap[responseID].divID, transformPBBidToOWBid(bid, refThis.kgpvMap[responseID].kgpv));
-				}
-			}
-		}
-	}
-}
-
-/* start-test-block */
-exports.handleBidResponses = handleBidResponses;
-/* end-test-block */
-
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function getPBCodeWithWidthAndHeight(divID, adapterID, width, height){
 	return divID + "@" + adapterID + "@" + width + "X" + height;
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.getPBCodeWithWidthAndHeight = getPBCodeWithWidthAndHeight;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function getPBCodeWithoutWidthAndHeight(divID, adapterID){
 	return divID + "@" + adapterID;
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
-exports.isAdUnitsCodeContainBidder = isAdUnitsCodeContainBidder;
+exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
 	var bidderPresent = false;
@@ -331,7 +331,7 @@ function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
 }
 
 /* start-test-block */
-exports.getPBCodeWithoutWidthAndHeight = getPBCodeWithoutWidthAndHeight;
+exports.isAdUnitsCodeContainBidder = isAdUnitsCodeContainBidder;
 /* end-test-block */
 
 function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight, regexPattern){
@@ -390,6 +390,7 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 
 exports.generatedKeyCallbackForPbAnalytics = generatedKeyCallbackForPbAnalytics;
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight,regexPattern){
 
 	var code, sizes, divID = currentSlot.getDivID();
@@ -503,6 +504,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 /* start-test-block */
 exports.generatedKeyCallback = generatedKeyCallback;
 /* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyConfig, adapterConfig, currentSlot, code, adUnits, partnerConfig, regexPattern){
 	var slotParams = {};
@@ -557,7 +559,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["adUnitId"] = currentSlot.getAdUnitID();
 			slotParams["divId"] = currentSlot.getDivID();
 			slotParams["adSlot"] = generatedKey;
-		if(isPrebidPubMaticAnalyticsEnabled === false){
+			if(isPrebidPubMaticAnalyticsEnabled === false){
 				slotParams["wiid"] = impressionID;
 			}
 			slotParams["profId"] = CONFIG.getProfileID();
@@ -569,15 +571,15 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			break;
 
 		case "pubmatic":
-	case "pubmatic2":
+		case "pubmatic2":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
-		slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
-		if(isPrebidPubMaticAnalyticsEnabled === false){
+			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
+			if(isPrebidPubMaticAnalyticsEnabled === false){
 				slotParams["wiid"] = impressionID;
 			}
-		slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
+			slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
-		if(adapterID != "pubmatic2" && window.PWT.udpv){
+			if(adapterID != "pubmatic2" && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
@@ -622,9 +624,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			}
 			});
 			break;
-	case "ix":
+		case "ix":
 		case "indexExchange":
-		/** Added case ix cause indexExchange bidder has changed its bidder code in server side 
+			/** Added case ix cause indexExchange bidder has changed its bidder code in server side 
 			 * this will have impact in codegen to change its adapter code from indexexchange to ix 
 			 * so added a case for the same.
 			*/
@@ -637,7 +639,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				if (keyConfig["siteID"]) {
 				sltParams["siteId"] = keyConfig["siteID"];
 				}
-			if (keyConfig["id"]) {
+				if (keyConfig["id"]) {
 				sltParams["id"] = keyConfig["id"];
 				}
 			sltParams["size"] = size;
@@ -713,16 +715,22 @@ function assignUserSyncConfig(prebidConfig){
 		})(),
 		syncDelay: 2000, //todo: default is 3000 write image pixels 5 seconds after the auction
 	};
+
+	// removeIf(removeUserIdRelatedCode)
 	if(CONFIG.isUserIdModuleEnabled()){
 		prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 	}
+	// endRemoveIf(removeUserIdRelatedCode)
 }
 
 exports.assignUserSyncConfig = assignUserSyncConfig;
 
 function assignGdprConfigIfRequired(prebidConfig){
 	if (CONFIG.getGdpr()) {
-		prebidConfig["consentManagement"] = {
+		if(!prebidConfig["consentManagement"]){
+			prebidConfig["consentManagement"] = {};
+		}
+		prebidConfig["consentManagement"]['gdpr'] = {
 			cmpApi: CONFIG.getCmpApi(),
 			timeout: CONFIG.getGdprTimeout(),
 			allowAuctionWithoutConsent: CONFIG.getAwc() // Auction without consent
@@ -761,7 +769,7 @@ function assignCurrencyConfigIfRequired(prebidConfig){
 exports.assignCurrencyConfigIfRequired = assignCurrencyConfigIfRequired;
 
 function assignSchainConfigIfRequired(prebidConfig){
-	if(CONFIG.isSchainEnabled){
+	if(CONFIG.isSchainEnabled()){
 		prebidConfig["schain"] = CONFIG.getSchainObject();
 	}
 }
@@ -826,6 +834,7 @@ function generateAdUnitsArray(activeSlots, impressionID){
 
 exports.generateAdUnitsArray = generateAdUnitsArray;
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function addOnBidResponseHandler(){
 	if(util.isFunction(window[pbNameSpace].onEvent)){
 		if(!onEventAdded){
@@ -837,8 +846,8 @@ function addOnBidResponseHandler(){
 		return;
 	}
 }
-
 exports.addOnBidResponseHandler = addOnBidResponseHandler;
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 function setPrebidConfig(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
@@ -860,11 +869,11 @@ function setPrebidConfig(){
 		}
 
 		if(isPrebidPubMaticAnalyticsEnabled === true){
-			prebidConfig["instreamTracking"] = {
+			prebidConfig['instreamTracking'] = {
 				enabled: true
 			}
 		}
-
+		
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
@@ -896,50 +905,50 @@ function getPbjsAdServerTargetingConfig(){
 			what keys in prebid can be re-used?
 	*/
 	return [
-	//todo: what abt hb_deal, hb_uuid(video?), hb_cache_id(video?), hb_cache_host(video?) ?
+    	//todo: what abt hb_deal, hb_uuid(video?), hb_cache_id(video?), hb_cache_host(video?) ?
         {
-			key: "pwtpid", //hb_bidder
+            key: "pwtpid", //hb_bidder
             val: function(bidResponse) {
-				return bidResponse.bidderCode;
+                return bidResponse.bidderCode;
             }
         }, {
-			key: "pwtsid", //hb_adid
+            key: "pwtsid", //hb_adid
             val: function(bidResponse) {
-				return bidResponse.adId;
+                return bidResponse.adId;
             }
         }, {
-			key: "pwtecp", //hb_pb
+            key: "pwtecp", //hb_pb
             val: function(bidResponse) {
-				// return bidResponse.pbMg;
-				return (bidResponse.cpm||0).toFixed(CONSTANTS.COMMON.BID_PRECISION);
+                // return bidResponse.pbMg;
+                return (bidResponse.cpm||0).toFixed(CONSTANTS.COMMON.BID_PRECISION);
             }
         }, {
-            key: "pwtsz", //hb_size
+            key: 'pwtsz', //hb_size
             val: function (bidResponse) {
                 return bidResponse.size;
             }
         }, {
-            key: "hb_source", //hb_source // we do not want it, so send empty, suppressEmptyKeys feature will prevent it being passed
+            key: 'hb_source', //hb_source // we do not want it, so send empty, suppressEmptyKeys feature will prevent it being passed
             // do not change it in prebid.js project constants file
             val: function (bidResponse) {
                 // return bidResponse.source;
                 return '';
             }
         }, {
-            key: "pwtplt", //hb_format
+            key: 'pwtplt', //hb_format
             val: function (bidResponse) {
                 // return bidResponse.mediaType;
-                return bidResponse.mediaType == "video" ? CONSTANTS.PLATFORM_VALUES.VIDEO : (bidResponse.native ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
+                return (bidResponse.mediaType == "video" && bidResponse.videoCacheKey) ? CONSTANTS.PLATFORM_VALUES.VIDEO : (bidResponse.native ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
             }
         },
         {
-        	key: "pwtdid", // hb_deal
+        	key: 'pwtdid', // hb_deal
         	val: function(bidResponse){ // todo: do we want to concat dealchannel as well?
         		return bidResponse.dealId || '';
         	}
 		},  
 		{
-        	key: "pwtdeal", // hb_deal
+        	key: 'pwtdeal', // hb_deal
 			val: function(bidResponse){ // todo: do we want to concat dealchannel as well?
 				if(bidResponse.dealId){
 					bidResponse.dealChannel = bidResponse.dealChannel || "PMP";
@@ -949,7 +958,7 @@ function getPbjsAdServerTargetingConfig(){
 			}
         },     
         {
-            key: "pwtbst", // our custom
+            key: 'pwtbst', // our custom
             val: function(bidResponse) {
                 return 1;
             }
@@ -966,32 +975,32 @@ function getPbjsAdServerTargetingConfig(){
         		return CONFIG.getProfileID();
         	}
         },
-				{
+        {
         	key: 'pwtverid', // custom
         	val: function(bidResponse){ // todo: empty value?
         		return CONFIG.getProfileDisplayVersionID();
         	}
         },
-		{
+        {
         	key: 'pwtcid', // custom
 			val: function(bidResponse){ // todo: empty value?
-        		return bidResponse.mediaType == "video" ?  bidResponse.videoCacheKey : "";
+        		return (bidResponse.mediaType == "video" && bidResponse.videoCacheKey ) ?  bidResponse.videoCacheKey : "";
         	}
         }, {
         	key: 'pwtcurl', // custom
         	val: function(bidResponse){ // todo: empty value?	
-				return bidResponse.mediaType == "video" ? CONSTANTS.CONFIG.CACHE_URL : "";			
+				return (bidResponse.mediaType == "video" && bidResponse.videoCacheKey ) ? CONSTANTS.CONFIG.CACHE_URL : "";			
         	}
         }, {
         	key: 'pwtcpath', // custom
         	val: function(bidResponse){ // todo: empty value?
-        		return bidResponse.mediaType == "video" ? CONSTANTS.CONFIG.CACHE_PATH : "";
-			}
+        		return (bidResponse.mediaType == "video" && bidResponse.videoCacheKey )  ? CONSTANTS.CONFIG.CACHE_PATH : "";
+        	}
         }, {
         	key: 'pwtuuid', // custom
         	val: function(bidResponse){ // todo: empty value?
         		return "";
-			}
+        	}
         }
     ];
 }
@@ -1004,8 +1013,8 @@ function setPbjsBidderSettingsIfRequired(){
 	}
 
 	window[pbNameSpace].bidderSettings = {
-		"standard": {
-			"suppressEmptyKeys": true, // this boolean flag can be used to avoid sending those empty values to the ad server.
+		'standard': {
+			'suppressEmptyKeys': true, // this boolean flag can be used to avoid sending those empty values to the ad server.
 		}		
 	};
 
@@ -1032,7 +1041,6 @@ function pbjsBidsBackHandler(bidResponses, activeSlots) {
 	util.log("In PreBid bidsBackHandler with bidResponses: ");
 	util.log(bidResponses);
 	setTimeout(window[pbNameSpace].triggerUserSyncs, 10);
-	//refThis.handleBidResponses(bidResponses);
 	//TODO: this blockk is used only for analytics enabled thus it should be covered in callback function?
 	//		callback function behaviour will be different for different controllers?
 	//			diff behaviour can be managed in respective controller code
@@ -1111,10 +1119,13 @@ function fetchBids(activeSlots){
 				// Adding a hook for publishers to modify the adUnits we are passing to Prebid
 				util.handleHook(CONSTANTS.HOOKS.PREBID_REQUEST_BIDS, [ adUnitsArray ]);
 				
+				// removeIf(removeLegacyAnalyticsRelatedCode)
 				if(isPrebidPubMaticAnalyticsEnabled === false){
 					// we do not want this call when we have PrebidAnalytics enabled
 					refThis.addOnBidResponseHandler();	
 				}
+				// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
 				window[pbNameSpace].removeAdUnit();
 				window[pbNameSpace].addAdUnits(adUnitsArray);
 				window[pbNameSpace].requestBids({
@@ -1159,55 +1170,3 @@ function getBid(divID){
 }
 
 exports.getBid = getBid;
-
-
-// todo: is it needed?
-function getParenteAdapterID() {
-	return refThis.parentAdapterID;
-}
-
-// todo : rename to IDHub Config, change references
-//		check what is missing
-function setConfig(){
-	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
-		var prebidConfig = {
-			debug: util.isDebugLogEnabled(),
-			userSync: {
-				syncDelay: 2000
-			}
-		};
-
-		if (CONFIG.getGdpr()) {
-			prebidConfig["consentManagement"] = {
-				cmpApi: CONFIG.getCmpApi(),
-				timeout: CONFIG.getGdprTimeout(),
-				allowAuctionWithoutConsent: CONFIG.getAwc()
-			};
-		}
-
-		
-
-		if(CONFIG.isUserIdModuleEnabled()){
-			prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
-		}
-		
-		// Adding a hook for publishers to modify the Prebid Config we have generated
-		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
-		window[pbNameSpace].setConfig(prebidConfig);
-		window[pbNameSpace].requestBids([]);
-	}
-}
-
-exports.setConfig = setConfig;
-
-/* start-test-block */
-exports.getParenteAdapterID = getParenteAdapterID;
-/* end-test-block */
-
-// todo: remove this
-exports.register = function(){
-	return {
-		fB: refThis.fetchBids,
-		ID: refThis.getParenteAdapterID
-	};
-};

@@ -27,6 +27,8 @@ var eslint = require('gulp-eslint');
 console.timeEnd("Loading plugins");
 var CI_MODE = (argv.mode === 'test-build') ? true : false;
 var isIdentityOnly = config.isIdentityOnly();
+var profileMode = argv.profile;
+console.log("In openwrap gulp.sh profileMode = " + profileMode);
 console.log("argv ==>", argv);
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
@@ -40,9 +42,45 @@ gulp.task('clean', ['update-adserver'], function() {
         .pipe(clean());
 });
 
+function getRemoveCodeConfig(){
+
+    var config = require("./src_new/config.js");
+    
+    // a controlled way to completely disable this feature
+    if(config.isReduceCodeSizeFeatureEnabled() === false){
+        return {};    
+    }
+
+    // Here we will define the flags/tags that we need to use in code comments
+    //todo: set these all to false by default
+    var removeCodeConfig = {
+        removeAlways: true, // some code that should never be part of the final build
+        removeLegacyAnalyticsRelatedCode: false, // Condition -> (config.isIdentityOnly() === true || config.isPrebidPubMaticAnalyticsEnabled()===true)
+        removeNativeRelatedCode: false, //TODO: Make this flags as true based on conditions of slot config
+        removeInStreamRelatedCode: false,//TODO: Make this flags as true based on conditions of slot config
+        removeOutStreamRelatedCode: false,//TODO: Make this flags as true based on conditions of slot config
+        removeUserIdRelatedCode: false, // Condition -> (config.isUserIdModuleEnabled()===false)
+        removeIdHubOnlyRelatedCode: (config.isIdentityOnly()===false)
+    };
+
+    return removeCodeConfig; // todo: only for dev purpose; remove later
+
+    var slotConfig = config.getSlotConfiguration();
+    if(!slotConfig){
+        removeCodeConfig.removeNativeRelatedCode = true;
+        removeCodeConfig.removeOutStreamRelatedCode = true;
+        removeCodeConfig.removeInStreamRelatedCode = true;
+    } else {
+        //todo: Add logic to set the flags by checking the config
+        //      might be a case where only one of these is enabled: Native, in-stream or out-stream
+    }    
+
+    return removeCodeConfig;
+}
 
 // What all processing needs to be done ?
 gulp.task('webpack', ['clean'], function() {
+    var config = require("./src_new/config.js");
     console.log("Executing webpack");
     var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
@@ -50,12 +88,15 @@ gulp.task('webpack', ['clean'], function() {
     var webpackConfig = require('./webpack.config.js');
     var optimizejs = require('gulp-optimize-js');
     var fsCache = require('gulp-fs-cache');
+    var removeCode = require('gulp-remove-code');
     var jsFsCache = fsCache('.tmp/jscache');
     webpackConfig.devtool = null;
 
-    return gulp.src('src_new/owt.js')
+    return gulp.src(config.isIdentityOnly() ? 'src_new/idhub.js' : 'src_new/owt.js')
+    // return gulp.src('src_new/owt.js')
         .pipe(webpack(webpackConfig))
         .pipe(jsFsCache)
+        .pipe(removeCode(getRemoveCodeConfig()))
         .pipe(uglify())
         .pipe(optimizejs())
         .pipe(jsFsCache.restore)
@@ -84,14 +125,18 @@ gulp.task('webpack-creative', ['clean'], function() {
 
 
 gulp.task('devpack', ['clean'],function () {
+var config = require("./src_new/config.js");
 var connect = require('gulp-connect');
 var webpack = require('webpack-stream');
+var removeCode = require('gulp-remove-code');
 var webpackConfig = require('./webpack.config.js');
 
   webpackConfig.devtool = 'source-map';
 
-  return gulp.src('src_new/owt.js')
+  return gulp.src(config.isIdentityOnly() ? 'src_new/idhub.js' : 'src_new/owt.js')
+  // return gulp.src('src_new/owt.js')
     .pipe(webpack(webpackConfig))
+    .pipe(removeCode(getRemoveCodeConfig()))
     .pipe(gulp.dest('build/dev'))
     .pipe(connect.reload());
 });
@@ -212,7 +257,9 @@ gulp.task('change-prebid-keys', () => {
 // Task to build minified version of owt.js
 gulp.task('bundle', ['update-adserver'], function () {
     console.log("Executing build");
-    return gulp.src([prebidRepoPath + '/build/dist/prebid.js', './build/dist/owt.js'])
+    var prebidFileName = (profileMode === "IH" ? '/build/dist/prebid.idhub.js' : '/build/dist/prebid.js')
+    console.log("##################### prebidfilename picked = "+prebidFileName);
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 });
@@ -242,6 +289,40 @@ gulp.task('bundle-pb-keys', function(){
       .pipe(gulp.dest('build'));
 });
 
+gulp.task('bundle-native-pb-keys', function(){
+    return gulp.src('./build/owt.min.js')
+    .pipe(replace({
+      patterns: [
+        {
+          match: /"%%TG_NATIVE_KEYS%%"/g,
+          replacement: {
+              "title": "hb_native_title",
+              "body": "hb_native_body",
+              "body2": "hb_native_body2",
+              "privacyLink": "hb_native_privacy",
+              "privacyIcon": "hb_native_privicon",
+              "sponsoredBy": "hb_native_brand",
+              "image": "hb_native_image",
+              "icon": "hb_native_icon",
+              "clickUrl": "hb_native_linkurl",
+              "displayUrl": "hb_native_displayurl",
+              "cta": "hb_native_cta",
+              "rating": "hb_native_rating",
+              "address": "hb_native_address",
+              "downloads": "hb_native_downloads",
+              "likes": "hb_native_likes",
+              "phone": "hb_native_phone",
+              "price": "hb_native_price",
+              "salePrice": "hb_native_saleprice",
+              "rendererUrl": "hb_renderer_url",
+              "adTemplate": "hb_adTemplate",
+          }
+        }
+      ]
+    }))
+    .pipe(gulp.dest('build'));
+});
+
 gulp.task('bundle-pwt-keys', function(){
       return gulp.src('./build/owt.min.js')
       .pipe(replace({
@@ -269,6 +350,37 @@ gulp.task('bundle-pwt-keys', function(){
       .pipe(gulp.dest('build'));
 });
 
+gulp.task('bundle-native-pwt-keys', function(){
+    return gulp.src('./build/owt.min.js')
+    .pipe(replace({
+      patterns: [
+        {
+          match: /"%%TG_NATIVE_KEYS%%"/g,
+          replacement: { 
+              "title": "pwt_native_title",
+              "body": "pwt_native_body",
+              "body2": "pwt_native_body2",
+              "privacyLink": "pwt_native_privacy",
+              "sponsoredBy": "pwt_native_brand",
+              "image": "pwt_native_image",
+              "icon": "pwt_native_icon",
+              "clickUrl": "pwt_native_linkurl",
+              "displayUrl": "pwt_native_displayurl",
+              "cta": "pwt_native_cta",
+              "rating": "pwt_native_rating",
+              "address": "pwt_native_address",
+              "downloads": "pwt_native_downloads",
+              "likes": "pwt_native_likes",
+              "phone": "pwt_native_phone",
+              "price": "pwt_native_price",
+              "salePrice": "pwt_native_saleprice"
+          }
+        }
+      ]
+    }))
+    .pipe(gulp.dest('build'));
+});
+
 // Task to build minified version of owt.js
 gulp.task('bundle-creative', function () {
     console.log("Executing creative-build");
@@ -281,7 +393,10 @@ gulp.task('bundle-creative', function () {
 // Task to build non-minified version of owt.js
 gulp.task('devbundle',['devpack'], function () {
     console.log("Executing Dev Build");
-    return gulp.src([prebidRepoPath + '/build/dev/prebid.js', './build/dev/owt.js'])
+    // var prebidFileName = (profileMode === "IH" ? '/build/devIH/prebid.idhub.js' : '/build/dev/prebid.js')
+    var prebidFileName = '/build/dev/prebid.js';
+    console.log("##################### prebidfilename picked = "+prebidFileName);
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'])
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
 });
@@ -289,7 +404,10 @@ gulp.task('devbundle',['devpack'], function () {
 
 gulp.task('bundle-prod',['webpack'], function () {
     console.log("Executing bundling");
-    return gulp.src([prebidRepoPath + '/build/dist/prebid.js', './build/dist/owt.js'])
+    // var prebidFileName = (profileMode === "IH" ? '/build/distIH/prebid.idhub.js' : '/build/dist/prebid.js')
+    var prebidFileName = '/build/dist/prebid.js';
+    console.log("##################### prebidfilename picked = "+prebidFileName);
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 });
