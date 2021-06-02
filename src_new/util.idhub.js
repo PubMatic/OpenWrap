@@ -358,9 +358,13 @@ exports.initLiveRampAts = function (params) {
 		atsScript.src = "https://ats.rlcdn.com/ats.js";
 		document.body.appendChild(atsScript);
 	}
-	window.addEventListener("load", function () {
+	if (document.readyState == 'complete') {
 		setTimeout(addATS, 1000);
-	});
+	} else {
+		window.addEventListener("load", function () {
+			setTimeout(addATS, 1000);
+		});
+	}
 };
 
 exports.updateAdUnits = function (adUnits) {
