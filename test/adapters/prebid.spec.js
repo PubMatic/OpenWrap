@@ -1339,4 +1339,43 @@ describe('ADAPTER: Prebid', function() {
             done();
         });  
     })
+
+    describe('assignUserSyncConfig',function(){
+        var prebidConfig = {};
+        var expectedResult = {};
+        beforeEach(function(done){
+            expectedResult = {
+                enableOverride:true,
+                syncsPerBidder:0,
+                iframeEnabled:true,
+                pixelEnabled:true,
+                filterSettings:{
+                    iframe:{
+                        bidders:"*",
+                        filter:"include"
+                    }
+                },
+                enabledBidders:["pubmatic","audienceNetwork","sekindoUM","appnexus","pulsepoint","rubicon","adg","yieldlab"],
+                syncDelay:2000,
+                aliasSyncEnabled:true
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            prebidConfig = {};
+            done();
+        });
+
+        it('should be a functiion',function(done){
+            PREBID.assignUserSyncConfig.should.be.a('function');
+            done();
+        });
+
+        it('should set userSync properties',function(done){
+            PREBID.assignUserSyncConfig(prebidConfig)
+            expect(prebidConfig.userSync).to.be.deep.equal(expectedResult);
+            done();
+        });
+    })
 });

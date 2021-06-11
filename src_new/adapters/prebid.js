@@ -716,6 +716,7 @@ function assignUserSyncConfig(prebidConfig){
 			return arr;
 		})(),
 		syncDelay: 2000, //todo: default is 3000 write image pixels 5 seconds after the auction
+		aliasSyncEnabled: true
 	};
 
 	// removeIf(removeUserIdRelatedCode)
