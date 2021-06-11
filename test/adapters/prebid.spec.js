@@ -1292,4 +1292,29 @@ describe('ADAPTER: Prebid', function() {
 
     })
 
+    describe('assignUserSyncConfig',function(){
+        var prebidConfig = {};
+
+        beforeEach(function(done){
+            done();
+        });
+
+        afterEach(function(done){
+            prebidConfig = {};
+            done();
+        });
+
+        it('should be a functiion',function(done){
+            PREBID.assignUserSyncConfig.should.be.a('function');
+            done();
+        });
+
+        it('should set aliasSync in userSync',function(done){
+            PREBID.assignUserSyncConfig(prebidConfig)
+            expect(prebidConfig.userSync.aliasSyncEnabled).to.be.equal(true);
+            done();
+        });
+
+    })
+
 });
