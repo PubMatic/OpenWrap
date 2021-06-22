@@ -31,9 +31,9 @@ var esp = (function() {
         }
 
         var eidsSignals = {};
-        if(mode==4){
+        if (mode == 4){
             eidsSignals[source] = "1||" + encryptSignals(eids);
-        }else{
+        } else {
             eids.forEach(function(eid) {
                 if (true === enc) {
                     eidsSignals[eid.source] = "1||" + encryptSignals(eid); // If encryption is enabled append version (1|| and encrypt entire object
@@ -62,7 +62,7 @@ var esp = (function() {
                 updatedSrc = source + "/enc"; // Update source value and append /enc to indicate encrypted signal. 
 
             }
-            if(3===mode){
+            if(4===mode){
                 updatedSrc=source + "/" + customKey + "/enc"
             }
             
