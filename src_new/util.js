@@ -1618,9 +1618,13 @@ exports.initLiveRampAts = function(params){
 		atsScript.src = 'https://ats.rlcdn.com/ats.js';
 		document.body.appendChild(atsScript);
 	}
-	window.addEventListener("load", function()  {
-    	setTimeout(addATS, 1000);
-  	}); 
+	if (document.readyState == 'complete') {
+		addATS();
+	} else {
+		window.addEventListener("load", function () {
+			setTimeout(addATS, 1000);
+		});
+	}
 };
 
 exports.getRandomNumberBelow100 = function(){
