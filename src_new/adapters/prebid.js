@@ -715,7 +715,10 @@ function assignUserSyncConfig(prebidConfig){
 		enabledBidders: (function(){
 			var arr = [];
 			CONFIG.forEachAdapter(function(adapterID){
-				arr.push(adapterID);
+				var adapterName = CONFIG.getAdapterNameForAlias(adapterID) || adapterID;
+				if(arr.indexOf(adapterName) == -1){
+					arr.push(adapterName);
+				}
 			});
 			return arr;
 		})(),
