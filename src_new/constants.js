@@ -255,7 +255,7 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 	"parrableId": [
 		{
 			"key": "params.timezoneFilter",
-			"value": {"allowedZones": [ "Pacific/Honolulu"]}
+			"value": {"allowedZones": [ "Pacific/Honolulu", "America/Phoenix"]}
 		}
 	]
 };
