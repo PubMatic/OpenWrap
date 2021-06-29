@@ -537,7 +537,8 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 				}
 				//todo: take all these key names from constants
                 slotObject["ps"].push({
-                    "pn": adapterID,
+                    "pn": CONFIG.getAdapterNameForAlias(adapterID),
+                    "bc": adapterID,
                     "bidid": bidID,
                     "db": theBid.getDefaultBidStatus(),
                     "kgpv": theBid.getKGPV(),
