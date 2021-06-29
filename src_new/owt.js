@@ -50,6 +50,7 @@ window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 
 window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	util.log("In sfDisplayCreative for: " + bidID);
+	ucTag = window.ucTag || {};
 	this.isSafeFrame = true;
 	ucTag = window.ucTag || {};	
 	if(isPrebidPubMaticAnalyticsEnabled){

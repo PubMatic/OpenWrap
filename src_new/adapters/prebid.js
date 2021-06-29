@@ -584,6 +584,10 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			if(adapterID != "pubmatic2" && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
+			// We are removing mimes because it merges with the existing adUnit mimes
+			// if(slotParams["video"] && slotParams["video"]["mimes"]){
+			// 	delete slotParams["video"]["mimes"];
+			// }
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			break;
 		case "pulsepoint":

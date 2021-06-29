@@ -1,0 +1,214 @@
+
+<html>
+<title>Identity Hub with ESP</title>
+
+<head>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <!-- Start IE Compatibility Script for ESP (Promise) -->
+    <script type="text/javascript">
+        // Handling for Promise in IE
+        (function() {
+            if (typeof Promise !== "function") {
+                var es6 = document.createElement('script');
+                es6.type = 'text/javascript';
+                es6.src = 'https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js';
+                var es6auto = document.createElement('script');
+                es6auto.type = 'text/javascript';
+                es6auto.src = 'https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js';
+                var node = document.getElementsByTagName('script')[0];
+                node.parentNode.insertBefore(es6, node);
+                node.parentNode.insertBefore(es6auto, node);
+            }
+        })();
+    </script>
+    <!-- End IE Compatibility Script for ESP (Promise) -->
+
+    <!-- ESP Script -->
+    <script async src="eids-esp.1.1.min.js" data-encrypted-signal-source-id="pubmatic"></script>
+
+    <!-- Identity Hub Script begins here -->
+
+    <script type="text/javascript">
+        var PWT = {}; //Initialize Namespace
+        var pbjs = pbjs || {};
+        pbjs.que = pbjs.que || [];
+        var googletag = googletag || {};
+        googletag.cmd = googletag.cmd || [];
+        var gptRan = false;
+        PWT.jsLoaded = function() { //PubMatic pwt.js on load callback is used to load GPT
+            loadGPT();
+        };
+        var loadGPT = function() {
+            // Check the gptRan flag
+            if (!gptRan) {
+                gptRan = true;
+                var gads = document.createElement('script');
+                var useSSL = 'https:' == document.location.protocol;
+                gads.src = (useSSL ? 'https:' : 'http:') + '//www.googletagservices.com/tag/js/gpt.js';
+                var node = document.getElementsByTagName('script')[0];
+                node.parentNode.insertBefore(gads, node);
+
+                var pbjsEl = document.createElement("script");
+                pbjsEl.type = "text/javascript";
+                pbjsEl.async = true;
+                pbjsEl.src = "https://cdn.jsdelivr.net/gh/abhinavsinha001/cdn@master/prebid/prebid4.30.0.js";
+                var pbjsTargetEl = document.getElementsByTagName("head")[0];
+                pbjsTargetEl.insertBefore(pbjsEl, pbjsTargetEl.firstChild);
+            }
+        };
+        // Failsafe to call gpt
+        setTimeout(loadGPT, 500);
+    </script>
+    <script type="text/javascript">
+        (function() {
+            var purl = window.location.href;
+            var url = '//ads.pubmatic.com/AdServer/js/pwt/5890/1804';
+            var profileVersionId = '';
+            if (purl.indexOf('pwtv=') > 0) {
+                var regexp = /pwtv=(.*?)(&|$)/g;
+                var matches = regexp.exec(purl);
+                if (matches.length >= 2 && matches[1].length > 0) {
+                    profileVersionId = '/' + matches[1];
+                }
+            }
+            var wtads = document.createElement('script');
+            wtads.async = true;
+            wtads.type = 'text/javascript';
+            wtads.src = url + profileVersionId + '/pwt.js';
+            var node = document.getElementsByTagName('script')[0];
+            node.parentNode.insertBefore(wtads, node);
+        })();
+    </script>
+    <!--Identity Hub Script ends here -->
+
+
+    <script>
+        var div_1_sizes = [
+            [300, 250],
+            [300, 600]
+        ];
+        var div_2_sizes = [
+            [728, 90],
+            [970, 250]
+        ];
+        var PREBID_TIMEOUT = 1000;
+        var FAILSAFE_TIMEOUT = 3000;
+
+        var adUnits = [{
+                code: '/19968336/header-bid-tag-0',
+                mediaTypes: {
+                    banner: {
+                        sizes: div_1_sizes
+                    }
+                },
+                bids: [{
+                        bidder: 'appnexus',
+                        params: {
+                            placementId: 13144370
+                        }
+                    },
+                    {
+                        bidder: 'pubmatic',
+                        params: {
+                            adSlot: 'SLOT_NHB2@300x250',
+                            publisherId: '9999',
+                            age: 221,
+                            pmzoneid: 'abcd1,bcde1,hello1,world1'
+                        }
+                    }
+                ]
+            },
+            {
+                code: '/19968336/header-bid-tag-1',
+                mediaTypes: {
+                    banner: {
+                        sizes: div_2_sizes
+                    }
+                },
+                bids: [{
+                    bidder: 'appnexus',
+                    params: {
+                        placementId: 13144370
+                    }
+                }]
+            }
+        ];
+
+        // ======== DO NOT EDIT BELOW THIS LINE =========== //
+        var googletag = googletag || {};
+        googletag.cmd = googletag.cmd || [];
+        var pbjs = pbjs || {};
+        pbjs.que = pbjs.que || [];
+
+        pbjs.que.push(function() {
+            pbjs.addAdUnits(adUnits);
+            pbjs.requestBids({
+                bidsBackHandler: initAdserver,
+                timeout: PREBID_TIMEOUT
+            });
+        });
+
+
+        function initAdserver() {
+            if (pbjs.initAdserverSet) return;
+            pbjs.initAdserverSet = true;
+
+            googletag.cmd.push(function() {
+                pbjs.que.push(function() {
+                    pbjs.setTargetingForGPTAsync();
+                    // ESP: register signal function with googletag
+                    var mode = 2; // 1= eids from Prebid , 2= eids from Identity Hub
+                    var signalSources=["pubmatic","id5-sync.com","pubcid.org","adserver.org","criteo.com"];
+                    var enc=true; // Encrypt IDs
+                    if(typeof esp !=undefined && typeof esp.registerSignalSources === "function"){
+                      esp.registerSignalSources(googletag,signalSources,mode,enc)
+                    }
+                    googletag.pubads().refresh();
+                });
+            });
+        }
+
+        // in case PBJS doesn't load
+        setTimeout(function() {
+            initAdserver();
+        }, FAILSAFE_TIMEOUT);
+
+        googletag.cmd.push(function() {
+            googletag.defineSlot('/19968336/header-bid-tag-0', div_1_sizes, 'div-1').addService(googletag.pubads());
+            googletag.pubads().enableSingleRequest();
+            googletag.enableServices();
+        });
+        googletag.cmd.push(function() {
+            googletag.defineSlot('/19968336/header-bid-tag-1', div_2_sizes, 'div-2').addService(googletag.pubads());
+            googletag.pubads().enableSingleRequest();
+            googletag.enableServices();
+        });
+    </script>
+
+</head>
+
+<body>
+    <h2>Identity Hub with ESP</h2>
+    <h5>Div-1</h5>
+    <div id='div-1'>
+        <script type='text/javascript'>
+            googletag.cmd.push(function() {
+                googletag.display('div-1');
+            });
+        </script>
+    </div>
+
+    <br>
+
+    <h5>Div-2</h5>
+    <div id='div-2'>
+        <script type='text/javascript'>
+            googletag.cmd.push(function() {
+                googletag.display('div-2');
+            });
+        </script>
+    </div>
+
+</body>
+
+</html>
