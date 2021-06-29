@@ -6,17 +6,22 @@ var esp = (function() {
         switch (mode) {
             case 1:
                 if (typeof pbjs !== "undefined" && typeof pbjs.getUserIdsAsEids === "function") {
-                    eids = pbjs.getUserIdsAsEids(); // Get Identities from Prebid API in oRTB eids structure
+                    eids = pbjs.getUserIdsAsEids(); // Get Identities from Prebid API in oRTB eids structure.
                 }
                 break;
             case 2:
                 if (typeof owpbjs !== "undefined" && typeof owpbjs.getUserIdsAsEids === "function") {
-                    eids = owpbjs.getUserIdsAsEids(); //Get Identities from Identity Hub  API in oRTB eids structure
+                    eids = owpbjs.getUserIdsAsEids(); //Get Identities from Identity Hub  API in oRTB eids structure.
                 }
                 break;
-            case 3:
+            case 3: 
                 if (typeof customFunction === "function") {
-                    eids = customFunction(); //Get Identities from Custom function provided
+                    eids = customFunction(source); //Get Identities from Custom function provided in oRTB eids structure.
+                }
+                break;
+            case 4: 
+                if (typeof customFunction === "function") {
+                    eids = customFunction(source); //Get Identities from Custom function provided in any format.
                 }
                 break;
 
@@ -26,7 +31,7 @@ var esp = (function() {
         }
 
         var eidsSignals = {};
-        if (mode == 3) {
+        if (mode == 4){
             eidsSignals[source] = "1||" + encryptSignals(eids);
         } else {
             eids.forEach(function(eid) {
@@ -57,7 +62,7 @@ var esp = (function() {
                 updatedSrc = source + "/enc"; // Update source value and append /enc to indicate encrypted signal. 
 
             }
-            if(3===mode){
+            if(4===mode){
                 updatedSrc=source + "/" + customKey + "/enc"
             }
             

@@ -1,15 +1,13 @@
+
+
 <html>
+
     <head>
         <link rel="icon" type="image/png" href="/favicon.png">
-	<!-- Start IE Compatibility Script for ESP (Promise) -->
-      	<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
-      	<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script> 
-      	<!-- End IE Compatibility Script for ESP (Promise) -->
-	<!-- ESP Script -->
-        <script async src="eids-esp-1.0.js"  data-encrypted-signal-source-id="pubmatic"></script>
         <script async src="//www.googletagservices.com/tag/js/gpt.js"></script>
-        <script async src="prebid4.30.0.js"></script>
-	    
+        <script async src="prebid-esp-min.js"></script>
+
+        
         <script>
             var div_1_sizes = [
                 [300, 250],
@@ -19,8 +17,8 @@
                 [728, 90],
                 [970, 250]
             ];
-            var PREBID_TIMEOUT = 3000;
-            var FAILSAFE_TIMEOUT = 4000;
+            var PREBID_TIMEOUT = 1000;
+            var FAILSAFE_TIMEOUT = 3000;
 
             var adUnits = [
                 {
@@ -35,14 +33,7 @@
                         params: {
                             placementId: 13144370
                         }
-                    },
-		    {
-		      bidder: 'pubmatic',
-		      params: {
-			publisherId: '156295',
-			adSlot: 'pubmatic_test2',           
-		      }
-		    }]
+                    }]
                 },
                 {
                     code: '/19968336/header-bid-tag-1',
@@ -56,22 +47,17 @@
                         params: {
                             placementId: 13144370
                         }
-                    },
-		    {
-		      bidder: 'pubmatic',
-		      params: {
-			publisherId: '156295',
-			adSlot: 'pubmatic_test2',           
-		      }
-		    }
-			  
-			  ]
+                    }]
                 }
             ];
 
             // ======== DO NOT EDIT BELOW THIS LINE =========== //
             var googletag = googletag || {};
-            googletag.cmd = googletag.cmd || [];	  
+            googletag.cmd = googletag.cmd || [];
+            googletag.cmd.push(function() {
+                googletag.pubads().disableInitialLoad();
+            });
+
             var pbjs = pbjs || {};
             pbjs.que = pbjs.que || [];
 
@@ -86,6 +72,8 @@
                                 name: "_pubcid",         // create a cookie with this name
                                 expires: 365             // expires in 1 years
                             }
+                        },{
+                            name: "criteo",
                         }]
                     }
                 });
@@ -101,14 +89,13 @@
                 googletag.cmd.push(function() {
                     pbjs.que.push(function() {
                         pbjs.setTargetingForGPTAsync();
-			 // ESP: register signal function with googletag.
-			  googletag.encryptedSignalSource = googletag.encryptedSignalSource || {};
-			  var mode = 1; // 1= eids from Prebid , 2= eids from Identity Hub
-			  googletag.encryptedSignalSource["pubmatic"] = function () {
-			   return fetchAsyncSignals(mode).then(function (signals) {
-				    return signals;
-				});
-			  };
+                        googletag.encryptedSignalProviders= [];
+                        var signalSources=["pubcid.org","criteo.com"];
+                        var encrypt=false;
+                        pbjs.registerSignalSources(googletag,signalSources,encrypt);
+                        //Register custom signals
+                        var customSignalSources=["mysegments.com","mykeywords.com"];
+                        pbjs.registerSignalSources(googletag,customSignalSources,encrypt,getCustomSignal);
                         googletag.pubads().refresh();
                     });
                 });
@@ -117,6 +104,7 @@
             setTimeout(function() {
                 initAdserver();
             }, FAILSAFE_TIMEOUT);
+
             googletag.cmd.push(function() {
                 googletag.defineSlot('/19968336/header-bid-tag-0', div_1_sizes, 'div-1').addService(googletag.pubads());
                 googletag.pubads().enableSingleRequest();
@@ -127,12 +115,30 @@
                 googletag.pubads().enableSingleRequest();
                 googletag.enableServices();
             });
+
         </script>
 
     </head>
 
     <body>
-        <h2>Basic Prebid.js Example with ESP</h2>
+        <h2>Basic Prebid.js Example</h2>
+        <script type="text/javascript">
+        //Custom Signal Function for Keywords
+        function getCustomSignal(source) {
+            var signal=[];
+            switch (source) {
+                case "mykeywords.com" :
+                    signal= '["tech","auto"]';
+                    break;
+                case "mysegments.com" :
+                    signal= '[{ "id": "1", "value": "seg1" },{ "id": "2", "value": "seg2" }]';
+                    break;
+                }
+             return signal;
+            }
+        </script>
+
+        
         <h5>Div-1</h5>
         <div id='div-1'>
             <script type='text/javascript'>
