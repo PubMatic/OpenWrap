@@ -466,6 +466,33 @@ exports.getAdUnitSizes = getAdUnitSizes;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
+function getAdUnitCode(adUnitId){
+	var adUnit = window[CONSTANTS.COMMON.PREBID_NAMESPACE].adUnits.filter(adUnit => adUnit.divID && adUnit.divID == adUnitId);
+	return adUnit[0].adUnitId ? adUnit[0].adUnitId : adUnit[0].code;
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+/* start-test-block */
+exports.getAdUnitCode = getAdUnitCode;
+/* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+function getAdUnitAdFormats(adUnitId){
+	var adUnit = window[CONSTANTS.COMMON.PREBID_NAMESPACE].adUnits.filter(adUnit => (adUnit.divID && adUnit.divID == adUnitId) || (adUnit.code == adUnitId));
+	var af = adUnit[0].mediaTypes.map( mediatype => CONSTANTS.MEDIATYPE[mediatype.toUpperCase()]);
+	return af;
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+/* start-test-block */
+exports.getAdUnitAdFormats = getAdUnitAdFormats;
+/* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+  
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
 	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = undefined;
@@ -475,7 +502,9 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
     if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
         var slotObject = {
             "sn": slotID,
-            "sz": refThis.getAdUnitSizes(bmEntry),
+			"sz": refThis.getAdUnitSizes(bmEntry),
+			"au": refThis.getAdUnitCode(slotID),
+            "mt": refThis.getAdUnitAdFormats(slotID),
             "ps": []
         };
 

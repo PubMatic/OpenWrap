@@ -1468,6 +1468,10 @@ describe('bidManager BIDMgr', function() {
                 endTime: 25
              }
             }
+
+            window.owpbjs = {
+                adUnits : [{divID: "Slot_1", code:"Slot_1", adUnitId: "slot_au_code", mediaTypes: ["banner"]}]
+            }
             done();
         });
 
@@ -1497,6 +1501,7 @@ describe('bidManager BIDMgr', function() {
             theBid.getWinningBidStatus.restore();
 
             theBid = null;
+            window.owpbjs = {};
             done();
         });
 
@@ -1617,9 +1622,11 @@ describe('bidManager BIDMgr', function() {
                 */
 
                 expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+                expect(impressionIDMap[bmEntryObj.getImpressionID()][0].au).to.equal("slot_au_code");
+                expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt).to.be.an('array');
+                expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt[0]).to.equal(0);    
                 expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
                 expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(0);
-
             } 
             done();
         });
@@ -1721,6 +1728,9 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
 
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0].sn).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].au).to.equal("slot_au_code");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt).to.be.an('array');
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt[0]).to.equal(0);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0].ps).to.be.an('array').that.is.empty;
 
             done();
@@ -1735,6 +1745,9 @@ describe('bidManager BIDMgr', function() {
 
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].au).to.equal("slot_au_code");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt).to.be.an('array');
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt[0]).to.equal(0);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(0);
             done();
@@ -1750,6 +1763,9 @@ describe('bidManager BIDMgr', function() {
 
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].au).to.equal("slot_au_code");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt).to.be.an('array');
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt[0]).to.equal(0);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(0);
             done();
@@ -1765,6 +1781,9 @@ describe('bidManager BIDMgr', function() {
 
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].au).to.equal("slot_au_code");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt).to.be.an('array');
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt[0]).to.equal(0);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(1);
             done();
