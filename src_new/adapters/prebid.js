@@ -548,9 +548,11 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["video"]= mediaTypeConfig.video;
 		}
 	}
+
+	var adapterName = CONFIG.getAdapterNameForAlias(adapterID) || adapterID;
 	
 	//processing for each partner
-	switch(adapterID){
+	switch(adapterName){
 
 		//todo: unit-test cases pending
 		case "pubmaticServer":
@@ -582,6 +584,10 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			if(adapterID != "pubmatic2" && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
+			// We are removing mimes because it merges with the existing adUnit mimes
+			// if(slotParams["video"] && slotParams["video"]["mimes"]){
+			// 	delete slotParams["video"]["mimes"];
+			// }
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			break;
 		case "pulsepoint":
@@ -709,11 +715,15 @@ function assignUserSyncConfig(prebidConfig){
 		enabledBidders: (function(){
 			var arr = [];
 			CONFIG.forEachAdapter(function(adapterID){
-				arr.push(adapterID);
+				var adapterName = CONFIG.getAdapterNameForAlias(adapterID) || adapterID;
+				if(arr.indexOf(adapterName) == -1){
+					arr.push(adapterName);
+				}
 			});
 			return arr;
 		})(),
 		syncDelay: 2000, //todo: default is 3000 write image pixels 5 seconds after the auction
+		aliasSyncEnabled: true
 	};
 
 	// removeIf(removeUserIdRelatedCode)
@@ -776,6 +786,19 @@ function assignSchainConfigIfRequired(prebidConfig){
 
 exports.assignSchainConfigIfRequired = assignSchainConfigIfRequired;
 
+function configureBidderAliasesIfAvailable(){
+	if(util.isFunction(window[pbNameSpace].aliasBidder)){
+		CONFIG.forEachBidderAlias(function(alias){
+			window[pbNameSpace].aliasBidder(CONF.alias[alias], alias);
+		})
+	}
+	else{
+		util.logWarning("PreBid js aliasBidder method is not available");
+		return;
+	}
+}
+
+exports.configureBidderAliasesIfAvailable = configureBidderAliasesIfAvailable;
 function enablePrebidPubMaticAnalyticIfRequired(){
 	if(isPrebidPubMaticAnalyticsEnabled && util.isFunction(window[pbNameSpace].enableAnalytics)){
 		window[pbNameSpace].enableAnalytics({
@@ -1072,6 +1095,7 @@ function initPbjsConfig(){
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
 	timeoutForPrebid = CONFIG.getTimeout() - 50;
 	refThis.setPrebidConfig();
+	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
 	refThis.setPbjsBidderSettingsIfRequired();
 }
