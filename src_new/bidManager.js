@@ -467,7 +467,9 @@ exports.getAdUnitSizes = getAdUnitSizes;
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function getAdUnitCode(adUnitId){
-	var adUnit = window[CONSTANTS.COMMON.PREBID_NAMESPACE].adUnits.filter(adUnit => adUnit.divID && adUnit.divID == adUnitId);
+	var adUnit = window[CONSTANTS.COMMON.PREBID_NAMESPACE].adUnits.filter(function(adUnit){
+		return adUnit.divID && adUnit.divID == adUnitId;
+	});
 	return adUnit[0].adUnitId ? adUnit[0].adUnitId : adUnit[0].code;
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
@@ -480,8 +482,12 @@ exports.getAdUnitCode = getAdUnitCode;
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function getAdUnitAdFormats(adUnitId){
-	var adUnit = window[CONSTANTS.COMMON.PREBID_NAMESPACE].adUnits.filter(adUnit => (adUnit.divID && adUnit.divID == adUnitId) || (adUnit.code == adUnitId));
-	var af = adUnit[0].mediaTypes.map( mediatype => CONSTANTS.MEDIATYPE[mediatype.toUpperCase()]);
+	var adUnit = window[CONSTANTS.COMMON.PREBID_NAMESPACE].adUnits.filter(function(adUnit){
+		return (adUnit.divID && adUnit.divID == adUnitId) || (adUnit.code == adUnitId);
+	});
+	var af = adUnit[0].mediaTypes.map( function(mediatype){
+		return CONSTANTS.MEDIATYPE[mediatype.toUpperCase()];
+	});
 	return af;
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
