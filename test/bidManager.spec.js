@@ -1225,9 +1225,11 @@ describe('bidManager BIDMgr', function() {
         var kgpv = commonKGPV;
         var impressionID = 123123;
         var origImage = null;
+        var adUnitId = null;
 
         beforeEach(function(done) {
             slotID = "Slot_1";
+            adUnitId = "slot_au_code";
             theBid = new bid(adapterID, kgpv);
             sinon.spy(CONFIG, 'getMonetizationPixelURL');
             sinon.spy(CONFIG, 'getPublisherId');
@@ -1260,6 +1262,9 @@ describe('bidManager BIDMgr', function() {
             currentTimeStamp = parseInt(currentTimeStamp / 1000);
             UTIL.getCurrentTimestamp.withArgs().returns(currentTimeStamp);
             sinon.spy(BIDMgr, 'setImageSrcToPixelURL');
+            window.owpbjs = {
+                adUnits : [{divID: slotID, code:slotID, adUnitId: adUnitId, mediaTypes: ["banner"]}]
+            }
 
             done();
         });
@@ -1267,6 +1272,7 @@ describe('bidManager BIDMgr', function() {
         afterEach(function(done) {
 
             slotID = null;
+            adUnitId = null;
             CONFIG.getMonetizationPixelURL.restore();
             CONFIG.getPublisherId.restore();
             CONFIG.getProfileID.restore();
@@ -1286,6 +1292,8 @@ describe('bidManager BIDMgr', function() {
             UTIL.getCurrentTimestamp.restore();
 
             BIDMgr.setImageSrcToPixelURL.restore();
+
+            window.owpbjs = {};
 
             done();
         });
@@ -1339,7 +1347,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(11);
+            window.encodeURIComponent.callCount.should.be.equal(12);
 
             done();
         });
@@ -1356,6 +1364,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
             pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
             pixelURL += "&slot=" + window.encodeURIComponent(slotID);
+            pixelURL += "&au=" + window.encodeURIComponent(adUnitId);
             pixelURL += "&pn=" + window.encodeURIComponent(theBid.getAdapterID());
             pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());

@@ -1372,7 +1372,7 @@ exports.getPartnerParams = function(params){
 exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
-	var netEcpm, grossEcpm, kgpv, bidId, adapterId;
+	var netEcpm, grossEcpm, kgpv, bidId, adapterId, adUnitId;
 	var sspID = "";
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 
@@ -1438,6 +1438,8 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		sspID = theBid.sspID || "";	
 	}
 
+	adUnitId = bidManager.getAdUnitCode(slotID)
+
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
 	pixelURL += "&tst=" + refThis.getCurrentTimestamp();
@@ -1446,6 +1448,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
 	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
 	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
+	pixelURL += "&au=" + window.encodeURIComponent(adUnitId);
 	pixelURL += "&pn=" + window.encodeURIComponent(adapterId);
 	pixelURL += "&en=" + window.encodeURIComponent(netEcpm);
 	pixelURL += "&eg=" + window.encodeURIComponent(grossEcpm);
