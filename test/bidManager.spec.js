@@ -1225,9 +1225,11 @@ describe('bidManager BIDMgr', function() {
         var kgpv = commonKGPV;
         var impressionID = 123123;
         var origImage = null;
+        var adUnitId = null;
 
         beforeEach(function(done) {
             slotID = "Slot_1";
+            adUnitId = "slot_au_code";
             theBid = new bid(adapterID, kgpv);
             sinon.spy(CONFIG, 'getMonetizationPixelURL');
             sinon.spy(CONFIG, 'getPublisherId');
@@ -1261,6 +1263,9 @@ describe('bidManager BIDMgr', function() {
             currentTimeStamp = parseInt(currentTimeStamp / 1000);
             UTIL.getCurrentTimestamp.withArgs().returns(currentTimeStamp);
             sinon.spy(BIDMgr, 'setImageSrcToPixelURL');
+            window.owpbjs = {
+                adUnits : [{divID: slotID, code:slotID, adUnitId: adUnitId, mediaTypes: ["banner"]}]
+            }
 
             done();
         });
@@ -1268,6 +1273,7 @@ describe('bidManager BIDMgr', function() {
         afterEach(function(done) {
 
             slotID = null;
+            adUnitId = null;
             CONFIG.getMonetizationPixelURL.restore();
             CONFIG.getPublisherId.restore();
             CONFIG.getProfileID.restore();
@@ -1288,6 +1294,8 @@ describe('bidManager BIDMgr', function() {
             UTIL.getCurrentTimestamp.restore();
 
             BIDMgr.setImageSrcToPixelURL.restore();
+
+            window.owpbjs = {};
 
             done();
         });
@@ -1342,7 +1350,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(12);
+            window.encodeURIComponent.callCount.should.be.equal(13);
 
             done();
         });
@@ -1359,6 +1367,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
             pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
             pixelURL += "&slot=" + window.encodeURIComponent(slotID);
+            pixelURL += "&au=" + window.encodeURIComponent(adUnitId);
             pixelURL += "&bc=" + window.encodeURIComponent(theBid.getAdapterID());
             pixelURL += "&pn=" + window.encodeURIComponent(CONFIG.getAdapterNameForAlias(theBid.getAdapterID()));
             pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
@@ -1385,6 +1394,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
             pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
             pixelURL += "&slot=" + window.encodeURIComponent(slotID);
+            pixelURL += "&au=" + window.encodeURIComponent(adUnitId);
             pixelURL += "&bc=" + window.encodeURIComponent(theBid.getAdapterID());
             pixelURL += "&pn=" + window.encodeURIComponent(CONFIG.getAdapterNameForAlias(theBid.getAdapterID()));
             pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
@@ -1460,9 +1470,11 @@ describe('bidManager BIDMgr', function() {
         var theBid = null;
         var impressionID = null;
         var serverSideBid = null;
+        var adUnitId = null;
 
         beforeEach(function(done) {
             slotID = "Slot_1";
+            adUnitId = "slot_au_code";
             bmEntryObj = new bmEntryContstuctor("pubmatic");
             impressionID = "12345";
 
@@ -1498,6 +1510,11 @@ describe('bidManager BIDMgr', function() {
                 endTime: 25
              }
             }
+
+            window.owpbjs = {
+                adUnits : [{divID: slotID, code:slotID, adUnitId: adUnitId, mediaTypes: ["banner"]}]
+            }
+
             done();
         });
 
@@ -1527,6 +1544,7 @@ describe('bidManager BIDMgr', function() {
             theBid.getWinningBidStatus.restore();
 
             theBid = null;
+            window.owpbjs = {};
             done();
         });
 
@@ -1647,6 +1665,9 @@ describe('bidManager BIDMgr', function() {
                 */
 
                 expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+                expect(impressionIDMap[bmEntryObj.getImpressionID()][0].au).to.equal("slot_au_code");
+                expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt).to.be.an('array');
+                expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt[0]).to.equal(0);  
                 expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
                 expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(0);
 
@@ -1751,6 +1772,9 @@ describe('bidManager BIDMgr', function() {
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
 
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0].sn).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].au).to.equal("slot_au_code");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt).to.be.an('array');
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt[0]).to.equal(0);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0].ps).to.be.an('array').that.is.empty;
 
             done();
@@ -1765,6 +1789,9 @@ describe('bidManager BIDMgr', function() {
 
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].au).to.equal("slot_au_code");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt).to.be.an('array');
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt[0]).to.equal(0);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(0);
             done();
@@ -1780,6 +1807,9 @@ describe('bidManager BIDMgr', function() {
 
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].au).to.equal("slot_au_code");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt).to.be.an('array');
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt[0]).to.equal(0);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(0);
             done();
@@ -1795,6 +1825,9 @@ describe('bidManager BIDMgr', function() {
 
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].au).to.equal("slot_au_code");
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt).to.be.an('array');
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt[0]).to.equal(0);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(1);
             done();
