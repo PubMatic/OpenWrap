@@ -1264,7 +1264,7 @@ describe('bidManager BIDMgr', function() {
             UTIL.getCurrentTimestamp.withArgs().returns(currentTimeStamp);
             sinon.spy(BIDMgr, 'setImageSrcToPixelURL');
             window.owpbjs = {
-                adUnits : [{divID: slotID, code:slotID, adUnitId: adUnitId, mediaTypes: ["banner"]}]
+                adUnits : [{divID: slotID, code:slotID, adUnitId: adUnitId, mediaTypes: {'banner': {'sizes': [0]}}}]
             }
 
             done();
@@ -1512,7 +1512,7 @@ describe('bidManager BIDMgr', function() {
             }
 
             window.owpbjs = {
-                adUnits : [{divID: slotID, code:slotID, adUnitId: adUnitId, mediaTypes: ["banner"]}]
+                adUnits : [{divID: slotID, code:slotID, adUnitId: adUnitId, mediaTypes: {'banner': {'sizes': [0]}}}]
             }
 
             done();

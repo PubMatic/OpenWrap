@@ -485,7 +485,7 @@ function getAdUnitAdFormats(adUnitId){
 	var adUnit = window[CONSTANTS.COMMON.PREBID_NAMESPACE].adUnits.filter(function(adUnit){
 		return (adUnit.divID && adUnit.divID == adUnitId) || (adUnit.code == adUnitId);
 	});
-	var af = adUnit[0].mediaTypes.map( function(mediatype){
+	var af = Object.keys(adUnit[0].mediaTypes).map( function(mediatype){
 		return CONSTANTS.MEDIATYPE[mediatype.toUpperCase()];
 	});
 	return af;
