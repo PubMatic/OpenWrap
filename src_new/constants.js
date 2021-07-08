@@ -259,3 +259,5 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 		}
 	]
 };
+
+exports.EXCLUDE_PARTNER_LIST = ['pubProvidedId'];
