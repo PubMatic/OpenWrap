@@ -470,7 +470,7 @@ function getAdUnitCode(adUnitId){
 	var adUnit = window[CONSTANTS.COMMON.PREBID_NAMESPACE].adUnits.filter(function(adUnit){
 		return adUnit.divID && adUnit.divID == adUnitId;
 	});
-	return adUnit[0].adUnitId ? adUnit[0].adUnitId : adUnit[0].code;
+	return adUnit.length ? adUnit[0].adUnitId ? adUnit[0].adUnitId : adUnit[0].code : adUnitId;
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
@@ -485,9 +485,9 @@ function getAdUnitAdFormats(adUnitId){
 	var adUnit = window[CONSTANTS.COMMON.PREBID_NAMESPACE].adUnits.filter(function(adUnit){
 		return (adUnit.divID && adUnit.divID == adUnitId) || (adUnit.code == adUnitId);
 	});
-	var af = Object.keys(adUnit[0].mediaTypes).map( function(mediatype){
+	var af = adUnit.length ? Object.keys(adUnit[0].mediaTypes).map( function(mediatype){
 		return CONSTANTS.MEDIATYPE[mediatype.toUpperCase()];
-	});
+	}) : [0];
 	return af;
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
