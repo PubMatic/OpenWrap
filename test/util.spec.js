@@ -3144,6 +3144,25 @@ describe('UTIL', function() {
             result.should.deep.equal(expectedResult);
             done();
         });
+
+        it('should exclude pubprovidedId if included in list of partners', function(done) {
+            CONFIG.getIdentityPartners.restore();
+            var expectedResult = [{"name":"pubCommonId","storage":{"type":"cookie","name":"_pubCommonId","expires":"1825"}}];
+            sinon.stub(CONFIG,"getIdentityPartners").returns({
+                pubCommonId: {
+                    name: "pubCommonId",
+                    "storage.type": "cookie",
+                    "storage.name": "_pubCommonId",
+                    "storage.expires": "1825"         
+                },
+                pubProvidedId: {
+                    name:"pubProvidedId"
+                }
+            });
+            var result = UTIL.getUserIdConfiguration();
+            result.should.deep.equal(expectedResult);
+            done();
+        });
     });
     
     describe('#callHandlerFunctionForMapping',function(){
