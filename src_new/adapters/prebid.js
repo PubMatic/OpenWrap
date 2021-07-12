@@ -35,10 +35,11 @@ exports.isSingleImpressionSettingEnabled = isSingleImpressionSettingEnabled;
 /* end-test-block */
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-function transformPBBidToOWBid(bid, kgpv, regexPattern){
+function transformPBBidToOWBid(bid, kgpv, regexPattern, adUnitCode){
 	var rxPattern = regexPattern || bid.regexPattern || undefined;
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
 	var pubmaticServerErrorCode = parseInt(bid.pubmaticServerErrorCode);
+	theBid.setAdUnitCode(adUnitCode || "");
 	theBid.setGrossEcpm(bid.cpm);
 	theBid.setDealID(bid.dealId);
 	theBid.setDealChannel(bid.dealChannel);
@@ -279,7 +280,7 @@ function pbBidStreamHandler(pbBid){
 			}			
 			bidManager.setBidFromBidder(
 				refThis.kgpvMap[responseID].divID,
-				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv,refThis.kgpvMap[responseID].regexPattern)
+				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv,refThis.kgpvMap[responseID].regexPattern,refThis.kgpvMap[responseID].adUnitCode)
 			);
 		}
 	}else{
@@ -411,6 +412,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		refThis.kgpvMap [ code ] = {
 			kgpv: generatedKey,
 			divID: divID,
+			adUnitCode: adUnitId,
 			regexPattern:regexPattern
 		};
 	} else{

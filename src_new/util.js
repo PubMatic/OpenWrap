@@ -385,6 +385,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			/* istanbul ignore else */
 			if(addZeroBids == true){
 				var bid = BID.createBid(adapterID, generatedKey);
+				bid.setAdUnitCode(activeSlot.getAdUnitID());
 				bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
 				bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
 				bid.setRegexPattern(regexPattern);

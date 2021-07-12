@@ -37,6 +37,7 @@ function Bid(adapterID, kgpv){
 	this.vastCache = undefined;
 	this.renderer = undefined;
 	this.pbBid = undefined;
+	this.adUnitCode = undefined;
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -533,6 +534,18 @@ Bid.prototype.updateBidId = function(slotID){
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+Bid.prototype.getAdUnitCode= function(){
+	return this.adUnitCode;
+};
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+Bid.prototype.setAdUnitCode= function(au){
+	return this.adUnitCode = au;
+};
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
 /* start-test-block */
 module.exports.Bid = Bid;
 /* end-test-block */
@@ -541,6 +554,7 @@ module.exports.Bid = Bid;
 exports.createBid = function(adapterID, kgpv){
 	return new Bid(adapterID, kgpv);
 };
+
 
 //todo:
 // add validations
