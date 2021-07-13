@@ -1279,13 +1279,9 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
-		console.log("############## ############ ",parterId, partnerValues,CONSTANTS.EXCLUDE_PARTNER_LIST);
-		console.log("@@@@@@@@@@@@@@@@@@@@@@ ", CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId));
-		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
-			console.log("@@@@@@@@@@@@ inside if condition");
+		if (CONSTANTS.EXCLUDE_PARTNER_LIST.indexOf(parterId) < 0) {
 			userIdConfs.push(refThis.getUserIdParams(partnerValues));
 		}
-		console.log("@@@@@@@@@@@ outside if condition");
 	});
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4+ JSON.stringify(userIdConfs));
 	return userIdConfs;
