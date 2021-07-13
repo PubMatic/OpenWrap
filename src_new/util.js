@@ -1282,8 +1282,10 @@ exports.getUserIdConfiguration = function(){
 		console.log("############## ############ ",parterId, partnerValues,CONSTANTS.EXCLUDE_PARTNER_LIST);
 		console.log("@@@@@@@@@@@@@@@@@@@@@@ ", CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId));
 		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
+			console.log("@@@@@@@@@@@@ inside if condition");
 			userIdConfs.push(refThis.getUserIdParams(partnerValues));
 		}
+		console.log("@@@@@@@@@@@ outside if condition");
 	});
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4+ JSON.stringify(userIdConfs));
 	return userIdConfs;
