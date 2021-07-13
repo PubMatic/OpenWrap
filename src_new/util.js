@@ -1280,6 +1280,7 @@ exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
 		console.log("############## ############ ",parterId, partnerValues,CONSTANTS.EXCLUDE_PARTNER_LIST);
+		console.log("@@@@@@@@@@@@@@@@@@@@@@ ", CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId));
 		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
 			userIdConfs.push(refThis.getUserIdParams(partnerValues));
 		}
