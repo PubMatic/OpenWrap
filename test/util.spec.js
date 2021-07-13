@@ -3159,7 +3159,10 @@ describe('UTIL', function() {
                     name:"pubProvidedId"
                 }
             });
+            console.log("********** before calling UTIL.getUserIdConfiguration()");
             var result = UTIL.getUserIdConfiguration();
+            console.log("********** after calling UTIL.getUserIdConfiguration()");
+
             result.should.deep.equal(expectedResult);
             done();
         });
