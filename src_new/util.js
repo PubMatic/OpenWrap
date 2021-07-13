@@ -1279,6 +1279,7 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
+		console.log("############## ############ ",parterId, partnerValues,CONSTANTS.EXCLUDE_PARTNER_LIST);
 		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
 			userIdConfs.push(refThis.getUserIdParams(partnerValues));
 		}
