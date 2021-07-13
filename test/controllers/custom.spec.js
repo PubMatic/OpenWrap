@@ -457,8 +457,10 @@ describe("CONTROLLER: CUSTOM", function() {
 				flag = true;
 			};
 			CUSTOM.customServerExposedAPI("", myCallback);
-			flag.should.equal(true);
-			done();
+			setTimeout(function(){
+				flag.should.equal(true);
+				done();
+			}, 10);
 		});
 
 		it("should not alter array in the first argument if callback function is not passed", function(done){
@@ -486,12 +488,13 @@ describe("CONTROLLER: CUSTOM", function() {
 			}], function(){
 				flag = true;
 			});
-			PREBID.fetchBids.restore();
-			CONFIG.getTimeout.restore();
+			
 			setTimeout(function(){
+				PREBID.fetchBids.restore();
+				CONFIG.getTimeout.restore();
 				flag.should.equal(true);
 				done();
-			}, 20);
+			}, 200);
 		});
 
 		it("should call the callback postimeout if allBid status is false ecverytime",function(done){
@@ -519,7 +522,7 @@ describe("CONTROLLER: CUSTOM", function() {
 				PREBID.fetchBids.restore();
 				CONFIG.getTimeout.restore();
 				done();
-			}, 15);
+			}, 200);
 		});
 
 		// Uncomment below test case when change from Phantom to ChromeHeadless
