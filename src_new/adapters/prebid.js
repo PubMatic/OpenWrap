@@ -35,11 +35,12 @@ exports.isSingleImpressionSettingEnabled = isSingleImpressionSettingEnabled;
 /* end-test-block */
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-function transformPBBidToOWBid(bid, kgpv, regexPattern, adUnitCode){
+function transformPBBidToOWBid(bid, kgpv, regexPattern, adUnitCode, requestedMediaTypes){
 	var rxPattern = regexPattern || bid.regexPattern || undefined;
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
 	var pubmaticServerErrorCode = parseInt(bid.pubmaticServerErrorCode);
 	theBid.setAdUnitCode(adUnitCode || "");
+	theBid.setRequestedMediaTypes(requestedMediaTypes || []);
 	theBid.setGrossEcpm(bid.cpm);
 	theBid.setDealID(bid.dealId);
 	theBid.setDealChannel(bid.dealChannel);
@@ -400,7 +401,8 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	var adUnitId = currentSlot.getAdUnitID();
 	var mediaTypeConfig;
 	var partnerConfig;
-
+	var mediaTypes;
+	
 	if(!refThis.isSingleImpressionSettingEnabled){
 		if(kgpConsistsWidthAndHeight){
 			code = refThis.getPBCodeWithWidthAndHeight(divID, adapterID, currentWidth, currentHeight);
@@ -409,10 +411,12 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			code = refThis.getPBCodeWithoutWidthAndHeight(divID, adapterID);
 			sizes = currentSlot.getSizes();	
 		}
+		mediaTypes = util.getAdUnitConfig(sizes, currentSlot);
 		refThis.kgpvMap [ code ] = {
 			kgpv: generatedKey,
 			divID: divID,
 			adUnitCode: adUnitId,
+			mediaTypes: mediaTypes.mediaTypeObject,
 			regexPattern:regexPattern
 		};
 	} else{
@@ -422,9 +426,10 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		if in kgpv map code exists and kgpv exists then 
 			if a adapter with a single kgpv exists in kgpvs then it ignores and returns from this function
 			if a adapter does not exist for the code then a entry is being pushed in kgpvs with adapterid and kgpv for the bidder
-		 if code does not consists in kgpv object then a entry is made with adapter first calling it.*/
+		if code does not consists in kgpv object then a entry is made with adapter first calling it.*/
 		code = currentSlot.getDivID();
 		sizes = currentSlot.getSizes();
+		mediaTypes = util.getAdUnitConfig(sizes, currentSlot);
 		var adapterAlreadyExsistsInKGPVS = false;
 		if (refThis.kgpvMap[code] && refThis.kgpvMap[code].kgpvs && refThis.kgpvMap[code].kgpvs.length > 0){
 			util.forEachOnArray(refThis.kgpvMap[code].kgpvs, function(idx,kgpv){
@@ -442,9 +447,12 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		else{
 			refThis.kgpvMap[code] = {
 				kgpvs : [],
-				divID: divID
+				divID: divID,
+				mediaTypes: mediaTypes.mediaTypeObject,
+				adUnitCode: adUnitId
 			};
 		}
+		
 		if(!adapterAlreadyExsistsInKGPVS){
 			var kgpv = {
 				adapterID: adapterID,
@@ -454,7 +462,6 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			refThis.kgpvMap[code].kgpvs.push(kgpv);
 		}
 	}
-	
 	//serverSideEabled: do not add config into adUnits
 	if(CONFIG.isServerSideAdapter(adapterID)){
 		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");

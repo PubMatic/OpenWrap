@@ -1231,6 +1231,7 @@ describe('bidManager BIDMgr', function() {
             slotID = "Slot_1";
             adUnitId = "slot_au_code";
             theBid = new bid(adapterID, kgpv);
+            theBid.setAdUnitCode(adUnitId);
             sinon.spy(CONFIG, 'getMonetizationPixelURL');
             sinon.spy(CONFIG, 'getPublisherId');
             sinon.spy(CONFIG, 'getProfileID');
@@ -1489,6 +1490,9 @@ describe('bidManager BIDMgr', function() {
 
             sinon.spy(UTIL, "forEachOnObject");
             theBid = new bid(commonAdpterID, commonKGPV);
+            theBid.setAdUnitCode(adUnitId);
+            theBid.setRequestedMediaTypes({'banner': {'sizes': [0]}});
+            bmEntryObj.setNewBid("pubmatic", theBid);
 
             sinon.spy(theBid, "getReceivedTime");
             sinon.spy(theBid, "getDefaultBidStatus");
@@ -1509,10 +1513,6 @@ describe('bidManager BIDMgr', function() {
                 startTime: 30,
                 endTime: 25
              }
-            }
-
-            window.owpbjs = {
-                adUnits : [{divID: slotID, code:slotID, adUnitId: adUnitId, mediaTypes: {'banner': {'sizes': [0]}}}]
             }
 
             done();
@@ -1544,7 +1544,6 @@ describe('bidManager BIDMgr', function() {
             theBid.getWinningBidStatus.restore();
 
             theBid = null;
-            window.owpbjs = {};
             done();
         });
 
@@ -1719,6 +1718,10 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, "getWinningBidStatus");
             theBid.setWinningBidStatus();
             bmEntryObj.setNewBid("audienceNetwork", theBid);
+
+            theBid2 = new bid("pubmatic", commonKGPV);
+            bmEntryObj.setNewBid("pubmatic", theBid2);
+
             CONFIG.getBidPassThroughStatus.returns(2);
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
             //impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].should.have.all.keys("pn", "bidid", "db", "kgpv", "psz", "eg", "en", "di", "dc", "l1", "l2", "t", "wb", "ss");
@@ -1755,9 +1758,13 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, "getPostTimeoutStatus");
             sinon.spy(theBid, "getWinningBidStatus");
             bmEntryObj.setNewBid("audienceNetwork", theBid);
+
+            theBid2 = new bid("pubmatic", commonKGPV);
+            bmEntryObj.setNewBid("pubmatic", theBid2);
+
             CONFIG.getBidPassThroughStatus.returns(2);
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
-            impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"].length.should.equal(0);
+            impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"].length.should.equal(1);
             done();
         });
 
@@ -1819,8 +1826,14 @@ describe('bidManager BIDMgr', function() {
             bmEntryObj.getAnalyticEnabledStatus.returns(true);
             bmEntryObj.setAdapterEntry("appnexus");
             bmEntryObj.setNewBid("appnexus", theBid);
+
+            theBid2 = new bid("pubmatic", commonKGPV);
+            theBid2.setAdUnitCode(adUnitId);
+            theBid2.setRequestedMediaTypes({'banner': {'sizes': [0]}});
+            bmEntryObj.setNewBid("pubmatic", theBid2);
+
             theBid.getPostTimeoutStatus.restore();
-            sinon.stub(theBid,"getPostTimeoutStatus").returns(1);
+            sinon.stub(theBid,"getPostTimeoutStatus").returns(2);
             theBid.setGrossEcpm(0);
 
             BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
@@ -1829,7 +1842,7 @@ describe('bidManager BIDMgr', function() {
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt).to.be.an('array');
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0].mt[0]).to.equal(0);
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
-            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(1);
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps'].length).to.equal(2);
             done();
         });
     });

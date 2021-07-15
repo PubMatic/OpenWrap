@@ -386,6 +386,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			if(addZeroBids == true){
 				var bid = BID.createBid(adapterID, generatedKey);
 				bid.setAdUnitCode(activeSlot.getAdUnitID());
+				bid.setRequestedMediaTypes(refThis.getAdUnitConfig(sizeArray, activeSlot).mediaTypeObject);
 				bid.setDefaultBidStatus(1).setReceivedTime(refThis.getCurrentTimestampInMs());
 				bidManager.setBidFromBidder(activeSlot.getDivID(), bid);
 				bid.setRegexPattern(regexPattern);
@@ -1442,7 +1443,11 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		sspID = theBid.sspID || "";	
 	}
 
-	adUnitId = bidManager.getAdUnitCode(slotID)
+	if(refThis.isFunction(theBid.getAdUnitCode)){
+		adUnitId = theBid.getAdUnitCode();
+	}else{
+		adUnitId = theBid.adUnitCode || "";	
+	}
 
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);

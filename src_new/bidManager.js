@@ -466,29 +466,23 @@ exports.getAdUnitSizes = getAdUnitSizes;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-function getAdUnitCode(adUnitId){
-	var adUnit = window[CONSTANTS.COMMON.PREBID_NAMESPACE].adUnits.filter(function(adUnit){
-		return adUnit.divID && adUnit.divID == adUnitId;
-	});
-	return adUnit.length ? adUnit[0].adUnitId ? adUnit[0].adUnitId : adUnit[0].code : adUnitId;
+function getAdUnitInfo(bmEntry){
+	return bmEntry.adapters.pubmatic.bids[bmEntry.adapters.pubmatic.getLastBidID()];
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
-exports.getAdUnitCode = getAdUnitCode;
+exports.getAdUnitInfo = getAdUnitInfo;
 /* end-test-block */
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-function getAdUnitAdFormats(adUnitId){
-	var adUnit = window[CONSTANTS.COMMON.PREBID_NAMESPACE].adUnits.filter(function(adUnit){
-		return (adUnit.divID && adUnit.divID == adUnitId) || (adUnit.code == adUnitId);
-	});
-	var af = adUnit.length ? Object.keys(adUnit[0].mediaTypes).map( function(mediatype){
+function getAdUnitAdFormats(mediaTypes){
+	var af = Object.keys(mediaTypes).map( function(mediatype){
 		return CONSTANTS.MEDIATYPE[mediatype.toUpperCase()];
-	}) : [0];
-	return af;
+	});
+	return af || [];
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
@@ -503,16 +497,17 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = undefined;
 	var impressionID = bmEntry.getImpressionID();
+	var adUnitInfo = refThis.getAdUnitInfo(bmEntry);
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
-    /* istanbul ignore else */
-    if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
-        var slotObject = {
-            "sn": slotID,
-            "sz": refThis.getAdUnitSizes(bmEntry),
-			"au": refThis.getAdUnitCode(slotID),
-            "mt": refThis.getAdUnitAdFormats(slotID),
-            "ps": []
-        };
+	/* istanbul ignore else */
+	if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
+		var slotObject = {
+			"sn": slotID,
+			"sz": refThis.getAdUnitSizes(bmEntry),
+			"au": adUnitInfo.adUnitCode,
+			"mt": refThis.getAdUnitAdFormats(adUnitInfo.requestedMediaTypes),
+			"ps": []
+		};
 
         bmEntry.setExpired();
         impressionIDMap[impressionID] = impressionIDMap[impressionID] || [];

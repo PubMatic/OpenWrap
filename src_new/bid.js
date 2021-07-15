@@ -38,6 +38,7 @@ function Bid(adapterID, kgpv){
 	this.renderer = undefined;
 	this.pbBid = undefined;
 	this.adUnitCode = undefined;
+	this.requestedMediaTypes = {};
 }
 
 var getNetECPM = function(grossEcpm, adapterID){
@@ -543,6 +544,18 @@ Bid.prototype.getAdUnitCode= function(){
 // removeIf(removeLegacyAnalyticsRelatedCode)
 Bid.prototype.setAdUnitCode= function(au){
 	return this.adUnitCode = au;
+};
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+Bid.prototype.getRequestedMediaTypes= function(){
+	return this.requestedMediaTypes;
+};
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+Bid.prototype.setRequestedMediaTypes= function(mediaTypes){
+	return this.requestedMediaTypes = mediaTypes;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
