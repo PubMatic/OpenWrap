@@ -1264,9 +1264,6 @@ describe('bidManager BIDMgr', function() {
             currentTimeStamp = parseInt(currentTimeStamp / 1000);
             UTIL.getCurrentTimestamp.withArgs().returns(currentTimeStamp);
             sinon.spy(BIDMgr, 'setImageSrcToPixelURL');
-            window.owpbjs = {
-                adUnits : [{divID: slotID, code:slotID, adUnitId: adUnitId, mediaTypes: {'banner': {'sizes': [0]}}}]
-            }
 
             done();
         });
@@ -1295,8 +1292,6 @@ describe('bidManager BIDMgr', function() {
             UTIL.getCurrentTimestamp.restore();
 
             BIDMgr.setImageSrcToPixelURL.restore();
-
-            window.owpbjs = {};
 
             done();
         });
