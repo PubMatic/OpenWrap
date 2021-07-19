@@ -481,6 +481,8 @@ exports.getAdUnitInfo = getAdUnitInfo;
 function getAdUnitAdFormats(mediaTypes){
 	var af = Object.keys(mediaTypes).map( function(mediatype){
 		return CONSTANTS.MEDIATYPE[mediatype.toUpperCase()];
+	}).filter(function(mtype){
+		return mtype != null
 	});
 	return af || [];
 }
