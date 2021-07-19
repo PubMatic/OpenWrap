@@ -281,7 +281,7 @@ function pbBidStreamHandler(pbBid){
 			}			
 			bidManager.setBidFromBidder(
 				refThis.kgpvMap[responseID].divID,
-				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv,refThis.kgpvMap[responseID].regexPattern,refThis.kgpvMap[responseID].adUnitCode)
+				refThis.transformPBBidToOWBid(pbBid, refThis.kgpvMap[responseID].kgpv,refThis.kgpvMap[responseID].regexPattern,refThis.kgpvMap[responseID].adUnitCode,refThis.kgpvMap[responseID].mediaTypes)
 			);
 		}
 	}else{
