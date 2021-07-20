@@ -92,10 +92,8 @@
                         googletag.encryptedSignalProviders= [];
                         var signalSources=["pubcid.org","criteo.com"];
                         var encrypt=false;
+                        // Note - add checks here for browser level rollout
                         pbjs.registerSignalSources(googletag,signalSources,encrypt);
-                        //Register custom signals
-                        var customSignalSources=["mysegments.com","mykeywords.com"];
-                        pbjs.registerSignalSources(googletag,customSignalSources,encrypt,getCustomSignal);
                         googletag.pubads().refresh();
                     });
                 });
