@@ -158,7 +158,9 @@
                     var signalSources=["pubmatic","id5-sync.com","pubcid.org","adserver.org","criteo.com"];
                     var enc=true; // Encrypt IDs
                     if(typeof esp !=undefined && typeof esp.registerSignalSources === "function"){
-                      esp.registerSignalSources(googletag,signalSources,mode,enc)
+                      if(esp.is.not.chrome() || esp.is.ios()){ // Run on non Chrome browser except on iOS , for other flags refer to https://is.js.org/#environment-checks
+                        esp.registerSignalSources(googletag,signalSources,mode,enc);
+                      }
                     }
                     googletag.pubads().refresh();
                 });
