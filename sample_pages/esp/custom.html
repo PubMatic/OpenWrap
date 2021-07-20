@@ -49,7 +49,9 @@
             var signalSources = ["pubcid.org", "criteo.com"]; // Select the signal sources you want to pass
             var encrypt = false;
             var mode = 3; // Mode 1=Prebid , 2=Identity Hub 3=Custom eids function
-            esp.registerSignalSources(googletag, signalSources, mode, encrypt, getEids); 
+            if(esp.is.not.chrome() || esp.is.ios()){ // Run on non Chrome browser except on iOS , for other flags refer to https://is.js.org/#environment-checks
+                esp.registerSignalSources(googletag, signalSources, mode, encrypt, getEids); 
+            }
         });
 
         googletag.cmd.push(function() {
