@@ -59,7 +59,7 @@
     <script type="text/javascript">
         (function() {
             var purl = window.location.href;
-            var url = '//ads.pubmatic.com/AdServer/js/pwt/5890/1804/12';
+            var url = '//ads.pubmatic.com/AdServer/js/pwt/5890/1804/13';
             var profileVersionId = '';
             if (purl.indexOf('pwtv=') > 0) {
                 var regexp = /pwtv=(.*?)(&|$)/g;
@@ -158,7 +158,9 @@
                     var signalSources=["pubmatic","id5-sync.com","pubcid.org","adserver.org","criteo.com"];
                     var enc=false; // Encrypt IDs
                     if(typeof esp !=undefined && typeof esp.registerSignalSources === "function"){
-                      esp.registerSignalSources(googletag,signalSources,mode,enc)
+                      if(esp.is.not.chrome() || esp.is.ios()){ // Run on non Chrome browser except on iOS , for other flags refer to https://is.js.org/#environment-checks
+                        esp.registerSignalSources(googletag,signalSources,mode,enc)
+                      }
                     }
                     googletag.pubads().refresh();
                 });
