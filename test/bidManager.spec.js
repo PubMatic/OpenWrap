@@ -1135,15 +1135,18 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(GDPR, "getUserConsentDataFromLS");
             sinon.spy(UTIL, "forEachOnObject");
 
-            window.PWT = {
-                bidMap: {
-                }
-            };
-
             slotID_1 = "Slot_1";
             bmEntryStub_1 = new bmEntryContstuctor(slotID_1);
             slotID_2 = "Slot_2";
             bmEntryStub_2 = new bmEntryContstuctor(slotID_2);
+
+            window.PWT = {
+                bidMap: {
+                },
+                adUnits:{
+                    "Slot_1":{"divID": slotID_1, "code":slotID_1, "adUnitId": slotID_1, "mediaTypes": {'banner': {'sizes': [0]}}}
+                }
+            };
 
             window.PWT.bidMap[slotID_1] = bmEntryStub_1;
             window.PWT.bidMap[slotID_2] = bmEntryStub_2;
@@ -1219,6 +1222,7 @@ describe('bidManager BIDMgr', function() {
 
     describe('#executeMonetizationPixel', function() {
         var slotID = null;
+        var adUnitId = null;
         var adapterID = null;
         var theBid = null;
         var latency = null;
@@ -1228,6 +1232,7 @@ describe('bidManager BIDMgr', function() {
 
         beforeEach(function(done) {
             slotID = "Slot_1";
+            adUnitId = "slot_au_code";
             theBid = new bid(adapterID, kgpv);
             sinon.spy(CONFIG, 'getMonetizationPixelURL');
             sinon.spy(CONFIG, 'getPublisherId');
@@ -1246,7 +1251,10 @@ describe('bidManager BIDMgr', function() {
             window.Image.returns({});
 
             window.PWT = {
-                bidMap: {}
+                bidMap: {},
+                adUnits: {
+                    "Slot_1":{"divID": slotID, "code":slotID, "adUnitId": adUnitId, "mediaTypes": {'banner': {'sizes': [0]}}}
+                }
             };
             window.PWT.bidMap[slotID] = {
                 getImpressionID: function() {
@@ -1342,7 +1350,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(12);
+            window.encodeURIComponent.callCount.should.be.equal(13);
 
             done();
         });
@@ -1359,6 +1367,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
             pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
             pixelURL += "&slot=" + window.encodeURIComponent(slotID);
+            pixelURL += "&au=" + window.encodeURIComponent(adUnitId);
             pixelURL += "&bc=" + window.encodeURIComponent(theBid.getAdapterID());
             pixelURL += "&pn=" + window.encodeURIComponent(CONFIG.getAdapterNameForAlias(theBid.getAdapterID()));
             pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
@@ -1385,6 +1394,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
             pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
             pixelURL += "&slot=" + window.encodeURIComponent(slotID);
+            pixelURL += "&au=" + window.encodeURIComponent(adUnitId);
             pixelURL += "&bc=" + window.encodeURIComponent(theBid.getAdapterID());
             pixelURL += "&pn=" + window.encodeURIComponent(CONFIG.getAdapterNameForAlias(theBid.getAdapterID()));
             pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
@@ -1456,6 +1466,7 @@ describe('bidManager BIDMgr', function() {
     describe('#analyticalPixelCallback', function() {
         var slotID = null,
             bmEntryObj = null,
+            adUnitId = null,
             impressionIDMap = null;
         var theBid = null;
         var impressionID = null;
@@ -1463,6 +1474,7 @@ describe('bidManager BIDMgr', function() {
 
         beforeEach(function(done) {
             slotID = "Slot_1";
+            adUnitId = "slot_au_code";
             bmEntryObj = new bmEntryContstuctor("pubmatic");
             impressionID = "12345";
 
@@ -1498,6 +1510,11 @@ describe('bidManager BIDMgr', function() {
                 endTime: 25
              }
             }
+            window.PWT.adUnits = 
+                {
+                    "Slot_1":{"divID": slotID, "code":slotID, "adUnitId": adUnitId, "mediaTypes": {'banner': {'sizes': [0]}}}
+                }
+            
             done();
         });
 

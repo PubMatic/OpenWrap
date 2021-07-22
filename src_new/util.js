@@ -374,6 +374,12 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				}
 			}
 			if(!keyConfig){
+				window.PWT.adUnits = window.PWT.adUnits || {};
+				window.PWT.adUnits[activeSlot.divID] = {
+					divID : activeSlot.divID,
+					adUnitId : activeSlot.adUnitID,
+					mediaTypes : refThis.getAdUnitConfig(activeSlot.sizes, activeSlot).mediaTypeObject
+				}
 				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);			
 			}else{
 				callHandlerFunction = true;
@@ -1372,7 +1378,7 @@ exports.getPartnerParams = function(params){
 exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
-	var netEcpm, grossEcpm, kgpv, bidId, adapterId, adapterName;
+	var netEcpm, grossEcpm, kgpv, bidId, adapterId, adapterName,adUnitId;
 	var sspID = "";
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 
@@ -1441,6 +1447,8 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		sspID = theBid.sspID || "";	
 	}
 
+	adUnitId = bidManager.getAdUnitInfo(slotID).adUnitId || slotId;
+
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
 	pixelURL += "&tst=" + refThis.getCurrentTimestamp();
@@ -1449,6 +1457,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
 	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
 	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
+	pixelURL += "&au=" + window.encodeURIComponent(adUnitId);
 	pixelURL += "&bc=" + window.encodeURIComponent(adapterId);
 	pixelURL += "&pn=" + window.encodeURIComponent(adapterName);
 	pixelURL += "&en=" + window.encodeURIComponent(netEcpm);

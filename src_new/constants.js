@@ -259,3 +259,8 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 		}
 	]
 };
+exports.MEDIATYPE = {
+	BANNER:0 ,
+	VIDEO:1,
+	NATIVE:2 
+  }
