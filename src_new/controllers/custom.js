@@ -261,6 +261,8 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 			if (refThis.validateAdUnitObject(anAdUnitObject)) { // returns true for valid adUnit
 				var dmSlotName = anAdUnitObject.code;
 				var slot = SLOT.createSlot(dmSlotName);
+				window.PWT.adUnits = window.PWT.adUnits || {};
+				window.PWT.adUnits[dmSlotName] = anAdUnitObject;
 				// IMPORTANT:: bidManager stores all data at divId level but in custom controller, divId is not mandatory.
 				// so we woll set value of code to divId if divId is not present
 				// also we will pass array of divId to the bidManager.getAllPartnersBidStatuses API 

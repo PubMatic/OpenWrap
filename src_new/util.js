@@ -374,12 +374,6 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				}
 			}
 			if(!keyConfig){
-				window.PWT.adUnits = window.PWT.adUnits || {};
-				window.PWT.adUnits[activeSlot.divID] = {
-					divID : activeSlot.divID,
-					adUnitId : activeSlot.adUnitID,
-					mediaTypes : refThis.getAdUnitConfig(activeSlot.sizes, activeSlot).mediaTypeObject
-				}
 				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);			
 			}else{
 				callHandlerFunction = true;

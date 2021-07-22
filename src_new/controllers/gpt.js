@@ -157,6 +157,17 @@ function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFun
             refThis.setDisplayFunctionCalledIfRequired(refThis.slotsMap[dmSlotName], argumentsFromCallingFunction);
         }
     });
+
+    window.PWT.adUnits = window.PWT.adUnits || {};
+    Object.keys(refThis.slotsMap).forEach(function(key){
+        var activeSlot = refThis.slotsMap[key];
+        window.PWT.adUnits[activeSlot.divID] = {
+            divID : activeSlot.divID,
+            adUnitId : activeSlot.adUnitID,
+            mediaTypes : util.getAdUnitConfig(activeSlot.sizes, activeSlot).mediaTypeObject
+        }
+    })
+
     util.log(refThis.slotsMap);
 }
 
