@@ -466,19 +466,50 @@ exports.getAdUnitSizes = getAdUnitSizes;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
+function getAdUnitInfo(slotId){
+	return  window.PWT.adUnits[slotId]|| slotId;
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+/* start-test-block */
+exports.getAdUnitInfo = getAdUnitInfo;
+/* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+function getAdUnitAdFormats(mediaTypes){
+	var af = !!mediaTypes ? Object.keys(mediaTypes).map( function(mediatype){
+		return CONSTANTS.MEDIATYPE[mediatype.toUpperCase()];
+	}).filter(function(mtype){
+		return mtype != null
+	}) : [];
+	return af || [];
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+/* start-test-block */
+exports.getAdUnitAdFormats = getAdUnitAdFormats;
+/* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
 	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = undefined;
 	var impressionID = bmEntry.getImpressionID();
+	var adUnitInfo = refThis.getAdUnitInfo(slotID);
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
-    /* istanbul ignore else */
-    if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
-        var slotObject = {
-            "sn": slotID,
-            "sz": refThis.getAdUnitSizes(bmEntry),
-            "ps": []
-        };
-
+	/* istanbul ignore else */
+	if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
+		var slotObject = {
+			"sn": slotID,
+			"sz": refThis.getAdUnitSizes(bmEntry),
+			"au": adUnitInfo.adUnitId || slotID,
+			"mt": refThis.getAdUnitAdFormats(adUnitInfo.mediaTypes),
+			"ps": []
+		};
         bmEntry.setExpired();
         impressionIDMap[impressionID] = impressionIDMap[impressionID] || [];
 
