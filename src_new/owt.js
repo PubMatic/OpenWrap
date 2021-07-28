@@ -4,6 +4,8 @@ var bidManager = require("./bidManager.js");
 var CONSTANTS = require("./constants.js");
 var CONFIG = require("./config.js");
 var ucTag = require("prebid-universal-creative");
+var conf = require("./conf.js");
+var prebid = require("./adapters/prebid.js");
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
 window.PWT.bidMap = window.PWT.bidMap || {};
@@ -172,6 +174,12 @@ window.PWT.getCustomParamsForDFPVideo = function(customParams, bid){
 	return util.getCustomParamsForDFPVideo(customParams, bid);
 };
 // endRemoveIf(removeInStreamRelatedCode)
+
+window.PWT.setAuctionTimeout = function(timeout){
+	if(!isNaN(timeout)){
+		conf.pwt.t = timeout;
+	}
+}
 
 window.PWT.versionDetails =  util.getOWConfig();
 
