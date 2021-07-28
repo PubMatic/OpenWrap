@@ -573,7 +573,11 @@ describe("CONTROLLER: GPT", function() {
                     return this.keyValuePairs[key] = value;
                 },
                 getSlotId: function () {
-                    return "slot_1";
+                    return {
+                        getDomId: function () {
+                            return "slot_1";
+                        }
+                    };
                 },
                 getAdUnitPath: function () {
                     return "getAdUnitPath";
@@ -694,7 +698,7 @@ describe("CONTROLLER: GPT", function() {
             GPT.updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow);
             GPT.generateSlotName.calledTwice.should.be.true;
             GPT.storeInSlotsMap.calledTwice.should.be.true;
-            GPT.storeInSlotsMap.calledWith("").should.be.true;
+            GPT.storeInSlotsMap.calledWith("slot_1").should.be.true;
             GPT.storeInSlotsMap.calledWith("DIV_2", currentGoogleSlotStub_2, isDisplayFlow).should.be.true;
             done();
         });

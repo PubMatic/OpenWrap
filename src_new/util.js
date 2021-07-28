@@ -1279,7 +1279,9 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
-		userIdConfs.push(refThis.getUserIdParams(partnerValues));
+		if (CONSTANTS.EXCLUDE_PARTNER_LIST.indexOf(parterId) < 0) {
+			userIdConfs.push(refThis.getUserIdParams(partnerValues));
+		}
 	});
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4+ JSON.stringify(userIdConfs));
 	return userIdConfs;
@@ -1372,7 +1374,7 @@ exports.getPartnerParams = function(params){
 exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
-	var netEcpm, grossEcpm, kgpv, bidId, adapterId, adapterName;
+	var netEcpm, grossEcpm, kgpv, bidId, adapterId, adapterName,adUnitId;
 	var sspID = "";
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 
@@ -1441,6 +1443,8 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		sspID = theBid.sspID || "";	
 	}
 
+	adUnitId = bidManager.getAdUnitInfo(slotID).adUnitId || slotId;
+
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
 	pixelURL += "&tst=" + refThis.getCurrentTimestamp();
@@ -1449,6 +1453,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
 	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
 	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
+	pixelURL += "&au=" + window.encodeURIComponent(adUnitId);
 	pixelURL += "&bc=" + window.encodeURIComponent(adapterId);
 	pixelURL += "&pn=" + window.encodeURIComponent(adapterName);
 	pixelURL += "&en=" + window.encodeURIComponent(netEcpm);

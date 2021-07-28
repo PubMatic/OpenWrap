@@ -259,3 +259,11 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 		}
 	]
 };
+
+exports.EXCLUDE_PARTNER_LIST = ['pubProvidedId'];
+
+exports.MEDIATYPE = {
+	BANNER:0 ,
+	VIDEO:1,
+	NATIVE:2 
+  };

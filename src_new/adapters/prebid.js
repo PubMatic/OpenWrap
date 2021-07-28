@@ -334,7 +334,7 @@ exports.isAdUnitsCodeContainBidder = isAdUnitsCodeContainBidder;
 /* end-test-block */
 
 function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight, regexPattern){
-	var code, sizes, divID;
+	var code, sizes, divID, adUnitId;
 	var mediaTypeConfig;
 	var partnerConfig;
 
@@ -346,6 +346,7 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 	divID = currentSlot.getDivID();
 	code = currentSlot.getDivID();
 	sizes = currentSlot.getSizes();
+	adUnitId = currentSlot.getAdUnitID();
 
 	/* istanbul ignore else */
 	var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
@@ -360,6 +361,7 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 			code: code,
 			mediaTypes:{} ,
 			sizes: sizes,
+			adUnitId:adUnitId,
 			bids: [],
 			divID : divID
 		};
@@ -393,6 +395,7 @@ exports.generatedKeyCallbackForPbAnalytics = generatedKeyCallbackForPbAnalytics;
 function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight,regexPattern){
 
 	var code, sizes, divID = currentSlot.getDivID();
+	var adUnitId = currentSlot.getAdUnitID();
 	var mediaTypeConfig;
 	var partnerConfig;
 
@@ -468,6 +471,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 			code: code,
 			mediaTypes:{} ,
 			sizes: sizes,
+			adUnitId: adUnitId,
 			bids: [],
 			divID : divID
 		};
@@ -485,6 +489,8 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		if(adUnitConfig.renderer){
 			adUnits[code]["renderer"]= adUnitConfig.renderer;
 		}
+		window.PWT.adUnits = window.PWT.adUnits || {};
+		window.PWT.adUnits[code] = adUnits[code];
 	}else if(refThis.isSingleImpressionSettingEnabled){
 		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
 			return;
