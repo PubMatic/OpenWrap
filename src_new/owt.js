@@ -178,6 +178,7 @@ window.PWT.getCustomParamsForDFPVideo = function(customParams, bid){
 
 window.PWT.setAuctionTimeout = function(timeout){
 	if(!isNaN(timeout)){
+		util.log("updating aution timeout from: " + conf.pwt.t +" to: "+timeout);
 		conf.pwt.t = timeout;
 	}
 }

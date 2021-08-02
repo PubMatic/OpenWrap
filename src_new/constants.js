@@ -94,7 +94,8 @@ exports.CONFIG = {
 	"VIDEO_PARAM": "video",
 	"ENABLE_PB_PM_ANALYTICS": "pubAnalyticsAdapter",
 	"USE_PREBID_KEYS": "usePBJSKeys",
-	"AB_TEST_ENABLED": "abTestEnabled"
+	"AB_TEST_ENABLED": "abTestEnabled",
+	"TIMEOUT_ADJUSTMENT": 50
 };
 
 exports.METADATA_MACROS = {

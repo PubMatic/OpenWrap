@@ -273,7 +273,7 @@ function pbBidStreamHandler(pbBid){
 			//			default bids handled here
 			//			timeoutForPrebid check is added to avoid Hook call for post-timeout bids
 			// Here slotID, adapterID, and latency are read-only and theBid can be modified
-			if(pbBid.timeToRespond < (CONFIG.getTimeout() - 50)){
+			if(pbBid.timeToRespond < (CONFIG.getTimeout() - CONSTANTS.CONFIG.TIMEOUT_ADJUSTMENT)){
 				util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [refThis.kgpvMap[responseID].divID, pbBid]);
 			}			
 			bidManager.setBidFromBidder(
@@ -1160,7 +1160,7 @@ function fetchBids(activeSlots){
 					bidsBackHandler: function(bidResponses){
 						refThis.pbjsBidsBackHandler(bidResponses, activeSlots);
 					},
-					timeout: CONFIG.getTimeout() - 50
+					timeout: CONFIG.getTimeout() - CONSTANTS.CONFIG.TIMEOUT_ADJUSTMENT
 				});
 			} else {
 				util.log("PreBid js requestBids function is not available");
