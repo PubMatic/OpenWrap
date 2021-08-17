@@ -148,7 +148,7 @@ exports.addPrebidAdapter = addPrebidAdapter;
 /* end-test-block */
 
 exports.initConfig = function () {
-	refThis.updateABTestConfig();
+	//refThis.updateABTestConfig();
 	refThis.addPrebidAdapter();
 
 	var ignoreAdapterLevelParams = {};
@@ -294,6 +294,8 @@ exports.updateABTestConfig = function () {
 			refThis.updatePWTConfig();
 			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters);			
 			config.identityPartners = refThis.updatePartnerConfig(refThis.getTestIdentityPartners(), refThis.getIdentityPartners());			
+		} else {
+			window.PWT.testGroupId = 0;
 		}
 	}
 };
