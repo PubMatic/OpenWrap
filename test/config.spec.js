@@ -1220,6 +1220,7 @@ describe('Config', function() {
             var expectedTimeout = CONFIG.getTestPWTConfig().t;
             CONFIG.updateABTestConfig()
             CONFIG.getTimeout().should.be.deep.equal(expectedTimeout);
+            window.PWT.testGroupId.should.equal(1);
             done();
         });
 
@@ -1230,6 +1231,7 @@ describe('Config', function() {
             var expectedTimeout = CONFIG.getTimeout();
             CONFIG.updateABTestConfig()
             CONFIG.getTimeout().should.be.deep.equal(expectedTimeout);
+            window.PWT.testGroupId.should.equal(0);
             done();
         });
     });
