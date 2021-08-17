@@ -25,7 +25,6 @@ exports.kgpvMap = kgpvMap;
 /* end-test-block */
 
 var refThis = this;
-var timeoutForPrebid = CONFIG.getTimeout()-50;
 var onEventAdded = false;
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
@@ -274,7 +273,7 @@ function pbBidStreamHandler(pbBid){
 			//			default bids handled here
 			//			timeoutForPrebid check is added to avoid Hook call for post-timeout bids
 			// Here slotID, adapterID, and latency are read-only and theBid can be modified
-			if(pbBid.timeToRespond < timeoutForPrebid){
+			if(pbBid.timeToRespond < (CONFIG.getTimeout() - CONSTANTS.CONFIG.TIMEOUT_ADJUSTMENT)){
 				util.handleHook(CONSTANTS.HOOKS.BID_RECEIVED, [refThis.kgpvMap[responseID].divID, pbBid]);
 			}			
 			bidManager.setBidFromBidder(
@@ -1099,7 +1098,6 @@ function initPbjsConfig(){
 		return;
 	}
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
-	timeoutForPrebid = CONFIG.getTimeout() - 50;
 	refThis.setPrebidConfig();
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
@@ -1162,7 +1160,7 @@ function fetchBids(activeSlots){
 					bidsBackHandler: function(bidResponses){
 						refThis.pbjsBidsBackHandler(bidResponses, activeSlots);
 					},
-					timeout: timeoutForPrebid
+					timeout: CONFIG.getTimeout() - CONSTANTS.CONFIG.TIMEOUT_ADJUSTMENT
 				});
 			} else {
 				util.log("PreBid js requestBids function is not available");
