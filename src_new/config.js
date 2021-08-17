@@ -295,6 +295,7 @@ exports.updateABTestConfig = function () {
 			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters);			
 			config.identityPartners = refThis.updatePartnerConfig(refThis.getTestIdentityPartners(), refThis.getIdentityPartners());			
 		} else {
+			//reset the value for subsequent auctions.
 			window.PWT.testGroupId = 0;
 		}
 	}
