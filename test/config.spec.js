@@ -496,12 +496,14 @@ describe('Config', function() {
         beforeEach(function (done) {
             sinon.spy(CONFIG, "addPrebidAdapter");
             sinon.spy(UTIL, "forEachOnObject");
+            sinon.stub(CONFIG, 'updateABTestConfig').returns(true);
             done();
         });
 
         afterEach(function (done) {
             CONFIG.addPrebidAdapter.restore();
             UTIL.forEachOnObject.restore();
+            CONFIG.updateABTestConfig.restore();
             done();
         });
 
@@ -518,6 +520,7 @@ describe('Config', function() {
             UTIL.forEachOnObject.calledWith(CONF.adapters).should.be.true;
             UTIL.forEachOnObject.calledWith(CONF.adapters["pubmatic"]).should.be.true;
             UTIL.forEachOnObject.calledWith(CONF.adapters["sekindoUM"]["klm"]).should.be.true;
+            CONFIG.updateABTestConfig().should.not.be.called;
             done();
         });
 

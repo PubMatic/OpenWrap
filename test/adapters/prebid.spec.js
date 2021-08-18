@@ -887,6 +887,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(CONFIG, 'getGdpr').returns(true);
 
             sinon.spy(CONFIG, 'getCCPATimeout');
+            sinon.stub(CONFIG, 'updateABTestConfig').returns(true);
             sinon.stub(CONFIG, 'getCCPA').returns(true);
 
             sinon.stub(BM, 'resetBid', function(){});
@@ -897,7 +898,6 @@ describe('ADAPTER: Prebid', function() {
             window.owpbjs = {
 
             };
-            sinon.stub(UTIL, "getRandomNumberBelow100").returns(89);
             sinon.stub(PREBID, "throttleAdapter").returns(true);
             sinon.stub(AM, "setInitTimeForSlotsForAdapter").returns(true);
             windowPbJS2Stub = {
@@ -945,6 +945,7 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.getGdpr.restore();
             CONFIG.getCmpApi.restore();
             CONFIG.getGdprTimeout.restore();
+            CONFIG.updateABTestConfig.restore();
 
             CONFIG.getCCPA.restore();
             CONFIG.getCCPATimeout.restore();
@@ -955,7 +956,6 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.getAwc.restore();
             PREBID.generatePbConf.restore();
 
-            UTIL.getRandomNumberBelow100.restore();
             PREBID.throttleAdapter.restore();
             AM.setInitTimeForSlotsForAdapter.restore();
 
@@ -1019,6 +1019,8 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.getCCPA().should.be.true;
             CONFIG.getCCPACmpApi().should.be.called;
             CONFIG.getCCPATimeout().should.be.called;
+            CONFIG.updateABTestConfig().should.be.called;
+
             done();
         });
 
