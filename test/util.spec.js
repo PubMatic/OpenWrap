@@ -3544,6 +3544,26 @@ describe('UTIL', function() {
 
             done();
         });
+
+       it('should not update the params object if timezone value is not set', function(done) {
+            var expectedResult = {
+                "name": 'parrableId',
+                "params.partner": "'30182847-e426-4ff9-b2b5-9ca1324ea09b','b07cf20d-8b55-4cd7-9e84-d804ed66b644'",
+                "storage.name": "parrableId_cookie",
+                "storage.type": "cookie",
+                "storage.expires": "60"
+            };
+            paramsForParrable = {
+                "name": 'parrableId',
+                "params.partner": "'30182847-e426-4ff9-b2b5-9ca1324ea09b','b07cf20d-8b55-4cd7-9e84-d804ed66b644'",
+                "storage.name": "parrableId_cookie",
+                "storage.type": "cookie",
+                "storage.expires": "60"
+            };
+            UTIL.applyDataTypeChangesIfApplicable(paramsForParrable);
+            expect(paramsForParrable["params.timezoneFilter.allowedZones"]).to.be.undefined
+            done();
+        });
     });  
 
 

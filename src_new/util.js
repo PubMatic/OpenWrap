@@ -1677,7 +1677,6 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 									var arr = paramValue.split(",").map(function(item) {
 										return item.trim();
 									});
-									//var arr = params[key].split(",");
 									if (arr.length > 0) {
 										params[key] = arr;
 									}
@@ -1685,6 +1684,7 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 									params[key] = [paramValue];
 								}
 							}
+							break;
 						default:
 							return;
 					}
