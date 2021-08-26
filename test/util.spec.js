@@ -3467,6 +3467,14 @@ describe('UTIL', function() {
         var params;
         beforeEach(function(done) {
             params = {"name": "intentIqId","params.partner":"123","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+            paramsForParrable = {
+                "name": 'parrableId',
+                "params.partner": "'30182847-e426-4ff9-b2b5-9ca1324ea09b','b07cf20d-8b55-4cd7-9e84-d804ed66b644'",
+                "storage.name": "parrableId_cookie",
+                "storage.type": "cookie",
+                "storage.expires": "60",
+                "params.timezoneFilter.allowedZones":  "Pacific/Honolulu, Europe/Amsterdam, Europe/Stockholm, Europe/Prague"
+            };
             done();
         });
 
@@ -3494,6 +3502,45 @@ describe('UTIL', function() {
             UTIL.applyDataTypeChangesIfApplicable(params);
             params.should.deep.equal(expectedResult);
             UTIL.logError.should.be.calledOnce;
+
+            done();
+        });
+
+        it('should convert comma separated string for parrable timezones to an array, with each entry trimmed', function(done) {
+            var expectedResult = {
+                "name": 'parrableId',
+                "params.partner": "'30182847-e426-4ff9-b2b5-9ca1324ea09b','b07cf20d-8b55-4cd7-9e84-d804ed66b644'",
+                "storage.name": "parrableId_cookie",
+                "storage.type": "cookie",
+                "storage.expires": "60",
+                "params.timezoneFilter.allowedZones":  ["Pacific/Honolulu", "Europe/Amsterdam", "Europe/Stockholm", "Europe/Prague"]
+            };
+            UTIL.applyDataTypeChangesIfApplicable(paramsForParrable);
+            paramsForParrable["params.timezoneFilter.allowedZones"].should.be.a('Array');
+            paramsForParrable["params.timezoneFilter.allowedZones"].length.should.equal(expectedResult["params.timezoneFilter.allowedZones"].length);
+            done();
+        });
+
+        it('should convert single entry for parrable timezones to an array', function(done) {
+            var expectedResult = {
+                "name": 'parrableId',
+                "params.partner": "'30182847-e426-4ff9-b2b5-9ca1324ea09b','b07cf20d-8b55-4cd7-9e84-d804ed66b644'",
+                "storage.name": "parrableId_cookie",
+                "storage.type": "cookie",
+                "storage.expires": "60",
+                "params.timezoneFilter.allowedZones":  [123]
+            };
+            paramsForParrable = {
+                "name": 'parrableId',
+                "params.partner": "'30182847-e426-4ff9-b2b5-9ca1324ea09b','b07cf20d-8b55-4cd7-9e84-d804ed66b644'",
+                "storage.name": "parrableId_cookie",
+                "storage.type": "cookie",
+                "storage.expires": "60",
+                "params.timezoneFilter.allowedZones":  123
+            };
+            UTIL.applyDataTypeChangesIfApplicable(paramsForParrable);
+            paramsForParrable["params.timezoneFilter.allowedZones"].should.be.a('Array');
+            paramsForParrable["params.timezoneFilter.allowedZones"].length.should.equal(expectedResult["params.timezoneFilter.allowedZones"].length);
 
             done();
         });
