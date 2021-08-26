@@ -879,6 +879,7 @@ exports.addOnBidResponseHandler = addOnBidResponseHandler;
 
 function setPrebidConfig(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
+		
 		var prebidConfig = {
 			debug: util.isDebugLogEnabled(),
 			cache: {
@@ -899,6 +900,18 @@ function setPrebidConfig(){
 		if(isPrebidPubMaticAnalyticsEnabled === true){
 			prebidConfig['instreamTracking'] = {
 				enabled: true
+			}
+		}
+
+		if(CONFIG.isFloorPriceModuleEnabled() == true){
+			prebidConfig["floors"]={
+				enforcement: {
+					enforceJS: CONFIG.getFloorType()
+				},
+				auctionDelay: CONFIG.getFloorAuctionDelay(),
+				endpoint:{
+					url: CONFIG.getFloorJsonUrl()
+				}
 			}
 		}
 		

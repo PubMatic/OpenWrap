@@ -865,6 +865,109 @@ describe('ADAPTER: Prebid', function() {
         })
     });
 
+    // Test cases only for floor module
+    describe("#setPrebidConfig", function(){
+        var floorObj = {};
+        beforeEach(function(done) {
+            PREBID.isFloorPriceModuleEnabled = false;
+            sinon.stub(UTIL, 'isFunction');
+            sinon.stub(UTIL, 'logWarning');
+            sinon.stub(CONFIG, 'isFloorPriceModuleEnabled');
+            sinon.stub(CONFIG, 'getFloorJsonUrl').returns("externalFloor.json");
+            sinon.stub(CONFIG, 'getFloorAuctionDelay').returns(100);
+            
+            floorObj = {
+                enforcement:{
+                    enforceJS: true
+                },
+                auctionDelay: 100,
+                endpoint:{
+                    url: "externalFloor.json"
+                }
+            }
+            window.owpbjs = {
+
+            };
+            windowPbJS2Stub = {
+                onEvent: function () {
+                    return "onEvent";
+                }
+            };
+            sinon.spy(windowPbJS2Stub, "onEvent");
+            window["owpbjs"] = windowPbJS2Stub;
+
+            sinon.stub(global.window || window, "pwtCreatePrebidNamespace", function pwtCreatePrebidNamespace(preBidNameSpace) {
+                window["owpbjs"] = windowPbJS2Stub;
+                window["owpbjs"].que = [];
+                window["owpbjs"].setConfig = function (pbConfig) {
+                   prebidConfig = pbConfig;
+                  return true;
+                };
+                window["owpbjs"].getConfig = function(){
+                    return prebidConfig;
+                }
+            });
+            window.owpbjs = window.owpbjs || {};
+            window.owpbjs.cmd = window.owpbjs.cmd || [];
+            window["owpbjs"].setConfig = function (pbConfig) {
+                prebidConfig = pbConfig;
+               return true;
+             };
+             window["owpbjs"].getConfig = function(){
+                 return prebidConfig;
+             };
+            done();
+        })
+
+        afterEach(function(done){
+            UTIL.isFunction.restore();
+            UTIL.logWarning.restore();
+            CONFIG.isFloorPriceModuleEnabled.restore();
+            CONFIG.getFloorJsonUrl.restore();
+            CONFIG.getFloorAuctionDelay.restore();
+            windowPbJS2Stub.onEvent.restore();
+
+            if (global.window) {
+                global.window.pwtCreatePrebidNamespace.restore();
+            } else {
+                window.pwtCreatePrebidNamespace.restore();
+            }
+            delete window.owpbjs;
+            delete floorObj;
+            prebidConfig = {};
+            done();
+        })
+
+        it('is a function', function(done) {
+            PREBID.setPrebidConfig.should.be.a('function');
+            done();
+        });
+
+        it('should return if setConfig function is not defined',function(done){
+            UTIL.isFunction.returns(false);
+            delete window["owpbjs"].setConfig;
+            PREBID.setPrebidConfig();
+            UTIL.logWarning.calledWith("PreBidJS setConfig method is not available").should.be.true;
+            done();
+        });
+
+        it('should set floor module with default inputs',function(done){
+            CONFIG.isFloorPriceModuleEnabled.returns(true);
+            PREBID.setPrebidConfig();
+            expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
+            done();
+        });
+
+        it('should set floor module with auctionDelay as 300',function(done){
+            CONFIG.isFloorPriceModuleEnabled.returns(true);
+            CONFIG.getFloorAuctionDelay.returns(300);
+            floorObj.auctionDelay = 300;
+            PREBID.setPrebidConfig();
+            expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
+            done();
+        });
+    });
+
     describe('#fetchBids', function() {
         var activeSlots = null;
         var impressionID = null;
@@ -981,7 +1084,7 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        if('should return if owpbjs namespace is not defined',function(done){
+        it('should return if owpbjs namespace is not defined',function(done){
             delete window.owpbjs;
             PREBID.fetchBids(activeSlots);
             UTIL.logError.calledWith("PreBid js is not loaded").should.be.true;
