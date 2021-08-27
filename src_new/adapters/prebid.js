@@ -903,18 +903,8 @@ function setPrebidConfig(){
 			}
 		}
 
-		if(CONFIG.isFloorPriceModuleEnabled() == true){
-			prebidConfig["floors"]={
-				enforcement: {
-					enforceJS: CONFIG.getFloorType()
-				},
-				auctionDelay: CONFIG.getFloorAuctionDelay(),
-				endpoint:{
-					url: CONFIG.getFloorJsonUrl()
-				}
-			}
-		}
 		
+		refThis.getFloorsConfiguration(prebidConfig)
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
@@ -933,6 +923,21 @@ function setPrebidConfig(){
 
 exports.setPrebidConfig = setPrebidConfig;
 
+function getFloorsConfiguration(prebidConfig){
+	if(CONFIG.isFloorPriceModuleEnabled() == true){
+		prebidConfig["floors"]={
+			enforcement: {
+				enforceJS: CONFIG.getFloorType()
+			},
+			auctionDelay: CONFIG.getFloorAuctionDelay(),
+			endpoint:{
+				url: CONFIG.getFloorJsonUrl()
+			}
+		}
+	}
+}
+
+exports.getFloorsConfiguration = getFloorsConfiguration;
 
 function getPbjsAdServerTargetingConfig(){
 	// Todo: Handle send-all bids feature enabled case
