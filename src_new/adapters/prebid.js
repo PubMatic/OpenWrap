@@ -879,7 +879,6 @@ exports.addOnBidResponseHandler = addOnBidResponseHandler;
 
 function setPrebidConfig(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
-		
 		var prebidConfig = {
 			debug: util.isDebugLogEnabled(),
 			cache: {
@@ -903,7 +902,6 @@ function setPrebidConfig(){
 			}
 		}
 
-		
 		refThis.getFloorsConfiguration(prebidConfig)
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
