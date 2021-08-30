@@ -289,10 +289,13 @@ exports.updateABTestConfig = function () {
 	if (refThis.isAbTestEnabled()) {
 		var randomNumberBelow100 = util.getRandomNumberBelow100();
 		var testGroupDetails = refThis.getTestGroupDetails();
+		if (!config.adapters_bckup) {
+			config.adapters_bckup = config.adapters;
+		}
 		// if Random number is smaller than the test group size then test config will be applied 
 		if (testGroupDetails && testGroupDetails.testGroupSize && randomNumberBelow100 < testGroupDetails.testGroupSize) {
 			refThis.updatePWTConfig();
-			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters);			
+			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters_bckup);
 			config.identityPartners = refThis.updatePartnerConfig(refThis.getTestIdentityPartners(), refThis.getIdentityPartners());			
 		} else {
 			//reset the value for subsequent auctions.

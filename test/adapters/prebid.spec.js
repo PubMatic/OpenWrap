@@ -1019,8 +1019,7 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.getCCPA().should.be.true;
             CONFIG.getCCPACmpApi().should.be.called;
             CONFIG.getCCPATimeout().should.be.called;
-            CONFIG.updateABTestConfig().should.be.called;
-
+            CONFIG.updateABTestConfig().should.be.called
             done();
         });
 
