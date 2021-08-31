@@ -1659,18 +1659,35 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 	var value;
 	if(params.name in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
 		for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
-			for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
-				switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
-					case 'number':
-						if(params[key] && typeof params[key] !== 'number') {
-							value = parseInt(params[key])
-							isNaN(value) ?
-								refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
-								params[key] = value;
-						}
-						break;
-					default:
-						return;
+			if (partnerName === params.name) {
+				for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
+					var paramValue = params[key];
+					switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
+						case 'number':
+							if(paramValue && typeof paramValue !== 'number') {
+								value = parseInt(paramValue)
+								isNaN(value) ?
+									refThis.logError(partnerName + ": Invalid parameter value '" + paramValue + "' for parameter " + key) :
+									params[key] = value;
+							}
+							break;
+						case 'array': 
+							if (paramValue) {
+								if (typeof paramValue === 'string') {
+									var arr = paramValue.split(",").map(function(item) {
+										return item.trim();
+									});
+									if (arr.length > 0) {
+										params[key] = arr;
+									}
+								} else if (typeof paramValue === 'number') {
+									params[key] = [paramValue];
+								}
+							}
+							break;
+						default:
+							return;
+					}
 				}
 			}
 		}
