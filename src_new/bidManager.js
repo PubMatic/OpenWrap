@@ -395,13 +395,6 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
-	outputObj["tgid"] = (function() {
-	    var testGroupId = parseInt(PWT.testGroupId || 0);
-	    if (testGroupId <= 15 && testGroupId >= 0) {
-	      return testGroupId;
-	    }
-	    return 0;
-	})();
 
 	// As discussed we won't be seding gdpr data to logger
 	// if (CONFIG.getGdpr()) {
@@ -423,6 +416,14 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 			outputObj[CONSTANTS.COMMON.IMPRESSION_ID] = window.encodeURIComponent(impressionID);
 			outputObj.psl = slots.psl;
 			outputObj.dvc = { "plt": util.getDevicePlatform()}
+			outputObj["tgid"] = (function() {
+				var testGroupId = parseInt(PWT.testGroupId[impressionID] || 0);
+				if (testGroupId <= 15 && testGroupId >= 0) {
+				  return testGroupId;
+				}
+				return 0;
+			})();
+			util.log("AB test Logger: tgid logged as " + outputObj.tgid + " for impressionId " + impressionID);
 			// (new window.Image()).src = pixelURL + "&json=" + window.encodeURIComponent(JSON.stringify(outputObj));
 			util.ajaxRequest(pixelURL, function(){}, "json=" + window.encodeURIComponent(JSON.stringify(outputObj)), {
 				contentType : "application/x-www-form-urlencoded", // as per https://inside.pubmatic.com:8443/confluence/pages/viewpage.action?spaceKey=Products&title=POST+support+for+logger+in+Wrapper-tracker

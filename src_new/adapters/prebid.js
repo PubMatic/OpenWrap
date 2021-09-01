@@ -1158,7 +1158,7 @@ function fetchBids(activeSlots){
 
 				window[pbNameSpace].removeAdUnit();
 				window[pbNameSpace].addAdUnits(adUnitsArray);
-				CONFIG.updateABTestConfig();
+				CONFIG.updateABTestConfig(impressionID);
 				window[pbNameSpace].requestBids({
 					bidsBackHandler: function(bidResponses){
 						refThis.pbjsBidsBackHandler(bidResponses, activeSlots);

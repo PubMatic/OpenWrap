@@ -1221,9 +1221,10 @@ describe('Config', function() {
 
         it('should update the conf if random number is less than test group size', function(done) {
             var expectedTimeout = CONFIG.getTestPWTConfig().t;
-            CONFIG.updateABTestConfig()
+            var dummyImpId = "123";
+            CONFIG.updateABTestConfig(dummyImpId)
             CONFIG.getTimeout().should.be.deep.equal(expectedTimeout);
-            window.PWT.testGroupId.should.equal(1);
+            window.PWT.testGroupId[dummyImpId].should.equal(1);
             done();
         });
 
@@ -1232,9 +1233,10 @@ describe('Config', function() {
                 "testGroupSize": 1
             };
             var expectedTimeout = CONFIG.getTimeout();
-            CONFIG.updateABTestConfig();
+            var dummyImpId = "123";
+            CONFIG.updateABTestConfig(dummyImpId);
             CONFIG.getTimeout().should.be.deep.equal(expectedTimeout);
-            window.PWT.testGroupId.should.equal(0);
+            window.PWT.testGroupId[dummyImpId].should.equal(0);
             done();
         });
     });

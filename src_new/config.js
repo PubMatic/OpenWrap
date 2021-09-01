@@ -285,7 +285,10 @@ exports.getTestIdentityPartners = function () {
 	return config[CONSTANTS.COMMON.TEST_IDENTITY_PARTNER] || {};
 };
 
-exports.updateABTestConfig = function () {
+exports.updateABTestConfig = function (impId) {
+	if (window.PWT.testGroupId === undefined) {
+		window.PWT.testGroupId = {};
+	}
 	if (refThis.isAbTestEnabled()) {
 		var randomNumberBelow100 = util.getRandomNumberBelow100();
 		var testGroupDetails = refThis.getTestGroupDetails();
@@ -294,17 +297,18 @@ exports.updateABTestConfig = function () {
 		}
 		// if Random number is smaller than the test group size then test config will be applied 
 		if (testGroupDetails && testGroupDetails.testGroupSize && randomNumberBelow100 < testGroupDetails.testGroupSize) {
-			refThis.updatePWTConfig();
-			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters_bckup);
-			config.identityPartners = refThis.updatePartnerConfig(refThis.getTestIdentityPartners(), refThis.getIdentityPartners());			
+			refThis.updatePWTConfig(impId);
+			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters_bckup, impId);
+			config.identityPartners = refThis.updatePartnerConfig(refThis.getTestIdentityPartners(), refThis.getIdentityPartners(), impId);			
 		} else {
 			//reset the value for subsequent auctions.
-			window.PWT.testGroupId = 0;
+			util.log("AB Test Enabled With control Partner Config");
+			window.PWT.testGroupId[impId] = 0
 		}
 	}
 };
 
-exports.updatePWTConfig = function () {
+exports.updatePWTConfig = function (impId) {
 	var testConfig = refThis.getTestPWTConfig();
 	if (testConfig && Object.keys(testConfig).length > 0) {
 		util.log(CONSTANTS.MESSAGES.M30, JSON.stringify(testConfig));
@@ -315,11 +319,11 @@ exports.updatePWTConfig = function () {
 		}
 		//TODO: Uncomment Below code after updating phatomjs or using chrome headless 
 		// Object.assign(config[CONSTANTS.CONFIG.COMMON], testConfig);
-		window.PWT.testGroupId = 1;
+		window.PWT.testGroupId[impId] = 1;
 	}
 };
 
-exports.updatePartnerConfig = function (testConfig, controlConfig) {
+exports.updatePartnerConfig = function (testConfig, controlConfig, impId) {
 	if (testConfig && controlConfig && Object.keys(testConfig).length > 0 && Object.keys(controlConfig).length > 0) {
 		util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(testConfig));
 		for (var key in testConfig) {
@@ -331,7 +335,7 @@ exports.updatePartnerConfig = function (testConfig, controlConfig) {
 				}
 			}
 		}
-		window.PWT.testGroupId = 1;
+		window.PWT.testGroupId[impId] = 1
 		return testConfig;
 	} else{
 		// since only test type can be enabled test config will be empty if other test config is enabled and hence return control config
