@@ -566,6 +566,9 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 				if( (adapterID === "pubmatic" || adapterID === "pubmatic2") && (theBid.getDefaultBidStatus() ||  (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0))){
 					return;
 				}
+				var floorRequestData = theBid.getFloorRequestData();
+				var pbbid = theBid.getPbBid();
+
 				//todo: take all these key names from constants
                 slotObject["ps"].push({
                     "pn": CONFIG.getAdapterNameForAlias(adapterID),
@@ -588,7 +591,11 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"af": theBid.getAdFormat(),
 					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
-					"piid": theBid.getsspID()
+					"piid": theBid.getsspID(),
+					"fskp" : floorRequestData ? (floorRequestData.skipped == false ? 0 : 1) : undefined,
+					"fmv": floorRequestData ? floorRequestData.modelVersion || EMPTY_STRING : undefined,
+					"frv": pbbid ? ( pbbid.floorData ? pbbid.floorData.floorRuleValue : undefined ) : undefined,
+					"ft": pbbid ? ( pbbid.floorData  ? (pbbid.floorData.enforcements.enforceJS == false ? 0 : 1) : undefined ) : undefined,
 				});
             })
         });

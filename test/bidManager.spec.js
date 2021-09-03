@@ -1501,6 +1501,20 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, "getDealChannel");
             sinon.spy(theBid, "getPostTimeoutStatus");
             sinon.spy(theBid, "getWinningBidStatus");
+            sinon.spy(theBid, "getPbBid");
+            sinon.spy(theBid, "getFloorRequestData");
+
+            theBid.floorRequestData= {
+                'fetchStatus': 'success',
+                'floorMin': undefined,
+                'floorProvider': 'pubmatic',
+                'location': 'fetch',
+                'modelTimestamp': undefined,
+                'modelVersion': 'floorModelTest',
+                'modelWeight': undefined,
+                'skipRate': 0,
+                'skipped': false
+              }
 
             serverSideBid = new bid(serverAdapterID, commonKGPV);
             impressionIDMap = {};
@@ -1620,6 +1634,8 @@ describe('bidManager BIDMgr', function() {
             theBid.getDealChannel.calledOnce.should.be.true;
             theBid.getPostTimeoutStatus.called.should.be.true;
             theBid.getWinningBidStatus.calledOnce.should.be.true;
+            theBid.getFloorRequestData.calledOnce.should.be.true;
+            theBid.getPbBid.calledOnce.should.be.true;
 
             done();
         });
@@ -1645,6 +1661,8 @@ describe('bidManager BIDMgr', function() {
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].t).to.exist;
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].wb).to.exist;
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].ss).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].fmv).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].fskp).to.exist;
             
 			done()
         });

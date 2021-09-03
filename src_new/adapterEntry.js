@@ -24,6 +24,9 @@ AdapterEntry.prototype.getBid = function(bidID){
 };
 
 AdapterEntry.prototype.setNewBid = function(theBid){
+	if(!!this.bids[this.lastBidID] && !!this.bids[this.lastBidID].floorRequestData){
+		theBid.floorRequestData = this.bids[this.lastBidID].floorRequestData;
+	}
 	delete this.bids[this.lastBidID];
 	var bidID = theBid.getBidID();
 	this.bids[bidID] = theBid;

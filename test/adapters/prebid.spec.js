@@ -1481,4 +1481,126 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
     })
+
+    describe('#addOnBidRequestHandler',function(){
+        beforeEach(function(done) {
+            sinon.stub(UTIL, 'isFunction');
+            sinon.spy(UTIL, 'logWarning');
+
+            window.owpbjs = {
+
+            };
+            windowPbJS2Stub = {
+                onEvent: function () {
+                    return "onEvent";
+                }
+            };
+            sinon.spy(windowPbJS2Stub, "onEvent");
+            window["owpbjs"] = windowPbJS2Stub;
+
+            done();
+        });
+
+        afterEach(function(done){
+            UTIL.isFunction.restore();
+            UTIL.logWarning.restore();
+            windowPbJS2Stub.onEvent.restore();
+
+            delete window.owpbjs;
+            done();
+        })
+        it('should be a functiion',function(done){
+            PREBID.addOnBidRequestHandler.should.be.a('function');
+            done();
+        });
+
+        it('should log warning if onEVent is not a function',function(done){
+            UTIL.isFunction.returns(false);
+            PREBID.addOnBidRequestHandler()
+            UTIL.logWarning.calledWith("PreBid js onEvent method is not available").should.be.true;
+            done();
+        });
+
+        it('should call onEvent if onEvent is function',function(done){
+            UTIL.isFunction.returns(true);
+            PREBID.addOnBidRequestHandler();
+            window["owpbjs"].onEvent.should.be.called;
+            done();
+        });
+    });
+
+    describe('#pbBidRequestHandler',function(){
+        var pbBid = {
+            auctionId: "2c1dc7f4-85cd-4557-b252-d4502ae98bf9",
+            auctionStart: 1630586818462,
+            bidderCode: "rubicon",
+            bids: [{
+                adUnitCode: "Div1",
+                auctionId: "2c1dc7f4-85cd-4557-b252-d4502ae98bf9",
+                bidId: "2fe7e7a344e787",
+                bidRequestsCount: 1,
+                bidder: "rubicon",
+                bidderRequestId: "1ce47c7907b346",
+                bidderRequestsCount: 1,
+                bidderWinsCount: 0,
+                floorData: {
+                    skipped: false, 
+                    skipRate: 0, 
+                    floorMin: undefined, 
+                    modelVersion: "floorTestModel", 
+                    modelWeight: undefined,
+                    skipRate: 0,
+                    skipped: false
+                }
+            }],
+            
+        }
+        
+        beforeEach(function(done) {
+            window.PWT = {
+                bidMap: {
+                    "Div1":{
+                        "adapters":{
+                            "pubmatic":{
+                                "adapterID":"pubmatic",
+                                "bids":{
+                                    "1f92ec6a364f19":{
+                                        "adapterID":"pubmatic"
+                                    }
+                                }
+                            },
+                            "rubicon":{
+                                "adapterID":"rubicon",
+                                "bids":{
+                                    "26331f9290f491":{
+                                        "adapterID":"rubicon"
+                                    }
+                                }
+                            },
+                        },
+                        "name": "Div1"
+                    }
+                }
+            }
+            done();
+        });
+
+        afterEach(function(done){
+            window.PWT.bidMap = {};
+            done();
+        })
+        it('should be a functiion',function(done){
+            PREBID.pbBidRequestHandler.should.be.a('function');
+            done();
+        });
+
+        it('should copy floorData into window.PWT.bidMap',function(done){
+            PREBID.pbBidRequestHandler(pbBid);
+            expect(window.PWT.bidMap["Div1"].adapters["rubicon"]["bids"]["26331f9290f491"]["floorRequestData"]["skipped"]).to.be.false;
+            expect(window.PWT.bidMap["Div1"].adapters["rubicon"]["bids"]["26331f9290f491"]["floorRequestData"]["modelVersion"]).to.be.equal("floorTestModel");
+            done();
+        });
+
+    });
+    
 });

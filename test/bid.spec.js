@@ -34,18 +34,31 @@ describe('Bid bidObject', function() {
     var adapterID = null;
     var kgpv = null;
     var randomvalue = null;
+    var floorRequestData = null;
 
     beforeEach(function(done) {
         adapterID = commonAdpterID;
         kgpv = commonKGPV;
         bidObject = new BID(adapterID, kgpv);
-        randomvalue = Math.random().toString(36).substr(2, 5);                        
+        randomvalue = Math.random().toString(36).substr(2, 5);
+        floorRequestData = {
+            'fetchStatus': 'success',
+            'floorMin': undefined,
+            'floorProvider': 'pubmatic',
+            'location': 'fetch',
+            'modelTimestamp': undefined,
+            'modelVersion': 'floorModelTest',
+            'modelWeight': undefined,
+            'skipRate': 0,
+            'skipped': false
+          };             
         done();
     });
 
     afterEach(function(done) {
         bidObject = null;
         randomvalue = null;
+        floorRequestData= null;
         done();
     });
 
@@ -1082,6 +1095,41 @@ describe('Bid bidObject', function() {
             expect(bidObject.adFormat).to.equal(undefined);
             bidObject.setcacheUUID("someId").should.deep.equal(bidObject);
             expect(bidObject.adFormat).to.deep.equal("video");
+            done();
+        });
+    });
+
+    describe('#getFloorRequestData', function() {
+
+        it('is a function', function(done) {
+            bidObject.getFloorRequestData.should.be.a('function')
+            done();
+        });
+
+        it('returns FloorRequestData', function(done) {
+            expect(bidObject.getFloorRequestData()).to.be.equal(undefined);
+            done();
+        });
+
+        it('returns FloorRequestData', function(done) {
+            bidObject.setFloorRequestData(floorRequestData)
+            expect(bidObject.getFloorRequestData()).to.be.deep.equal(floorRequestData);
+            done();
+        });
+    });
+
+    describe('#setFloorRequestData', function() {
+
+        it('is a function', function(done) {
+            bidObject.setFloorRequestData.should.be.a('function')
+            done();
+        });
+
+        it('should set FloorRequestData', function(done) {
+            expect(bidObject.floorRequestData).to.equal(undefined);
+                        
+            bidObject.setFloorRequestData(floorRequestData);
+            expect(bidObject.floorRequestData).to.deep.equal(floorRequestData);
             done();
         });
     });

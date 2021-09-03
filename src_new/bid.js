@@ -37,6 +37,15 @@ function Bid(adapterID, kgpv){
 	this.vastCache = undefined;
 	this.renderer = undefined;
 	this.pbBid = undefined;
+	this.floorRequestData = undefined;
+}
+
+Bid.prototype.setFloorRequestData = function(floorRequestObj){
+	this.floorRequestData = floorRequestObj;
+}
+
+Bid.prototype.getFloorRequestData = function(){
+	return this.floorRequestData;
 }
 
 var getNetECPM = function(grossEcpm, adapterID){

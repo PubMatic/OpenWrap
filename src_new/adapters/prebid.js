@@ -294,6 +294,22 @@ exports.pbBidStreamHandler = pbBidStreamHandler;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
+function pbBidRequestHandler(pbBid){
+	var slotId = pbBid.bids[0].adUnitCode;
+	var adapterId = pbBid.bids[0].bidder;
+	Object.keys(window.PWT.bidMap[slotId].adapters[adapterId]['bids']).map(function(bid){
+		window.PWT.bidMap[slotId].adapters[adapterId].bids[bid]['floorRequestData'] = pbBid.bids[0].floorData;
+	});
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+  
+// removeIf(removeLegacyAnalyticsRelatedCode)
+/* start-test-block */
+exports.pbBidRequestHandler = pbBidRequestHandler;
+/* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function getPBCodeWithWidthAndHeight(divID, adapterID, width, height){
 	return divID + "@" + adapterID + "@" + width + "X" + height;
 }
@@ -877,6 +893,18 @@ function addOnBidResponseHandler(){
 exports.addOnBidResponseHandler = addOnBidResponseHandler;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+function addOnBidRequestHandler(){
+	if(util.isFunction(window[pbNameSpace].onEvent)){
+		window[pbNameSpace].onEvent('bidRequested', refThis.pbBidRequestHandler);
+	} else {
+		util.logWarning("PreBid js onEvent method is not available");
+		return;
+	}
+}
+exports.addOnBidRequestHandler = addOnBidRequestHandler;
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+  
 function setPrebidConfig(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 		var prebidConfig = {
@@ -1166,7 +1194,8 @@ function fetchBids(activeSlots){
 				// removeIf(removeLegacyAnalyticsRelatedCode)
 				if(isPrebidPubMaticAnalyticsEnabled === false){
 					// we do not want this call when we have PrebidAnalytics enabled
-					refThis.addOnBidResponseHandler();	
+					refThis.addOnBidResponseHandler();
+					refThis.addOnBidRequestHandler();
 				}
 				// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
