@@ -295,11 +295,13 @@ exports.pbBidStreamHandler = pbBidStreamHandler;
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function pbBidRequestHandler(pbBid){
-	var slotId = pbBid.bids[0].adUnitCode;
-	var adapterId = pbBid.bids[0].bidder;
-	Object.keys(window.PWT.bidMap[slotId].adapters[adapterId]['bids']).map(function(bid){
-		window.PWT.bidMap[slotId].adapters[adapterId].bids[bid]['floorRequestData'] = pbBid.bids[0].floorData;
-	});
+	pbBid.bids.forEach(function(oBid){
+		var slotId = oBid.adUnitCode;
+		var adapterId = oBid.bidder;
+		Object.keys(window.PWT.bidMap[slotId].adapters[adapterId]['bids']).map(function(bid){
+			window.PWT.bidMap[slotId].adapters[adapterId].bids[bid]['floorRequestData'] = oBid.floorData;
+		});
+	})
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
   
