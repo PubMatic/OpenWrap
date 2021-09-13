@@ -1667,7 +1667,7 @@ exports.initZeoTapJs = function(params) {
 				}(t[o])
 		}(n,["callMethod"],"_q"),
 		t.zeotap=n
-		t.zeotap.callMethod("init",{partnerId:params.params.partnerId, allowIDP: true})
+		t.zeotap.callMethod("init",{partnerId:params.partnerId, allowIDP: true})
 		t.zeotap.callMethod("setConsent",CONFIG.getCCPA(), 365)
 		t.zeotap.callMethod("setUserIdentities",userIdentityObject);
 	}
