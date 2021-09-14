@@ -264,6 +264,9 @@ exports.getUserIdParams = function (params) {
 	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
 		refThis.initLiveRampAts(userIdParams);
 	}
+	if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
+		refThis.initZeoTapJs(userIdParams);
+	}
 	return userIdParams;
 };
 
@@ -365,6 +368,48 @@ exports.initLiveRampAts = function (params) {
 	} else {
 		window.addEventListener("load", function () {
 			setTimeout(addATS, 1000);
+		});
+	}
+};
+
+exports.initZeoTapJs = function(params) {
+	function addZeoTapJs() {
+		var n = document, t = window;
+		var userIdentity = owpbjs.getUserIdentities() || {};
+		userIdentityObject = {
+			email: userIdentity.email || "",
+			cellno_cc: userIdentity.cellno_cc || ""
+		}
+		var e=n.createElement("script");
+		e.type="text/javascript",
+		e.crossorigin="anonymous"
+		e.async=!0 ,
+		e.src="https://content.zeotap.com/sdk/idp.min.js",
+		e.onload=function(){};
+		n=n.getElementsByTagName("script")[0];
+		n.parentNode.insertBefore(e,n);
+
+		n=t.zeotap||{_q:[],_qcmp:[]};
+
+		!function(n,t,e) {
+			for( var o=0 ;o<t.length;o++)
+				!function(t) {
+					n[t]=function(){
+						n[e].push([t].concat(Array.prototype.slice.call(arguments, 0 )))
+					}
+				}(t[o])
+		}(n,["callMethod"],"_q"),
+		t.zeotap=n,
+		t.zeotap.callMethod("init",{partnerId:params.partnerId, allowIDP: true})
+		t.zeotap.callMethod("setConsent",CONFIG.getCCPA(), 365)
+		t.zeotap.callMethod("setUserIdentities",userIdentityObject);
+	}
+
+	if (document.readyState == 'complete') {
+		addZeoTapJs();
+	} else {
+		window.addEventListener("load", function () {
+			setTimeout(addZeoTapJs, 1000);
 		});
 	}
 };

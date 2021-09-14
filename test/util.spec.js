@@ -2999,11 +2999,13 @@ describe('UTIL', function() {
         var params;
         beforeEach(function(done) {
             params = {"name":"pubCommonId","storage.type":"cookie","storage.name":"_pubCommonId","storage.expires":"1825"}
+            sinon.spy(UTIL, "initZeoTapJs");
             done();
         });
 
         afterEach(function(done) {
             params = null;
+            UTIL.initZeoTapJs.restore();
             done();
         });
 
@@ -3016,6 +3018,50 @@ describe('UTIL', function() {
             var expectedResult = {"name":"pubCommonId","storage":{"type":"cookie","name":"_pubCommonId","expires":"1825"}};
             var result = UTIL.getUserIdParams(params);
             result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should call initZeoTapJs if zeotap partner is configured and initZeotap is set to true', function(done) {
+            var zeotapParams = {
+                name: "zeotapIdPlus",
+                "storage.type": 'cookie',
+                "storage.expires": "30",
+                "storage.name": "IDP",
+                "params.partnerId": "b13e43f5-9846-4349-ae87-23ea3c3c25de",
+                "params.loadIDP": "true"
+            };
+            window.owpbjs = {
+                getUserIdentities: function(){
+                    return {
+                        email: "zeotaptestrab@gmail.com"
+                    };
+                }
+            };
+            var result = UTIL.getUserIdParams(zeotapParams);
+            UTIL.initZeoTapJs.calledOnce.should.be.true;
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('should not call initZeoTapJs if zeotap partner is configured and initZeotap is set to false', function(done) {
+            var zeotapParams = {
+                name: "zeotapIdPlus",
+                "storage.type": 'cookie',
+                "storage.expires": "30",
+                "storage.name": "IDP",
+                "params.partnerId": "b13e43f5-9846-4349-ae87-23ea3c3c25de",
+                "params.loadIDP": "false"
+            };
+            window.owpbjs = {
+                getUserIdentities: function(){
+                    return {
+                        email: "zeotaptestrab@gmail.com"
+                    };
+                }
+            };
+            var result = UTIL.getUserIdParams(zeotapParams);
+            UTIL.initZeoTapJs.calledOnce.should.be.false;
+            window.owpbjs = undefined;
             done();
         });
     });
