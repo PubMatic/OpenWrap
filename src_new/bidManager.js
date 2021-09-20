@@ -508,6 +508,9 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 			"sz": refThis.getAdUnitSizes(bmEntry),
 			"au": adUnitInfo.adUnitId || slotID,
 			"mt": refThis.getAdUnitAdFormats(adUnitInfo.mediaTypes),
+			"fskp" : adUnitInfo.floorRequestData ? (adUnitInfo.floorRequestData.skipped == false ? 0 : 1) : undefined,
+			"fmv": adUnitInfo.floorRequestData ? adUnitInfo.floorRequestData.modelVersion || undefined : undefined,
+			"ft": adUnitInfo.floorResponseData  ? (adUnitInfo.floorResponseData.enforcements.enforceJS == false ? 0 : 1) : undefined,
 			"ps": []
 		};
         bmEntry.setExpired();
@@ -566,7 +569,6 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 				if( (adapterID === "pubmatic" || adapterID === "pubmatic2") && (theBid.getDefaultBidStatus() ||  (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0))){
 					return;
 				}
-				var floorRequestData = theBid.getFloorRequestData();
 				var pbbid = theBid.getPbBid();
 
 				//todo: take all these key names from constants
@@ -592,10 +594,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
 					"piid": theBid.getsspID(),
-					"fskp" : floorRequestData ? (floorRequestData.skipped == false ? 0 : 1) : undefined,
-					"fmv": floorRequestData ? floorRequestData.modelVersion || undefined : undefined,
 					"frv": pbbid ? ( pbbid.floorData ? pbbid.floorData.floorRuleValue : undefined ) : undefined,
-					"ft": pbbid ? ( pbbid.floorData  ? (pbbid.floorData.enforcements.enforceJS == false ? 0 : 1) : undefined ) : undefined,
 				});
             })
         });

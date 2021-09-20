@@ -1634,7 +1634,6 @@ describe('bidManager BIDMgr', function() {
             theBid.getDealChannel.calledOnce.should.be.true;
             theBid.getPostTimeoutStatus.called.should.be.true;
             theBid.getWinningBidStatus.calledOnce.should.be.true;
-            theBid.getFloorRequestData.calledOnce.should.be.true;
             theBid.getPbBid.calledOnce.should.be.true;
 
             done();
@@ -1661,9 +1660,6 @@ describe('bidManager BIDMgr', function() {
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].t).to.exist;
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].wb).to.exist;
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].ss).to.exist;
-            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].fmv).to.exist;
-            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].fskp).to.exist;
-            
 			done()
         });
 
@@ -1680,6 +1676,7 @@ describe('bidManager BIDMgr', function() {
                      getServerSideResponseTime returns 0, it means that server responded with error code 1/2/3/6
                      hence do not add entry in logger.
                 */
+
 
                 expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
                 expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");

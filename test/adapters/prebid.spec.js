@@ -1580,6 +1580,9 @@ describe('ADAPTER: Prebid', function() {
                         },
                         "name": "Div1"
                     }
+                },
+                adUnits: {
+                    "Div1": {}
                 }
             }
             done();
@@ -1596,8 +1599,8 @@ describe('ADAPTER: Prebid', function() {
 
         it('should copy floorData into window.PWT.bidMap',function(done){
             PREBID.pbBidRequestHandler(pbBid);
-            expect(window.PWT.bidMap["Div1"].adapters["rubicon"]["bids"]["26331f9290f491"]["floorRequestData"]["skipped"]).to.be.false;
-            expect(window.PWT.bidMap["Div1"].adapters["rubicon"]["bids"]["26331f9290f491"]["floorRequestData"]["modelVersion"]).to.be.equal("floorTestModel");
+            expect(window.PWT.adUnits["Div1"]["floorRequestData"]["skipped"]).to.be.false;
+            expect(window.PWT.adUnits["Div1"]["floorRequestData"]["modelVersion"]).to.be.equal("floorTestModel");
             done();
         });
 
