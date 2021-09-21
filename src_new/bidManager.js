@@ -405,7 +405,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 
 	if(CONFIG.isFloorPriceModuleEnabled()){
 		var _floorData = window.PWT.floorData;
-		outputObj["fmv"] = _floorData.floorRequestData ? (_floorData.floorRequestData.skipped == false ? 0 : 1) : undefined,
+		outputObj["fskp"] = _floorData.floorRequestData ? (_floorData.floorRequestData.skipped == false ? 0 : 1) : undefined,
 		outputObj["fmv"] = _floorData.floorRequestData ? _floorData.floorRequestData.modelVersion || undefined : undefined,
 		outputObj["ft"] = _floorData.floorResponseData  ? (_floorData.floorResponseData.enforcements.enforceJS == false ? 0 : 1) : undefined;
 	}
