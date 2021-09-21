@@ -1597,7 +1597,7 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should copy floorData into window.PWT.bidMap',function(done){
+        xit('should copy floorData into window.PWT.bidMap',function(done){
             PREBID.pbBidRequestHandler(pbBid);
             expect(window.PWT.adUnits["Div1"]["floorRequestData"]["skipped"]).to.be.false;
             expect(window.PWT.adUnits["Div1"]["floorRequestData"]["modelVersion"]).to.be.equal("floorTestModel");

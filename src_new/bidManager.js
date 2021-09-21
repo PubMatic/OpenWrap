@@ -403,6 +403,13 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	    return 0;
 	})();
 
+	if(CONFIG.isFloorPriceModuleEnabled()){
+		var _floorData = window.PWT.floorData;
+		outputObj["fmv"] = _floorData.floorRequestData ? (_floorData.floorRequestData.skipped == false ? 0 : 1) : undefined,
+		outputObj["fmv"] = _floorData.floorRequestData ? _floorData.floorRequestData.modelVersion || undefined : undefined,
+		outputObj["ft"] = _floorData.floorResponseData  ? (_floorData.floorResponseData.enforcements.enforceJS == false ? 0 : 1) : undefined;
+	}
+
 	// As discussed we won't be seding gdpr data to logger
 	// if (CONFIG.getGdpr()) {
 	// 	consentString = gdprData && gdprData.c ? encodeURIComponent(gdprData.c) : "";
@@ -508,9 +515,6 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 			"sz": refThis.getAdUnitSizes(bmEntry),
 			"au": adUnitInfo.adUnitId || slotID,
 			"mt": refThis.getAdUnitAdFormats(adUnitInfo.mediaTypes),
-			"fskp" : adUnitInfo.floorRequestData ? (adUnitInfo.floorRequestData.skipped == false ? 0 : 1) : undefined,
-			"fmv": adUnitInfo.floorRequestData ? adUnitInfo.floorRequestData.modelVersion || undefined : undefined,
-			"ft": adUnitInfo.floorResponseData  ? (adUnitInfo.floorResponseData.enforcements.enforceJS == false ? 0 : 1) : undefined,
 			"ps": []
 		};
         bmEntry.setExpired();

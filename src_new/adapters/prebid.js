@@ -216,6 +216,7 @@ function pbBidStreamHandler(pbBid){
 
 		if(!!pbBid.floorData){
 			window.PWT.adUnits[pbBid.adUnitCode]['floorResponseData'] = pbBid.floorData;
+			window.PWT.floorData['floorResponseData'] = pbBid.floorData;
 		}
 		/**Special Hack for pubmaticServer for tracker/logger kgpv */
 		/* istanbul ignore else */
@@ -303,6 +304,7 @@ function pbBidRequestHandler(pbBid){
 		var adapterId = oBid.bidder;
 		Object.keys(window.PWT.bidMap[slotId].adapters[adapterId]['bids']).map(function(bid){
 			window.PWT.adUnits[oBid.adUnitCode]['floorRequestData'] = oBid.floorData;
+			window.PWT.floorData['floorRequestData'] = oBid.floorData;
 		});
 	})
 }
