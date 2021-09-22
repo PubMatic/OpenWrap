@@ -215,7 +215,6 @@ function pbBidStreamHandler(pbBid){
 	if(util.isOwnProperty(refThis.kgpvMap, responseID)){
 
 		if(!!pbBid.floorData){
-			window.PWT.adUnits[pbBid.adUnitCode]['floorResponseData'] = pbBid.floorData;
 			window.PWT.floorData['floorResponseData'] = pbBid.floorData;
 		}
 		/**Special Hack for pubmaticServer for tracker/logger kgpv */
@@ -300,12 +299,7 @@ exports.pbBidStreamHandler = pbBidStreamHandler;
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function pbBidRequestHandler(pbBid){
 	pbBid.bids.forEach(function(oBid){
-		var slotId = oBid.adUnitCode;
-		var adapterId = oBid.bidder;
-		Object.keys(window.PWT.bidMap[slotId].adapters[adapterId]['bids']).map(function(bid){
-			window.PWT.adUnits[oBid.adUnitCode]['floorRequestData'] = oBid.floorData;
-			window.PWT.floorData['floorRequestData'] = oBid.floorData;
-		});
+		window.PWT.floorData['floorRequestData'] = oBid.floorData;
 	})
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)

@@ -1099,41 +1099,6 @@ describe('Bid bidObject', function() {
         });
     });
 
-    describe('#getFloorRequestData', function() {
-
-        it('is a function', function(done) {
-            bidObject.getFloorRequestData.should.be.a('function')
-            done();
-        });
-
-        it('returns FloorRequestData', function(done) {
-            expect(bidObject.getFloorRequestData()).to.be.equal(undefined);
-            done();
-        });
-
-        it('returns FloorRequestData', function(done) {
-            bidObject.setFloorRequestData(floorRequestData)
-            expect(bidObject.getFloorRequestData()).to.be.deep.equal(floorRequestData);
-            done();
-        });
-    });
-
-    describe('#setFloorRequestData', function() {
-
-        it('is a function', function(done) {
-            bidObject.setFloorRequestData.should.be.a('function')
-            done();
-        });
-
-        it('should set FloorRequestData', function(done) {
-            expect(bidObject.floorRequestData).to.equal(undefined);
-                        
-            bidObject.setFloorRequestData(floorRequestData);
-            expect(bidObject.floorRequestData).to.deep.equal(floorRequestData);
-            done();
-        });
-    });
-
     describe('#getVastCache', function() {
 
         it('is a function', function(done) {

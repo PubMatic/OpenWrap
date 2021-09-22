@@ -1502,7 +1502,6 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, "getPostTimeoutStatus");
             sinon.spy(theBid, "getWinningBidStatus");
             sinon.spy(theBid, "getPbBid");
-            sinon.spy(theBid, "getFloorRequestData");
 
             theBid.floorRequestData= {
                 'fetchStatus': 'success',

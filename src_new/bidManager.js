@@ -405,7 +405,6 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 
 	if(CONFIG.isFloorPriceModuleEnabled()){
 		var _floorData = window.PWT.floorData;
-		outputObj["fskp"] = _floorData.floorRequestData ? (_floorData.floorRequestData.skipped == false ? 0 : 1) : undefined,
 		outputObj["fmv"] = _floorData.floorRequestData ? _floorData.floorRequestData.modelVersion || undefined : undefined,
 		outputObj["ft"] = _floorData.floorResponseData  ? (_floorData.floorResponseData.enforcements.enforceJS == false ? 0 : 1) : undefined;
 	}
@@ -514,6 +513,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 			"sn": slotID,
 			"sz": refThis.getAdUnitSizes(bmEntry),
 			"au": adUnitInfo.adUnitId || slotID,
+			"fskp" : window.PWT.floorData ? (window.PWT.floorData.floorRequestData ? (window.PWT.floorData.floorRequestData.skipped == false ? 0 : 1) : undefined) : undefined,
 			"mt": refThis.getAdUnitAdFormats(adUnitInfo.mediaTypes),
 			"ps": []
 		};
@@ -598,7 +598,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
 					"piid": theBid.getsspID(),
-					"frv": pbbid ? ( pbbid.floorData ? pbbid.floorData.floorRuleValue : undefined ) : undefined,
+					"frv": theBid.getServerSideStatus() ? undefined : (pbbid ? ( pbbid.floorData ? pbbid.floorData.floorRuleValue : undefined ) : undefined),
 				});
             })
         });
