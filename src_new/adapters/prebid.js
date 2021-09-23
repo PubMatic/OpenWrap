@@ -70,7 +70,7 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 		}
 		theBid.updateBidId(bid.adUnitCode);
 	}
-	if(bid.mediaType && parseFloat(bid.cpm) > 0 ){
+	if(bid.mediaType && (parseFloat(bid.cpm) > 0 || bid.status == CONSTANTS.BID_STATUS.BID_REJECTED)){
 		theBid.setAdFormat(bid.adHtml, bid.mediaType);
 	}
 	if (bid.sspID){

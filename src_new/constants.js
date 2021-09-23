@@ -274,3 +274,7 @@ exports.MEDIATYPE = {
 	VIDEO:1,
 	NATIVE:2 
   };
+
+exports.BID_STATUS =  {
+	BID_REJECTED : "bidRejected"
+}
