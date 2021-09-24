@@ -1357,6 +1357,71 @@ describe('Config', function() {
             CONFIG.getTimeout().should.be.deep.equal(expectedTimeout);
             done();
         });
+
+        it('should update the identityConfig to test config even if identity is not present', function(done){
+            var result = {
+                pubCommonId: {
+                    name: "pubCommonId",
+                    "storage.type": "cookie",
+                    "storage.name": "_myPubCommonId",
+                    "storage.expires": "1825"
+                },
+                identityLink: {
+                    name: "identityLink",
+                    "params.pid": "23",
+                    "storage.type": "cookie",
+                    "params.loadAts": "true", // or false// boolean default is false,
+                    "params.placementID": "23",
+                    "params.storageType": "localstorage",
+                    "params.detectionType": "scrapeAndUrl",
+                    "params.urlParameter": "eparam",
+                    "params.cssSelectors": ["input[type=text]", "input[type=email]"],
+                    "params.logging": "info",
+                    "storage.name": "somenamevalue",
+                    "storage.expires": "60"
+                }
+            };
+            CONF[CONSTANTS.COMMON.TEST_PWT]  = {};
+            CONF[CONSTANTS.COMMON.TEST_IDENTITY_PARTNER]  =  result
+            CONF[CONSTANTS.COMMON.IDENTITY_PARTNERS]  = {};
+            CONFIG.updateABTestConfig()
+            expect(CONFIG.getIdentityPartners()).to.deep.equal(result);
+            done();
+        });
+
+        it('should not update the identityConfig to test config even if control identity is not present', function(done){
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS]  = {
+                "testGroupSize": 1
+            };
+            var result = {
+                pubCommonId: {
+                    name: "pubCommonId",
+                    "storage.type": "cookie",
+                    "storage.name": "_myPubCommonId",
+                    "storage.expires": "1825"
+                },
+                identityLink: {
+                    name: "identityLink",
+                    "params.pid": "23",
+                    "storage.type": "cookie",
+                    "params.loadAts": "true", // or false// boolean default is false,
+                    "params.placementID": "23",
+                    "params.storageType": "localstorage",
+                    "params.detectionType": "scrapeAndUrl",
+                    "params.urlParameter": "eparam",
+                    "params.cssSelectors": ["input[type=text]", "input[type=email]"],
+                    "params.logging": "info",
+                    "storage.name": "somenamevalue",
+                    "storage.expires": "60"
+                }
+            };
+            CONF[CONSTANTS.COMMON.TEST_PWT]  = {};
+            CONF[CONSTANTS.COMMON.TEST_IDENTITY_PARTNER]  =  result
+            CONF[CONSTANTS.COMMON.IDENTITY_PARTNERS]  = {};
+            CONFIG.updateABTestConfig()
+            expect(CONFIG.getIdentityPartners()).to.deep.equal({});
+            done();
+        });
     });
 
     describe('#getTestPartnerConfig',function(){
