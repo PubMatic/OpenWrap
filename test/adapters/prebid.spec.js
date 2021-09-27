@@ -1558,38 +1558,15 @@ describe('ADAPTER: Prebid', function() {
         
         beforeEach(function(done) {
             window.PWT = {
-                bidMap: {
-                    "Div1":{
-                        "adapters":{
-                            "pubmatic":{
-                                "adapterID":"pubmatic",
-                                "bids":{
-                                    "1f92ec6a364f19":{
-                                        "adapterID":"pubmatic"
-                                    }
-                                }
-                            },
-                            "rubicon":{
-                                "adapterID":"rubicon",
-                                "bids":{
-                                    "26331f9290f491":{
-                                        "adapterID":"rubicon"
-                                    }
-                                }
-                            },
-                        },
-                        "name": "Div1"
-                    }
-                },
-                adUnits: {
-                    "Div1": {}
+                floorData: {
+                    "floorRequestData": {}
                 }
             }
             done();
         });
 
         afterEach(function(done){
-            window.PWT.bidMap = {};
+            window.PWT.floorData = {};
             done();
         })
         it('should be a functiion',function(done){
@@ -1597,13 +1574,11 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        xit('should copy floorData into window.PWT.bidMap',function(done){
+        it('should copy floorData into window.PWT.floorData',function(done){
             PREBID.pbBidRequestHandler(pbBid);
-            expect(window.PWT.adUnits["Div1"]["floorRequestData"]["skipped"]).to.be.false;
-            expect(window.PWT.adUnits["Div1"]["floorRequestData"]["modelVersion"]).to.be.equal("floorTestModel");
+            expect(window.PWT.floorData['floorRequestData']["skipped"]).to.be.false;
+            expect(window.PWT.floorData['floorRequestData']["modelVersion"]).to.be.equal("floorTestModel");
             done();
         });
-
     });
-    
 });
