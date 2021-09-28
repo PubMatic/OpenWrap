@@ -292,8 +292,20 @@ exports.updateABTestConfig = function () {
 		// if Random number is smaller than the test group size then test config will be applied 
 		if (testGroupDetails && testGroupDetails.testGroupSize && randomNumberBelow100 < testGroupDetails.testGroupSize) {
 			refThis.updatePWTConfig();
-			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters);			
-			config.identityPartners = refThis.updatePartnerConfig(refThis.getTestIdentityPartners(), refThis.getIdentityPartners());			
+			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters);	
+			if(refThis.getTestIdentityPartners() && refThis.getIdentityPartners()){
+				if(Object.keys(refThis.getTestIdentityPartners()).length > 0 && Object.keys(refThis.getIdentityPartners()).length == 0){
+					util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(refThis.getTestIdentityPartners()));
+					config.identityPartners = refThis.getTestIdentityPartners();
+				} else if(Object.keys(refThis.getTestIdentityPartners()).length == 0 && Object.keys(refThis.getIdentityPartners()).length > 0){
+					util.log(CONSTANTS.MESSAGES.M31, JSON.stringify({}));
+					config.identityPartners = {};
+				}
+				else{
+					config.identityPartners = refThis.updatePartnerConfig(refThis.getTestIdentityPartners(), refThis.getIdentityPartners());			
+				}
+			}
+			window.PWT.testGroupId = 1;
 		}
 	}
 };
@@ -309,7 +321,6 @@ exports.updatePWTConfig = function () {
 		}
 		//TODO: Uncomment Below code after updating phatomjs or using chrome headless 
 		// Object.assign(config[CONSTANTS.CONFIG.COMMON], testConfig);
-		window.PWT.testGroupId = 1;
 	}
 };
 
@@ -328,7 +339,7 @@ exports.updatePartnerConfig = function (testConfig, controlConfig) {
 		window.PWT.testGroupId = 1;
 		return testConfig;
 	} else{
-		// since only test type can be enabled test config will be empty if other test config is enabled and hence return control config
+		// since only one test type can be enabled other type of test config will be empty if other test config is enabled and hence return control config
 		return controlConfig;
 	}
 };
