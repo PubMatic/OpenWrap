@@ -34,18 +34,31 @@ describe('Bid bidObject', function() {
     var adapterID = null;
     var kgpv = null;
     var randomvalue = null;
+    var floorRequestData = null;
 
     beforeEach(function(done) {
         adapterID = commonAdpterID;
         kgpv = commonKGPV;
         bidObject = new BID(adapterID, kgpv);
-        randomvalue = Math.random().toString(36).substr(2, 5);                        
+        randomvalue = Math.random().toString(36).substr(2, 5);
+        floorRequestData = {
+            'fetchStatus': 'success',
+            'floorMin': undefined,
+            'floorProvider': 'pubmatic',
+            'location': 'fetch',
+            'modelTimestamp': undefined,
+            'modelVersion': 'floorModelTest',
+            'modelWeight': undefined,
+            'skipRate': 0,
+            'skipped': false
+          };             
         done();
     });
 
     afterEach(function(done) {
         bidObject = null;
         randomvalue = null;
+        floorRequestData= null;
         done();
     });
 

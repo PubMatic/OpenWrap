@@ -240,6 +240,25 @@ exports.isSchainEnabled = function () {
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN]) || 0;
 };
 
+exports.isFloorPriceModuleEnabled = function(){
+	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_PRICE_MODULE_ENABLED]) === 1;
+}
+
+exports.getFloorJsonUrl = function(){
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_JSON_URL];
+}
+
+// It will return the auctionDelay specified in conf.js or else default is 100
+exports.getFloorAuctionDelay = function(){
+	var auctionDelay = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_AUCTION_DELAY];
+	return auctionDelay ? window.parseInt(auctionDelay) : CONSTANTS.CONFIG.DEFAULT_FLOOR_AUCTION_DELAY;
+}
+
+// It will return the floorType specified in conf.js or else default is true
+exports.getFloorType = function(){
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] != undefined ? window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS]) === 1 : CONSTANTS.CONFIG.DEFAULT_FLOOR_ENFORCE_JS;
+}
+
 exports.isPrebidPubMaticAnalyticsEnabled = function () {
 	// note: not using window.parseInt as this function is also used in build.sh that runs in NodeJS environment
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_PM_ANALYTICS]) === 1;

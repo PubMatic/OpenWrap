@@ -1501,6 +1501,19 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, "getDealChannel");
             sinon.spy(theBid, "getPostTimeoutStatus");
             sinon.spy(theBid, "getWinningBidStatus");
+            sinon.spy(theBid, "getPbBid");
+
+            theBid.floorRequestData= {
+                'fetchStatus': 'success',
+                'floorMin': undefined,
+                'floorProvider': 'pubmatic',
+                'location': 'fetch',
+                'modelTimestamp': undefined,
+                'modelVersion': 'floorModelTest',
+                'modelWeight': undefined,
+                'skipRate': 0,
+                'skipped': false
+              }
 
             serverSideBid = new bid(serverAdapterID, commonKGPV);
             impressionIDMap = {};
@@ -1620,6 +1633,7 @@ describe('bidManager BIDMgr', function() {
             theBid.getDealChannel.calledOnce.should.be.true;
             theBid.getPostTimeoutStatus.called.should.be.true;
             theBid.getWinningBidStatus.calledOnce.should.be.true;
+            theBid.getPbBid.calledOnce.should.be.true;
 
             done();
         });
@@ -1645,7 +1659,6 @@ describe('bidManager BIDMgr', function() {
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].t).to.exist;
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].wb).to.exist;
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].ss).to.exist;
-            
 			done()
         });
 
@@ -1662,6 +1675,7 @@ describe('bidManager BIDMgr', function() {
                      getServerSideResponseTime returns 0, it means that server responded with error code 1/2/3/6
                      hence do not add entry in logger.
                 */
+
 
                 expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
                 expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");

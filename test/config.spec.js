@@ -1092,6 +1092,131 @@ describe('Config', function() {
         });
     });
 
+    describe('#isFloorPriceModuleEnabled',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_PRICE_MODULE_ENABLED] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_PRICE_MODULE_ENABLED];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.isFloorPriceModuleEnabled.should.be.a('function');
+            done();
+        });
+
+        it('should return true by reading from config', function(done) {
+            var expectedResult = true;
+            expect(CONFIG.isFloorPriceModuleEnabled()).to.equal(expectedResult);
+            done();
+        });
+
+        it('should return false if isFloorPriceModuleEnabled is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_PRICE_MODULE_ENABLED];
+            expect(CONFIG.isFloorPriceModuleEnabled()).to.equal(false);
+            done();
+        });
+
+        it('should return false if isFloorPriceModuleEnabled set to "0"', function(done) {
+            var expectedResult = false;
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_PRICE_MODULE_ENABLED] = "0";
+            CONFIG.isFloorPriceModuleEnabled().should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getFloorAuctionDelay',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_AUCTION_DELAY] = "200";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_AUCTION_DELAY];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getFloorAuctionDelay.should.be.a('function');
+            done();
+        });
+
+        it('should return true by reading from config', function(done) {
+            var expectedResult = 200;
+            expect(CONFIG.getFloorAuctionDelay()).to.equal(200);
+            done();
+        });
+
+        it('should return false if getFloorAuctionDelay is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_AUCTION_DELAY];
+            expect(CONFIG.getFloorAuctionDelay()).to.equal(100);
+            done();
+        });
+    });
+
+    describe('#getFloorType',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getFloorType.should.be.a('function');
+            done();
+        });
+
+        it('should return true by reading from config', function(done) {
+            var expectedResult = true;
+            expect(CONFIG.getFloorType()).to.equal(expectedResult);
+            done();
+        });
+
+        it('should return false if getFloorType is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS];
+            expect(CONFIG.getFloorType()).to.equal(true);
+            done();
+        });
+
+        it('should return false if getFloorType set to "0"', function(done) {
+            var expectedResult = false;
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "0";
+            CONFIG.getFloorType().should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getFloorJsonUrl',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_JSON_URL] = "floor.json";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_JSON_URL];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getFloorJsonUrl.should.be.a('function');
+            done();
+        });
+
+        it('should return url by reading from config', function(done) {
+            var expectedResult = "floor.json";
+            expect(CONFIG.getFloorJsonUrl()).to.equal(expectedResult);
+            done();
+        });
+
+    });
+
     describe('#isAbTestEnabled',function(){
         beforeEach(function(done){
             CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "1";

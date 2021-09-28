@@ -403,6 +403,12 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	    return 0;
 	})();
 
+	if(CONFIG.isFloorPriceModuleEnabled()){
+		var _floorData = window.PWT.floorData;
+		outputObj["fmv"] = _floorData.floorRequestData ? _floorData.floorRequestData.modelVersion || undefined : undefined,
+		outputObj["ft"] = _floorData.floorResponseData  ? (_floorData.floorResponseData.enforcements.enforceJS == false ? 0 : 1) : undefined;
+	}
+
 	// As discussed we won't be seding gdpr data to logger
 	// if (CONFIG.getGdpr()) {
 	// 	consentString = gdprData && gdprData.c ? encodeURIComponent(gdprData.c) : "";
@@ -507,6 +513,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 			"sn": slotID,
 			"sz": refThis.getAdUnitSizes(bmEntry),
 			"au": adUnitInfo.adUnitId || slotID,
+			"fskp" : window.PWT.floorData ? (window.PWT.floorData.floorRequestData ? (window.PWT.floorData.floorRequestData.skipped == false ? 0 : 1) : undefined) : undefined,
 			"mt": refThis.getAdUnitAdFormats(adUnitInfo.mediaTypes),
 			"ps": []
 		};
@@ -566,6 +573,8 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 				if( (adapterID === "pubmatic" || adapterID === "pubmatic2") && (theBid.getDefaultBidStatus() ||  (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0))){
 					return;
 				}
+				var pbbid = theBid.getPbBid();
+
 				//todo: take all these key names from constants
                 slotObject["ps"].push({
                     "pn": CONFIG.getAdapterNameForAlias(adapterID),
@@ -588,7 +597,8 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"af": theBid.getAdFormat(),
 					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
-					"piid": theBid.getsspID()
+					"piid": theBid.getsspID(),
+					"frv": theBid.getServerSideStatus() ? undefined : (pbbid ? ( pbbid.floorData ? pbbid.floorData.floorRuleValue : undefined ) : undefined),
 				});
             })
         });

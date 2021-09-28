@@ -11,6 +11,7 @@ window.PWT = window.PWT || {};
 window.PWT.bidMap = window.PWT.bidMap || {};
 window.PWT.bidIdMap = window.PWT.bidIdMap || {};
 window.PWT.adUnits = window.PWT.adUnits || {};
+window.PWT.floorData = window.PWT.floorData || {};
 window.PWT.isIframe = window.PWT.isIframe || metaInfo.isInIframe;
 window.PWT.protocol = window.PWT.protocol || metaInfo.protocol;
 window.PWT.secure = window.PWT.secure || metaInfo.secure;

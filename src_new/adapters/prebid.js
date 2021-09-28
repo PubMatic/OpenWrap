@@ -70,7 +70,7 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 		}
 		theBid.updateBidId(bid.adUnitCode);
 	}
-	if(bid.mediaType && parseFloat(bid.cpm) > 0 ){
+	if(bid.mediaType && (parseFloat(bid.cpm) > 0 || bid.status == CONSTANTS.BID_STATUS.BID_REJECTED)){
 		theBid.setAdFormat(bid.adHtml, bid.mediaType);
 	}
 	if (bid.sspID){
@@ -214,6 +214,9 @@ function pbBidStreamHandler(pbBid){
 	/* istanbul ignore else */
 	if(util.isOwnProperty(refThis.kgpvMap, responseID)){
 
+		if(!!pbBid.floorData){
+			window.PWT.floorData['floorResponseData'] = pbBid.floorData;
+		}
 		/**Special Hack for pubmaticServer for tracker/logger kgpv */
 		/* istanbul ignore else */
 		if(pbBid.bidderCode === 'pubmaticServer'){
@@ -290,6 +293,20 @@ function pbBidStreamHandler(pbBid){
 // removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.pbBidStreamHandler = pbBidStreamHandler;
+/* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+function pbBidRequestHandler(pbBid){
+	pbBid.bids.forEach(function(oBid){
+		window.PWT.floorData['floorRequestData'] = oBid.floorData;
+	})
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+  
+// removeIf(removeLegacyAnalyticsRelatedCode)
+/* start-test-block */
+exports.pbBidRequestHandler = pbBidRequestHandler;
 /* end-test-block */
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
@@ -877,6 +894,18 @@ function addOnBidResponseHandler(){
 exports.addOnBidResponseHandler = addOnBidResponseHandler;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
+function addOnBidRequestHandler(){
+	if(util.isFunction(window[pbNameSpace].onEvent)){
+		window[pbNameSpace].onEvent('bidRequested', refThis.pbBidRequestHandler);
+	} else {
+		util.logWarning("PreBid js onEvent method is not available");
+		return;
+	}
+}
+exports.addOnBidRequestHandler = addOnBidRequestHandler;
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+  
 function setPrebidConfig(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 		var prebidConfig = {
@@ -901,7 +930,8 @@ function setPrebidConfig(){
 				enabled: true
 			}
 		}
-		
+
+		refThis.getFloorsConfiguration(prebidConfig)
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
@@ -920,6 +950,21 @@ function setPrebidConfig(){
 
 exports.setPrebidConfig = setPrebidConfig;
 
+function getFloorsConfiguration(prebidConfig){
+	if(CONFIG.isFloorPriceModuleEnabled() == true){
+		prebidConfig["floors"]={
+			enforcement: {
+				enforceJS: CONFIG.getFloorType()
+			},
+			auctionDelay: CONFIG.getFloorAuctionDelay(),
+			endpoint:{
+				url: CONFIG.getFloorJsonUrl()
+			}
+		}
+	}
+}
+
+exports.getFloorsConfiguration = getFloorsConfiguration;
 
 function getPbjsAdServerTargetingConfig(){
 	// Todo: Handle send-all bids feature enabled case
@@ -1150,7 +1195,8 @@ function fetchBids(activeSlots){
 				// removeIf(removeLegacyAnalyticsRelatedCode)
 				if(isPrebidPubMaticAnalyticsEnabled === false){
 					// we do not want this call when we have PrebidAnalytics enabled
-					refThis.addOnBidResponseHandler();	
+					refThis.addOnBidResponseHandler();
+					refThis.addOnBidRequestHandler();
 				}
 				// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
