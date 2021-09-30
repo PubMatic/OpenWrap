@@ -77,7 +77,12 @@ Bid.prototype.getBidID = function(){
 };
 
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setGrossEcpm = function(ecpm){
+Bid.prototype.setGrossEcpm = function(ecpm, origCurrency, bidStatus){
+            
+	if(CONFIG.getAdServerCurrency() && (UTIL.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].convertCurrency) || typeof window[CONSTANTS.COMMON.PREBID_NAMESPACE].convertCurrency == "function") ){
+		ecpm = window[CONSTANTS.COMMON.PREBID_NAMESPACE].convertCurrency(ecpm, origCurrency, CONSTANTS.COMMON.ANALYTICS_CURRENCY)
+	}
+    
 	/* istanbul ignore else */
 	if(ecpm === null){
 		UTIL.log(CONSTANTS.MESSAGES.M10);
@@ -105,7 +110,7 @@ Bid.prototype.setGrossEcpm = function(ecpm){
 	ecpm = window.parseFloat(ecpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
 
 	this.grossEcpm = ecpm;
-	this.netEcpm = getNetECPM(this.grossEcpm, this.getAdapterID());
+	this.netEcpm = bidStatus == CONSTANTS.BID_STATUS.BID_REJECTED ? 0 : getNetECPM(this.grossEcpm, this.getAdapterID());
 
 	return this;
 };
@@ -355,9 +360,9 @@ Bid.prototype.getOriginalCurrency = function(){
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setAnalyticsCpm = function(analyticsCpm){
+Bid.prototype.setAnalyticsCpm = function(analyticsCpm, bidStatus){
 	this.analyticsGrossCpm = window.parseFloat(analyticsCpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
-	this.analyticsNetCpm = getNetECPM(this.analyticsGrossCpm,this.getAdapterID());
+	this.analyticsNetCpm = bidStatus == CONSTANTS.BID_STATUS.BID_REJECTED ? 0 : getNetECPM(this.analyticsGrossCpm,this.getAdapterID());
 	return this;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
