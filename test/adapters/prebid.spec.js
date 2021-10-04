@@ -96,6 +96,8 @@ describe('ADAPTER: Prebid', function() {
             bid = {
                 bidderCode: "pubmatic",
                 cpm: 10,
+                originalCpm: "10",
+                originalCurrency:"USD",
                 dealId: "dealId" ,
                 dealChannel: "sale" ,
                 ad: "<body><h1>Ad goes here </h1></body>",
@@ -116,6 +118,7 @@ describe('ADAPTER: Prebid', function() {
             errorBid = {
                 bidderCode: "pubmatic",
                 cpm: 0,
+                originalCpm: "0",
                 dealId: "dealId" ,
                 dealChannel: "sale" ,
                 ad: "",
@@ -136,11 +139,23 @@ describe('ADAPTER: Prebid', function() {
             };
             kgpv = commonKGPV;
             sinon.spy(UTIL, "forEachOnObject");
+
+            window.owpbjs = {
+
+            };
+            windowPbJS2Stub = {
+                convertCurrency: function () {
+                    return 10;
+                }
+            };
+            sinon.spy(windowPbJS2Stub, "convertCurrency");
+            window["owpbjs"] = windowPbJS2Stub;
             done();
         });
 
         afterEach(function (done) {
             UTIL.forEachOnObject.restore();
+            window.owpbjs = {};
             done();
         });
 

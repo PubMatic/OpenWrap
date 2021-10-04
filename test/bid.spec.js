@@ -132,15 +132,26 @@ describe('Bid bidObject', function() {
             sinon.spy(UTIL, 'log');
             sinon.stub(UTIL, "isString").returns(true);
             sinon.stub(window, "isNaN").returns(true);
+            sinon.stub(CONFIG,"getAdServerCurrency").returns("INR");
+            window.owpbjs = {
 
+            };
+            windowPbJS2Stub = {
+                convertCurrency: function () {
+                    return 20.0;
+                }
+            };
+            sinon.spy(windowPbJS2Stub, "convertCurrency");
+            window["owpbjs"] = windowPbJS2Stub;
             done();
         });
 
         afterEach(function(done) {
             UTIL.log.restore();
             UTIL.isString.restore();
+            CONFIG.getAdServerCurrency.restore();
             window.isNaN.restore();
-
+            window.owpbjs = {};
             ecpm = null;
             done();
         });
@@ -193,6 +204,34 @@ describe('Bid bidObject', function() {
             bidObject.setGrossEcpm(ecpm).should.be.deep.equal(bidObject);
             expect(bidObject.getGrossEcpm().toString().split(".")[1].length).to.be.below(5);
             expect(bidObject.getNetEcpm().toString().split(".")[1].length).to.be.below(5);
+            done();
+        });
+
+        it('should consider currency conversion', function(done) {
+            UTIL.isString.returns(false);
+            window.isNaN.returns(false);
+            bidObject.setGrossEcpm(ecpm,"INR").should.be.deep.equal(bidObject);
+            expect(bidObject.getGrossEcpm()).to.be.equal(20);
+            expect(bidObject.getNetEcpm()).to.be.equal(20);
+            done();
+        });
+
+        it('should consider currency conversion and convert netgross to 0 in case of bidRejected', function(done) {
+            UTIL.isString.returns(false);
+            window.isNaN.returns(false);
+            bidObject.setGrossEcpm(ecpm,"INR",CONSTANTS.BID_STATUS.BID_REJECTED).should.be.deep.equal(bidObject);
+            expect(bidObject.getGrossEcpm()).to.be.equal(20);
+            expect(bidObject.getNetEcpm()).to.be.equal(0);
+            done();
+        });
+
+        it('should not consider currency conversion and convert netgross to 0 in case of bidRejected', function(done) {
+            UTIL.isString.returns(false);
+            window.isNaN.returns(false);
+            CONFIG.getAdServerCurrency.returns(0);
+            bidObject.setGrossEcpm(ecpm,"USD",CONSTANTS.BID_STATUS.BID_REJECTED).should.be.deep.equal(bidObject);
+            expect(bidObject.getGrossEcpm()).to.be.equal(2);
+            expect(bidObject.getNetEcpm()).to.be.equal(0);
             done();
         });
     });
