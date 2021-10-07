@@ -94,6 +94,7 @@ Bid.prototype.setGrossEcpm = function(ecpm, origCurrency, bidStatus){
 			UTIL.log(this);
 			return this;
 		}
+		ecpm = window.parseFloat(ecpm);
 	}
 
 	/* istanbul ignore else */
