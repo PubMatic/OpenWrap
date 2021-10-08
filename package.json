@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "preinstall": "npx npm-force-resolutions@0.0.10"
+    "preinstall": "npx npm-force-resolutions@0.0.9"
   },
   "repository": {
     "type": "git",
