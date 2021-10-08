@@ -255,17 +255,13 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 	},
 	"id5Id": {
 		"params.partner": "number"
+	},
+	"parrableId": {
+		"params.timezoneFilter.allowedZones": "array"
 	}
 }; //list of ID partners for whom special handling of datatype is required
 
-exports.ID_PARTNERS_CUSTOM_VALUES = {
-	"parrableId": [
-		{
-			"key": "params.timezoneFilter",
-			"value": {"allowedZones": [ "Pacific/Honolulu", "America/Phoenix"]}
-		}
-	]
-};
+exports.ID_PARTNERS_CUSTOM_VALUES = {};
 
 exports.EXCLUDE_PARTNER_LIST = ['pubProvidedId'];
 

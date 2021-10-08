@@ -1354,6 +1354,9 @@ exports.getUserIdParams = function(params){
 	if(userIdParams && userIdParams.params && userIdParams.params['loadATS'] == 'true'){
 		refThis.initLiveRampAts(userIdParams);
 	}
+	if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
+		refThis.initZeoTapJs(userIdParams);
+	}
 	return userIdParams;
 };
 
@@ -1632,6 +1635,52 @@ exports.initLiveRampAts = function(params){
 	}
 };
 
+
+exports.initZeoTapJs = function(params) {
+	function addZeoTapJs() {
+		var n = document, t = window;
+		var userIdentity = owpbjs.getUserIdentities() || {};
+		userIdentityObject = {
+			email: userIdentity.email || "",
+			cellno: userIdentity.cellNo || "",
+			loginid: userIdentity.loginId || "",
+			fpuid: userIdentity.fpuid || "",
+			cellno_cc: userIdentity.cellNoCC || ""
+		};
+		var e=n.createElement("script");
+		e.type="text/javascript",
+		e.crossorigin="anonymous"
+		e.async=!0 ,
+		e.src="https://content.zeotap.com/sdk/idp.min.js",
+		e.onload=function(){};
+		n=n.getElementsByTagName("script")[0];
+		n.parentNode.insertBefore(e,n);
+
+		n=t.zeotap||{_q:[],_qcmp:[]};
+
+		!function(n,t,e) {
+			for( var o=0 ;o<t.length;o++)
+				!function(t) {
+					n[t]=function(){
+						n[e].push([t].concat(Array.prototype.slice.call(arguments, 0 )))
+					}
+				}(t[o])
+		}(n,["callMethod"],"_q"),
+		t.zeotap=n
+		t.zeotap.callMethod("init",{partnerId:params.partnerId, allowIDP: true})
+		t.zeotap.callMethod("setConsent",CONFIG.getCCPA(), 365)
+		t.zeotap.callMethod("setUserIdentities",userIdentityObject);
+	}
+
+	if (document.readyState == 'complete') {
+		addZeoTapJs();
+	} else {
+		window.addEventListener("load", function () {
+			setTimeout(addZeoTapJs, 1000);
+		});
+	}
+}
+
 exports.getRandomNumberBelow100 = function(){
 	return Math.floor(Math.random()*100);
 };
@@ -1659,18 +1708,35 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 	var value;
 	if(params.name in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
 		for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
-			for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
-				switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
-					case 'number':
-						if(params[key] && typeof params[key] !== 'number') {
-							value = parseInt(params[key])
-							isNaN(value) ?
-								refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
-								params[key] = value;
-						}
-						break;
-					default:
-						return;
+			if (partnerName === params.name) {
+				for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
+					var paramValue = params[key];
+					switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
+						case 'number':
+							if(paramValue && typeof paramValue !== 'number') {
+								value = parseInt(paramValue)
+								isNaN(value) ?
+									refThis.logError(partnerName + ": Invalid parameter value '" + paramValue + "' for parameter " + key) :
+									params[key] = value;
+							}
+							break;
+						case 'array': 
+							if (paramValue) {
+								if (typeof paramValue === 'string') {
+									var arr = paramValue.split(",").map(function(item) {
+										return item.trim();
+									});
+									if (arr.length > 0) {
+										params[key] = arr;
+									}
+								} else if (typeof paramValue === 'number') {
+									params[key] = [paramValue];
+								}
+							}
+							break;
+						default:
+							return;
+					}
 				}
 			}
 		}
