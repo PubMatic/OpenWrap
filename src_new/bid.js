@@ -77,7 +77,7 @@ Bid.prototype.getBidID = function(){
 };
 
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setGrossEcpm = function(ecpm, origCurrency, bidStatus){
+Bid.prototype.setGrossEcpm = function(ecpm, origCurrency, displayCurrency, bidStatus){
 	    
 	/* istanbul ignore else */
 	if(ecpm === null){
@@ -104,8 +104,8 @@ Bid.prototype.setGrossEcpm = function(ecpm, origCurrency, bidStatus){
 		return this;
 	}
 
-	if(CONFIG.getAdServerCurrency() && origCurrency && (UTIL.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].convertCurrency) || typeof window[CONSTANTS.COMMON.PREBID_NAMESPACE].convertCurrency == "function") ){
-		ecpm = window[CONSTANTS.COMMON.PREBID_NAMESPACE].convertCurrency(ecpm, origCurrency, CONSTANTS.COMMON.ANALYTICS_CURRENCY)
+	if(CONFIG.getAdServerCurrency() && origCurrency && displayCurrency && (UTIL.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].convertCurrency) || typeof window[CONSTANTS.COMMON.PREBID_NAMESPACE].convertCurrency == "function") ){
+		ecpm = window[CONSTANTS.COMMON.PREBID_NAMESPACE].convertCurrency(ecpm, origCurrency, displayCurrency)
 	}
 
 	ecpm = window.parseFloat(ecpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));

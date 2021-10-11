@@ -48,7 +48,7 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 			bid.originalCurrency = util.getCurrencyToDisplay();
 		}
 	}
-	theBid.setGrossEcpm(bid.originalCpm, bid.originalCurrency, bid.status);
+	theBid.setGrossEcpm(bid.originalCpm, bid.originalCurrency, util.getCurrencyToDisplay(), bid.status);
 	theBid.setDealID(bid.dealId);
 	theBid.setDealChannel(bid.dealChannel);
 	theBid.setAdHtml(bid.ad || "");
