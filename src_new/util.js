@@ -341,8 +341,8 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			callHandlerFunction = false,
 			sizeArray = activeSlot.getSizes()			
 			;
-
-		if(keyLookupMap == null){
+			
+		if(keyLookupMap == null || adapterID === "pubmatic2"){
 			// This block executes for pubmatic only where there are no KLM's 
 			// Adding this check for pubmatic only to send the correct tagId for Size Level mapping. UOE-6156
 			if(videoSlotName && videoSlotName.length == 1){
@@ -350,7 +350,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			}
 			callHandlerFunction = true;
 		}else{
-			if(isRegexMapping){ 
+			if(isRegexMapping){
 				refThis.debugLogIsEnabled && refThis.log(console.time("Time for regexMatching for key " + generatedKey));
 				var config = refThis.getConfigFromRegex(keyLookupMap,generatedKey);
 				refThis.debugLogIsEnabled && refThis.log(console.timeEnd("Time for regexMatching for key " + generatedKey));

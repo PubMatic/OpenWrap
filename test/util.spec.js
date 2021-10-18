@@ -3315,6 +3315,14 @@ describe('UTIL', function() {
             BIDMgr.setBidFromBidder.should.not.be.called;
             done();     
         });
+
+        describe('pubmatic secondary', function() {
+            it('should create bid even though slots are not mapped',function(done){
+                UTIL.callHandlerFunctionForMapping("pubmatic2",adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,false,keyGenerationPattern,undefined);
+                expect(obj.handlerFunction).to.be.called;
+                done();
+            });
+        })
     });
 
     describe('replaceAuctionPrice', function(){
