@@ -336,7 +336,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
 	var regexPattern = undefined;
-	const secondaryPartner = ["pubmatic2", "GroupM"];
+	const secondaryPartner = ["pubmatic2"];
 	refThis.forEachOnArray(generatedKeys, function(j, generatedKey){
 		var keyConfig = null,
 			callHandlerFunction = false,
