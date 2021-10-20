@@ -336,13 +336,14 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
 	var regexPattern = undefined;
+	const secondaryPartner = ["pubmatic2", "GroupM"];
 	refThis.forEachOnArray(generatedKeys, function(j, generatedKey){
 		var keyConfig = null,
 			callHandlerFunction = false,
 			sizeArray = activeSlot.getSizes()			
 			;
-			
-		if(keyLookupMap == null || adapterID === "pubmatic2"){
+
+		if(keyLookupMap == null){
 			// This block executes for pubmatic only where there are no KLM's 
 			// Adding this check for pubmatic only to send the correct tagId for Size Level mapping. UOE-6156
 			if(videoSlotName && videoSlotName.length == 1){
@@ -373,8 +374,10 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 					keyConfig = keyLookupMap[generatedKey];
 				}
 			}
-			if(!keyConfig){
-				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);			
+			// Check for secondary partner and execute handlerFunction.
+			var isSecondary = secondaryPartner.indexOf(adapterID) > - 1 ? true : false;
+			if(!keyConfig && !isSecondary){
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);		
 			}else{
 				callHandlerFunction = true;
 			}
