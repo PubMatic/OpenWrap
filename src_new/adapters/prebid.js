@@ -596,14 +596,15 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 
 		case "pubmatic":
 		case "pubmatic2":
+		case "groupm":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
 			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
 			if(isPrebidPubMaticAnalyticsEnabled === false){
 				slotParams["wiid"] = impressionID;
 			}
-			slotParams["profId"] = adapterID == "pubmatic2"? adapterConfig["profileId"]: CONFIG.getProfileID();
+			slotParams["profId"] = (adapterID == "pubmatic2" || adapterID == "groupm")? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
-			if(adapterID != "pubmatic2" && window.PWT.udpv){
+			if((adapterID != "pubmatic2" && adapterID != "groupm") && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
 			// We are removing mimes because it merges with the existing adUnit mimes
