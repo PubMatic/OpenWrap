@@ -336,7 +336,10 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
 	var regexPattern = undefined;
+	// Add list of secondary partners to secondaryPartner array and based on current partner find out wheather it is secondary partner. 
 	const secondaryPartner = ["pubmatic2"];
+	var isSecondary = secondaryPartner.indexOf(adapterID) > - 1 ? true : false;
+	var regExMappingWithNoConfig = false;
 	refThis.forEachOnArray(generatedKeys, function(j, generatedKey){
 		var keyConfig = null,
 			callHandlerFunction = false,
@@ -359,6 +362,10 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				if(config){
 					keyConfig = config.config;
 					regexPattern = config.regexPattern;
+				}else{
+					// if klm_rx dosen't return any config and if partner is secondary we need to restrict call to handlerFunction
+					// so adding flag regExMappingWithNoConfig below
+					regExMappingWithNoConfig = isSecondary ? true : false;
 				}
 			}
 			else{
@@ -374,10 +381,12 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 					keyConfig = keyLookupMap[generatedKey];
 				}
 			}
-			// Check for secondary partner and execute handlerFunction.
-			var isSecondary = secondaryPartner.indexOf(adapterID) > - 1 ? true : false;
-			if(!keyConfig && !isSecondary){
-				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);		
+			// condition (!keyConfig && !isSecondary) will check if keyCofig is undefined and partner is not secondary then log message to console 
+			// with "adapterID+": "+generatedKey+ config not found"
+			// regExMappingWithNoConfig will be true only if klm_rx dosen't return config and partner is secondary then log message to console
+			// with "adapterID+": "+generatedKey+ config not found" 
+			if((!keyConfig && !isSecondary) || regExMappingWithNoConfig){
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
 			}else{
 				callHandlerFunction = true;
 			}
