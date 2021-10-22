@@ -48,10 +48,12 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 			bid.originalCurrency = util.getCurrencyToDisplay();
 		}
 	}
-	if(bid.status == CONSTANTS.BID_STATUS.BID_REJECTED)
+	if(bid.status == CONSTANTS.BID_STATUS.BID_REJECTED){
 		theBid.setGrossEcpm(bid.originalCpm, bid.originalCurrency, util.getCurrencyToDisplay(), bid.status);
-	else
+	}
+	else{
 		theBid.setGrossEcpm(bid.cpm);
+	}
 	theBid.setDealID(bid.dealId);
 	theBid.setDealChannel(bid.dealChannel);
 	theBid.setAdHtml(bid.ad || "");
