@@ -274,3 +274,5 @@ exports.MEDIATYPE = {
 exports.BID_STATUS =  {
 	BID_REJECTED : "bidRejected"
 }
+
+exports.PUBMATIC_ALIAS = ["pubmatic2","groupm"];

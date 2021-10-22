@@ -602,9 +602,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			if(isPrebidPubMaticAnalyticsEnabled === false){
 				slotParams["wiid"] = impressionID;
 			}
-			slotParams["profId"] = (adapterID == "pubmatic2" || adapterID == "groupm")? adapterConfig["profileId"]: CONFIG.getProfileID();
+			slotParams["profId"] = (CONFIG.isPubmaticAlias(adapterID))? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
-			if((adapterID != "pubmatic2" && adapterID != "groupm") && window.PWT.udpv){
+			if(!CONFIG.isPubmaticAlias(adapterID) && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
 			// We are removing mimes because it merges with the existing adUnit mimes

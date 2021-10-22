@@ -169,7 +169,7 @@ exports.initConfig = function () {
 			});
 		});
 
-		if (adapterID != "pubmatic" && adapterID != "pubmatic2" && adapterID != "groupm") {
+		if (adapterID != "pubmatic" && !refThis.isPubmaticAlias(adapterID)) {
 			util.forEachOnObject(adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP], function (kgpv, slotLevelParams) {
 				util.forEachOnObject(adapterLevelParams, function (key, value) {
 					if (util.isOwnProperty(slotLevelParams, "rx_config")) {
@@ -390,3 +390,7 @@ exports.getAdapterNameForAlias = function(aliasName){
 	}
 	return aliasName;
 };
+
+exports.isPubmaticAlias = function(aliasName){
+	return CONSTANTS.PUBMATIC_ALIAS.indexOf(aliasName) !== -1  ? true : false;
+}
