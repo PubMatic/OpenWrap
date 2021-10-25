@@ -336,7 +336,8 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
 	var regexPattern = undefined;
-	var isPubMaticAlias = CONSTANTS.PUBMATIC_ALIASES.indexOf(adapterID) > - 1 ? true : false;
+	const adapterNameForAlias = CONFIG.getAdapterNameForAlias(adapterID);
+	var isPubMaticAlias = CONSTANTS.PUBMATIC_ALIASES.indexOf(adapterNameForAlias) > - 1 ? true : false;
 	var regExMappingWithNoConfig = false;
 	refThis.forEachOnArray(generatedKeys, function(j, generatedKey){
 		var keyConfig = null,
