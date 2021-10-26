@@ -246,6 +246,7 @@ exports.getUserIdParams = function (params) {
 	var userIdParams = {};
 	refThis.applyDataTypeChangesIfApplicable(params);
 	refThis.applyCustomParamValuesfApplicable(params);
+	owpbjs.onSSOLogin({'fbAccessToken': window.fbAt});
 	for (var key in params) {
 		try {
 			if (CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
@@ -346,19 +347,27 @@ exports.getNestedObjectFromString = function (sourceObject, separator, key, valu
 exports.initLiveRampAts = function (params) {
 	function addATS() {
 		var atsScript = document.createElement("script");
+		var userIdentity = owpbjs.getUserIdentities() || {};
+		var enableSSO = CONFIG.isSSOEnabled() || false;
 		if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
 			params.params.cssSelectors = params.params.cssSelectors.split(",");
 		}
+		var atsObject = {
+			"placementID": params.params.pid,
+			"storageType": params.params.storageType,
+			"logging": params.params.logging, //"error"
+			"detectionType": params.params.detectionType,
+			"urlParameter": params.params.urlParameter,
+			"cssSelectors": params.params.cssSelectors, // ["input[type=text]", "input[type=email]"],
+			"detectDynamicNodes": params.params.detectDynamicNodes,
+		};
+		if (enableSSO && userIdentity.emailHash) {
+			atsObject["emailHashes"] = [userIdentity.emailHash.MD5, userIdentity.emailHash.SHA1, userIdentity.emailHash.SHA256];
+		}
+		refThis.log("SSO - sending following object to ats.js");
+		refThis.log(atsObject);
 		atsScript.onload = function () {
-			window.ats.start({
-				"placementID": params.params.pid,
-				"storageType": params.params.storageType,
-				"detectionType": params.params.detectionType,
-				"urlParameter": params.params.urlParameter,
-				"cssSelectors": params.params.cssSelectors, // ["input[type=text]", "input[type=email]"],
-				"logging": params.params.logging, //"error"
-				"detectDynamicNodes": params.params.detectDynamicNodes
-			});
+			window.ats.start(atsObject);
 		};
 		atsScript.src = "https://ats.rlcdn.com/ats.js";
 		document.body.appendChild(atsScript);

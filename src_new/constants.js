@@ -101,7 +101,8 @@ exports.CONFIG = {
 	"DEFAULT_FLOOR_ENFORCE_JS": true,
 	"USE_PREBID_KEYS": "usePBJSKeys",
 	"AB_TEST_ENABLED": "abTestEnabled",
-	"TIMEOUT_ADJUSTMENT": 50
+	"TIMEOUT_ADJUSTMENT": 50,
+	"SSO_ENABLED": "ssoEnabled"
 };
 
 exports.METADATA_MACROS = {
