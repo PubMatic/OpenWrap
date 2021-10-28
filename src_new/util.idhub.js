@@ -344,24 +344,24 @@ exports.getNestedObjectFromString = function (sourceObject, separator, key, valu
 };
 
 
-exports.initLiveRampAts = function (params) {
+exports.initLiveRampAts = function(params){
 	function addATS() {
-		var atsScript = document.createElement("script");
-		if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
-			params.params.cssSelectors = params.params.cssSelectors.split(",");
+		var atsScript = document.createElement('script');
+		if(params.params.cssSelectors && params.params.cssSelectors.length>0){
+			params.params.cssSelectors = params.params.cssSelectors.split(',');
 		}
-		atsScript.onload = function () {
-			window.ats.start({
-				"placementID": params.params.pid,
-				"storageType": params.params.storageType,
-				"detectionType": params.params.detectionType,
-				"urlParameter": params.params.urlParameter,
-				"cssSelectors": params.params.cssSelectors, // ["input[type=text]", "input[type=email]"],
-				"logging": params.params.logging, //"error"
-				"detectDynamicNodes": params.params.detectDynamicNodes
+		atsScript.onload = function() {
+		  window.ats.start(        {
+			  "placementID": params.params.pid,
+			  "storageType":params.params.storageType,
+			  "detectionType": params.params.detectionType,
+			  "urlParameter": params.params.urlParameter,
+			  "cssSelectors":params.params.cssSelectors,// ["input[type=text]", "input[type=email]"],
+			  "logging": params.params.logging, //"error"
+			  "detectDynamicNodes": params.params.detectDynamicNodes
 			});
 		};
-		atsScript.src = "https://ats.rlcdn.com/ats.js";
+		atsScript.src = 'https://ats.rlcdn.com/ats.js';
 		document.body.appendChild(atsScript);
 	}
 	if (document.readyState == 'complete') {
