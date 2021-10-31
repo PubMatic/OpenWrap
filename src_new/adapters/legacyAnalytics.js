@@ -7,6 +7,12 @@ var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
 
+var kgpvMap = {};
+
+/* start-test-block */
+exports.kgpvMap = kgpvMap;
+/* end-test-block */
+
 function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	var rxPattern = regexPattern || bid.regexPattern || undefined;
 	var theBid = BID.createBid(bid.bidderCode, kgpv);

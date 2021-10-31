@@ -18,11 +18,6 @@ var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
 /* end-test-block */
-var kgpvMap = {};
-
-/* start-test-block */
-exports.kgpvMap = kgpvMap;
-/* end-test-block */
 
 var refThis = this;
 var onEventAdded = false;
@@ -33,6 +28,7 @@ var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled()
 exports.isSingleImpressionSettingEnabled = isSingleImpressionSettingEnabled;
 /* end-test-block */
 
+//TODO: common function used in legacy and pbjs analytics; may need to move to common space
 function isAdUnitsCodeContainBidder(adUnits, code, adapterID){
 	var bidderPresent = false;
 	if(util.isOwnProperty(adUnits, code)){
