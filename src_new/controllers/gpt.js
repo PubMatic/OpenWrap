@@ -5,6 +5,7 @@ var bidManager = require("../bidManager.js");
 // var GDPR = require("../gdpr.js");
 var SLOT = require("../slot.js");
 var prebid = require("../adapters/prebid.js");
+var prebidConfig = require("../adapters/prebidConfig.js");
 var usePrebidKeys = CONFIG.isUsePrebidKeysEnabled();
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var IdHub = require("../controllers/idhub.js");
@@ -877,7 +878,7 @@ exports.init = function(win) { // TDD, i/o : done
     if (util.isObject(win)) {
         refThis.setWindowReference(win);
         refThis.initSafeFrameListener(win);
-        prebid.initPbjsConfig();
+        prebidConfig.initPbjsConfig();
         refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
         refThis.defineGPTVariables(win);
         refThis.addHooksIfPossible(win);

@@ -5,6 +5,7 @@ var bidManager = require("../bidManager.js");
 // var GDPR = require("../gdpr.js");
 var SLOT = require("../slot.js");
 var prebid = require("../adapters/prebid.js");
+var prebidConfig = require("../adapters/prebidConfig.js");
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var usePrebidKeys = CONFIG.isUsePrebidKeysEnabled();
 
@@ -479,7 +480,7 @@ exports.init = function(win) {
 		// removeIf(removeLegacyAnalyticsRelatedCode)
 		refThis.initSafeFrameListener(win);
 		// endRemoveIf(removeLegacyAnalyticsRelatedCode)
-		prebid.initPbjsConfig();
+		prebidConfig.initPbjsConfig();
 		win.PWT.requestBids = refThis.customServerExposedAPI;
 		win.PWT.generateConfForGPT = refThis.generateConfForGPT;
 		win.PWT.addKeyValuePairsToGPTSlots = addKeyValuePairsToGPTSlots;
