@@ -3000,6 +3000,16 @@ describe('UTIL', function() {
         beforeEach(function(done) {
             params = {"name":"pubCommonId","storage.type":"cookie","storage.name":"_pubCommonId","storage.expires":"1825"}
             sinon.spy(UTIL, "initZeoTapJs");
+            function onSSOLogin() {};
+            function getUserIdentities() {
+                return {
+                    email: "zeotaptestrab@gmail.com"
+                }
+            }
+            window.owpbjs = {
+                'onSSOLogin': onSSOLogin,
+                'getUserIdentities': getUserIdentities
+            }
             done();
         });
 
@@ -3030,13 +3040,6 @@ describe('UTIL', function() {
                 "params.partnerId": "b13e43f5-9846-4349-ae87-23ea3c3c25de",
                 "params.loadIDP": "true"
             };
-            window.owpbjs = {
-                getUserIdentities: function(){
-                    return {
-                        email: "zeotaptestrab@gmail.com"
-                    };
-                }
-            };
             var result = UTIL.getUserIdParams(zeotapParams);
             UTIL.initZeoTapJs.calledOnce.should.be.true;
             window.owpbjs = undefined;
@@ -3052,13 +3055,6 @@ describe('UTIL', function() {
                 "params.partnerId": "b13e43f5-9846-4349-ae87-23ea3c3c25de",
                 "params.loadIDP": "false"
             };
-            window.owpbjs = {
-                getUserIdentities: function(){
-                    return {
-                        email: "zeotaptestrab@gmail.com"
-                    };
-                }
-            };
             var result = UTIL.getUserIdParams(zeotapParams);
             UTIL.initZeoTapJs.calledOnce.should.be.false;
             window.owpbjs = undefined;
@@ -3073,6 +3069,10 @@ describe('UTIL', function() {
             separator = ".";
             key = "params.init.member";
             value="nQjyizbdyF";
+            function onSSOLogin() {};
+            window.owpbjs = {
+                'onSSOLogin': onSSOLogin
+            }
             done();
         });
 
@@ -3170,7 +3170,11 @@ describe('UTIL', function() {
                     "storage.name": "somenamevalue",
                     "storage.expires":"60"
                 }
-            })
+            });
+            function onSSOLogin() {};
+            window.owpbjs = {
+                'onSSOLogin': onSSOLogin
+            }
             done();
         });
 
