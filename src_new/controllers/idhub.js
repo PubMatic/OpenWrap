@@ -37,11 +37,10 @@ refThis.setConfig = function(){
 					timeout: CONFIG.getCCPATimeout(),
 				};
 			}
-
+			window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 			if(CONFIG.isUserIdModuleEnabled()){
 				prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 			}
-		
 			// Adding a hook for publishers to modify the Prebid Config we have generated
 			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 			window[pbNameSpace].setConfig(prebidConfig);

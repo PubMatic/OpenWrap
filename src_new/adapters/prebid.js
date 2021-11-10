@@ -931,6 +931,8 @@ function setPrebidConfig(){
 			}
 		}
 
+		window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
+
 		refThis.getFloorsConfiguration(prebidConfig)
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);

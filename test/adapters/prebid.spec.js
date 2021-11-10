@@ -1447,6 +1447,10 @@ describe('ADAPTER: Prebid', function() {
         var prebidConfig = {};
         var expectedResult = {};
         beforeEach(function(done){
+            function onSSOLogin() {};
+            window.owpbjs = {
+                'onSSOLogin': onSSOLogin
+            }
             expectedResult = {
                 enableOverride:true,
                 syncsPerBidder:0,

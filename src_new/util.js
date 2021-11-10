@@ -1335,7 +1335,7 @@ exports.getUserIdParams = function(params){
 	var userIdParams= {};
 	refThis.applyDataTypeChangesIfApplicable(params);
 	refThis.applyCustomParamValuesfApplicable(params);
-	owpbjs.onSSOLogin({'fbAccessToken': window.fbAt});
+	owpbjs.onSSOLogin({});
 	for(var key in params){
 		try{
 			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
