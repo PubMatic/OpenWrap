@@ -603,7 +603,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			}
 			slotParams["profId"] = (adapterID == "pubmatic2") || (adapterName == "pubmatic2")  ? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
-			if(adapterID != "pubmatic2" && window.PWT.udpv){
+			if((adapterID != "pubmatic2" && adapterName != "pubmatic2") && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
 			// We are removing mimes because it merges with the existing adUnit mimes
