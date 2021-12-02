@@ -3000,6 +3000,7 @@ describe('UTIL', function() {
         beforeEach(function(done) {
             params = {"name":"pubCommonId","storage.type":"cookie","storage.name":"_pubCommonId","storage.expires":"1825"}
             sinon.spy(UTIL, "initZeoTapJs");
+            sinon.spy(UTIL, "initLiveRampAts");
             function onSSOLogin() {};
             function getUserIdentities() {
                 return {
@@ -3016,6 +3017,7 @@ describe('UTIL', function() {
         afterEach(function(done) {
             params = null;
             UTIL.initZeoTapJs.restore();
+            UTIL.initLiveRampAts.restore();
             done();
         });
 
@@ -3028,6 +3030,48 @@ describe('UTIL', function() {
             var expectedResult = {"name":"pubCommonId","storage":{"type":"cookie","name":"_pubCommonId","expires":"1825"}};
             var result = UTIL.getUserIdParams(params);
             result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should call initLiveRampAts if identityLink partner is configured and loadATS is set to true', function(done) {
+            var lrParams = {
+                name: "identityLink",
+                "params.pid": "23",
+                "storage.type": "cookie",
+                "params.loadATS": "true", // or false// boolean default is false,
+                "params.placementID": "23",
+                "params.storageType": "localstorage",
+                "params.detectionType": "scrapeAndUrl",
+                "params.urlParameter": "eparam",
+                "params.cssSelectors": "input[type=text], input[type=email]",
+                "params.logging": "info",
+                "storage.name": "somenamevalue",
+                "storage.expires": "60"
+            };
+            var result = UTIL.getUserIdParams(lrParams);
+            UTIL.initLiveRampAts.calledOnce.should.be.true;
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('should not call initLiveRampAts if identityLink partner is configured and loadATS is set to false', function(done) {
+            var lrParams = {
+                name: "identityLink",
+                "params.pid": "23",
+                "storage.type": "cookie",
+                "params.loadATS": "false", // or false// boolean default is false,
+                "params.placementID": "23",
+                "params.storageType": "localstorage",
+                "params.detectionType": "scrapeAndUrl",
+                "params.urlParameter": "eparam",
+                "params.cssSelectors": "input[type=text], input[type=email]",
+                "params.logging": "info",
+                "storage.name": "somenamevalue",
+                "storage.expires": "60"
+            };
+            var result = UTIL.getUserIdParams(lrParams);
+            UTIL.initLiveRampAts.calledOnce.should.be.false;
+            window.owpbjs = undefined;
             done();
         });
 
