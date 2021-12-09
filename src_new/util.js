@@ -365,7 +365,10 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				if(videoSlotName && videoSlotName.length == 1){
 					// Commented out normal lookup and added below check to remove case sensitive check on videoSlotName[0].
 					// keyConfig = keyLookupMap[videoSlotName[0]];
-					keyConfig = keyLookupMap[Object.keys(keyLookupMap).find(key => key.toLowerCase() === videoSlotName[0].toLowerCase())];
+					// keyConfig = keyLookupMap[Object.keys(keyLookupMap).find(key => key.toLowerCase() === videoSlotName[0].toLowerCase())];
+					keyConfig = keyLookupMap[Object.keys(keyLookupMap).filter(function(key) {
+						return key.toLowerCase() === videoSlotName[0].toLowerCase()
+					})];
 					// We are updating the generatedKey because we want to log kgpv as 0x0 in case of video 
 					if(keyConfig){
 						generatedKey = videoSlotName[0];
@@ -374,7 +377,9 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				if(!keyConfig){
 					// Commented out normal lookup and added below check to remove case sensitive check on generatedKey.
 					// keyConfig = keyLookupMap[generatedKey];
-					keyConfig = keyLookupMap[Object.keys(keyLookupMap).find(key => key.toLowerCase() === generatedKey.toLowerCase())];
+					keyConfig = keyLookupMap[Object.keys(keyLookupMap).filter(function(key) {
+						return key.toLowerCase() === generatedKey.toLowerCase()
+					})];
 				}
 			}
 			if(!keyConfig){
