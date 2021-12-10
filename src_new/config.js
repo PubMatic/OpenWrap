@@ -148,6 +148,7 @@ exports.addPrebidAdapter = addPrebidAdapter;
 /* end-test-block */
 
 exports.initConfig = function () {
+	refThis.getThrottledPartnerData();
 	refThis.updateABTestConfig();
 	refThis.addPrebidAdapter();
 
@@ -303,6 +304,18 @@ exports.getTestPartnerConfig = function () {
 exports.getTestIdentityPartners = function () {
 	return config[CONSTANTS.COMMON.TEST_IDENTITY_PARTNER] || {};
 };
+
+exports.getThrottledPartnerData = function() {
+	var request = new XMLHttpRequest();
+	request.open('GET', "./ml-data.json");
+	request.responseType = 'text';
+
+	request.onload = function() {
+		window.throttledData = request.response;
+		// console.log('****', request.response);
+	};
+	request.send();
+}
 
 exports.updateABTestConfig = function () {
 	if (refThis.isAbTestEnabled()) {

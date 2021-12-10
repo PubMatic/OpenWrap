@@ -424,8 +424,20 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	});
 	util.forEachOnObject(impressionIDMap, function(impressionID, slots){ /* istanbul ignore next */
 		/* istanbul ignore else */
+		// console.log('****', window.throttledPartnersForAnalytics);
 		if(slots.length > 0){
 			outputObj.s = slots;
+			outputObj.s.forEach(function(slot, index) {
+				var adUnit = slot.au;
+				var mltPartners = window.throttledPartnersForAnalytics && window.throttledPartnersForAnalytics.filter(function(data) {
+					if(data.adUnit == adUnit) {
+						return data
+					}
+				})
+				if(mltPartners[0] && mltPartners[0].throttledPartners && mltPartners[0].throttledPartners.length) {
+					outputObj.s[index]['mltp'] = mltPartners[0]['throttledPartners'];
+				}
+			})
 			outputObj[CONSTANTS.COMMON.IMPRESSION_ID] = window.encodeURIComponent(impressionID);
 			outputObj.psl = slots.psl;
 			outputObj.dvc = { "plt": util.getDevicePlatform()}

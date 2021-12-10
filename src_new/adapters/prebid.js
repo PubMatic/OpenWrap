@@ -1208,13 +1208,45 @@ function fetchBids(activeSlots){
 				// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 				window[pbNameSpace].removeAdUnit();
-				window[pbNameSpace].addAdUnits(adUnitsArray);
-				window[pbNameSpace].requestBids({
-					bidsBackHandler: function(bidResponses){
-						refThis.pbjsBidsBackHandler(bidResponses, activeSlots);
-					},
-					timeout: CONFIG.getTimeout() - CONSTANTS.CONFIG.TIMEOUT_ADJUSTMENT
-				});
+				setTimeout(function() {
+					window.throttledPartnersForAnalytics = [];
+					var randomNumberBelow100 = util.getRandomNumberBelow100();
+					var throttledDataForPartners = JSON.parse(window.throttledData);
+					// console.log('Before', adUnitsArray, randomNumberBelow100);
+					adUnitsArray.forEach(function(adUnitArray) {
+						var adUnitId = adUnitArray.adUnitId;
+						var adUnitIdThrottleMap = {};
+						var throttledPartners;
+						var matchedPartner = throttledDataForPartners.filter(function(partnerData) {
+							return partnerData.adUnit == adUnitId
+						})
+						if(matchedPartner.length) {
+							throttledPartners = [];
+							matchedPartner.forEach(function(partner) {
+								adUnitArray.bids.forEach(function(bid, index) {
+									if(bid.bidder == partner.partner && randomNumberBelow100 < partner.throttlerate) {
+										throttledPartners.push(bid.bidder);
+										delete adUnitArray.bids[index];
+									}
+								})
+							})
+						}
+					    // window.throttledPartnersForAnalytics.push({[adUnitId]: throttledPartners});
+						var adUnitIdThrottleMap = {
+							adUnit: adUnitId,
+							throttledPartners: throttledPartners
+						};
+						window.throttledPartnersForAnalytics.push(adUnitIdThrottleMap);
+					})
+					// console.log('After', adUnitsArray)
+					window[pbNameSpace].addAdUnits(adUnitsArray);
+					window[pbNameSpace].requestBids({
+						bidsBackHandler: function(bidResponses){
+							refThis.pbjsBidsBackHandler(bidResponses, activeSlots);
+						},
+						timeout: CONFIG.getTimeout() - CONSTANTS.CONFIG.TIMEOUT_ADJUSTMENT
+					});    
+				}, 300);
 			} else {
 				util.log("PreBid js requestBids function is not available");
 				return;
