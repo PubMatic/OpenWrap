@@ -102,7 +102,8 @@ exports.CONFIG = {
 	"USE_PREBID_KEYS": "usePBJSKeys",
 	"AB_TEST_ENABLED": "abTestEnabled",
 	"TIMEOUT_ADJUSTMENT": 50,
-	"SSO_ENABLED": "ssoEnabled"
+	"SSO_ENABLED": "ssoEnabled",
+	"SSO_INTEGRATION_TIMEOUT": 2500
 };
 
 exports.METADATA_MACROS = {
