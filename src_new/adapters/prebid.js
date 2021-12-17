@@ -477,7 +477,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	}
 	
 	//serverSideEabled: do not add config into adUnits
-	if(CONFIG.isServerSideAdapter(adapterID)){
+	if(CONFIG.isServerSideAdapter(adapterID) && CONF.pwt.usePBJSKeys == "0"){
 		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
 		return;
 	}
@@ -861,13 +861,24 @@ function generateAdUnitsArray(activeSlots, impressionID){
 
 			//serverSideEabled: we do not want to throttle them at client-side
 			/* istanbul ignore if */
-			if(CONFIG.isServerSideAdapter(adapterID) || refThis.throttleAdapter(randomNumberBelow100, adapterID) == false){
-				util.forEachOnObject(activeSlots, function(j, slot){
-					bidManager.setCallInitTime(slot.getDivID(), adapterID);
-				});
-				refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
-			}else{
-				util.log(adapterID+CONSTANTS.MESSAGES.M2);
+			if(CONF.pwt.usePBJSKeys == "0") {
+				if(refThis.throttleAdapter(randomNumberBelow100, adapterID) == false){
+					util.forEachOnObject(activeSlots, function(j, slot){
+						bidManager.setCallInitTime(slot.getDivID(), adapterID);
+					});
+					refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+				}else{
+					util.log(adapterID+CONSTANTS.MESSAGES.M2);
+				}
+			} else {
+				if(CONFIG.isServerSideAdapter(adapterID) || refThis.throttleAdapter(randomNumberBelow100, adapterID) == false){
+					util.forEachOnObject(activeSlots, function(j, slot){
+						bidManager.setCallInitTime(slot.getDivID(), adapterID);
+					});
+					refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+				}else{
+					util.log(adapterID+CONSTANTS.MESSAGES.M2);
+				}
 			}
 		}
 	});
@@ -938,6 +949,7 @@ function setPrebidConfig(){
 			}
 		}
 
+
 		refThis.getFloorsConfiguration(prebidConfig)
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
@@ -945,6 +957,7 @@ function setPrebidConfig(){
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
+		refThis.gets2sConfig(prebidConfig);
 		// Adding a hook for publishers to modify the Prebid Config we have generated
 		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 		//todo: stop supporting this hook let pubs use pbjs.requestBids hook
@@ -956,6 +969,50 @@ function setPrebidConfig(){
 }
 
 exports.setPrebidConfig = setPrebidConfig;
+
+function gets2sConfig(prebidConfig){
+	if(CONF.pwt.usePBJSKeys) {
+		var serverBidders = Object.keys(CONF.adapters).filter(function(adapter){
+			if(CONF.adapters[adapter]['serverSideEnabled'] == "1") {
+			  return adapter;
+			}
+		})
+		var defaultAliases = {
+			adg: "adgeneration",
+			districtm: "appnexus",
+			districtmDMX: "dmx",
+			pubmatic2: "pubmatic"
+		};
+		var allAliases = Object.assign({}, defaultAliases, CONF.alias);
+		var pubmaticAndAliases = serverBidders.filter(function(adapter){
+		  if(CONF.alias[adapter] && CONF.alias[adapter].includes('pubmatic') || adapter.includes('pubmatic')) {
+			return adapter;
+		  }
+		})
+		var bidderParams = {};
+		pubmaticAndAliases.forEach(function(bidder) {
+		  bidderParams[bidder] = {
+		  };
+		})
+		prebidConfig["s2sConfig"]={
+			accountId: '1',
+			bidders: serverBidders,
+			adapter: 'prebidServer',
+			enabled: true,
+			// endpoint: 'https://prebid.adnxs.com/pbs/v1/openrtb2/auction',
+			endpoint: 'http://dev-sv3.pubmatic.com:32103/ssheaderbidding/uoe-6229-0-0-326-18/sswrapper//pbs/openrtb2/auction',
+			syncEndpoint: 'https://prebid.adnxs.com/pbs/v1/cookie_sync',
+			timeout: parseInt(CONF.pwt.ssTimeout),
+			extPrebid: {
+				aliases: allAliases,
+				bidderparams: bidderParams,
+			}
+		}    
+	} 
+}
+
+exports.gets2sConfig = gets2sConfig;
+
 
 function getFloorsConfiguration(prebidConfig){
 	if(CONFIG.isFloorPriceModuleEnabled() == true){

@@ -623,15 +623,15 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-		it('for serverSideEnabled, adUnits should be unchanged', function(done){
-			CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED] = '1';
-			kgpConsistsWidthAndHeight = false;
-			PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
-			// sizes => [[340, 210], [1024, 768]]
-			adUnits.should.be.deep.equal({});
-			delete CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
-			done();
-        });
+		// it('for serverSideEnabled, adUnits should be unchanged', function(done){
+		// 	CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED] = '1';
+		// 	kgpConsistsWidthAndHeight = false;
+		// 	PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+		// 	// sizes => [[340, 210], [1024, 768]]
+		// 	adUnits.should.be.deep.equal({});
+		// 	delete CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
+		// 	done();
+        // });
         
 
         // Single Impression Multi Size Feature is On STARTS
