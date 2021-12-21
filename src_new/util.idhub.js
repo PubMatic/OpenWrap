@@ -264,6 +264,7 @@ exports.getUserIdParams = function (params) {
 	}
 
 	var ssoTimeout = window.PWT && window.PWT.ssoEnabled ? CONSTANTS.CONFIG.SSO_INTEGRATION_TIMEOUT : 0;
+	ssoTimeout += window.PWT.fbTimeout ? window.PWT.fbTimeout : 0;
 	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
 		setTimeout(function() {
 			refThis.initLiveRampAts(userIdParams); 
