@@ -38,7 +38,22 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	var rxPattern = regexPattern || bid.regexPattern || undefined;
 	var theBid = BID.createBid(bid.bidderCode, kgpv);
 	var pubmaticServerErrorCode = parseInt(bid.pubmaticServerErrorCode);
-	theBid.setGrossEcpm(bid.cpm);
+	if(!!CONFIG.getAdServerCurrency()){
+		// if a bidder has same currency as of pbConf.currency.adServerCurrency then Prebid does not set pbBid.originalCurrency and pbBid.originalCurrency value
+		// thus we need special handling
+		if(!util.isOwnProperty(bid, "originalCpm")){
+			bid.originalCpm = bid.cpm;
+		}
+		if(!util.isOwnProperty(bid, "originalCurrency")){
+			bid.originalCurrency = util.getCurrencyToDisplay();
+		}
+	}
+	if(bid.status == CONSTANTS.BID_STATUS.BID_REJECTED){
+		theBid.setGrossEcpm(bid.originalCpm, bid.originalCurrency, util.getCurrencyToDisplay(), bid.status);
+	}
+	else{
+		theBid.setGrossEcpm(bid.cpm);
+	}
 	theBid.setDealID(bid.dealId);
 	theBid.setDealChannel(bid.dealChannel);
 	theBid.setAdHtml(bid.ad || "");
@@ -81,20 +96,12 @@ function transformPBBidToOWBid(bid, kgpv, regexPattern){
 	// Check if currency conversion is enabled or not
 	/*istanbul ignore else */
 	if(CONFIG.getAdServerCurrency()){
-		// if a bidder has same currency as of pbConf.currency.adServerCurrency then Prebid does not set pbBid.originalCurrency and pbBid.originalCurrency value
-		// thus we need special handling
-		if(!util.isOwnProperty(bid, "originalCpm")){
-			bid.originalCpm = bid.cpm;
-		}
-		if(!util.isOwnProperty(bid, "originalCurrency")){
-			bid.originalCurrency = util.getCurrencyToDisplay();
-		}
 		theBid.setOriginalCpm(window.parseFloat(bid.originalCpm));
 		theBid.setOriginalCurrency(bid.originalCurrency);
 		if(util.isFunction(bid.getCpmInNewCurrency)){
-			theBid.setAnalyticsCpm(window.parseFloat(bid.getCpmInNewCurrency(CONSTANTS.COMMON.ANALYTICS_CURRENCY)));
+			theBid.setAnalyticsCpm(window.parseFloat(bid.getCpmInNewCurrency(CONSTANTS.COMMON.ANALYTICS_CURRENCY)), bid.status);
 		} else {
-			theBid.setAnalyticsCpm(theBid.getGrossEcpm());
+			theBid.setAnalyticsCpm(theBid.getGrossEcpm(), bid.status);
 		}
 	}
 	/*
