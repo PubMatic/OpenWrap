@@ -350,7 +350,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			}
 			callHandlerFunction = true;
 		}else{
-			if(isRegexMapping){ 
+			if(isRegexMapping){
 				refThis.debugLogIsEnabled && refThis.log(console.time("Time for regexMatching for key " + generatedKey));
 				var config = refThis.getConfigFromRegex(keyLookupMap,generatedKey);
 				refThis.debugLogIsEnabled && refThis.log(console.timeEnd("Time for regexMatching for key " + generatedKey));
@@ -1075,6 +1075,9 @@ exports.ajaxRequest = function(url, callback, data, options) {
 
 // Returns mediaTypes for adUnits which are sent to prebid
 exports.getAdUnitConfig = function(sizes, currentSlot){
+	function iskgpvpresent() {
+		return Object.keys(slotConfig['config'])[0].toLocaleLowerCase() == (kgpv && kgpv.toLocaleLowerCase());
+	}
 	var adUnitConfig = {};
 	var mediaTypeObject = {};
 	var slotConfig = CONFIG.getSlotConfiguration();
@@ -1108,8 +1111,13 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					adUnitConfig['renderer'] = config.renderer;
 				}
 			}
-			if(refThis.isOwnProperty(slotConfig['config'], kgpv)){
+			if(refThis.isOwnProperty(slotConfig['config'], kgpv) || iskgpvpresent()){
 				config = slotConfig["config"][kgpv];
+				if(!config) {
+					config = slotConfig["config"][Object.keys(slotConfig["config"]).filter(function(key){
+						return key.toLocaleLowerCase() === kgpv.toLowerCase();
+					})]
+				}
 				refThis.log("Config" + JSON.stringify(config)  +" found for adSlot: " +  JSON.stringify(currentSlot));
 			}
 			else{
