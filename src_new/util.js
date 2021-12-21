@@ -1352,7 +1352,8 @@ exports.getUserIdParams = function(params){
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}	
-	var ssoTimeout = window.PWT && window.PWT.ssoEnabled ? 2500 : 0;
+	var ssoTimeout = window.PWT && window.PWT.ssoEnabled ? CONSTANTS.CONFIG.SSO_INTEGRATION_TIMEOUT : 0;
+	ssoTimeout += window.PWT.fbTimeout ? window.PWT.fbTimeout : 0;
 	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
       setTimeout(function() {
         refThis.initLiveRampAts(userIdParams); 
@@ -1671,10 +1672,13 @@ exports.initZeoTapJs = function(params) {
 	function addZeoTapJs() {
 		var n = document, t = window;
 		var userIdentity = owpbjs.getUserIdentities() || {};
-		userIdentityObject = {
-			email: userIdentity.emailHash && userIdentity.emailHash["SHA256"] || "",
-			isHashed: true
-		}
+		var userIdentityObject = {
+			email: userIdentity.email || "",
+			cellno: userIdentity.cellNo || "",
+			loginid: userIdentity.loginId || "",
+			fpuid: userIdentity.fpuid || "",
+			cellno_cc: userIdentity.cellNoCC || ""
+		};
 		var e=n.createElement("script");
 		e.type="text/javascript",
 		e.crossorigin="anonymous"

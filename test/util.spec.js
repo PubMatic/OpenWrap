@@ -3011,6 +3011,7 @@ describe('UTIL', function() {
                 'onSSOLogin': onSSOLogin,
                 'getUserIdentities': getUserIdentities
             }
+            sinon.spy(window, "setTimeout");
             done();
         });
 
@@ -3018,6 +3019,7 @@ describe('UTIL', function() {
             params = null;
             UTIL.initZeoTapJs.restore();
             UTIL.initLiveRampAts.restore();
+            window.setTimeout.restore();
             done();
         });
 
@@ -3049,7 +3051,7 @@ describe('UTIL', function() {
                 "storage.expires": "60"
             };
             var result = UTIL.getUserIdParams(lrParams);
-            UTIL.initLiveRampAts.calledOnce.should.be.true;
+            window.setTimeout.called.should.be.true;
             window.owpbjs = undefined;
             done();
         });
@@ -3070,7 +3072,7 @@ describe('UTIL', function() {
                 "storage.expires": "60"
             };
             var result = UTIL.getUserIdParams(lrParams);
-            UTIL.initLiveRampAts.calledOnce.should.be.false;
+            window.setTimeout.called.should.be.false;
             window.owpbjs = undefined;
             done();
         });
@@ -3085,7 +3087,7 @@ describe('UTIL', function() {
                 "params.loadIDP": "true"
             };
             var result = UTIL.getUserIdParams(zeotapParams);
-            UTIL.initZeoTapJs.calledOnce.should.be.true;
+            window.setTimeout.called.should.be.true;
             window.owpbjs = undefined;
             done();
         });
@@ -3100,7 +3102,7 @@ describe('UTIL', function() {
                 "params.loadIDP": "false"
             };
             var result = UTIL.getUserIdParams(zeotapParams);
-            UTIL.initZeoTapJs.calledOnce.should.be.false;
+            window.setTimeout.called.should.be.false;
             window.owpbjs = undefined;
             done();
         });
