@@ -1076,7 +1076,9 @@ exports.ajaxRequest = function(url, callback, data, options) {
 // Returns mediaTypes for adUnits which are sent to prebid
 exports.getAdUnitConfig = function(sizes, currentSlot){
 	function iskgpvpresent() {
-		return Object.keys(slotConfig['config'])[0].toLocaleLowerCase() == (kgpv && kgpv.toLocaleLowerCase());
+		if(kgpv) {
+			return Object.keys(slotConfig['config']).toString().toLowerCase().indexOf(kgpv.toLowerCase()) > -1 ? true : false;
+		}
 	}
 	var adUnitConfig = {};
 	var mediaTypeObject = {};
