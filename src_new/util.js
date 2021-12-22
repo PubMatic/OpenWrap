@@ -1352,8 +1352,8 @@ exports.getUserIdParams = function(params){
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}	
-	var ssoTimeout = window.PWT && window.PWT.ssoEnabled ? CONSTANTS.CONFIG.SSO_INTEGRATION_TIMEOUT : 0;
-	ssoTimeout += window.PWT.fbTimeout ? window.PWT.fbTimeout : 0;
+	var ssoTimeout = window.PWT && window.PWT.ssoEnabled ? CONSTANTS.CONFIG.SSO_INTEGRATION_TIMEOUT + 500 : 0; 
+	// additional timeout of 500ms added for OW profiles. should be removed from here once we start supporting pre-pending code snippet for OW profile. 
 	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
       setTimeout(function() {
         refThis.initLiveRampAts(userIdParams); 
