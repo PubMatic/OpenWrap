@@ -3644,7 +3644,7 @@ describe('UTIL', function() {
         it('should update the params object if custom values are provided for ID partners', function(done) {
             UTIL.applyCustomParamValuesfApplicable(paramsForID5);
             expect(paramsForID5["params.provider"]).to.be.defined;
-            expect(paramsForID5["params.provider"]).to.be.equal("pubmatic-identity-hub")
+            expect(paramsForID5["params.provider"]).to.be.equal("pubmatic-identity-hub");
             done();
         });
     });
