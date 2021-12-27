@@ -985,7 +985,7 @@ function gets2sConfig(prebidConfig){
 		};
 		var allAliases = Object.assign({}, defaultAliases, CONF.alias);
 		var pubmaticAndAliases = serverBidders.filter(function(adapter){
-		  if(CONF.alias[adapter] && CONF.alias[adapter].includes('pubmatic') || adapter.includes('pubmatic')) {
+		  if(CONF.alias && CONF.alias[adapter] && CONF.alias[adapter].includes('pubmatic') || adapter.includes('pubmatic')) {
 			return adapter;
 		  }
 		})
@@ -1006,6 +1006,9 @@ function gets2sConfig(prebidConfig){
 			extPrebid: {
 				aliases: allAliases,
 				bidderparams: bidderParams,
+				targeting: {
+					pricegranularity: CONF.pwt.priceGranularity.toString()
+				}  
 			}
 		}    
 	} 
