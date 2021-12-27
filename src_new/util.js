@@ -336,6 +336,9 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
 	var regexPattern = undefined;
+	const adapterNameForAlias = CONFIG.getAdapterNameForAlias(adapterID);
+	var isPubMaticAlias = CONSTANTS.PUBMATIC_ALIASES.indexOf(adapterNameForAlias) > - 1 ? true : false;
+	var regExMappingWithNoConfig = false;
 	refThis.forEachOnArray(generatedKeys, function(j, generatedKey){
 		var keyConfig = null,
 			callHandlerFunction = false,
@@ -358,6 +361,10 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				if(config){
 					keyConfig = config.config;
 					regexPattern = config.regexPattern;
+				}else{
+					// if klm_rx dosen't return any config and if partner is PubMatic alias we need to restrict call to handlerFunction
+					// so adding flag regExMappingWithNoConfig below
+					regExMappingWithNoConfig = isPubMaticAlias ? true : false;
 				}
 			}
 			else{
@@ -382,8 +389,12 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 					})];
 				}
 			}
-			if(!keyConfig){
-				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);			
+			// condition (!keyConfig && !isPubMaticAlias) will check if keyCofig is undefined and partner is not PubMatic alias then log message to console 
+			// with "adapterID+": "+generatedKey+ config not found"
+			// regExMappingWithNoConfig will be true only if klm_rx dosen't return config and partner is PubMatic alias then log message to console
+			// with "adapterID+": "+generatedKey+ config not found" 
+			if((!keyConfig && !isPubMaticAlias) || regExMappingWithNoConfig){
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
 			}else{
 				callHandlerFunction = true;
 			}
