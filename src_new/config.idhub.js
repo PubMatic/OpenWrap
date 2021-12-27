@@ -72,4 +72,8 @@ exports.getProfileDisplayVersionID = function () {
 	return config.pwt[CONSTANTS.CONFIG.PROFILE_VERSION_ID] || "0";
 };
 
+exports.isSSOEnabled = function() {
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SSO_ENABLED]) === 1;
+}
+
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";

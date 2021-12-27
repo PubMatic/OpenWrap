@@ -3019,12 +3019,26 @@ describe('UTIL', function() {
         beforeEach(function(done) {
             params = {"name":"pubCommonId","storage.type":"cookie","storage.name":"_pubCommonId","storage.expires":"1825"}
             sinon.spy(UTIL, "initZeoTapJs");
+            sinon.spy(UTIL, "initLiveRampAts");
+            function onSSOLogin() {};
+            function getUserIdentities() {
+                return {
+                    email: "zeotaptestrab@gmail.com"
+                }
+            }
+            window.owpbjs = {
+                'onSSOLogin': onSSOLogin,
+                'getUserIdentities': getUserIdentities
+            }
+            sinon.spy(window, "setTimeout");
             done();
         });
 
         afterEach(function(done) {
             params = null;
             UTIL.initZeoTapJs.restore();
+            UTIL.initLiveRampAts.restore();
+            window.setTimeout.restore();
             done();
         });
 
@@ -3040,6 +3054,48 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should call initLiveRampAts if identityLink partner is configured and loadATS is set to true', function(done) {
+            var lrParams = {
+                name: "identityLink",
+                "params.pid": "23",
+                "storage.type": "cookie",
+                "params.loadATS": "true", // or false// boolean default is false,
+                "params.placementID": "23",
+                "params.storageType": "localstorage",
+                "params.detectionType": "scrapeAndUrl",
+                "params.urlParameter": "eparam",
+                "params.cssSelectors": "input[type=text], input[type=email]",
+                "params.logging": "info",
+                "storage.name": "somenamevalue",
+                "storage.expires": "60"
+            };
+            var result = UTIL.getUserIdParams(lrParams);
+            window.setTimeout.called.should.be.true;
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('should not call initLiveRampAts if identityLink partner is configured and loadATS is set to false', function(done) {
+            var lrParams = {
+                name: "identityLink",
+                "params.pid": "23",
+                "storage.type": "cookie",
+                "params.loadATS": "false", // or false// boolean default is false,
+                "params.placementID": "23",
+                "params.storageType": "localstorage",
+                "params.detectionType": "scrapeAndUrl",
+                "params.urlParameter": "eparam",
+                "params.cssSelectors": "input[type=text], input[type=email]",
+                "params.logging": "info",
+                "storage.name": "somenamevalue",
+                "storage.expires": "60"
+            };
+            var result = UTIL.getUserIdParams(lrParams);
+            window.setTimeout.called.should.be.false;
+            window.owpbjs = undefined;
+            done();
+        });
+
         it('should call initZeoTapJs if zeotap partner is configured and initZeotap is set to true', function(done) {
             var zeotapParams = {
                 name: "zeotapIdPlus",
@@ -3049,15 +3105,8 @@ describe('UTIL', function() {
                 "params.partnerId": "b13e43f5-9846-4349-ae87-23ea3c3c25de",
                 "params.loadIDP": "true"
             };
-            window.owpbjs = {
-                getUserIdentities: function(){
-                    return {
-                        email: "zeotaptestrab@gmail.com"
-                    };
-                }
-            };
             var result = UTIL.getUserIdParams(zeotapParams);
-            UTIL.initZeoTapJs.calledOnce.should.be.true;
+            window.setTimeout.called.should.be.true;
             window.owpbjs = undefined;
             done();
         });
@@ -3071,15 +3120,8 @@ describe('UTIL', function() {
                 "params.partnerId": "b13e43f5-9846-4349-ae87-23ea3c3c25de",
                 "params.loadIDP": "false"
             };
-            window.owpbjs = {
-                getUserIdentities: function(){
-                    return {
-                        email: "zeotaptestrab@gmail.com"
-                    };
-                }
-            };
             var result = UTIL.getUserIdParams(zeotapParams);
-            UTIL.initZeoTapJs.calledOnce.should.be.false;
+            window.setTimeout.called.should.be.false;
             window.owpbjs = undefined;
             done();
         });
@@ -3092,6 +3134,10 @@ describe('UTIL', function() {
             separator = ".";
             key = "params.init.member";
             value="nQjyizbdyF";
+            function onSSOLogin() {};
+            window.owpbjs = {
+                'onSSOLogin': onSSOLogin
+            }
             done();
         });
 
@@ -3189,7 +3235,11 @@ describe('UTIL', function() {
                     "storage.name": "somenamevalue",
                     "storage.expires":"60"
                 }
-            })
+            });
+            function onSSOLogin() {};
+            window.owpbjs = {
+                'onSSOLogin': onSSOLogin
+            }
             done();
         });
 
