@@ -1366,6 +1366,7 @@ exports.getUserIdParams = function(params){
 	var userIdParams= {};
 	refThis.applyDataTypeChangesIfApplicable(params);
 	refThis.applyCustomParamValuesfApplicable(params);
+	owpbjs.onSSOLogin({});
 	for(var key in params){
 		try{
 			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
@@ -1382,11 +1383,17 @@ exports.getUserIdParams = function(params){
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}	
-	if(userIdParams && userIdParams.params && userIdParams.params['loadATS'] == 'true'){
-		refThis.initLiveRampAts(userIdParams);
+	var ssoTimeout = window.PWT && window.PWT.ssoEnabled ? CONSTANTS.CONFIG.SSO_INTEGRATION_TIMEOUT + 500 : 0; 
+	// additional timeout of 500ms added for OW profiles. should be removed from here once we start supporting pre-pending code snippet for OW profile. 
+	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
+      setTimeout(function() {
+        refThis.initLiveRampAts(userIdParams); 
+      }, ssoTimeout);
 	}
 	if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
-		refThis.initZeoTapJs(userIdParams);
+      setTimeout(function() {
+        refThis.initZeoTapJs(userIdParams);
+      }, ssoTimeout);
 	}
 	return userIdParams;
 };
@@ -1637,24 +1644,50 @@ exports.updateUserIds = function(bid){
 };
 // endRemoveIf(removeIdHubOnlyRelatedCode)
 
-exports.initLiveRampAts = function(params){
+exports.initLiveRampAts = function (params) {
 	function addATS() {
-		var atsScript = document.createElement('script');
-		if(params.params.cssSelectors && params.params.cssSelectors.length>0){
-			params.params.cssSelectors = params.params.cssSelectors.split(',');
+		var atsScript = document.createElement("script");
+		if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
+			params.params.cssSelectors = params.params.cssSelectors.split(",");
 		}
-		atsScript.onload = function() {
-		  window.ats.start(        {
-			  "placementID": params.params.pid,
-			  "storageType":params.params.storageType,
-			  "detectionType": params.params.detectionType,
-			  "urlParameter": params.params.urlParameter,
-			  "cssSelectors":params.params.cssSelectors,// ["input[type=text]", "input[type=email]"],
-			  "logging": params.params.logging, //"error"
-			  "detectDynamicNodes": params.params.detectDynamicNodes
-			});
+		var userIdentity = owpbjs.getUserIdentities() || {};
+		var enableSSO = CONFIG.isSSOEnabled() || false;
+		var detectionMechanism = params.params.detectionMechanism;
+		var customIdSupport = params.params.customIdSupport === "1" ? true : false;
+		var atsObject = {
+			"placementID": params.params.pid,
+			"storageType": params.params.storageType,
+			"logging": params.params.logging //"error"
 		};
-		atsScript.src = 'https://ats.rlcdn.com/ats.js';
+		switch (detectionMechanism) {
+			case undefined:
+			case 'detect':
+				atsObject.detectionType = params.params.detectionType;
+				atsObject.urlParameter = params.params.urlParameter;
+				atsObject.cssSelectors = params.params.cssSelectors;
+				atsObject.detectDynamicNodes = params.params.detectDynamicNodes;
+				break;
+			case 'direct':
+				if (customIdSupport) {
+					if (parseInt(params.params.accountId) === NaN) {
+						utils.logWarning("Liveramp ATS.js - customID is enabled, but accountID param missing. Ignoring customId config")
+					} else {
+						atsObject.accountID = params.params.accountID;
+					}
+				}
+				break;
+		};
+			
+		atsScript.onload = function () {
+			userIdentity = owpbjs.getUserIdentities() || {};
+			atsObject.emailHashes = enableSSO && userIdentity.emailHash ? [userIdentity.emailHash['MD5'], userIdentity.emailHash['SHA1'], userIdentity.emailHash['SHA256']] : undefined;
+			/* -- need this code for customid support
+			if (detectionMechanism === "direct" && customIdSupport && !isNaN(parseInt(params.params.accountId))) {
+				atsObject.customID = userIdentity.emailHash['SHA256'];
+			}*/
+			window.ats.start(atsObject);
+		};
+		atsScript.src = "https://ats.rlcdn.com/ats.js";
 		document.body.appendChild(atsScript);
 	}
 	if (document.readyState == 'complete') {
@@ -1666,12 +1699,11 @@ exports.initLiveRampAts = function(params){
 	}
 };
 
-
 exports.initZeoTapJs = function(params) {
 	function addZeoTapJs() {
 		var n = document, t = window;
 		var userIdentity = owpbjs.getUserIdentities() || {};
-		userIdentityObject = {
+		var userIdentityObject = {
 			email: userIdentity.email || "",
 			cellno: userIdentity.cellNo || "",
 			loginid: userIdentity.loginId || "",
@@ -1697,7 +1729,7 @@ exports.initZeoTapJs = function(params) {
 					}
 				}(t[o])
 		}(n,["callMethod"],"_q"),
-		t.zeotap=n
+		t.zeotap=n,
 		t.zeotap.callMethod("init",{partnerId:params.partnerId, allowIDP: true})
 		t.zeotap.callMethod("setConsent",CONFIG.getCCPA(), 365)
 		t.zeotap.callMethod("setUserIdentities",userIdentityObject);
@@ -1710,7 +1742,7 @@ exports.initZeoTapJs = function(params) {
 			setTimeout(addZeoTapJs, 1000);
 		});
 	}
-}
+};
 
 exports.getRandomNumberBelow100 = function(){
 	return Math.floor(Math.random()*100);
