@@ -283,3 +283,5 @@ exports.MEDIATYPE = {
 exports.BID_STATUS =  {
 	BID_REJECTED : "bidRejected"
 }
+// Add list of PubMatic aliases here.
+exports.PUBMATIC_ALIASES = ["pubmatic2"];
