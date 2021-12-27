@@ -350,7 +350,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			}
 			callHandlerFunction = true;
 		}else{
-			if(isRegexMapping){ 
+			if(isRegexMapping){
 				refThis.debugLogIsEnabled && refThis.log(console.time("Time for regexMatching for key " + generatedKey));
 				var config = refThis.getConfigFromRegex(keyLookupMap,generatedKey);
 				refThis.debugLogIsEnabled && refThis.log(console.timeEnd("Time for regexMatching for key " + generatedKey));
@@ -363,14 +363,23 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			else{
 				// Added Below Check Because of UOE-5600
 				if(videoSlotName && videoSlotName.length == 1){
-					keyConfig = keyLookupMap[videoSlotName[0]];
+					// Commented out normal lookup and added below check to remove case sensitive check on videoSlotName[0].
+					// keyConfig = keyLookupMap[videoSlotName[0]];
+					// keyConfig = keyLookupMap[Object.keys(keyLookupMap).find(key => key.toLowerCase() === videoSlotName[0].toLowerCase())];
+					keyConfig = keyLookupMap[Object.keys(keyLookupMap).filter(function(key) {
+						return key.toLowerCase() === videoSlotName[0].toLowerCase()
+					})];
 					// We are updating the generatedKey because we want to log kgpv as 0x0 in case of video 
 					if(keyConfig){
 						generatedKey = videoSlotName[0];
 					}
 				}
 				if(!keyConfig){
-					keyConfig = keyLookupMap[generatedKey];
+					// Commented out normal lookup and added below check to remove case sensitive check on generatedKey.
+					// keyConfig = keyLookupMap[generatedKey];
+					keyConfig = keyLookupMap[Object.keys(keyLookupMap).filter(function(key) {
+						return key.toLowerCase() === generatedKey.toLowerCase()
+					})];
 				}
 			}
 			if(!keyConfig){
@@ -1066,6 +1075,11 @@ exports.ajaxRequest = function(url, callback, data, options) {
 
 // Returns mediaTypes for adUnits which are sent to prebid
 exports.getAdUnitConfig = function(sizes, currentSlot){
+	function iskgpvpresent() {
+		if(kgpv) {
+			return Object.keys(slotConfig['config']).toString().toLowerCase().indexOf(kgpv.toLowerCase()) > -1 ? true : false;
+		}
+	}
 	var adUnitConfig = {};
 	var mediaTypeObject = {};
 	var slotConfig = CONFIG.getSlotConfiguration();
@@ -1099,8 +1113,13 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					adUnitConfig['renderer'] = config.renderer;
 				}
 			}
-			if(refThis.isOwnProperty(slotConfig['config'], kgpv)){
+			if(refThis.isOwnProperty(slotConfig['config'], kgpv) || iskgpvpresent()){
 				config = slotConfig["config"][kgpv];
+				if(!config) {
+					config = slotConfig["config"][Object.keys(slotConfig["config"]).filter(function(key){
+						return key.toLocaleLowerCase() === kgpv.toLowerCase();
+					})]
+				}
 				refThis.log("Config" + JSON.stringify(config)  +" found for adSlot: " +  JSON.stringify(currentSlot));
 			}
 			else{
@@ -1257,7 +1276,8 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 		var rxPattern = klmv.rx;
 		if(keys.length == 3){ // Only execute if generated key length is 3 .
 			try{
-				if(keys[0].match(new RegExp(rxPattern.AU)) && keys[1].match(new RegExp(rxPattern.DIV)) && keys[2].match(new RegExp(rxPattern.SIZE))){
+				// Added second parameter to RegExp to make case insenitive check on AU & DIV parameters. 
+				if(keys[0].match(new RegExp(rxPattern.AU, "i")) && keys[1].match(new RegExp(rxPattern.DIV, "i")) && keys[2].match(new RegExp(rxPattern.SIZE))){
 					rxConfig = {
 						config : klmv.rx_config,
 						regexPattern : rxPattern.AU + "@" + rxPattern.DIV + "@" + rxPattern.SIZE
