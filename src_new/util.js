@@ -1277,7 +1277,7 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 		if(keys.length == 3){ // Only execute if generated key length is 3 .
 			try{
 				// Added second parameter to RegExp to make case insenitive check on AU & DIV parameters. 
-				if(keys[0].match(new RegExp(rxPattern.AU, "i")) && keys[1].match(new RegExp(rxPattern.DIV, "i")) && keys[2].match(new RegExp(rxPattern.SIZE))){
+				if(keys[0].match(new RegExp(rxPattern.AU, "i")) && keys[1].match(new RegExp(rxPattern.DIV, "i")) && keys[2].match(new RegExp(rxPattern.SIZE, "i"))){
 					rxConfig = {
 						config : klmv.rx_config,
 						regexPattern : rxPattern.AU + "@" + rxPattern.DIV + "@" + rxPattern.SIZE
