@@ -3589,7 +3589,7 @@ describe('UTIL', function() {
         })
     })
   
-   describe('#applyDataTypeChangesIfApplicable', function() {
+    describe('#applyDataTypeChangesIfApplicable', function() {
         var params;
         beforeEach(function(done) {
             params = {"name": "intentIqId","params.partner":"123","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
@@ -3692,6 +3692,23 @@ describe('UTIL', function() {
         });
     });  
 
+    describe('#applyCustomParamValuesfApplicable', function() {
+        var paramsForID5;
+        beforeEach(function(done) {
+            paramsForID5 = {"name":"id5Id","storage":{"type":"html5","expires":"30","name":"id5id","refreshInSeconds":"28800"},"params":{"partner":173,},"display":0}
+            done();
+        });
+        afterEach(function(done) {
+            paramsForID5 = null;
+            done();
+        });
+        it('should update the params object if custom values are provided for ID partners', function(done) {
+            UTIL.applyCustomParamValuesfApplicable(paramsForID5);
+            expect(paramsForID5["params.provider"]).to.be.defined;
+            expect(paramsForID5["params.provider"]).to.be.equal("pubmatic-identity-hub");
+            done();
+        });
+    });
 
       
    describe('#getUpdatedKGPVForVideo', function() {
