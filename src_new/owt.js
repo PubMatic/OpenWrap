@@ -186,4 +186,6 @@ window.PWT.setAuctionTimeout = function(timeout){
 
 window.PWT.versionDetails =  util.getOWConfig();
 
+window.PWT.getAdapterNameForAlias = CONFIG.getAdapterNameForAlias;
+
 controller.init(window);
