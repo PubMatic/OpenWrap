@@ -1393,7 +1393,7 @@ exports.getUserIdParams = function(params){
 	if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
       setTimeout(function() {
         refThis.initZeoTapJs(userIdParams);
-      }, 0);
+      }, 1);
 	}
 	return userIdParams;
 };
