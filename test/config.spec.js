@@ -2338,4 +2338,17 @@ describe('Config', function() {
             done();
         });
     });
+
+    describe('#isSSOEnabled',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.SSO_ENABLED] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.SSO_ENABLED];
+            done();
+        })
+    });
+
 });

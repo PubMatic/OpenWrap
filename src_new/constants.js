@@ -101,7 +101,9 @@ exports.CONFIG = {
 	"DEFAULT_FLOOR_ENFORCE_JS": true,
 	"USE_PREBID_KEYS": "usePBJSKeys",
 	"AB_TEST_ENABLED": "abTestEnabled",
-	"TIMEOUT_ADJUSTMENT": 50
+	"TIMEOUT_ADJUSTMENT": 50,
+	"SSO_ENABLED": "ssoEnabled",
+	"SSO_INTEGRATION_TIMEOUT": 2500
 };
 
 exports.METADATA_MACROS = {
@@ -261,7 +263,14 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 	}
 }; //list of ID partners for whom special handling of datatype is required
 
-exports.ID_PARTNERS_CUSTOM_VALUES = {};
+exports.ID_PARTNERS_CUSTOM_VALUES = {
+    "id5Id": [
+        {
+            "key": "params.provider",
+            "value": "pubmatic-identity-hub"
+        }
+    ]
+};
 
 exports.EXCLUDE_PARTNER_LIST = ['pubProvidedId'];
 
@@ -274,3 +283,5 @@ exports.MEDIATYPE = {
 exports.BID_STATUS =  {
 	BID_REJECTED : "bidRejected"
 }
+// Add list of PubMatic aliases here.
+exports.PUBMATIC_ALIASES = ["pubmatic2"];

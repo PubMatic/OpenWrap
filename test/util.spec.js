@@ -2992,15 +2992,18 @@ describe('UTIL', function() {
         });
 
         it('should return regex config for other partner if genrated key matches the regex', function(done){
-            klmsForPartner = [{"rx":{"DIV":"DiV.*","AU":".*","SIZE":".*"},"rx_config":{"placementId":"8801674"}},{"rx":{"DIV":"Div1","AU":".*","SIZE":".*"},"rx_config":{"placementId":"8801675"}}];
+            klmsForPartner = [
+                {"rx":{"DIV":"DiV.*","AU":".*","SIZE":".*"},"rx_config":{"placementId":"8801674"}},
+                {"rx":{"DIV":"Div1","AU":".*","SIZE":".*"},"rx_config":{"placementId":"8801675"}}
+            ];
             generatedKey = "/43743431/DMDemo@Div1@728x90";
-            var expectedResult = {"config":{"placementId":"8801675"},"regexPattern":".*@Div1@.*"}
+            var expectedResult = {"config":{"placementId":"8801674"},"regexPattern":".*@DiV.*@.*"}
             UTIL.getConfigFromRegex(klmsForPartner, generatedKey).should.be.deep.equal(expectedResult);
             done();
         });
 
-        it('should return null if generated key does not matches the regex pattern', function(done){
-            generatedKey = "/43743431/DMDemo@DiV1@728x90";
+        it('should return null if generated key splits with @ and length is not equals to 3', function(done){
+            generatedKey = "/43743431/DMDemoDiV1@728x90";
             expect(UTIL.getConfigFromRegex(klmsForPartner, generatedKey)).to.be.equal(null);
             done();
         });
@@ -3019,12 +3022,26 @@ describe('UTIL', function() {
         beforeEach(function(done) {
             params = {"name":"pubCommonId","storage.type":"cookie","storage.name":"_pubCommonId","storage.expires":"1825"}
             sinon.spy(UTIL, "initZeoTapJs");
+            sinon.spy(UTIL, "initLiveRampAts");
+            function onSSOLogin() {};
+            function getUserIdentities() {
+                return {
+                    email: "zeotaptestrab@gmail.com"
+                }
+            }
+            window.owpbjs = {
+                'onSSOLogin': onSSOLogin,
+                'getUserIdentities': getUserIdentities
+            }
+            sinon.spy(window, "setTimeout");
             done();
         });
 
         afterEach(function(done) {
             params = null;
             UTIL.initZeoTapJs.restore();
+            UTIL.initLiveRampAts.restore();
+            window.setTimeout.restore();
             done();
         });
 
@@ -3040,6 +3057,48 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should call initLiveRampAts if identityLink partner is configured and loadATS is set to true', function(done) {
+            var lrParams = {
+                name: "identityLink",
+                "params.pid": "23",
+                "storage.type": "cookie",
+                "params.loadATS": "true", // or false// boolean default is false,
+                "params.placementID": "23",
+                "params.storageType": "localstorage",
+                "params.detectionType": "scrapeAndUrl",
+                "params.urlParameter": "eparam",
+                "params.cssSelectors": "input[type=text], input[type=email]",
+                "params.logging": "info",
+                "storage.name": "somenamevalue",
+                "storage.expires": "60"
+            };
+            var result = UTIL.getUserIdParams(lrParams);
+            window.setTimeout.called.should.be.true;
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('should not call initLiveRampAts if identityLink partner is configured and loadATS is set to false', function(done) {
+            var lrParams = {
+                name: "identityLink",
+                "params.pid": "23",
+                "storage.type": "cookie",
+                "params.loadATS": "false", // or false// boolean default is false,
+                "params.placementID": "23",
+                "params.storageType": "localstorage",
+                "params.detectionType": "scrapeAndUrl",
+                "params.urlParameter": "eparam",
+                "params.cssSelectors": "input[type=text], input[type=email]",
+                "params.logging": "info",
+                "storage.name": "somenamevalue",
+                "storage.expires": "60"
+            };
+            var result = UTIL.getUserIdParams(lrParams);
+            window.setTimeout.called.should.be.false;
+            window.owpbjs = undefined;
+            done();
+        });
+
         it('should call initZeoTapJs if zeotap partner is configured and initZeotap is set to true', function(done) {
             var zeotapParams = {
                 name: "zeotapIdPlus",
@@ -3049,15 +3108,8 @@ describe('UTIL', function() {
                 "params.partnerId": "b13e43f5-9846-4349-ae87-23ea3c3c25de",
                 "params.loadIDP": "true"
             };
-            window.owpbjs = {
-                getUserIdentities: function(){
-                    return {
-                        email: "zeotaptestrab@gmail.com"
-                    };
-                }
-            };
             var result = UTIL.getUserIdParams(zeotapParams);
-            UTIL.initZeoTapJs.calledOnce.should.be.true;
+            window.setTimeout.called.should.be.true;
             window.owpbjs = undefined;
             done();
         });
@@ -3071,15 +3123,8 @@ describe('UTIL', function() {
                 "params.partnerId": "b13e43f5-9846-4349-ae87-23ea3c3c25de",
                 "params.loadIDP": "false"
             };
-            window.owpbjs = {
-                getUserIdentities: function(){
-                    return {
-                        email: "zeotaptestrab@gmail.com"
-                    };
-                }
-            };
             var result = UTIL.getUserIdParams(zeotapParams);
-            UTIL.initZeoTapJs.calledOnce.should.be.false;
+            window.setTimeout.called.should.be.false;
             window.owpbjs = undefined;
             done();
         });
@@ -3092,6 +3137,10 @@ describe('UTIL', function() {
             separator = ".";
             key = "params.init.member";
             value="nQjyizbdyF";
+            function onSSOLogin() {};
+            window.owpbjs = {
+                'onSSOLogin': onSSOLogin
+            }
             done();
         });
 
@@ -3189,7 +3238,11 @@ describe('UTIL', function() {
                     "storage.name": "somenamevalue",
                     "storage.expires":"60"
                 }
-            })
+            });
+            function onSSOLogin() {};
+            window.owpbjs = {
+                'onSSOLogin': onSSOLogin
+            }
             done();
         });
 
@@ -3334,6 +3387,14 @@ describe('UTIL', function() {
             BIDMgr.setBidFromBidder.should.not.be.called;
             done();     
         });
+
+        describe('pubmatic secondary', function() {
+            it('should create bid even though slots are not mapped',function(done){
+                UTIL.callHandlerFunctionForMapping("pubmatic2",adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,false,keyGenerationPattern,undefined);
+                expect(obj.handlerFunction).to.be.called;
+                done();
+            });
+        })
     });
 
     describe('replaceAuctionPrice', function(){
@@ -3631,6 +3692,23 @@ describe('UTIL', function() {
         });
     });  
 
+    describe('#applyCustomParamValuesfApplicable', function() {
+        var paramsForID5;
+        beforeEach(function(done) {
+            paramsForID5 = {"name":"id5Id","storage":{"type":"html5","expires":"30","name":"id5id","refreshInSeconds":"28800"},"params":{"partner":173,},"display":0}
+            done();
+        });
+        afterEach(function(done) {
+            paramsForID5 = null;
+            done();
+        });
+        it('should update the params object if custom values are provided for ID partners', function(done) {
+            UTIL.applyCustomParamValuesfApplicable(paramsForID5);
+            expect(paramsForID5["params.provider"]).to.be.defined;
+            expect(paramsForID5["params.provider"]).to.be.equal("pubmatic-identity-hub");
+            done();
+        });
+    });
 
       
    describe('#getUpdatedKGPVForVideo', function() {

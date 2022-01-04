@@ -1,5 +1,6 @@
 var config = require("./conf.js");
 var CONSTANTS = require("./constants.js");
+
 var util = require("./util.js");
 
 var refThis = null;
@@ -390,3 +391,7 @@ exports.getAdapterNameForAlias = function(aliasName){
 	}
 	return aliasName;
 };
+
+exports.isSSOEnabled = function() {
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SSO_ENABLED]) === 1;
+}

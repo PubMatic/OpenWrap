@@ -336,6 +336,9 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
 	var regexPattern = undefined;
+	const adapterNameForAlias = CONFIG.getAdapterNameForAlias(adapterID);
+	var isPubMaticAlias = CONSTANTS.PUBMATIC_ALIASES.indexOf(adapterNameForAlias) > - 1 ? true : false;
+	var regExMappingWithNoConfig = false;
 	refThis.forEachOnArray(generatedKeys, function(j, generatedKey){
 		var keyConfig = null,
 			callHandlerFunction = false,
@@ -350,7 +353,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			}
 			callHandlerFunction = true;
 		}else{
-			if(isRegexMapping){ 
+			if(isRegexMapping){
 				refThis.debugLogIsEnabled && refThis.log(console.time("Time for regexMatching for key " + generatedKey));
 				var config = refThis.getConfigFromRegex(keyLookupMap,generatedKey);
 				refThis.debugLogIsEnabled && refThis.log(console.timeEnd("Time for regexMatching for key " + generatedKey));
@@ -358,23 +361,40 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				if(config){
 					keyConfig = config.config;
 					regexPattern = config.regexPattern;
+				}else{
+					// if klm_rx dosen't return any config and if partner is PubMatic alias we need to restrict call to handlerFunction
+					// so adding flag regExMappingWithNoConfig below
+					regExMappingWithNoConfig = isPubMaticAlias ? true : false;
 				}
 			}
 			else{
 				// Added Below Check Because of UOE-5600
 				if(videoSlotName && videoSlotName.length == 1){
-					keyConfig = keyLookupMap[videoSlotName[0]];
+					// Commented out normal lookup and added below check to remove case sensitive check on videoSlotName[0].
+					// keyConfig = keyLookupMap[videoSlotName[0]];
+					// keyConfig = keyLookupMap[Object.keys(keyLookupMap).find(key => key.toLowerCase() === videoSlotName[0].toLowerCase())];
+					keyConfig = keyLookupMap[Object.keys(keyLookupMap).filter(function(key) {
+						return key.toLowerCase() === videoSlotName[0].toLowerCase()
+					})];
 					// We are updating the generatedKey because we want to log kgpv as 0x0 in case of video 
 					if(keyConfig){
 						generatedKey = videoSlotName[0];
 					}
 				}
 				if(!keyConfig){
-					keyConfig = keyLookupMap[generatedKey];
+					// Commented out normal lookup and added below check to remove case sensitive check on generatedKey.
+					// keyConfig = keyLookupMap[generatedKey];
+					keyConfig = keyLookupMap[Object.keys(keyLookupMap).filter(function(key) {
+						return key.toLowerCase() === generatedKey.toLowerCase()
+					})];
 				}
 			}
-			if(!keyConfig){
-				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);			
+			// condition (!keyConfig && !isPubMaticAlias) will check if keyCofig is undefined and partner is not PubMatic alias then log message to console 
+			// with "adapterID+": "+generatedKey+ config not found"
+			// regExMappingWithNoConfig will be true only if klm_rx dosen't return config and partner is PubMatic alias then log message to console
+			// with "adapterID+": "+generatedKey+ config not found" 
+			if((!keyConfig && !isPubMaticAlias) || regExMappingWithNoConfig){
+				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
 			}else{
 				callHandlerFunction = true;
 			}
@@ -1066,6 +1086,11 @@ exports.ajaxRequest = function(url, callback, data, options) {
 
 // Returns mediaTypes for adUnits which are sent to prebid
 exports.getAdUnitConfig = function(sizes, currentSlot){
+	function iskgpvpresent() {
+		if(kgpv) {
+			return Object.keys(slotConfig['config']).toString().toLowerCase().indexOf(kgpv.toLowerCase()) > -1 ? true : false;
+		}
+	}
 	var adUnitConfig = {};
 	var mediaTypeObject = {};
 	var slotConfig = CONFIG.getSlotConfiguration();
@@ -1099,8 +1124,13 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					adUnitConfig['renderer'] = config.renderer;
 				}
 			}
-			if(refThis.isOwnProperty(slotConfig['config'], kgpv)){
+			if(refThis.isOwnProperty(slotConfig['config'], kgpv) || iskgpvpresent()){
 				config = slotConfig["config"][kgpv];
+				if(!config) {
+					config = slotConfig["config"][Object.keys(slotConfig["config"]).filter(function(key){
+						return key.toLocaleLowerCase() === kgpv.toLowerCase();
+					})]
+				}
 				refThis.log("Config" + JSON.stringify(config)  +" found for adSlot: " +  JSON.stringify(currentSlot));
 			}
 			else{
@@ -1257,7 +1287,8 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 		var rxPattern = klmv.rx;
 		if(keys.length == 3){ // Only execute if generated key length is 3 .
 			try{
-				if(keys[0].match(new RegExp(rxPattern.AU)) && keys[1].match(new RegExp(rxPattern.DIV)) && keys[2].match(new RegExp(rxPattern.SIZE))){
+				// Added second parameter to RegExp to make case insenitive check on AU & DIV parameters. 
+				if(keys[0].match(new RegExp(rxPattern.AU, "i")) && keys[1].match(new RegExp(rxPattern.DIV, "i")) && keys[2].match(new RegExp(rxPattern.SIZE, "i"))){
 					rxConfig = {
 						config : klmv.rx_config,
 						regexPattern : rxPattern.AU + "@" + rxPattern.DIV + "@" + rxPattern.SIZE
@@ -1335,6 +1366,7 @@ exports.getUserIdParams = function(params){
 	var userIdParams= {};
 	refThis.applyDataTypeChangesIfApplicable(params);
 	refThis.applyCustomParamValuesfApplicable(params);
+	owpbjs.onSSOLogin({});
 	for(var key in params){
 		try{
 			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
@@ -1351,11 +1383,17 @@ exports.getUserIdParams = function(params){
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}	
-	if(userIdParams && userIdParams.params && userIdParams.params['loadATS'] == 'true'){
-		refThis.initLiveRampAts(userIdParams);
+	var ssoTimeout = window.PWT && window.PWT.ssoEnabled ? CONSTANTS.CONFIG.SSO_INTEGRATION_TIMEOUT + 500 : 0; 
+	// additional timeout of 500ms added for OW profiles. should be removed from here once we start supporting pre-pending code snippet for OW profile. 
+	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
+      setTimeout(function() {
+        refThis.initLiveRampAts(userIdParams); 
+      }, ssoTimeout);
 	}
 	if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
-		refThis.initZeoTapJs(userIdParams);
+      setTimeout(function() {
+        refThis.initZeoTapJs(userIdParams);
+      }, 0);
 	}
 	return userIdParams;
 };
@@ -1606,24 +1644,50 @@ exports.updateUserIds = function(bid){
 };
 // endRemoveIf(removeIdHubOnlyRelatedCode)
 
-exports.initLiveRampAts = function(params){
+exports.initLiveRampAts = function (params) {
 	function addATS() {
-		var atsScript = document.createElement('script');
-		if(params.params.cssSelectors && params.params.cssSelectors.length>0){
-			params.params.cssSelectors = params.params.cssSelectors.split(',');
+		var atsScript = document.createElement("script");
+		if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
+			params.params.cssSelectors = params.params.cssSelectors.split(",");
 		}
-		atsScript.onload = function() {
-		  window.ats.start(        {
-			  "placementID": params.params.pid,
-			  "storageType":params.params.storageType,
-			  "detectionType": params.params.detectionType,
-			  "urlParameter": params.params.urlParameter,
-			  "cssSelectors":params.params.cssSelectors,// ["input[type=text]", "input[type=email]"],
-			  "logging": params.params.logging, //"error"
-			  "detectDynamicNodes": params.params.detectDynamicNodes
-			});
+		var userIdentity = owpbjs.getUserIdentities() || {};
+		var enableSSO = CONFIG.isSSOEnabled() || false;
+		var detectionMechanism = params.params.detectionMechanism;
+		var customIdSupport = params.params.customIdSupport === "1" ? true : false;
+		var atsObject = {
+			"placementID": params.params.pid,
+			"storageType": params.params.storageType,
+			"logging": params.params.logging //"error"
 		};
-		atsScript.src = 'https://ats.rlcdn.com/ats.js';
+		switch (detectionMechanism) {
+			case undefined:
+			case 'detect':
+				atsObject.detectionType = params.params.detectionType;
+				atsObject.urlParameter = params.params.urlParameter;
+				atsObject.cssSelectors = params.params.cssSelectors;
+				atsObject.detectDynamicNodes = params.params.detectDynamicNodes;
+				break;
+			case 'direct':
+				if (customIdSupport) {
+					if (parseInt(params.params.accountId) === NaN) {
+						utils.logWarning("Liveramp ATS.js - customID is enabled, but accountID param missing. Ignoring customId config")
+					} else {
+						atsObject.accountID = params.params.accountID;
+					}
+				}
+				break;
+		};
+			
+		atsScript.onload = function () {
+			userIdentity = owpbjs.getUserIdentities() || {};
+			atsObject.emailHashes = enableSSO && userIdentity.emailHash ? [userIdentity.emailHash['MD5'], userIdentity.emailHash['SHA1'], userIdentity.emailHash['SHA256']] : undefined;
+			/* -- need this code for customid support
+			if (detectionMechanism === "direct" && customIdSupport && !isNaN(parseInt(params.params.accountId))) {
+				atsObject.customID = userIdentity.emailHash['SHA256'];
+			}*/
+			window.ats.start(atsObject);
+		};
+		atsScript.src = "https://ats.rlcdn.com/ats.js";
 		document.body.appendChild(atsScript);
 	}
 	if (document.readyState == 'complete') {
@@ -1635,12 +1699,11 @@ exports.initLiveRampAts = function(params){
 	}
 };
 
-
 exports.initZeoTapJs = function(params) {
 	function addZeoTapJs() {
 		var n = document, t = window;
 		var userIdentity = owpbjs.getUserIdentities() || {};
-		userIdentityObject = {
+		var userIdentityObject = {
 			email: userIdentity.email || "",
 			cellno: userIdentity.cellNo || "",
 			loginid: userIdentity.loginId || "",
@@ -1666,7 +1729,7 @@ exports.initZeoTapJs = function(params) {
 					}
 				}(t[o])
 		}(n,["callMethod"],"_q"),
-		t.zeotap=n
+		t.zeotap=n,
 		t.zeotap.callMethod("init",{partnerId:params.partnerId, allowIDP: true})
 		t.zeotap.callMethod("setConsent",CONFIG.getCCPA(), 365)
 		t.zeotap.callMethod("setUserIdentities",userIdentityObject);
@@ -1679,7 +1742,7 @@ exports.initZeoTapJs = function(params) {
 			setTimeout(addZeoTapJs, 1000);
 		});
 	}
-}
+};
 
 exports.getRandomNumberBelow100 = function(){
 	return Math.floor(Math.random()*100);
