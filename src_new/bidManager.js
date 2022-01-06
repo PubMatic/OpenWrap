@@ -501,6 +501,25 @@ exports.getAdUnitAdFormats = getAdUnitAdFormats;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
+function getAdDomain(bidResponse) {
+	if (bidResponse.meta && bidResponse.meta.advertiserDomains) {
+		var adomain = bidResponse.meta.advertiserDomains[0];
+	
+		if (adomain) {
+		try {
+			var hostname = new URL(adomain);
+			return hostname.hostname.replace('www.', '');
+		} catch (e) {
+			util.log("Adomain URL (Not a proper URL):"+ adomain);
+			return adomain.replace('www.', '');
+		}
+		}
+	}
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
 	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = undefined;
@@ -589,7 +608,8 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "di": theBid.getDealID(),
                     "dc": theBid.getDealChannel(),
                     "l1": theBid.getServerSideStatus() ? theBid.getServerSideResponseTime() : (endTime - startTime),
-                    "l2": 0,
+					"l2": 0,
+					"adv": pbbid ? getAdDomain(pbbid) || undefined : undefined,
 					"ss": theBid.getServerSideStatus(),
                     "t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
                     "wb": theBid.getWinningBidStatus() === true ? 1 : 0,
