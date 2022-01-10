@@ -506,13 +506,13 @@ function getAdDomain(bidResponse) {
 		var adomain = bidResponse.meta.advertiserDomains[0];
 	
 		if (adomain) {
-		try {
-			var hostname = new URL(adomain);
-			return hostname.hostname.replace('www.', '');
-		} catch (e) {
-			util.log("Adomain URL (Not a proper URL):"+ adomain);
-			return adomain.replace('www.', '');
-		}
+			try {
+				var hostname = new URL(adomain);
+				return hostname.hostname.replace('www.', '');
+			} catch (e) {
+				util.log("Adomain URL (Not a proper URL):"+ adomain);
+				return adomain.split('/')[0].replace('www.', '');
+			}
 		}
 	}
 }
