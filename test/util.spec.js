@@ -3240,8 +3240,14 @@ describe('UTIL', function() {
                 }
             });
             function onSSOLogin() {};
+            function getUserIdentities() {
+                return {
+                    email: "zeotaptestrab@gmail.com"
+                }
+            }
             window.owpbjs = {
-                'onSSOLogin': onSSOLogin
+                'onSSOLogin': onSSOLogin,
+                'getUserIdentities': getUserIdentities
             }
             done();
         });
