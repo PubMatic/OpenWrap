@@ -502,7 +502,7 @@ exports.getAdUnitAdFormats = getAdUnitAdFormats;
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function getAdDomain(bidResponse) {
-	if (bidResponse.meta && bidResponse.meta.advertiserDomains) {
+	if (bidResponse.meta && bidResponse.meta.advertiserDomains && bidResponse.meta.advertiserDomains.length > 0) {
 		var adomain = bidResponse.meta.advertiserDomains[0];
 	
 		if (adomain) {
