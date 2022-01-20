@@ -272,6 +272,16 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 	]
 };
 
+
+exports.ID_PARTNERS_CUSTOM_PARAM_FUNCTION_VALUES = {
+	"id5Id": [
+		{
+			"key": "params.pd",
+			"value": "CUSTOM"
+		}
+	]
+};
+
 exports.EXCLUDE_PARTNER_LIST = ['pubProvidedId'];
 
 exports.MEDIATYPE = {

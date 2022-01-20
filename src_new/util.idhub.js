@@ -233,11 +233,11 @@ exports.addHookOnFunction = function (theObject, useProto, functionName, newFunc
 
 exports.getUserIdConfiguration = function () {
 	var userIdConfs = [];
-	refThis.forEachOnObject(CONFIG.getIdentityPartners(), function (parterId, partnerValues) {
+	refThis.forEachOnObject(CONFIG.getIdentityPartners(), (function (parterId, partnerValues) {
 		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
-			userIdConfs.push(refThis.getUserIdParams(partnerValues));
+			userIdConfs.push(refThis.applyCustomParamFunctionValuesfApplicable(refThis.getUserIdParams(partnerValues)));
 		}
-	});
+	}));
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIdConfs));
 	return userIdConfs;
 };
@@ -530,6 +530,61 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 		}
 	}
 }
+
+exports.getHashEmailId = function() {
+	var userIdentity = owpbjs.getUserIdentities() || {};
+	return userIdentity.emailHash && userIdentity.emailHash.SHA256 ? userIdentity.emailHash.SHA256: undefined;
+}
+
+exports.getEncodedUserId = function() {
+	var userIdentity = owpbjs.getUserIdentities() || {};
+	return userIdentity.userId ? userIdentity.userId: "testinguserid";
+}
+
+exports.skipUndefinedValues = function (obj){
+	var newObj = {}
+	for (prop in obj) {
+		if (obj[prop]) {
+			newObj[prop] = obj[prop];
+		}
+	}
+	return newObj;
+}
+
+exports.createRawPdString = function () {
+	var params = {
+		1: refThis.getHashEmailId(), // Email
+		5: refThis.getEncodedUserId()  // UserID
+	};
+	return Object.keys(refThis.skipUndefinedValues(params)).map((function(key) {
+		return params[key] && key + '=' + params[key]
+	})).join('&');
+}
+
+exports.getEncodeString = function (str) {
+	return btoa(str);
+}
+
+exports.getEncodedPdString = function(){
+	return CONFIG.isSSOEnabled() ? refThis.getEncodeString(refThis.createRawPdString()) : "";
+}
+
+exports.getCustomParamValues = {
+	"params.pd": refThis.getEncodedPdString.bind(refThis) 
+}
+
+exports.applyCustomParamFunctionValuesfApplicable = function(params) {
+	if (params.name in CONSTANTS.ID_PARTNERS_CUSTOM_FUNCTION_VALUES) {
+		var partnerValues = CONSTANTS.ID_PARTNERS_CUSTOM_FUNCTION_VALUES[params.name];
+		var i = 0;
+		for (;i<partnerValues.length;i++) {
+			var isCustomParamFunctionPresent = refThis.getCustomParamValues[partnerValues[i]["key"]];
+			var pdData = refThis.isFunction(isCustomParamFunctionPresent)? isCustomParamFunctionPresent() : "";
+			params = refThis.getNestedObjectFromString(params, ".", partnerValues[i]["key"], pdData);
+		}
+	}
+	return params;
+};
 
 exports.applyCustomParamValuesfApplicable = function(params) {
 	if (params.name in CONSTANTS.ID_PARTNERS_CUSTOM_VALUES) {
