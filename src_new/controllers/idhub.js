@@ -38,22 +38,12 @@ refThis.setConfig = function(){
 				};
 			}
 			window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
-			var ssoTimeout = window.PWT.ssoEnabled ? 2000 : 0;
-			var userIDs;
 			if(CONFIG.isUserIdModuleEnabled()) {
-			   userIDs = util.getUserIdConfiguration();
+				prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 			}
 			// Adding a hook for publishers to modify the Prebid Config we have generated
 			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
-			setTimeout(function() {
-			  if (CONFIG.isUserIdModuleEnabled()) {
-				if (window.PWT.ssoEnabled || owpbjs.getUserIdentities().pubProvidedEmailHash !== undefined) {
-				  userIDs = util.updatePartnersWithHashedEmailValues(userIDs);
-				}
-				prebidConfig["userSync"]["userIds"] = userIDs;
-			  }
-			  window[pbNameSpace].setConfig(prebidConfig);
-			}, ssoTimeout);
+			window[pbNameSpace].setConfig(prebidConfig);
 		}
 		window[pbNameSpace].requestBids([]);
 	}
