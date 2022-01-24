@@ -285,3 +285,15 @@ exports.BID_STATUS =  {
 }
 // Add list of PubMatic aliases here.
 exports.PUBMATIC_ALIASES = ["pubmatic2"];
+
+exports.PBSPARAMS = {
+	accountId: "1",
+	adapter: "prebidServer",
+	endpoint: "http://prebid-server.pubmatic.com/prebidserver/auction",
+	syncEndpoint: "https://ow.pubmatic.com/cookie_sync/?sec=1"
+}
+
+exports.TIMEOUT_CONFIG = {
+	MaxTimeout: 500,
+	MinTimeout: 200
+}
