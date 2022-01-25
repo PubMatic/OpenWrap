@@ -289,7 +289,8 @@ exports.PUBMATIC_ALIASES = ["pubmatic2"];
 exports.PBSPARAMS = {
 	accountId: "1",
 	adapter: "prebidServer",
-	endpoint: "http://prebid-server.pubmatic.com/prebidserver/auction",
+	// endpoint: "http://prebid-server.pubmatic.com/prebidserver/auction",
+	endpoint: "https://ow.pubmatic.com/pbs/openrtb2/auction",
 	syncEndpoint: "https://ow.pubmatic.com/cookie_sync/?sec=1"
 }
 

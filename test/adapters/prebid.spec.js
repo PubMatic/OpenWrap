@@ -1514,7 +1514,7 @@ describe('ADAPTER: Prebid', function() {
                 adapter: "prebidServer",
                 enabled: true,
                 bidders: ['rubicon'],
-                endpoint: "http://prebid-server.pubmatic.com/prebidserver/auction",
+                endpoint: "https://ow.pubmatic.com/pbs/openrtb2/auction",
                 syncEndpoint: "https://ow.pubmatic.com/cookie_sync/?sec=1",
                 timeout: 500,
             };
