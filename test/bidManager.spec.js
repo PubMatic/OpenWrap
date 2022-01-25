@@ -1727,6 +1727,7 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, "getDealChannel");
             sinon.spy(theBid, "getPostTimeoutStatus");
             sinon.spy(theBid, "getWinningBidStatus");
+            sinon.stub(theBid, "getPbBid").returns({meta: {advertiserDomains : ["startab.com"]}});
             theBid.setWinningBidStatus();
             bmEntryObj.setNewBid("audienceNetwork", theBid);
             CONFIG.getBidPassThroughStatus.returns(2);
@@ -1742,6 +1743,7 @@ describe('bidManager BIDMgr', function() {
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].di).to.exist;
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].dc).to.exist;
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].l1).to.exist;
+            expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].adv).to.exist;
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].l2).to.exist;
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].t).to.exist;
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].wb).to.exist;
