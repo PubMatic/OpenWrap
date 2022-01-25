@@ -1600,4 +1600,86 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
     });
+
+    describe('#addOnBidWonHandler',function(){
+        beforeEach(function(done) {
+            sinon.stub(UTIL, 'isFunction');
+            sinon.spy(UTIL, 'logWarning');
+
+            window.owpbjs = {
+
+            };
+            windowPbJS2Stub = {
+                onEvent: function () {
+                    return "onEvent";
+                }
+            };
+            sinon.spy(windowPbJS2Stub, "onEvent");
+            window["owpbjs"] = windowPbJS2Stub;
+
+            done();
+        });
+
+        afterEach(function(done){
+            UTIL.isFunction.restore();
+            UTIL.logWarning.restore();
+            windowPbJS2Stub.onEvent.restore();
+
+            delete window.owpbjs;
+            done();
+        })
+        it('should be a functiion',function(done){
+            PREBID.addOnBidWonHandler.should.be.a('function');
+            done();
+        });
+
+        it('should log warning if onEvent is not a function',function(done){
+            UTIL.isFunction.returns(false);
+            PREBID.addOnBidWonHandler()
+            UTIL.logWarning.calledWith("PreBid js onEvent method is not available").should.be.true;
+            done();
+        });
+
+        it('should call onEvent if onEvent is function',function(done){
+            UTIL.isFunction.returns(true);
+            PREBID.addOnBidWonHandler();
+            window["owpbjs"].onEvent.should.be.called;
+            done();
+        });
+    });
+
+    describe('#pbBidWonHandler',function(){
+        beforeEach(function(done) {
+            sinon.stub(BM, 'executeMonetizationPixel').returns(true);
+
+            done();
+        });
+
+        afterEach(function(done){
+            BM.executeMonetizationPixel.restore();
+            done();
+        })
+        
+        var pbBid = {
+            adUnitCode: "Div1",
+            auctionId: "2c1dc7f4-85cd-4557-b252-d4502ae98bf9",
+            bidId: "2fe7e7a344e787",
+            bidRequestsCount: 1,
+            bidder: "rubicon",
+            bidderRequestId: "1ce47c7907b346",
+            bidderRequestsCount: 1,
+            bidderWinsCount: 0
+        }
+        
+        it('should be a functiion',function(done){
+            PREBID.pbBidWonHandler.should.be.a('function');
+            done();
+        });
+
+        it('should copy floorData into window.PWT.floorData',function(done){
+            PREBID.pbBidWonHandler(pbBid);
+            BM.executeMonetizationPixel.should.be.called;
+            done();
+        });
+    });
 });

@@ -318,6 +318,18 @@ exports.pbBidRequestHandler = pbBidRequestHandler;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
+function pbBidWonHandler(pbBid){
+	bidManager.executeMonetizationPixel(pbBid.adUnitCode, pbBid)
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+  
+// removeIf(removeLegacyAnalyticsRelatedCode)
+/* start-test-block */
+exports.pbBidWonHandler = pbBidWonHandler;
+/* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function getPBCodeWithWidthAndHeight(divID, adapterID, width, height){
 	return divID + "@" + adapterID + "@" + width + "X" + height;
 }
@@ -912,6 +924,18 @@ function addOnBidRequestHandler(){
 }
 exports.addOnBidRequestHandler = addOnBidRequestHandler;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+function addOnBidWonHandler(){
+	if(util.isFunction(window[pbNameSpace].onEvent)){
+		window[pbNameSpace].onEvent('bidWon', refThis.pbBidWonHandler);
+	} else {
+		util.logWarning("PreBid js onEvent method is not available");
+		return;
+	}
+}
+exports.addOnBidWonHandler = addOnBidWonHandler;
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
   
 function setPrebidConfig(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
@@ -932,10 +956,8 @@ function setPrebidConfig(){
 			prebidConfig["priceGranularity"] = CONFIG.getPriceGranularity();
 		}
 
-		if(isPrebidPubMaticAnalyticsEnabled === true){
-			prebidConfig['instreamTracking'] = {
-				enabled: true
-			}
+		prebidConfig['instreamTracking'] = {
+			enabled: true
 		}
 
 		window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
@@ -1206,6 +1228,7 @@ function fetchBids(activeSlots){
 					// we do not want this call when we have PrebidAnalytics enabled
 					refThis.addOnBidResponseHandler();
 					refThis.addOnBidRequestHandler();
+					refThis.addOnBidWonHandler();
 				}
 				// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
