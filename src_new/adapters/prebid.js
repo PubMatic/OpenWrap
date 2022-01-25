@@ -947,8 +947,8 @@ function setPrebidConfig(){
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
-		// if use_prebid_adapter is 1 then add s2sConfig
-		if(CONF.pwt.use_prebid_adapter == "1") {
+		// if usePBSAdapatar is 1 then add s2sConfig
+		if(CONF.pwt.usePBSAdapatar == "1") {
 			refThis.gets2sConfig(prebidConfig);
 		}
 		// Adding a hook for publishers to modify the Prebid Config we have generated
@@ -964,11 +964,7 @@ function setPrebidConfig(){
 exports.setPrebidConfig = setPrebidConfig;
 
 function gets2sConfig(prebidConfig){
-	var s2sBidders = Object.keys(CONF.adapters).filter(function(adapter){
-		if(CONF.adapters[adapter]['serverSideEnabled'] == "1") {
-		  return adapter;
-		}
-	})
+	var s2sBidders = CONFIG.getServerEnabledAdaptars();
 
 	prebidConfig["s2sConfig"] = {
 		accountId: CONSTANTS.PBSPARAMS.accountId,
@@ -977,23 +973,11 @@ function gets2sConfig(prebidConfig){
 		bidders: s2sBidders,
 		endpoint: CONSTANTS.PBSPARAMS.endpoint,
 		syncEndpoint: CONSTANTS.PBSPARAMS.syncEndpoint,
-		timeout: getTimeoutForPBSRequest(),
+		timeout: CONFIG.getTimeoutForPBSRequest()
 	}
 }
 
 exports.gets2sConfig = gets2sConfig;
-
-function getTimeoutForPBSRequest() {
-	var ssTimeOut = parseInt(CONF.pwt.ssTimeout);
-	var maxTimeout = CONSTANTS.TIMEOUT_CONFIG.MaxTimeout;
-	var minTimeout = CONSTANTS.TIMEOUT_CONFIG.MinTimeout;
-	if(ssTimeOut >= minTimeout && ssTimeOut <= maxTimeout) {
-		return ssTimeOut;
-	} else if(ssTimeOut >= minTimeout) {
-		return maxTimeout;
-	}
-	return minTimeout;
-}
 
 function getFloorsConfiguration(prebidConfig){
 	if(CONFIG.isFloorPriceModuleEnabled() == true){
