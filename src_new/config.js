@@ -395,3 +395,24 @@ exports.getAdapterNameForAlias = function(aliasName){
 exports.isSSOEnabled = function() {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SSO_ENABLED]) === 1;
 }
+
+exports.getServerEnabledAdaptars = function() {
+	var s2sBidders = Object.keys(config.adapters).filter(function(adapter){
+		if(config.adapters[adapter]['serverSideEnabled'] == "1") {
+		  return adapter;
+		}
+	});	
+	return s2sBidders;
+}
+
+exports.getTimeoutForPBSRequest = function() {
+	var ssTimeOut = parseInt(config.pwt.ssTimeout);
+	var maxTimeout = CONSTANTS.TIMEOUT_CONFIG.MaxTimeout;
+	var minTimeout = CONSTANTS.TIMEOUT_CONFIG.MinTimeout;
+	if(ssTimeOut >= minTimeout && ssTimeOut <= maxTimeout) {
+		return ssTimeOut;
+	} else if(ssTimeOut >= minTimeout) {
+		return maxTimeout;
+	}
+	return minTimeout;
+}

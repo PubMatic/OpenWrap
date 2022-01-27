@@ -1501,6 +1501,45 @@ describe('ADAPTER: Prebid', function() {
         });
     })
 
+    // Test cases to generate s2sConfig
+    describe('generates2sConfig',function(){
+        var prebidConfig = {};
+        var expectedResult = {};
+        beforeEach(function(done){
+            CONF.adapters['rubicon']['serverSideEnabled'] = "1";
+            CONF.pwt['ssTimeout'] = "500";
+
+            expectedResult = {
+                accountId: "1",
+                adapter: "prebidServer",
+                enabled: true,
+                bidders: ['rubicon'],
+                endpoint: "https://ow.pubmatic.com/pbs/openrtb2/auction",
+                syncEndpoint: "https://ow.pubmatic.com/cookie_sync/?sec=1",
+                timeout: 500,
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            CONF.adapters['rubicon']['serverSideEnabled'] = "0";
+            delete CONF.pwt['ssTimeout'];
+            prebidConfig = {};
+            done();
+        });
+
+        it('should be a functiion',function(done){
+            PREBID.gets2sConfig.should.be.a('function');
+            done();
+        });
+
+        it('should set s2sConfig properties',function(done){
+            PREBID.gets2sConfig(prebidConfig);
+            expect(prebidConfig.s2sConfig).to.be.deep.equal(expectedResult);
+            done();
+        });
+    })
+
     describe('#addOnBidRequestHandler',function(){
         beforeEach(function(done) {
             sinon.stub(UTIL, 'isFunction');

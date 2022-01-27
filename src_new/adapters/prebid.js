@@ -947,6 +947,10 @@ function setPrebidConfig(){
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
+		// if usePBSAdapatar is 1 then add s2sConfig
+		if(CONF.pwt.usePBSAdapatar == "1") {
+			refThis.gets2sConfig(prebidConfig);
+		}
 		// Adding a hook for publishers to modify the Prebid Config we have generated
 		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 		//todo: stop supporting this hook let pubs use pbjs.requestBids hook
@@ -958,6 +962,22 @@ function setPrebidConfig(){
 }
 
 exports.setPrebidConfig = setPrebidConfig;
+
+function gets2sConfig(prebidConfig){
+	var s2sBidders = CONFIG.getServerEnabledAdaptars();
+
+	prebidConfig["s2sConfig"] = {
+		accountId: CONSTANTS.PBSPARAMS.accountId,
+		adapter: CONSTANTS.PBSPARAMS.adapter,
+		enabled: true,
+		bidders: s2sBidders,
+		endpoint: CONSTANTS.PBSPARAMS.endpoint,
+		syncEndpoint: CONSTANTS.PBSPARAMS.syncEndpoint,
+		timeout: CONFIG.getTimeoutForPBSRequest()
+	}
+}
+
+exports.gets2sConfig = gets2sConfig;
 
 function getFloorsConfiguration(prebidConfig){
 	if(CONFIG.isFloorPriceModuleEnabled() == true){
