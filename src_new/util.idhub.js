@@ -366,15 +366,6 @@ exports.initLiveRampAts = function (params) {
 			"logging": params.params.logging //"error"
 		};
 		if (enableCustomId) {
-			//if (parseInt(params.params.accountID) === NaN) {
-			//	utils.logWarning("Liveramp ATS.js - customID is enabled, but accountID param missing. Ignoring customId config")
-			//} else {
-			
-			//}
-			//if (params.params.customerIDRegex === undefined) {
-			//	utils.logWarning("Liveramp ATS.js - customID is enabled, but customerIDRegex param missing. Ignoring customId config")
-			//} else {
-			//}
 			atsObject.accountID = params.params.accountID;
 			atsObject.customerIDRegex = params.params.customerIDRegex;
 			atsObject.detectionSubject = "customerIdentifier";
