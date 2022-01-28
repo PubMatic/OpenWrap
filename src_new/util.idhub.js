@@ -235,11 +235,17 @@ exports.getUserIdConfiguration = function () {
 	var userIdConfs = [];
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(), (function (parterId, partnerValues) {
 		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
-			userIdConfs.push(refThis.applyCustomParamFunctionValuesfApplicable(refThis.getUserIdParams(partnerValues)));
+			userIdConfs.push(refThis.getUserIdParams(partnerValues));
 		}
 	}));
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIdConfs));
 	return userIdConfs;
+};
+
+exports.getSsoTimeout = function () {
+	var ssoTimeout = window.PWT && window.PWT.ssoEnabled ? CONSTANTS.CONFIG.SSO_INTEGRATION_TIMEOUT : 0;
+	ssoTimeout += window.PWT.fbTimeout ? window.PWT.fbTimeout : 0;
+	return ssoTimeout;
 };
 
 exports.getUserIdParams = function (params) {
@@ -262,12 +268,10 @@ exports.getUserIdParams = function (params) {
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}
-	var ssoTimeout = window.PWT && window.PWT.ssoEnabled ? CONSTANTS.CONFIG.SSO_INTEGRATION_TIMEOUT : 0;
-	ssoTimeout += window.PWT.fbTimeout ? window.PWT.fbTimeout : 0;
 	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
 		setTimeout(function() {
 			refThis.initLiveRampAts(userIdParams); 
-		}, ssoTimeout);
+		}, refThis.getSsoTimeout());
 	}
 	if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
 		setTimeout(function() {
@@ -538,7 +542,7 @@ exports.getHashEmailId = function() {
 
 exports.getEncodedUserId = function() {
 	var userIdentity = owpbjs.getUserIdentities() || {};
-	return userIdentity.userId ? userIdentity.userId: "testinguserid";
+	return userIdentity.userId ? userIdentity.userId: "";
 }
 
 exports.skipUndefinedValues = function (obj){
@@ -562,28 +566,28 @@ exports.createRawPdString = function () {
 }
 
 exports.getEncodeString = function (str) {
-	return btoa(str);
+	return str ? btoa(str): "";
 }
 
 exports.getEncodedPdString = function(){
 	return CONFIG.isSSOEnabled() ? refThis.getEncodeString(refThis.createRawPdString()) : "";
 }
 
-exports.getCustomParamValues = {
-	"params.pd": refThis.getEncodedPdString.bind(refThis) 
-}
+exports.getCustomParamValues = function(customParam){
+    var params = {
+        "params.pd": refThis.getEncodedPdString.bind(refThis) 
+    };
+    return params[customParam] && refThis.isFunction(params[customParam])? params[customParam]() : "";
+};
 
-exports.applyCustomParamFunctionValuesfApplicable = function(params) {
-	if (params.name in CONSTANTS.ID_PARTNERS_CUSTOM_FUNCTION_VALUES) {
-		var partnerValues = CONSTANTS.ID_PARTNERS_CUSTOM_FUNCTION_VALUES[params.name];
-		var i = 0;
-		for (;i<partnerValues.length;i++) {
-			var isCustomParamFunctionPresent = refThis.getCustomParamValues[partnerValues[i]["key"]];
-			var pdData = refThis.isFunction(isCustomParamFunctionPresent)? isCustomParamFunctionPresent() : "";
-			params = refThis.getNestedObjectFromString(params, ".", partnerValues[i]["key"], pdData);
-		}
-	}
-	return params;
+exports.applyCustomParamFunctionValuesfApplicable = function(partners) {
+	partners.forEach(function(partner){
+		var params = CONSTANTS.ID_PARTNERS_CUSTOM_FUNCTION_PARAM_VALUES[partner['name']]
+		params.forEach(function(param){
+			refThis.getNestedObjectFromString(partner, ".", param.key, refThis.getCustomParamValues(param.key));
+		});
+	});
+	return partners;
 };
 
 exports.applyCustomParamValuesfApplicable = function(params) {

@@ -273,11 +273,10 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 };
 
 
-exports.ID_PARTNERS_CUSTOM_PARAM_FUNCTION_VALUES = {
+exports.ID_PARTNERS_CUSTOM_FUNCTION_PARAM_VALUES = {
 	"id5Id": [
 		{
 			"key": "params.pd",
-			"value": "CUSTOM"
 		}
 	]
 };
