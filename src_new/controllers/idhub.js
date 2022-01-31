@@ -50,6 +50,7 @@ refThis.setConfig = function(){
 						userIDs = util.applyCustomParamFunctionValuesfApplicable(prebidConfig["userSync"]["userIds"]);
 					}
 					prebidConfig["userSync"]["userIds"] = userIDs;
+					refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIDs));
 					window[pbNameSpace].setConfig(prebidConfig);
 					window[pbNameSpace].requestBids([]);
 				}, ssoTimeout);

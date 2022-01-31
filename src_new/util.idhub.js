@@ -242,12 +242,6 @@ exports.getUserIdConfiguration = function () {
 	return userIdConfs;
 };
 
-exports.getSsoTimeout = function () {
-	var ssoTimeout = window.PWT && window.PWT.ssoEnabled ? CONSTANTS.CONFIG.SSO_INTEGRATION_TIMEOUT : 0;
-	ssoTimeout += window.PWT.fbTimeout ? window.PWT.fbTimeout : 0;
-	return ssoTimeout;
-};
-
 exports.getUserIdParams = function (params) {
 	var userIdParams = {};
 	refThis.applyDataTypeChangesIfApplicable(params);
@@ -534,6 +528,12 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 		}
 	}
 }
+
+exports.getSsoTimeout = function () {
+	var ssoTimeout = window.PWT && window.PWT.ssoEnabled ? CONSTANTS.CONFIG.SSO_INTEGRATION_TIMEOUT : 0;
+	ssoTimeout += window.PWT.fbTimeout ? window.PWT.fbTimeout : 0;
+	return ssoTimeout;
+};
 
 exports.getHashEmailId = function() {
 	var userIdentity = owpbjs.getUserIdentities() || {};
