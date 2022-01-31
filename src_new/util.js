@@ -1813,7 +1813,7 @@ exports.getSsoTimeout = function () {
 
 exports.getHashEmailId = function() {
 	var userIdentity = owpbjs.getUserIdentities() || {};
-	return userIdentity.emailHash && userIdentity.emailHash.SHA256 ? userIdentity.emailHash.SHA256: undefined;
+	return CONFIG.isSSOEnabled() && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined;
 }
 
 exports.getEncodedUserId = function() {
@@ -1831,9 +1831,11 @@ exports.skipUndefinedValues = function (obj){
 	return newObj;
 }
 
+// Specfic to ID5 parnter to create PD string.
 exports.createRawPdString = function () {
+	var emailHashes = refThis.getHashEmailId();
 	var params = {
-		1: refThis.getHashEmailId(), // Email
+		1: emailHashes && emailHashes['SHA256'] || undefined, // Email
 		5: refThis.getEncodedUserId()  // UserID
 	};
 	return Object.keys(refThis.skipUndefinedValues(params)).map((function(key) {
@@ -1846,7 +1848,7 @@ exports.getEncodeString = function (str) {
 }
 
 exports.getEncodedPdString = function(){
-	return CONFIG.isSSOEnabled() ? refThis.getEncodeString(refThis.createRawPdString()) : "";
+	return refThis.getEncodeString(refThis.createRawPdString()) ;
 }
 
 exports.getCustomParamValues = function(customParam){
