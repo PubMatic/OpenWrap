@@ -586,7 +586,7 @@ exports.getCustomParamValues = function(customParam){
 exports.applyCustomParamFunctionValuesfApplicable = function(partners) {
 	partners.forEach(function(partner){
 		var params = CONSTANTS.ID_PARTNERS_CUSTOM_FUNCTION_PARAM_VALUES[partner['name']]
-		params.forEach(function(param){
+		params && params.forEach(function(param){
 			refThis.getNestedObjectFromString(partner, ".", param.key, refThis.getCustomParamValues(param.key));
 		});
 	});
