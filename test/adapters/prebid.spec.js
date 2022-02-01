@@ -1501,6 +1501,66 @@ describe('ADAPTER: Prebid', function() {
         });
     })
 
+    // Test cases to generate s2sConfig
+    describe('generates2sConfig',function(){
+        var prebidConfig = {};
+        var expectedResult = {};
+        var defaultAliases = {
+            adg: "adgeneration",
+            districtm: "appnexus",
+            districtmDMX: "dmx",
+            pubmatic2: "pubmatic"
+        };
+        var allAliases = Object.assign({}, defaultAliases, CONF.alias);
+
+        beforeEach(function(done){
+            var s2sBidders = CONFIG.getServerEnabledAdaptars();
+            var pubmaticAndAliases = s2sBidders.filter(function(adapter) {
+                if(CONF.alias && CONF.alias[adapter] && CONF.alias[adapter].includes('pubmatic') || adapter.includes('pubmatic')) {
+                  return adapter;
+                }
+            })
+            var bidderParams = {};
+            pubmaticAndAliases.forEach(function(bidder) {
+                bidderParams[bidder] = {};
+            })
+
+            expectedResult = {
+                accountId: "1",
+                adapter: "prebidServer",
+                enabled: true,
+                bidders: s2sBidders,
+                endpoint: "https://ow.pubmatic.com/pbs/openrtb2/auction",
+                syncEndpoint: "https://ow.pubmatic.com/cookie_sync/?sec=1",
+                timeout: CONFIG.getTimeoutForPBSRequest(),
+                extPrebid: {
+                    aliases: allAliases,
+			        bidderparams: bidderParams,
+                    targeting: {
+                        pricegranularity: CONFIG.getPriceGranularity()
+                    }
+                }
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            prebidConfig = {};
+            done();
+        });
+
+        it('should be a functiion',function(done){
+            PREBID.gets2sConfig.should.be.a('function');
+            done();
+        });
+
+        it('should set s2sConfig properties',function(done){
+            PREBID.gets2sConfig(prebidConfig);
+            expect(prebidConfig.s2sConfig).to.be.deep.equal(expectedResult);
+            done();
+        });
+    })
+
     describe('#addOnBidRequestHandler',function(){
         beforeEach(function(done) {
             sinon.stub(UTIL, 'isFunction');
