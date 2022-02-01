@@ -353,15 +353,19 @@ exports.initLiveRampAts = function (params) {
 		if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
 			params.params.cssSelectors = params.params.cssSelectors.split(",");
 		}
-		var userIdentity = owpbjs.getUserIdentities() || {};
-		var enableSSO = CONFIG.isSSOEnabled() || false;
 		var detectionMechanism = params.params.detectionMechanism;
-		var customIdSupport = params.params.customIdSupport === "1" ? true : false;
+		var enableCustomId = params.params.enableCustomId === "1" ? true : false;
 		var atsObject = {
 			"placementID": params.params.pid,
 			"storageType": params.params.storageType,
 			"logging": params.params.logging //"error"
 		};
+		if (enableCustomId) {
+			atsObject.accountID = params.params.accountID;
+			atsObject.customerIDRegex = params.params.customerIDRegex;
+			atsObject.detectionSubject = "customerIdentifier";
+		}
+  
 		switch (detectionMechanism) {
 			case undefined:
 			case 'detect':
@@ -371,22 +375,19 @@ exports.initLiveRampAts = function (params) {
 				atsObject.detectDynamicNodes = params.params.detectDynamicNodes;
 				break;
 			case 'direct':
-				if (customIdSupport) {
-					if (parseInt(params.params.accountId) === NaN) {
-						utils.logWarning("Liveramp ATS.js - customID is enabled, but accountID param missing. Ignoring customId config")
-					} else {
-						atsObject.accountID = params.params.accountID;
-					}
+				var emailHash = refThis.getHashEmailId();
+				atsObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+				/* do we want to keep sso data under direct option? 
+				if yes, if sso is enabled and 'direct' is selected as detection mechanism, sso emails will be sent to ats script.
+				if sso is disabled, and 'direct' is selected as detection mechanism, we will look for publisher provided email ids, and if available the hashes will be sent to ats script.
+				*/
+				if (enableCustomId && refThis.isFunction(owpbjs.getUserIdentities) && owpbjs.getUserIdentities() !== undefined) {
+					atsObject.customerID = owpbjs.getUserIdentities().customerID;
 				}
 				break;
 		};
-			
 		atsScript.onload = function () {
-			userIdentity = owpbjs.getUserIdentities() || {};
-			atsObject.emailHashes = enableSSO && userIdentity.emailHash ? [userIdentity.emailHash['MD5'], userIdentity.emailHash['SHA1'], userIdentity.emailHash['SHA256']] : undefined;
-			/*if (detectionMechanism === "direct" && customIdSupport && !isNaN(parseInt(params.params.accountId))) {
-				atsObject.customID = userIdentity.emailHash['SHA256'];
-			}*/
+			console.log("object sent to ats script - ", atsObject);
 			window.ats.start(atsObject);
 		};
 		atsScript.src = "https://ats.rlcdn.com/ats.js";
@@ -536,12 +537,13 @@ exports.getSsoTimeout = function () {
 
 exports.getHashEmailId = function() {
 	var userIdentity = owpbjs.getUserIdentities() || {};
-	return CONFIG.isSSOEnabled() && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined;
+	var enableSSO = CONFIG.isSSOEnabled() || false;
+	return enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined;
 }
 
 exports.getEncodedUserId = function() {
 	var userIdentity = owpbjs.getUserIdentities() || {};
-	return userIdentity.userId ? userIdentity.userId: "";
+	return userIdentity && userIdentity.userId ? userIdentity.userId: "";
 }
 
 exports.skipUndefinedValues = function (obj){
