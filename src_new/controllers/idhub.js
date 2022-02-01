@@ -38,22 +38,25 @@ refThis.setConfig = function(){
 				};
 			}
 			window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
-			// Adding a hook for publishers to modify the Prebid Config we have generated
-			var ssoTimeout = util.getSsoTimeout();
-			var userIDs;
 			if(CONFIG.isUserIdModuleEnabled()) {
-				userIDs = util.getUserIdConfiguration();
+				var userIDs = util.getUserIdConfiguration();
 				prebidConfig["userSync"]["userIds"] = userIDs;
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
-				setTimeout(function() {
-					if (window.PWT.ssoEnabled || owpbjs.getUserIdentities().pubProvidedEmailHash !== undefined) {
-						userIDs = util.applyCustomParamFunctionValuesfApplicable(prebidConfig["userSync"]["userIds"]);
-					}
-					prebidConfig["userSync"]["userIds"] = userIDs;
-					refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIDs));
+				if(window.PWT.ssoEnabled || owpbjs.getUserIdentities().pubProvidedEmailHash !== undefined) {
+					var ssoTimeout = util.getSsoTimeout();
+					setTimeout((function() {
+						userIDs = util.applyCustomParamFunctionValuesfApplicable(prebidConfig["userSync"]["userIds"]);						
+						prebidConfig["userSync"]["userIds"] = userIDs;
+						util.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIDs));
+						util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+						window[pbNameSpace].setConfig(prebidConfig);
+						window[pbNameSpace].requestBids([]);
+					}), ssoTimeout);
+				}else {
+					util.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIDs));
 					window[pbNameSpace].setConfig(prebidConfig);
 					window[pbNameSpace].requestBids([]);
-				}, ssoTimeout);
+				}
 			}else{
 				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 				window[pbNameSpace].setConfig(prebidConfig);
@@ -61,7 +64,9 @@ refThis.setConfig = function(){
 			}
 		}
 		else{
-			window[pbNameSpace].requestBids([]);
+			if(!(window.PWT.ssoEnabled || owpbjs.getUserIdentities().pubProvidedEmailHash !== undefined)) {
+				window[pbNameSpace].requestBids([]);
+			}
 		}
 	}
 };

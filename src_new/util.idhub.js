@@ -543,7 +543,7 @@ exports.getHashEmailId = function() {
 
 exports.getEncodedUserId = function() {
 	var userIdentity = owpbjs.getUserIdentities() || {};
-	return userIdentity && userIdentity.userId ? userIdentity.userId: "";
+	return userIdentity && userIdentity.userID ? userIdentity.userID: "";
 }
 
 exports.skipUndefinedValues = function (obj){
