@@ -28,6 +28,12 @@ var refThis = this;
 var onEventAdded = false;
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
+var defaultAliases = {
+	adg: "adgeneration",
+	districtm: "appnexus",
+	districtmDMX: "dmx",
+	pubmatic2: "pubmatic"
+};
 
 /* start-test-block */
 exports.isSingleImpressionSettingEnabled = isSingleImpressionSettingEnabled;
@@ -990,23 +996,18 @@ function setPrebidConfig(){
 exports.setPrebidConfig = setPrebidConfig;
 
 function gets2sConfig(prebidConfig){
-	var s2sBidders = CONFIG.getServerEnabledAdaptars();
-	var defaultAliases = {
-		adg: "adgeneration",
-		districtm: "appnexus",
-		districtmDMX: "dmx",
-		pubmatic2: "pubmatic"
-	};
-	var allAliases = Object.assign({}, defaultAliases, CONF.alias);
-	var pubmaticAndAliases = s2sBidders.filter(function(adapter) {
-		if(CONF.alias && CONF.alias[adapter] && CONF.alias[adapter].includes('pubmatic') || adapter.includes('pubmatic')) {
-		  return adapter;
-		}
-	})
 	var bidderParams = {};
-	pubmaticAndAliases.forEach(function(bidder) {
-		bidderParams[bidder] = {};
-	})
+	var s2sBidders = CONFIG.getServerEnabledAdaptars();
+	for(var key in CONF.alias) {
+		defaultAliases[key] = CONF.alias[key]
+	}
+	var pubmaticAndAliases = CONFIG.getPubMaticAndAlias(s2sBidders)
+	if(pubmaticAndAliases.length) {
+		pubmaticAndAliases.forEach(function(bidder) {
+			bidderParams[bidder] = {};
+		})
+	}
+
 	prebidConfig["s2sConfig"] = {
 		accountId: CONSTANTS.PBSPARAMS.accountId,
 		adapter: CONSTANTS.PBSPARAMS.adapter,
@@ -1016,7 +1017,7 @@ function gets2sConfig(prebidConfig){
 		syncEndpoint: CONSTANTS.PBSPARAMS.syncEndpoint,
 		timeout: CONFIG.getTimeoutForPBSRequest(),
 		extPrebid: {
-			aliases: allAliases,
+			aliases: defaultAliases,
 			bidderparams: bidderParams,
 			targeting: {
 				pricegranularity: CONFIG.getPriceGranularity()

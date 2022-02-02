@@ -416,3 +416,12 @@ exports.getTimeoutForPBSRequest = function() {
 	}
 	return minTimeout;
 }
+
+exports.getPubMaticAndAlias = function(s2sBidders) {
+	var pubMaticaliases = s2sBidders.filter(function(adapter) {
+		if(config.alias && config.alias[adapter] && config.alias[adapter].includes('pubmatic') || adapter.includes('pubmatic')) {
+			return adapter;
+		}
+	})
+	return pubMaticaliases;
+}

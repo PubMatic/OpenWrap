@@ -1511,7 +1511,9 @@ describe('ADAPTER: Prebid', function() {
             districtmDMX: "dmx",
             pubmatic2: "pubmatic"
         };
-        var allAliases = Object.assign({}, defaultAliases, CONF.alias);
+        for(var key in CONF.alias) {
+            defaultAliases[key] = CONF.alias[key]
+        }
 
         beforeEach(function(done){
             var s2sBidders = CONFIG.getServerEnabledAdaptars();
@@ -1534,7 +1536,7 @@ describe('ADAPTER: Prebid', function() {
                 syncEndpoint: "https://ow.pubmatic.com/cookie_sync/?sec=1",
                 timeout: CONFIG.getTimeoutForPBSRequest(),
                 extPrebid: {
-                    aliases: allAliases,
+                    aliases: defaultAliases,
 			        bidderparams: bidderParams,
                     targeting: {
                         pricegranularity: CONFIG.getPriceGranularity()
