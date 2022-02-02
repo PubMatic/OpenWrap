@@ -1813,12 +1813,13 @@ exports.getSsoTimeout = function () {
 
 exports.getHashEmailId = function() {
 	var userIdentity = owpbjs.getUserIdentities() || {};
-	return CONFIG.isSSOEnabled() && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined;
+	var enableSSO = CONFIG.isSSOEnabled() || false;
+	return enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined;	
 }
 
 exports.getEncodedUserId = function() {
 	var userIdentity = owpbjs.getUserIdentities() || {};
-	return userIdentity.userId ? userIdentity.userId: "";
+	return userIdentity && userIdentity.userID ? userIdentity.userID: "";
 }
 
 exports.skipUndefinedValues = function (obj){
@@ -1861,7 +1862,7 @@ exports.getCustomParamValues = function(customParam){
 exports.applyCustomParamFunctionValuesfApplicable = function(partners) {
 	partners.forEach(function(partner){
 		var params = CONSTANTS.ID_PARTNERS_CUSTOM_FUNCTION_PARAM_VALUES[partner['name']]
-		params.forEach(function(param){
+		params && params.forEach(function(param){
 			refThis.getNestedObjectFromString(partner, ".", param.key, refThis.getCustomParamValues(param.key));
 		});
 	});
