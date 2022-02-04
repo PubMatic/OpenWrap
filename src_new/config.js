@@ -425,3 +425,10 @@ exports.getPubMaticAndAlias = function(s2sBidders) {
 	})
 	return pubMaticaliases;
 }
+
+exports.usePBSAdapter = function() {
+	if(config.pwt.usePBSAdapter == "1") {
+		return true;
+	}
+	return false;
+}

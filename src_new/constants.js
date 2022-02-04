@@ -297,3 +297,10 @@ exports.TIMEOUT_CONFIG = {
 	MaxTimeout: 500,
 	MinTimeout: 200
 }
+
+exports.DEFAULT_ALIASES = {
+	adg: "adgeneration",
+	districtm: "appnexus",
+	districtmDMX: "dmx",
+	pubmatic2: "pubmatic"
+}

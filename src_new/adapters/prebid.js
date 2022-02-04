@@ -28,12 +28,7 @@ var refThis = this;
 var onEventAdded = false;
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
-var defaultAliases = {
-	adg: "adgeneration",
-	districtm: "appnexus",
-	districtmDMX: "dmx",
-	pubmatic2: "pubmatic"
-};
+var defaultAliases = CONSTANTS.DEFAULT_ALIASES;
 
 /* start-test-block */
 exports.isSingleImpressionSettingEnabled = isSingleImpressionSettingEnabled;
@@ -370,7 +365,7 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 
 	//If we are using PubMaticServerBidAdapatar then serverSideEabled: do not add config into adUnits. 
 	//If we are using PrebidServerBidAdapatar then we need to add config into adUnits.
-	if(CONFIG.isServerSideAdapter(adapterID) && CONF.pwt.usePBSAdapatar != "1"){
+	if(CONFIG.isServerSideAdapter(adapterID) && CONFIG.usePBSAdapter() != true){
 		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
 		return;
 	}
@@ -486,7 +481,7 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 	
 	//If we are using PubMaticServerBidAdapatar then serverSideEabled: do not add config into adUnits. 
 	//If we are using PrebidServerBidAdapatar then we need to add config into adUnits.
-	if(CONFIG.isServerSideAdapter(adapterID) && CONF.pwt.usePBSAdapatar != "1"){
+	if(CONFIG.isServerSideAdapter(adapterID) && CONFIG.usePBSAdapter() != true){
 		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
 		return;
 	}
@@ -624,7 +619,8 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			}
 
 			// If we will be using PrebidServerBidAdaptar add wrapper object with profile and version
-			if(CONF.pwt.usePBSAdapatar == '1' && CONFIG.isServerSideAdapter(adapterName)) {
+			if(CONFIG.usePBSAdapter() == true && CONFIG.isServerSideAdapter(adapterID)) {
+				slotParams["wiid"] = impressionID;
 				slotParams["wrapper"] = {
 					profile: parseInt(CONF.pwt.pid),
 					version: parseInt(CONF.pwt.pdvid)
@@ -880,12 +876,9 @@ function generateAdUnitsArray(activeSlots, impressionID){
 			// If we will be using PrebidServerBidAdapatar then we need to check throttling for 
 			// serverEnabled partners at client-side
 			/* istanbul ignore if */
-			if(CONF.pwt.usePBSAdapatar == "1" && CONFIG.isServerSideAdapter(adapterID)) {
+			if(CONFIG.usePBSAdapter() == true&& CONFIG.isServerSideAdapter(adapterID)) {
 				if(refThis.throttleAdapter(randomNumberBelow100, adapterID) == false) {
-					util.forEachOnObject(activeSlots, function(j, slot){
-						bidManager.setCallInitTime(slot.getDivID(), adapterID);
-					});
-					refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+					refThis.generateConfig(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
 				} else {
 					util.log(adapterID+CONSTANTS.MESSAGES.M2);
 				}
@@ -893,10 +886,7 @@ function generateAdUnitsArray(activeSlots, impressionID){
 				// serverSideEabled: we do not want to throttle them at client-side
 				/* istanbul ignore if */
 				if(CONFIG.isServerSideAdapter(adapterID) || refThis.throttleAdapter(randomNumberBelow100, adapterID) == false){
-					util.forEachOnObject(activeSlots, function(j, slot){
-						bidManager.setCallInitTime(slot.getDivID(), adapterID);
-					});
-					refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+					refThis.generateConfig(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
 				}else{
 					util.log(adapterID+CONSTANTS.MESSAGES.M2);
 				}
@@ -917,6 +907,14 @@ function generateAdUnitsArray(activeSlots, impressionID){
 }
 
 exports.generateAdUnitsArray = generateAdUnitsArray;
+
+function generateConfig(adapterID, adapterConfig, activeSlots, adUnits, impressionID) {
+	util.forEachOnObject(activeSlots, function(j, slot){
+		bidManager.setCallInitTime(slot.getDivID(), adapterID);
+	});
+	refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+}
+exports.generateConfig = generateConfig;
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function addOnBidResponseHandler(){
@@ -979,8 +977,8 @@ function setPrebidConfig(){
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
-		// if usePBSAdapatar is 1 then add s2sConfig
-		if(CONF.pwt.usePBSAdapatar == "1") {
+		// if usePBSAdapter is 1 then add s2sConfig
+		if(CONFIG.usePBSAdapter()) {
 			refThis.gets2sConfig(prebidConfig);
 		}
 		// Adding a hook for publishers to modify the Prebid Config we have generated
