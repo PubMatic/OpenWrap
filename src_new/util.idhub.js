@@ -356,7 +356,7 @@ exports.getLiverampParams = function(params) {
 	var userIdentity = owpbjs.getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var detectionMechanism = params.params.detectionMechanism;
-	var enableCustomId = params.params.enableCustomId === "1" ? true : false;
+	var enableCustomId = params.params.enableCustomId === "true" ? true : false;
 	var atsObject = {
 		"placementID": params.params.pid,
 		"storageType": params.params.storageType,

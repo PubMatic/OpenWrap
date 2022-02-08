@@ -3114,7 +3114,7 @@ describe('UTIL', function() {
                     urlParameter: "eparam",
                     cssSelectors: "input[type=text], input[type=email]",
                     logging: "info",
-                    enableCustomId: "1",
+                    enableCustomId: "true",
                     accountID: "123_acc",
                     customerIDRegex: "[0-9a-zA-Z_]*",
                     detectionMechanism: "direct"
@@ -3151,7 +3151,7 @@ describe('UTIL', function() {
                     urlParameter: "eparam",
                     cssSelectors: "input[type=text], input[type=email]",
                     logging: "info",
-                    enableCustomId: "0",
+                    enableCustomId: "false",
                     accountID: "123_acc",
                     customerIDRegex: "[0-9a-zA-Z_]*",
                     detectionMechanism: "direct"
@@ -3187,7 +3187,7 @@ describe('UTIL', function() {
                     urlParameter: "eparam",
                     cssSelectors: "input[type=text], input[type=email]",
                     logging: "info",
-                    enableCustomId: "0",
+                    enableCustomId: "false",
                     accountID: "123_acc",
                     customerIDRegex: "[0-9a-zA-Z_]*",
                     detectionMechanism: "direct"
@@ -3223,7 +3223,7 @@ describe('UTIL', function() {
                     urlParameter: "eparam",
                     cssSelectors: "input[type=text], input[type=email]",
                     logging: "info",
-                    enableCustomId: "0",
+                    enableCustomId: "false",
                     accountID: "123_acc",
                     customerIDRegex: "[0-9a-zA-Z_]*",
                     detectionMechanism: "detect",
