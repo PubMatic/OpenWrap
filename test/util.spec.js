@@ -3716,6 +3716,46 @@ describe('UTIL', function() {
         });
     });
 
+    describe('#applyCustomParamFunctionValuesfApplicable', function() {
+        var partners;
+        beforeEach(function(done) {
+            partners = [{"name":"id5Id","storage":{"type":"html5","expires":"30","name":"id5id","refreshInSeconds":"28800"},"params":{"partner":173},"display":0}]
+            function getUserIdentities() {
+                return {
+                    "emailHash": {
+                        "MD5": "b9ea47bd80a563c9299ca16b2f79405b",
+                        "SHA1": "df0dd701dc1a7ef9dd65d6eca9abfbc1c33abbd1",
+                        "SHA256": "c08a386a01d187e2e3b03489b6553b0d7cf7ac6feb99a92516f9fbde30d0b283"
+                    }
+                }
+            }
+            window.owpbjs = {
+                getUserIdentities: getUserIdentities
+            }
+            done();
+        });
+        afterEach(function(done) {
+            partners = null;
+            CONFIG.isSSOEnabled.restore();
+            window.owpbjs = undefined;
+            done();    
+        });
+        it('should update the params object with PD with emailhash(SHA256) as value if SSOEnabled is enabled for ID partners', function(done) {
+            sinon.stub(CONFIG, "isSSOEnabled").returns(true);
+            UTIL.applyCustomParamFunctionValuesfApplicable(partners);
+            expect(partners[0]["params"]["pd"]).to.be.defined;
+            expect(partners[0]["params"]["pd"]).to.be.equal("MT1jMDhhMzg2YTAxZDE4N2UyZTNiMDM0ODliNjU1M2IwZDdjZjdhYzZmZWI5OWE5MjUxNmY5ZmJkZTMwZDBiMjgz");
+            done();
+        });
+    
+        it('should update the params object with PD with empty string if SSOEnabled is not enabled for ID partners', function(done) {
+            sinon.stub(CONFIG, "isSSOEnabled").returns(false);
+            UTIL.applyCustomParamFunctionValuesfApplicable(partners);
+            expect(partners[0]["params"]["pd"]).to.be.defined;
+            expect(partners[0]["params"]["pd"]).to.be.equal("");
+            done();
+        });
+    });
       
    describe('#getUpdatedKGPVForVideo', function() {
     var kgpv, adFormat;

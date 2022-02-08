@@ -938,23 +938,46 @@ function setPrebidConfig(){
 			}
 		}
 
-		window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
-
-		refThis.getFloorsConfiguration(prebidConfig)
+		window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;		
 		refThis.assignUserSyncConfig(prebidConfig);
-		refThis.assignGdprConfigIfRequired(prebidConfig);
-		refThis.assignCcpaConfigIfRequired(prebidConfig);
-		refThis.assignCurrencyConfigIfRequired(prebidConfig);
-		refThis.assignSchainConfigIfRequired(prebidConfig);
-		refThis.assignSingleRequestConfigForBidders(prebidConfig);
-		// Adding a hook for publishers to modify the Prebid Config we have generated
-		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
-		//todo: stop supporting this hook let pubs use pbjs.requestBids hook
-		// do not set any config below this line as we are executing the hook above
-		window[pbNameSpace].setConfig(prebidConfig);
+		if(CONFIG.isUserIdModuleEnabled()) {
+			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+			// setTimeout only in case of SSO enabled
+			if(window.PWT.ssoEnabled || owpbjs.getUserIdentities().pubProvidedEmailHash !== undefined) {
+				var ssoTimeout = util.getSsoTimeout() + CONSTANTS.CONFIG.SSO_ADDITIONAL_TIMEOUT;
+				// additional timeout of 500ms added for OW profiles. should be removed from here once we start supporting pre-pending code snippet for OW profile. 
+				setTimeout((function() {
+					var userIDs = util.applyCustomParamFunctionValuesfApplicable(prebidConfig["userSync"]["userIds"]);
+					prebidConfig["userSync"]["userIds"] = userIDs;
+					util.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIDs));
+					prebidConfig = getAllPrebidConfigs(prebidConfig);
+					util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+					window[pbNameSpace].setConfig(prebidConfig);
+					window[pbNameSpace].requestBids([]);
+				}), ssoTimeout);
+			}else {
+				prebidConfig = getAllPrebidConfigs(prebidConfig);
+				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+				window[pbNameSpace].setConfig(prebidConfig);
+			}
+      }else{
+        prebidConfig = getAllPrebidConfigs(prebidConfig);
+        util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+        window[pbNameSpace].setConfig(prebidConfig);
+      }
 	} else {
 		util.logWarning("PreBidJS setConfig method is not available");
 	}
+}
+
+function getAllPrebidConfigs(prebidConfig) {
+	refThis.getFloorsConfiguration(prebidConfig)
+	refThis.assignGdprConfigIfRequired(prebidConfig);
+	refThis.assignCcpaConfigIfRequired(prebidConfig);
+	refThis.assignCurrencyConfigIfRequired(prebidConfig);
+	refThis.assignSchainConfigIfRequired(prebidConfig);
+	refThis.assignSingleRequestConfigForBidders(prebidConfig);
+	return prebidConfig;
 }
 
 exports.setPrebidConfig = setPrebidConfig;

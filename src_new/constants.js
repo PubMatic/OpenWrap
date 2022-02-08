@@ -103,7 +103,8 @@ exports.CONFIG = {
 	"AB_TEST_ENABLED": "abTestEnabled",
 	"TIMEOUT_ADJUSTMENT": 50,
 	"SSO_ENABLED": "ssoEnabled",
-	"SSO_INTEGRATION_TIMEOUT": 2500
+	"SSO_INTEGRATION_TIMEOUT": 2500,
+	"SSO_ADDITIONAL_TIMEOUT": 500
 };
 
 exports.METADATA_MACROS = {
@@ -268,6 +269,15 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 		{
 			"key": "params.provider",
 			"value": "pubmatic-identity-hub"
+		}
+	]
+};
+
+
+exports.ID_PARTNERS_CUSTOM_FUNCTION_PARAM_VALUES = {
+	"id5Id": [
+		{
+			"key": "params.pd",
 		}
 	]
 };

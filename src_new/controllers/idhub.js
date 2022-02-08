@@ -38,14 +38,37 @@ refThis.setConfig = function(){
 				};
 			}
 			window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
-			if(CONFIG.isUserIdModuleEnabled()){
-				prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+			if(CONFIG.isUserIdModuleEnabled()) {
+				var userIDs = util.getUserIdConfiguration();
+				prebidConfig["userSync"]["userIds"] = userIDs;
+				// Adding a hook for publishers to modify the Prebid Config we have generated
+				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+				if(window.PWT.ssoEnabled || owpbjs.getUserIdentities().pubProvidedEmailHash !== undefined) {
+					var ssoTimeout = util.getSsoTimeout();
+					setTimeout((function() {
+						userIDs = util.applyCustomParamFunctionValuesfApplicable(prebidConfig["userSync"]["userIds"]);						
+						prebidConfig["userSync"]["userIds"] = userIDs;
+						util.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIDs));
+						util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+						window[pbNameSpace].setConfig(prebidConfig);
+						window[pbNameSpace].requestBids([]);
+					}), ssoTimeout);
+				}else {
+					util.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIDs));
+					window[pbNameSpace].setConfig(prebidConfig);
+					window[pbNameSpace].requestBids([]);
+				}
+			}else{
+				util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+				window[pbNameSpace].setConfig(prebidConfig);
+				window[pbNameSpace].requestBids([]);
 			}
-			// Adding a hook for publishers to modify the Prebid Config we have generated
-			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
-			window[pbNameSpace].setConfig(prebidConfig);
 		}
-		window[pbNameSpace].requestBids([]);
+		else{
+			if(!(window.PWT.ssoEnabled || owpbjs.getUserIdentities().pubProvidedEmailHash !== undefined)) {
+				window[pbNameSpace].requestBids([]);
+			}
+		}
 	}
 };
 
