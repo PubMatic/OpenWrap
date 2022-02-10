@@ -981,9 +981,11 @@ function checkForYahooSSPBidder(prebidConfig){
 	var isYahooAlias = false;
 	var isYahooSSP = CONF.adapters.hasOwnProperty('yahoossp');
 	
-	for(var bidder in CONF.alias) {
-		if(CONFIG.getAdapterNameForAlias(bidder) == 'yahoossp') {
-			isYahooAlias = true;
+	if(!isYahooSSP) {
+		for(var bidder in CONF.alias) {
+			if(CONFIG.getAdapterNameForAlias(bidder) == 'yahoossp') {
+				isYahooAlias = true;
+			}
 		}
 	}
 	if(isYahooSSP || isYahooAlias) {
