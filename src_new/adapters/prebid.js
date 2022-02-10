@@ -1162,6 +1162,9 @@ exports.initPbjsConfig = initPbjsConfig;
 function fetchBids(activeSlots){
 
 	var impressionID = util.generateUUID();
+	if(window.PWT && window.PWT.floorData){
+		window.PWT.floorData = {};
+	}
 	// todo: 
 	// 	Accept a call back function, pass it from controllers only if pbjs-analytics is enabled
 	//		if possible try to use the callback for all cases
