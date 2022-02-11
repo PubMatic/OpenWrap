@@ -285,3 +285,5 @@ exports.BID_STATUS =  {
 }
 // Add list of PubMatic aliases here.
 exports.PUBMATIC_ALIASES = ["pubmatic2"];
+
+exports.YAHOOSSP = "yahoossp";
