@@ -979,18 +979,18 @@ exports.getFloorsConfiguration = getFloorsConfiguration;
 
 function checkForYahooSSPBidder(prebidConfig){
 	var isYahooAlias = false;
-	var isYahooSSP = CONF.adapters.hasOwnProperty('yahoossp');
+	var isYahooSSP = CONF.adapters.hasOwnProperty("yahoossp");
 	
 	if(!isYahooSSP) {
 		for(var bidder in CONF.alias) {
-			if(CONFIG.getAdapterNameForAlias(bidder) == 'yahoossp') {
+			if(CONFIG.getAdapterNameForAlias(bidder) == "yahoossp") {
 				isYahooAlias = true;
 			}
 		}
 	}
 	if(isYahooSSP || isYahooAlias) {
 		prebidConfig["yahoossp"]={
-			mode: 'all'
+			mode: "all"
 		}
 	}
 }

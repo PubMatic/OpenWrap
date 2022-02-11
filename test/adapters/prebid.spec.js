@@ -913,7 +913,7 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should be a functiion',function(done){
+        it('should be a function',function(done){
             PREBID.checkForYahooSSPBidder.should.be.a('function');
             done();
         });
