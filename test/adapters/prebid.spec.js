@@ -1046,6 +1046,16 @@ describe('ADAPTER: Prebid', function() {
              window["owpbjs"].getConfig = function(){
                  return prebidConfig;
              };
+             window.PWT = {
+                 floorData : {
+                    "floorRequestData" : {
+                        "skipped": true
+                    },
+                    "floorResponseData" : {
+                        "floorType": 1
+                    }
+                }
+            }
             done();
         });
 
@@ -1085,6 +1095,7 @@ describe('ADAPTER: Prebid', function() {
                 window.pwtCreatePrebidNamespace.restore();
             }
             delete window.owpbjs;
+            delete window.PWT;
             prebidConfig = {};
             done();
         });
@@ -1103,6 +1114,13 @@ describe('ADAPTER: Prebid', function() {
             delete window.owpbjs;
             PREBID.fetchBids(activeSlots);
             UTIL.logError.calledWith("PreBid js is not loaded").should.be.true;
+            done();
+        })
+
+        it('should clear floor data for each auction',function(done){
+            PREBID.fetchBids(activeSlots);
+            expect(window.PWT.floorData['floorRequestData']).to.be.undefined;
+            expect(window.PWT.floorData['floorResponseData']).to.be.undefined;
             done();
         })
 
