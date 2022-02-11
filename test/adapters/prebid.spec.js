@@ -880,18 +880,18 @@ describe('ADAPTER: Prebid', function() {
         })
     });
 
-    // Test cases for yahoo ssp setconfig property
-    describe('set config for YahooSSP Bidder',function(){
-        var prebidConfig = {};
-        var expectedResult = {
-            mode: 'all'
-        };
+  // Test cases for yahoo ssp setconfig property
+  describe('set config for YahooSSP Bidder',function(){
+    var prebidConfig = {};
+    var expectedResult = {
+        mode: "all"
+    };
 
         beforeEach(function(done){
             CONF.alias = {
-                'yahoossp-alias': 'yahoossp'
+                "yahoossp-alias": "yahoossp"
             }
-            CONF.adapters['yahoossp-alias'] = {
+            CONF.adapters["yahoossp-alias"] = {
                 kgp: "_AU_@_W_x_H_",
                 rev_share: "0.0",
                 throttle: "100",
@@ -907,18 +907,18 @@ describe('ADAPTER: Prebid', function() {
         });
 
         afterEach(function(done){
-            delete CONF.alias['yahoossp-alias'];
-            delete CONF.adapters['yahoossp-alias'];
+            delete CONF.alias["yahoossp-alias"];
+            delete CONF.adapters["yahoossp-alias"];
             prebidConfig = {};
             done();
         });
 
-        it('should be a function',function(done){
-            PREBID.checkForYahooSSPBidder.should.be.a('function');
+        it("should be a function",function(done){
+            PREBID.checkForYahooSSPBidder.should.be.a("function");
             done();
         });
 
-        it('should set mode property to all when we have yahoossp bidder or alias',function(done){
+        it("should set mode property to all when we have yahoossp bidder or alias",function(done){
             PREBID.checkForYahooSSPBidder(prebidConfig);
             expect(prebidConfig.yahoossp).to.be.deep.equal(expectedResult);
             done();
