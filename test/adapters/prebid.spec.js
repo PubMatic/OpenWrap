@@ -1526,14 +1526,14 @@ describe('ADAPTER: Prebid', function() {
             pubmaticAndAliases.forEach(function(bidder) {
                 bidderParams[bidder] = {};
             })
-
+            var queryParams = '?pubId='+CONFIG.getPublisherId()+'&profId='+CONFIG.getProfileID()+'&verId='+CONFIG.getProfileDisplayVersionID();
             expectedResult = {
                 accountId: "1",
                 adapter: "prebidServer",
                 enabled: true,
                 bidders: s2sBidders,
-                endpoint: "https://ow.pubmatic.com/pbs/openrtb2/auction",
-                syncEndpoint: "https://ow.pubmatic.com/cookie_sync/?sec=1",
+                endpoint: CONSTANTS.PBSPARAMS.endpoint+queryParams,
+		        syncEndpoint: CONSTANTS.PBSPARAMS.syncEndpoint,
                 timeout: CONFIG.getTimeoutForPBSRequest(),
                 extPrebid: {
                     aliases: defaultAliases,
