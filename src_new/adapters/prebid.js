@@ -624,7 +624,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				slotParams["wrapper"] = {
 					profile: parseInt(CONF.pwt.pid),
 					version: parseInt(CONF.pwt.pdvid)
-				}
+				};
 			}
 
 			// We are removing mimes because it merges with the existing adUnit mimes
@@ -998,9 +998,9 @@ function gets2sConfig(prebidConfig){
 	var s2sBidders = CONFIG.getServerEnabledAdaptars();
 	var queryParams = '?pubId='+CONFIG.getPublisherId()+'&profId='+CONFIG.getProfileID()+'&verId='+CONFIG.getProfileDisplayVersionID();
 	for(var key in CONF.alias) {
-		defaultAliases[key] = CONF.alias[key]
+		defaultAliases[key] = CONF.alias[key];
 	}
-	var pubmaticAndAliases = CONFIG.getPubMaticAndAlias(s2sBidders)
+	var pubmaticAndAliases = CONFIG.getPubMaticAndAlias(s2sBidders);
 	if(pubmaticAndAliases.length) {
 		pubmaticAndAliases.forEach(function(bidder) {
 			bidderParams[bidder] = {};
