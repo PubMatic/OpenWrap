@@ -947,6 +947,8 @@ function setPrebidConfig(){
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
+		// Check for yahoossp bidder and add property {mode: 'all'} to setConfig
+		refThis.checkForYahooSSPBidder(prebidConfig);
 		// Adding a hook for publishers to modify the Prebid Config we have generated
 		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 		//todo: stop supporting this hook let pubs use pbjs.requestBids hook
@@ -974,6 +976,26 @@ function getFloorsConfiguration(prebidConfig){
 }
 
 exports.getFloorsConfiguration = getFloorsConfiguration;
+
+function checkForYahooSSPBidder(prebidConfig){
+	var isYahooAlias = false;
+	var isYahooSSP = CONF.adapters.hasOwnProperty(CONSTANTS.YAHOOSSP);
+	
+	if(!isYahooSSP) {
+		for(var bidder in CONF.alias) {
+			if(CONFIG.getAdapterNameForAlias(bidder) == CONSTANTS.YAHOOSSP) {
+				isYahooAlias = true;
+			}
+		}
+	}
+	if(isYahooSSP || isYahooAlias) {
+		prebidConfig[CONSTANTS.YAHOOSSP]={
+			mode: "all"
+		}
+	}
+}
+
+exports.checkForYahooSSPBidder = checkForYahooSSPBidder;
 
 function getPbjsAdServerTargetingConfig(){
 	// Todo: Handle send-all bids feature enabled case
