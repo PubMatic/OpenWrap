@@ -886,11 +886,10 @@ describe('ADAPTER: Prebid', function() {
 		var expectedResult = {
 			mode: "all"
 		};
-
 		beforeEach(function(done){
 			CONF.alias = {
 				"yahoossp-alias": "yahoossp"
-			}
+			};
 			CONF.adapters["yahoossp-alias"] = {
 				kgp: "_AU_@_W_x_H_",
 				rev_share: "0.0",
@@ -923,8 +922,7 @@ describe('ADAPTER: Prebid', function() {
 			expect(prebidConfig.yahoossp).to.be.deep.equal(expectedResult);
 			done();
 		});
-	})
-
+	});
 
     // Test cases only for floor module
     describe("#setPrebidConfig", function(){
