@@ -996,7 +996,7 @@ exports.setPrebidConfig = setPrebidConfig;
 function gets2sConfig(prebidConfig){
 	var bidderParams = {};
 	var s2sBidders = CONFIG.getServerEnabledAdaptars();
-	var queryParams = '?pubId='+CONFIG.getPublisherId()+'&profId='+CONFIG.getProfileID()+'&verId='+CONFIG.getProfileDisplayVersionID();
+	var queryParams = "?pubId="+CONFIG.getPublisherId()+"&profId="+CONFIG.getProfileID()+"&verId="+CONFIG.getProfileDisplayVersionID();
 	for(var key in CONF.alias) {
 		defaultAliases[key] = CONF.alias[key];
 	}
