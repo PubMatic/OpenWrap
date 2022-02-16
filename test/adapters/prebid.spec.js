@@ -1526,13 +1526,12 @@ describe('ADAPTER: Prebid', function() {
 			pubmaticAndAliases.forEach(function(bidder) {
 				bidderParams[bidder] = {};
 			});
-			var queryParams = "?pubId="+CONFIG.getPublisherId()+"&profId="+CONFIG.getProfileID()+"&verId="+CONFIG.getProfileDisplayVersionID();
 			expectedResult = {
 				accountId: "1",
 				adapter: "prebidServer",
 				enabled: true,
 				bidders: s2sBidders,
-				endpoint: CONSTANTS.PBSPARAMS.endpoint+queryParams,
+				endpoint: CONSTANTS.PBSPARAMS.endpoint,
 				syncEndpoint: CONSTANTS.PBSPARAMS.syncEndpoint,
 				timeout: CONFIG.getTimeoutForPBSRequest(),
 				extPrebid: {

@@ -398,8 +398,8 @@ exports.isSSOEnabled = function() {
 
 exports.getServerEnabledAdaptars = function() {
 	var s2sBidders = Object.keys(config.adapters).filter(function(adapter){
-		if(config.adapters[adapter]['serverSideEnabled'] == "1") {
-		  return adapter;
+		if(config.adapters[adapter]["serverSideEnabled"] == "1") {
+			return adapter;
 		}
 	});	
 	return s2sBidders;

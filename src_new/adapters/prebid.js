@@ -996,7 +996,6 @@ exports.setPrebidConfig = setPrebidConfig;
 function gets2sConfig(prebidConfig){
 	var bidderParams = {};
 	var s2sBidders = CONFIG.getServerEnabledAdaptars();
-	var queryParams = "?pubId="+CONFIG.getPublisherId()+"&profId="+CONFIG.getProfileID()+"&verId="+CONFIG.getProfileDisplayVersionID();
 	for(var key in CONF.alias) {
 		defaultAliases[key] = CONF.alias[key];
 	}
@@ -1012,7 +1011,7 @@ function gets2sConfig(prebidConfig){
 		adapter: CONSTANTS.PBSPARAMS.adapter,
 		enabled: true,
 		bidders: s2sBidders,
-		endpoint: CONSTANTS.PBSPARAMS.endpoint+queryParams,
+		endpoint: CONSTANTS.PBSPARAMS.endpoint,
 		syncEndpoint: CONSTANTS.PBSPARAMS.syncEndpoint,
 		timeout: CONFIG.getTimeoutForPBSRequest(),
 		extPrebid: {
