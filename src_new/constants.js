@@ -260,6 +260,9 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 	},
 	"parrableId": {
 		"params.timezoneFilter.allowedZones": "array"
+	},
+	"imuid": {
+		"params.cid": "number"
 	}
 }; //list of ID partners for whom special handling of datatype is required
 
