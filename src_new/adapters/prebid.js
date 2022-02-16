@@ -618,14 +618,14 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
 
-			// If we will be using PrebidServerBidAdaptar add wrapper object with profile and version
-			if(CONFIG.usePBSAdapter() == true && CONFIG.isServerSideAdapter(adapterID)) {
-				slotParams["wiid"] = impressionID;
-				slotParams["wrapper"] = {
-					profile: parseInt(CONF.pwt.pid),
-					version: parseInt(CONF.pwt.pdvid)
-				};
-			}
+		// If we will be using PrebidServerBidAdaptar add wrapper object with profile and version
+		if(CONFIG.usePBSAdapter() == true && CONFIG.isServerSideAdapter(adapterID)) {
+			slotParams["wiid"] = impressionID;
+			slotParams["wrapper"] = {
+				profile: parseInt(CONF.pwt.pid),
+				version: parseInt(CONF.pwt.pdvid)
+			};
+		}
 
 			// We are removing mimes because it merges with the existing adUnit mimes
 			// if(slotParams["video"] && slotParams["video"]["mimes"]){
