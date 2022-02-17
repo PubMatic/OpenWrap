@@ -3026,7 +3026,11 @@ describe('UTIL', function() {
             function onSSOLogin() {};
             function getUserIdentities() {
                 return {
-                    email: "zeotaptestrab@gmail.com"
+                    email: "zeotaptestrab@gmail.com",
+                    customerID: "custid_123",
+                    pubProvidedEmailHash: {
+                        MD5: '4e8fb772f3a4034906153f2d4258ee5c', SHA1: 'e770f63ff1d3eb07b589b4ab972009b5ad8d836b', SHA256: 'ee278943de84e5d6243578ee1a1057bcce0e50daad9755f45dfa64b60b13bc5d'
+                    }
                 }
             }
             window.owpbjs = {
@@ -3096,6 +3100,154 @@ describe('UTIL', function() {
             var result = UTIL.getUserIdParams(lrParams);
             window.setTimeout.called.should.be.false;
             window.owpbjs = undefined;
+            done();
+        });
+
+        it('should pass accountID, customerIDRegex, detectionMechanism and customerID to ats script if custom ID is enabled ', function(done){
+            var lrParams = {
+                name: "identityLink",
+                params: {
+                    pid: "23",
+                    loadATS: "true",
+                    storageType: "localstorage",
+                    detectionType: "scrapeAndUrl",
+                    urlParameter: "eparam",
+                    cssSelectors: "input[type=text], input[type=email]",
+                    logging: "info",
+                    enableCustomId: "true",
+                    accountID: "123_acc",
+                    customerIDRegex: "[0-9a-zA-Z_]*",
+                    detectionMechanism: "direct"
+                },
+                storage: {
+                    type: "cookie",
+                    name: "somenamevalue",
+                    expires: "60"
+                }
+            }
+            var expectedResult = {
+                placementID: '23',
+                storageType: 'localstorage',
+                logging: 'info',
+                accountID: '123_acc',
+                customerIDRegex: '[0-9a-zA-Z_]*',
+                detectionSubject: 'customerIdentifier',
+                emailHashes: ['4e8fb772f3a4034906153f2d4258ee5c', 'e770f63ff1d3eb07b589b4ab972009b5ad8d836b', 'ee278943de84e5d6243578ee1a1057bcce0e50daad9755f45dfa64b60b13bc5d'],
+                customerID: 'custid_123'
+            };
+            var result = UTIL.getLiverampParams(lrParams);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not pass accountID, customerID, customerIDRegex and customerIdentifier data to ats script if custom ID is disabled ', function(done){
+            var lrParams = {
+                name: "identityLink",
+                params: {
+                    pid: "23",
+                    loadATS: "true",
+                    storageType: "localstorage",
+                    detectionType: "scrapeAndUrl",
+                    urlParameter: "eparam",
+                    cssSelectors: "input[type=text], input[type=email]",
+                    logging: "info",
+                    enableCustomId: "false",
+                    accountID: "123_acc",
+                    customerIDRegex: "[0-9a-zA-Z_]*",
+                    detectionMechanism: "direct"
+                },
+                storage: {
+                    type: "cookie",
+                    name: "somenamevalue",
+                    expires: "60"
+                }
+            };
+
+            var expectedResult = {
+                placementID: '23',
+                storageType: 'localstorage',
+                logging: 'info',
+                emailHashes: ['4e8fb772f3a4034906153f2d4258ee5c', 'e770f63ff1d3eb07b589b4ab972009b5ad8d836b', 'ee278943de84e5d6243578ee1a1057bcce0e50daad9755f45dfa64b60b13bc5d']
+            };
+
+            var result = UTIL.getLiverampParams(lrParams);
+            result.should.deep.equal(expectedResult);
+
+            done();
+        });
+
+        it('should not pass detectionType, urlParameter, cssSelectors data to ats script if detectionMechanism is direct', function(done){
+            var lrParams = {
+                name: "identityLink",
+                params: {
+                    pid: "23",
+                    loadATS: "true",
+                    storageType: "localstorage",
+                    detectionType: "scrapeAndUrl",
+                    urlParameter: "eparam",
+                    cssSelectors: "input[type=text], input[type=email]",
+                    logging: "info",
+                    enableCustomId: "false",
+                    accountID: "123_acc",
+                    customerIDRegex: "[0-9a-zA-Z_]*",
+                    detectionMechanism: "direct"
+                },
+                storage: {
+                    type: "cookie",
+                    name: "somenamevalue",
+                    expires: "60"
+                }
+            };
+
+            var expectedResult = {
+                placementID: '23',
+                storageType: 'localstorage',
+                logging: 'info',
+                emailHashes: ['4e8fb772f3a4034906153f2d4258ee5c', 'e770f63ff1d3eb07b589b4ab972009b5ad8d836b', 'ee278943de84e5d6243578ee1a1057bcce0e50daad9755f45dfa64b60b13bc5d']
+            };
+
+            var result = UTIL.getLiverampParams(lrParams);
+            result.should.deep.equal(expectedResult);
+
+            done();
+        });
+
+        it('should pass detectionType, urlParameter, cssSelectors data to ats script if detectionMechanism is detect', function(done){
+            var lrParams = {
+                name: "identityLink",
+                params: {
+                    pid: "23",
+                    loadATS: "true",
+                    storageType: "localstorage",
+                    detectionType: "scrapeAndUrl",
+                    urlParameter: "eparam",
+                    cssSelectors: "input[type=text], input[type=email]",
+                    logging: "info",
+                    enableCustomId: "false",
+                    accountID: "123_acc",
+                    customerIDRegex: "[0-9a-zA-Z_]*",
+                    detectionMechanism: "detect",
+                    detectDynamicNodes: "false"
+                },
+                storage: {
+                    type: "cookie",
+                    name: "somenamevalue",
+                    expires: "60"
+                }
+            };
+
+            var expectedResult = {
+                placementID: '23',
+                storageType: 'localstorage',
+                logging: 'info',
+                detectionType: 'scrapeAndUrl',
+                urlParameter: 'eparam',
+                cssSelectors: ['input[type=text]', ' input[type=email]'],
+                detectDynamicNodes: "false"
+            };
+            var result = UTIL.getLiverampParams(lrParams);
+            result.should.deep.equal(expectedResult);
+
             done();
         });
 
