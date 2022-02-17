@@ -1117,13 +1117,6 @@ describe('ADAPTER: Prebid', function() {
             done();
         })
 
-        it('should clear floor data for each auction',function(done){
-            PREBID.fetchBids(activeSlots);
-            expect(window.PWT.floorData['floorRequestData']).to.be.undefined;
-            expect(window.PWT.floorData['floorResponseData']).to.be.undefined;
-            done();
-        })
-
         // TODO: we need to remove unused test cases; as respective code is moved out of this function
         xit('returns while logging it when Prebid js is not loaded', function(done) {
             // sinon.stub(global.window || window, "pwtCreatePrebidNamespace").withArgs("owpbjs").returns(true);
@@ -1596,7 +1589,14 @@ describe('ADAPTER: Prebid', function() {
         beforeEach(function(done) {
             window.PWT = {
                 floorData: {
-                    "floorRequestData": {}
+                    "123123123": {
+                        "floorRequestData": {}
+                    }
+                },
+                bidMap:{
+                    "Div1" : {
+                        impressionID: "123123123"
+                    }
                 }
             }
             done();
@@ -1613,8 +1613,8 @@ describe('ADAPTER: Prebid', function() {
 
         it('should copy floorData into window.PWT.floorData',function(done){
             PREBID.pbBidRequestHandler(pbBid);
-            expect(window.PWT.floorData['floorRequestData']["skipped"]).to.be.false;
-            expect(window.PWT.floorData['floorRequestData']["modelVersion"]).to.be.equal("floorTestModel");
+            expect(window.PWT.floorData['123123123']['floorRequestData']["skipped"]).to.be.false;
+            expect(window.PWT.floorData['123123123']['floorRequestData']["modelVersion"]).to.be.equal("floorTestModel");
             done();
         });
     });

@@ -403,12 +403,6 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	    return 0;
 	})();
 
-	if(CONFIG.isFloorPriceModuleEnabled()){
-		var _floorData = window.PWT.floorData;
-		outputObj["fmv"] = _floorData.floorRequestData ? _floorData.floorRequestData.modelVersion || undefined : undefined,
-		outputObj["ft"] = _floorData.floorResponseData  ? (_floorData.floorResponseData.enforcements.enforceJS == false ? 0 : 1) : undefined;
-	}
-
 	// As discussed we won't be seding gdpr data to logger
 	// if (CONFIG.getGdpr()) {
 	// 	consentString = gdprData && gdprData.c ? encodeURIComponent(gdprData.c) : "";
@@ -427,6 +421,11 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		if(slots.length > 0){
 			outputObj.s = slots;
 			outputObj[CONSTANTS.COMMON.IMPRESSION_ID] = window.encodeURIComponent(impressionID);
+			if(CONFIG.isFloorPriceModuleEnabled()){
+				var _floorData = window.PWT.floorData[outputObj[CONSTANTS.COMMON.IMPRESSION_ID]];
+				outputObj["fmv"] = _floorData.floorRequestData ? _floorData.floorRequestData.modelVersion || undefined : undefined,
+				outputObj["ft"] = _floorData.floorResponseData  ? (_floorData.floorResponseData.enforcements.enforceJS == false ? 0 : 1) : undefined;
+			}
 			outputObj.psl = slots.psl;
 			outputObj.dvc = { "plt": util.getDevicePlatform()}
 			// (new window.Image()).src = pixelURL + "&json=" + window.encodeURIComponent(JSON.stringify(outputObj));
@@ -532,7 +531,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 			"sn": slotID,
 			"sz": refThis.getAdUnitSizes(bmEntry),
 			"au": adUnitInfo.adUnitId || slotID,
-			"fskp" : window.PWT.floorData ? (window.PWT.floorData.floorRequestData ? (window.PWT.floorData.floorRequestData.skipped == false ? 0 : 1) : undefined) : undefined,
+			"fskp" : window.PWT.floorData ? (window.PWT.floorData[impressionID] ? (window.PWT.floorData[impressionID].floorRequestData ? (window.PWT.floorData[impressionID].floorRequestData.skipped == false ? 0 : 1) : undefined) : undefined) : undefined,
 			"mt": refThis.getAdUnitAdFormats(adUnitInfo.mediaTypes),
 			"ps": []
 		};
