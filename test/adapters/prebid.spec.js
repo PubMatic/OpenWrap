@@ -1527,7 +1527,7 @@ describe('ADAPTER: Prebid', function() {
 				bidderParams[bidder] = {};
 			});
 			expectedResult = {
-				accountId: "1",
+				accountId: CONFIG.getPublisherId(),
 				adapter: "prebidServer",
 				enabled: true,
 				bidders: s2sBidders,

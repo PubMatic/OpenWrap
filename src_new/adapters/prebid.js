@@ -1007,7 +1007,7 @@ function gets2sConfig(prebidConfig){
 	}
 
 	prebidConfig["s2sConfig"] = {
-		accountId: CONSTANTS.PBSPARAMS.accountId,
+		accountId: CONFIG.getPublisherId(),
 		adapter: CONSTANTS.PBSPARAMS.adapter,
 		enabled: true,
 		bidders: s2sBidders,
