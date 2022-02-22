@@ -552,7 +552,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					// with which we can get values from pbsLatency object.  
 					var tidRequest = theBid.pbbid && theBid.pbbid.tidRequest;
 					if(tidRequest) {
-						pslTime = window.PWT.pbsLatency[tidRequest]['endTime'] - window.PWT.pbsLatency[tidRequest]['startTime'];
+						pslTime = window.pbsLatency[tidRequest]['endTime'] - window.pbsLatency[tidRequest]['startTime'];
 					}
 				}
 				
