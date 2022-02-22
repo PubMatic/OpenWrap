@@ -1092,6 +1092,16 @@ describe('ADAPTER: Prebid', function() {
              window["owpbjs"].getConfig = function(){
                  return prebidConfig;
              };
+	window.PWT = {
+		floorData : {
+			"floorRequestData" : {
+				"skipped": true
+			},
+			"floorResponseData" : {
+				"floorType": 1
+			}
+		}
+	};
             done();
         });
 
@@ -1131,6 +1141,7 @@ describe('ADAPTER: Prebid', function() {
                 window.pwtCreatePrebidNamespace.restore();
             }
             delete window.owpbjs;
+	delete window.PWT;
             prebidConfig = {};
             done();
         });
@@ -1624,7 +1635,14 @@ describe('ADAPTER: Prebid', function() {
         beforeEach(function(done) {
             window.PWT = {
                 floorData: {
-                    "floorRequestData": {}
+	"123123123": {
+		"floorRequestData": {}
+	}
+},
+	bidMap:{
+		"Div1" : {
+			impressionID: "123123123"
+		}
                 }
             }
             done();
@@ -1641,8 +1659,8 @@ describe('ADAPTER: Prebid', function() {
 
         it('should copy floorData into window.PWT.floorData',function(done){
             PREBID.pbBidRequestHandler(pbBid);
-            expect(window.PWT.floorData['floorRequestData']["skipped"]).to.be.false;
-            expect(window.PWT.floorData['floorRequestData']["modelVersion"]).to.be.equal("floorTestModel");
+	expect(window.PWT.floorData["123123123"]["floorRequestData"]["skipped"]).to.be.false;
+	expect(window.PWT.floorData["123123123"]["floorRequestData"]["modelVersion"]).to.be.equal("floorTestModel");
             done();
         });
     });
