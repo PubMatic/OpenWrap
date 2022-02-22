@@ -525,6 +525,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 	var pslTime = undefined;
 	var impressionID = bmEntry.getImpressionID();
 	var adUnitInfo = refThis.getAdUnitInfo(slotID);
+	var isUsePBSAdapter = CONFIG.usePBSAdapter();
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 	/* istanbul ignore else */
 	if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
@@ -546,6 +547,15 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
             }
 
 			util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+				if(isUsePBSAdapter && pslTime == undefined) {
+					// If we are using PBS adapter then tidRequest is present in theBid object which gives unique id of the request 
+					// with which we can get values from pbsLatency object.  
+					var tidRequest = theBid.pbbid && theBid.pbbid.tidRequest;
+					if(tidRequest) {
+						pslTime = window.PWT.pbsLatency[tidRequest]['endTime'] - window.PWT.pbsLatency[tidRequest]['startTime'];
+					}
+				}
+				
 				var endTime = theBid.getReceivedTime();
 				if (adapterID === "pubmaticServer") {
 					if ((util.isOwnProperty(window.PWT.owLatency, impressionID)) &&
