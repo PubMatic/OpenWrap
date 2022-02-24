@@ -521,11 +521,11 @@ function getAdDomain(bidResponse) {
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
+	var usePBSAdapter = CONFIG.usePBSAdapter();
 	var startTime = bmEntry.getCreationTime() || 0;
-	var pslTime = undefined;
+	var pslTime = usePBSAdapter ? 0 : undefined;
 	var impressionID = bmEntry.getImpressionID();
 	var adUnitInfo = refThis.getAdUnitInfo(slotID);
-	var isUsePBSAdapter = CONFIG.usePBSAdapter();
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 	/* istanbul ignore else */
 	if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
@@ -547,12 +547,12 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
             }
 
 			util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
-				if(isUsePBSAdapter && pslTime == undefined) {
-					// If we are using PBS adapter then tidRequest is present in theBid object which gives unique id of the request 
-					// with which we can get values from pbsLatency object.  
-					var tidRequest = theBid.pbbid && theBid.pbbid.tidRequest;
-					if(tidRequest) {
-						pslTime = window.pbsLatency[tidRequest]['endTime'] - window.pbsLatency[tidRequest]['startTime'];
+				if(usePBSAdapter) {
+					// If we are using PBS adapter then reqID is present in theBid object which gives unique id of the request 
+					// with which we can get values from pbsLatency object.
+					var reqID = theBid.pbbid && theBid.pbbid.reqID;
+					if(reqID && window.pbsLatency[reqID]['endTime'] && window.pbsLatency[reqID]['startTime']) {
+						pslTime = window.pbsLatency[reqID]['endTime'] - window.pbsLatency[reqID]['startTime'];
 					}
 				}
 				
