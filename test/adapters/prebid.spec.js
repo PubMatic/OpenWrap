@@ -1534,6 +1534,7 @@ describe('ADAPTER: Prebid', function() {
 				endpoint: CONSTANTS.PBSPARAMS.endpoint,
 				syncEndpoint: CONSTANTS.PBSPARAMS.syncEndpoint,
 				timeout: CONFIG.getTimeoutForPBSRequest(),
+				secure: 1,
 				extPrebid: {
 					aliases: defaultAliases,
 					bidderparams: bidderParams,

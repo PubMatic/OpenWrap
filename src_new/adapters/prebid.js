@@ -1014,6 +1014,7 @@ function gets2sConfig(prebidConfig){
 		endpoint: CONSTANTS.PBSPARAMS.endpoint,
 		syncEndpoint: CONSTANTS.PBSPARAMS.syncEndpoint,
 		timeout: CONFIG.getTimeoutForPBSRequest(),
+		secure: 1,// request needs secure assets pass 1
 		extPrebid: {
 			aliases: defaultAliases,
 			bidderparams: bidderParams,
