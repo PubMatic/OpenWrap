@@ -526,6 +526,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 	var pslTime = usePBSAdapter ? 0 : undefined;
 	var impressionID = bmEntry.getImpressionID();
 	var adUnitInfo = refThis.getAdUnitInfo(slotID);
+	var latencyValue = {};
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 	/* istanbul ignore else */
 	if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
@@ -548,11 +549,11 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 
 			util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
 				if(usePBSAdapter) {
-					// If we are using PBS adapter then reqID is present in theBid object which gives unique id of the request 
-					// with which we can get values from pbsLatency object.
-					var reqID = theBid.pbbid && theBid.pbbid.reqID;
-					if(reqID && window.pbsLatency[reqID]['endTime'] && window.pbsLatency[reqID]['startTime']) {
-						pslTime = window.pbsLatency[reqID]['endTime'] - window.pbsLatency[reqID]['startTime'];
+					// In PrebidServerBidAdapater we are capturing start and end time of request
+					// fetching these values here to calculate psl time for logger call
+					latencyValue = window.pbsLatency[impressionID];
+					if(latencyValue && latencyValue['endTime'] && latencyValue['startTime']) {
+						pslTime = latencyValue['endTime'] - latencyValue['startTime'];
 					}
 				}
 				

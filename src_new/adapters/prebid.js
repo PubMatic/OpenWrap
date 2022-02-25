@@ -581,6 +581,11 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["video"]= mediaTypeConfig.video;
 		}
 	}
+	// for pubmaticServer partner we used to pass wiid when isPrebidPubMaticAnalyticsEnabled is false but now we do not 
+	// get pubmaticServer partner when usePBSAdapter flag is true so we will be adding wiid conditionally.
+	if(isPrebidPubMaticAnalyticsEnabled === false && CONFIG.usePBSAdapter()){
+		slotParams["wiid"] = impressionID;
+	}
 
 	var adapterName = CONFIG.getAdapterNameForAlias(adapterID) || adapterID;
 	
