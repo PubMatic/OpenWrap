@@ -550,8 +550,8 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		/* istanbul ignore next */
 		slotParams[key] = value;
 	});
-
-	if(isPrebidPubMaticAnalyticsEnabled){
+	// We will not pass kgpv key when using PrebidServerBidAdapater
+	if(isPrebidPubMaticAnalyticsEnabled && !CONFIG.usePBSAdapter()){
 		slotParams["kgpv"] = generatedKey; // TODO : Update this in case of video, change the size to 0x0 
 		slotParams["regexPattern"] = regexPattern;
 	}
@@ -625,11 +625,14 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 
 		// If we will be using PrebidServerBidAdaptar add wrapper object with profile and version
 		if(CONFIG.usePBSAdapter() == true && CONFIG.isServerSideAdapter(adapterID)) {
-			slotParams["wiid"] = impressionID;
 			slotParams["wrapper"] = {
 				profile: parseInt(CONF.pwt.pid),
 				version: parseInt(CONF.pwt.pdvid)
 			};
+			// We will pass impressionID when isPrebidPubMaticAnalyticsEnabled is enabled
+			if(isPrebidPubMaticAnalyticsEnabled === false){
+				slotParams["wiid"] = impressionID;
+			}
 		}
 
 			// We are removing mimes because it merges with the existing adUnit mimes
@@ -1025,7 +1028,8 @@ function gets2sConfig(prebidConfig){
 			bidderparams: bidderParams,
 			targeting: {
 				pricegranularity: CONFIG.getPriceGranularity()
-			}  
+			},
+			isPrebidPubMaticAnalyticsEnabled: CONFIG.isPrebidPubMaticAnalyticsEnabled()
 		}	
 	}
 }

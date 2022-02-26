@@ -1540,7 +1540,8 @@ describe('ADAPTER: Prebid', function() {
 					bidderparams: bidderParams,
 					targeting: {
 						pricegranularity: CONFIG.getPriceGranularity()
-					}
+					},
+					isPrebidPubMaticAnalyticsEnabled: CONFIG.isPrebidPubMaticAnalyticsEnabled()
 				}
 			};
 			done();
