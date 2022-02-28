@@ -629,9 +629,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				profile: parseInt(CONF.pwt.pid),
 				version: parseInt(CONF.pwt.pdvid)
 			};
-			// We will pass impressionID when isPrebidPubMaticAnalyticsEnabled is enabled
-			if(isPrebidPubMaticAnalyticsEnabled === false){
-				slotParams["wiid"] = impressionID;
+			// If mapping is regex then we should pass hashedKey to adSlot params earlier it was handled on s2s side.
+			if(slotParams['hashedKey']) {
+				slotParams["adSlot"] = slotParams['hashedKey'];
 			}
 		}
 
