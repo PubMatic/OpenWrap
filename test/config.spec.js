@@ -1092,6 +1092,131 @@ describe('Config', function() {
         });
     });
 
+    describe('#isFloorPriceModuleEnabled',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_PRICE_MODULE_ENABLED] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_PRICE_MODULE_ENABLED];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.isFloorPriceModuleEnabled.should.be.a('function');
+            done();
+        });
+
+        it('should return true by reading from config', function(done) {
+            var expectedResult = true;
+            expect(CONFIG.isFloorPriceModuleEnabled()).to.equal(expectedResult);
+            done();
+        });
+
+        it('should return false if isFloorPriceModuleEnabled is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_PRICE_MODULE_ENABLED];
+            expect(CONFIG.isFloorPriceModuleEnabled()).to.equal(false);
+            done();
+        });
+
+        it('should return false if isFloorPriceModuleEnabled set to "0"', function(done) {
+            var expectedResult = false;
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_PRICE_MODULE_ENABLED] = "0";
+            CONFIG.isFloorPriceModuleEnabled().should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getFloorAuctionDelay',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_AUCTION_DELAY] = "200";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_AUCTION_DELAY];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getFloorAuctionDelay.should.be.a('function');
+            done();
+        });
+
+        it('should return true by reading from config', function(done) {
+            var expectedResult = 200;
+            expect(CONFIG.getFloorAuctionDelay()).to.equal(200);
+            done();
+        });
+
+        it('should return false if getFloorAuctionDelay is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_AUCTION_DELAY];
+            expect(CONFIG.getFloorAuctionDelay()).to.equal(100);
+            done();
+        });
+    });
+
+    describe('#getFloorType',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getFloorType.should.be.a('function');
+            done();
+        });
+
+        it('should return true by reading from config', function(done) {
+            var expectedResult = true;
+            expect(CONFIG.getFloorType()).to.equal(expectedResult);
+            done();
+        });
+
+        it('should return false if getFloorType is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS];
+            expect(CONFIG.getFloorType()).to.equal(true);
+            done();
+        });
+
+        it('should return false if getFloorType set to "0"', function(done) {
+            var expectedResult = false;
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "0";
+            CONFIG.getFloorType().should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getFloorJsonUrl',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_JSON_URL] = "floor.json";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_JSON_URL];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getFloorJsonUrl.should.be.a('function');
+            done();
+        });
+
+        it('should return url by reading from config', function(done) {
+            var expectedResult = "floor.json";
+            expect(CONFIG.getFloorJsonUrl()).to.equal(expectedResult);
+            done();
+        });
+
+    });
+
     describe('#isAbTestEnabled',function(){
         beforeEach(function(done){
             CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = "1";
@@ -1230,6 +1355,71 @@ describe('Config', function() {
             var expectedTimeout = CONFIG.getTimeout();
             CONFIG.updateABTestConfig()
             CONFIG.getTimeout().should.be.deep.equal(expectedTimeout);
+            done();
+        });
+
+        it('should update the identityConfig to test config even if identity is not present', function(done){
+            var result = {
+                pubCommonId: {
+                    name: "pubCommonId",
+                    "storage.type": "cookie",
+                    "storage.name": "_myPubCommonId",
+                    "storage.expires": "1825"
+                },
+                identityLink: {
+                    name: "identityLink",
+                    "params.pid": "23",
+                    "storage.type": "cookie",
+                    "params.loadAts": "true", // or false// boolean default is false,
+                    "params.placementID": "23",
+                    "params.storageType": "localstorage",
+                    "params.detectionType": "scrapeAndUrl",
+                    "params.urlParameter": "eparam",
+                    "params.cssSelectors": ["input[type=text]", "input[type=email]"],
+                    "params.logging": "info",
+                    "storage.name": "somenamevalue",
+                    "storage.expires": "60"
+                }
+            };
+            CONF[CONSTANTS.COMMON.TEST_PWT]  = {};
+            CONF[CONSTANTS.COMMON.TEST_IDENTITY_PARTNER]  =  result
+            CONF[CONSTANTS.COMMON.IDENTITY_PARTNERS]  = {};
+            CONFIG.updateABTestConfig()
+            expect(CONFIG.getIdentityPartners()).to.deep.equal(result);
+            done();
+        });
+
+        it('should not update the identityConfig to test config even if control identity is not present', function(done){
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS]  = {
+                "testGroupSize": 1
+            };
+            var result = {
+                pubCommonId: {
+                    name: "pubCommonId",
+                    "storage.type": "cookie",
+                    "storage.name": "_myPubCommonId",
+                    "storage.expires": "1825"
+                },
+                identityLink: {
+                    name: "identityLink",
+                    "params.pid": "23",
+                    "storage.type": "cookie",
+                    "params.loadAts": "true", // or false// boolean default is false,
+                    "params.placementID": "23",
+                    "params.storageType": "localstorage",
+                    "params.detectionType": "scrapeAndUrl",
+                    "params.urlParameter": "eparam",
+                    "params.cssSelectors": ["input[type=text]", "input[type=email]"],
+                    "params.logging": "info",
+                    "storage.name": "somenamevalue",
+                    "storage.expires": "60"
+                }
+            };
+            CONF[CONSTANTS.COMMON.TEST_PWT]  = {};
+            CONF[CONSTANTS.COMMON.TEST_IDENTITY_PARTNER]  =  result
+            CONF[CONSTANTS.COMMON.IDENTITY_PARTNERS]  = {};
+            CONFIG.updateABTestConfig()
+            expect(CONFIG.getIdentityPartners()).to.deep.equal({});
             done();
         });
     });
@@ -1865,6 +2055,26 @@ describe('Config', function() {
                 expect(updatedPartners).to.be.deep.equal(identityPartners);
                 done();
             }); 
+
+            it('should not break the flow if control partner is not present',function(done){
+                testIdentityPartners = {
+                    pubCommonId:{  "storage.name": "_testPubCommonId",},
+                    identityLink:{},
+                    criteo: {
+                        name: "criteo",
+                    },
+                    unifiedId: {
+                        name: "unifiedId",
+                        "params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
+                        "storage.type": "cookie",
+                        "storage.name": "_myUnifiedId",
+                        "storage.expires": "1825"
+                    }
+                };
+                var updatedPartners = CONFIG.updatePartnerConfig(testIdentityPartners, undefined);
+                expect(updatedPartners).to.equal(undefined);
+                done();
+            })
         });
     });
 
@@ -2027,4 +2237,118 @@ describe('Config', function() {
             done();
         });
     });
+
+    describe('#isReduceCodeSizeFeatureEnabled', function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.REDUCE_CODE_SIZE] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.REDUCE_CODE_SIZE];
+            done();
+        });
+
+        it('is a function', function(done) {
+            CONFIG.isReduceCodeSizeFeatureEnabled.should.be.a('function');
+            done();
+        });
+
+        it('should return true by reading reduceCodeSize from config', function(done) {            
+            CONFIG.isReduceCodeSizeFeatureEnabled().should.be.deep.equal(true);
+            done();
+        });
+
+        it('should return false if reduceCodeSize is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.REDUCE_CODE_SIZE];
+            expect(CONFIG.isReduceCodeSizeFeatureEnabled()).to.equal(false);
+            done();
+        });
+
+        it('should return false if reduceCodeSize set to "0"', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.REDUCE_CODE_SIZE] = "0";
+            CONFIG.isReduceCodeSizeFeatureEnabled().should.be.deep.equal(false);
+            done();
+        });
+    })
+
+    describe('#forEachBidderAlias', function() {
+        var obj = null;
+
+        beforeEach(function(done) {
+            sinon.spy(UTIL, "forEachOnObject");
+            obj = {
+                callback: function() {
+                    return "callback";
+                }
+            };
+            sinon.spy(obj, "callback");
+            CONF.alias = {
+                appnexus2 : "appnexus"
+            }
+            done();
+        });
+
+        afterEach(function(done) {
+            UTIL.forEachOnObject.restore();
+            obj.callback.restore();
+            CONF.alias = {};
+            done();
+        });
+
+        it('is a function', function(done) {
+            CONFIG.forEachBidderAlias.should.be.a('function');
+            done();
+        });
+
+        it('should have called UTIL.forEachOnObject with conf alias and callback function being passed', function(done) {
+            CONFIG.forEachBidderAlias(obj.callback);
+            UTIL.forEachOnObject.calledWith(CONF.alias, obj.callback).should.be.true;
+            obj.callback.called.should.be.true;
+            done();
+        });
+    });
+
+    describe('#getAdapterNameForAlias', function() {
+
+        beforeEach(function(done) {
+            CONF.alias = {
+                appnexus2 : "appnexus"
+            }
+            done();
+        });
+
+        afterEach(function(done) {
+            CONF.alias = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            CONFIG.getAdapterNameForAlias.should.be.a('function');
+            done();
+        });
+
+        it('should return adapter name when alias name is passed', function(done) {
+            expect(CONFIG.getAdapterNameForAlias("appnexus2")).to.equal("appnexus");
+            done();
+        });
+
+        it('should return the input value , if alias name is not present in alias array', function(done) {
+            expect(CONFIG.getAdapterNameForAlias("pubmatic")).to.equal("pubmatic");
+            done();
+        });
+    });
+
+    describe('#isSSOEnabled',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.SSO_ENABLED] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.SSO_ENABLED];
+            done();
+        })
+    });
+
 });

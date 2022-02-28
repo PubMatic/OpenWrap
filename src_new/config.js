@@ -1,21 +1,25 @@
 var config = require("./conf.js");
 var CONSTANTS = require("./constants.js");
+
 var util = require("./util.js");
 
 var refThis = null;
-
 refThis = this;
+refThis[CONSTANTS.COMMON.OWVERSION] = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.OWVERSION];
+refThis[CONSTANTS.COMMON.PBVERSION] = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBVERSION];
 
 exports.getPublisherId = function () {
 	return util.trim(config.pwt.pubid) || "0";
 };
 
-exports.getMataDataPattern = function () {
-	if (util.isString(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN])) {
+// removeIf(removeLegacyAnalyticsRelatedCode)
+exports.getMataDataPattern = function(){
+	if(util.isString(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN])){
 		return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN];
 	}
 	return null;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.getSendAllBidsStatus = function () {
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SEND_ALL_BIDS]) || 0;
@@ -58,7 +62,8 @@ exports.isServerSideAdapter = function (adapterID) {
 	return false;
 };
 
-exports.getAdapterMaskBidsStatus = function (adapterID) {
+// removeIf(removeLegacyAnalyticsRelatedCode)
+exports.getAdapterMaskBidsStatus = function(adapterID){
 	var adapterConfig = config.adapters;
 	var tempSettings = {
 		'audienceNetwork': 1
@@ -73,8 +78,10 @@ exports.getAdapterMaskBidsStatus = function (adapterID) {
 	}
 	return 0;
 }
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-exports.getBidPassThroughStatus = function (adapterID) {
+// TODO: do we need this feature?
+exports.getBidPassThroughStatus = function(adapterID){
 	var adapterConfig = config.adapters;
 	if (util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.BID_PASS_THROUGH)) {
 		return window.parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.BID_PASS_THROUGH]);
@@ -90,13 +97,17 @@ exports.getProfileDisplayVersionID = function () {
 	return util.trim(config.pwt[CONSTANTS.CONFIG.PROFILE_VERSION_ID]) || "0";
 };
 
-exports.getAnalyticsPixelURL = function () {
+// removeIf(removeLegacyAnalyticsRelatedCode)
+exports.getAnalyticsPixelURL = function(){
 	return config.pwt[CONSTANTS.CONFIG.LOGGER_URL] || false;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-exports.getMonetizationPixelURL = function () {
+// removeIf(removeLegacyAnalyticsRelatedCode)
+exports.getMonetizationPixelURL = function(){
 	return config.pwt[CONSTANTS.CONFIG.TRACKER_URL] || false;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.forEachAdapter = function (callback) {
 	util.forEachOnObject(config.adapters, callback);
@@ -230,6 +241,25 @@ exports.isSchainEnabled = function () {
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAIN]) || 0;
 };
 
+exports.isFloorPriceModuleEnabled = function(){
+	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_PRICE_MODULE_ENABLED]) === 1;
+}
+
+exports.getFloorJsonUrl = function(){
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_JSON_URL];
+}
+
+// It will return the auctionDelay specified in conf.js or else default is 100
+exports.getFloorAuctionDelay = function(){
+	var auctionDelay = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_AUCTION_DELAY];
+	return auctionDelay ? window.parseInt(auctionDelay) : CONSTANTS.CONFIG.DEFAULT_FLOOR_AUCTION_DELAY;
+}
+
+// It will return the floorType specified in conf.js or else default is true
+exports.getFloorType = function(){
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] != undefined ? window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS]) === 1 : CONSTANTS.CONFIG.DEFAULT_FLOOR_ENFORCE_JS;
+}
+
 exports.isPrebidPubMaticAnalyticsEnabled = function () {
 	// note: not using window.parseInt as this function is also used in build.sh that runs in NodeJS environment
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_PM_ANALYTICS]) === 1;
@@ -242,6 +272,12 @@ exports.isUsePrebidKeysEnabled = function () {
 
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";
 
+// removeIf(removeAlways)
+exports.isReduceCodeSizeFeatureEnabled = function(){
+	// note: not using window.parseInt as this function is also used in build.sh that runs in NodeJS environment
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.REDUCE_CODE_SIZE]) === 1;
+};
+// endRemoveIf(removeAlways)
 exports.getPriceGranularity = function(){
 	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
 };
@@ -265,6 +301,10 @@ exports.getTestPartnerConfig = function () {
 	return config[CONSTANTS.COMMON.TEST_PARTNER] || {};
 };
 
+exports.getTestIdentityPartners = function () {
+	return config[CONSTANTS.COMMON.TEST_IDENTITY_PARTNER] || {};
+};
+
 exports.updateABTestConfig = function () {
 	if (refThis.isAbTestEnabled()) {
 		var randomNumberBelow100 = util.getRandomNumberBelow100();
@@ -272,7 +312,20 @@ exports.updateABTestConfig = function () {
 		// if Random number is smaller than the test group size then test config will be applied 
 		if (testGroupDetails && testGroupDetails.testGroupSize && randomNumberBelow100 < testGroupDetails.testGroupSize) {
 			refThis.updatePWTConfig();
-			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters);			
+			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters);	
+			if(refThis.getTestIdentityPartners() && refThis.getIdentityPartners()){
+				if(Object.keys(refThis.getTestIdentityPartners()).length > 0 && Object.keys(refThis.getIdentityPartners()).length == 0){
+					util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(refThis.getTestIdentityPartners()));
+					config.identityPartners = refThis.getTestIdentityPartners();
+				} else if(Object.keys(refThis.getTestIdentityPartners()).length == 0 && Object.keys(refThis.getIdentityPartners()).length > 0){
+					util.log(CONSTANTS.MESSAGES.M31, JSON.stringify({}));
+					config.identityPartners = {};
+				}
+				else{
+					config.identityPartners = refThis.updatePartnerConfig(refThis.getTestIdentityPartners(), refThis.getIdentityPartners());			
+				}
+			}
+			window.PWT.testGroupId = 1;
 		}
 	}
 };
@@ -288,12 +341,11 @@ exports.updatePWTConfig = function () {
 		}
 		//TODO: Uncomment Below code after updating phatomjs or using chrome headless 
 		// Object.assign(config[CONSTANTS.CONFIG.COMMON], testConfig);
-		window.PWT.testGroupId = 1;
 	}
 };
 
 exports.updatePartnerConfig = function (testConfig, controlConfig) {
-	if (testConfig && Object.keys(testConfig).length > 0) {
+	if (testConfig && controlConfig && Object.keys(testConfig).length > 0 && Object.keys(controlConfig).length > 0) {
 		util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(testConfig));
 		for (var key in testConfig) {
 			if (util.isOwnProperty(testConfig, key) && util.isObject(testConfig[key])) {
@@ -307,7 +359,7 @@ exports.updatePartnerConfig = function (testConfig, controlConfig) {
 		window.PWT.testGroupId = 1;
 		return testConfig;
 	} else{
-		// since only test type can be enabled test config will be empty if other test config is enabled and hence return control config
+		// since only one test type can be enabled other type of test config will be empty if other test config is enabled and hence return control config
 		return controlConfig;
 	}
 };
@@ -318,7 +370,7 @@ exports.getTestGroupDetails = function () {
 // This will keep toObject config as is and only merge objects common in both from and toobject 
 exports.getMergedConfig = function(toObject, fromObject){
 	for(var key in fromObject){
-		if(!toObject[key]) {
+		if(!Object.prototype.hasOwnProperty.call(toObject, key)) {
 			if(util.isObject(fromObject[key]) || util.isArray(fromObject[key])) {
 				toObject[key] = JSON.parse(JSON.stringify(fromObject[key]));
 			}else{
@@ -328,3 +380,18 @@ exports.getMergedConfig = function(toObject, fromObject){
 	}
 	return toObject;
 };
+
+exports.forEachBidderAlias = function (callback) {
+	util.forEachOnObject(config.alias, callback);
+};
+
+exports.getAdapterNameForAlias = function(aliasName){
+	if(config.alias && config.alias[aliasName]){
+		return config.alias[aliasName];
+	}
+	return aliasName;
+};
+
+exports.isSSOEnabled = function() {
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SSO_ENABLED]) === 1;
+}

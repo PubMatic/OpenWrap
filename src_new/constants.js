@@ -33,15 +33,19 @@ exports.COMMON = {
 	"PROTOCOL": "https://",
 	"SLOT_CONFIG": "slotConfig",
 	"DEFAULT": "default",
-	"ADSERVER": "adserver",
-	"SCHAINOBJECT": "sChainObj",
-	"SCHAIN": "sChain",
+	"ADSERVER":"adserver",
+	"OWVERSION":"owv",
+	"PBVERSION":"pbv",
+	"SCHAINOBJECT":"sChainObj",
+	"SCHAIN":"sChain",
 	"PBJS_NAMESPACE": "prebidObjName",
 	"TEST_GROUP_DETAILS": "testConfigDetails",
 	"TEST_PWT": "test_pwt",
 	"PRICE_GRANULARITY" : "priceGranularity",
 	"GRANULARITY_MULTIPLIER" : "granularityMultiplier",
-	"TEST_PARTNER": "test_adapters"
+	"TEST_PARTNER": "test_adapters",
+	"REDUCE_CODE_SIZE": "reduceCodeSize",
+	"TEST_IDENTITY_PARTNER": "test_identityPartners"
 };
 
 exports.CONFIG = {
@@ -89,8 +93,17 @@ exports.CONFIG = {
 	"CACHE_URL": "https://ow.pubmatic.com",
 	"VIDEO_PARAM": "video",
 	"ENABLE_PB_PM_ANALYTICS": "pubAnalyticsAdapter",
+	"FLOOR_PRICE_MODULE_ENABLED": "floorPriceModuleEnabled",
+	"FLOOR_AUCTION_DELAY":"floorAuctionDelay",
+	"DEFAULT_FLOOR_AUCTION_DELAY": 100,
+	"FLOOR_JSON_URL":"jsonUrl",
+	"FLOOR_ENFORCE_JS":"floorType",
+	"DEFAULT_FLOOR_ENFORCE_JS": true,
 	"USE_PREBID_KEYS": "usePBJSKeys",
-	"AB_TEST_ENABLED": "abTestEnabled"
+	"AB_TEST_ENABLED": "abTestEnabled",
+	"TIMEOUT_ADJUSTMENT": 50,
+	"SSO_ENABLED": "ssoEnabled",
+	"SSO_INTEGRATION_TIMEOUT": 2500
 };
 
 exports.METADATA_MACROS = {
@@ -166,7 +179,7 @@ exports.MESSAGES = {
 	"M6": "bidAlreadExists : ",
 	"M7": ": Exiting from fetchBids.",
 	"M8": ". Config not found, ignored.",
-	"M9": ". Config ignored.",
+	// "M9": ". Config ignored.",
 	"M10": "Bid is rejected as ecpm is NULL.",
 	"M11": "Bid is rejected as ecpm is NaN: ",
 	"M12": "Existing bid ecpm: ",
@@ -244,14 +257,31 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 	},
 	"id5Id": {
 		"params.partner": "number"
+	},
+	"parrableId": {
+		"params.timezoneFilter.allowedZones": "array"
 	}
 }; //list of ID partners for whom special handling of datatype is required
 
 exports.ID_PARTNERS_CUSTOM_VALUES = {
-	"parrableId": [
-		{
-			"key": "params.timezoneFilter",
-			"value": {"allowedZones": [ "Pacific/Honolulu"]}
-		}
-	]
+    "id5Id": [
+        {
+            "key": "params.provider",
+            "value": "pubmatic-identity-hub"
+        }
+    ]
 };
+
+exports.EXCLUDE_PARTNER_LIST = ['pubProvidedId'];
+
+exports.MEDIATYPE = {
+	BANNER:0 ,
+	VIDEO:1,
+	NATIVE:2 
+  };
+
+exports.BID_STATUS =  {
+	BID_REJECTED : "bidRejected"
+}
+// Add list of PubMatic aliases here.
+exports.PUBMATIC_ALIASES = ["pubmatic2"];

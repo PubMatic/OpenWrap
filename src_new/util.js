@@ -148,6 +148,7 @@ exports.getUniqueIdentifierStr = function() {
 	return utilGetIncrementalInteger() + window.Math.random().toString(16).substr(2);
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.copyKeyValueObject = function(copyTo, copyFrom){
 	/* istanbul ignore else */
 	if(refThis.isObject(copyTo) && refThis.isObject(copyFrom)){
@@ -167,6 +168,7 @@ exports.copyKeyValueObject = function(copyTo, copyFrom){
 		});
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.getIncrementalInteger = (function() {
 	var count = 0;
@@ -232,7 +234,7 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheck
 		if(shouldCheckMappingForVideo){
 			//TODO: remove below line and update above live for assigning sizeArray after remove phantom js and including chromeheadless
 			// This adds an size 0x0 to sizes so that multiple kgpvs can be generated
-			sizeArray = Array.from(activeSlot.getSizes());
+			sizeArray = [].concat(activeSlot.getSizes());
 			var config = refThis.mediaTypeConfig[divId];
 			if(config && config.video){
 				sizeArray.unshift([0,0]);
@@ -272,40 +274,6 @@ exports.generateSlotNamesFromPattern = function(activeSlot, pattern, shouldCheck
 		}
 	}
 	return slotNames;
-};
-
-//todo: is it required ?
-exports.checkMandatoryParams = function(object, keys, adapterID){
-	var error = false,
-		success = true
-	;
-	/* istanbul ignore else */
-	if(!object || !refThis.isObject(object) || refThis.isArray(object)){
-		refThis.logWarning(adapterID + "provided object is invalid.");
-		return error;
-	}
-	/* istanbul ignore else */
-	if(!refThis.isArray(keys)){
-		refThis.logWarning(adapterID + "provided keys must be in an array.");
-		return error;
-	}
-
-	var arrayLength = keys.length;
-	/* istanbul ignore else */
-	if(arrayLength == 0){
-		return success;
-	}
-
-	// can not change following for loop to refThis.forEachOnArray
-	for(var i=0; i<arrayLength; i++){
-		/* istanbul ignore else */
-		if(!refThis.isOwnProperty(object, keys[i])){
-			refThis.logError(adapterID + ": "+keys[i]+", mandatory parameter not present.");
-			return error;
-		}
-	}
-
-	return success;
 };
 
 /**
@@ -368,6 +336,9 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 		kgpConsistsWidthAndHeight = keyGenerationPattern.indexOf(CONSTANTS.MACROS.WIDTH) >= 0 && keyGenerationPattern.indexOf(CONSTANTS.MACROS.HEIGHT) >= 0;
 	var isRegexMapping = adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] ? true : false;
 	var regexPattern = undefined;
+	const adapterNameForAlias = CONFIG.getAdapterNameForAlias(adapterID);
+	var isPubMaticAlias = CONSTANTS.PUBMATIC_ALIASES.indexOf(adapterNameForAlias) > - 1 ? true : false;
+	var regExMappingWithNoConfig = false;
 	refThis.forEachOnArray(generatedKeys, function(j, generatedKey){
 		var keyConfig = null,
 			callHandlerFunction = false,
@@ -382,7 +353,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 			}
 			callHandlerFunction = true;
 		}else{
-			if(isRegexMapping){ 
+			if(isRegexMapping){
 				refThis.debugLogIsEnabled && refThis.log(console.time("Time for regexMatching for key " + generatedKey));
 				var config = refThis.getConfigFromRegex(keyLookupMap,generatedKey);
 				refThis.debugLogIsEnabled && refThis.log(console.timeEnd("Time for regexMatching for key " + generatedKey));
@@ -390,25 +361,40 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 				if(config){
 					keyConfig = config.config;
 					regexPattern = config.regexPattern;
+				}else{
+					// if klm_rx dosen't return any config and if partner is PubMatic alias we need to restrict call to handlerFunction
+					// so adding flag regExMappingWithNoConfig below
+					regExMappingWithNoConfig = isPubMaticAlias ? true : false;
 				}
 			}
 			else{
 				// Added Below Check Because of UOE-5600
 				if(videoSlotName && videoSlotName.length == 1){
-					keyConfig = keyLookupMap[videoSlotName[0]];
+					// Commented out normal lookup and added below check to remove case sensitive check on videoSlotName[0].
+					// keyConfig = keyLookupMap[videoSlotName[0]];
+					// keyConfig = keyLookupMap[Object.keys(keyLookupMap).find(key => key.toLowerCase() === videoSlotName[0].toLowerCase())];
+					keyConfig = keyLookupMap[Object.keys(keyLookupMap).filter(function(key) {
+						return key.toLowerCase() === videoSlotName[0].toLowerCase()
+					})];
 					// We are updating the generatedKey because we want to log kgpv as 0x0 in case of video 
 					if(keyConfig){
 						generatedKey = videoSlotName[0];
 					}
 				}
 				if(!keyConfig){
-					keyConfig = keyLookupMap[generatedKey];
+					// Commented out normal lookup and added below check to remove case sensitive check on generatedKey.
+					// keyConfig = keyLookupMap[generatedKey];
+					keyConfig = keyLookupMap[Object.keys(keyLookupMap).filter(function(key) {
+						return key.toLowerCase() === generatedKey.toLowerCase()
+					})];
 				}
 			}
-			if(!keyConfig){
+			// condition (!keyConfig && !isPubMaticAlias) will check if keyCofig is undefined and partner is not PubMatic alias then log message to console 
+			// with "adapterID+": "+generatedKey+ config not found"
+			// regExMappingWithNoConfig will be true only if klm_rx dosen't return config and partner is PubMatic alias then log message to console
+			// with "adapterID+": "+generatedKey+ config not found" 
+			if((!keyConfig && !isPubMaticAlias) || regExMappingWithNoConfig){
 				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M8);
-			}else if(!refThis.checkMandatoryParams(keyConfig, slotConfigMandatoryParams, adapterID)){
-				refThis.log(adapterID+": "+generatedKey+CONSTANTS.MESSAGES.M9);
 			}else{
 				callHandlerFunction = true;
 			}
@@ -416,7 +402,6 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 
 		/* istanbul ignore else */
 		if(callHandlerFunction){
-			console.log('Calling handler function');
 			/* istanbul ignore else */
 			if(addZeroBids == true){
 				var bid = BID.createBid(adapterID, generatedKey);
@@ -444,6 +429,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 exports.callHandlerFunctionForMapping = callHandlerFunctionForMapping;
 /* end-test-block */
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.resizeWindow = function(theDocument, width, height, divId){
 	/* istanbul ignore else */
 	if(height && width){
@@ -471,7 +457,9 @@ exports.resizeWindow = function(theDocument, width, height, divId){
 		} // eslint-disable-line no-empty
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.writeIframe = function(theDocument, src, width, height, style){
 	theDocument.write("<iframe"
     + " frameborder=\"0\" allowtransparency=\"true\" marginheight=\"0\" marginwidth=\"0\" scrolling=\"no\" width=\""
@@ -481,7 +469,9 @@ exports.writeIframe = function(theDocument, src, width, height, style){
     + " src=\"" + src + "\""
     + "></ifr" + "ame>");
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.displayCreative = function(theDocument, bid){
 	if(bid && bid.pbbid && bid.pbbid.mediaType == "video" && bid.renderer && refThis.isObject(bid.renderer)){
 		if(refThis.isFunction(bid.renderer.render)){
@@ -491,12 +481,12 @@ exports.displayCreative = function(theDocument, bid){
 	else{
 		refThis.resizeWindow(theDocument, bid.width, bid.height);
 		if(bid.adHtml){
-			if(bid.getAdapterID().toLowerCase() == "appier"){
+			if(bid.getAdapterID().toLowerCase() == "appier" || bid.getAdapterID().toLowerCase() == "deepintent"){
 				bid.adHtml = refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());
 			}
 			theDocument.write(bid.adHtml);
 		}else if(bid.adUrl){
-			if(bid.getAdapterID().toLowerCase() == "appier"){
+			if(bid.getAdapterID().toLowerCase() == "appier" || bid.getAdapterID().toLowerCase() == "deepintent"){
 				bid.adUrl = refThis.replaceAuctionPrice(bid.adUrl, bid.getGrossEcpm());
 			}
 			refThis.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
@@ -506,18 +496,7 @@ exports.displayCreative = function(theDocument, bid){
 		}
 	}
 };
-
-exports.getScreenWidth = function(win){
-	var screenWidth = -1;
-	win.innerHeight ? (screenWidth = win.innerWidth) : win.document && win.document.documentElement && win.document.documentElement.clientWidth ? (screenWidth = win.document.documentElement.clientWidth) : win.document.body && (screenWidth = win.document.body.clientWidth);
-	return screenWidth;
-};
-
-exports.getScreenHeight = function(win){
-	var screenHeight = -1;
-	win.innerHeight ? (screenHeight = win.innerHeight) : win.document && win.document.documentElement && win.document.documentElement.clientHeight ? (screenHeight = win.document.documentElement.clientHeight) : win.document.body && (screenHeight = win.document.body.clientHeight);
-	return screenHeight;
-};
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // todo: how about accepting array of arguments to be passed to callback function after key, value, arrayOfArguments
 exports.forEachOnObject = function(theObject, callback){
@@ -619,11 +598,6 @@ exports.isIframe = function(theWindow){
 	}
 };
 
-//todo: this function is not used
-exports.findInString = function(theString, find){
-	return theString.indexOf(find) >= 0;
-};
-
 exports.findQueryParamInURL = function(url, name){
 	return refThis.isOwnProperty(refThis.parseQueryParams(url), name);
 };
@@ -715,6 +689,7 @@ exports.getBididForPMP = function(values, priorityArray){
 	return bidID;
 };
 
+// removeIf(removeNativeRelatedCode)
 exports.createInvisibleIframe = function() {
 	var f = refThis.createDocElement(window, 'iframe');
 	f.id = refThis.getUniqueIdentifierStr();
@@ -732,7 +707,9 @@ exports.createInvisibleIframe = function() {
 	f.style = 'display:none';
 	return f;
 }
+// endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.addMessageEventListener = function(theWindow, eventHandler){
 	/* istanbul ignore else */
 	if(typeof eventHandler !== "function"){
@@ -747,7 +724,9 @@ exports.addMessageEventListener = function(theWindow, eventHandler){
 	}
 	return true;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.safeFrameCommunicationProtocol = function(msg){
 	try{
 		msgData = window.JSON.parse(msg.data);
@@ -847,10 +826,16 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 				}
 			break;
+		
+		// removeIf(removeNativeRelatedCode)	
 		case 3:
-			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+			if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+				var msg = { message: 'Prebid Native', adId: msgData.pwt_bidID, action: msgData.pwt_action };
+				window.postMessage(JSON.stringify(msg), "*");
+			}else{
+				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
-			if(bidDetails){
+				if(bidDetails){
 					var theBid = bidDetails.bid,
 						adapterID = theBid.getAdapterID(),
 						divID = bidDetails.slotid;
@@ -860,16 +845,20 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					}
 					bidManager.fireTracker(theBid,msgData.pwt_action);							
 				}
+			}
 			break;
+		// endRemoveIf(removeNativeRelatedCode)	
 		}
 	}catch(e){}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.addMessageEventListenerForSafeFrame = function(theWindow){
 	refThis.addMessageEventListener(theWindow, refThis.safeFrameCommunicationProtocol);
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-//todo: this function is not in use
 exports.getElementLocation = function( el ) {
 	var rect,
 		x = 0,
@@ -1043,6 +1032,7 @@ exports.resetExternalBidderStatus = function(divIds) {
 	});
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.ajaxRequest = function(url, callback, data, options) {
 	try {
 
@@ -1092,9 +1082,15 @@ exports.ajaxRequest = function(url, callback, data, options) {
 		refThis.log(error);
 	}
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // Returns mediaTypes for adUnits which are sent to prebid
 exports.getAdUnitConfig = function(sizes, currentSlot){
+	function iskgpvpresent() {
+		if(kgpv) {
+			return Object.keys(slotConfig['config']).toString().toLowerCase().indexOf(kgpv.toLowerCase()) > -1 ? true : false;
+		}
+	}
 	var adUnitConfig = {};
 	var mediaTypeObject = {};
 	var slotConfig = CONFIG.getSlotConfiguration();
@@ -1128,8 +1124,13 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					adUnitConfig['renderer'] = config.renderer;
 				}
 			}
-			if(refThis.isOwnProperty(slotConfig['config'], kgpv)){
+			if(refThis.isOwnProperty(slotConfig['config'], kgpv) || iskgpvpresent()){
 				config = slotConfig["config"][kgpv];
+				if(!config) {
+					config = slotConfig["config"][Object.keys(slotConfig["config"]).filter(function(key){
+						return key.toLocaleLowerCase() === kgpv.toLowerCase();
+					})]
+				}
 				refThis.log("Config" + JSON.stringify(config)  +" found for adSlot: " +  JSON.stringify(currentSlot));
 			}
 			else{
@@ -1184,6 +1185,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 	return adUnitConfig;
 };
 
+// removeIf(removeNativeRelatedCode)
 exports.addEventListenerForClass = function(theWindow, theEvent, theClass, eventHandler){
 
 	if(typeof eventHandler !== "function"){
@@ -1199,15 +1201,21 @@ exports.addEventListenerForClass = function(theWindow, theEvent, theClass, event
 	}
 	return true;
 };
- 
+// endRemoveIf(removeNativeRelatedCode)
+
+// removeIf(removeNativeRelatedCode) 
 exports.findElementsByClass = function(theWindow, theClass){
 	return theWindow.document.getElementsByClassName(theClass) || [];
 };
+// endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeNativeRelatedCode)
 exports.getBidFromEvent = function (theEvent) {
 	return (theEvent && theEvent.target && theEvent.target.attributes &&  theEvent.target.attributes[CONSTANTS.COMMON.BID_ID] && theEvent.target.attributes[CONSTANTS.COMMON.BID_ID].value) || "";
 };
+// endRemoveIf(removeNativeRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.getAdFormatFromBidAd = function(ad){
 	var format = undefined;
 	if(ad && refThis.isString(ad)){
@@ -1231,6 +1239,7 @@ exports.getAdFormatFromBidAd = function(ad){
 	}
 	return format;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // This common function can be used add hooks for publishers to make changes in flows
 exports.handleHook = function(hookName, arrayOfDataToPass) {
@@ -1278,7 +1287,8 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 		var rxPattern = klmv.rx;
 		if(keys.length == 3){ // Only execute if generated key length is 3 .
 			try{
-				if(keys[0].match(new RegExp(rxPattern.AU)) && keys[1].match(new RegExp(rxPattern.DIV)) && keys[2].match(new RegExp(rxPattern.SIZE))){
+				// Added second parameter to RegExp to make case insenitive check on AU & DIV parameters. 
+				if(keys[0].match(new RegExp(rxPattern.AU, "i")) && keys[1].match(new RegExp(rxPattern.DIV, "i")) && keys[2].match(new RegExp(rxPattern.SIZE, "i"))){
 					rxConfig = {
 						config : klmv.rx_config,
 						regexPattern : rxPattern.AU + "@" + rxPattern.DIV + "@" + rxPattern.SIZE
@@ -1296,22 +1306,20 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 	return rxConfig;
 };
 
+// removeIf(removeUserIdRelatedCode)
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
-		userIdConfs.push(refThis.getUserIdParams(partnerValues));
+		if (CONSTANTS.EXCLUDE_PARTNER_LIST.indexOf(parterId) < 0) {
+			userIdConfs.push(refThis.getUserIdParams(partnerValues));
+		}
 	});
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4+ JSON.stringify(userIdConfs));
 	return userIdConfs;
 };
+// endRemoveIf(removeUserIdRelatedCode)
 
-exports.clearPreviousTargeting = function(){
-	var targetingKeys = window.googletag.pubads().getTargetingKeys();
-	if(targetingKeys.indexOf(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS)>-1){
-		window.googletag.pubads().clearTargeting(CONSTANTS.WRAPPER_TARGETING_KEYS.USER_IDS);
-	}
-};
-
+// removeIf(removeUserIdRelatedCode)
 exports.getUserIds = function(){
 	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
 		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
@@ -1319,7 +1327,9 @@ exports.getUserIds = function(){
 		refThis.logWarning("getUserIds" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	};
 };
+// endRemoveIf(removeUserIdRelatedCode)
 
+// removeIf(removeUserIdRelatedCode)
 exports.getUserIdsAsEids = function(){
 	if(refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids)) {
 		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids();
@@ -1327,6 +1337,7 @@ exports.getUserIdsAsEids = function(){
 		refThis.logWarning("getUserIdsAsEids" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	};
 };
+// endRemoveIf(removeUserIdRelatedCode)
 
 exports.getNestedObjectFromArray = function(sourceObject,sourceArray, valueOfLastNode){
 	var convertedObject = sourceObject;
@@ -1355,6 +1366,7 @@ exports.getUserIdParams = function(params){
 	var userIdParams= {};
 	refThis.applyDataTypeChangesIfApplicable(params);
 	refThis.applyCustomParamValuesfApplicable(params);
+	owpbjs.onSSOLogin({});
 	for(var key in params){
 		try{
 			if(CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
@@ -1371,8 +1383,17 @@ exports.getUserIdParams = function(params){
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}	
-	if(userIdParams && userIdParams.params && userIdParams.params['loadATS'] == 'true'){
-		refThis.initLiveRampAts(userIdParams);
+	var ssoTimeout = window.PWT && window.PWT.ssoEnabled ? CONSTANTS.CONFIG.SSO_INTEGRATION_TIMEOUT + 500 : 0; 
+	// additional timeout of 500ms added for OW profiles. should be removed from here once we start supporting pre-pending code snippet for OW profile. 
+	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
+      setTimeout(function() {
+        refThis.initLiveRampAts(userIdParams); 
+      }, ssoTimeout);
+	}
+	if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
+      setTimeout(function() {
+        refThis.initZeoTapJs(userIdParams);
+      }, 0);
 	}
 	return userIdParams;
 };
@@ -1390,10 +1411,11 @@ exports.getPartnerParams = function(params){
 	return pparams;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
-	var netEcpm, grossEcpm, kgpv, bidId, adapterId;
+	var netEcpm, grossEcpm, kgpv, bidId, adapterId, adapterName,adUnitId;
 	var sspID = "";
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 
@@ -1427,6 +1449,9 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	if(adapterId == "pubmaticServer"){
 		adapterId = theBid.originalBidder || "pubmatic"; // in case of pubmaticServer we will get originalBidder, assigning pubmatic just in case originalBidder is not there.
 	}
+
+	adapterName = CONFIG.getAdapterNameForAlias(adapterId);
+
 	// Do we need all checks or we can just use one check
 	if(refThis.isFunction(theBid.getNetEcpm)) {
 		netEcpm = theBid.getNetEcpm(isAnalytics)
@@ -1459,6 +1484,8 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		sspID = theBid.sspID || "";	
 	}
 
+	adUnitId = bidManager.getAdUnitInfo(slotID).adUnitId || slotId;
+
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
 	pixelURL += "&tst=" + refThis.getCurrentTimestamp();
@@ -1467,7 +1494,9 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
 	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
 	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
-	pixelURL += "&pn=" + window.encodeURIComponent(adapterId);
+	pixelURL += "&au=" + window.encodeURIComponent(adUnitId);
+	pixelURL += "&bc=" + window.encodeURIComponent(adapterId);
+	pixelURL += "&pn=" + window.encodeURIComponent(adapterName);
 	pixelURL += "&en=" + window.encodeURIComponent(netEcpm);
 	pixelURL += "&eg=" + window.encodeURIComponent(grossEcpm);
 	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
@@ -1475,7 +1504,9 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 
 	return CONSTANTS.COMMON.PROTOCOL + pixelURL;
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.UpdateVastWithTracker= function(bid, vast){
 	try{
 		var domParser = new DOMParser();
@@ -1495,6 +1526,7 @@ exports.UpdateVastWithTracker= function(bid, vast){
 	}
     
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.getDomainFromURL = function(url){
 	var a = window.document.createElement("a");
@@ -1502,11 +1534,14 @@ exports.getDomainFromURL = function(url){
 	return a.hostname;
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.replaceAuctionPrice = function(str, cpm) {
 	if (!str) return;
 	return str.replace(/\$\{AUCTION_PRICE\}/g, cpm);
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeInStreamRelatedCode)
 exports.getCustomParamsForDFPVideo = function(customParams, bid){
 	const adserverTargeting = (bid && bid.adserverTargeting) || {};
 	var targetingKeys = {}
@@ -1524,7 +1559,9 @@ exports.getCustomParamsForDFPVideo = function(customParams, bid){
 		customParams);
 	return customParams;
 };
+// endRemoveIf(removeInStreamRelatedCode)
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.getDevicePlatform = function(){
 	var deviceType = 3;
 	try{
@@ -1544,8 +1581,21 @@ exports.getDevicePlatform = function(){
 		refThis.logError("Unable to get device platform" , ex);
 	}
 	return deviceType;
-};
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+exports.getOWConfig = function(){
+	var obj = {
+		"timeout":CONFIG.getTimeout(),
+		"openwrap_version": CONFIG[CONSTANTS.COMMON.OWVERSION],
+		"prebid_version":CONFIG[CONSTANTS.COMMON.PBVERSION],
+		"profileId": CONFIG.getProfileID(),
+		"profileVersionId": CONFIG.getProfileDisplayVersionID()
+	};
+	return obj;
+}
+
+// removeIf(removeIdHubOnlyRelatedCode)
 exports.updateAdUnits = function(adUnits){
 	if(refThis.isArray(adUnits)){
 		adUnits.forEach(function(adUnit){
@@ -1559,7 +1609,9 @@ exports.updateAdUnits = function(adUnits){
 		});
 	}
 };
+// endRemoveIf(removeIdHubOnlyRelatedCode)
 
+// removeIf(removeIdHubOnlyRelatedCode)
 exports.updateUserIds = function(bid){
 	// refThis.idsAppendedToAdUnits =true;
 	if(refThis.isUndefined(bid.userId)){
@@ -1590,29 +1642,106 @@ exports.updateUserIds = function(bid){
 		bid.userIdAsEids = ids;
 	}
 };
+// endRemoveIf(removeIdHubOnlyRelatedCode)
 
-exports.initLiveRampAts = function(params){
+exports.initLiveRampAts = function (params) {
 	function addATS() {
-		var atsScript = document.createElement('script');
-		if(params.params.cssSelectors && params.params.cssSelectors.length>0){
-			params.params.cssSelectors = params.params.cssSelectors.split(',');
+		var atsScript = document.createElement("script");
+		if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
+			params.params.cssSelectors = params.params.cssSelectors.split(",");
 		}
-		atsScript.onload = function() {
-		  window.ats.start(        {
-			  "placementID": params.params.pid,
-			  "storageType":params.params.storageType,
-			  "detectionType": params.params.detectionType,
-			  "urlParameter": params.params.urlParameter,
-			  "cssSelectors":params.params.cssSelectors,// ["input[type=text]", "input[type=email]"],
-			  "logging": params.params.logging //"error"
-			});
+		var userIdentity = owpbjs.getUserIdentities() || {};
+		var enableSSO = CONFIG.isSSOEnabled() || false;
+		var detectionMechanism = params.params.detectionMechanism;
+		var customIdSupport = params.params.customIdSupport === "1" ? true : false;
+		var atsObject = {
+			"placementID": params.params.pid,
+			"storageType": params.params.storageType,
+			"logging": params.params.logging //"error"
 		};
-		atsScript.src = 'https://ats.rlcdn.com/ats.js';
+		switch (detectionMechanism) {
+			case undefined:
+			case 'detect':
+				atsObject.detectionType = params.params.detectionType;
+				atsObject.urlParameter = params.params.urlParameter;
+				atsObject.cssSelectors = params.params.cssSelectors;
+				atsObject.detectDynamicNodes = params.params.detectDynamicNodes;
+				break;
+			case 'direct':
+				if (customIdSupport) {
+					if (parseInt(params.params.accountId) === NaN) {
+						utils.logWarning("Liveramp ATS.js - customID is enabled, but accountID param missing. Ignoring customId config")
+					} else {
+						atsObject.accountID = params.params.accountID;
+					}
+				}
+				break;
+		};
+			
+		atsScript.onload = function () {
+			userIdentity = owpbjs.getUserIdentities() || {};
+			atsObject.emailHashes = enableSSO && userIdentity.emailHash ? [userIdentity.emailHash['MD5'], userIdentity.emailHash['SHA1'], userIdentity.emailHash['SHA256']] : undefined;
+			/* -- need this code for customid support
+			if (detectionMechanism === "direct" && customIdSupport && !isNaN(parseInt(params.params.accountId))) {
+				atsObject.customID = userIdentity.emailHash['SHA256'];
+			}*/
+			window.ats.start(atsObject);
+		};
+		atsScript.src = "https://ats.rlcdn.com/ats.js";
 		document.body.appendChild(atsScript);
 	}
-	window.addEventListener("load", function()  {
-    	setTimeout(addATS, 1000);
-  	}); 
+	if (document.readyState == 'complete') {
+		addATS();
+	} else {
+		window.addEventListener("load", function () {
+			setTimeout(addATS, 1000);
+		});
+	}
+};
+
+exports.initZeoTapJs = function(params) {
+	function addZeoTapJs() {
+		var n = document, t = window;
+		var userIdentity = owpbjs.getUserIdentities() || {};
+		var userIdentityObject = {
+			email: userIdentity.email || "",
+			cellno: userIdentity.cellNo || "",
+			loginid: userIdentity.loginId || "",
+			fpuid: userIdentity.fpuid || "",
+			cellno_cc: userIdentity.cellNoCC || ""
+		};
+		var e=n.createElement("script");
+		e.type="text/javascript",
+		e.crossorigin="anonymous"
+		e.async=!0 ,
+		e.src="https://content.zeotap.com/sdk/idp.min.js",
+		e.onload=function(){};
+		n=n.getElementsByTagName("script")[0];
+		n.parentNode.insertBefore(e,n);
+
+		n=t.zeotap||{_q:[],_qcmp:[]};
+
+		!function(n,t,e) {
+			for( var o=0 ;o<t.length;o++)
+				!function(t) {
+					n[t]=function(){
+						n[e].push([t].concat(Array.prototype.slice.call(arguments, 0 )))
+					}
+				}(t[o])
+		}(n,["callMethod"],"_q"),
+		t.zeotap=n,
+		t.zeotap.callMethod("init",{partnerId:params.partnerId, allowIDP: true})
+		t.zeotap.callMethod("setConsent",CONFIG.getCCPA(), 365)
+		t.zeotap.callMethod("setUserIdentities",userIdentityObject);
+	}
+
+	if (document.readyState == 'complete') {
+		addZeoTapJs();
+	} else {
+		window.addEventListener("load", function () {
+			setTimeout(addZeoTapJs, 1000);
+		});
+	}
 };
 
 exports.getRandomNumberBelow100 = function(){
@@ -1642,18 +1771,35 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 	var value;
 	if(params.name in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
 		for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
-			for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
-				switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
-					case 'number':
-						if(params[key] && typeof params[key] !== 'number') {
-							value = parseInt(params[key])
-							isNaN(value) ?
-								refThis.logError(partnerName + ": Invalid parameter value '" + params[key] + "' for parameter " + key) :
-								params[key] = value;
-						}
-						break;
-					default:
-						return;
+			if (partnerName === params.name) {
+				for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
+					var paramValue = params[key];
+					switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
+						case 'number':
+							if(paramValue && typeof paramValue !== 'number') {
+								value = parseInt(paramValue)
+								isNaN(value) ?
+									refThis.logError(partnerName + ": Invalid parameter value '" + paramValue + "' for parameter " + key) :
+									params[key] = value;
+							}
+							break;
+						case 'array': 
+							if (paramValue) {
+								if (typeof paramValue === 'string') {
+									var arr = paramValue.split(",").map(function(item) {
+										return item.trim();
+									});
+									if (arr.length > 0) {
+										params[key] = arr;
+									}
+								} else if (typeof paramValue === 'number') {
+									params[key] = [paramValue];
+								}
+							}
+							break;
+						default:
+							return;
+					}
 				}
 			}
 		}

@@ -1135,15 +1135,18 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(GDPR, "getUserConsentDataFromLS");
             sinon.spy(UTIL, "forEachOnObject");
 
-            window.PWT = {
-                bidMap: {
-                }
-            };
-
             slotID_1 = "Slot_1";
             bmEntryStub_1 = new bmEntryContstuctor(slotID_1);
             slotID_2 = "Slot_2";
             bmEntryStub_2 = new bmEntryContstuctor(slotID_2);
+
+            window.PWT = {
+                bidMap: {
+                },
+                adUnits:{
+                    "Slot_1":{"divID": slotID_1, "code":slotID_1, "adUnitId": slotID_1, "mediaTypes": {'banner': {'sizes': [0]}}}
+                }
+            };
 
             window.PWT.bidMap[slotID_1] = bmEntryStub_1;
             window.PWT.bidMap[slotID_2] = bmEntryStub_2;
@@ -1219,6 +1222,7 @@ describe('bidManager BIDMgr', function() {
 
     describe('#executeMonetizationPixel', function() {
         var slotID = null;
+        var adUnitId = null;
         var adapterID = null;
         var theBid = null;
         var latency = null;
@@ -1228,11 +1232,13 @@ describe('bidManager BIDMgr', function() {
 
         beforeEach(function(done) {
             slotID = "Slot_1";
+            adUnitId = "slot_au_code";
             theBid = new bid(adapterID, kgpv);
             sinon.spy(CONFIG, 'getMonetizationPixelURL');
             sinon.spy(CONFIG, 'getPublisherId');
             sinon.spy(CONFIG, 'getProfileID');
             sinon.spy(CONFIG, 'getProfileDisplayVersionID');
+            sinon.stub(CONFIG, 'getAdapterNameForAlias');
             sinon.stub(theBid, 'getBidID');
             theBid.getBidID.returns('784b05cc03a84a');
             sinon.spy(theBid, 'getAdapterID');
@@ -1245,7 +1251,10 @@ describe('bidManager BIDMgr', function() {
             window.Image.returns({});
 
             window.PWT = {
-                bidMap: {}
+                bidMap: {},
+                adUnits: {
+                    "Slot_1":{"divID": slotID, "code":slotID, "adUnitId": adUnitId, "mediaTypes": {'banner': {'sizes': [0]}}}
+                }
             };
             window.PWT.bidMap[slotID] = {
                 getImpressionID: function() {
@@ -1271,6 +1280,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getPublisherId.restore();
             CONFIG.getProfileID.restore();
             CONFIG.getProfileDisplayVersionID.restore();
+            CONFIG.getAdapterNameForAlias.restore();
             window.encodeURIComponent.restore();
 
             theBid.getBidID.restore();
@@ -1330,6 +1340,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getPublisherId.called.should.be.true;
             CONFIG.getProfileID.called.should.be.true;
             CONFIG.getProfileDisplayVersionID.called.should.be.true;
+            CONFIG.getAdapterNameForAlias.called.should.be.true;
 
             theBid.getBidID.called.should.be.true;
             theBid.getAdapterID.called.should.be.true;
@@ -1339,7 +1350,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(11);
+            window.encodeURIComponent.callCount.should.be.equal(13);
 
             done();
         });
@@ -1356,7 +1367,36 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
             pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
             pixelURL += "&slot=" + window.encodeURIComponent(slotID);
-            pixelURL += "&pn=" + window.encodeURIComponent(theBid.getAdapterID());
+            pixelURL += "&au=" + window.encodeURIComponent(adUnitId);
+            pixelURL += "&bc=" + window.encodeURIComponent(theBid.getAdapterID());
+            pixelURL += "&pn=" + window.encodeURIComponent(CONFIG.getAdapterNameForAlias(theBid.getAdapterID()));
+            pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
+            pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
+            pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
+            pixelURL += "&piid=" + window.encodeURIComponent(theBid.getsspID());
+
+            BIDMgr.executeMonetizationPixel(slotID, theBid);
+            BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;
+
+            done();
+        });
+
+        it('should generate proper pixelURL for bidder aliases', function(done) {
+
+            theBid.adapterID = "pubmatic21";
+            CONFIG.getAdapterNameForAlias.returns('pubmatic');
+            var pixelURL = CONSTANTS.COMMON.PROTOCOL + CONFIG.getMonetizationPixelURL();
+            pixelURL += "pubid=" + CONFIG.getPublisherId();
+            pixelURL += "&purl=" + window.encodeURIComponent(UTIL.metaInfo.pageURL);
+            pixelURL += "&tst=" + UTIL.getCurrentTimestamp();
+            pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
+            pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
+            pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
+            pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
+            pixelURL += "&slot=" + window.encodeURIComponent(slotID);
+            pixelURL += "&au=" + window.encodeURIComponent(adUnitId);
+            pixelURL += "&bc=" + window.encodeURIComponent(theBid.getAdapterID());
+            pixelURL += "&pn=" + window.encodeURIComponent(CONFIG.getAdapterNameForAlias(theBid.getAdapterID()));
             pixelURL += "&en=" + window.encodeURIComponent(theBid.getNetEcpm());
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
@@ -1369,9 +1409,64 @@ describe('bidManager BIDMgr', function() {
         });
     });
 
+    describe('#getAdUnitSizes', function(){
+        var bmEntryObj = null;
+        var theBid = null;
+
+        beforeEach(function(done) {
+            bmEntryObj = new bmEntryContstuctor("pubmatic");
+            bmEntryObj.setSizes(["720x80"]);
+
+            theBid = new bid(commonAdpterID, commonKGPV);
+
+            sinon.spy(theBid, "getPostTimeoutStatus");
+            bmEntryObj.setAdapterEntry(commonAdpterID);
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+
+            done();
+        })
+
+        afterEach(function(done) {
+            bmEntry = null;
+            theBid = null;
+            done();
+        })
+        it('Should return single size of adunit in case of non-native bid', function(done) {
+            BIDMgr.getAdUnitSizes(bmEntryObj)[0].should.be.equal('720x80');
+            done();
+        });
+
+        it('Should return multiple size of adunit in case of non-native bid', function(done) {
+            bmEntryObj.setSizes(["720x80","640x480"]);
+
+            BIDMgr.getAdUnitSizes(bmEntryObj)[0].should.be.equal('720x80');
+            BIDMgr.getAdUnitSizes(bmEntryObj)[1].should.be.equal('640x480');
+            done();
+        });
+
+        it('Should return 1x1 in case of native bid', function(done) {
+            bmEntryObj.setSizes(["720x80","640x480"]);
+            theBid.isWinningBid = true;
+            theBid.adFormat="native";
+
+            BIDMgr.getAdUnitSizes(bmEntryObj)[0].should.be.equal('1x1');
+            done();
+        });
+
+        it('Should return size of adUnit in case of native with NO-BID', function(done) {
+            theBid.getPostTimeoutStatus.restore();
+            sinon.stub(theBid,"getPostTimeoutStatus").returns(1);
+            theBid.setGrossEcpm(0);
+
+            BIDMgr.getAdUnitSizes(bmEntryObj)[0].should.be.equal('720x80');
+            done();
+        });
+    });
+
     describe('#analyticalPixelCallback', function() {
         var slotID = null,
             bmEntryObj = null,
+            adUnitId = null,
             impressionIDMap = null;
         var theBid = null;
         var impressionID = null;
@@ -1379,6 +1474,7 @@ describe('bidManager BIDMgr', function() {
 
         beforeEach(function(done) {
             slotID = "Slot_1";
+            adUnitId = "slot_au_code";
             bmEntryObj = new bmEntryContstuctor("pubmatic");
             impressionID = "12345";
 
@@ -1405,6 +1501,19 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, "getDealChannel");
             sinon.spy(theBid, "getPostTimeoutStatus");
             sinon.spy(theBid, "getWinningBidStatus");
+            sinon.spy(theBid, "getPbBid");
+
+            theBid.floorRequestData= {
+                'fetchStatus': 'success',
+                'floorMin': undefined,
+                'floorProvider': 'pubmatic',
+                'location': 'fetch',
+                'modelTimestamp': undefined,
+                'modelVersion': 'floorModelTest',
+                'modelWeight': undefined,
+                'skipRate': 0,
+                'skipped': false
+              }
 
             serverSideBid = new bid(serverAdapterID, commonKGPV);
             impressionIDMap = {};
@@ -1414,6 +1523,11 @@ describe('bidManager BIDMgr', function() {
                 endTime: 25
              }
             }
+            window.PWT.adUnits = 
+                {
+                    "Slot_1":{"divID": slotID, "code":slotID, "adUnitId": adUnitId, "mediaTypes": {'banner': {'sizes': [0]}}}
+                }
+            
             done();
         });
 
@@ -1519,6 +1633,7 @@ describe('bidManager BIDMgr', function() {
             theBid.getDealChannel.calledOnce.should.be.true;
             theBid.getPostTimeoutStatus.called.should.be.true;
             theBid.getWinningBidStatus.calledOnce.should.be.true;
+            theBid.getPbBid.calledOnce.should.be.true;
 
             done();
         });
@@ -1544,7 +1659,6 @@ describe('bidManager BIDMgr', function() {
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].t).to.exist;
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].wb).to.exist;
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].ss).to.exist;
-            
 			done()
         });
 
@@ -1561,6 +1675,7 @@ describe('bidManager BIDMgr', function() {
                      getServerSideResponseTime returns 0, it means that server responded with error code 1/2/3/6
                      hence do not add entry in logger.
                 */
+
 
                 expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
                 expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");

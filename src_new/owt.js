@@ -4,10 +4,14 @@ var bidManager = require("./bidManager.js");
 var CONSTANTS = require("./constants.js");
 var CONFIG = require("./config.js");
 var ucTag = require("prebid-universal-creative");
+var conf = require("./conf.js");
+var prebid = require("./adapters/prebid.js");
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
 window.PWT.bidMap = window.PWT.bidMap || {};
 window.PWT.bidIdMap = window.PWT.bidIdMap || {};
+window.PWT.adUnits = window.PWT.adUnits || {};
+window.PWT.floorData = window.PWT.floorData || {};
 window.PWT.isIframe = window.PWT.isIframe || metaInfo.isInIframe;
 window.PWT.protocol = window.PWT.protocol || metaInfo.protocol;
 window.PWT.secure = window.PWT.secure || metaInfo.secure;
@@ -21,13 +25,16 @@ window.PWT.udpv = window.PWT.udpv || util.findQueryParamInURL(metaInfo.isIframe 
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc") && util.enableVisualDebugLog();
 
+var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
+
 window.PWT.displayCreative = function(theDocument, bidID){
 	util.log("In displayCreative for: " + bidID);
-	//todo: move value of CONFIG.isPrebidPubMaticAnalyticsEnabled() if used multiple times
-	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+	if(isPrebidPubMaticAnalyticsEnabled){
 		window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
 	} else {
+		// removeIf(removeLegacyAnalyticsRelatedCode)
 		bidManager.displayCreative(theDocument, bidID);	
+		// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 	}
 };
 
@@ -35,10 +42,12 @@ window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In displayPMPCreative for: " + values);
 	var bidID = util.getBididForPMP(values, priorityArray);
 	if(bidID){
-		if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+		if(isPrebidPubMaticAnalyticsEnabled){
 			window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
 		} else {
-			bidManager.displayCreative(theDocument, bidID);	
+			// removeIf(removeLegacyAnalyticsRelatedCode)
+			bidManager.displayCreative(theDocument, bidID);
+			// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 		}
 	}
 };
@@ -47,7 +56,8 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 	util.log("In sfDisplayCreative for: " + bidID);
 	ucTag = window.ucTag || {};
 	this.isSafeFrame = true;
-	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
+	ucTag = window.ucTag || {};	
+	if(isPrebidPubMaticAnalyticsEnabled){
 		ucTag.renderAd(theDocument, {adId: bidID, pubUrl: document.referrer});
 	}
 	else {
@@ -82,11 +92,14 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	}
 };
 
+
+// removeIf(removeNativeRelatedCode)
 window.PWT.initNativeTrackers = function(theDocument,bidID){
 	util.log("In startTrackers for: " + bidID);
 	util.addEventListenerForClass(window,"click", CONSTANTS.COMMON.OW_CLICK_NATIVE,bidManager.loadTrackers);
 	bidManager.executeTracker(bidID);
 };
+// endRemoveIf(removeNativeRelatedCode)
 
 window.PWT.getUserIds = function(){
 	return util.getUserIds();
@@ -123,10 +136,13 @@ window.OWT.notifyExternalBiddingComplete = function(notifyId) {
 	});
 };
 
+// removeIf(removeLegacyAnalyticsRelatedCode)
 window.PWT.UpdateVastWithTracker = function(bid, vast){
 	return util.UpdateVastWithTracker(bid, vast);
 };
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// removeIf(removeInStreamRelatedCode)
 window.PWT.generateDFPURL= function(adUnit,cust_params){
 	var dfpurl = "";
 	if(!adUnit || !util.isObject(adUnit)) {
@@ -153,9 +169,21 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 	dfpurl = window.owpbjs.adServers.dfp.buildVideoUrl(params);
 	return dfpurl;
 };
+// endRemoveIf(removeInStreamRelatedCode)
 
+// removeIf(removeInStreamRelatedCode)
 window.PWT.getCustomParamsForDFPVideo = function(customParams, bid){
 	return util.getCustomParamsForDFPVideo(customParams, bid);
 };
+// endRemoveIf(removeInStreamRelatedCode)
+
+window.PWT.setAuctionTimeout = function(timeout){
+	if(!isNaN(timeout)){
+		util.log("updating aution timeout from: " + conf.pwt.t +" to: "+timeout);
+		conf.pwt.t = timeout;
+	}
+}
+
+window.PWT.versionDetails =  util.getOWConfig();
 
 controller.init(window);

@@ -96,6 +96,8 @@ describe('ADAPTER: Prebid', function() {
             bid = {
                 bidderCode: "pubmatic",
                 cpm: 10,
+                originalCpm: "10",
+                originalCurrency:"USD",
                 dealId: "dealId" ,
                 dealChannel: "sale" ,
                 ad: "<body><h1>Ad goes here </h1></body>",
@@ -116,6 +118,7 @@ describe('ADAPTER: Prebid', function() {
             errorBid = {
                 bidderCode: "pubmatic",
                 cpm: 0,
+                originalCpm: "0",
                 dealId: "dealId" ,
                 dealChannel: "sale" ,
                 ad: "",
@@ -136,11 +139,23 @@ describe('ADAPTER: Prebid', function() {
             };
             kgpv = commonKGPV;
             sinon.spy(UTIL, "forEachOnObject");
+
+            window.owpbjs = {
+
+            };
+            windowPbJS2Stub = {
+                convertCurrency: function () {
+                    return 10;
+                }
+            };
+            sinon.spy(windowPbJS2Stub, "convertCurrency");
+            window["owpbjs"] = windowPbJS2Stub;
             done();
         });
 
         afterEach(function (done) {
             UTIL.forEachOnObject.restore();
+            window.owpbjs = {};
             done();
         });
 
@@ -322,172 +337,7 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-    });
-
-    describe('#handleBidResponses', function() {
-        var bidResponses = null,
-            theBid = null;
-
-        beforeEach(function(done) {
-            bidResponses = {
-                "DIV_1": {
-                    "bids": [{
-                        bidderCode: "pulsepoint",
-                        cpm: 0,
-                        // ad: '<a id="aw0" onclick="ha('aw0')" onmouseover="ss('aw0')" onmousedown="st('aw0')"" href="http://www.googleadservices.com/pagead/aclk?sa=L&ai=CK7b0v3L_UefCMcq5igfJnYHAAt3X2IUDndattT3AjbcBEAEg0fv0CFDv-vz5-v____8BYOWCgIC8DqABw9iz3gPIAQLgAgCoAwHIA50EqgSTAU_Qwzp3CT6oJYbrzshQtFMB7rUGKBJO7Xs6mvz3XsycXn_AxTrZKhyHKjA2k2h44OdylJfUCBdmoQCv-9dEQWdzWiLucOpWTfWbQUgWXEcuW2K1OCGvIKJfs_4yvd8i6iHvJ5Qd3f-nV_G-yTQ-X9tjdwZvk6Uj56bvfun6fbhALaQBl1HGmLypN7rJ2l4men7QBuAEAYgGAaAGAoAHpafMIQ&num=1&cid=5Gj7aYzg3dHUFbEK-2-85FjM&sig=AOD64_2cCfX2QlpmV0FPZauMfRl1LZ2S8w&client=ca-pub-4798227666512375&adurl=http://www.junglee.com/Home-Cinema-TV-Video/b/802980031/%3Ftag%3Dgoogjudisp113239-21&nm=3" target="_top"><img class="img_ad" width="728" border="0" onload="" src="http://pagead2.googlesyndication.com/simgad/10320243368604073893"></a><iframe frameborder="0" allowtransparency="true" marginheight="0" marginwidth="0" width="0" hspace="0" vspace="0" height="0" style="height:0p;width:0p;display:none;" scrolling="no" src="http://haso.pubmatic.com/ads/9999/GRPBID/2.gif?trackid=12345"></iframe>',
-                        ad: " html goes here",
-                        width: "728",
-                        height: "90:0",
-                        responseTimestamp: 1500286874559,
-                        serverSideResponseTime: 5,
-                        adserverTargeting: {
-                            "hb_adid": "34c5f7266bb81a6",
-                            "hb_bidder": "pubmatic",
-                            "hb_deal": "PMERW36842",
-                            "hb_pb": "9.00",
-                            "hb_size": "728x90:0",
-                        }
-                    }]
-                }
-            };
-
-            theBid = {
-                setGrossEcpm: function() {
-                    return "setGrossEcpm";
-                },
-                getGrossEcpm: function() {
-                    return "getGrossEcpm";
-                },
-                setDealID: function() {
-                    return "setDealID";
-                },
-                setDealChannel: function() {
-                    return "setDealChannel";
-                },
-                setAdHtml: function() {
-                    return "setAdHtml";
-                },
-                setWidth: function() {
-                    return "setWidth";
-                },
-                setHeight: function() {
-                    return "setHeight";
-                },
-                setReceivedTime: function() {
-                    return "setReceivedTime";
-                },
-                setKeyValuePair: function() {
-                    return "setKeyValuePair";
-                },
-                setAdUrl: function() {
-                    return "setAdUrl";
-                },
-                setServerSideResponseTime: function() {
-                    return 5;
-                },
-                setMi: function() {
-                    return "setMi";
-                },
-                setOriginalCpm:function(){
-                    return 5;
-                },
-                setOriginalCurrency: function(){
-                    return 'USD';
-                },
-                setAnalyticsCpm: function(){
-                    return 5;
-                },
-                setPbBid:function(){
-                    return "thebid";
-                }
-            };
-            sinon.stub(UTIL, "isOwnProperty").returns(true);
-            sinon.spy(UTIL, "forEachOnObject");
-
-            sinon.spy(theBid, "setGrossEcpm");
-            sinon.spy(theBid, "setDealID");
-            sinon.spy(theBid, "setDealChannel");
-            sinon.spy(theBid, "setAdHtml");
-            sinon.spy(theBid, "setWidth");
-            sinon.spy(theBid, "setHeight");
-            sinon.spy(theBid, "setReceivedTime");
-
-            sinon.spy(theBid, "setKeyValuePair");
-
-            sinon.spy(theBid, "setAdUrl");
-            sinon.spy(theBid, "setServerSideResponseTime");
-            sinon.spy(theBid, "setOriginalCpm");
-            sinon.spy(theBid, "setPbBid");
-
-            sinon.stub(BM, "setBidFromBidder").returns(true);
-
-            PREBID.kgpvMap = {};
-            PREBID.kgpvMap["DIV_1"] = {
-                "kgpv": "kgpv_value"
-            };
-
-            sinon.stub(BID, "createBid").returns(theBid);
-
-            done();
-        });
-
-        afterEach(function(done) {
-
-            UTIL.isOwnProperty.restore();
-            UTIL.forEachOnObject.restore();
-
-            theBid.setGrossEcpm.restore();
-            theBid.setDealID.restore();
-            theBid.setDealChannel.restore();
-            theBid.setAdHtml.restore();
-            theBid.setWidth.restore();
-            theBid.setHeight.restore();
-            theBid.setReceivedTime.restore();
-            theBid.setOriginalCpm.restore();
-
-            theBid.setKeyValuePair.restore();
-            theBid.setServerSideResponseTime.restore();
-
-            theBid.setAdUrl.restore();
-            theBid.setPbBid.restore();
-
-            BM.setBidFromBidder.restore();
-            BID.createBid.restore();
-            done();
-        });
-
-        it('is a function', function(done) {
-            PREBID.handleBidResponses.should.be.a('function');
-            done();
-        });
-
-        it('should have called UTIL.isOwnProperty ', function(done) {
-            PREBID.handleBidResponses(bidResponses);
-            // console.log("UTIL.isOwnProperty.callCount ==>", UTIL.isOwnProperty.callCount);
-            UTIL.isOwnProperty.called.should.be.true;
-            done();
-        });
-
-        it('should have called bid Object\'s methods if it has bidderCode', function(done) {
-            PREBID.handleBidResponses(bidResponses);
-            theBid.setGrossEcpm.called.should.be.true;
-            theBid.setDealID.called.should.be.true;
-            theBid.setDealChannel.called.should.be.true;
-            theBid.setAdHtml.called.should.be.true;
-            theBid.setWidth.called.should.be.true;
-            theBid.setHeight.called.should.be.true;
-            theBid.setReceivedTime.called.should.be.true;
-            done();
-        });
-
-        it('should have called bid manager\'s setBidFromBidder', function(done) {
-            PREBID.handleBidResponses(bidResponses);
-            BM.setBidFromBidder.called.should.be.true;
-            UTIL.forEachOnObject.called.should.be.true;
-            theBid.setKeyValuePair.called.should.be.true;
-            done();
-        });
-    });
+    });    
 
     describe('#getPBCodeWithWidthAndHeight', function() {
         it('is a function', function(done) {
@@ -1030,6 +880,109 @@ describe('ADAPTER: Prebid', function() {
         })
     });
 
+    // Test cases only for floor module
+    describe("#setPrebidConfig", function(){
+        var floorObj = {};
+        beforeEach(function(done) {
+            PREBID.isFloorPriceModuleEnabled = false;
+            sinon.stub(UTIL, 'isFunction');
+            sinon.stub(UTIL, 'logWarning');
+            sinon.stub(CONFIG, 'isFloorPriceModuleEnabled');
+            sinon.stub(CONFIG, 'getFloorJsonUrl').returns("externalFloor.json");
+            sinon.stub(CONFIG, 'getFloorAuctionDelay').returns(100);
+            
+            floorObj = {
+                enforcement:{
+                    enforceJS: true
+                },
+                auctionDelay: 100,
+                endpoint:{
+                    url: "externalFloor.json"
+                }
+            }
+            window.owpbjs = {
+
+            };
+            windowPbJS2Stub = {
+                onEvent: function () {
+                    return "onEvent";
+                }
+            };
+            sinon.spy(windowPbJS2Stub, "onEvent");
+            window["owpbjs"] = windowPbJS2Stub;
+
+            sinon.stub(global.window || window, "pwtCreatePrebidNamespace", function pwtCreatePrebidNamespace(preBidNameSpace) {
+                window["owpbjs"] = windowPbJS2Stub;
+                window["owpbjs"].que = [];
+                window["owpbjs"].setConfig = function (pbConfig) {
+                   prebidConfig = pbConfig;
+                  return true;
+                };
+                window["owpbjs"].getConfig = function(){
+                    return prebidConfig;
+                }
+            });
+            window.owpbjs = window.owpbjs || {};
+            window.owpbjs.cmd = window.owpbjs.cmd || [];
+            window["owpbjs"].setConfig = function (pbConfig) {
+                prebidConfig = pbConfig;
+               return true;
+             };
+             window["owpbjs"].getConfig = function(){
+                 return prebidConfig;
+             };
+            done();
+        })
+
+        afterEach(function(done){
+            UTIL.isFunction.restore();
+            UTIL.logWarning.restore();
+            CONFIG.isFloorPriceModuleEnabled.restore();
+            CONFIG.getFloorJsonUrl.restore();
+            CONFIG.getFloorAuctionDelay.restore();
+            windowPbJS2Stub.onEvent.restore();
+
+            if (global.window) {
+                global.window.pwtCreatePrebidNamespace.restore();
+            } else {
+                window.pwtCreatePrebidNamespace.restore();
+            }
+            delete window.owpbjs;
+            delete floorObj;
+            prebidConfig = {};
+            done();
+        })
+
+        it('is a function', function(done) {
+            PREBID.setPrebidConfig.should.be.a('function');
+            done();
+        });
+
+        it('should return if setConfig function is not defined',function(done){
+            UTIL.isFunction.returns(false);
+            delete window["owpbjs"].setConfig;
+            PREBID.setPrebidConfig();
+            UTIL.logWarning.calledWith("PreBidJS setConfig method is not available").should.be.true;
+            done();
+        });
+
+        it('should set floor module with default inputs',function(done){
+            CONFIG.isFloorPriceModuleEnabled.returns(true);
+            PREBID.setPrebidConfig();
+            expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
+            done();
+        });
+
+        it('should set floor module with auctionDelay as 300',function(done){
+            CONFIG.isFloorPriceModuleEnabled.returns(true);
+            CONFIG.getFloorAuctionDelay.returns(300);
+            floorObj.auctionDelay = 300;
+            PREBID.setPrebidConfig();
+            expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
+            done();
+        });
+    });
+
     describe('#fetchBids', function() {
         var activeSlots = null;
         var impressionID = null;
@@ -1146,7 +1099,7 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        if('should return if owpbjs namespace is not defined',function(done){
+        it('should return if owpbjs namespace is not defined',function(done){
             delete window.owpbjs;
             PREBID.fetchBids(activeSlots);
             UTIL.logError.calledWith("PreBid js is not loaded").should.be.true;
@@ -1272,34 +1225,7 @@ describe('ADAPTER: Prebid', function() {
             expectedResult.should.be.equal(prebidConfig);
             done();
         });
-    });
-
-    describe('#getParenteAdapterID', function() {
-        it('is a function', function(done) {
-            PREBID.getParenteAdapterID.should.be.a('function');
-            done();
-        });
-
-        it('returns parentAdapterID', function(done) {
-            PREBID.getParenteAdapterID().should.equal(PREBID.parentAdapterID);
-            done();
-        });
-    });
-
-    describe('#register', function() {
-        it('is a function', function(done) {
-            PREBID.register.should.be.a('function');
-            done();
-        });
-
-        it('returns object with methods to use', function(done) {
-            PREBID.register().should.deep.equal({
-                fB: PREBID.fetchBids,
-                ID: PREBID.getParenteAdapterID
-            });
-            done();
-        });
-    });
+    });    
 
     describe('checkAndModifySizeOfKGPVIfRequired',function(){
         var bid= {};
@@ -1484,4 +1410,194 @@ describe('ADAPTER: Prebid', function() {
 
     })
 
+    describe("#configureBidderAliasesIfAvailable", function(){
+
+        beforeEach(function(done) {
+            sinon.stub(UTIL, 'isFunction');
+            sinon.spy(UTIL, 'logWarning');
+            sinon.spy(CONFIG, 'forEachBidderAlias');
+
+            window.owpbjs = {};
+
+            windowPbJS2Stub = {
+                aliasBidder: function () {
+                    return "aliasBidder";
+                }
+            };
+            sinon.spy(windowPbJS2Stub, "aliasBidder");
+            window["owpbjs"] = windowPbJS2Stub;
+            done();
+        });
+
+        afterEach(function(done){
+            UTIL.isFunction.restore();
+            UTIL.logWarning.restore();
+            CONFIG.forEachBidderAlias.restore();
+            windowPbJS2Stub.aliasBidder.restore();
+            delete window.owpbjs;
+            done();
+        })
+        
+        it('should be a functiion',function(done){
+            PREBID.configureBidderAliasesIfAvailable.should.be.a('function');
+            done();
+        });
+
+        it('returns log message when aliasBidder function is not available', function (done) {
+            UTIL.isFunction.returns(false);
+            PREBID.configureBidderAliasesIfAvailable();
+            UTIL.logWarning.calledWith("PreBid js aliasBidder method is not available").should.be.true;
+            done();
+        });
+
+        it('call forEachBidderAlias function if bidders are present', function (done) {
+            UTIL.isFunction.returns(true);
+            PREBID.configureBidderAliasesIfAvailable();
+            CONFIG.forEachBidderAlias.called.should.be.true;
+            done();
+        });  
+    })
+
+    describe('assignUserSyncConfig',function(){
+        var prebidConfig = {};
+        var expectedResult = {};
+        beforeEach(function(done){
+            function onSSOLogin() {};
+            window.owpbjs = {
+                'onSSOLogin': onSSOLogin
+            }
+            expectedResult = {
+                enableOverride:true,
+                syncsPerBidder:0,
+                iframeEnabled:true,
+                pixelEnabled:true,
+                filterSettings:{
+                    iframe:{
+                        bidders:"*",
+                        filter:"include"
+                    }
+                },
+                enabledBidders:["pubmatic","audienceNetwork","sekindoUM","appnexus","pulsepoint","rubicon","adg","yieldlab"],
+                syncDelay:2000,
+                aliasSyncEnabled:true
+            };
+            done();
+        });
+
+        afterEach(function(done){
+            prebidConfig = {};
+            done();
+        });
+
+        it('should be a functiion',function(done){
+            PREBID.assignUserSyncConfig.should.be.a('function');
+            done();
+        });
+
+        it('should set userSync properties',function(done){
+            PREBID.assignUserSyncConfig(prebidConfig)
+            expect(prebidConfig.userSync).to.be.deep.equal(expectedResult);
+            done();
+        });
+    })
+
+    describe('#addOnBidRequestHandler',function(){
+        beforeEach(function(done) {
+            sinon.stub(UTIL, 'isFunction');
+            sinon.spy(UTIL, 'logWarning');
+
+            window.owpbjs = {
+
+            };
+            windowPbJS2Stub = {
+                onEvent: function () {
+                    return "onEvent";
+                }
+            };
+            sinon.spy(windowPbJS2Stub, "onEvent");
+            window["owpbjs"] = windowPbJS2Stub;
+
+            done();
+        });
+
+        afterEach(function(done){
+            UTIL.isFunction.restore();
+            UTIL.logWarning.restore();
+            windowPbJS2Stub.onEvent.restore();
+
+            delete window.owpbjs;
+            done();
+        })
+        it('should be a functiion',function(done){
+            PREBID.addOnBidRequestHandler.should.be.a('function');
+            done();
+        });
+
+        it('should log warning if onEVent is not a function',function(done){
+            UTIL.isFunction.returns(false);
+            PREBID.addOnBidRequestHandler()
+            UTIL.logWarning.calledWith("PreBid js onEvent method is not available").should.be.true;
+            done();
+        });
+
+        it('should call onEvent if onEvent is function',function(done){
+            UTIL.isFunction.returns(true);
+            PREBID.addOnBidRequestHandler();
+            window["owpbjs"].onEvent.should.be.called;
+            done();
+        });
+    });
+
+    describe('#pbBidRequestHandler',function(){
+        var pbBid = {
+            auctionId: "2c1dc7f4-85cd-4557-b252-d4502ae98bf9",
+            auctionStart: 1630586818462,
+            bidderCode: "rubicon",
+            bids: [{
+                adUnitCode: "Div1",
+                auctionId: "2c1dc7f4-85cd-4557-b252-d4502ae98bf9",
+                bidId: "2fe7e7a344e787",
+                bidRequestsCount: 1,
+                bidder: "rubicon",
+                bidderRequestId: "1ce47c7907b346",
+                bidderRequestsCount: 1,
+                bidderWinsCount: 0,
+                floorData: {
+                    skipped: false, 
+                    skipRate: 0, 
+                    floorMin: undefined, 
+                    modelVersion: "floorTestModel", 
+                    modelWeight: undefined,
+                    skipRate: 0,
+                    skipped: false
+                }
+            }],
+            
+        }
+        
+        beforeEach(function(done) {
+            window.PWT = {
+                floorData: {
+                    "floorRequestData": {}
+                }
+            }
+            done();
+        });
+
+        afterEach(function(done){
+            window.PWT.floorData = {};
+            done();
+        })
+        it('should be a functiion',function(done){
+            PREBID.pbBidRequestHandler.should.be.a('function');
+            done();
+        });
+
+        it('should copy floorData into window.PWT.floorData',function(done){
+            PREBID.pbBidRequestHandler(pbBid);
+            expect(window.PWT.floorData['floorRequestData']["skipped"]).to.be.false;
+            expect(window.PWT.floorData['floorRequestData']["modelVersion"]).to.be.equal("floorTestModel");
+            done();
+        });
+    });
 });

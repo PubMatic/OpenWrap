@@ -157,6 +157,17 @@ function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFun
             refThis.setDisplayFunctionCalledIfRequired(refThis.slotsMap[dmSlotName], argumentsFromCallingFunction);
         }
     });
+
+    window.PWT.adUnits = window.PWT.adUnits || {};
+    Object.keys(refThis.slotsMap).forEach(function(key){
+        var activeSlot = refThis.slotsMap[key];
+        window.PWT.adUnits[activeSlot.divID] = {
+            divID : activeSlot.divID,
+            adUnitId : activeSlot.adUnitID,
+            mediaTypes : util.getAdUnitConfig(activeSlot.sizes, activeSlot).mediaTypeObject
+        }
+    })
+
     util.log(refThis.slotsMap);
 }
 
@@ -865,9 +876,7 @@ exports.init = function(win) { // TDD, i/o : done
 	CONFIG.initConfig();
     if (util.isObject(win)) {
         refThis.setWindowReference(win);
-        if(!isPrebidPubMaticAnalyticsEnabled){
-			refThis.initSafeFrameListener(win);
-		}
+        refThis.initSafeFrameListener(win);
         prebid.initPbjsConfig();
         refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
         refThis.defineGPTVariables(win);

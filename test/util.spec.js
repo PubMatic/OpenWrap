@@ -634,7 +634,7 @@ describe('UTIL', function() {
         })
     });
 
-    describe('#checkMandatoryParams', function() {
+    xdescribe('#checkMandatoryParams', function() {
         var object = null,
             keys = null,
             adapterID = null;
@@ -994,90 +994,25 @@ describe('UTIL', function() {
             done();
         });
 
-    });
-
-    describe('#getScreenWidth', function() {
-        var win = null;
-
-        beforeEach(function(done) {
-            win = {
-                innerHeight: 1024,
-                innerWidth: 768,
-                document: {
-                    documentElement: {
-                        clientWidth: 768
-                    },
-                    body: {
-                        clientWidth: 921
-                    }
-                }
-            };
+        it('should have called replace Auction Price method of the passed object if bid is of DeepIntent', function(done) {
+            bid.getAdapterID = function(){ return "deepintent" };
+            bid.getGrossEcpm = function(){ return "10.55" };
+            UTIL.displayCreative(theDocument, bid);
+            theDocument.write.calledWith(bid.adHtml).should.be.true;
+            UTIL.replaceAuctionPrice.calledWith(bid.adHtml,bid.getGrossEcpm()).should.be.true;
             done();
         });
 
-        afterEach(function(done) {
+        it('should have called replace auction price and  writeIframe method if adUrl is present in given bid and adHtml is not and bidder is DeepIntent', function(done) {
+            delete bid.adHtml;
+            bid.getAdapterID = function(){ return "deepintent" };
+            bid.getGrossEcpm = function(){ return "10.55" };
+            UTIL.displayCreative(theDocument, bid);
+            UTIL.replaceAuctionPrice.calledWith(bid.adUrl,bid.getGrossEcpm()).should.be.true;
+            UTIL.writeIframe.calledWith(theDocument, bid.adUrl, bid.width, bid.height, "").should.be.true;
             done();
         });
 
-        it('is a function', function(done) {
-            UTIL.getScreenWidth.should.be.a('function');
-            done();
-        });
-
-        it('should return screen width of given window object', function(done) {
-            delete win.innerHeight;
-            UTIL.getScreenWidth(win).should.be.equal(768);
-            done();
-        });
-
-        it('should return screen width of given window object', function(done) {
-            delete win.innerHeight;
-            delete win.document.documentElement.clientWidth;
-            UTIL.getScreenWidth(win).should.be.equal(921);
-            done();
-        });
-    });
-
-    describe('#getScreenHeight', function() {
-        var win = null;
-
-        beforeEach(function(done) {
-            win = {
-                innerHeight: 1024,
-                innerWidth: 768,
-                document: {
-                    documentElement: {
-                        clientHeight: 768
-                    },
-                    body: {
-                        clientHeight: 921
-                    }
-                }
-            };
-            done();
-        });
-
-        afterEach(function(done) {
-            done();
-        });
-
-        it('is a function', function(done) {
-            UTIL.getScreenHeight.should.be.a('function');
-            done();
-        });
-
-        it('should return screen width of given window object', function(done) {
-            delete win.innerHeight;
-            UTIL.getScreenHeight(win).should.be.equal(768);
-            done();
-        });
-
-        it('should return screen width of given window object', function(done) {
-            delete win.innerHeight;
-            delete win.document.documentElement.clientHeight;
-            UTIL.getScreenHeight(win).should.be.equal(921);
-            done();
-        });
     });
 
     describe('#forEachOnObject', function() {
@@ -1361,38 +1296,6 @@ describe('UTIL', function() {
 
         it('should return whether given window object is iframe or not', function(done) {
             UTIL.isIframe(theWindow).should.be.true;
-            done();
-        });
-    });
-
-    describe('#findInString', function() {
-        var theString = null,
-            find = null;
-
-        beforeEach(function(done) {
-            theString = "lorem Ipsum";
-            find = "Ipsum";
-            done();
-        });
-
-        afterEach(function(done) {
-            theString = null;
-            find = null;
-            done();
-        });
-
-        it('is a function', function(done) {
-            UTIL.findInString.should.be.a('function');
-            done();
-        });
-
-        it('should return false when given substring is not found in given main string', function(done) {
-            UTIL.findInString(theString, "nomatch").should.be.false;
-            done();
-        });
-
-        it('should return true when given substring is found in given main string', function(done) {
-            UTIL.findInString(theString, find).should.be.true;
             done();
         });
     });
@@ -3089,15 +2992,18 @@ describe('UTIL', function() {
         });
 
         it('should return regex config for other partner if genrated key matches the regex', function(done){
-            klmsForPartner = [{"rx":{"DIV":"DiV.*","AU":".*","SIZE":".*"},"rx_config":{"placementId":"8801674"}},{"rx":{"DIV":"Div1","AU":".*","SIZE":".*"},"rx_config":{"placementId":"8801675"}}];
+            klmsForPartner = [
+                {"rx":{"DIV":"DiV.*","AU":".*","SIZE":".*"},"rx_config":{"placementId":"8801674"}},
+                {"rx":{"DIV":"Div1","AU":".*","SIZE":".*"},"rx_config":{"placementId":"8801675"}}
+            ];
             generatedKey = "/43743431/DMDemo@Div1@728x90";
-            var expectedResult = {"config":{"placementId":"8801675"},"regexPattern":".*@Div1@.*"}
+            var expectedResult = {"config":{"placementId":"8801674"},"regexPattern":".*@DiV.*@.*"}
             UTIL.getConfigFromRegex(klmsForPartner, generatedKey).should.be.deep.equal(expectedResult);
             done();
         });
 
-        it('should return null if generated key does not matches the regex pattern', function(done){
-            generatedKey = "/43743431/DMDemo@DiV1@728x90";
+        it('should return null if generated key splits with @ and length is not equals to 3', function(done){
+            generatedKey = "/43743431/DMDemoDiV1@728x90";
             expect(UTIL.getConfigFromRegex(klmsForPartner, generatedKey)).to.be.equal(null);
             done();
         });
@@ -3115,11 +3021,27 @@ describe('UTIL', function() {
         var params;
         beforeEach(function(done) {
             params = {"name":"pubCommonId","storage.type":"cookie","storage.name":"_pubCommonId","storage.expires":"1825"}
+            sinon.spy(UTIL, "initZeoTapJs");
+            sinon.spy(UTIL, "initLiveRampAts");
+            function onSSOLogin() {};
+            function getUserIdentities() {
+                return {
+                    email: "zeotaptestrab@gmail.com"
+                }
+            }
+            window.owpbjs = {
+                'onSSOLogin': onSSOLogin,
+                'getUserIdentities': getUserIdentities
+            }
+            sinon.spy(window, "setTimeout");
             done();
         });
 
         afterEach(function(done) {
             params = null;
+            UTIL.initZeoTapJs.restore();
+            UTIL.initLiveRampAts.restore();
+            window.setTimeout.restore();
             done();
         });
 
@@ -3134,6 +3056,78 @@ describe('UTIL', function() {
             result.should.deep.equal(expectedResult);
             done();
         });
+
+        it('should call initLiveRampAts if identityLink partner is configured and loadATS is set to true', function(done) {
+            var lrParams = {
+                name: "identityLink",
+                "params.pid": "23",
+                "storage.type": "cookie",
+                "params.loadATS": "true", // or false// boolean default is false,
+                "params.placementID": "23",
+                "params.storageType": "localstorage",
+                "params.detectionType": "scrapeAndUrl",
+                "params.urlParameter": "eparam",
+                "params.cssSelectors": "input[type=text], input[type=email]",
+                "params.logging": "info",
+                "storage.name": "somenamevalue",
+                "storage.expires": "60"
+            };
+            var result = UTIL.getUserIdParams(lrParams);
+            window.setTimeout.called.should.be.true;
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('should not call initLiveRampAts if identityLink partner is configured and loadATS is set to false', function(done) {
+            var lrParams = {
+                name: "identityLink",
+                "params.pid": "23",
+                "storage.type": "cookie",
+                "params.loadATS": "false", // or false// boolean default is false,
+                "params.placementID": "23",
+                "params.storageType": "localstorage",
+                "params.detectionType": "scrapeAndUrl",
+                "params.urlParameter": "eparam",
+                "params.cssSelectors": "input[type=text], input[type=email]",
+                "params.logging": "info",
+                "storage.name": "somenamevalue",
+                "storage.expires": "60"
+            };
+            var result = UTIL.getUserIdParams(lrParams);
+            window.setTimeout.called.should.be.false;
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('should call initZeoTapJs if zeotap partner is configured and initZeotap is set to true', function(done) {
+            var zeotapParams = {
+                name: "zeotapIdPlus",
+                "storage.type": 'cookie',
+                "storage.expires": "30",
+                "storage.name": "IDP",
+                "params.partnerId": "b13e43f5-9846-4349-ae87-23ea3c3c25de",
+                "params.loadIDP": "true"
+            };
+            var result = UTIL.getUserIdParams(zeotapParams);
+            window.setTimeout.called.should.be.true;
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('should not call initZeoTapJs if zeotap partner is configured and initZeotap is set to false', function(done) {
+            var zeotapParams = {
+                name: "zeotapIdPlus",
+                "storage.type": 'cookie',
+                "storage.expires": "30",
+                "storage.name": "IDP",
+                "params.partnerId": "b13e43f5-9846-4349-ae87-23ea3c3c25de",
+                "params.loadIDP": "false"
+            };
+            var result = UTIL.getUserIdParams(zeotapParams);
+            window.setTimeout.called.should.be.false;
+            window.owpbjs = undefined;
+            done();
+        });
     });
 
     describe('#getNestedObjectFromString', function() {
@@ -3143,6 +3137,10 @@ describe('UTIL', function() {
             separator = ".";
             key = "params.init.member";
             value="nQjyizbdyF";
+            function onSSOLogin() {};
+            window.owpbjs = {
+                'onSSOLogin': onSSOLogin
+            }
             done();
         });
 
@@ -3240,7 +3238,17 @@ describe('UTIL', function() {
                     "storage.name": "somenamevalue",
                     "storage.expires":"60"
                 }
-            })
+            });
+            function onSSOLogin() {};
+            function getUserIdentities() {
+                return {
+                    email: "zeotaptestrab@gmail.com"
+                }
+            }
+            window.owpbjs = {
+                'onSSOLogin': onSSOLogin,
+                'getUserIdentities': getUserIdentities
+            }
             done();
         });
 
@@ -3257,6 +3265,26 @@ describe('UTIL', function() {
         it('should return userId with valid params',function(done){
             var expectedResult = [{"name":"pubCommonId","storage":{"type":"cookie","name":"_pubCommonId","expires":"1825"}},{"name":"digitrust","params":{"init":{"member":"nQjyizbdyF","site":"FL6whbX1IW"}},"redirects":"true","storage":{"type":"cookie","name":"somenamevalue","expires":"60"}}];
             var result = UTIL.getUserIdConfiguration();
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should exclude pubprovidedId if included in list of partners', function(done) {
+            CONFIG.getIdentityPartners.restore();
+            var expectedResult = [{"name":"pubCommonId","storage":{"type":"cookie","name":"_pubCommonId","expires":"1825"}}];
+            sinon.stub(CONFIG,"getIdentityPartners").returns({
+                pubCommonId: {
+                    name: "pubCommonId",
+                    "storage.type": "cookie",
+                    "storage.name": "_pubCommonId",
+                    "storage.expires": "1825"         
+                },
+                pubProvidedId: {
+                    name:"pubProvidedId"
+                }
+            });
+            var result = UTIL.getUserIdConfiguration();
+
             result.should.deep.equal(expectedResult);
             done();
         });
@@ -3365,6 +3393,14 @@ describe('UTIL', function() {
             BIDMgr.setBidFromBidder.should.not.be.called;
             done();     
         });
+
+        describe('pubmatic secondary', function() {
+            it('should create bid even though slots are not mapped',function(done){
+                UTIL.callHandlerFunctionForMapping("pubmatic2",adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,false,keyGenerationPattern,undefined);
+                expect(obj.handlerFunction).to.be.called;
+                done();
+            });
+        })
     });
 
     describe('replaceAuctionPrice', function(){
@@ -3435,6 +3471,35 @@ describe('UTIL', function() {
         // });
     });
 
+    describe('#getOWConfig', function() {
+        beforeEach(function(done){
+            done();
+        });
+        afterEach(function(done){
+            done();
+        });
+        it("is a function", function(done) {
+            UTIL.getOWConfig.should.be.a('function');
+            done();
+        });
+
+        it('should return timeout, owversion and pbversion',function(done){
+            var expectedResult = {"timeout":3000,"openwrap_version":"v21.4.0","prebid_version":"v4.33.0","profileId":"46","profileVersionId":"4"} ;
+            var result = UTIL.getOWConfig();
+            console.log("Version Details:"+ JSON.stringify(result));
+            result.should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should not return owversion and pbversion if not defined',function(done){
+            delete CONFIG[CONSTANTS.COMMON.PBVERSION];
+            delete CONFIG[CONSTANTS.COMMON.OWVERSION];
+            var expectedResult = {"timeout":3000,"openwrap_version":undefined,"prebid_version":undefined,"profileId":"46","profileVersionId":"4"};
+            var result = UTIL.getOWConfig();
+            result.should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
     describe('updateAdUnitsWithEids',function(){
         var adUnits
         beforeEach(function(done){
@@ -3534,6 +3599,14 @@ describe('UTIL', function() {
         var params;
         beforeEach(function(done) {
             params = {"name": "intentIqId","params.partner":"123","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+            paramsForParrable = {
+                "name": 'parrableId',
+                "params.partner": "'30182847-e426-4ff9-b2b5-9ca1324ea09b','b07cf20d-8b55-4cd7-9e84-d804ed66b644'",
+                "storage.name": "parrableId_cookie",
+                "storage.type": "cookie",
+                "storage.expires": "60",
+                "params.timezoneFilter.allowedZones":  "Pacific/Honolulu, Europe/Amsterdam, Europe/Stockholm, Europe/Prague"
+            };
             done();
         });
 
@@ -3564,8 +3637,84 @@ describe('UTIL', function() {
 
             done();
         });
+
+        it('should convert comma separated string for parrable timezones to an array, with each entry trimmed', function(done) {
+            var expectedResult = {
+                "name": 'parrableId',
+                "params.partner": "'30182847-e426-4ff9-b2b5-9ca1324ea09b','b07cf20d-8b55-4cd7-9e84-d804ed66b644'",
+                "storage.name": "parrableId_cookie",
+                "storage.type": "cookie",
+                "storage.expires": "60",
+                "params.timezoneFilter.allowedZones":  ["Pacific/Honolulu", "Europe/Amsterdam", "Europe/Stockholm", "Europe/Prague"]
+            };
+            UTIL.applyDataTypeChangesIfApplicable(paramsForParrable);
+            paramsForParrable["params.timezoneFilter.allowedZones"].should.be.a('Array');
+            paramsForParrable["params.timezoneFilter.allowedZones"].length.should.equal(expectedResult["params.timezoneFilter.allowedZones"].length);
+            done();
+        });
+
+        it('should convert single entry for parrable timezones to an array', function(done) {
+            var expectedResult = {
+                "name": 'parrableId',
+                "params.partner": "'30182847-e426-4ff9-b2b5-9ca1324ea09b','b07cf20d-8b55-4cd7-9e84-d804ed66b644'",
+                "storage.name": "parrableId_cookie",
+                "storage.type": "cookie",
+                "storage.expires": "60",
+                "params.timezoneFilter.allowedZones":  [123]
+            };
+            paramsForParrable = {
+                "name": 'parrableId',
+                "params.partner": "'30182847-e426-4ff9-b2b5-9ca1324ea09b','b07cf20d-8b55-4cd7-9e84-d804ed66b644'",
+                "storage.name": "parrableId_cookie",
+                "storage.type": "cookie",
+                "storage.expires": "60",
+                "params.timezoneFilter.allowedZones":  123
+            };
+            UTIL.applyDataTypeChangesIfApplicable(paramsForParrable);
+            paramsForParrable["params.timezoneFilter.allowedZones"].should.be.a('Array');
+            paramsForParrable["params.timezoneFilter.allowedZones"].length.should.equal(expectedResult["params.timezoneFilter.allowedZones"].length);
+
+            done();
+        });
+
+       it('should not update the params object if timezone value is not set', function(done) {
+            var expectedResult = {
+                "name": 'parrableId',
+                "params.partner": "'30182847-e426-4ff9-b2b5-9ca1324ea09b','b07cf20d-8b55-4cd7-9e84-d804ed66b644'",
+                "storage.name": "parrableId_cookie",
+                "storage.type": "cookie",
+                "storage.expires": "60"
+            };
+            paramsForParrable = {
+                "name": 'parrableId',
+                "params.partner": "'30182847-e426-4ff9-b2b5-9ca1324ea09b','b07cf20d-8b55-4cd7-9e84-d804ed66b644'",
+                "storage.name": "parrableId_cookie",
+                "storage.type": "cookie",
+                "storage.expires": "60"
+            };
+            UTIL.applyDataTypeChangesIfApplicable(paramsForParrable);
+            expect(paramsForParrable["params.timezoneFilter.allowedZones"]).to.be.undefined
+            done();
+        });
     });  
 
+    describe('#applyCustomParamValuesfApplicable', function() {
+        var paramsForID5;
+        beforeEach(function(done) {
+            paramsForID5 = {"name":"id5Id","storage":{"type":"html5","expires":"30","name":"id5id","refreshInSeconds":"28800"},"params":{"partner":173,},"display":0}
+            done();
+        });
+        afterEach(function(done) {
+            paramsForID5 = null;
+            done();
+        });
+        it('should update the params object if custom values are provided for ID partners', function(done) {
+            UTIL.applyCustomParamValuesfApplicable(paramsForID5);
+            expect(paramsForID5["params.provider"]).to.be.defined;
+            expect(paramsForID5["params.provider"]).to.be.equal("pubmatic-identity-hub");
+            done();
+        });
+    });
 
       
    describe('#getUpdatedKGPVForVideo', function() {

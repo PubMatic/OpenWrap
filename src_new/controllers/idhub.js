@@ -1,6 +1,9 @@
-var CONFIG = require("../config.js");
+// removeIf(removeIdHubOnlyRelatedCode)
+// tdod: we can still reduce the build size for idhub by,
+// 			- create a separate constants.js with limited required functions
+var CONFIG = require("../config.idhub.js");
 var CONSTANTS = require("../constants.js");
-var util = require("../util.js");
+var util = require("../util.idhub.js");
 var refThis = this;
 var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
 
@@ -15,7 +18,10 @@ refThis.setConfig = function(){
 			};
 
 			if (CONFIG.getGdpr()) {
-				prebidConfig["consentManagement"] = {
+				if(!prebidConfig["consentManagement"]){
+					prebidConfig["consentManagement"] = {};
+				}
+				prebidConfig["consentManagement"]['gdpr'] = {
 					cmpApi: CONFIG.getCmpApi(),
 					timeout: CONFIG.getGdprTimeout(),
 					allowAuctionWithoutConsent: CONFIG.getAwc()
@@ -31,11 +37,10 @@ refThis.setConfig = function(){
 					timeout: CONFIG.getCCPATimeout(),
 				};
 			}
-
+			window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 			if(CONFIG.isUserIdModuleEnabled()){
 				prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 			}
-		
 			// Adding a hook for publishers to modify the Prebid Config we have generated
 			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 			window[pbNameSpace].setConfig(prebidConfig);
@@ -53,6 +58,7 @@ exports.initIdHub = function(win){
 			if(CONFIG.getIdentityConsumers().indexOf(CONSTANTS.COMMON.PREBID)>-1 && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE]) && !util.isUndefined(win[CONFIG.PBJS_NAMESPACE].que)){
 				win[CONFIG.PBJS_NAMESPACE].que.unshift(function(){
 					var vdetails = win[CONFIG.PBJS_NAMESPACE].version.split("."); 
+					// todo: check the oldest pbjs version in use, do we still need this check?
 					if(vdetails.length===3 && (+vdetails[0].split("v")[1] > 3 || (vdetails[0] === "v3" && +vdetails[1] >= 3))){
 						util.log("Adding On Event " + win[CONFIG.PBJS_NAMESPACE] + ".addAddUnits()");						
 						win[CONFIG.PBJS_NAMESPACE].onEvent("addAdUnits", function () {
@@ -63,6 +69,7 @@ exports.initIdHub = function(win){
 						});
 					}
 					else{
+						// todo: check the oldest pbjs version in use, do we still need this check?
 						util.log("Adding Hook on" + win[CONFIG.PBJS_NAMESPACE] + ".addAddUnits()");
 						var theObject = win[CONFIG.PBJS_NAMESPACE];
 						var functionName = "addAdUnits";
@@ -85,3 +92,4 @@ exports.init = function(win) {
 		return false;
 	}
 };
+// endRemoveIf(removeIdHubOnlyRelatedCode)

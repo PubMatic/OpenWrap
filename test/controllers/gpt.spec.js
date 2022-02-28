@@ -573,7 +573,11 @@ describe("CONTROLLER: GPT", function() {
                     return this.keyValuePairs[key] = value;
                 },
                 getSlotId: function () {
-                    return "slot_1";
+                    return {
+                        getDomId: function () {
+                            return "slot_1";
+                        }
+                    };
                 },
                 getAdUnitPath: function () {
                     return "getAdUnitPath";
@@ -694,7 +698,7 @@ describe("CONTROLLER: GPT", function() {
             GPT.updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFunction, isDisplayFlow);
             GPT.generateSlotName.calledTwice.should.be.true;
             GPT.storeInSlotsMap.calledTwice.should.be.true;
-            GPT.storeInSlotsMap.calledWith("").should.be.true;
+            GPT.storeInSlotsMap.calledWith("slot_1").should.be.true;
             GPT.storeInSlotsMap.calledWith("DIV_2", currentGoogleSlotStub_2, isDisplayFlow).should.be.true;
             done();
         });
@@ -2653,6 +2657,7 @@ describe("CONTROLLER: GPT", function() {
 
 
         it('the returned function when called should call refersh functionality', function (done) {
+            sinon.stub(CONFIG, "isIdentityOnly").returns(0);            
             var returnedFn = GPT.newRefreshFuncton(theObject, function() {
                 console.log("inside function");
             });
@@ -2663,6 +2668,7 @@ describe("CONTROLLER: GPT", function() {
             UTIL.log.calledWith("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms").should.be.true;
             GPT.updateSlotsMapFromGoogleSlots.called.should.be.true;
             GPT.forQualifyingSlotNamesCallAdapters.called.should.be.true;
+            CONFIG.isIdentityOnly.restore();
             done();
         });
     });
@@ -2842,6 +2848,8 @@ describe("CONTROLLER: GPT", function() {
                     cmd: []
                 }
             }
+            sinon.stub(CONFIG, "isIdentityOnly").returns(0);            
+
             done();
         });
 
@@ -2853,6 +2861,7 @@ describe("CONTROLLER: GPT", function() {
             UTIL.log.restore();
             UTIL.logError.restore();
             UTIL.logWarning.restore();
+            CONFIG.isIdentityOnly.restore();
             done();
         });
 
