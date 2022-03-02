@@ -550,8 +550,8 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		/* istanbul ignore next */
 		slotParams[key] = value;
 	});
-	// We will not pass kgpv key when using PrebidServerBidAdapater
-	if(isPrebidPubMaticAnalyticsEnabled && !CONFIG.usePBSAdapter()){
+	
+	if(isPrebidPubMaticAnalyticsEnabled){
 		slotParams["kgpv"] = generatedKey; // TODO : Update this in case of video, change the size to 0x0 
 		slotParams["regexPattern"] = regexPattern;
 	}
