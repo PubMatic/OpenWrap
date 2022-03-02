@@ -523,7 +523,7 @@ function getAdDomain(bidResponse) {
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
 	var usePBSAdapter = CONFIG.usePBSAdapter();
 	var startTime = bmEntry.getCreationTime() || 0;
-	var pslTime = usePBSAdapter ? 0 : undefined;
+	var pslTime = (usePBSAdapter && window.pbsLatency) ? 0 : undefined;
 	var impressionID = bmEntry.getImpressionID();
 	var adUnitInfo = refThis.getAdUnitInfo(slotID);
 	var latencyValue = {};
