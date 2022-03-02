@@ -551,7 +551,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 				if(usePBSAdapter) {
 					// In PrebidServerBidAdapater we are capturing start and end time of request
 					// fetching these values here to calculate psl time for logger call
-					latencyValue = window.pbsLatency[impressionID];
+					latencyValue = window.pbsLatency && window.pbsLatency[impressionID];
 					if(latencyValue && latencyValue['endTime'] && latencyValue['startTime']) {
 						pslTime = latencyValue['endTime'] - latencyValue['startTime'];
 					}
