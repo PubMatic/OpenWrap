@@ -630,8 +630,8 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				version: parseInt(CONF.pwt.pdvid)
 			};
 			// If mapping is regex then we should pass hashedKey to adSlot params earlier it was handled on s2s side.
-			if(slotParams['hashedKey']) {
-				slotParams["adSlot"] = slotParams['hashedKey'];
+			if(slotParams["hashedKey"]) {
+				slotParams["adSlot"] = slotParams["hashedKey"];
 			}
 		}
 
