@@ -1029,7 +1029,8 @@ function gets2sConfig(prebidConfig){
 			targeting: {
 				pricegranularity: CONFIG.getPriceGranularity()
 			},
-			isPrebidPubMaticAnalyticsEnabled: CONFIG.isPrebidPubMaticAnalyticsEnabled()
+			isPrebidPubMaticAnalyticsEnabled: CONFIG.isPrebidPubMaticAnalyticsEnabled(),
+			macros: CONFIG.createMacros()
 		}	
 	}
 }

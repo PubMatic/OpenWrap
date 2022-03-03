@@ -432,3 +432,11 @@ exports.usePBSAdapter = function() {
 	}
 	return false;
 }
+
+exports.createMacros = function() {
+	return {
+		"[PLATFORM]": util.getDevicePlatform().toString(),
+		"[PROFILE_ID]": refThis.getProfileID().toString(),
+		"[PROFILE_VERSION]": refThis.getProfileDisplayVersionID().toString()
+	}
+}
