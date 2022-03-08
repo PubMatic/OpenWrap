@@ -557,9 +557,9 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					}
 					// When we use PrebidServerBidAdapter we do not get seatbid for zero bid / no bid partners 
 					// as we need to log PubMatic partner in logger will be changing db = 0. 
-					// if((adapterID === "pubmatic" || adapterID === "pubmatic2") && (window.partnersWithoutErrorAndBids && window.partnersWithoutErrorAndBids.includes(adapterID))) {
-					// 	theBid.defaultBid = 0;
-					// }
+					if((adapterID === "pubmatic" || adapterID === "pubmatic2") && (window.partnersWithoutErrorAndBids && window.partnersWithoutErrorAndBids.includes(adapterID))) {
+						theBid.defaultBid = 0;
+					}
 				}
 				
 				var endTime = theBid.getReceivedTime();
