@@ -640,6 +640,11 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
         });
 
         impressionIDMap[impressionID].push(slotObject);
+		// special handling when all media types are disabled for adunit and
+		// if we are using PrebidServerBidAdapter with 
+		if(usePBSAdapter && CONFIG.getServerEnabledAdaptars().length && pslTime == undefined && !window.pbsLatency) {
+			pslTime = 0;
+		}
 		if (pslTime !== undefined) {
 			impressionIDMap[impressionID].psl = pslTime;
 		}
