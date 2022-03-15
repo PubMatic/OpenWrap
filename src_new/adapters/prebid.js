@@ -1030,6 +1030,7 @@ function gets2sConfig(prebidConfig){
 				pricegranularity: CONFIG.getPriceGranularity()
 			},
 			isPrebidPubMaticAnalyticsEnabled: CONFIG.isPrebidPubMaticAnalyticsEnabled(),
+			isUsePrebidKeysEnabled: CONFIG.isUsePrebidKeysEnabled(),
 			macros: CONFIG.createMacros()
 		}	
 	}

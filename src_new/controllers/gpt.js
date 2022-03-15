@@ -318,11 +318,6 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
 		}
         /* istanbul ignore else*/
         else if (!util.isOwnProperty(ignoreTheseKeys, key)) {
-			if(winningBid && winningBid.adapterID == "pubmatic" && util.isOwnProperty({"pwtbuyid_pubmatic":1}, key)) {
-				if(refThis.checkForBuyerIdKey(key)) {
-					key = 'hb_buyid_pubmatic'
-				}
-			}
             googleDefinedSlot.setTargeting(key, value);
             // adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
             refThis.defineWrapperTargetingKey(key);
@@ -346,17 +341,6 @@ function defineWrapperTargetingKey(key) { // TDD, i/o : done
 /* start-test-block */
 exports.defineWrapperTargetingKey = defineWrapperTargetingKey;
 /* end-test-block */
-
-function checkForBuyerIdKey(key) { // TDD, i/o : done
-    /* istanbul ignore else */
-	if(CONFIG.isUsePrebidKeysEnabled() && !CONFIG.getSendAllBidsStatus()) {
-		return true;
-	}
-	return false;
-}
-
-/* start-test-block */
-exports.checkForBuyerIdKey = checkForBuyerIdKey;
 
 // Hooks related functions
 

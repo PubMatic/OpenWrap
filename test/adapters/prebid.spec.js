@@ -1542,6 +1542,7 @@ describe('ADAPTER: Prebid', function() {
 						pricegranularity: CONFIG.getPriceGranularity()
 					},
 					isPrebidPubMaticAnalyticsEnabled: CONFIG.isPrebidPubMaticAnalyticsEnabled(),
+					isUsePrebidKeysEnabled: CONFIG.isUsePrebidKeysEnabled(),
 					macros: CONFIG.createMacros()
 				}
 			};
