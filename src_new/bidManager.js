@@ -559,6 +559,10 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					// as we need to log PubMatic partner in logger will be changing db = 0. 
 					if((adapterID === "pubmatic" || adapterID === "pubmatic2") && (window.partnersWithoutErrorAndBids && window.partnersWithoutErrorAndBids.includes(adapterID))) {
 						theBid.defaultBid = 0;
+					} else if(window.partnersWithoutErrorAndBids &&
+							window.partnersWithoutErrorAndBids.includes(adapterID) &&
+							CONFIG.getAdapterNameForAlias(adapterID).includes('pubmatic')) {
+						theBid.defaultBid = 0;		
 					}
 				}
 				
