@@ -1705,11 +1705,7 @@ exports.initZeoTapJs = function(params) {
 		var n = document, t = window;
 		var userIdentity = owpbjs.getUserIdentities() || {};
 		var userIdentityObject = {
-			email: userIdentity.email || "",
-			cellno: userIdentity.cellNo || "",
-			loginid: userIdentity.loginId || "",
-			fpuid: userIdentity.fpuid || "",
-			cellno_cc: userIdentity.cellNoCC || ""
+			email: userIdentity.emailHash || ""
 		};
 		var e=n.createElement("script");
 		e.type="text/javascript",
@@ -1718,6 +1714,12 @@ exports.initZeoTapJs = function(params) {
 		e.src="https://content.zeotap.com/sdk/idp.min.js",
 		e.onload=function(){};
 		n=n.getElementsByTagName("script")[0];
+		var initialsationObject = {
+			partnerId:params.partnerId,
+			allowIDP: true,
+			useConsent: (CONFIG.getCCPA() || CONFIG.getGdpr()),
+			checkForCMP: (CONFIG.getCCPA() || CONFIG.getGdpr())
+		};
 		n.parentNode.insertBefore(e,n);
 
 		n=t.zeotap||{_q:[],_qcmp:[]};
@@ -1731,9 +1733,8 @@ exports.initZeoTapJs = function(params) {
 				}(t[o])
 		}(n,["callMethod"],"_q"),
 		t.zeotap=n,
-		t.zeotap.callMethod("init",{partnerId:params.partnerId, allowIDP: true})
-		t.zeotap.callMethod("setConsent",CONFIG.getCCPA(), 365)
-		t.zeotap.callMethod("setUserIdentities",userIdentityObject);
+		t.zeotap.callMethod("init",initialsationObject),
+		t.zeotap.callMethod("setUserIdentities",userIdentityObject, true);
 	}
 
 	if (document.readyState == 'complete') {
