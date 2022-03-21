@@ -263,7 +263,7 @@ exports.getUserIdParams = function (params) {
 		}
 	}
 	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
-		refThis.initLiveRampAts(userIdParams);
+		refThis.initLiveRampAts(userIdParams); 
 	}
 	if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
 		refThis.initZeoTapJs(userIdParams);
