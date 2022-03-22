@@ -3077,7 +3077,7 @@ describe('UTIL', function() {
                 "storage.expires": "60"
             };
             var result = UTIL.getUserIdParams(lrParams);
-            window.setTimeout.called.should.be.true;
+            UTIL.initLiveRampAts.should.be.calledOnce;
             window.owpbjs = undefined;
             done();
         });
@@ -3098,7 +3098,7 @@ describe('UTIL', function() {
                 "storage.expires": "60"
             };
             var result = UTIL.getUserIdParams(lrParams);
-            window.setTimeout.called.should.be.false;
+            UTIL.initLiveRampAts.should.not.be.called;
             window.owpbjs = undefined;
             done();
         });
@@ -3261,7 +3261,7 @@ describe('UTIL', function() {
                 "params.loadIDP": "true"
             };
             var result = UTIL.getUserIdParams(zeotapParams);
-            window.setTimeout.called.should.be.true;
+            UTIL.initZeoTapJs.should.be.calledOnce;
             window.owpbjs = undefined;
             done();
         });
@@ -3276,7 +3276,7 @@ describe('UTIL', function() {
                 "params.loadIDP": "false"
             };
             var result = UTIL.getUserIdParams(zeotapParams);
-            window.setTimeout.called.should.be.false;
+            UTIL.initZeoTapJs.should.not.be.called;
             window.owpbjs = undefined;
             done();
         });
