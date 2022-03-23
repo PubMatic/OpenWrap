@@ -233,6 +233,7 @@ exports.addHookOnFunction = function (theObject, useProto, functionName, newFunc
 
 exports.getUserIdConfiguration = function () {
 	var userIdConfs = [];
+	owpbjs.onSSOLogin({});
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(), function (parterId, partnerValues) {
 		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
 			userIdConfs.push(refThis.getUserIdParams(partnerValues));
@@ -246,7 +247,6 @@ exports.getUserIdParams = function (params) {
 	var userIdParams = {};
 	refThis.applyDataTypeChangesIfApplicable(params);
 	refThis.applyCustomParamValuesfApplicable(params);
-	owpbjs.onSSOLogin({});
 	for (var key in params) {
 		try {
 			if (CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
@@ -262,17 +262,11 @@ exports.getUserIdParams = function (params) {
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}
-	var ssoTimeout = window.PWT && window.PWT.ssoEnabled ? CONSTANTS.CONFIG.SSO_INTEGRATION_TIMEOUT : 0;
-	ssoTimeout += window.PWT.fbTimeout ? window.PWT.fbTimeout : 0;
 	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
-		setTimeout(function() {
-			refThis.initLiveRampAts(userIdParams); 
-		}, ssoTimeout);
+		refThis.initLiveRampAts(userIdParams); 
 	}
 	if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
-		setTimeout(function() {
-			refThis.initZeoTapJs(userIdParams);
-		}, 0);
+		refThis.initZeoTapJs(userIdParams);
 	}
 	return userIdParams;
 };
@@ -349,48 +343,55 @@ exports.getNestedObjectFromString = function (sourceObject, separator, key, valu
 	return sourceObject;
 };
 
+exports.getLiverampParams = function(params) {
+	if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
+		params.params.cssSelectors = params.params.cssSelectors.split(",");
+	}
+	var userIdentity = owpbjs.getUserIdentities() || {};
+	var enableSSO = CONFIG.isSSOEnabled() || false;
+	var detectionMechanism = params.params.detectionMechanism;
+	var enableCustomId = params.params.enableCustomId === "true" ? true : false;
+	var atsObject = {
+		"placementID": params.params.pid,
+		"storageType": params.params.storageType,
+		"logging": params.params.logging //"error"
+	};
+	if (enableCustomId) {
+		atsObject.accountID = params.params.accountID;
+		atsObject.customerIDRegex = params.params.customerIDRegex;
+		atsObject.detectionSubject = "customerIdentifier";
+	}
+
+	switch (detectionMechanism) {
+		case undefined:
+		case 'detect':
+			atsObject.detectionType = params.params.detectionType;
+			atsObject.urlParameter = params.params.urlParameter;
+			atsObject.cssSelectors = params.params.cssSelectors;
+			atsObject.detectDynamicNodes = params.params.detectDynamicNodes;
+			break;
+		case 'direct':
+			var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
+			atsObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+			/* do we want to keep sso data under direct option?
+			if yes, if sso is enabled and 'direct' is selected as detection mechanism, sso emails will be sent to ats script.
+			if sso is disabled, and 'direct' is selected as detection mechanism, we will look for publisher provided email ids, and if available the hashes will be sent to ats script.
+			*/
+			if (enableCustomId && refThis.isFunction(owpbjs.getUserIdentities) && owpbjs.getUserIdentities() !== undefined) {
+				atsObject.customerID = owpbjs.getUserIdentities().customerID || undefined;
+			}
+			break;
+	};
+	return atsObject;
+};
 
 exports.initLiveRampAts = function (params) {
 	function addATS() {
 		var atsScript = document.createElement("script");
-		if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
-			params.params.cssSelectors = params.params.cssSelectors.split(",");
-		}
-		var userIdentity = owpbjs.getUserIdentities() || {};
-		var enableSSO = CONFIG.isSSOEnabled() || false;
-		var detectionMechanism = params.params.detectionMechanism;
-		var customIdSupport = params.params.customIdSupport === "1" ? true : false;
-		var atsObject = {
-			"placementID": params.params.pid,
-			"storageType": params.params.storageType,
-			"logging": params.params.logging //"error"
-		};
-		switch (detectionMechanism) {
-			case undefined:
-			case 'detect':
-				atsObject.detectionType = params.params.detectionType;
-				atsObject.urlParameter = params.params.urlParameter;
-				atsObject.cssSelectors = params.params.cssSelectors;
-				atsObject.detectDynamicNodes = params.params.detectDynamicNodes;
-				break;
-			case 'direct':
-				if (customIdSupport) {
-					if (parseInt(params.params.accountId) === NaN) {
-						utils.logWarning("Liveramp ATS.js - customID is enabled, but accountID param missing. Ignoring customId config")
-					} else {
-						atsObject.accountID = params.params.accountID;
-					}
-				}
-				break;
-		};
-			
+		var atsObject = refThis.getLiverampParams(params);
 		atsScript.onload = function () {
-			userIdentity = owpbjs.getUserIdentities() || {};
-			atsObject.emailHashes = enableSSO && userIdentity.emailHash ? [userIdentity.emailHash['MD5'], userIdentity.emailHash['SHA1'], userIdentity.emailHash['SHA256']] : undefined;
-			/*if (detectionMechanism === "direct" && customIdSupport && !isNaN(parseInt(params.params.accountId))) {
-				atsObject.customID = userIdentity.emailHash['SHA256'];
-			}*/
-			window.ats.start(atsObject);
+			console.log("object sent to ats script - ", atsObject);
+			window.ats && window.ats.start(atsObject);
 		};
 		atsScript.src = "https://ats.rlcdn.com/ats.js";
 		document.body.appendChild(atsScript);
@@ -409,25 +410,21 @@ exports.initZeoTapJs = function(params) {
 		var n = document, t = window;
 		var userIdentity = owpbjs.getUserIdentities() || {};
 		var userIdentityObject = {
-			email: userIdentity.email || "",
-			cellno: userIdentity.cellNo || "",
-			loginid: userIdentity.loginId || "",
-			fpuid: userIdentity.fpuid || "",
-			cellno_cc: userIdentity.cellNoCC || ""
+			email: userIdentity.emailHash || ""
 		};
 		var e=n.createElement("script");
-		var initialsationObject = {
-			partnerId:params.partnerId,
-			allowIDP: true,
-			useConsent: (CONFIG.getCCPA() || CONFIG.getGdpr()),
-			checkForCMP: (CONFIG.getCCPA() || CONFIG.getGdpr())
-		};
 		e.type="text/javascript",
 		e.crossorigin="anonymous"
 		e.async=!0 ,
 		e.src="https://content.zeotap.com/sdk/idp.min.js",
 		e.onload=function(){};
 		n=n.getElementsByTagName("script")[0];
+		var initialsationObject = {
+			partnerId:params.partnerId,
+			allowIDP: true,
+			useConsent: (CONFIG.getCCPA() || CONFIG.getGdpr()),
+			checkForCMP: (CONFIG.getCCPA() || CONFIG.getGdpr())
+		};
 		n.parentNode.insertBefore(e,n);
 
 		n=t.zeotap||{_q:[],_qcmp:[]};
@@ -441,8 +438,8 @@ exports.initZeoTapJs = function(params) {
 				}(t[o])
 		}(n,["callMethod"],"_q"),
 		t.zeotap=n,
-		t.zeotap.callMethod("init",initialsationObject)
-		t.zeotap.callMethod("setUserIdentities",userIdentityObject);
+		t.zeotap.callMethod("init",initialsationObject),
+		t.zeotap.callMethod("setUserIdentities",userIdentityObject, true);
 	}
 
 	if (document.readyState == 'complete') {
