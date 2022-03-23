@@ -391,7 +391,7 @@ exports.initLiveRampAts = function (params) {
 		var atsObject = refThis.getLiverampParams(params);
 		atsScript.onload = function () {
 			console.log("object sent to ats script - ", atsObject);
-			window.ats.start(atsObject);
+			window.ats && window.ats.start(atsObject);
 		};
 		atsScript.src = "https://ats.rlcdn.com/ats.js";
 		document.body.appendChild(atsScript);
