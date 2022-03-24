@@ -880,6 +880,52 @@ describe('ADAPTER: Prebid', function() {
         })
     });
 
+	// Test cases for yahoo ssp setconfig property
+	describe("set config for YahooSSP Bidder",function(){
+		var prebidConfig = {};
+		var expectedResult = {
+			mode: "all"
+		};
+
+		beforeEach(function(done){
+			CONF.alias = {
+				"yahoossp-alias": "yahoossp"
+			}
+			CONF.adapters["yahoossp-alias"] = {
+				kgp: "_AU_@_W_x_H_",
+				rev_share: "0.0",
+				throttle: "100",
+				display: 0,
+				klm: {
+					"/43743431/DMDemo@728x90": {
+						pos: "placement1",
+						dcn: "site1"
+					}
+				}
+			};
+			done();
+		});
+
+		afterEach(function(done){
+			delete CONF.alias["yahoossp-alias"];
+			delete CONF.adapters["yahoossp-alias"];
+			prebidConfig = {};
+			done();
+		});
+
+		it("should be a function",function(done){
+			PREBID.checkForYahooSSPBidder.should.be.a("function");
+			done();
+		});
+
+		it("should set mode property to all when we have yahoossp bidder or alias",function(done){
+			PREBID.checkForYahooSSPBidder(prebidConfig);
+			expect(prebidConfig.yahoossp).to.be.deep.equal(expectedResult);
+			done();
+		});
+	})
+
+
     // Test cases only for floor module
     describe("#setPrebidConfig", function(){
         var floorObj = {};
@@ -1046,6 +1092,16 @@ describe('ADAPTER: Prebid', function() {
              window["owpbjs"].getConfig = function(){
                  return prebidConfig;
              };
+	window.PWT = {
+		floorData : {
+			"floorRequestData" : {
+				"skipped": true
+			},
+			"floorResponseData" : {
+				"floorType": 1
+			}
+		}
+	};
             done();
         });
 
@@ -1085,6 +1141,7 @@ describe('ADAPTER: Prebid', function() {
                 window.pwtCreatePrebidNamespace.restore();
             }
             delete window.owpbjs;
+	delete window.PWT;
             prebidConfig = {};
             done();
         });
@@ -1643,7 +1700,14 @@ describe('ADAPTER: Prebid', function() {
         beforeEach(function(done) {
             window.PWT = {
                 floorData: {
-                    "floorRequestData": {}
+	"123123123": {
+		"floorRequestData": {}
+	}
+},
+	bidMap:{
+		"Div1" : {
+			impressionID: "123123123"
+		}
                 }
             }
             done();
@@ -1660,8 +1724,8 @@ describe('ADAPTER: Prebid', function() {
 
         it('should copy floorData into window.PWT.floorData',function(done){
             PREBID.pbBidRequestHandler(pbBid);
-            expect(window.PWT.floorData['floorRequestData']["skipped"]).to.be.false;
-            expect(window.PWT.floorData['floorRequestData']["modelVersion"]).to.be.equal("floorTestModel");
+	expect(window.PWT.floorData["123123123"]["floorRequestData"]["skipped"]).to.be.false;
+	expect(window.PWT.floorData["123123123"]["floorRequestData"]["modelVersion"]).to.be.equal("floorTestModel");
             done();
         });
     });

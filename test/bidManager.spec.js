@@ -1527,7 +1527,11 @@ describe('bidManager BIDMgr', function() {
                 {
                     "Slot_1":{"divID": slotID, "code":slotID, "adUnitId": adUnitId, "mediaTypes": {'banner': {'sizes': [0]}}}
                 }
-            
+            window.PWT.floorData = {
+                "12345": {
+                    "floorRequestData": theBid.floorRequestData
+                }
+            }
             done();
         });
 

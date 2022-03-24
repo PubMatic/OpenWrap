@@ -260,6 +260,9 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 	},
 	"parrableId": {
 		"params.timezoneFilter.allowedZones": "array"
+	},
+	"imuid": {
+		"params.cid": "number"
 	}
 }; //list of ID partners for whom special handling of datatype is required
 
@@ -303,3 +306,4 @@ exports.DEFAULT_ALIASES = {
 	districtmDMX: "dmx",
 	pubmatic2: "pubmatic"
 }
+exports.YAHOOSSP = "yahoossp";
