@@ -287,7 +287,7 @@ exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
 function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
-    var data; 
+	var data; 
 	if (isPrebidPubMaticAnalyticsEnabled){
 		data = prebid.getBid(divID);
 	} else {
@@ -317,7 +317,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
 			delete keyValuePairs[key];
 		}
         /* istanbul ignore else*/
-        else if (!util.isOwnProperty(ignoreTheseKeys, key)) {
+        else if (!util.isOwnProperty(ignoreTheseKeys, key) && !util.isOwnProperty({"pwtpb":1}, key)) {
             googleDefinedSlot.setTargeting(key, value);
             // adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
             refThis.defineWrapperTargetingKey(key);
