@@ -546,6 +546,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 	var slotParams = {};
 	var mediaTypeConfig = adUnits[code].mediaTypes;
 	var sizes = adUnits[code].sizes;
+	var isWiidRequired = false; 
 	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video") && adapterID != "telaria"){
 		slotParams["video"]= mediaTypeConfig.video;
 	}
@@ -588,6 +589,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 	// get pubmaticServer partner when usePBSAdapter flag is true so we will be adding wiid conditionally.
 	if(isPrebidPubMaticAnalyticsEnabled === false && CONFIG.usePBSAdapter()){
 		slotParams["wiid"] = impressionID;
+		isWiidRequired = true;
 	}
 
 	var adapterName = CONFIG.getAdapterNameForAlias(adapterID) || adapterID;
@@ -652,6 +654,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 					slotParams[key] = value;
 				});
 				slotParams["cf"] = size[0] + "x" + size[1];
+				if(isWiidRequired) {
+					slotParams["wiid"] = impressionID;
+				}
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			});
 			break;
@@ -665,6 +670,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				});
 				slotParams["width"] = size[0];
 				slotParams["height"] = size[1];
+				if(isWiidRequired) {
+					slotParams["wiid"] = impressionID;
+				}
 			if(!(refThis.isSingleImpressionSettingEnabled && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			}
@@ -679,6 +687,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 					slotParams[key] = value;
 				});
 				slotParams["adSize"] = size[0] + "x" + size[1];
+				if(isWiidRequired) {
+					slotParams["wiid"] = impressionID;
+				}
 			if(!(refThis.isSingleImpressionSettingEnabled && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			}
@@ -703,6 +714,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				sltParams["id"] = keyConfig["id"];
 				}
 			sltParams["size"] = size;
+			if(isWiidRequired) {
+				sltParams["wiid"] = impressionID;
+			}
 			adUnits [code].bids.push({bidder: adapterID, params: sltParams});
 			});
 			break;
