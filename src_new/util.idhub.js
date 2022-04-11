@@ -410,7 +410,7 @@ exports.initZeoTapJs = function(params) {
 		var userIdentity = owpbjs.getUserIdentities() || {};
 		var enableSSO = CONFIG.isSSOEnabled() || false;
 		var userIdentityObject = {
-			email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined
+			email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash['SHA256'] : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash['SHA256'] : undefined
 		};
 		var e=n.createElement("script");
 		e.type="text/javascript",
