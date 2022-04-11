@@ -408,8 +408,9 @@ exports.initZeoTapJs = function(params) {
 	function addZeoTapJs() {
 		var n = document, t = window;
 		var userIdentity = owpbjs.getUserIdentities() || {};
+		var enableSSO = CONFIG.isSSOEnabled() || false;
 		var userIdentityObject = {
-			email: userIdentity.emailHash || ""
+			email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined
 		};
 		var e=n.createElement("script");
 		e.type="text/javascript",
