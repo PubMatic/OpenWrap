@@ -289,4 +289,21 @@ exports.BID_STATUS =  {
 // Add list of PubMatic aliases here.
 exports.PUBMATIC_ALIASES = ["pubmatic2"];
 
+exports.PBSPARAMS = {
+	adapter: "prebidServer",
+	endpoint: "https://ow.pubmatic.com/pbs/openrtb2/auction",
+	syncEndpoint: "https://ow.pubmatic.com/cookie_sync/?sec=1"
+}
+
+exports.TIMEOUT_CONFIG = {
+	MaxTimeout: 500,
+	MinTimeout: 200
+}
+
+exports.DEFAULT_ALIASES = {
+	adg: "adgeneration",
+	districtm: "appnexus",
+	districtmDMX: "dmx",
+	pubmatic2: "pubmatic"
+}
 exports.YAHOOSSP = "yahoossp";
