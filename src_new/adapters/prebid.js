@@ -28,6 +28,7 @@ var refThis = this;
 var onEventAdded = false;
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
+var defaultAliases = CONSTANTS.DEFAULT_ALIASES;
 
 /* start-test-block */
 exports.isSingleImpressionSettingEnabled = isSingleImpressionSettingEnabled;
@@ -365,7 +366,9 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 	var mediaTypeConfig;
 	var partnerConfig;
 
-	if(CONFIG.isServerSideAdapter(adapterID)){
+	//If we are using PubMaticServerBidAdapatar then serverSideEabled: do not add config into adUnits. 
+	//If we are using PrebidServerBidAdapatar then we need to add config into adUnits.
+	if(CONFIG.isServerSideAdapter(adapterID) && CONFIG.usePBSAdapter() != true){
 		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
 		return;
 	}
@@ -479,8 +482,9 @@ function generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, g
 		}
 	}
 	
-	//serverSideEabled: do not add config into adUnits
-	if(CONFIG.isServerSideAdapter(adapterID)){
+	//If we are using PubMaticServerBidAdapatar then serverSideEabled: do not add config into adUnits. 
+	//If we are using PrebidServerBidAdapatar then we need to add config into adUnits.
+	if(CONFIG.isServerSideAdapter(adapterID) && CONFIG.usePBSAdapter() != true){
 		util.log("Not calling adapter: "+ adapterID + ", for " + generatedKey +", as it is serverSideEnabled.");
 		return;
 	}
@@ -542,6 +546,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 	var slotParams = {};
 	var mediaTypeConfig = adUnits[code].mediaTypes;
 	var sizes = adUnits[code].sizes;
+	var isWiidRequired = false; 
 	if(mediaTypeConfig && util.isOwnProperty(mediaTypeConfig,"video") && adapterID != "telaria"){
 		slotParams["video"]= mediaTypeConfig.video;
 	}
@@ -549,7 +554,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		/* istanbul ignore next */
 		slotParams[key] = value;
 	});
-
+	
 	if(isPrebidPubMaticAnalyticsEnabled){
 		slotParams["kgpv"] = generatedKey; // TODO : Update this in case of video, change the size to 0x0 
 		slotParams["regexPattern"] = regexPattern;
@@ -579,6 +584,12 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		else {
 			slotParams["video"]= mediaTypeConfig.video;
 		}
+	}
+	// for pubmaticServer partner we used to pass wiid when isPrebidPubMaticAnalyticsEnabled is false but now we do not 
+	// get pubmaticServer partner when usePBSAdapter flag is true so we will be adding wiid conditionally.
+	if(isPrebidPubMaticAnalyticsEnabled === false && CONFIG.usePBSAdapter()){
+		slotParams["wiid"] = impressionID;
+		isWiidRequired = true;
 	}
 
 	var adapterName = CONFIG.getAdapterNameForAlias(adapterID) || adapterID;
@@ -616,6 +627,19 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			if((adapterID != "pubmatic2" && adapterName != "pubmatic2") && window.PWT.udpv){
 				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
 			}
+
+		// If we will be using PrebidServerBidAdaptar add wrapper object with profile and version
+		if(CONFIG.usePBSAdapter() == true && CONFIG.isServerSideAdapter(adapterID)) {
+			slotParams["wrapper"] = {
+				profile: parseInt(CONF.pwt.pid),
+				version: parseInt(CONF.pwt.pdvid)
+			};
+			// If mapping is regex then we should pass hashedKey to adSlot params earlier it was handled on s2s side.
+			if(slotParams["hashedKey"]) {
+				slotParams["adSlot"] = slotParams["hashedKey"];
+			}
+		}
+
 			// We are removing mimes because it merges with the existing adUnit mimes
 			// if(slotParams["video"] && slotParams["video"]["mimes"]){
 			// 	delete slotParams["video"]["mimes"];
@@ -630,6 +654,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 					slotParams[key] = value;
 				});
 				slotParams["cf"] = size[0] + "x" + size[1];
+				if(isWiidRequired) {
+					slotParams["wiid"] = impressionID;
+				}
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			});
 			break;
@@ -643,6 +670,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				});
 				slotParams["width"] = size[0];
 				slotParams["height"] = size[1];
+				if(isWiidRequired) {
+					slotParams["wiid"] = impressionID;
+				}
 			if(!(refThis.isSingleImpressionSettingEnabled && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			}
@@ -657,6 +687,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 					slotParams[key] = value;
 				});
 				slotParams["adSize"] = size[0] + "x" + size[1];
+				if(isWiidRequired) {
+					slotParams["wiid"] = impressionID;
+				}
 			if(!(refThis.isSingleImpressionSettingEnabled && isAdUnitsCodeContainBidder(adUnits, code, adapterID))){
 				adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			}
@@ -681,6 +714,9 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				sltParams["id"] = keyConfig["id"];
 				}
 			sltParams["size"] = size;
+			if(isWiidRequired) {
+				sltParams["wiid"] = impressionID;
+			}
 			adUnits [code].bids.push({bidder: adapterID, params: sltParams});
 			});
 			break;
@@ -862,15 +898,23 @@ function generateAdUnitsArray(activeSlots, impressionID){
 		/* istanbul ignore else */
 		if(adapterID !== refThis.parentAdapterID){
 
-			//serverSideEabled: we do not want to throttle them at client-side
+			// If we will be using PrebidServerBidAdapatar then we need to check throttling for 
+			// serverEnabled partners at client-side
 			/* istanbul ignore if */
-			if(CONFIG.isServerSideAdapter(adapterID) || refThis.throttleAdapter(randomNumberBelow100, adapterID) == false){
-				util.forEachOnObject(activeSlots, function(j, slot){
-					bidManager.setCallInitTime(slot.getDivID(), adapterID);
-				});
-				refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
-			}else{
-				util.log(adapterID+CONSTANTS.MESSAGES.M2);
+			if(CONFIG.usePBSAdapter() == true&& CONFIG.isServerSideAdapter(adapterID)) {
+				if(refThis.throttleAdapter(randomNumberBelow100, adapterID) == false) {
+					refThis.generateConfig(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+				} else {
+					util.log(adapterID+CONSTANTS.MESSAGES.M2);
+				}
+			} else {
+				// serverSideEabled: we do not want to throttle them at client-side
+				/* istanbul ignore if */
+				if(CONFIG.isServerSideAdapter(adapterID) || refThis.throttleAdapter(randomNumberBelow100, adapterID) == false){
+					refThis.generateConfig(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+				}else{
+					util.log(adapterID+CONSTANTS.MESSAGES.M2);
+				}
 			}
 		}
 	});
@@ -888,6 +932,14 @@ function generateAdUnitsArray(activeSlots, impressionID){
 }
 
 exports.generateAdUnitsArray = generateAdUnitsArray;
+
+function generateConfig(adapterID, adapterConfig, activeSlots, adUnits, impressionID) {
+	util.forEachOnObject(activeSlots, function(j, slot){
+		bidManager.setCallInitTime(slot.getDivID(), adapterID);
+	});
+	refThis.generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+}
+exports.generateConfig = generateConfig;
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function addOnBidResponseHandler(){
@@ -950,6 +1002,10 @@ function setPrebidConfig(){
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
+		// if usePBSAdapter is 1 then add s2sConfig
+		if(CONFIG.usePBSAdapter()) {
+			refThis.gets2sConfig(prebidConfig);
+		}
 		// Check for yahoossp bidder and add property {mode: 'all'} to setConfig
 		refThis.checkForYahooSSPBidder(prebidConfig);
 		// Adding a hook for publishers to modify the Prebid Config we have generated
@@ -963,6 +1019,43 @@ function setPrebidConfig(){
 }
 
 exports.setPrebidConfig = setPrebidConfig;
+
+function gets2sConfig(prebidConfig){
+	var bidderParams = {};
+	var s2sBidders = CONFIG.getServerEnabledAdaptars();
+	for(var key in CONF.alias) {
+		defaultAliases[key] = CONF.alias[key];
+	}
+	var pubmaticAndAliases = CONFIG.getPubMaticAndAlias(s2sBidders);
+	if(pubmaticAndAliases.length) {
+		pubmaticAndAliases.forEach(function(bidder) {
+			bidderParams[bidder] = {};
+		})
+	}
+
+	prebidConfig["s2sConfig"] = {
+		accountId: CONFIG.getPublisherId(),
+		adapter: CONSTANTS.PBSPARAMS.adapter,
+		enabled: true,
+		bidders: s2sBidders,
+		endpoint: CONSTANTS.PBSPARAMS.endpoint,
+		syncEndpoint: CONSTANTS.PBSPARAMS.syncEndpoint,
+		timeout: CONFIG.getTimeoutForPBSRequest(),
+		secure: 1,// request needs secure assets pass 1
+		extPrebid: {
+			aliases: defaultAliases,
+			bidderparams: bidderParams,
+			targeting: {
+				pricegranularity: CONFIG.getPriceGranularity()
+			},
+			isPrebidPubMaticAnalyticsEnabled: CONFIG.isPrebidPubMaticAnalyticsEnabled(),
+			isUsePrebidKeysEnabled: CONFIG.isUsePrebidKeysEnabled(),
+			macros: CONFIG.createMacros()
+		}	
+	}
+}
+
+exports.gets2sConfig = gets2sConfig;
 
 function getFloorsConfiguration(prebidConfig){
 	if(CONFIG.isFloorPriceModuleEnabled() == true){

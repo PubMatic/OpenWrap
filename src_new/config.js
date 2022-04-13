@@ -395,3 +395,48 @@ exports.getAdapterNameForAlias = function(aliasName){
 exports.isSSOEnabled = function() {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SSO_ENABLED]) === 1;
 }
+
+exports.getServerEnabledAdaptars = function() {
+	var s2sBidders = Object.keys(config.adapters).filter(function(adapter){
+		if(config.adapters[adapter]["serverSideEnabled"] == "1") {
+			return adapter;
+		}
+	});	
+	return s2sBidders;
+}
+
+exports.getTimeoutForPBSRequest = function() {
+	var ssTimeOut = parseInt(config.pwt.ssTimeout);
+	var maxTimeout = CONSTANTS.TIMEOUT_CONFIG.MaxTimeout;
+	var minTimeout = CONSTANTS.TIMEOUT_CONFIG.MinTimeout;
+	if(ssTimeOut >= minTimeout && ssTimeOut <= maxTimeout) {
+		return ssTimeOut;
+	} else if(ssTimeOut >= minTimeout) {
+		return maxTimeout;
+	}
+	return minTimeout;
+}
+
+exports.getPubMaticAndAlias = function(s2sBidders) {
+	var pubMaticaliases = s2sBidders.filter(function(adapter) {
+		if(config.alias && config.alias[adapter] && config.alias[adapter].includes("pubmatic") || adapter.includes("pubmatic")) {
+			return adapter;
+		}
+	});
+	return pubMaticaliases;
+}
+
+exports.usePBSAdapter = function() {
+	if(config.pwt.usePBSAdapter == "1") {
+		return true;
+	}
+	return false;
+}
+
+exports.createMacros = function() {
+	return {
+		"[PLATFORM]": util.getDevicePlatform().toString(),
+		"[PROFILE_ID]": refThis.getProfileID().toString(),
+		"[PROFILE_VERSION]": refThis.getProfileDisplayVersionID().toString()
+	}
+}
