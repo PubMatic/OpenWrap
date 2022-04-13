@@ -390,7 +390,6 @@ exports.initLiveRampAts = function (params) {
 		var atsScript = document.createElement("script");
 		var atsObject = refThis.getLiverampParams(params);
 		atsScript.onload = function () {
-			console.log("object sent to ats script - ", atsObject);
 			window.ats && window.ats.start(atsObject);
 		};
 		atsScript.src = "https://ats.rlcdn.com/ats.js";
@@ -409,8 +408,9 @@ exports.initZeoTapJs = function(params) {
 	function addZeoTapJs() {
 		var n = document, t = window;
 		var userIdentity = owpbjs.getUserIdentities() || {};
+		var enableSSO = CONFIG.isSSOEnabled() || false;
 		var userIdentityObject = {
-			email: userIdentity.emailHash || ""
+			email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash['SHA256'] : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash['SHA256'] : undefined
 		};
 		var e=n.createElement("script");
 		e.type="text/javascript",

@@ -1558,6 +1558,71 @@ describe('ADAPTER: Prebid', function() {
         });
     })
 
+	// Test cases to generate s2sConfig
+	describe("generates2sConfig",function(){
+		var prebidConfig = {};
+		var expectedResult = {};
+		var defaultAliases = {
+			adg: "adgeneration",
+			districtm: "appnexus",
+			districtmDMX: "dmx",
+			pubmatic2: "pubmatic"
+		};
+		for(var key in CONF.alias) {
+			defaultAliases[key] = CONF.alias[key];
+		}
+
+		beforeEach(function(done){
+			var s2sBidders = CONFIG.getServerEnabledAdaptars();
+			var pubmaticAndAliases = s2sBidders.filter(function(adapter) {
+				if(CONF.alias && CONF.alias[adapter] && CONF.alias[adapter].includes("pubmatic") || adapter.includes("pubmatic")) {
+					return adapter;
+				}
+			});
+			var bidderParams = {};
+			pubmaticAndAliases.forEach(function(bidder) {
+				bidderParams[bidder] = {};
+			});
+			expectedResult = {
+				accountId: CONFIG.getPublisherId(),
+				adapter: "prebidServer",
+				enabled: true,
+				bidders: s2sBidders,
+				endpoint: CONSTANTS.PBSPARAMS.endpoint,
+				syncEndpoint: CONSTANTS.PBSPARAMS.syncEndpoint,
+				timeout: CONFIG.getTimeoutForPBSRequest(),
+				secure: 1,
+				extPrebid: {
+					aliases: defaultAliases,
+					bidderparams: bidderParams,
+					targeting: {
+						pricegranularity: CONFIG.getPriceGranularity()
+					},
+					isPrebidPubMaticAnalyticsEnabled: CONFIG.isPrebidPubMaticAnalyticsEnabled(),
+					isUsePrebidKeysEnabled: CONFIG.isUsePrebidKeysEnabled(),
+					macros: CONFIG.createMacros()
+				}
+			};
+			done();
+		});
+
+		afterEach(function(done){
+			prebidConfig = {};
+			done();
+		});
+
+		it("should be a functiion",function(done){
+			PREBID.gets2sConfig.should.be.a("function");
+			done();
+		});
+
+		it("should set s2sConfig properties",function(done){
+			PREBID.gets2sConfig(prebidConfig);
+			expect(prebidConfig.s2sConfig).to.be.deep.equal(expectedResult);
+			done();
+		});
+	})
+
     describe('#addOnBidRequestHandler',function(){
         beforeEach(function(done) {
             sinon.stub(UTIL, 'isFunction');

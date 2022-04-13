@@ -329,7 +329,10 @@ Bid.prototype.setMi = function(mi){
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.getMi = function(){
+Bid.prototype.getMi = function(partnerName){
+	if(UTIL.isUndefined(this.mi)) {
+		this.mi = window.matchedimpressions && window.matchedimpressions[partnerName];
+	}
 	return this.mi;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
