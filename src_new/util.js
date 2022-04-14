@@ -1657,7 +1657,8 @@ exports.initLiveRampAts = function (params) {
 		var atsObject = {
 			"placementID": params.params.pid,
 			"storageType": params.params.storageType,
-			"logging": params.params.logging //"error"
+			"logging": params.params.logging, //"error"
+			"pixelID": params.params.pixelID
 		};
 		switch (detectionMechanism) {
 			case undefined:
