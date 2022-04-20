@@ -520,10 +520,12 @@ function getAdDomain(bidResponse) {
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
+	var usePBSAdapter = CONFIG.usePBSAdapter();
 	var startTime = bmEntry.getCreationTime() || 0;
-	var pslTime = undefined;
+	var pslTime = (usePBSAdapter && window.pbsLatency) ? 0 : undefined;
 	var impressionID = bmEntry.getImpressionID();
 	var adUnitInfo = refThis.getAdUnitInfo(slotID);
+	var latencyValue = {};
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 	/* istanbul ignore else */
 	if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
@@ -545,6 +547,24 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
             }
 
 			util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+				if(usePBSAdapter) {
+					// In PrebidServerBidAdapater we are capturing start and end time of request
+					// fetching these values here to calculate psl time for logger call
+					latencyValue = window.pbsLatency && window.pbsLatency[impressionID];
+					if(latencyValue && latencyValue['endTime'] && latencyValue['startTime']) {
+						pslTime = latencyValue['endTime'] - latencyValue['startTime'];
+					}
+					// When we use PrebidServerBidAdapter we do not get seatbid for zero bid / no bid partners 
+					// as we need to log PubMatic partner in logger will be changing db = 0. 
+					if((adapterID === "pubmatic" || adapterID === "pubmatic2") && (util.isOwnProperty(window.partnersWithoutErrorAndBids, impressionID) && window.partnersWithoutErrorAndBids[impressionID].includes(adapterID))) {
+						theBid.defaultBid = 0;
+					} else if(util.isOwnProperty(window.partnersWithoutErrorAndBids, impressionID) &&
+							window.partnersWithoutErrorAndBids[impressionID].includes(adapterID) &&
+							CONFIG.getAdapterNameForAlias(adapterID).includes('pubmatic')) {
+						theBid.defaultBid = 0;		
+					}
+				}
+				
 				var endTime = theBid.getReceivedTime();
 				if (adapterID === "pubmaticServer") {
 					if ((util.isOwnProperty(window.PWT.owLatency, impressionID)) &&
@@ -612,7 +632,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"ss": theBid.getServerSideStatus(),
                     "t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
                     "wb": theBid.getWinningBidStatus() === true ? 1 : 0,
-					"mi": theBid.getServerSideStatus() ? theBid.getMi() : undefined,
+					"mi": theBid.getServerSideStatus() ? theBid.getMi(adapterID) : undefined,
 					"af": theBid.getAdFormat(),
 					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
@@ -623,6 +643,11 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
         });
 
         impressionIDMap[impressionID].push(slotObject);
+		// special handling when all media types are disabled for adunit and
+		// if we are using PrebidServerBidAdapter with 
+		if(usePBSAdapter && CONFIG.getServerEnabledAdaptars().length && pslTime == undefined && !window.pbsLatency) {
+			pslTime = 0;
+		}
 		if (pslTime !== undefined) {
 			impressionIDMap[impressionID].psl = pslTime;
 		}
