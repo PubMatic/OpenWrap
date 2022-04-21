@@ -1356,14 +1356,14 @@ describe('bidManager BIDMgr', function() {
         });
 
          // TODO 17 JAn 2020 Make below test cases as pass.
-        xit('should generate proper pixelURL ', function(done) {
-
+        it('should generate proper pixelURL ', function(done) {
             var pixelURL = CONSTANTS.COMMON.PROTOCOL + CONFIG.getMonetizationPixelURL();
             pixelURL += "pubid=" + CONFIG.getPublisherId();
             pixelURL += "&purl=" + window.encodeURIComponent(UTIL.metaInfo.pageURL);
             pixelURL += "&tst=" + UTIL.getCurrentTimestamp();
             pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
-            pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
+			pixelURL += "&bidid=" + (theBid.pbbid ? window.encodeURIComponent(theBid.pbbid) : window.encodeURIComponent(theBid.getBidID()));
+			pixelURL += "&orig_bidid=" + window.encodeURIComponent(theBid.getBidID());
             pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
             pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
             pixelURL += "&slot=" + window.encodeURIComponent(slotID);
@@ -1381,7 +1381,7 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        xit('should generate proper pixelURL for bidder aliases', function(done) {
+        it('should generate proper pixelURL for bidder aliases', function(done) {
 
             theBid.adapterID = "pubmatic21";
             CONFIG.getAdapterNameForAlias.returns('pubmatic');
@@ -1390,7 +1390,8 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&purl=" + window.encodeURIComponent(UTIL.metaInfo.pageURL);
             pixelURL += "&tst=" + UTIL.getCurrentTimestamp();
             pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
-            pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
+            pixelURL += "&bidid=" + (theBid.pbbid ? window.encodeURIComponent(theBid.pbbid) : window.encodeURIComponent(theBid.getBidID()));
+			pixelURL += "&orig_bidid=" + window.encodeURIComponent(theBid.getBidID());
             pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
             pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
             pixelURL += "&slot=" + window.encodeURIComponent(slotID);
