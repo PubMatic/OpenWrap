@@ -189,7 +189,7 @@ function findWinningBidAndGenerateTargeting(divId) {
 	util.forEachOnObject(keyValuePairs, function(key) {
 		// if winning bid is not pubmatic then remove buyId targeting key. Ref : UOE-5277
 		/* istanbul ignore else*/ 
-		if (util.isOwnProperty(ignoreTheseKeys, key) || (winningBid && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key))) {
+		if (util.isOwnProperty(ignoreTheseKeys, key) || util.isOwnProperty({"pwtpb":1}, key) || (winningBid && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key))) {
 			delete keyValuePairs[key];
 		}
 		else {
