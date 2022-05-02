@@ -1781,7 +1781,7 @@ exports.initZeoTapJs = function(params) {
 };
 
 exports.initLauncherJs = function (params) {
-	window.cnvr_launcher_options={lid: params.params.site_id};
+	window.cnvr_launcher_options={lid: params.params.launcher_id};
 	function loadLauncher() {
 		var launchScript = document.createElement("script");
 		var launchObject = refThis.getPublinkLauncherParams(params);
