@@ -233,7 +233,7 @@ exports.addHookOnFunction = function (theObject, useProto, functionName, newFunc
 
 exports.getUserIdConfiguration = function () {
 	var userIdConfs = [];
-	owpbjs.onSSOLogin({});
+	//owpbjs.onSSOLogin({});
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(), function (parterId, partnerValues) {
 		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
 			userIdConfs.push(refThis.getUserIdParams(partnerValues));
@@ -262,15 +262,16 @@ exports.getUserIdParams = function (params) {
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}
-	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
-		refThis.initLiveRampAts(userIdParams); 
-	}
-	if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
-		refThis.initZeoTapJs(userIdParams);
-	}
-	if (userIdParams && userIdParams.params && userIdParams.params["loadLauncher"] == "true") {
-		refThis.initLauncherJs(userIdParams); 
-	}
+	// if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
+	// 	refThis.initLiveRampAts(userIdParams); 
+	// }
+	// if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
+	// 	refThis.initZeoTapJs(userIdParams);
+	// }
+	// if (userIdParams && userIdParams.params && userIdParams.params["loadLauncher"] == "true") {
+	// 	refThis.initLauncherJs(userIdParams); 
+	// }
+	console.log("nitin", userIdParams);
 	return userIdParams;
 };
 
@@ -389,26 +390,34 @@ exports.getLiverampParams = function(params) {
 };
 
 exports.initLiveRampAts = function (params) {
-	function addATS() {
-		var atsScript = document.createElement("script");
-		var atsObject = refThis.getLiverampParams(params);
-		atsScript.onload = function () {
+	// function addATS() {
+	// 	var atsScript = document.createElement("script");
+	// 	var atsObject = refThis.getLiverampParams(params);
+	// 	atsScript.onload = function () {
+	// 		window.ats && window.ats.start(atsObject);
+	// 	};
+	// 	atsScript.src = "https://ats.rlcdn.com/ats.js";
+	// 	document.body.appendChild(atsScript);
+	// }
+	// if (document.readyState == 'complete') {
+	// 	addATS();
+	// } else {
+	// 	window.addEventListener("load", function () {
+	// 		setTimeout(addATS, 1000);
+	// 	});
+	// }
+	var atsObject = refThis.getLiverampParams(params);
+	return {
+		url: "https://ats.rlcdn.com/ats.js",
+		params: refThis.getLiverampParams(params),
+		onload: function(){
 			window.ats && window.ats.start(atsObject);
-		};
-		atsScript.src = "https://ats.rlcdn.com/ats.js";
-		document.body.appendChild(atsScript);
-	}
-	if (document.readyState == 'complete') {
-		addATS();
-	} else {
-		window.addEventListener("load", function () {
-			setTimeout(addATS, 1000);
-		});
+		}
 	}
 };
 
 exports.initLauncherJs = function (params) {
-	window.cnvr_launcher_options={lid: params.params.site_id};
+	window.cnvr_launcher_options={lid: params.params.launcher_id};
 	function loadLauncher() {
 		var launchScript = document.createElement("script");
 		var launchObject = refThis.getPublinkLauncherParams(params);

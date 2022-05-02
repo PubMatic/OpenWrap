@@ -4,7 +4,11 @@ var argv = require('yargs').argv;
 var gulp = require('gulp');
 var concat = require('gulp-concat');
 var replace = require('gulp-replace-task');
+
 var config = require("./src_new/config.js");
+var file = require('gulp-file');
+var UTILS = require("./src_new/buildtime/utils.js");
+//var CONSTANTS = require("./src_new/constants.js");
 
 // var replace = require('gulp-replace');
 // var insert = require('gulp-insert');
@@ -97,8 +101,8 @@ gulp.task('webpack', ['clean'], function() {
         .pipe(webpack(webpackConfig))
         .pipe(jsFsCache)
         .pipe(removeCode(getRemoveCodeConfig()))
-        .pipe(uglify())
-        .pipe(optimizejs())
+        //.pipe(uglify())
+        //.pipe(optimizejs())
         .pipe(jsFsCache.restore)
         .pipe(gulp.dest('build/dist'))
         .pipe(connect.reload())
@@ -116,8 +120,8 @@ gulp.task('webpack-creative', ['clean'], function() {
 
     return gulp.src('src_new/creative/owCreativeRenderer.js')
         .pipe(webpack(webpackConfig))
-        .pipe(uglify())
-        .pipe(optimizejs())
+        //.pipe(uglify())
+        //.pipe(optimizejs())
         .pipe(gulp.dest('build/dist'))
         .pipe(connect.reload())
     ;
@@ -391,7 +395,7 @@ gulp.task('bundle-creative', function () {
 
 
 // Task to build non-minified version of owt.js
-gulp.task('devbundle',['devpack'], function () {
+gulp.task('devbundle',['build-userconfigs','devpack'], function () {
     console.log("Executing Dev Build");
     // var prebidFileName = (profileMode === "IH" ? '/build/devIH/prebid.idhub.js' : '/build/dev/prebid.js')
     var prebidFileName = '/build/dev/prebid.js';
@@ -402,12 +406,12 @@ gulp.task('devbundle',['devpack'], function () {
 });
 
 
-gulp.task('bundle-prod',['webpack'], function () {
+gulp.task('bundle-prod',[ 'build-userconfigs', 'webpack'], function () {
     console.log("Executing bundling");
     // var prebidFileName = (profileMode === "IH" ? '/build/distIH/prebid.idhub.js' : '/build/dist/prebid.js')
     var prebidFileName = '/build/dist/prebid.js';
     console.log("##################### prebidfilename picked = "+prebidFileName);
-    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js'])
+    return gulp.src([prebidRepoPath + prebidFileName, 'temp/primus.js',  './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 });
@@ -430,5 +434,18 @@ gulp.task('update-adserver', function(){
         return result;
     }
 });
+
+
+gulp.task('build-userconfigs', function(){
+  var str = "var nitinconfigs = " + JSON.stringify({
+      userIdConfigs: UTILS.getUserIdConfiguration()
+  })
+  str += ";";
+  return file('primus.js', str, { src: true })
+    .pipe(gulp.dest('./temp/'));
+});
+
+
+
 
 gulp.task('build-gpt-prod',[''])
