@@ -102,8 +102,7 @@ exports.CONFIG = {
 	"USE_PREBID_KEYS": "usePBJSKeys",
 	"AB_TEST_ENABLED": "abTestEnabled",
 	"TIMEOUT_ADJUSTMENT": 50,
-	"SSO_ENABLED": "ssoEnabled",
-	"SSO_INTEGRATION_TIMEOUT": 2500
+	"SSO_ENABLED": "ssoEnabled"
 };
 
 exports.METADATA_MACROS = {
@@ -260,6 +259,9 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 	},
 	"parrableId": {
 		"params.timezoneFilter.allowedZones": "array"
+	},
+	"imuid": {
+		"params.cid": "number"
 	}
 }; //list of ID partners for whom special handling of datatype is required
 
@@ -286,4 +288,21 @@ exports.BID_STATUS =  {
 // Add list of PubMatic aliases here.
 exports.PUBMATIC_ALIASES = ["pubmatic2"];
 
+exports.PBSPARAMS = {
+	adapter: "prebidServer",
+	endpoint: "https://ow.pubmatic.com/pbs/openrtb2/auction",
+	syncEndpoint: "https://ow.pubmatic.com/cookie_sync/?sec=1"
+}
+
+exports.TIMEOUT_CONFIG = {
+	MaxTimeout: 500,
+	MinTimeout: 200
+}
+
+exports.DEFAULT_ALIASES = {
+	adg: "adgeneration",
+	districtm: "appnexus",
+	districtmDMX: "dmx",
+	pubmatic2: "pubmatic"
+}
 exports.YAHOOSSP = "yahoossp";
