@@ -1350,7 +1350,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(13);
+            window.encodeURIComponent.callCount.should.be.equal(14);
 
             done();
         });
@@ -1363,7 +1363,8 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&purl=" + window.encodeURIComponent(UTIL.metaInfo.pageURL);
             pixelURL += "&tst=" + UTIL.getCurrentTimestamp();
             pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
-            pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
+            pixelURL += "&bidid=" + (theBid.pbbid ? window.encodeURIComponent(theBid.pbbid) : window.encodeURIComponent(theBid.getBidID()));
+			pixelURL += "&orig_bidid=" + window.encodeURIComponent(theBid.getBidID());
             pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
             pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
             pixelURL += "&slot=" + window.encodeURIComponent(slotID);
@@ -1390,7 +1391,8 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&purl=" + window.encodeURIComponent(UTIL.metaInfo.pageURL);
             pixelURL += "&tst=" + UTIL.getCurrentTimestamp();
             pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
-            pixelURL += "&bidid=" + window.encodeURIComponent(theBid.getBidID());
+            pixelURL += "&bidid=" + (theBid.pbbid ? window.encodeURIComponent(theBid.pbbid) : window.encodeURIComponent(theBid.getBidID()));
+			pixelURL += "&orig_bidid=" + window.encodeURIComponent(theBid.getBidID());
             pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
             pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
             pixelURL += "&slot=" + window.encodeURIComponent(slotID);
