@@ -1492,7 +1492,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&tst=" + refThis.getCurrentTimestamp();
 	pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
 	pixelURL += "&bidid=" + (prebidBidId ? window.encodeURIComponent(prebidBidId) : window.encodeURIComponent(bidId));
-	pixelURL += "&orig_bidid=" + window.encodeURIComponent(bidId);
+	pixelURL += "&origbidid=" + window.encodeURIComponent(bidId);
 	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
 	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
 	pixelURL += "&slot=" + window.encodeURIComponent(slotID);

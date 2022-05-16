@@ -1364,7 +1364,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&tst=" + UTIL.getCurrentTimestamp();
             pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
             pixelURL += "&bidid=" + (theBid.pbbid ? window.encodeURIComponent(theBid.pbbid) : window.encodeURIComponent(theBid.getBidID()));
-			pixelURL += "&orig_bidid=" + window.encodeURIComponent(theBid.getBidID());
+			pixelURL += "&origbidid=" + window.encodeURIComponent(theBid.getBidID());
             pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
             pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
             pixelURL += "&slot=" + window.encodeURIComponent(slotID);
@@ -1392,7 +1392,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&tst=" + UTIL.getCurrentTimestamp();
             pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
             pixelURL += "&bidid=" + (theBid.pbbid ? window.encodeURIComponent(theBid.pbbid) : window.encodeURIComponent(theBid.getBidID()));
-			pixelURL += "&orig_bidid=" + window.encodeURIComponent(theBid.getBidID());
+			pixelURL += "&origbidid=" + window.encodeURIComponent(theBid.getBidID());
             pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
             pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
             pixelURL += "&slot=" + window.encodeURIComponent(slotID);
