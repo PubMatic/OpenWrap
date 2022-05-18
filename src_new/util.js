@@ -1418,7 +1418,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	var netEcpm, grossEcpm, kgpv, bidId, adapterId, adapterName,adUnitId;
 	var sspID = "";
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
-	const prebidBidId = theBid.pbbid && theBid.pbbid.prebidBidId;
+	const prebidBidId = (theBid.pbbid && theBid.pbbid.prebidBidId) || (theBid.prebidBidId);
 
 	/* istanbul ignore else */
 	if(!pixelURL){
