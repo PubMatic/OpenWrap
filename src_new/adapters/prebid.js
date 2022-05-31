@@ -702,25 +702,15 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			 * so added a case for the same.
 			*/
 		
-			util.forEachOnArray(sizes, function(index, size) {
-			var sltParams = {};
-			if(slotParams && slotParams.video){
-				sltParams["video"] = slotParams["video"];
-				}
-				if (keyConfig["siteID"]) {
-				sltParams["siteId"] = keyConfig["siteID"];
-				}
-				if (keyConfig["id"]) {
-				sltParams["id"] = keyConfig["id"];
-				}
-			sltParams["size"] = size;
-			if(isWiidRequired) {
-				sltParams["wiid"] = impressionID;
+			if (slotParams["siteID"]) {
+				slotParams["siteId"] = slotParams["siteID"];
+				delete slotParams['siteID'];
 			}
-			adUnits [code].bids.push({bidder: adapterID, params: sltParams});
-			});
+			if(isWiidRequired) {
+				slotParams["wiid"] = impressionID;
+			}
+			adUnits [code].bids.push({bidder: adapterID, params: slotParams});
 			break;
-
 		default:
 			adUnits[code].bids.push({ bidder: adapterID, params: slotParams });
 			break;
