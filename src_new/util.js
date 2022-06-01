@@ -1416,6 +1416,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	var netEcpm, grossEcpm, kgpv, bidId, adapterId, adapterName,adUnitId;
 	var sspID = "";
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
+	const prebidBidId = (theBid.pbbid && theBid.pbbid.prebidBidId) || (theBid.prebidBidId);
 
 	/* istanbul ignore else */
 	if(!pixelURL){
@@ -1488,7 +1489,8 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
 	pixelURL += "&tst=" + refThis.getCurrentTimestamp();
 	pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
-	pixelURL += "&bidid=" + window.encodeURIComponent(bidId);
+	pixelURL += "&bidid=" + (prebidBidId ? window.encodeURIComponent(prebidBidId) : window.encodeURIComponent(bidId));
+	pixelURL += "&origbidid=" + window.encodeURIComponent(bidId);
 	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
 	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
 	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
