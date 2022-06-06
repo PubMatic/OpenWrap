@@ -8,6 +8,7 @@ var replace = require('gulp-replace-task');
 var config = require("./src_new/config.js");
 var file = require('gulp-file');
 var UTILS = require("./src_new/buildtime/utils.js");
+
 //var CONSTANTS = require("./src_new/constants.js");
 
 // var replace = require('gulp-replace');
@@ -95,6 +96,7 @@ gulp.task('webpack', ['clean'], function() {
     var removeCode = require('gulp-remove-code');
     var jsFsCache = fsCache('.tmp/jscache');
     webpackConfig.devtool = null;
+    //return gulp.src([].concat.apply([], [ 'src_new/idhub.js' ,config.isIdentityOnly() ? 'src_new/idhub.js' : 'src_new/owt.js', UTILS.getThirdPartyScripts()]))
 
     return gulp.src(config.isIdentityOnly() ? 'src_new/idhub.js' : 'src_new/owt.js')
     // return gulp.src('src_new/owt.js')
@@ -437,12 +439,13 @@ gulp.task('update-adserver', function(){
 
 
 gulp.task('build-userconfigs', function(){
-  var str = "var nitinconfigs = " + JSON.stringify({
-      userIdConfigs: UTILS.getUserIdConfiguration()
+  var str = "exports.buildConfig = " + JSON.stringify({
+      userIdConfigs: UTILS.getUserIdConfiguration(),
+      userIdModuleScripts: UTILS.getThirdPartyScripts(),
   })
   str += ";";
-  return file('primus.js', str, { src: true })
-    .pipe(gulp.dest('./temp/'));
+  return file('build.conf.js', str, { src: true })
+    .pipe(gulp.dest('./src_new/'));
 });
 
 

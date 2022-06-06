@@ -96,13 +96,11 @@ exports.getNestedObjectFromString = function (sourceObject, separator, key, valu
 
 exports.getUserIdConfiguration = function () {
 	var userIdConfs = [];
-	//owpbjs.onSSOLogin({});
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(), function (parterId, partnerValues) {
 		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
 			userIdConfs.push(refThis.getUserIdParams(partnerValues));
 		}
 	});
-	//refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIdConfs));
 	return userIdConfs;
 };
 
@@ -125,16 +123,16 @@ exports.getUserIdParams = function (params) {
 			//refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}
-
+	
     if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
-		thirdPartyScripts.push(refThis.initLiveRampAts(userIdParams)); 
+		thirdPartyScripts.push(userIdParams.name);
 	}
-	// if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
-	// 	refThis.initZeoTapJs(userIdParams);
-	// }
-	// if (userIdParams && userIdParams.params && userIdParams.params["loadLauncher"] == "true") {
-	// 	refThis.initLauncherJs(userIdParams); 
-	// }
+	if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
+		thirdPartyScripts.push(userIdParams.name);
+	}
+	if (userIdParams && userIdParams.params && userIdParams.params["loadLauncher"] == "true") {
+		thirdPartyScripts.push(userIdParams.name);
+	}
 	return userIdParams;
 };
 
@@ -246,5 +244,5 @@ exports.applyCustomParamValuesfApplicable = function(params) {
 
 
 exports.getThirdPartyScripts = function (){
-    return thirdPartyScripts;
+	return thirdPartyScripts;
 }
