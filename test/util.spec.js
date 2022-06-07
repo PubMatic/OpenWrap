@@ -3017,7 +3017,7 @@ describe('UTIL', function() {
     });
     
     
-    describe.only('#getUserIdParams', function() {
+    describe('#getUserIdParams', function() {
         var params;
         beforeEach(function(done) {
             params = {"name":"pubCommonId","storage.type":"cookie","storage.name":"_pubCommonId","storage.expires":"1825"}
