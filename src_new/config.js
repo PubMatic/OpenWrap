@@ -265,6 +265,10 @@ exports.isPrebidPubMaticAnalyticsEnabled = function () {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_PM_ANALYTICS]) === 1;
 };
 
+exports.getLoggerTimeoutDuration = function () {
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.LOGGER_TIMEOUT_DURATION]) || parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.DEFAULT_LOGGER_TIMEOUT_DURATION]);
+};
+
 exports.isUsePrebidKeysEnabled = function () {
 	// note: not using window.parseInt as this function is also used in build.sh that runs in NodeJS environment
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.USE_PREBID_KEYS]) === 1;

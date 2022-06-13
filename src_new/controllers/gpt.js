@@ -630,7 +630,7 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
                 setTimeout(function() {
                     util.realignVLogInfoPanel(divID);
                     bidManager.executeAnalyticsPixel();
-                }, 2000 + CONFIG.getTimeout());
+                }, CONFIG.getLoggerTimeoutDuration() + CONFIG.getTimeout());
 
                 //return originalFunction.apply(theObject, arguments);
             };

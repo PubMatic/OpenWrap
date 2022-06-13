@@ -24,6 +24,7 @@ exports.pwt = {
 	owv:"v21.4.0",
 	abTestEnabled:"0",
 	pubAnalyticsAdapter: "0",
+	loggerTimeout: 1000,
 	reduceCodeSize:1
 };
 

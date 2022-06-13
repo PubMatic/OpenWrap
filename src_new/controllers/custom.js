@@ -298,7 +298,7 @@ function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 					// after some time call fire the analytics pixel
 					setTimeout(function() {
 						bidManager.executeAnalyticsPixel();
-					}, 2000);	
+					}, CONFIG.getLoggerTimeoutDuration());	
 				}
 				// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
