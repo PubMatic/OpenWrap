@@ -260,11 +260,11 @@ gulp.task('bundle', ['update-adserver'], function () {
     var prebidFileName = (profileMode === "IH" ? '/build/dist/prebid.idhub.js' : '/build/dist/prebid.js')
     var prependscript = "", appendScript = "";
     console.log("profile mode = ", profileMode, " and isIdentityOnly = ", isIdentityOnly);
-    if (isIdentityOnly) {
+    /*if (isIdentityOnly) {
         prependscript = "src_new/ih_header.js";
         appendScript = "src_new/ih_footer.js";
         console.log("#### prepending script for identity only profile ", prependscript);
-    }
+    }*/
     console.log("##################### prebidfilename picked = "+prebidFileName);
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
@@ -415,11 +415,11 @@ gulp.task('bundle-prod',['webpack'], function () {
     var prebidFileName = '/build/dist/prebid.js';
     var prependscript = "", appendScript = "";
     console.log("profile mode = ", profileMode, " and isIdentityOnly = ", isIdentityOnly);
-    if (isIdentityOnly) {
+    /*if (isIdentityOnly) {
         prependscript = "src_new/ih_header.js";
         appendScript = "src_new/ih_footer.js";
         console.log("#### prepending script for identity only profile ", prependscript);
-    }
+    }*/
     console.log("##################### prebidfilename picked = "+prebidFileName);
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))

@@ -3,6 +3,7 @@
 // forEachOnArray
 var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
+var conf = require("./conf.js");
 var BID = require("./bid.js");
 var bidManager = require("./bidManager.js");
 
@@ -25,6 +26,7 @@ var refThis = this;
 refThis.idsAppendedToAdUnits = false;
 var mediaTypeConfigPerSlot = {};
 exports.mediaTypeConfig = mediaTypeConfigPerSlot;
+var pbNameSpace = parseInt(conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY) ? CONSTANTS.CONFIG.IH_NAMESPACE : CONSTANTS.CONFIG.PREBID_NAMESPACE;
 
 function isA(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
@@ -1309,7 +1311,7 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 // removeIf(removeUserIdRelatedCode)
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
-	owpbjs.onSSOLogin({});
+	window[pbNameSpace].onSSOLogin({});
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
 		if (CONSTANTS.EXCLUDE_PARTNER_LIST.indexOf(parterId) < 0) {
 			userIdConfs.push(refThis.getUserIdParams(partnerValues));
@@ -1647,7 +1649,7 @@ exports.getLiverampParams = function(params) {
 	if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
 		params.params.cssSelectors = params.params.cssSelectors.split(",");
 	}
-	var userIdentity = owpbjs.getUserIdentities() || {};
+	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var detectionMechanism = params.params.detectionMechanism;
 	var enableCustomId = params.params.enableCustomId === "true" ? true : false;
@@ -1677,8 +1679,8 @@ exports.getLiverampParams = function(params) {
 			if yes, if sso is enabled and 'direct' is selected as detection mechanism, sso emails will be sent to ats script.
 			if sso is disabled, and 'direct' is selected as detection mechanism, we will look for publisher provided email ids, and if available the hashes will be sent to ats script.
 			*/
-			if (enableCustomId && refThis.isFunction(owpbjs.getUserIdentities) && owpbjs.getUserIdentities() !== undefined) {
-				atsObject.customerID = owpbjs.getUserIdentities().customerID || undefined;
+			if (enableCustomId && refThis.isFunction(window[pbNameSpace].getUserIdentities) && window[pbNameSpace].getUserIdentities() !== undefined) {
+				atsObject.customerID = window[pbNameSpace].getUserIdentities().customerID || undefined;
 			}
 			break;
 	};
@@ -1689,7 +1691,7 @@ exports.getPublinkLauncherParams = function(params) {
 	if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
 		params.params.cssSelectors = params.params.cssSelectors.split(",");
 	}
-	var userIdentity = owpbjs.getUserIdentities() || {};
+	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var detectionMechanism = params.params.detectionMechanism;
 	var lnchObject = {
@@ -1738,7 +1740,7 @@ exports.initLiveRampAts = function (params) {
 exports.initZeoTapJs = function(params) {
 	function addZeoTapJs() {
 		var n = document, t = window;
-		var userIdentity = owpbjs.getUserIdentities() || {};
+		var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 		var enableSSO = CONFIG.isSSOEnabled() || false;
 		var userIdentityObject = {
 			email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash['SHA256'] : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash['SHA256'] : undefined

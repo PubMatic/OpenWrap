@@ -13,7 +13,7 @@ var CONF = require("../conf.js");
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
-var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
+var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;

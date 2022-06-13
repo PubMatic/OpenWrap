@@ -14,6 +14,7 @@ var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
 var refThis = this;
+var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 refThis.idsAppendedToAdUnits = false;
 
 function isA(object, testForType) {
@@ -233,7 +234,7 @@ exports.addHookOnFunction = function (theObject, useProto, functionName, newFunc
 
 exports.getUserIdConfiguration = function () {
 	var userIdConfs = [];
-	owpbjs.onSSOLogin({});
+	window[pbNameSpace].onSSOLogin({});
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(), function (parterId, partnerValues) {
 		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
 			userIdConfs.push(refThis.getUserIdParams(partnerValues));
@@ -290,12 +291,12 @@ exports.getDomainFromURL = function (url) {
 
 exports.handleHook = function (hookName, arrayOfDataToPass) {
 	// Adding a hook for publishers to modify the data we have
-	if (refThis.isFunction(window.PWT[hookName])) {
-		refThis.log("For Hook-name: " + hookName + ", calling window.PWT." + hookName + "function.");
-		window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
+	if (refThis.isFunction(window.IHPWT[hookName])) {
+		refThis.log("For Hook-name: " + hookName + ", calling window.IHPWT." + hookName + "function.");
+		window.IHPWT[hookName].apply(window.IHPWT, arrayOfDataToPass);
 	}
 	// else {
-	// 	refThis.log('Hook-name: '+hookName+', window.PWT.'+hookName+' is not a function.' );
+	// 	refThis.log('Hook-name: '+hookName+', window.IHPWT.'+hookName+' is not a function.' );
 	// }
 };
 
@@ -350,7 +351,7 @@ exports.getLiverampParams = function(params) {
 	if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
 		params.params.cssSelectors = params.params.cssSelectors.split(",");
 	}
-	var userIdentity = owpbjs.getUserIdentities() || {};
+	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var detectionMechanism = params.params.detectionMechanism;
 	var enableCustomId = params.params.enableCustomId === "true" ? true : false;
@@ -380,8 +381,8 @@ exports.getLiverampParams = function(params) {
 			if yes, if sso is enabled and 'direct' is selected as detection mechanism, sso emails will be sent to ats script.
 			if sso is disabled, and 'direct' is selected as detection mechanism, we will look for publisher provided email ids, and if available the hashes will be sent to ats script.
 			*/
-			if (enableCustomId && refThis.isFunction(owpbjs.getUserIdentities) && owpbjs.getUserIdentities() !== undefined) {
-				atsObject.customerID = owpbjs.getUserIdentities().customerID || undefined;
+			if (enableCustomId && refThis.isFunction(window[pbNameSpace].getUserIdentities) && window[pbNameSpace].getUserIdentities() !== undefined) {
+				atsObject.customerID = window[pbNameSpace].getUserIdentities().customerID || undefined;
 			}
 			break;
 	};
@@ -435,7 +436,7 @@ exports.getPublinkLauncherParams = function(params) {
 	if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
 		params.params.cssSelectors = params.params.cssSelectors.split(",");
 	}
-	var userIdentity = owpbjs.getUserIdentities() || {};
+	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var detectionMechanism = params.params.detectionMechanism;
 	var lnchObject = {
@@ -465,7 +466,7 @@ exports.getPublinkLauncherParams = function(params) {
 exports.initZeoTapJs = function(params) {
 	function addZeoTapJs() {
 		var n = document, t = window;
-		var userIdentity = owpbjs.getUserIdentities() || {};
+		var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 		var enableSSO = CONFIG.isSSOEnabled() || false;
 		var userIdentityObject = {
 			email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash['SHA256'] : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash['SHA256'] : undefined

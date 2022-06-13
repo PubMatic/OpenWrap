@@ -25,6 +25,7 @@ exports.COMMON = {
 	"AD_SERVER_CURRENCY": "adServerCurrency",
 	"SINGLE_IMPRESSION": "singleImpression",
 	"PREBID_NAMESPACE": "owpbjs",
+	"IH_NAMESPACE": "ihowpbjs",
 	"ENABLE_USER_ID": "identityEnabled",
 	"IDENTITY_PARTNERS": "identityPartners",
 	"IDENTITY_CONSUMERS": "identityConsumers",

@@ -5,7 +5,7 @@ var CONFIG = require("../config.idhub.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.idhub.js");
 var refThis = this;
-var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
+var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 
 refThis.setConfig = function(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
