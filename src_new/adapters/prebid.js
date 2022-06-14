@@ -13,7 +13,7 @@ var CONF = require("../conf.js");
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
-var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
+var pbNameSpace = /*CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : */ CONSTANTS.COMMON.PREBID_NAMESPACE;
 
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
@@ -986,6 +986,7 @@ function setPrebidConfig(){
 		window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 
 		refThis.getFloorsConfiguration(prebidConfig)
+		
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
@@ -1002,6 +1003,7 @@ function setPrebidConfig(){
 		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 		//todo: stop supporting this hook let pubs use pbjs.requestBids hook
 		// do not set any config below this line as we are executing the hook above
+		
 		window[pbNameSpace].setConfig(prebidConfig);
 	} else {
 		util.logWarning("PreBidJS setConfig method is not available");

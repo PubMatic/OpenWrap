@@ -26,8 +26,8 @@ var refThis = this;
 refThis.idsAppendedToAdUnits = false;
 var mediaTypeConfigPerSlot = {};
 exports.mediaTypeConfig = mediaTypeConfigPerSlot;
-var pbNameSpace = parseInt(conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY) ? CONSTANTS.CONFIG.IH_NAMESPACE : CONSTANTS.CONFIG.PREBID_NAMESPACE;
-
+var pbNameSpace = parseInt(conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY) ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
+exports.pbNameSpace = pbNameSpace;
 function isA(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
 }
@@ -1385,9 +1385,8 @@ exports.getUserIdParams = function(params){
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}	
-	
 	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
-    	refThis.initLiveRampAts(userIdParams); 
+    	refThis.initLiveRampAts(userIdParams);
 	}
 	if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
         refThis.initZeoTapJs(userIdParams);
