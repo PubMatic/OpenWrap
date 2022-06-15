@@ -188,4 +188,6 @@ window.PWT.versionDetails =  util.getOWConfig();
 
 window.PWT.getAdapterNameForAlias = CONFIG.getAdapterNameForAlias;
 
+window.PWT.getLoggerTimeoutDuration = CONFIG.getLoggerTimeoutDuration;
+
 controller.init(window);

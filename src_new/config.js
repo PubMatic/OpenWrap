@@ -440,3 +440,7 @@ exports.createMacros = function() {
 		"[PROFILE_VERSION]": refThis.getProfileDisplayVersionID().toString()
 	}
 }
+
+exports.getLoggerTimeoutDuration = function () {
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.LOGGER_TIMEOUT_DURATION]) || parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.DEFAULT_LOGGER_TIMEOUT_DURATION]);
+};
