@@ -131,4 +131,12 @@ if (task == CREATIVE_TASK) {
 			  	shell.exit(1);
 			}
 		}
+		console.log("Executing update-namespace task if identityOnly = 1, => ", config.isIdentityOnly());
+		if(config.isIdentityOnly()) {
+			console.log("Updating owpbjs namespace to use ihowpbjs for identity only profiles");
+			if(shell.exec("time gulp update-namespace").code !== 0) {
+				shell.echo('Error: Changing owpbjs namespace to use ihowpbjs failed');
+				shell.exit(1);
+			}
+		}
 }

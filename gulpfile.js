@@ -32,7 +32,7 @@ console.log("In openwrap gulp.sh profileMode = " + profileMode);
 console.log("argv ==>", argv);
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
-
+//console.log("@@@@@@@@@@@@ prebidRepoPath = ",prebidRepoPath);
 gulp.task('clean', ['update-adserver'], function() {
     var clean = require('gulp-clean');
     return gulp.src(['dist/**/*.js', 'build/'], {
@@ -259,16 +259,6 @@ gulp.task('bundle', ['update-adserver'], function () {
     console.log("Executing build");
     var prebidFileName = (profileMode === "IH" ? '/build/dist/prebid.idhub.js' : '/build/dist/prebid.js')
     var prependscript = "", appendScript = "";
-    var result = gulp.src([prebidRepoPath + prebidFileName])
-          .pipe(replace({
-            patterns: [
-              {
-                match: /owpbjs*/,
-                replacement: 'ihowpbjs11'
-              }
-            ]
-          }))
-          .pipe(gulp.dest(prebidRepoPath));
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
@@ -405,24 +395,6 @@ gulp.task('devbundle',['devpack'], function () {
     console.log("Executing Dev Build");
     // var prebidFileName = (profileMode === "IH" ? '/build/devIH/prebid.idhub.js' : '/build/dev/prebid.js')
     var prebidFileName = '/build/dev/prebid.js';
-    console.log("devbundle - ##################### prebidfilename picked = "+prebidFileName);
-
-    var prebidFileName = '/build/dist/prebid.js';
-    if (isIdentityOnly) {
-        console.log("Executing update-namespace - START => ", prebidRepoPath + prebidFileName);
-          var result = gulp.src([prebidRepoPath + prebidFileName])
-          .pipe(replace({
-            patterns: [
-              {
-                match: /owpbjs/g,
-                replacement: 'myowpbjs'
-              }
-            ]
-          }))
-          .pipe(gulp.dest(prebidRepoPath+"/build/dist/"));
-        console.log("Executing update-namespace - END");
-    }
-
     return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'])
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
@@ -434,20 +406,6 @@ gulp.task('bundle-prod',['webpack'], function () {
     // var prebidFileName = (profileMode === "IH" ? '/build/distIH/prebid.idhub.js' : '/build/dist/prebid.js')
     var prebidFileName = '/build/dist/prebid.js';
     var prependscript = "", appendScript = "";
-    if (isIdentityOnly) {
-        console.log("Executing update-namespace - START => ", prebidRepoPath + prebidFileName);
-          var result = gulp.src([prebidRepoPath + prebidFileName])
-          .pipe(replace({
-            patterns: [
-              {
-                match: /owpbjs/g,
-                replacement: 'myowpbjs'
-              }
-            ]
-          }))
-          .pipe(gulp.dest(prebidRepoPath+"/build/dist/"));
-        console.log("Executing update-namespace - END");
-    }
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
@@ -472,24 +430,19 @@ gulp.task('update-adserver', function(){
     }
 });
 
-/*gulp.task('update-namespace', function(){
+gulp.task('update-namespace', function(){
     console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
-    var prebidFileName = '/build/dist/prebid.js';
-    if (isIdentityOnly) {
-        console.log("Executing update-namespace - START => ", prebidRepoPath + prebidFileName);
-          var result = gulp.src([prebidRepoPath + prebidFileName])
-          .pipe(replace({
+    console.log("Executing update-namespace - START => ");
+        return gulp.src('./build/owt.min.js')
+        .pipe(replace({
             patterns: [
               {
                 match: /owpbjs/g,
                 replacement: 'myowpbjs'
               }
             ]
-          }))
-          .pipe(gulp.dest(prebidRepoPath+"/build/dist/"));
-        console.log("Executing update-namespace - END");
-        return result;
-    }
-});*/
+        }))
+        .pipe(gulp.dest('build'));
+});
 
 gulp.task('build-gpt-prod',[''])
