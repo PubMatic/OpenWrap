@@ -259,13 +259,16 @@ gulp.task('bundle', ['update-adserver'], function () {
     console.log("Executing build");
     var prebidFileName = (profileMode === "IH" ? '/build/dist/prebid.idhub.js' : '/build/dist/prebid.js')
     var prependscript = "", appendScript = "";
-    console.log("profile mode = ", profileMode, " and isIdentityOnly = ", isIdentityOnly);
-    /*if (isIdentityOnly) {
-        prependscript = "src_new/ih_header.js";
-        appendScript = "src_new/ih_footer.js";
-        console.log("#### prepending script for identity only profile ", prependscript);
-    }*/
-    console.log("##################### prebidfilename picked = "+prebidFileName);
+    var result = gulp.src([prebidRepoPath + prebidFileName])
+          .pipe(replace({
+            patterns: [
+              {
+                match: /owpbjs*/,
+                replacement: 'ihowpbjs11'
+              }
+            ]
+          }))
+          .pipe(gulp.dest(prebidRepoPath));
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
@@ -398,29 +401,22 @@ gulp.task('bundle-creative', function () {
 
 
 // Task to build non-minified version of owt.js
-gulp.task('devbundle',['devpack'], function () {
+gulp.task('devbundle',['update-namespace','devpack'], function () {
     console.log("Executing Dev Build");
     // var prebidFileName = (profileMode === "IH" ? '/build/devIH/prebid.idhub.js' : '/build/dev/prebid.js')
     var prebidFileName = '/build/dev/prebid.js';
-    console.log("##################### prebidfilename picked = "+prebidFileName);
+    console.log("devbundle - ##################### prebidfilename picked = "+prebidFileName);
     return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'])
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
 });
 
 
-gulp.task('bundle-prod',['webpack'], function () {
+gulp.task('bundle-prod',['update-namespace','webpack'], function () {
     console.log("Executing bundling");
     // var prebidFileName = (profileMode === "IH" ? '/build/distIH/prebid.idhub.js' : '/build/dist/prebid.js')
     var prebidFileName = '/build/dist/prebid.js';
     var prependscript = "", appendScript = "";
-    console.log("profile mode = ", profileMode, " and isIdentityOnly = ", isIdentityOnly);
-    /*if (isIdentityOnly) {
-        prependscript = "src_new/ih_header.js";
-        appendScript = "src_new/ih_footer.js";
-        console.log("#### prepending script for identity only profile ", prependscript);
-    }*/
-    console.log("##################### prebidfilename picked = "+prebidFileName);
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
@@ -441,6 +437,26 @@ gulp.task('update-adserver', function(){
           }))
           .pipe(gulp.dest('./src_new/'));
         console.log("Executing update-adserver - END");
+        return result;
+    }
+});
+
+gulp.task('update-namespace', function(){
+    console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
+    var prebidFileName = '/build/dist/prebid.js';
+    if (isIdentityOnly) {
+        console.log("Executing update-namespace - START => ", prebidRepoPath + prebidFileName);
+          var result = gulp.src([prebidRepoPath + prebidFileName])
+          .pipe(replace({
+            patterns: [
+              {
+                match: /owpbjs/g,
+                replacement: 'myowpbjs'
+              }
+            ]
+          }))
+          .pipe(gulp.dest(prebidRepoPath+"build/dist/"));
+        console.log("Executing update-namespace - END");
         return result;
     }
 });
