@@ -433,16 +433,17 @@ gulp.task('update-adserver', function(){
 gulp.task('update-namespace', function(){
     console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
     console.log("Executing update-namespace - START => ");
-        return gulp.src('./build/owt.min.js')
-        .pipe(replace({
-            patterns: [
-              {
-                match: /owpbjs/g,
-                replacement: 'myowpbjs'
-              }
-            ]
-        }))
-        .pipe(gulp.dest('build'));
+    var prebidFileName = '/build/dist/prebid.js';
+    return gulp.src(prebidRepoPath + prebidFileName)
+    .pipe(replace({
+        patterns: [
+            {
+            match: /owpbjs/g,
+            replacement: 'ihowpbjs'
+            }
+        ]
+    }))
+    .pipe(gulp.dest(prebidRepoPath+'/build/dist/'));
 });
 
 gulp.task('build-gpt-prod',[''])
