@@ -401,22 +401,53 @@ gulp.task('bundle-creative', function () {
 
 
 // Task to build non-minified version of owt.js
-gulp.task('devbundle',['update-namespace','devpack'], function () {
+gulp.task('devbundle',['devpack'], function () {
     console.log("Executing Dev Build");
     // var prebidFileName = (profileMode === "IH" ? '/build/devIH/prebid.idhub.js' : '/build/dev/prebid.js')
     var prebidFileName = '/build/dev/prebid.js';
     console.log("devbundle - ##################### prebidfilename picked = "+prebidFileName);
+
+    var prebidFileName = '/build/dist/prebid.js';
+    if (isIdentityOnly) {
+        console.log("Executing update-namespace - START => ", prebidRepoPath + prebidFileName);
+          var result = gulp.src([prebidRepoPath + prebidFileName])
+          .pipe(replace({
+            patterns: [
+              {
+                match: /owpbjs/g,
+                replacement: 'myowpbjs'
+              }
+            ]
+          }))
+          .pipe(gulp.dest(prebidRepoPath+"/build/dist/"));
+        console.log("Executing update-namespace - END");
+    }
+
     return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'])
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
 });
 
 
-gulp.task('bundle-prod',['update-namespace','webpack'], function () {
+gulp.task('bundle-prod',['webpack'], function () {
     console.log("Executing bundling");
     // var prebidFileName = (profileMode === "IH" ? '/build/distIH/prebid.idhub.js' : '/build/dist/prebid.js')
     var prebidFileName = '/build/dist/prebid.js';
     var prependscript = "", appendScript = "";
+    if (isIdentityOnly) {
+        console.log("Executing update-namespace - START => ", prebidRepoPath + prebidFileName);
+          var result = gulp.src([prebidRepoPath + prebidFileName])
+          .pipe(replace({
+            patterns: [
+              {
+                match: /owpbjs/g,
+                replacement: 'myowpbjs'
+              }
+            ]
+          }))
+          .pipe(gulp.dest(prebidRepoPath+"/build/dist/"));
+        console.log("Executing update-namespace - END");
+    }
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
@@ -441,7 +472,7 @@ gulp.task('update-adserver', function(){
     }
 });
 
-gulp.task('update-namespace', function(){
+/*gulp.task('update-namespace', function(){
     console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
     var prebidFileName = '/build/dist/prebid.js';
     if (isIdentityOnly) {
@@ -455,10 +486,10 @@ gulp.task('update-namespace', function(){
               }
             ]
           }))
-          .pipe(gulp.dest(prebidRepoPath+"build/dist/"));
+          .pipe(gulp.dest(prebidRepoPath+"/build/dist/"));
         console.log("Executing update-namespace - END");
         return result;
     }
-});
+});*/
 
 gulp.task('build-gpt-prod',[''])
