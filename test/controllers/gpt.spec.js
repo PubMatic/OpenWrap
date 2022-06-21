@@ -1225,6 +1225,7 @@ describe("CONTROLLER: GPT", function() {
             sinon.stub(winningBidStub, "getAdapterID");
             sinon.stub(winningBidStub, "getNative");
             sinon.stub(winningBidStub, "getAdFormat");
+            sinon.stub(CONFIG, "getLoggerTimeoutDuration").returns(10);
             keyValuePairsStub = {
                 "key1": {
                     "k1": "v1",
@@ -1286,6 +1287,7 @@ describe("CONTROLLER: GPT", function() {
                 winningBidStub.getNative.restore();
                 winningBidStub.getAdFormat.restore();
             }
+            CONFIG.getLoggerTimeoutDuration.restore();
             divID = null;
             keyValuePairsStub = null;
             window.setTimeout.restore();

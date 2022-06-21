@@ -473,6 +473,7 @@ describe("CONTROLLER: CUSTOM", function() {
 		it("it should call addpter-manager", function(done){
 			sinon.stub(PREBID, 'fetchBids', function(){});
 			sinon.stub(CONFIG, "getTimeout");
+			sinon.stub(CONFIG, "getLoggerTimeoutDuration").returns(2000);
 			CONFIG.getTimeout.returns(10);
 			var flag = false;
 			CUSTOM.customServerExposedAPI([{
@@ -493,14 +494,16 @@ describe("CONTROLLER: CUSTOM", function() {
 				PREBID.fetchBids.restore();
 				CONFIG.getTimeout.restore();
 				flag.should.equal(true);
+				CONFIG.getLoggerTimeoutDuration.restore();
 				done();
 			}, 200);
 		});
 
-		it("should call the callback postimeout if allBid status is false ecverytime",function(done){
+		it("should call the callback postimeout if allBid status is false everytime",function(done){
 			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
 			sinon.stub(PREBID, 'fetchBids', function(){});
 			sinon.stub(CONFIG, "getTimeout");
+			sinon.stub(CONFIG, "getLoggerTimeoutDuration").returns(2000);
 			CONFIG.getTimeout.returns(10);
 			BM.getAllPartnersBidStatuses.restore();
 			var flag = false;
@@ -521,6 +524,7 @@ describe("CONTROLLER: CUSTOM", function() {
 				flag.should.equal(true);
 				PREBID.fetchBids.restore();
 				CONFIG.getTimeout.restore();
+				CONFIG.getLoggerTimeoutDuration.restore();
 				done();
 			}, 200);
 		});
