@@ -425,6 +425,16 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 				var _floorData = window.PWT.floorData[outputObj[CONSTANTS.COMMON.IMPRESSION_ID]];
 				outputObj["fmv"] = _floorData.floorRequestData ? _floorData.floorRequestData.modelVersion || undefined : undefined,
 				outputObj["ft"] = _floorData.floorResponseData  ? (_floorData.floorResponseData.enforcements.enforceJS == false ? 0 : 1) : undefined;
+				outputObj['fs'] = _floorData.floorResponseData && _floorData.floorResponseData.fetchStatus,
+				outputObj['fmin'] = _floorData.floorResponseData && _floorData.floorResponseData.floorMin,
+				outputObj['fp'] = _floorData.floorResponseData && _floorData.floorResponseData.floorProvider,
+				outputObj['fsr'] = _floorData.floorResponseData && _floorData.floorResponseData.skipRate
+				if(_floorData.floorResponseData && _floorData.floorResponseData.usersGeoInfo) {
+					outputObj.country =  _floorData.floorResponseData.usersGeoInfo.country;
+					outputObj.continent =  _floorData.floorResponseData.usersGeoInfo.continent;
+					outputObj.latitude =  _floorData.floorResponseData.usersGeoInfo.latitude;
+					outputObj.longitude =  _floorData.floorResponseData.usersGeoInfo.longitude;
+				}
 			}
 			outputObj.psl = slots.psl;
 			outputObj.dvc = { "plt": util.getDevicePlatform()}
@@ -527,6 +537,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 	var adUnitInfo = refThis.getAdUnitInfo(slotID);
 	var latencyValue = {};
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
+	var floorData = {};
 	/* istanbul ignore else */
 	if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
 		var slotObject = {
@@ -612,7 +623,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					return;
 				}
 				var pbbid = theBid.getPbBid();
-
+				floorData = pbbid && pbbid.floorData;
 				//todo: take all these key names from constants
                 slotObject["ps"].push({
                     "pn": CONFIG.getAdapterNameForAlias(adapterID),
@@ -639,10 +650,17 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
 					"piid": theBid.getsspID(),
 					"frv": theBid.getServerSideStatus() ? undefined : (pbbid ? ( pbbid.floorData ? pbbid.floorData.floorRuleValue : undefined ) : undefined),
+					'fen': pbbid && pbbid.floorData && pbbid.floorData.enforcements.enforceJS,
+					'fcur': pbbid && pbbid.floorData && pbbid.floorData.floorCurrency,
+					'fv': pbbid && pbbid.floorData && pbbid.floorData.floorValue
 				});
             })
         });
 
+		if(floorData) {
+			slotObject["location"] = floorData.location;
+			slotObject["mw"] = floorData.modelWeight;
+		}
         impressionIDMap[impressionID].push(slotObject);
 		// special handling when all media types are disabled for adunit and
 		// if we are using PrebidServerBidAdapter with 
