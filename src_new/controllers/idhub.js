@@ -14,7 +14,8 @@ refThis.setConfig = function(){
 			var prebidConfig = {
 				debug: util.isDebugLogEnabled(),
 				userSync: {
-					syncDelay: 2000
+					syncDelay: 2000,
+					auctionDelay: 1,
 				}
 			};
 
