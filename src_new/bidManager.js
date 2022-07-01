@@ -434,6 +434,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 					outputObj.continent =  _floorData.floorResponseData.usersGeoInfo.continent;
 					outputObj.latitude =  _floorData.floorResponseData.usersGeoInfo.latitude;
 					outputObj.longitude =  _floorData.floorResponseData.usersGeoInfo.longitude;
+					outputObj.floorJson = _floorData.floorResponseData.usersGeoInfo.jsonName;
 				}
 			}
 			outputObj.psl = slots.psl;
