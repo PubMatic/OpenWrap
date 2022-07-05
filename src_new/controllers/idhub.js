@@ -1,6 +1,7 @@
 // removeIf(removeIdHubOnlyRelatedCode)
 // tdod: we can still reduce the build size for idhub by,
 // 			- create a separate constants.js with limited required functions
+
 var CONFIG = require("../config.idhub.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.idhub.js");
@@ -37,7 +38,7 @@ refThis.setConfig = function(){
 					timeout: CONFIG.getCCPATimeout(),
 				};
 			}
-			window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
+			window.IHPWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 			if(CONFIG.isUserIdModuleEnabled()){
 				prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 			}
