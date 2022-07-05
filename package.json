@@ -34,7 +34,6 @@
     "gulp-uglify": "^0.3.1",
     "prebid-universal-creative": "1.1.1",
     "shelljs": "^0.7.7",
-    "stathat": "0.0.8",
     "string-replace-webpack-plugin": "0.0.3",
     "webpack": "^1.15.0",
     "webpack-stream": "^3.1.0",

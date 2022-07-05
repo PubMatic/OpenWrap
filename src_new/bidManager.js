@@ -3,7 +3,6 @@ var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
 // var GDPR = require("./gdpr.js");
 var bmEntry = require("./bmEntry.js");
-var stathat = require('stathat');
 
 var refThis = this;
 
