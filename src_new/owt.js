@@ -19,7 +19,6 @@ window.PWT.pageURL = window.PWT.pageURL || metaInfo.pageURL;
 window.PWT.refURL = window.PWT.refURL || metaInfo.refURL;
 window.PWT.isSafeFrame = window.PWT.isSafeFrame || false;
 window.PWT.safeFrameMessageListenerAdded = window.PWT.safeFrameMessageListenerAdded || false;
-//window.PWT.isAdditionalLoggerFired = window.PWT.isAdditionalLoggerFired || false;
 // usingDifferentProfileVersion
 window.PWT.udpv = window.PWT.udpv || util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtv");
 
