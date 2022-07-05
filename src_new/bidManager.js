@@ -3,6 +3,7 @@ var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
 // var GDPR = require("./gdpr.js");
 var bmEntry = require("./bmEntry.js");
+var stathat = require('stathat');
 
 var refThis = this;
 
@@ -416,6 +417,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {
 		refThis.analyticalPixelCallback(slotID, bmEntry, impressionIDMap);
 	});
+	util.fireAdditionalLogger(CONFIG.getPublisherId(), CONFIG.getProfileID());
 	util.forEachOnObject(impressionIDMap, function(impressionID, slots){ /* istanbul ignore next */
 		/* istanbul ignore else */
 		if(slots.length > 0){

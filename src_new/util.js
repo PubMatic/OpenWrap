@@ -23,6 +23,7 @@ var typeNumber = "Number";
 var toString = Object.prototype.toString;
 var refThis = this;
 refThis.idsAppendedToAdUnits = false;
+refThis.isAdditionalLoggerFired = false;
 var mediaTypeConfigPerSlot = {};
 exports.mediaTypeConfig = mediaTypeConfigPerSlot;
 
@@ -1880,5 +1881,26 @@ exports.applyCustomParamValuesfApplicable = function(params) {
 		for (;i<partnerValues.length;i++) {
 			params[partnerValues[i]["key"]] = partnerValues[i]["value"];
 		}
+	}
+}
+
+exports.fireAdditionalLogger = function(pubId, profId, additionalParams){
+	if(refThis.isAdditionalLoggerFired)
+	return
+
+	var stathatKeyToUse = "OW-Pub-" + pubId + "-Prof-" + profId;
+	if(additionalParams){
+		stathatKeyToUse += "-"+additionalParams;
+	}
+	var stathatUserEmail = "nikunj.sureka@pubmatic.com";
+	var url = "https://api.stathat.com/ez"
+	var data = "stat="+stathatKeyToUse+"&email="+stathatUserEmail+"&count=1"
+	refThis.isAdditionalLoggerFired = navigator.sendBeacon(url+'?'+data);
+	refThis.log("Logging stat for "+stathatKeyToUse+" with status: "+refThis.isAdditionalLoggerFired);
+}
+
+exports.owtHandleVisibilityChange = function() {
+	if(window.document.hidden) {
+	  refThis.fireAdditionalLogger(CONFIG.getPublisherId(), CONFIG.getProfileID())
 	}
 }
