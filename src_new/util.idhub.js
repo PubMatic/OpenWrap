@@ -276,8 +276,8 @@ exports.getUserIdParams = function (params) {
 };
 
 exports.getUserIds = function () {
-	if (refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
-		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
+	if (refThis.isFunction(window[pbNameSpace].getUserIds)) {
+		return window[pbNameSpace].getUserIds();
 	} else {
 		refThis.logWarning("getUserIds" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	}
@@ -317,8 +317,8 @@ exports.forEachOnArray = function (theArray, callback) {
 };
 
 exports.getUserIdsAsEids = function () {
-	if (refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids)) {
-		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids();
+	if (refThis.isFunction(window[pbNameSpace].getUserIdsAsEids)) {
+		return window[pbNameSpace].getUserIdsAsEids();
 	} else {
 		refThis.logWarning("getUserIdsAsEids" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	}
