@@ -104,7 +104,9 @@ exports.CONFIG = {
 	"TIMEOUT_ADJUSTMENT": 50,
 	"SSO_ENABLED": "ssoEnabled",
 	"LOGGER_TIMEOUT_DURATION": "loggerTimeout",
-	"DEFAULT_LOGGER_TIMEOUT_DURATION": 100
+	"DEFAULT_LOGGER_TIMEOUT_DURATION": 100,
+	"STAT_HAT_EMAIL": "nikunj.sureka@pubmatic.com",
+	"STAT_HAT_URL":"https://api.stathat.com/ez",
 };
 
 exports.METADATA_MACROS = {

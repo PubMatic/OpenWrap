@@ -190,5 +190,4 @@ window.PWT.getAdapterNameForAlias = CONFIG.getAdapterNameForAlias;
 
 window.PWT.getLoggerTimeoutDuration = CONFIG.getLoggerTimeoutDuration;
 
-document.addEventListener("visibilitychange", util.owtHandleVisibilityChange, false);
 controller.init(window);

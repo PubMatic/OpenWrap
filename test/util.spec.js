@@ -3955,39 +3955,14 @@ describe('UTIL', function() {
         });
     });  
 
-    describe('#owtHandleVisibilityChange', function() {
-        beforeEach(function(done) {
-            sinon.spy(UTIL, "fireAdditionalLogger");
-            done();
-        });
-
-        afterEach(function(done) {
-            UTIL.fireAdditionalLogger.restore();
-            done();
-        });
-
-        it('is a function', function(done) {
-            UTIL.owtHandleVisibilityChange.should.be.a('function');
-            done();
-        });
-
-        it('should call handler when hidden is true',function(done){
-            UTIL.owtHandleVisibilityChange();
-            UTIL.fireAdditionalLogger.calledOnce.should.be.true;
-            done();
-        });
-    });
-
     describe('#fireAdditionalLogger', function() {
         beforeEach(function(done) {
-            sinon.spy(UTIL, "log");
-            sinon.spy(navigator, "sendBeacon");
+            sinon.spy(UTIL, "fireStatHatLogger");
             done();
         });
 
         afterEach(function(done) {
-            UTIL.log.restore();
-            navigator.sendBeacon.restore();
+            UTIL.fireStatHatLogger.restore();
             done();
         });
 
@@ -3996,36 +3971,55 @@ describe('UTIL', function() {
             done();
         });
 
-        it('should return from function when logger is already fired',function(done){
-            UTIL.isAdditionalLoggerFired = true;
+        it('should should execute function when logger is not fired already',function(done){
             UTIL.fireAdditionalLogger();
-            UTIL.log.calledOnce.should.be.false;
+            UTIL.fireStatHatLogger.calledOnce.should.be.true;
+            done();
+        });
+
+        it('should fire the URL with only 2 parameters from argument list',function(done){
+            UTIL.fireAdditionalLogger('12','13','14');
+            UTIL.fireStatHatLogger.calledOnce.should.be.true;
+            done();
+        });
+    });
+
+    describe('#fireStatHatLogger', function() {
+        beforeEach(function(done) {
+            sinon.spy(UTIL, "log");
+            sinon.spy(document.body, "appendChild");
+            done();
+        });
+
+        afterEach(function(done) {
+            UTIL.log.restore();
+            document.body.appendChild.restore();
+            done();
+        });
+
+        it('is a function', function(done) {
+            UTIL.fireStatHatLogger.should.be.a('function');
             done();
         });
 
         it('should should execute function when logger is not fired already',function(done){
-            UTIL.isAdditionalLoggerFired = false;
-            UTIL.fireAdditionalLogger();
+            UTIL.fireStatHatLogger();
             UTIL.log.calledOnce.should.be.true;
             done();
         });
-        
+
         it('should fire the URL with only 2 parameters from argument list',function(done){
-            UTIL.isAdditionalLoggerFired = false;
-            UTIL.fireAdditionalLogger('12','13');
-            var expectedUrl = "https://api.stathat.com/ez?stat=OW-Pub-12-Prof-13&email=nikunj.sureka@pubmatic.com&count=1";
+            UTIL.fireStatHatLogger('12','13');
             UTIL.log.calledOnce.should.be.true;
-            navigator.sendBeacon.calledWith(expectedUrl).should.be.true;
+            document.body.appendChild.calledOnce.should.be.true;
             done();
         });
 
         it('should fire the URL with all 3 parameters from argument list',function(done){
-            UTIL.isAdditionalLoggerFired = false;
-            UTIL.fireAdditionalLogger('12','13','14');
-            var expectedUrl = "https://api.stathat.com/ez?stat=OW-Pub-12-Prof-13-14&email=nikunj.sureka@pubmatic.com&count=1";
+            UTIL.fireStatHatLogger('12','13','14');
             UTIL.log.calledOnce.should.be.true;
-            navigator.sendBeacon.calledWith(expectedUrl).should.be.true;
+            document.body.appendChild.calledOnce.should.be.true;
             done();
         });
-    });  
+    });
 });

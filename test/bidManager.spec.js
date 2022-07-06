@@ -1134,6 +1134,7 @@ describe('bidManager BIDMgr', function() {
             sinon.stub(UTIL, "getCurrentTimestamp").returns(timeNow);
             sinon.spy(GDPR, "getUserConsentDataFromLS");
             sinon.spy(UTIL, "forEachOnObject");
+            sinon.spy(UTIL, "fireAdditionalLogger");
 
             slotID_1 = "Slot_1";
             bmEntryStub_1 = new bmEntryContstuctor(slotID_1);
@@ -1166,6 +1167,7 @@ describe('bidManager BIDMgr', function() {
 
             UTIL.getCurrentTimestamp.restore();
             UTIL.forEachOnObject.restore();
+            UTIL.fireAdditionalLogger.restore();
             GDPR.getUserConsentDataFromLS.restore();
             window.PWT = null;
 
