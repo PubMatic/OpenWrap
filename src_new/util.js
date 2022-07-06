@@ -23,7 +23,6 @@ var typeNumber = "Number";
 var toString = Object.prototype.toString;
 var refThis = this;
 refThis.idsAppendedToAdUnits = false;
-
 var mediaTypeConfigPerSlot = {};
 exports.mediaTypeConfig = mediaTypeConfigPerSlot;
 
