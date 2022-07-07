@@ -416,7 +416,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {
 		refThis.analyticalPixelCallback(slotID, bmEntry, impressionIDMap);
 	});
-	util.fireAdditionalLogger(CONFIG.getPublisherId(), CONFIG.getProfileID());
+	util.fireAdditionalLogger(CONFIG.getPublisherId(), CONFIG.getProfileID(),CONFIG.getProfileDisplayVersionID());
 	util.forEachOnObject(impressionIDMap, function(impressionID, slots){ /* istanbul ignore next */
 		/* istanbul ignore else */
 		if(slots.length > 0){
