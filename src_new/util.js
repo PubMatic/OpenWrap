@@ -1894,7 +1894,7 @@ exports.fireStatHatLogger = function(pubId, profId, additionalParams){
 	}
 	var stathatUserEmail = CONSTANTS.CONFIG.STAT_HAT_EMAIL;
 	var url = CONSTANTS.CONFIG.STAT_HAT_URL
-	var data = "time="+(new Date()).getTime()+"stat="+stathatKeyToUse+"&email="+stathatUserEmail+"&count=1"
+	var data = "time="+(new Date()).getTime()+"&stat="+stathatKeyToUse+"&email="+stathatUserEmail+"&count=1"
 	refThis.log("Logging stat for : "+stathatKeyToUse);
 	var statHatElement = document.createElement('script');
 	statHatElement.src = url+'?'+data;
