@@ -418,7 +418,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	});
 
 	util.forEachOnObject(impressionIDMap, function(impressionID, slots){ /* istanbul ignore next */
-		util.fireAdditionalLogger(CONFIG.getPublisherId(), CONFIG.getProfileID(),CONFIG.getProfileDisplayVersionID());
+		util.fireAdditionalLogger(CONFIG.getPublisherId(), CONFIG.getProfileID(),'ver-'+CONFIG.getProfileDisplayVersionID());
 		/* istanbul ignore else */
 		if(slots.length > 0){
 			outputObj.s = slots;
