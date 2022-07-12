@@ -3023,6 +3023,8 @@ describe('UTIL', function() {
             params = {"name":"pubCommonId","storage.type":"cookie","storage.name":"_pubCommonId","storage.expires":"1825"}
             sinon.spy(UTIL, "initZeoTapJs");
             sinon.spy(UTIL, "initLiveRampAts");
+            //var namespace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
+            UTIL.pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
             function onSSOLogin() {};
             function getUserIdentities() {
                 return {
@@ -3033,7 +3035,7 @@ describe('UTIL', function() {
                     }
                 }
             }
-            window.owpbjs = {
+            window[UTIL.pbNameSpace] = {
                 'onSSOLogin': onSSOLogin,
                 'getUserIdentities': getUserIdentities
             }
@@ -3078,7 +3080,7 @@ describe('UTIL', function() {
             };
             var result = UTIL.getUserIdParams(lrParams);
             UTIL.initLiveRampAts.should.be.calledOnce;
-            window.owpbjs = undefined;
+            window[UTIL.pbNameSpace] = undefined;
             done();
         });
 
@@ -3099,7 +3101,7 @@ describe('UTIL', function() {
             };
             var result = UTIL.getUserIdParams(lrParams);
             UTIL.initLiveRampAts.should.not.be.called;
-            window.owpbjs = undefined;
+            window[UTIL.pbNameSpace] = undefined;
             done();
         });
 
@@ -3307,7 +3309,7 @@ describe('UTIL', function() {
             };
             var result = UTIL.getUserIdParams(zeotapParams);
             UTIL.initZeoTapJs.should.be.calledOnce;
-            window.owpbjs = undefined;
+            window[UTIL.pbNameSpace] = undefined;
             done();
         });
 
@@ -3322,7 +3324,7 @@ describe('UTIL', function() {
             };
             var result = UTIL.getUserIdParams(zeotapParams);
             UTIL.initZeoTapJs.should.not.be.called;
-            window.owpbjs = undefined;
+            window[UTIL.pbNameSpace] = undefined;
             done();
         });
     });
@@ -3335,7 +3337,7 @@ describe('UTIL', function() {
             key = "params.init.member";
             value="nQjyizbdyF";
             function onSSOLogin() {};
-            window.owpbjs = {
+            window[UTIL.pbNameSpace] = {
                 'onSSOLogin': onSSOLogin
             }
             done();
@@ -3442,7 +3444,7 @@ describe('UTIL', function() {
                     email: "zeotaptestrab@gmail.com"
                 }
             }
-            window.owpbjs = {
+            window[UTIL.pbNameSpace] = {
                 'onSSOLogin': onSSOLogin,
                 'getUserIdentities': getUserIdentities
             }
