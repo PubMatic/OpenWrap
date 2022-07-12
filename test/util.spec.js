@@ -3229,7 +3229,8 @@ describe('UTIL', function() {
                     accountID: "123_acc",
                     customerIDRegex: "[0-9a-zA-Z_]*",
                     detectionMechanism: "detect",
-                    detectDynamicNodes: "false"
+                    detectDynamicNodes: "false",
+                    detectionEventType: "onblur"
                 },
                 storage: {
                     type: "cookie",
@@ -3245,7 +3246,51 @@ describe('UTIL', function() {
                 detectionType: 'scrapeAndUrl',
                 urlParameter: 'eparam',
                 cssSelectors: ['input[type=text]', ' input[type=email]'],
-                detectDynamicNodes: "false"
+                detectDynamicNodes: "false",
+                detectionEventType: "onblur"
+            };
+            var result = UTIL.getLiverampParams(lrParams);
+            result.should.deep.equal(expectedResult);
+
+            done();
+        });
+
+        it('should pass detectionEventType with onclick/onsubmit value and no triggerElements should be passed along with other params data to ats script if detectionMechanism is detect', function(done){
+            var lrParams = {
+                name: "identityLink",
+                params: {
+                    pid: "23",
+                    loadATS: "true",
+                    storageType: "localstorage",
+                    detectionType: "scrapeAndUrl",
+                    urlParameter: "eparam",
+                    cssSelectors: "input[type=text], input[type=email]",
+                    logging: "info",
+                    enableCustomId: "false",
+                    accountID: "123_acc",
+                    customerIDRegex: "[0-9a-zA-Z_]*",
+                    detectionMechanism: "detect",
+                    detectDynamicNodes: "false",
+                    detectionEventType: "onclick",
+                    triggerElements: "input[type=text]"
+                },
+                storage: {
+                    type: "cookie",
+                    name: "somenamevalue",
+                    expires: "60"
+                }
+            };
+
+            var expectedResult = {
+                placementID: '23',
+                storageType: 'localstorage',
+                logging: 'info',
+                detectionType: 'scrapeAndUrl',
+                urlParameter: 'eparam',
+                cssSelectors: ['input[type=text]', ' input[type=email]'],
+                detectDynamicNodes: "false",
+                detectionEventType: "onclick",
+                triggerElements: ['input[type=text]']
             };
             var result = UTIL.getLiverampParams(lrParams);
             result.should.deep.equal(expectedResult);

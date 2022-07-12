@@ -1670,6 +1670,11 @@ exports.getLiverampParams = function(params) {
 			atsObject.urlParameter = params.params.urlParameter;
 			atsObject.cssSelectors = params.params.cssSelectors;
 			atsObject.detectDynamicNodes = params.params.detectDynamicNodes;
+			atsObject.detectionEventType = params.params.detectionEventType;
+			if (params.params.triggerElements && params.params.triggerElements.length > 0) {
+				params.params.triggerElements = params.params.triggerElements.split(",");
+				atsObject.triggerElements = params.params.triggerElements;
+			}
 			break;
 		case 'direct':
 			var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
