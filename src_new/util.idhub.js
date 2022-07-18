@@ -272,6 +272,9 @@ exports.getUserIdParams = function (params) {
 	if (userIdParams && userIdParams.params && userIdParams.params["loadLauncher"] == "true") {
 		refThis.initLauncherJs(userIdParams); 
 	}
+	if (userIdParams && userIdParams.params && userIdParams.params["loadLaunchPad"] == "true") {
+		refThis.initLiveRampLaunchPad(userIdParams); 
+	}
 	return userIdParams;
 };
 
@@ -409,6 +412,50 @@ exports.initLiveRampAts = function (params) {
 	} else {
 		window.addEventListener("load", function () {
 			setTimeout(addATS, 1000);
+		});
+	}
+};
+
+exports.getCustomerId = function(enableCustomId){
+	if (enableCustomId && refThis.isFunction(window[pbNameSpace].getUserIdentities) && window[pbNameSpace].getUserIdentities() !== undefined) {
+		return window[pbNameSpace].getUserIdentities().customerID || undefined;
+	}
+	return undefined;
+}
+
+exports.getEmailHashes = function(){
+	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
+	var enableSSO = CONFIG.isSSOEnabled() || false;
+	var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
+	return emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+}
+
+exports.initLiveRampLaunchPad = function (params) {
+	var lpURL = "https://launchpad-wrapper.privacymanager.io/"+params.params.configurationId+"/launchpad-liveramp.js?logging=true&country=US&region=CA";
+	function addLaunchPad() {
+		var launchPadScript = document.createElement("script");
+		launchPadScript.onload = function () {
+			__launchpad('addEventListener', 1, function(){
+				console.log('Openwrap: ATS configuration - ', ats.outputCurrentConfiguration());
+				var isDirectMode = !(ats.outputCurrentConfiguration()['DETECTION_MODULE_INFO']) ||
+									ats.outputCurrentConfiguration()['ENVELOPE_MODULE_INFO']['ENVELOPE_MODULE_CONFIG']['startWithExternalId'];
+				if(isDirectMode){ // If direct or detect/direct mode
+					console.log('Openwrap: ATS configuration Direct Operation Mode Detected');
+					var emailHashes = refThis.getEmailHashes();
+					emailHashes && window.ats.setAdditionalData({'type': 'emailHashes','id': emailHashes});
+					var customerID =  refThis.getCustomerId(ats.outputCurrentConfiguration()['ENVELOPE_MODULE_INFO']['ENVELOPE_MODULE_CONFIG']['customerIDRegex']);
+					customerID && window.ats.setAdditionalData({'type': 'customerID','id': customerID});
+				}
+			}, ['atsWrapperLoaded']);
+		};
+		launchPadScript.src = lpURL;
+		document.body.appendChild(launchPadScript);
+	}
+	if (document.readyState == 'complete') {
+		addLaunchPad();
+	} else {
+		window.addEventListener("load", function () {
+			setTimeout(addLaunchPad, 1000);
 		});
 	}
 };
