@@ -53,7 +53,7 @@ exports.adapters = {
 				placementId: "8801674"
 			},
 			"Div-2": {
-				placementId: "8801685"
+				placementId: "8801685" 
 			}
 		}
 	},
