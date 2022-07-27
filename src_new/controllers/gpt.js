@@ -838,7 +838,6 @@ exports.defineGPTVariables = defineGPTVariables;
 /* end-test-block */
 
 function addHooksIfPossible(win) { // TDD, i/o : done
-    util.log("NS-TEST: calling addHooksIfPossible");
     if(CONFIG.isIdentityOnly()){
         return false;
     }
