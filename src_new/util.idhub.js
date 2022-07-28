@@ -416,12 +416,6 @@ exports.initLiveRampAts = function (params) {
 	}
 };
 
-exports.getCustomerId = function(enableCustomId){
-	if (enableCustomId && refThis.isFunction(window[pbNameSpace].getUserIdentities) && window[pbNameSpace].getUserIdentities() !== undefined) {
-		return window[pbNameSpace].getUserIdentities().customerID || undefined;
-	}
-	return undefined;
-}
 
 exports.getEmailHashes = function(){
 	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
@@ -436,15 +430,11 @@ exports.initLiveRampLaunchPad = function (params) {
 		var launchPadScript = document.createElement("script");
 		launchPadScript.onload = function () {
 			__launchpad('addEventListener', 1, function(){
-				console.log('Openwrap: ATS configuration - ', ats.outputCurrentConfiguration());
 				var isDirectMode = !(ats.outputCurrentConfiguration()['DETECTION_MODULE_INFO']) ||
 									ats.outputCurrentConfiguration()['ENVELOPE_MODULE_INFO']['ENVELOPE_MODULE_CONFIG']['startWithExternalId'];
 				if(isDirectMode){ // If direct or detect/direct mode
-					console.log('Openwrap: ATS configuration Direct Operation Mode Detected');
 					var emailHashes = refThis.getEmailHashes();
 					emailHashes && window.ats.setAdditionalData({'type': 'emailHashes','id': emailHashes});
-					var customerID =  refThis.getCustomerId(ats.outputCurrentConfiguration()['ENVELOPE_MODULE_INFO']['ENVELOPE_MODULE_CONFIG']['customerIDRegex']);
-					customerID && window.ats.setAdditionalData({'type': 'customerID','id': customerID});
 				}
 			}, ['atsWrapperLoaded']);
 		};
