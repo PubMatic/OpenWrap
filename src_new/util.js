@@ -1865,6 +1865,13 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 								}
 							}
 							break;
+						case 'boolean':
+							if(paramValue) {
+								if (typeof paramValue === 'string') {
+									params[key] = (paramValue == "true")
+								}
+							}
+							break;
 						default:
 							return;
 					}

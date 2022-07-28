@@ -561,7 +561,7 @@ exports.updateUserIds = function (bid) {
 exports.applyDataTypeChangesIfApplicable = function(params) {
 	var value;
 	if(params.name in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
-		for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
+		for(var partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
 			if (partnerName === params.name) {
 				for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
 					var paramValue = params[key];
@@ -588,6 +588,14 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 									params[key] = [paramValue];
 								}
 							}
+							break;
+						case 'boolean':
+							if(paramValue) {
+								if (typeof paramValue === 'string') {
+									params[key] = (paramValue == "true")
+								}
+							}
+							break;
 						default:
 							return;
 					}

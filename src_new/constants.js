@@ -263,6 +263,12 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 	},
 	"imuid": {
 		"params.cid": "number"
+	},
+	"novatiq": {
+		"params.useCallbacks": "boolean",
+		"params.urlParams.useStandardUuid": "boolean",
+		"params.urlParams.useSspId": "boolean",
+		"params.urlParams.useSspHost": "boolean"
 	}
 }; //list of ID partners for whom special handling of datatype is required
 
