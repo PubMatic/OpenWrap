@@ -409,6 +409,8 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 		if(adUnitConfig.renderer){
 			adUnits[code]["renderer"]= adUnitConfig.renderer;
 		}
+		window.PWT.adUnits = window.PWT.adUnits || {};
+		window.PWT.adUnits[code] = adUnits[code];
 	} else if(CONFIG.isSingleImpressionSettingEnabled()){
 		// following function call basically checks whether the adapter is already configured for the given code in adunits object
 		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
