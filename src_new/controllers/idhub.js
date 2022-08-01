@@ -38,7 +38,7 @@ refThis.setConfig = function(){
 				};
 			}
 			window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
-			if(CONFIG.isUserIdModuleEnabled()){
+			if(CONFIG.isUserIdModuleEnabled()) {
 				prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
 			}
 			// Adding a hook for publishers to modify the Prebid Config we have generated
