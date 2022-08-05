@@ -1365,6 +1365,11 @@ exports.getNestedObjectFromString = function(sourceObject,separator, key, value)
 	return sourceObject;
 };
 
+exports.deleteCustomParams = function(params){
+	delete params.custom;
+	return params;
+}
+
 exports.getUserIdParams = function(params){
 	var userIdParams= {};
 	refThis.applyDataTypeChangesIfApplicable(params);
@@ -1394,10 +1399,10 @@ exports.getUserIdParams = function(params){
 	if (userIdParams && userIdParams.params && userIdParams.params["loadLauncher"] == "true") {
 		refThis.initLauncherJs(userIdParams); 
 	}
-	if (userIdParams && userIdParams.params && userIdParams.params["loadLaunchPad"] == "true") {
+	if (userIdParams && userIdParams.custom && userIdParams.custom["loadLaunchPad"] == "true") {
 		refThis.initLiveRampLaunchPad(userIdParams); 
 	}
-	return userIdParams;
+	return refThis.deleteCustomParams(Object.assign({}, userIdParams));
 };
 
 exports.getPartnerParams = function(params){
@@ -1702,7 +1707,7 @@ exports.getEmailHashes = function(){
 }
 
 exports.initLiveRampLaunchPad = function (params) {
-	var lpURL = "https://launchpad-wrapper.privacymanager.io/"+params.params.configurationId+"/launchpad-liveramp.js?logging=true&country=US&region=CA";
+	var lpURL = "https://launchpad-wrapper.privacymanager.io/"+params.custom.configurationId+"/launchpad-liveramp.js?logging=true&country=US&region=CA";
 	function addLaunchPad() {
 		var launchPadScript = document.createElement("script");
 		launchPadScript.onload = function () {
