@@ -267,12 +267,15 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 }; //list of ID partners for whom special handling of datatype is required
 
 exports.ID_PARTNERS_CUSTOM_VALUES = {
-	"id5Id": [
-		{
+	"id5Id": [{
 			"key": "params.provider",
 			"value": "pubmatic-identity-hub"
 		}
-	]
+	],
+	"identityLink": [{
+		"key": "storage.refreshInSeconds",
+		"value": "1800"
+	}]
 };
 
 exports.EXCLUDE_PARTNER_LIST = ['pubProvidedId'];

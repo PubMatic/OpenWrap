@@ -1879,7 +1879,9 @@ exports.applyCustomParamValuesfApplicable = function(params) {
 		var partnerValues = CONSTANTS.ID_PARTNERS_CUSTOM_VALUES[params.name];
 		var i = 0;
 		for (;i<partnerValues.length;i++) {
-			params[partnerValues[i]["key"]] = partnerValues[i]["value"];
+			if(!params[partnerValues[i]["key"]]){
+				params[partnerValues[i]["key"]] = partnerValues[i]["value"];	
+			}
 		}
 	}
 }
