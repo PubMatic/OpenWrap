@@ -2,7 +2,7 @@
 console.time("Loading plugins");
 var argv = require('yargs').argv;
 var gulp = require('gulp');
-var concat = require('gulp-concat');
+// var concat = require('gulp-concat');
 var replace = require('gulp-replace-task');
 var config = require("./src_new/config.js");
 
@@ -44,7 +44,7 @@ gulp.task('clean', ['update-adserver'], function() {
 
 function getRemoveCodeConfig(){
 
-    var config = require("./src_new/config.js");
+    //var config = require("./src_new/config.js");
     
     // a controlled way to completely disable this feature
     if(config.isReduceCodeSizeFeatureEnabled() === false){
@@ -60,27 +60,27 @@ function getRemoveCodeConfig(){
         removeInStreamRelatedCode: false,//TODO: Make this flags as true based on conditions of slot config
         removeOutStreamRelatedCode: false,//TODO: Make this flags as true based on conditions of slot config
         removeUserIdRelatedCode: false, // Condition -> (config.isUserIdModuleEnabled()===false)
-        removeIdHubOnlyRelatedCode: (config.isIdentityOnly()===false)
+        removeIdHubOnlyRelatedCode: (isIdentityOnly===false)
     };
 
     return removeCodeConfig; // todo: only for dev purpose; remove later
 
-    var slotConfig = config.getSlotConfiguration();
-    if(!slotConfig){
-        removeCodeConfig.removeNativeRelatedCode = true;
-        removeCodeConfig.removeOutStreamRelatedCode = true;
-        removeCodeConfig.removeInStreamRelatedCode = true;
-    } else {
-        //todo: Add logic to set the flags by checking the config
-        //      might be a case where only one of these is enabled: Native, in-stream or out-stream
-    }    
+    // var slotConfig = config.getSlotConfiguration();
+    // if(!slotConfig){
+    //     removeCodeConfig.removeNativeRelatedCode = true;
+    //     removeCodeConfig.removeOutStreamRelatedCode = true;
+    //     removeCodeConfig.removeInStreamRelatedCode = true;
+    // } else {
+    //     //todo: Add logic to set the flags by checking the config
+    //     //      might be a case where only one of these is enabled: Native, in-stream or out-stream
+    // }    
 
-    return removeCodeConfig;
+    // return removeCodeConfig;
 }
 
 // What all processing needs to be done ?
 gulp.task('webpack', ['clean'], function() {
-    var config = require("./src_new/config.js");
+    //var config = require("./src_new/config.js");
     console.log("Executing webpack");
     var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
@@ -92,7 +92,7 @@ gulp.task('webpack', ['clean'], function() {
     var jsFsCache = fsCache('.tmp/jscache');
     webpackConfig.devtool = null;
 
-    return gulp.src(config.isIdentityOnly() ? 'src_new/idhub.js' : 'src_new/owt.js')
+    return gulp.src(isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js')
     // return gulp.src('src_new/owt.js')
         .pipe(webpack(webpackConfig))
         .pipe(jsFsCache)
@@ -125,20 +125,20 @@ gulp.task('webpack-creative', ['clean'], function() {
 
 
 gulp.task('devpack', ['clean'],function () {
-var config = require("./src_new/config.js");
-var connect = require('gulp-connect');
-var webpack = require('webpack-stream');
-var removeCode = require('gulp-remove-code');
-var webpackConfig = require('./webpack.config.js');
+    //var config = require("./src_new/config.js");
+    var connect = require('gulp-connect');
+    var webpack = require('webpack-stream');
+    var removeCode = require('gulp-remove-code');
+    var webpackConfig = require('./webpack.config.js');
 
-  webpackConfig.devtool = 'source-map';
+    webpackConfig.devtool = 'source-map';
 
-  return gulp.src(config.isIdentityOnly() ? 'src_new/idhub.js' : 'src_new/owt.js')
-  // return gulp.src('src_new/owt.js')
-    .pipe(webpack(webpackConfig))
-    .pipe(removeCode(getRemoveCodeConfig()))
-    .pipe(gulp.dest('build/dev'))
-    .pipe(connect.reload());
+    return gulp.src(isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js')
+    // return gulp.src('src_new/owt.js')
+        .pipe(webpack(webpackConfig))
+        .pipe(removeCode(getRemoveCodeConfig()))
+        .pipe(gulp.dest('build/dev'))
+        .pipe(connect.reload());
 });
 
 
@@ -188,8 +188,8 @@ gulp.task('testall', function (done) {
 
 // Small task to load coverage reports in the browser
 gulp.task('coverage', function (done) {
-var connect = require('gulp-connect');
-var opens = require('open');
+    var connect = require('gulp-connect');
+    var opens = require('open');
 
     var coveragePort = 1999;
     connect.server({
@@ -223,7 +223,7 @@ gulp.task('unexpose', function() {
 
 // Code linting with eslint
 gulp.task('lint', () => {
-  return gulp.src([
+    return gulp.src([
         'src_new/**/*.js',
         'test/**/*.js'
     ])
@@ -257,6 +257,7 @@ gulp.task('change-prebid-keys', () => {
 // Task to build minified version of owt.js
 gulp.task('bundle', ['update-adserver'], function () {
     console.log("Executing build");
+    var concat = require('gulp-concat');
     var prebidFileName = (profileMode === "IH" ? '/build/dist/prebid.idhub.js' : '/build/dist/prebid.js')
     var prependscript = "", appendScript = "";
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
@@ -264,8 +265,25 @@ gulp.task('bundle', ['update-adserver'], function () {
         .pipe(gulp.dest('build'));
 });
 
-gulp.task('bundle-pb-keys', function(){
-      return gulp.src('./build/owt.min.js')
+gulp.task('bundle-keys', function() {
+    if(config.isUsePrebidKeysEnabled() === false && config.isPrebidPubMaticAnalyticsEnabled() === true){
+        console.log("We need to use PWT keys, so changing targeting keys in PrebidJS config");
+        bundlePWTKeys();
+    } else {
+        console.log("We need to use Prebid keys, so changing targeting keys in PrebidJS config");
+        bundlePbKeys();
+    }
+    if(config.isUsePrebidKeysEnabled() === true){
+        console.log("We need to use Prebid keys for Native, so changing targeting keys in PrebidJS config");
+        bundleNativePbKeys();
+    } else {
+        console.log("We need to use PWT keys for Native, so changing targeting keys in PrebidJS config");
+        bundleNativePWTKeys();
+    }
+});
+
+function bundlePbKeys() {
+      gulp.src('./build/owt.min.js')
       .pipe(replace({
         patterns: [
           {
@@ -287,10 +305,10 @@ gulp.task('bundle-pb-keys', function(){
         ]
       }))
       .pipe(gulp.dest('build'));
-});
+}
 
-gulp.task('bundle-native-pb-keys', function(){
-    return gulp.src('./build/owt.min.js')
+function bundleNativePbKeys(){
+    gulp.src('./build/owt.min.js')
     .pipe(replace({
       patterns: [
         {
@@ -321,10 +339,10 @@ gulp.task('bundle-native-pb-keys', function(){
       ]
     }))
     .pipe(gulp.dest('build'));
-});
+}
 
-gulp.task('bundle-pwt-keys', function(){
-      return gulp.src('./build/owt.min.js')
+function bundlePWTKeys(){
+      gulp.src('./build/owt.min.js')
       .pipe(replace({
         patterns: [
           {
@@ -348,10 +366,10 @@ gulp.task('bundle-pwt-keys', function(){
         ]
       }))
       .pipe(gulp.dest('build'));
-});
+}
 
-gulp.task('bundle-native-pwt-keys', function(){
-    return gulp.src('./build/owt.min.js')
+function bundleNativePWTKeys(){
+    gulp.src('./build/owt.min.js')
     .pipe(replace({
       patterns: [
         {
@@ -379,11 +397,12 @@ gulp.task('bundle-native-pwt-keys', function(){
       ]
     }))
     .pipe(gulp.dest('build'));
-});
+}
 
 // Task to build minified version of owt.js
 gulp.task('bundle-creative', function () {
     console.log("Executing creative-build");
+    var concat = require('gulp-concat');
     return gulp.src(['./build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
@@ -393,6 +412,7 @@ gulp.task('bundle-creative', function () {
 // Task to build non-minified version of owt.js
 gulp.task('devbundle',['devpack'], function () {
     console.log("Executing Dev Build");
+    var concat = require('gulp-concat');
     // var prebidFileName = (profileMode === "IH" ? '/build/devIH/prebid.idhub.js' : '/build/dev/prebid.js')
     var prebidFileName = '/build/dev/prebid.js';
     return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'])
@@ -403,6 +423,7 @@ gulp.task('devbundle',['devpack'], function () {
 
 gulp.task('bundle-prod',['webpack'], function () {
     console.log("Executing bundling");
+    var concat = require('gulp-concat');
     // var prebidFileName = (profileMode === "IH" ? '/build/distIH/prebid.idhub.js' : '/build/dist/prebid.js')
     var prebidFileName = '/build/dist/prebid.js';
     var prependscript = "", appendScript = "";
@@ -447,3 +468,4 @@ gulp.task('update-namespace', function(){
 });
 
 gulp.task('build-gpt-prod',[''])
+gulp.task('build-bundle', [argv.task, 'bundle-keys']);
