@@ -95,7 +95,7 @@ if (task == CREATIVE_TASK) {
 		if (argv.mode == "test-build") {
 			if(shell.exec("gulp testall" + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 				shell.echo('Error: test cases failed');
-		  		/*shell.exit(1);*/
+		  		shell.exit(1);
 			}
 		} 
 

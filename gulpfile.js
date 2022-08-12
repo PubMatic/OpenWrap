@@ -468,4 +468,4 @@ gulp.task('update-namespace', function(){
 });
 
 gulp.task('build-gpt-prod',[''])
-gulp.task('build-bundle', [argv.task, 'bundle-keys']);
+gulp.task('build-bundle', [argv.task || '', 'bundle-keys']);
