@@ -36,7 +36,7 @@ module.exports = {
                 })
             }
         ],
-				rules: [
+				loaders: [
 		      {
 		        test: /(\.js)$/,
 		        loader: 'babel-loader',

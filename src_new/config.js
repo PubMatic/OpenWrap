@@ -164,7 +164,7 @@ exports.initConfig = function () {
 				adapterLevelParams[key] = value;
 			}
 		});
-		util.forEachOnObject(adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP], function (kgpv, slotLevelParams) {
+		util.forEachOnObject(adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP], function (kgpv, z) {
 			util.forEachOnObject(adapterLevelParams, function (key, value) {
 				slotLevelParams[key] = value;
 			});

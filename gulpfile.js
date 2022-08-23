@@ -33,14 +33,14 @@ console.log("argv ==>", argv);
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
 //console.log("@@@@@@@@@@@@ prebidRepoPath = ",prebidRepoPath);
-gulp.task('clean', ['update-adserver'], function() {
+gulp.task('clean', gulp.series(updateAdserver, async function() {
     var clean = require('gulp-clean');
     return gulp.src(['dist/**/*.js', 'build/'], {
             read: false,
             allowEmpty: true
         })
         .pipe(clean());
-});
+}));
 
 function getRemoveCodeConfig(){
 
@@ -79,7 +79,7 @@ function getRemoveCodeConfig(){
 }
 
 // What all processing needs to be done ?
-gulp.task('webpack', ['clean'], function() {
+gulp.task('webpack', gulp.series('clean', async function() {
     var config = require("./src_new/config.js");
     console.log("Executing webpack");
     var connect = require('gulp-connect');
@@ -103,10 +103,10 @@ gulp.task('webpack', ['clean'], function() {
         .pipe(gulp.dest('build/dist'))
         .pipe(connect.reload())
     ;
-});
+}));
 
 // Run below task to create owt.js for creative
-gulp.task('webpack-creative', ['clean'], function() {
+gulp.task('webpack-creative', gulp.series('clean', async function() {
     var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
     var webpack = require('webpack-stream');
@@ -121,10 +121,10 @@ gulp.task('webpack-creative', ['clean'], function() {
         .pipe(gulp.dest('build/dist'))
         .pipe(connect.reload())
     ;
-});
+}));
 
 
-gulp.task('devpack', ['clean'],function () {
+gulp.task('devpack', gulp.series('clean',async function () {
 var config = require("./src_new/config.js");
 var connect = require('gulp-connect');
 var webpack = require('webpack-stream');
@@ -139,11 +139,11 @@ var webpackConfig = require('./webpack.config.js');
     .pipe(removeCode(getRemoveCodeConfig()))
     .pipe(gulp.dest('build/dev'))
     .pipe(connect.reload());
-});
+}));
 
 
 // Test all code without private functions
-gulp.task('test', ['unexpose'], function (done) {
+gulp.task('test', gulp.series(unexpose, async function (done) {
     var karma = require('gulp-karma');
     var karmaServer = require('karma').Server;
 
@@ -165,11 +165,11 @@ gulp.task('test', ['unexpose'], function (done) {
             }
         });
     }).start();
-});
+}));
 
 
 // Test all code including private functions
-gulp.task('testall', function (done) {
+gulp.task('testall', async function (done) {
     var karma = require('gulp-karma');
     var karmaServer = require('karma').Server;
     var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
@@ -187,7 +187,7 @@ gulp.task('testall', function (done) {
 
 
 // Small task to load coverage reports in the browser
-gulp.task('coverage', function (done) {
+gulp.task('coverage', async function (done) {
 var connect = require('gulp-connect');
 var opens = require('open');
 
@@ -203,7 +203,7 @@ var opens = require('open');
 
 
 // Task to remove privately exposed functions as well as remove test cases which test private functions
-gulp.task('unexpose', function() {
+function unexpose() {
     var stripCode = require('gulp-strip-code');
     
     return gulp
@@ -218,7 +218,7 @@ gulp.task('unexpose', function() {
             end_comment: "end-test-block"
         }))
         .pipe(gulp.dest('./temp/'));
-});
+};
 
 
 // Code linting with eslint
@@ -232,7 +232,7 @@ gulp.task('lint', () => {
     .pipe(eslint.failAfterError());
 });
 
-gulp.task('change-prebid-keys', () => {
+gulp.task('change-prebid-keys', done => {
     // Note: we have to execute this only when we have to use PubMatic OW keys
     // todo: add gulp-json-editor entry in package.json and in backend build job?
     var prebidConstantsPath = prebidRepoPath + '/src';
@@ -252,19 +252,20 @@ gulp.task('change-prebid-keys', () => {
             return json;
         }))
         .pipe(gulp.dest(prebidConstantsPath));
+        done();
 });
 
 // Task to build minified version of owt.js
-gulp.task('bundle', ['update-adserver'], function () {
+gulp.task('bundle', gulp.series(updateAdserver, function () {
     console.log("Executing build");
     var prebidFileName = (profileMode === "IH" ? '/build/dist/prebid.idhub.js' : '/build/dist/prebid.js')
     var prependscript = "", appendScript = "";
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
-});
+}));
 
-gulp.task('bundle-pb-keys', function(){
+gulp.task('bundle-pb-keys', async function(){
       return gulp.src('./build/owt.min.js')
       .pipe(replace({
         patterns: [
@@ -289,7 +290,7 @@ gulp.task('bundle-pb-keys', function(){
       .pipe(gulp.dest('build'));
 });
 
-gulp.task('bundle-native-pb-keys', function(){
+gulp.task('bundle-native-pb-keys', async function(){
     return gulp.src('./build/owt.min.js')
     .pipe(replace({
       patterns: [
@@ -323,7 +324,7 @@ gulp.task('bundle-native-pb-keys', function(){
     .pipe(gulp.dest('build'));
 });
 
-gulp.task('bundle-pwt-keys', function(){
+gulp.task('bundle-pwt-keys', async function(){
       return gulp.src('./build/owt.min.js')
       .pipe(replace({
         patterns: [
@@ -350,7 +351,7 @@ gulp.task('bundle-pwt-keys', function(){
       .pipe(gulp.dest('build'));
 });
 
-gulp.task('bundle-native-pwt-keys', function(){
+gulp.task('bundle-native-pwt-keys', async function(){
     return gulp.src('./build/owt.min.js')
     .pipe(replace({
       patterns: [
@@ -382,7 +383,7 @@ gulp.task('bundle-native-pwt-keys', function(){
 });
 
 // Task to build minified version of owt.js
-gulp.task('bundle-creative', function () {
+gulp.task('bundle-creative', async function () {
     console.log("Executing creative-build");
     return gulp.src(['./build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
@@ -391,17 +392,17 @@ gulp.task('bundle-creative', function () {
 
 
 // Task to build non-minified version of owt.js
-gulp.task('devbundle',['devpack'], function () {
+gulp.task('devbundle',gulp.series('devpack', async function () {
     console.log("Executing Dev Build");
     // var prebidFileName = (profileMode === "IH" ? '/build/devIH/prebid.idhub.js' : '/build/dev/prebid.js')
     var prebidFileName = '/build/dev/prebid.js';
     return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'])
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
-});
+}));
 
 
-gulp.task('bundle-prod',['webpack'], function () {
+gulp.task('bundle-prod',gulp.series('webpack', async function () {
     console.log("Executing bundling");
     // var prebidFileName = (profileMode === "IH" ? '/build/distIH/prebid.idhub.js' : '/build/dist/prebid.js')
     var prebidFileName = '/build/dist/prebid.js';
@@ -409,12 +410,12 @@ gulp.task('bundle-prod',['webpack'], function () {
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
-});
+}));
 
-gulp.task('update-adserver', function(){
-    console.log("In update-adserver isIdentityOnly = " + isIdentityOnly);
+function updateAdserver() {
+    console.log("In updateAdserver isIdentityOnly = " + isIdentityOnly);
     if (isIdentityOnly) {
-        console.log("Executing update-adserver - START");
+        console.log("Executing updateAdserver - START");
         var result = gulp.src(['./src_new/conf.js'])
           .pipe(replace({
             patterns: [
@@ -425,15 +426,15 @@ gulp.task('update-adserver', function(){
             ]
           }))
           .pipe(gulp.dest('./src_new/'));
-        console.log("Executing update-adserver - END");
+        console.log("Executing updateAdserver - END");
         return result;
     }
-});
+};
 
-gulp.task('update-namespace', function(){
+gulp.task('update-namespace', async function(){
     console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
     console.log("Executing update-namespace - START => ");
-    var prebidFileName = '/build/dist/prebid.js';
+    var prebidFileName = '/build/dev/prebid.js';
     return gulp.src(prebidRepoPath + prebidFileName)
     .pipe(replace({
         patterns: [
@@ -443,7 +444,7 @@ gulp.task('update-namespace', function(){
             }
         ]
     }))
-    .pipe(gulp.dest(prebidRepoPath+'/build/dist/'));
+    .pipe(gulp.dest(prebidRepoPath+'/build/dev/'));
 });
 
-gulp.task('build-gpt-prod',[''])
+//gulp.task('build-gpt-prod')
