@@ -395,7 +395,9 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
-	outputObj["cnty"]= geoData;
+	outputObj["cnty"]= geoData ? geoData.cnty : undefined;
+	outputObj["lat"]= geoData ? geoData.lat : undefined;
+	outputObj["long"]= geoData ? geoData.long : undefined;
 	outputObj["tgid"] = (function() {
 	    var testGroupId = parseInt(PWT.testGroupId || 0);
 	    if (testGroupId <= 15 && testGroupId >= 0) {
@@ -525,7 +527,11 @@ async function getGeo(){
 	})
 }
 getGeo().then(function(data){
-	geoData = data?.user?.country
+	geoData = {
+		"cnty" : data?.user?.country,
+		"lat": data?.user?.latitude,
+		"long": data?.user?.longitude
+	}
 });
 
 function getNumericalFormat(unformattedNumber){
