@@ -588,10 +588,10 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 
 			if(xhrRequests) {
 				networkTiming = {
-				  stlt: getNumericalFormat(xhrRequests[0].domainLookupStart - xhrRequests[0].fetchstart),  // stalledTime
-				  dnst: getNumericalFormat(xhrRequests[0].domainLookupEnd - xhrRequests[0].domainLookupStart), // dnsTime
-				  dwlt: getNumericalFormat(xhrRequests[0].responseEnd - xhrRequests[0].responseStart), // downloadTime
-				  srt: getNumericalFormat(xhrRequests[0].responseStart - xhrRequests[0].requestStart) // serverResponseTime
+				  stlt: parseInt(xhrRequests[0].domainLookupStart - xhrRequests[0].fetchstart),  // stalledTime
+				  dnst: parseInt(xhrRequests[0].domainLookupEnd - xhrRequests[0].domainLookupStart), // dnsTime
+				  dwlt: parseInt(xhrRequests[0].responseEnd - xhrRequests[0].responseStart), // downloadTime
+				  srt: parseInt(xhrRequests[0].responseStart - xhrRequests[0].requestStart) // serverResponseTime
 				}
 			}
 
