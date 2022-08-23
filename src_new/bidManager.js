@@ -395,6 +395,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
+	outputObj["cnty"]= geoData;
 	outputObj["tgid"] = (function() {
 	    var testGroupId = parseInt(PWT.testGroupId || 0);
 	    if (testGroupId <= 15 && testGroupId >= 0) {
@@ -562,7 +563,6 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 			"au": adUnitInfo.adUnitId || slotID,
 			"fskp" : window.PWT.floorData ? (window.PWT.floorData[impressionID] ? (window.PWT.floorData[impressionID].floorRequestData ? (window.PWT.floorData[impressionID].floorRequestData.skipped == false ? 0 : 1) : undefined) : undefined) : undefined,
 			"mt": refThis.getAdUnitAdFormats(adUnitInfo.mediaTypes),
-			"cnty": geoData,
 			"ps": []
 		};
         bmEntry.setExpired();
