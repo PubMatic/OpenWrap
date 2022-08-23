@@ -527,6 +527,14 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 	var adUnitInfo = refThis.getAdUnitInfo(slotID);
 	var latencyValue = {};
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
+	var networkTiming;
+
+	var resources = window.performance.getEntriesByType("resource");
+	var xhrRequests = resources.filter( function(request) {
+		if(request.initiatorType === 'xmlhttprequest' && request.name.indexOf(hbopenbid.pubmatic.com) > 0){
+			return request;
+		}}
+	)
 	/* istanbul ignore else */
 	if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
 		var slotObject = {
@@ -545,6 +553,17 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
             if (CONFIG.getBidPassThroughStatus(adapterID) == 1) {
                 return;
             }
+
+			if(adapterID === "pubmatic" || adapterID === "pubmatic2") {
+				if(xhrRequests) {
+					networkTiming = {
+						stalledTime: xhrRequests.domainLookupStart - xhrRequests.fetchstart,
+						dnsTime: xhrRequests.domainLookupEnd - xhrRequests.domainLookupStart,
+						downloadTime: xhrRequests.responseEnd - xhrRequests.responseStart,
+						serverResponseTime: xhrRequests.responseStart - xhrRequests.requestStart
+					}
+				}
+			}
 
 			util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
 				if(usePBSAdapter) {
@@ -639,6 +658,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
 					"piid": theBid.getsspID(),
 					"frv": theBid.getServerSideStatus() ? undefined : (pbbid ? ( pbbid.floorData ? pbbid.floorData.floorRuleValue : undefined ) : undefined),
+					"nwt": networkTiming ? networkTiming : undefined
 				});
             })
         });
