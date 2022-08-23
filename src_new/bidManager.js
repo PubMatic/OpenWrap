@@ -5,7 +5,7 @@ var util = require("./util.js");
 var bmEntry = require("./bmEntry.js");
 
 var refThis = this;
-
+var geoData;
 function createBidEntry(divID){ // TDD, i/o : done
 	/* istanbul ignore else */
 	if(! util.isOwnProperty(window.PWT.bidMap, divID) ){
@@ -517,6 +517,24 @@ function getAdDomain(bidResponse) {
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+async function getGeo(){
+	return await fetch('https://floor-worker.kapiltuptewar.workers.dev/')
+	.then(function (response) {
+		return response.json()
+	})
+}
+getGeo().then(function(data){
+	geoData = data?.user?.country
+});
+
+function getNumericalFormat(unformattedNumber){
+	if(isNaN(unformattedNumber)){
+	  return 
+	}
+	else{
+	  return Number(unformattedNumber).toFixed(2);
+	}
+}
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
@@ -528,13 +546,14 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 	var latencyValue = {};
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 	var networkTiming;
+	var bidderUrl = {
+		'pubmatic':'hbopenbid.pubmatic.com',
+		'appnexus':'ib.adnxs.com',
+		'rubicon':'rubiconproject.com'
+	}
 
 	var resources = window.performance.getEntriesByType("resource");
-	var xhrRequests = resources.filter( function(request) {
-		if(request.initiatorType === 'xmlhttprequest' && request.name.indexOf(hbopenbid.pubmatic.com) > 0){
-			return request;
-		}}
-	)
+	
 	/* istanbul ignore else */
 	if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
 		var slotObject = {
@@ -543,6 +562,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 			"au": adUnitInfo.adUnitId || slotID,
 			"fskp" : window.PWT.floorData ? (window.PWT.floorData[impressionID] ? (window.PWT.floorData[impressionID].floorRequestData ? (window.PWT.floorData[impressionID].floorRequestData.skipped == false ? 0 : 1) : undefined) : undefined) : undefined,
 			"mt": refThis.getAdUnitAdFormats(adUnitInfo.mediaTypes),
+			"cnty": geoData,
 			"ps": []
 		};
         bmEntry.setExpired();
@@ -552,16 +572,20 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
         	/* istanbul ignore else */
             if (CONFIG.getBidPassThroughStatus(adapterID) == 1) {
                 return;
-            }
+			}
+			
+			var xhrRequests = resources.filter( function(request) {
+				if(request.initiatorType === 'xmlhttprequest' && request.name.indexOf(bidderUrl[CONFIG.getAdapterNameForAlias(adapterID)]) > 0){
+					return request;
+				}}
+			)
 
-			if(adapterID === "pubmatic" || adapterID === "pubmatic2") {
-				if(xhrRequests) {
-					networkTiming = {
-						stalledTime: xhrRequests.domainLookupStart - xhrRequests.fetchstart,
-						dnsTime: xhrRequests.domainLookupEnd - xhrRequests.domainLookupStart,
-						downloadTime: xhrRequests.responseEnd - xhrRequests.responseStart,
-						serverResponseTime: xhrRequests.responseStart - xhrRequests.requestStart
-					}
+			if(xhrRequests) {
+				networkTiming = {
+				  stlt: getNumericalFormat(xhrRequests[0].domainLookupStart - xhrRequests[0].fetchstart),  // stalledTime
+				  dnst: getNumericalFormat(xhrRequests[0].domainLookupEnd - xhrRequests[0].domainLookupStart), // dnsTime
+				  dwlt: getNumericalFormat(xhrRequests[0].responseEnd - xhrRequests[0].responseStart), // downloadTime
+				  srt: getNumericalFormat(xhrRequests[0].responseStart - xhrRequests[0].requestStart) // serverResponseTime
 				}
 			}
 
