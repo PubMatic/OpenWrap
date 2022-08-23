@@ -6,6 +6,12 @@ var bmEntry = require("./bmEntry.js");
 
 var refThis = this;
 
+
+
+// let frequencyDepth = {
+// 	impressionServed: 0
+// };
+
 function createBidEntry(divID){ // TDD, i/o : done
 	/* istanbul ignore else */
 	if(! util.isOwnProperty(window.PWT.bidMap, divID) ){
@@ -357,6 +363,8 @@ exports.getBidById = function(bidID) { // TDD, i/o : done
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
+	const HOSTNAME = window.location.host;
+	const PREFIX = 'FLOOR_';
 	var bidDetails = refThis.getBidById(bidID);
 	/* istanbul ignore else */
 	if(bidDetails){
@@ -366,6 +374,11 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 		util.displayCreative(theDocument, theBid);
 		util.vLogInfo(divID, {type: 'disp', adapter: theBid.getAdapterID()});
 		refThis.executeMonetizationPixel(divID, theBid);
+	    var frequencyDepth = JSON.parse(localStorage.getItem(PREFIX + HOSTNAME)) || { impressionServed: 0 };
+		if (frequencyDepth !== null) {
+			frequencyDepth.impressionServed = frequencyDepth.impressionServed + 1;
+		}
+		localStorage.setItem(PREFIX + HOSTNAME, JSON.stringify(frequencyDepth));
 	}
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
