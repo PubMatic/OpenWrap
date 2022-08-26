@@ -2960,6 +2960,7 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(GPT, "defineGPTVariables");
             sinon.spy(GPT, "addHooksIfPossible");
             sinon.spy(GPT, "initSafeFrameListener");
+            sinon.stub(PREBID, "realignPubmaticAdapters")
             done();
         });
 
@@ -2970,6 +2971,7 @@ describe("CONTROLLER: GPT", function() {
             GPT.defineGPTVariables.restore();
             GPT.addHooksIfPossible.restore();
             GPT.initSafeFrameListener.restore();
+            PREBID.realignPubmaticAdapters.restore();
             done();
         });
 
