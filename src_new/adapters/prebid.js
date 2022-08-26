@@ -1012,6 +1012,15 @@ function setPrebidConfig(){
 
 exports.setPrebidConfig = setPrebidConfig;
 
+function realignPubmaticAdapters(){
+	if(CONF.adapters && CONF.adapters["pubmatic"]){
+		var pubmaticAdpater = {"pubmatic": CONF.adapters["pubmatic"]};
+		CONF.adapters = Object.assign(pubmaticAdpater, CONF.adapters);
+	}
+}
+
+exports.realignPubmaticAdapters = realignPubmaticAdapters;
+
 function gets2sConfig(prebidConfig){
 	var bidderParams = {};
 	var s2sBidders = CONFIG.getServerEnabledAdaptars();
@@ -1262,6 +1271,7 @@ function initPbjsConfig(){
 		return;
 	}
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
+	refThis.realignPubmaticAdapters();
 	refThis.setPrebidConfig();
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
