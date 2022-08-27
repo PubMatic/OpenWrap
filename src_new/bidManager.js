@@ -396,6 +396,10 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
 	outputObj["cnty"]= geoData ? geoData.cnty : undefined;
+	outputObj["cntn"]= geoData ? geoData.cntn : undefined;
+	outputObj["rgn"]= geoData ? geoData.rgn : undefined;
+	outputObj["rgnc"]= geoData ? geoData.rgnc : undefined;
+	outputObj["bwnm"]= geoData ? geoData.bwnm : undefined;
 	outputObj["lat"]= geoData ? geoData.lat : undefined;
 	outputObj["long"]= geoData ? geoData.long : undefined;
 	outputObj["tgid"] = (function() {
@@ -530,7 +534,11 @@ getGeo().then(function(data){
 	geoData = {
 		"cnty" : data?.user?.country,
 		"lat": data?.user?.latitude,
-		"long": data?.user?.longitude
+		"long": data?.user?.longitude,
+		"cntn": data?.user?.continent,
+		"rgn": data?.user?.region,
+		"rgnc":data?.user?.regionCode,
+		"bwnm" : fnBrowserDetect()
 	}
 });
 
