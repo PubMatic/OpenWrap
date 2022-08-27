@@ -530,6 +530,26 @@ async function getGeo(){
 		return response.json()
 	})
 }
+
+function fnBrowserDetect(){       
+	let userAgent = navigator.userAgent;
+	let browserName;
+	if(userAgent.match(/chrome|chromium|crios/i)){
+		browserName = "chrome";
+	}else if(userAgent.match(/firefox|fxios/i)){
+		browserName = "firefox";
+	}  else if(userAgent.match(/safari/i)){
+		browserName = "safari";
+	}else if(userAgent.match(/opr\//i)){
+		browserName = "opera";
+	} else if(userAgent.match(/edg/i)){
+		browserName = "edge";
+	}else{
+		browserName="others";
+	}
+	return browserName
+}
+
 getGeo().then(function(data){
 	geoData = {
 		"cnty" : data?.user?.country,
