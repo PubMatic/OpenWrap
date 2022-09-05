@@ -376,6 +376,7 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 		refThis.executeMonetizationPixel(divID, theBid);
 	    var frequencyDepth = JSON.parse(localStorage.getItem(PREFIX + HOSTNAME)) || { impressionServed: 0 };
 		if (frequencyDepth !== null) {
+			frequencyDepth.slotLevelFrquencyDepth[codeAdUnitMap[divID]].impressionServed = frequencyDepth.slotLevelFrquencyDepth[codeAdUnitMap[divID]].impressionServed + 1; 
 			frequencyDepth.impressionServed = frequencyDepth.impressionServed + 1;
 		}
 		localStorage.setItem(PREFIX + HOSTNAME, JSON.stringify(frequencyDepth));
