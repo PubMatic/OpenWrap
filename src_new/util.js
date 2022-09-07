@@ -1492,7 +1492,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		sspID = theBid.sspID || "";	
 	}
 
-	adUnitId = bidManager.getAdUnitInfo(slotID).adUnitId || slotId;
+	adUnitId = bidManager.getAdUnitInfo(slotID).adUnitId || slotID;
 
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);

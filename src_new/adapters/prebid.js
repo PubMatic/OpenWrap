@@ -409,6 +409,8 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 		if(adUnitConfig.renderer){
 			adUnits[code]["renderer"]= adUnitConfig.renderer;
 		}
+		window.PWT.adUnits = window.PWT.adUnits || {};
+		window.PWT.adUnits[code] = adUnits[code];
 	} else if(CONFIG.isSingleImpressionSettingEnabled()){
 		// following function call basically checks whether the adapter is already configured for the given code in adunits object
 		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
@@ -1012,6 +1014,15 @@ function setPrebidConfig(){
 
 exports.setPrebidConfig = setPrebidConfig;
 
+function realignPubmaticAdapters(){
+	if(CONF.adapters && CONF.adapters["pubmatic"]){
+		var pubmaticAdpater = {"pubmatic": CONF.adapters["pubmatic"]};
+		CONF.adapters = Object.assign(pubmaticAdpater, CONF.adapters);
+	}
+}
+
+exports.realignPubmaticAdapters = realignPubmaticAdapters;
+
 function gets2sConfig(prebidConfig){
 	var bidderParams = {};
 	var s2sBidders = CONFIG.getServerEnabledAdaptars();
@@ -1262,6 +1273,7 @@ function initPbjsConfig(){
 		return;
 	}
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
+	refThis.realignPubmaticAdapters();
 	refThis.setPrebidConfig();
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
