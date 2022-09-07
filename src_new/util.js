@@ -1707,7 +1707,7 @@ exports.getEmailHashes = function(){
 }
 
 exports.initLiveRampLaunchPad = function (params) {
-	var lpURL = "https://launchpad-wrapper.privacymanager.io/"+params.custom.configurationId+"/launchpad-liveramp.js?logging=true&country=US&region=CA";
+	var lpURL = "https://launchpad-wrapper.privacymanager.io/"+params.custom.configurationId+"/launchpad-liveramp.js";
 	function addLaunchPad() {
 		var launchPadScript = document.createElement("script");
 		launchPadScript.onload = function () {
