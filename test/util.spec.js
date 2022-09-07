@@ -20,6 +20,7 @@ var commonAdapterID = "pubmatic";
 var commonDivID = "DIV_1";
 var CONSTANTS = require("../src_new/constants.js");
 
+var CONF = require("../src_new/conf.js");
 
 // TODO : remove as required during single TDD only
 // var jsdom = require('jsdom').jsdom;
@@ -3915,6 +3916,83 @@ describe('UTIL', function() {
         });
     });
 
+    describe('#deleteCustomParams', function() {
+        var paramsForLiverampV2;
+        beforeEach(function(done) {
+            paramsForLiverampV2 = {
+                "name": "identityLink",
+                "storage": {
+                    "name": "lr_str_v2",
+                    "type": "cookie",
+                    "expires": "30",
+                    "refreshInSeconds": 2400
+                },
+                "params": {
+                    "pid": "1258"
+                },
+                "custom": {
+                    "loadLaunchPad": "true",
+                    "configurationId": "12442745-5ed1-4dc2-b3a1-b9722f16b1f6"
+                },
+            }
+            done();
+        });
+        afterEach(function(done) {
+            paramsForLiverampV2 = null;
+            done();
+        });
+        it('should delete custom object in the params object if custom values are present', function(done) {
+            UTIL.deleteCustomParams(paramsForLiverampV2);
+            expect(paramsForLiverampV2.custom).to.be.undefined;
+            done();
+        });
+    });
+
+    describe('#getEmailHashes', function() {
+        beforeEach(function(done) {
+            done();
+        });
+        afterEach(function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SSO_ENABLED] = "0";
+            done();
+        });
+        it('should return the emailHashes in array if SSO enabled is disabled and publisher Provided email Hash is present', function(done) {
+            var expectedResult=['4e8fb772f3a4034906153f2d4258ee5c', 'e770f63ff1d3eb07b589b4ab972009b5ad8d836b', 'ee278943de84e5d6243578ee1a1057bcce0e50daad9755f45dfa64b60b13bc5d'];
+            function getUserIdentities() {
+                return {
+                    email: "zeotaptestrab@gmail.com",
+                    pubProvidedEmailHash: {
+                        MD5: '4e8fb772f3a4034906153f2d4258ee5c', SHA1: 'e770f63ff1d3eb07b589b4ab972009b5ad8d836b', SHA256: 'ee278943de84e5d6243578ee1a1057bcce0e50daad9755f45dfa64b60b13bc5d'
+                    }
+                }
+            }
+            window[UTIL.pbNameSpace] = {
+                'getUserIdentities': getUserIdentities
+            }
+            var result = UTIL.getEmailHashes();
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return the emailHash in array if SSO enabled and email Hash fetched is present', function(done) {
+            var expResult=['b9ea47bd80a563c9299ca16b2f79405b', 'df0dd701dc1a7ef9dd65d6eca9abfbc1c33abbd1', 'c08a386a01d187e2e3b03489b6553b0d7cf7ac6feb99a92516f9fbde30d0b283'];
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SSO_ENABLED] = "1";
+            function getUserIdentities() {
+                return {
+                    email: "zeotaptestrab@gmail.com",
+                    emailHash: {
+                        MD5: 'b9ea47bd80a563c9299ca16b2f79405b', SHA1: 'df0dd701dc1a7ef9dd65d6eca9abfbc1c33abbd1', SHA256: 'c08a386a01d187e2e3b03489b6553b0d7cf7ac6feb99a92516f9fbde30d0b283'
+                    }
+                }
+            }
+            window[UTIL.pbNameSpace] = {
+                'getUserIdentities': getUserIdentities
+            }
+            var result = UTIL.getEmailHashes();
+            result.should.deep.equal(expResult);
+            done();
+        });
+    });
       
    describe('#getUpdatedKGPVForVideo', function() {
     var kgpv, adFormat;
