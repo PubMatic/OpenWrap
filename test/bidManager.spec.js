@@ -2146,7 +2146,7 @@ describe('bidManager BIDMgr', function() {
             done();
         });
 
-        it('new test case second argument object should also contain original key-values', function(done){
+        it('generate all keys, no deal-id if deal-id is null and adFormat is video', function(done){
              winningBidStub.setAdFormat('','video');
              winningBidStub.setcacheUUID('dummyuuid');
 

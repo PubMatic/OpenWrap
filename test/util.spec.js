@@ -3955,6 +3955,14 @@ describe('UTIL', function() {
             UTIL.getUpdatedKGPVForVideo(kgpv, adFormat).should.deep.equal(expectedResult);
             done();
         });
+
+        it('should consider div@wxh:div kgpv format if adformat is video',function(done){
+            adFormat = "video";
+            kgpv = "Div1@640x480:Div1";
+            var expectedResult = "Div1@0x0:Div1";
+            UTIL.getUpdatedKGPVForVideo(kgpv, adFormat).should.deep.equal(expectedResult);
+            done();
+        });
     });  
     
   
