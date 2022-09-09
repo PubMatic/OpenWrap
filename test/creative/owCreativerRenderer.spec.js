@@ -105,8 +105,8 @@ describe("owCreativeRenderer : OWCren", function() {
 		beforeEach(function(done){
 			theDocument = window;
 			targetingKeys = {
-				pwtcid : "",
-				pwtcurl: "",
+				pwtcid : "testid",
+				pwtcurl: "testcurl",
 				pwtcpath: "",
 				pwtsz: ""
 			};
