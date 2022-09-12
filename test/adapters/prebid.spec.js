@@ -1007,7 +1007,6 @@ describe('ADAPTER: Prebid', function() {
                 window.pwtCreatePrebidNamespace.restore();
             }
             delete window.owpbjs;
-            delete floorObj;
             prebidConfig = {};
 	    CONF.pwt.identityOnly = identityOnlyBackup;
             done();
