@@ -1402,7 +1402,7 @@ exports.getUserIdParams = function(params){
 	if (userIdParams && userIdParams.custom && userIdParams.custom["loadLaunchPad"] == "true") {
 		refThis.initLiveRampLaunchPad(userIdParams); 
 	}
-	return refThis.deleteCustomParams(Object.assign({}, userIdParams));
+	return refThis.deleteCustomParams(userIdParams);
 };
 
 exports.getPartnerParams = function(params){
