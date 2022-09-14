@@ -2,10 +2,16 @@
 // var sinon = require("sinon");
 // var should = require("chai").should();
 // var expect = require("chai").expect;
-
+var CONF = require("../../src_new/conf.js");
+var CONFIG = require("../../src_new/config.idhub.js");
+var CONSTANTS = require("../../src_new/constants.js");
+CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ENABLE_USER_ID] = "1";
+CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] = "1";
+CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SSO_ENABLED] = "1";
+CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ADSERVER] = "IDHUB";
+var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 var IDHUB = require("../../src_new/controllers/idhub.js");
 var UTIL = require("../../src_new/util.js");
-var CONFIG = require("../../src_new/config.js");
 
 describe("CONTROLLER: IDHUB", function() {
 	describe("#init", function() {
@@ -48,32 +54,93 @@ describe("CONTROLLER: IDHUB", function() {
     
 	describe("#initIdHub", function(){
 		beforeEach(function(done){
-			sinon.stub(CONFIG,"isUserIdModuleEnabled").returns(false);
-			sinon.stub(CONFIG,"isIdentityOnly").returns(false);
-			sinon.spy(IDHUB,"setConfig");
-			sinon.spy(IDHUB,"initIdHub");
+			window.IHPWT = {};
+			window.IHPWT.ssoEnabled = CONFIG.isSSOEnabled;
+			window[pbNameSpace] = {
+				'setConfig': function(){},
+				'onSSOLogin': function onSSOLogin() {},
+				'requestBids': function(){},
+			}
 			done();
 		});
-
+	
 		afterEach(function(done){
-			CONFIG.isUserIdModuleEnabled.restore();
-			CONFIG.isIdentityOnly.restore();
-			IDHUB.setConfig.restore();
-			IDHUB.initIdHub.restore();
+		    delete window.pbjs;
 			done();
 		});
 
-		it("should call prebid setConfig if identity is enabled",function(done){
-			CONFIG.isUserIdModuleEnabled.restore();
-			sinon.stub(CONFIG,"isUserIdModuleEnabled").returns(true);
+		it("should not call prebid setConfig if identity is enabled and setConfig is not defined in window namespace object",function(done){
+			window[pbNameSpace].setConfig = {};
+			window['pbjs'] = {
+				'que': [],
+				'version': 'v2.18.0',
+				onEvent: function(){}
+			}
+			utilMethod = sinon.spy(window[pbNameSpace], 'requestBids');
+			sinon.stub(CONFIG, 'isSSOEnabled').returns(0);
+			console.log(CONF.pwt)
 			IDHUB.init(window);
-			IDHUB.initIdHub.calledOnce.should.be.true;
+			window['pbjs'].que[0]();
+			utilMethod.should.not.be.called;
+			CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SSO_ENABLED] = "1";
+			CONFIG.isSSOEnabled.restore();
 			done();
 		});
-		
-		it("should not call prebid setConfig if identity not is enabled",function(done){
-			IDHUB.init();
-			IDHUB.setConfig.called.should.be.false;
+	
+		it("should call prebid setConfig if identity is enabled and CCPA is enabled",function(done){
+			CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT] = "0";
+			CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_CONSENT] = "1";
+			window['pbjs'] = {
+				'que': [],
+				'version': 'v2.18.0',
+				onEvent: function(){}
+			}
+			utilMethod = sinon.spy(UTIL, 'addHookOnFunction');
+			IDHUB.init(window);
+			window['pbjs'].que[0]();
+			utilMethod.should.have.been.called
+			UTIL.addHookOnFunction.restore();	
+			done();
+		});
+	
+		it("should call prebid setConfig if identity is enabled and GDPR is enabled",function(done){
+			CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT] = "1";
+			CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_CONSENT] = "0";
+			window['pbjs'] = {
+				'que': [],
+				'version': 'v6.18.0',
+				onEvent: function(){}
+			}
+			utilMethod = sinon.spy(UTIL, 'addHookOnFunction');
+			IDHUB.init(window);
+			window['pbjs'].que[0]();
+			utilMethod.should.have.been.called
+			UTIL.addHookOnFunction.restore();	
+			done();
+		});
+
+        it("should call prebid setConfig if identity is enabled and CCPA is enabled and version is higher than 3" ,function(done){
+			CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT] = "0";
+			CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_CONSENT] = "1";
+			window['pbjs'] = {
+				'que': [],
+				'version': 'v6.18.0',
+				onEvent: function(){}
+		    }	
+			utilMethod = sinon.spy(window['pbjs'], 'onEvent');
+			IDHUB.init(window);
+			window['pbjs'].que[0]();
+			utilMethod.should.have.been.calledTwice;
+			window.pbjs.onEvent.restore()
+			done();
+		});
+
+		it("should not call prebid setConfig and logs warning if windows pbjs object is not set" ,function(done){
+			CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT] = "0";
+			CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_CONSENT] = "1";
+			IDHUB.init(window);
+			utilMethod = sinon.spy(UTIL, 'logWarning');
+			utilMethod.should.have.been.called;
 			done();
 		});
 	});
