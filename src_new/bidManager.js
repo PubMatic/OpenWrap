@@ -517,6 +517,30 @@ function getAdDomain(bidResponse) {
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+/**
+ * Prepare meta object to pass in logger call
+ * @param {*} meta 
+ */
+function getMetadata(meta) {
+	if(!meta || util.isEmptyObject(meta)) return;
+	const metaObj = {};
+	if (meta.networkId) metaObj.nwid = meta.networkId;
+	if (meta.advertiserId) metaObj.adid = meta.advertiserId;
+	if (meta.networkName) metaObj.nwnm = meta.networkName;
+	if (meta.primaryCatId) metaObj.pcid = meta.primaryCatId;
+	if (meta.advertiserName) metaObj.adnm = meta.advertiserName;
+	if (meta.agencyId) metaObj.agid = meta.agencyId;
+	if (meta.agencyName) metaObj.agnm = meta.agencyName;
+	if (meta.brandId) metaObj.brid = meta.brandId;
+	if (meta.brandName) metaObj.brnm = meta.brandName;
+	if (meta.dchain) metaObj.dc = meta.dchain;
+	if (meta.demandSource) metaObj.ds = meta.demandSource;
+	if (meta.secondaryCatIds) metaObj.scids = meta.secondaryCatIds;
+	
+	if(util.isEmptyObject(metaObj)) return;
+	return metaObj;
+}
+
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
@@ -639,6 +663,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
 					"piid": theBid.getsspID(),
 					"frv": theBid.getServerSideStatus() ? undefined : (pbbid ? ( pbbid.floorData ? pbbid.floorData.floorRuleValue : undefined ) : undefined),
+					"md": pbbid ? getMetadata(pbbid.meta) : undefined,
 				});
             })
         });
