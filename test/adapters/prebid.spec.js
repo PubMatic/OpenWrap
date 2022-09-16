@@ -140,7 +140,7 @@ describe('ADAPTER: Prebid', function() {
             };
             kgpv = commonKGPV;
             sinon.spy(UTIL, "forEachOnObject");
-
+			sinon.spy(UTIL, "logWarning");
             window.owpbjs = {
 
             };
@@ -156,6 +156,7 @@ describe('ADAPTER: Prebid', function() {
 
         afterEach(function (done) {
             UTIL.forEachOnObject.restore();
+			UTIL.logWarning.restore();
             window.owpbjs = {};
             done();
         });
@@ -257,6 +258,19 @@ describe('ADAPTER: Prebid', function() {
 			result.vastUrl.should.be.equal(bid.vastUrl);
 			done();
 		})
+
+		it('should call with log warning when bidMap dose not found slot id', function(done) {
+			var copyBid = Object.assign({}, bid);
+			copyBid.mediaType = 'video';
+			copyBid.videoCacheKey = 'AEDS-543-MANOD';
+			window.PWT = {
+				bidMap: {}
+			}
+			PREBID.transformPBBidToOWBid(copyBid, kgpv);
+			UTIL.logWarning.calledWith("Error in Updating BidId. It might be possible singleImpressionEnabled is false").should.be.true;
+			done();
+		})
+
     });
 
     describe('#pbBidStreamHandler', function () {
@@ -2007,6 +2021,35 @@ describe('ADAPTER: Prebid', function() {
 			UTIL.log.calledWith('In PreBid bidsBackHandler with bidResponses: ');
 			done();
 		});
+	});
+
+	describe('addOnBidResponseHandler', function() {
+		beforeEach(function(done) {
+			sinon.stub(UTIL, 'logWarning');
+            done();
+        });
+
+        afterEach(function(done) {
+			UTIL.logWarning.restore();
+            done();
+        });
+		it('should be a functiion',function(done){
+            PREBID.addOnBidResponseHandler.should.be.a('function');
+            done();
+        });
+
+		it('should called with logWarning when onevent function is not available', function(done) {
+			PREBID.addOnBidResponseHandler();
+			UTIL.logWarning.calledWith('PreBid js onEvent method is not available').should.be.true;
+			done();
+		})
+
+		it('should called with when onevent function is not available', function(done) {
+			window.owpbjs.onEvent = function() {};
+			PREBID.addOnBidResponseHandler();
+			expect(window.owpbjs.onEvent).should.have.called;
+			done();
+		})
 	});
 
 });
