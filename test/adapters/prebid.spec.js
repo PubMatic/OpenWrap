@@ -503,6 +503,20 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
+		it('should have created bid object for pubmaticServer', function(done) {
+            adapterID = "pubmaticServer";
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+			expect(adUnits["DIV_1@pubmaticServer@340X210"]).to.exist;
+            done();
+        });
+
+		it('should have created bid object for ix or indexExchange', function(done) {
+            adapterID = "ix";
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+			expect(adUnits["DIV_1@ix@340X210"]).to.exist;
+            done();
+        });
+
         it('should have created bid object for pubmatic2', function(done) {
             adapterID = "pubmatic2";
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
@@ -877,6 +891,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(UTIL, 'logError');
 
             sinon.stub(UTIL, 'forEachGeneratedKey');
+			sinon.stub(BM, 'setCallInitTime');
             done();
         });
 
@@ -889,6 +904,7 @@ describe('ADAPTER: Prebid', function() {
             UTIL.log.restore();
             UTIL.logError.restore();
             UTIL.forEachGeneratedKey.restore();
+			BM.setCallInitTime.restore();
             done();
         });
 
@@ -905,7 +921,7 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should have called UTIL.forEachGeneratedKey with proper input', function(done) {
+		it('should have called UTIL.forEachGeneratedKey with proper input', function(done) {
             adapterConfig = {};
             adapterConfig[CONSTANTS.CONFIG.KEY_GENERATION_PATTERN] = "value_1",
             adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = "value_2",
@@ -938,6 +954,14 @@ describe('ADAPTER: Prebid', function() {
                 PREBID.generatedKeyCallback,
                 true).should.be.true;
             delete CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
+            done();
+        });
+
+		it('should call generateConfig with required inputs and return if adapterConfig is not valid', function(done) {
+            adapterConfig = null;
+            PREBID.generateConfig(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+            UTIL.log.calledWith(adapterID + CONSTANTS.MESSAGES.M1);
+            UTIL.forEachGeneratedKey.called.should.be.false;
             done();
         });
 
@@ -1903,5 +1927,86 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 	})
+
+	describe('realignPubmaticAdapters', function() {
+		it('should be a functiion',function(done){
+            PREBID.realignPubmaticAdapters.should.be.a('function');
+            done();
+        });
+		it('should realignPubmaticAdapters', function(done) {
+			PREBID.realignPubmaticAdapters();
+			expect(CONF.adapters['pubmatic']).should.have.object;
+			expect(CONF.adapters['pubmatic']).to.be.an('object');
+			expect(CONF.adapters['pubmatic']).to.have.property('throttle');
+			done();
+		});
+	});
+
+	describe('getPbjsAdServerTargetingConfig', function() {
+		beforeEach(function(done) {
+            sinon.stub(CONFIG, "getPublisherId").returns('5890');
+			sinon.stub(CONFIG, "getProfileID").returns('17610');
+			sinon.stub(CONFIG, "getProfileDisplayVersionID").returns('6');
+            done();
+        });
+
+        afterEach(function(done) {
+			CONFIG.getPublisherId.restore();
+			CONFIG.getProfileID.restore();
+			CONFIG.getProfileDisplayVersionID.restore();
+            done();
+        });
+		it('should be a functiion',function(done){
+            PREBID.getPbjsAdServerTargetingConfig.should.be.a('function');
+            done();
+        });
+		it('should return array of objects of targeting keys', function(done) {
+			const result = PREBID.getPbjsAdServerTargetingConfig();
+			expect(result).to.be.an('array');
+			expect(result[0].val({bidderCode: 'pubmatic'})).to.equal('pubmatic');
+			expect(result[1].val({adId: '3152368'})).to.equal('3152368');
+			expect(result[3].val({size: '[720, 90]'})).to.equal('[720, 90]');
+			expect(result[4].val()).to.equal('');
+			expect(result[5].val({mediaType: 'video', videoCacheKey: 'AY-32-DF-23'})).to.equal('video');
+			expect(result[6].val({dealId: 'pubdeal'})).to.equal('pubdeal');
+			expect(result[7].val({dealId: 'pubdeal', dealChannel: 'PMP', adId: '3152368'})).to.equal('PMP'+CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR+'pubdeal'+CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR+'3152368');
+			expect(result[7].val({})).to.equal('');
+			expect(result[8].val()).to.equal(1);
+			expect(result[9].val()).to.equal('5890');
+			expect(result[10].val()).to.equal('17610');
+			expect(result[11].val()).to.equal('6');
+			expect(result[12].val({mediaType: 'video', videoCacheKey: 'AY-32-DF-23'})).to.equal('AY-32-DF-23');
+			expect(result[13].val({mediaType: 'video', videoCacheKey: 'AY-32-DF-23'})).to.equal(CONSTANTS.CONFIG.CACHE_URL);
+			expect(result[14].val({mediaType: 'video', videoCacheKey: 'AY-32-DF-23'})).to.equal(CONSTANTS.CONFIG.CACHE_PATH);
+			expect(result[15].val()).to.equal('');
+			done();
+		});
+	});
+
+	describe('pbjsBidsBackHandler', function() {
+		beforeEach(function(done) {
+			window.owpbjs = {
+				triggerUserSyncs: function() {}
+			};
+            sinon.stub(window.owpbjs, "triggerUserSyncs").returns({});
+            sinon.stub(UTIL, 'log');
+            done();
+        });
+
+        afterEach(function(done) {
+			window.owpbjs.triggerUserSyncs.restore();
+			UTIL.log.restore();
+            done();
+        });
+		it('should be a functiion',function(done){
+            PREBID.pbjsBidsBackHandler.should.be.a('function');
+            done();
+        });
+		it('should call pbjsBidsBackHandler', function(done) {
+			PREBID.pbjsBidsBackHandler();
+			UTIL.log.calledWith('In PreBid bidsBackHandler with bidResponses: ');
+			done();
+		});
+	});
 
 });
