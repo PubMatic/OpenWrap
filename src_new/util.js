@@ -1302,6 +1302,7 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 				refThis.logError(CONSTANTS.MESSAGES.M27 + JSON.stringify(rxPattern));
 			}
 		} else {
+			refThis.logWarning(klmsForPartner);
 			refThis.logWarning(CONSTANTS.MESSAGES.M28 + generatedKey);
 		}
 	}

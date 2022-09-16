@@ -458,6 +458,15 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should handle if the value is array', function(done) {
+            copyFromArray = {
+                "k1": ["v1", "v11"],
+                "k2": "v2"
+            };
+            UTIL.copyKeyValueObject(copyTo, copyFromArray);
+            done();
+        });
+
         it('should have copied keys and values from given object to target object', function(done) {
             UTIL.copyKeyValueObject(copyTo, copyFrom);
             copyTo.should.deep.equal({ "k1": [ 'v3', 'v1' ], "k2": [ 'v2' ] });
@@ -569,7 +578,7 @@ describe('UTIL', function() {
         });
 
         // Uncomment Below code once phantom js has been replaced with chrome headless
-        xit('should have assigned videoSlot if video config is present',function(done){
+        it('should have assigned videoSlot if video config is present',function(done){
             videoSlot = [];
             UTIL.mediaTypeConfig = {
                 "Div_1":{
@@ -587,7 +596,7 @@ describe('UTIL', function() {
         });
 
         //TODO: Uncomment Below code once phantom js has been replaced with chrome headless
-        xit('should not have assigned videoSlot if video config is not present',function(done){
+        it('should not have assigned videoSlot if video config is not present',function(done){
             videoSlot = [];
             UTIL.mediaTypeConfig ={};
             pattern = '_DIV_@_W_x_H_';
@@ -598,7 +607,7 @@ describe('UTIL', function() {
         });
 
         //TODO: Uncomment Below code once phantom js has been replaced with chrome headless
-        xit('should not have assigned videoSlot if video config is present but flag for video is false',function(done){
+        it('should not have assigned videoSlot if video config is present but flag for video is false',function(done){
             videoSlot = [];
             UTIL.mediaTypeConfig = {
                 "Div_1":{
@@ -616,7 +625,7 @@ describe('UTIL', function() {
         });
 
         //TODO: Uncomment Below code once phantom js has been replaced with chrome headless
-        xit('should not update the sizes of active slot', function(done){
+        it('should not update the sizes of active slot', function(done){
             videoSlot = [];
             UTIL.mediaTypeConfig = {
                 "Div_1":{
@@ -777,7 +786,7 @@ describe('UTIL', function() {
             done();
         });
 
-        xit('should check whether activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
+        it('should check whether activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
             UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
             UTIL.forEachOnArray.should.be.calledOnce;
             UTIL.generateSlotNamesFromPattern.should.be.calledOnce;
@@ -803,7 +812,7 @@ describe('UTIL', function() {
             done();
         });
 
-        xit('should check call handler function if activeslots is not empty ad key generation pattern is regex pattern', function(done) {
+        it('should check call handler function if activeslots is not empty ad key generation pattern is regex pattern', function(done) {
             adapterConfig.kgp = undefined;
             adapterConfig.kgp_rx = "_AU_@_DIV_@_W_x_H_";
             UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
@@ -918,6 +927,14 @@ describe('UTIL', function() {
                 },
                 pbbid:{
                     mediaType:"banner"
+                },
+                renderer: {
+                    render: function() {
+                        return 'something';
+                    }
+                },
+                getPbBid: function() {
+                    return 'something';
                 }
             };
             sinon.stub(UTIL, "resizeWindow")
@@ -947,6 +964,11 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should call the render method of bid object', function(done) {
+            bid['pbbid']['mediaType'] = 'video';
+            UTIL.displayCreative(theDocument, bid);
+            done();
+        });
 
         it('should have calle resizeWindow', function(done) {
             UTIL.displayCreative(theDocument, bid);
@@ -1195,6 +1217,25 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should handle when parent.document is different than document', function(done) {
+            obj = {
+                "k1": "v1"
+            };
+            differentObj = {
+                "k1": "v1"
+            };
+
+            cWin = {
+                parent: {
+                    document: obj
+                },
+                document: differentObj
+            };
+
+            UTIL.getTopFrameOfSameDomain(cWin);
+            done();
+        });
+
         it('should return the passed object if parent and the original document objet are same', function(done) {
             UTIL.getTopFrameOfSameDomain(cWin).should.be.deep.equal(cWin);
             done();
@@ -1242,6 +1283,20 @@ describe('UTIL', function() {
 
         it('is a function', function(done) {
             UTIL.getMetaInfo.should.be.a('function');
+            done();
+        });
+
+        it('should handle when protocol is http', function(done) {
+            frameStub.refurl = undefined;
+            frameStub.location.protocol = "http:";
+            UTIL.getMetaInfo(cWin);
+            done();
+        });
+
+        it('should handle when refurl is not available', function(done) {
+            frameStub.refurl = undefined;
+            frameStub.document.referrer = undefined;
+            UTIL.getMetaInfo(cWin);
             done();
         });
 
@@ -1413,6 +1468,13 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should add hook on function', function(done) {
+            UTIL.addHookOnFunction(theObject, false, functionName, obj.newFunction);
+            UTIL.isObject.calledOnce.should.be.true;
+            UTIL.isFunction.calledOnce.should.be.true;
+            done();
+        });
+
         it('should have logged if passed object doesnt have function which we want to add hook on', function(done) {
             functionName = "non_existing_fn_name";
             UTIL.addHookOnFunction(theObject, useProto, functionName, obj.newFunction);
@@ -1436,10 +1498,44 @@ describe('UTIL', function() {
         var values = null,
             priorityArray = null;
 
+        beforeEach(function(done) {
+            sinon.spy(UTIL, "log");
+            done();
+        });
+
+        afterEach(function(done) {
+            UTIL.log.restore();
+            done();
+        });
+
         it('is a function', function(done) {
             UTIL.getBididForPMP.should.be.a('function');
             done();
         });
+
+        it('should log the error when values is empty', function(done) {
+            UTIL.getBididForPMP('', []);
+            done();
+        });
+
+        it('should give selectedPMPDeal empty', function(done) {
+            UTIL.getBididForPMP('values,to,test', ['somethingelse']);
+            UTIL.log.calledWith('No PMP-Deal was found matching PriorityArray, So Selecting first PMP-Deal: values').should.be.true;
+            done();
+        });
+
+        it('should give selectedPMPDeal value', function(done) {
+            UTIL.getBididForPMP('some,values,to,test', ['some']);
+            UTIL.log.calledWith('Selecting PMP-Deal: some').should.be.true;
+            done();
+        });
+
+        it('should return bidID value', function(done) {
+            bidID = UTIL.getBididForPMP('PMPG_-_dealxyz_-_123456', ['PMPG_-_dealxyz_-_123456']);
+            bidID.should.be.equal('123456');
+            done();
+        });
+
     });
 
     describe('#createInvisibleIframe', function() {
@@ -1634,6 +1730,8 @@ describe('UTIL', function() {
             UTIL.logError.restore();
             UTIL.writeIframe.restore();
 
+            bidDetailsStub.bid.pbbid = undefined;
+            bidDetailsStub.bid.renderer = undefined;
             bidDetailsStub.bid.getAdapterID.restore();
             msg.source.postMessage.restore();
             window.document.body.appendChild.restore();
@@ -1676,6 +1774,17 @@ describe('UTIL', function() {
                 }), 1).should.be.true;
                 done();
             });
+
+            // it('should call render method of renderer', function(done) {
+            //     bidDetailsStub.bid.pbbid = {
+            //         mediaType: 'video'
+            //     };
+            //     bidDetailsStub.bid.renderer = {
+            //         render: function() {}
+            //     }
+            //     UTIL.safeFrameCommunicationProtocol(msg);
+            //     done();
+            // });
         });
 
         describe('##when pwt_type is 2', function() {
@@ -2162,6 +2271,37 @@ describe('UTIL', function() {
             infoObject.bidDetails.getGrossEcpm.called.should.be.true;
             window.document.createTextNode.calledWith("Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + ")USD :" + 0 + "ms" + ": POST-TIMEOUT").should.be.true;
             infoPanelElementStub.appendChild.calledTwice.should.be.true;
+            done();
+        });
+
+        it('should assign currencyMsg to adServerCurrency value', function(done) {
+            infoObject.type = 'bid';
+            infoObject.adServerCurrency = 'someValue';
+            UTIL.vLogInfo(divID, infoObject);
+            window.document.createTextNode.calledWith(
+                "Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + ")" + infoObject.adServerCurrency + " :100ms"
+            ).should.be.true;
+            done();
+        });
+
+        it('should assign currencyMsg to USD when adServerCurrency is 0', function(done) {
+            infoObject.type = 'bid';
+            infoObject.adServerCurrency = 0;
+            UTIL.vLogInfo(divID, infoObject);
+            window.document.createTextNode.calledWith(
+                "Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + ")USD :100ms"
+            ).should.be.true;
+            done();
+        });
+
+        it('should add s2s to the node', function(done) {
+            infoObject.type = 'bid';
+            infoObject.s2s = true;
+            infoObject.adServerCurrency = 0;
+            UTIL.vLogInfo(divID, infoObject);
+            window.document.createTextNode.calledWith(
+                "Bid: " + infoObject.bidder + "(s2s): " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + ")USD :100ms"
+            ).should.be.true;
             done();
         });
 
@@ -3063,6 +3203,28 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should handle JSON value keys', function(done) {
+            var clientIdentifierInfo = "{}";
+            var params = {
+                name: "identityLink",
+                "params.pid": "23",
+                "params.clientIdentifier": clientIdentifierInfo,
+                "storage.type": "cookie",
+                "params.loadATS": "true", // or false// boolean default is false,
+                "params.placementID": "23",
+                "params.storageType": "localstorage",
+                "params.detectionType": "scrapeAndUrl",
+                "params.urlParameter": "eparam",
+                "params.cssSelectors": "input[type=text], input[type=email]",
+                "params.logging": "info",
+                "storage.name": "somenamevalue",
+                "storage.expires": "60"
+            };
+            UTIL.getUserIdParams(params);
+            window[UTIL.pbNameSpace] = undefined;
+            done();
+        });
+
         it('should call initLiveRampAts if identityLink partner is configured and loadATS is set to true', function(done) {
             var lrParams = {
                 name: "identityLink",
@@ -3508,6 +3670,7 @@ describe('UTIL', function() {
             slotConfigMandatoryParams = "slotConfigMandatoryParams";
             activeSlots = [new SLOT("slot_1"), new SLOT("slot_2")];
             activeSlots[0].setSizes([[300,250]]);
+            activeSlots[0].setDivID("div1");
             activeSlots[1].setSizes([300,250]);
             obj = {
                 handlerFunction : function(a,b,c,d,e,f,g,h,i,j) {
@@ -3523,6 +3686,13 @@ describe('UTIL', function() {
             sinon.spy(UTIL,"checkMandatoryParams")
             sinon.spy(obj, "handlerFunction");
             addZeroBids = true;
+
+            window.PWT = {
+                bidMap: {
+
+                }
+            };
+
             done();
         });
 
@@ -3540,6 +3710,14 @@ describe('UTIL', function() {
             addZeroBids = null;
             obj.handlerFunction.restore();
             UTIL.checkMandatoryParams.restore();
+            done();
+        });
+
+        it('should handle keylookupmap value when klm is not available', function(done) {
+            adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = undefined;
+            adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] = undefined;
+            UTIL.callHandlerFunctionForMapping(adapterID,adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,false,keyGenerationPattern,videoSlotName);
+            UTIL.forEachOnArray.should.be.calledOnce;
             done();
         });
 
@@ -3570,6 +3748,24 @@ describe('UTIL', function() {
         });
 
         describe('flow for regex mapping',function(){
+            it('should handle keylookupmap value when klm is not available', function(done) {
+                adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] = [{
+                    rx: {
+                        DIV: ".*",
+                        AU: "^/12345678/test",
+                        SIZE: "728x90"
+                    },
+                    rx_config: {
+                        zoneId: "123456",
+                        siteId: "987654",
+                        floor: "0"
+                    }
+                }];
+                UTIL.callHandlerFunctionForMapping(adapterID,adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,false,keyGenerationPattern,videoSlotName);
+                UTIL.getConfigFromRegex.should.be.calledOnce;
+                UTIL.log.should.be.calledOnce;
+                done();
+            });
 
             it('should  call handler function',function(done){
                 adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = undefined;
@@ -3581,6 +3777,7 @@ describe('UTIL', function() {
 
         it('should create bid if addZeroBids is true',function(done){
             addZeroBids = true;
+            UTIL.callHandlerFunctionForMapping(adapterID,adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,addZeroBids,keyGenerationPattern,videoSlotName);
             BID.createBid.should.be.calledOnce;
             BIDMgr.setBidFromBidder.should.be.calledOnce;
             done();     
@@ -3588,6 +3785,7 @@ describe('UTIL', function() {
 
         it('should create bid if addZeroBids is false',function(done){
             addZeroBids = false;
+            UTIL.callHandlerFunctionForMapping(adapterID,adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,addZeroBids,keyGenerationPattern,videoSlotName);
             BID.createBid.should.not.be.called;
             BIDMgr.setBidFromBidder.should.not.be.called;
             done();     
