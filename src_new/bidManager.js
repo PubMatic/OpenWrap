@@ -373,6 +373,7 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 		util.displayCreative(theDocument, theBid);
 		util.vLogInfo(divID, {type: 'disp', adapter: theBid.getAdapterID()});
 		refThis.executeMonetizationPixel(divID, theBid);
+		// Check if browsers local storage has auction related data and update impression served count accordingly.
 	    var frequencyDepth = JSON.parse(localStorage.getItem(PREFIX + HOSTNAME)) || { impressionServed: 0 };
 		if (frequencyDepth !== null && frequencyDepth.slotLevelFrquencyDepth) {
 			frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed = frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed + 1; 
