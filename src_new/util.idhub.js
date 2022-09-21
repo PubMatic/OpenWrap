@@ -244,6 +244,10 @@ exports.getUserIdConfiguration = function () {
 	return userIdConfs;
 };
 
+exports.deleteCustomParams = function(params){
+	 delete params.custom;
+	 return params;
+}
 exports.getUserIdParams = function (params) {
 	var userIdParams = {};
 	refThis.applyDataTypeChangesIfApplicable(params);
@@ -272,7 +276,10 @@ exports.getUserIdParams = function (params) {
 	if (userIdParams && userIdParams.params && userIdParams.params["loadLauncher"] == "true") {
 		refThis.initLauncherJs(userIdParams); 
 	}
-	return userIdParams;
+	if (userIdParams && userIdParams.custom && userIdParams.custom["loadLaunchPad"] == "true") {
+		refThis.initLiveRampLaunchPad(userIdParams); 
+	}
+	return refThis.deleteCustomParams(userIdParams);
 };
 
 exports.getUserIds = function () {
@@ -409,6 +416,40 @@ exports.initLiveRampAts = function (params) {
 	} else {
 		window.addEventListener("load", function () {
 			setTimeout(addATS, 1000);
+		});
+	}
+};
+
+
+exports.getEmailHashes = function(){
+	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
+	var enableSSO = CONFIG.isSSOEnabled() || false;
+	var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
+	return emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+}
+
+exports.initLiveRampLaunchPad = function (params) {
+	var lpURL = "https://launchpad-wrapper.privacymanager.io/"+params.custom.configurationId+"/launchpad-liveramp.js";
+	function addLaunchPad() {
+		var launchPadScript = document.createElement("script");
+		launchPadScript.onload = function () {
+			__launchpad('addEventListener', 1, function(){
+				var isDirectMode = !(ats.outputCurrentConfiguration()['DETECTION_MODULE_INFO']) ||
+									ats.outputCurrentConfiguration()['ENVELOPE_MODULE_INFO']['ENVELOPE_MODULE_CONFIG']['startWithExternalId'];
+				if(isDirectMode){ // If direct or detect/direct mode
+					var emailHashes = refThis.getEmailHashes();
+					emailHashes && window.ats.setAdditionalData({'type': 'emailHashes','id': emailHashes});
+				}
+			}, ['atsWrapperLoaded']);
+		};
+		launchPadScript.src = lpURL;
+		document.body.appendChild(launchPadScript);
+	}
+	if (document.readyState == 'complete') {
+		addLaunchPad();
+	} else {
+		window.addEventListener("load", function () {
+			setTimeout(addLaunchPad, 1000);
 		});
 	}
 };
