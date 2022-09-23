@@ -3,13 +3,10 @@ var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
 // var GDPR = require("./gdpr.js");
 var bmEntry = require("./bmEntry.js");
-
 var refThis = this;
-
-var HOSTNAME;
-const PREFIX = 'FLOOR_';
 var storedObject;
 var frequencyDepth;
+const PREFIX = 'PROFILE_AUCTION_INFO_';
 
 function createBidEntry(divID){ // TDD, i/o : done
 	/* istanbul ignore else */
@@ -362,8 +359,7 @@ exports.getBidById = function(bidID) { // TDD, i/o : done
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
-	refThis.getHostAndStorageData();
-	
+	storedObject = localStorage.getItem(PREFIX + window.location.hostname);
 	var bidDetails = refThis.getBidById(bidID);
 	/* istanbul ignore else */
 	if(bidDetails){
@@ -374,19 +370,19 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 		util.vLogInfo(divID, {type: 'disp', adapter: theBid.getAdapterID()});
 		refThis.executeMonetizationPixel(divID, theBid);
 		// Check if browsers local storage has auction related data and update impression served count accordingly.
-	    var frequencyDepth = JSON.parse(localStorage.getItem(PREFIX + HOSTNAME)) || { impressionServed: 0 };
+	    var frequencyDepth = JSON.parse(localStorage.getItem(PREFIX + window.location.hostname));
 		if (frequencyDepth !== null && frequencyDepth.slotLevelFrquencyDepth) {
 			frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed = frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed + 1; 
 			frequencyDepth.impressionServed = frequencyDepth.impressionServed + 1;
 		}
-		localStorage.setItem(PREFIX + HOSTNAME, JSON.stringify(frequencyDepth));
+		localStorage.setItem(PREFIX + window.location.hostname, JSON.stringify(frequencyDepth));
 	}
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
-	refThis.getHostAndStorageData();
+	storedObject = localStorage.getItem(PREFIX + window.location.hostname);
     frequencyDepth = storedObject !== null ? JSON.parse(storedObject) : {};
 	var outputObj = {
 			s: []
@@ -424,6 +420,8 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		outputObj["trc"] = frequencyDepth.slotCnt;
 		outputObj["tbs"] = frequencyDepth.bidServed;
 		outputObj["tis"] = frequencyDepth.impressionServed;
+		outputObj["lip"] = frequencyDepth.lip;
+		outputObj["ua"] = frequencyDepth.userAgentDetails;
 	}
 	
 
@@ -541,11 +539,6 @@ function getAdDomain(bidResponse) {
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-// Find out hostname and fetch localstorage object
-exports.getHostAndStorageData = function() {
-	HOSTNAME = window.location.hostname;
-	storedObject = localStorage.getItem(PREFIX + HOSTNAME);
-}
 
 // Returns property from localstorages slotlevel object
 exports.getSlotLevelFrequencyDepth = function (frequencyDepth, prop, adUnit) {
@@ -558,7 +551,7 @@ exports.getSlotLevelFrequencyDepth = function (frequencyDepth, prop, adUnit) {
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
-	storedObject = localStorage.getItem(PREFIX + HOSTNAME);
+	storedObject = localStorage.getItem(PREFIX + window.location.hostname);
     var frequencyDepth = storedObject !== null ? JSON.parse(storedObject) : {};
 	var usePBSAdapter = CONFIG.usePBSAdapter();
 	var startTime = bmEntry.getCreationTime() || 0;
