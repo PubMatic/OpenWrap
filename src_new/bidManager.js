@@ -421,7 +421,8 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		outputObj["tbs"] = frequencyDepth.bidServed;
 		outputObj["tis"] = frequencyDepth.impressionServed;
 		outputObj["lip"] = frequencyDepth.lip;
-		outputObj["ua"] = frequencyDepth.userAgentDetails;
+		// Commenting user agent as analytics team is already receiving these information.
+		// outputObj["ua"] = frequencyDepth.userAgentDetails;
 	}
 	
 
