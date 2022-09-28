@@ -1521,7 +1521,7 @@ exports.UpdateVastWithTracker= function(bid, vast){
 		var domParser = new DOMParser();
 		var parsedVast = domParser.parseFromString(vast,"application/xml");
 		var impEle = parsedVast.createElement("Impression");
-		impEle.innerHTML =	"<![CDATA["+ refThis.generateMonetizationPixel(bid.adUnitCode, bid)+"]]>";
+		impEle.innerHTML =	CONFIG.isPrebidPubMaticAnalyticsEnabled() ? "" : "<![CDATA["+ refThis.generateMonetizationPixel(bid.adUnitCode, bid)+"]]>";
 		if(parsedVast.getElementsByTagName('Wrapper').length == 1){
 			parsedVast.getElementsByTagName('Wrapper')[0].appendChild(impEle);
 		}
