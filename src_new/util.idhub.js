@@ -19,6 +19,7 @@ var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
 var refThis = this;
+var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 refThis.idsAppendedToAdUnits = false;
 
 function isA(object, testForType) {
@@ -242,7 +243,6 @@ exports.getUserIdBuildConfiguration = function () {
 	refThis.callThirdPartyScripts();
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIdConfs));
 	return userIdConfs ;
-
 };
 
 exports.callThirdPartyScripts = function() {
@@ -319,8 +319,8 @@ exports.getParams = function(moduleName){
 // };
 
 exports.getUserIds = function () {
-	if (refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds)) {
-		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIds();
+	if (refThis.isFunction(window[pbNameSpace].getUserIds)) {
+		return window[pbNameSpace].getUserIds();
 	} else {
 		refThis.logWarning("getUserIds" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	}
@@ -334,12 +334,12 @@ exports.getDomainFromURL = function (url) {
 
 exports.handleHook = function (hookName, arrayOfDataToPass) {
 	// Adding a hook for publishers to modify the data we have
-	if (refThis.isFunction(window.PWT[hookName])) {
-		refThis.log("For Hook-name: " + hookName + ", calling window.PWT." + hookName + "function.");
-		window.PWT[hookName].apply(window.PWT, arrayOfDataToPass);
+	if (refThis.isFunction(window.IHPWT[hookName])) {
+		refThis.log("For Hook-name: " + hookName + ", calling window.IHPWT." + hookName + "function.");
+		window.IHPWT[hookName].apply(window.IHPWT, arrayOfDataToPass);
 	}
 	// else {
-	// 	refThis.log('Hook-name: '+hookName+', window.PWT.'+hookName+' is not a function.' );
+	// 	refThis.log('Hook-name: '+hookName+', window.IHPWT.'+hookName+' is not a function.' );
 	// }
 };
 
@@ -360,8 +360,8 @@ exports.forEachOnArray = function (theArray, callback) {
 };
 
 exports.getUserIdsAsEids = function () {
-	if (refThis.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids)) {
-		return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getUserIdsAsEids();
+	if (refThis.isFunction(window[pbNameSpace].getUserIdsAsEids)) {
+		return window[pbNameSpace].getUserIdsAsEids();
 	} else {
 		refThis.logWarning("getUserIdsAsEids" + CONSTANTS.MESSAGES.IDENTITY.M6);
 	}

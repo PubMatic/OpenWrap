@@ -883,6 +883,7 @@ describe('ADAPTER: Prebid', function() {
 	// Test cases for yahoo ssp setconfig property
 	describe("set config for YahooSSP Bidder",function(){
 		var prebidConfig = {};
+        var identityOnlyBackup = CONF.pwt.identityOnly;
 		var expectedResult = {
 			mode: "all"
 		};
@@ -903,6 +904,8 @@ describe('ADAPTER: Prebid', function() {
 					}
 				}
 			};
+            CONF.pwt.identityOnly = "0";
+            UTIL.pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 			done();
 		});
 
@@ -910,6 +913,7 @@ describe('ADAPTER: Prebid', function() {
 			delete CONF.alias["yahoossp-alias"];
 			delete CONF.adapters["yahoossp-alias"];
 			prebidConfig = {};
+            CONF.pwt.identityOnly = identityOnlyBackup;
 			done();
 		});
 
@@ -929,6 +933,7 @@ describe('ADAPTER: Prebid', function() {
     // Test cases only for floor module
     describe("#setPrebidConfig", function(){
         var floorObj = {};
+	    var identityOnlyBackup = CONF.pwt.identityOnly;
         beforeEach(function(done) {
             PREBID.isFloorPriceModuleEnabled = false;
             sinon.stub(UTIL, 'isFunction');
@@ -936,7 +941,8 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(CONFIG, 'isFloorPriceModuleEnabled');
             sinon.stub(CONFIG, 'getFloorJsonUrl').returns("externalFloor.json");
             sinon.stub(CONFIG, 'getFloorAuctionDelay').returns(100);
-            
+            CONF.pwt.identityOnly = "0";
+            UTIL.pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
             floorObj = {
                 enforcement:{
                     enforceJS: true
@@ -946,14 +952,20 @@ describe('ADAPTER: Prebid', function() {
                     url: "externalFloor.json"
                 }
             }
+            function onSSOLogin() {};
             window.owpbjs = {
-
-            };
+                
+            }
             windowPbJS2Stub = {
                 onEvent: function () {
                     return "onEvent";
-                }
+                },
+                'onSSOLogin': onSSOLogin
             };
+
+            window.ihowpbjs = {
+                'onSSOLogin': onSSOLogin
+            }
             sinon.spy(windowPbJS2Stub, "onEvent");
             window["owpbjs"] = windowPbJS2Stub;
 
@@ -961,12 +973,13 @@ describe('ADAPTER: Prebid', function() {
                 window["owpbjs"] = windowPbJS2Stub;
                 window["owpbjs"].que = [];
                 window["owpbjs"].setConfig = function (pbConfig) {
-                   prebidConfig = pbConfig;
-                  return true;
+                    prebidConfig = pbConfig;
+                    return true;
                 };
                 window["owpbjs"].getConfig = function(){
                     return prebidConfig;
-                }
+                };
+                window['owpbjs'].onSSOLogin = function () {};
             });
             window.owpbjs = window.owpbjs || {};
             window.owpbjs.cmd = window.owpbjs.cmd || [];
@@ -996,6 +1009,7 @@ describe('ADAPTER: Prebid', function() {
             delete window.owpbjs;
             delete floorObj;
             prebidConfig = {};
+	    CONF.pwt.identityOnly = identityOnlyBackup;
             done();
         })
 

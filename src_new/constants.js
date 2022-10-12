@@ -25,6 +25,7 @@ exports.COMMON = {
 	"AD_SERVER_CURRENCY": "adServerCurrency",
 	"SINGLE_IMPRESSION": "singleImpression",
 	"PREBID_NAMESPACE": "owpbjs",
+	"IH_NAMESPACE": "ihowpbjs",
 	"ENABLE_USER_ID": "identityEnabled",
 	"IDENTITY_PARTNERS": "identityPartners",
 	"IDENTITY_CONSUMERS": "identityConsumers",
@@ -205,7 +206,7 @@ exports.MESSAGES = {
 		M1: "Unable to get User Id from OpenIdentity",
 		M2: "Setting UserIds to EB ",
 		M3: "Unable to parse User ID configuration",
-		M4: "User Id Condiguration Sent to prebid ",
+		M4: "User Id Configuration Sent to prebid ",
 		M5: "Identity only enabled, no need to process. Calling Original function ",
 		M6: " function is not available. Make sure userId module is included."
 	}
@@ -262,16 +263,22 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 	},
 	"imuid": {
 		"params.cid": "number"
+	},
+	"identityLink": {
+		"storage.refreshInSeconds": "number"
 	}
 }; //list of ID partners for whom special handling of datatype is required
 
 exports.ID_PARTNERS_CUSTOM_VALUES = {
-	"id5Id": [
-		{
+	"id5Id": [{
 			"key": "params.provider",
 			"value": "pubmatic-identity-hub"
 		}
-	]
+	],
+	"identityLink": [{
+		"key": "storage.refreshInSeconds",
+		"value": "1800"
+	}]
 };
 
 exports.EXCLUDE_PARTNER_LIST = ['pubProvidedId'];

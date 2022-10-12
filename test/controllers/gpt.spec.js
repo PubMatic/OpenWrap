@@ -1343,7 +1343,8 @@ describe("CONTROLLER: GPT", function() {
             winningBidStub.getNetEcpm.returns(2);
             UTIL.isOwnProperty.withArgs(CONSTANTS.IGNORE_PREBID_KEYS).returns(false);
             UTIL.isOwnProperty.withArgs({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}).returns(false);
-
+			UTIL.isOwnProperty.withArgs({"pwtpb":1}).returns(false);
+			
             GPT.findWinningBidAndApplyTargeting(divID);
 
             UTIL.forEachOnObject.called.should.be.true;
@@ -2959,6 +2960,7 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(GPT, "defineGPTVariables");
             sinon.spy(GPT, "addHooksIfPossible");
             sinon.spy(GPT, "initSafeFrameListener");
+            sinon.stub(PREBID, "realignPubmaticAdapters")
             done();
         });
 
@@ -2969,6 +2971,7 @@ describe("CONTROLLER: GPT", function() {
             GPT.defineGPTVariables.restore();
             GPT.addHooksIfPossible.restore();
             GPT.initSafeFrameListener.restore();
+            PREBID.realignPubmaticAdapters.restore();
             done();
         });
 

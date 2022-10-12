@@ -37,7 +37,7 @@ console.log("In openwrap gulp.sh profileMode = " + profileMode);
 console.log("argv ==>", argv);
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
-
+//console.log("@@@@@@@@@@@@ prebidRepoPath = ",prebidRepoPath);
 gulp.task('clean', ['update-adserver'], function() {
     var clean = require('gulp-clean');
     return gulp.src(['dist/**/*.js', 'build/'], {
@@ -264,8 +264,8 @@ gulp.task('change-prebid-keys', () => {
 gulp.task('bundle', ['update-adserver'], function () {
     console.log("Executing build");
     var prebidFileName = (profileMode === "IH" ? '/build/dist/prebid.idhub.js' : '/build/dist/prebid.js')
-    console.log("##################### prebidfilename picked = "+prebidFileName);
-    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js'])
+    var prependscript = "", appendScript = "";
+    return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 });
@@ -401,7 +401,6 @@ gulp.task('devbundle',['build-userconfigs','devpack'], function () {
     console.log("Executing Dev Build");
     // var prebidFileName = (profileMode === "IH" ? '/build/devIH/prebid.idhub.js' : '/build/dev/prebid.js')
     var prebidFileName = '/build/dev/prebid.js';
-    console.log("##################### prebidfilename picked = "+prebidFileName);
     return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'])
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
@@ -412,8 +411,9 @@ gulp.task('bundle-prod',[ 'build-userconfigs', 'webpack'], function () {
     console.log("Executing bundling");
     // var prebidFileName = (profileMode === "IH" ? '/build/distIH/prebid.idhub.js' : '/build/dist/prebid.js')
     var prebidFileName = '/build/dist/prebid.js';
+    var prependscript = "", appendScript = "";
     console.log("##################### prebidfilename picked = "+prebidFileName);
-    return gulp.src([prebidRepoPath + prebidFileName, 'temp/primus.js',  './build/dist/owt.js'])
+    return gulp.src([prependscript, prebidRepoPath + prebidFileName, 'temp/primus.js',  './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 });
@@ -450,5 +450,21 @@ gulp.task('build-userconfigs', function(){
 
 
 
+
+gulp.task('update-namespace', function(){
+    console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
+    console.log("Executing update-namespace - START => ");
+    var prebidFileName = '/build/dist/prebid.js';
+    return gulp.src(prebidRepoPath + prebidFileName)
+    .pipe(replace({
+        patterns: [
+            {
+            match: /owpbjs/g,
+            replacement: 'ihowpbjs'
+            }
+        ]
+    }))
+    .pipe(gulp.dest(prebidRepoPath+'/build/dist/'));
+});
 
 gulp.task('build-gpt-prod',[''])

@@ -3,6 +3,7 @@
 // forEachOnArray
 var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
+var conf = require("./conf.js");
 var BID = require("./bid.js");
 var bidManager = require("./bidManager.js");
 
@@ -25,7 +26,8 @@ var refThis = this;
 refThis.idsAppendedToAdUnits = false;
 var mediaTypeConfigPerSlot = {};
 exports.mediaTypeConfig = mediaTypeConfigPerSlot;
-
+var pbNameSpace = parseInt(conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY) ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
+exports.pbNameSpace = pbNameSpace;
 function isA(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
 }
@@ -1309,7 +1311,7 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 // removeIf(removeUserIdRelatedCode)
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
-	owpbjs.onSSOLogin({});
+	window[pbNameSpace].onSSOLogin({});
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
 		if (CONSTANTS.EXCLUDE_PARTNER_LIST.indexOf(parterId) < 0) {
 			userIdConfs.push(refThis.getUserIdParams(partnerValues));
@@ -1363,6 +1365,11 @@ exports.getNestedObjectFromString = function(sourceObject,separator, key, value)
 	return sourceObject;
 };
 
+exports.deleteCustomParams = function(params){
+	delete params.custom;
+	return params;
+}
+
 exports.getUserIdParams = function(params){
 	var userIdParams= {};
 	refThis.applyDataTypeChangesIfApplicable(params);
@@ -1383,9 +1390,8 @@ exports.getUserIdParams = function(params){
 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
 		}
 	}	
-	
 	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
-    	refThis.initLiveRampAts(userIdParams); 
+    	refThis.initLiveRampAts(userIdParams);
 	}
 	if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
         refThis.initZeoTapJs(userIdParams);
@@ -1393,7 +1399,10 @@ exports.getUserIdParams = function(params){
 	if (userIdParams && userIdParams.params && userIdParams.params["loadLauncher"] == "true") {
 		refThis.initLauncherJs(userIdParams); 
 	}
-	return userIdParams;
+	if (userIdParams && userIdParams.custom && userIdParams.custom["loadLaunchPad"] == "true") {
+		refThis.initLiveRampLaunchPad(userIdParams); 
+	}
+	return refThis.deleteCustomParams(userIdParams);
 };
 
 exports.getPartnerParams = function(params){
@@ -1416,6 +1425,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	var netEcpm, grossEcpm, kgpv, bidId, adapterId, adapterName,adUnitId;
 	var sspID = "";
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
+	const prebidBidId = (theBid.pbbid && theBid.pbbid.prebidBidId) || (theBid.prebidBidId);
 
 	/* istanbul ignore else */
 	if(!pixelURL){
@@ -1482,13 +1492,14 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		sspID = theBid.sspID || "";	
 	}
 
-	adUnitId = bidManager.getAdUnitInfo(slotID).adUnitId || slotId;
+	adUnitId = bidManager.getAdUnitInfo(slotID).adUnitId || slotID;
 
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
 	pixelURL += "&tst=" + refThis.getCurrentTimestamp();
 	pixelURL += "&iid=" + window.encodeURIComponent(window.PWT.bidMap[slotID].getImpressionID());
-	pixelURL += "&bidid=" + window.encodeURIComponent(bidId);
+	pixelURL += "&bidid=" + (prebidBidId ? window.encodeURIComponent(prebidBidId) : window.encodeURIComponent(bidId));
+	pixelURL += "&origbidid=" + window.encodeURIComponent(bidId);
 	pixelURL += "&pid=" + window.encodeURIComponent(CONFIG.getProfileID());
 	pixelURL += "&pdvid=" + window.encodeURIComponent(CONFIG.getProfileDisplayVersionID());
 	pixelURL += "&slot=" + window.encodeURIComponent(slotID);
@@ -1645,7 +1656,7 @@ exports.getLiverampParams = function(params) {
 	if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
 		params.params.cssSelectors = params.params.cssSelectors.split(",");
 	}
-	var userIdentity = owpbjs.getUserIdentities() || {};
+	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var detectionMechanism = params.params.detectionMechanism;
 	var enableCustomId = params.params.enableCustomId === "true" ? true : false;
@@ -1667,6 +1678,11 @@ exports.getLiverampParams = function(params) {
 			atsObject.urlParameter = params.params.urlParameter;
 			atsObject.cssSelectors = params.params.cssSelectors;
 			atsObject.detectDynamicNodes = params.params.detectDynamicNodes;
+			atsObject.detectionEventType = params.params.detectionEventType;
+			if (params.params.triggerElements && params.params.triggerElements.length > 0) {
+				params.params.triggerElements = params.params.triggerElements.split(",");
+				atsObject.triggerElements = params.params.triggerElements;
+			}
 			break;
 		case 'direct':
 			var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
@@ -1675,19 +1691,52 @@ exports.getLiverampParams = function(params) {
 			if yes, if sso is enabled and 'direct' is selected as detection mechanism, sso emails will be sent to ats script.
 			if sso is disabled, and 'direct' is selected as detection mechanism, we will look for publisher provided email ids, and if available the hashes will be sent to ats script.
 			*/
-			if (enableCustomId && refThis.isFunction(owpbjs.getUserIdentities) && owpbjs.getUserIdentities() !== undefined) {
-				atsObject.customerID = owpbjs.getUserIdentities().customerID || undefined;
+			if (enableCustomId && refThis.isFunction(window[pbNameSpace].getUserIdentities) && window[pbNameSpace].getUserIdentities() !== undefined) {
+				atsObject.customerID = window[pbNameSpace].getUserIdentities().customerID || undefined;
 			}
 			break;
 	};
 	return atsObject;
 };
 
+exports.getEmailHashes = function(){
+	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
+	var enableSSO = CONFIG.isSSOEnabled() || false;
+	var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
+	return emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+}
+
+exports.initLiveRampLaunchPad = function (params) {
+	var lpURL = "https://launchpad-wrapper.privacymanager.io/"+params.custom.configurationId+"/launchpad-liveramp.js";
+	function addLaunchPad() {
+		var launchPadScript = document.createElement("script");
+		launchPadScript.onload = function () {
+			__launchpad('addEventListener', 1, function(){
+				var isDirectMode = !(ats.outputCurrentConfiguration()['DETECTION_MODULE_INFO']) ||
+									ats.outputCurrentConfiguration()['ENVELOPE_MODULE_INFO']['ENVELOPE_MODULE_CONFIG']['startWithExternalId'];
+				if(isDirectMode){ // If direct or detect/direct mode
+					var emailHashes = refThis.getEmailHashes();
+					emailHashes && window.ats.setAdditionalData({'type': 'emailHashes','id': emailHashes});
+				}
+			}, ['atsWrapperLoaded']);
+		};
+		launchPadScript.src = lpURL;
+		document.body.appendChild(launchPadScript);
+	}
+	if (document.readyState == 'complete') {
+		addLaunchPad();
+	} else {
+		window.addEventListener("load", function () {
+			setTimeout(addLaunchPad, 1000);
+		});
+	}
+};
+
 exports.getPublinkLauncherParams = function(params) {
 	if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
 		params.params.cssSelectors = params.params.cssSelectors.split(",");
 	}
-	var userIdentity = owpbjs.getUserIdentities() || {};
+	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var detectionMechanism = params.params.detectionMechanism;
 	var lnchObject = {
@@ -1736,7 +1785,7 @@ exports.initLiveRampAts = function (params) {
 exports.initZeoTapJs = function(params) {
 	function addZeoTapJs() {
 		var n = document, t = window;
-		var userIdentity = owpbjs.getUserIdentities() || {};
+		var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 		var enableSSO = CONFIG.isSSOEnabled() || false;
 		var userIdentityObject = {
 			email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash['SHA256'] : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash['SHA256'] : undefined
@@ -1781,7 +1830,7 @@ exports.initZeoTapJs = function(params) {
 };
 
 exports.initLauncherJs = function (params) {
-	window.cnvr_launcher_options={lid: params.params.site_id};
+	window.cnvr_launcher_options={lid: params.params.launcher_id};
 	function loadLauncher() {
 		var launchScript = document.createElement("script");
 		var launchObject = refThis.getPublinkLauncherParams(params);
@@ -1871,7 +1920,9 @@ exports.applyCustomParamValuesfApplicable = function(params) {
 		var partnerValues = CONSTANTS.ID_PARTNERS_CUSTOM_VALUES[params.name];
 		var i = 0;
 		for (;i<partnerValues.length;i++) {
-			params[partnerValues[i]["key"]] = partnerValues[i]["value"];
+			if(!params[partnerValues[i]["key"]]){
+				params[partnerValues[i]["key"]] = partnerValues[i]["value"];	
+			}
 		}
 	}
 }

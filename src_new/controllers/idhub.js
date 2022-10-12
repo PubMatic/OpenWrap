@@ -1,11 +1,12 @@
 // removeIf(removeIdHubOnlyRelatedCode)
 // tdod: we can still reduce the build size for idhub by,
 // 			- create a separate constants.js with limited required functions
+
 var CONFIG = require("../config.idhub.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.idhub.js");
 var refThis = this;
-var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
+var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 
 refThis.setConfig = function(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
@@ -13,7 +14,8 @@ refThis.setConfig = function(){
 			var prebidConfig = {
 				debug: util.isDebugLogEnabled(),
 				userSync: {
-					syncDelay: 2000
+					syncDelay: 2000,
+					auctionDelay: 1,
 				}
 			};
 
@@ -37,7 +39,7 @@ refThis.setConfig = function(){
 					timeout: CONFIG.getCCPATimeout(),
 				};
 			}
-			window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
+			window.IHPWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 			if(CONFIG.isUserIdModuleEnabled()){
 				prebidConfig["userSync"]["userIds"] = util.getUserIdBuildConfiguration();		
 			}

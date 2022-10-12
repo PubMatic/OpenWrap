@@ -617,7 +617,8 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                 slotObject["ps"].push({
                     "pn": CONFIG.getAdapterNameForAlias(adapterID),
                     "bc": adapterID,
-                    "bidid": bidID,
+					"bidid": (pbbid && pbbid.prebidBidId) ? pbbid.prebidBidId : bidID,
+					"origbidid": bidID,
                     "db": theBid.getDefaultBidStatus(),
                     "kgpv": theBid.getKGPV(),
                     "kgpsv": theBid.getKGPV(true),

@@ -13,7 +13,7 @@ var CONF = require("../conf.js");
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
-var pbNameSpace = CONSTANTS.COMMON.PREBID_NAMESPACE;
+var pbNameSpace = /*CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : */ CONSTANTS.COMMON.PREBID_NAMESPACE;
 
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
@@ -409,6 +409,8 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 		if(adUnitConfig.renderer){
 			adUnits[code]["renderer"]= adUnitConfig.renderer;
 		}
+		window.PWT.adUnits = window.PWT.adUnits || {};
+		window.PWT.adUnits[code] = adUnits[code];
 	} else if(CONFIG.isSingleImpressionSettingEnabled()){
 		// following function call basically checks whether the adapter is already configured for the given code in adunits object
 		if(isAdUnitsCodeContainBidder(adUnits, code, adapterID)){
@@ -702,25 +704,15 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			 * so added a case for the same.
 			*/
 		
-			util.forEachOnArray(sizes, function(index, size) {
-			var sltParams = {};
-			if(slotParams && slotParams.video){
-				sltParams["video"] = slotParams["video"];
-				}
-				if (keyConfig["siteID"]) {
-				sltParams["siteId"] = keyConfig["siteID"];
-				}
-				if (keyConfig["id"]) {
-				sltParams["id"] = keyConfig["id"];
-				}
-			sltParams["size"] = size;
-			if(isWiidRequired) {
-				sltParams["wiid"] = impressionID;
+			if (slotParams["siteID"]) {
+				slotParams["siteId"] = slotParams["siteID"];
+				delete slotParams['siteID'];
 			}
-			adUnits [code].bids.push({bidder: adapterID, params: sltParams});
-			});
+			if(isWiidRequired) {
+				slotParams["wiid"] = impressionID;
+			}
+			adUnits [code].bids.push({bidder: adapterID, params: slotParams});
 			break;
-
 		default:
 			adUnits[code].bids.push({ bidder: adapterID, params: slotParams });
 			break;
@@ -996,6 +988,7 @@ function setPrebidConfig(){
 		window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 
 		refThis.getFloorsConfiguration(prebidConfig)
+		
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
@@ -1012,6 +1005,7 @@ function setPrebidConfig(){
 		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 		//todo: stop supporting this hook let pubs use pbjs.requestBids hook
 		// do not set any config below this line as we are executing the hook above
+		
 		window[pbNameSpace].setConfig(prebidConfig);
 	} else {
 		util.logWarning("PreBidJS setConfig method is not available");
@@ -1019,6 +1013,15 @@ function setPrebidConfig(){
 }
 
 exports.setPrebidConfig = setPrebidConfig;
+
+function realignPubmaticAdapters(){
+	if(CONF.adapters && CONF.adapters["pubmatic"]){
+		var pubmaticAdpater = {"pubmatic": CONF.adapters["pubmatic"]};
+		CONF.adapters = Object.assign(pubmaticAdpater, CONF.adapters);
+	}
+}
+
+exports.realignPubmaticAdapters = realignPubmaticAdapters;
 
 function gets2sConfig(prebidConfig){
 	var bidderParams = {};
@@ -1270,6 +1273,7 @@ function initPbjsConfig(){
 		return;
 	}
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
+	refThis.realignPubmaticAdapters();
 	refThis.setPrebidConfig();
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
