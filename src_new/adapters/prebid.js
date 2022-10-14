@@ -965,7 +965,8 @@ function setPrebidConfig(){
 		var prebidConfig = {
 			debug: util.isDebugLogEnabled(),
 			cache: {
-				url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH
+				url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH,
+				ignoreBidderCacheKey: true
 			},
 			bidderSequence: "random",					
 			disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
