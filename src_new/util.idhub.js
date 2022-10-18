@@ -3,10 +3,7 @@
 var CONFIG = require("./config.idhub.js");
 var CONSTANTS = require("./constants.js");
 var USERID_MODULE_PARAMS = require("./build.conf.js");
-var ATS_SCRIPT = require("./scripts/ats.js");
-var LAUNCHER_SCRIPT = require("./scripts/launcher.js");
-var ZEOTAP_SCRIPT = require("./scripts/ats.js");
-
+var SCRIPTS = require("./thirdparty/scripts.js")
 var debugLogIsEnabled = false;
 
 /* start-test-block */
@@ -239,7 +236,7 @@ exports.addHookOnFunction = function (theObject, useProto, functionName, newFunc
 
 exports.getUserIdBuildConfiguration = function () {
 	var userIdConfs = USERID_MODULE_PARAMS.buildConfig.userIdConfigs;
-	//owpbjs.onSSOLogin({});
+	window[pbNameSpace].onSSOLogin({});
 	refThis.callThirdPartyScripts();
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIdConfs));
 	return userIdConfs ;
@@ -247,24 +244,22 @@ exports.getUserIdBuildConfiguration = function () {
 
 exports.callThirdPartyScripts = function() {
 	var scripts = [];
-	Object.keys(USERID_MODULE_PARAMS.buildConfig.userIdModuleScripts).forEach(function(userIdModule){
+	USERID_MODULE_PARAMS.buildConfig.userIdModuleScripts.forEach(function(userIdModule){
 		switch(userIdModule) {
 			case "identityLink":
-				scripts.push(ATS_SCRIPT.initLiveRampAts(refThis.getParams(userIdModule)))		
+				scripts.push(SCRIPTS.initLiveRampAts(refThis.getParams(userIdModule), pbNameSpace))		
 			  // code block
 			  break;
 			case "publinkId":
-				scripts.push(LAUNCHER_SCRIPT.initLauncherJs(refThis.getParams(userIdModule)))	
+				scripts.push(SCRIPTS.initLauncherJs(refThis.getParams(userIdModule), pbNameSpace))	
 			  // code block
 			  break;
-			// case "zeoTap":
-			// 	scripts.push(require("./scripts/zeotap.js"))  
+			case "zeoTap":
+				SCRIPTS.initZeoTapJs(refThis.getParams(userIdModule), pbNameSpace);
 			default:
 			  // code block
 		  }
 	});
-	console.log(scripts);
-
 	if (document.readyState == 'complete') {
 		refThis.loadScripts(scripts);
 	} else {
@@ -282,41 +277,6 @@ exports.getParams = function(moduleName){
 		}
 	})[0];
 }
-
-
-
-
-// exports.getUserIdParams = function (params) {
-// 	var userIdParams = {};
-// 	refThis.applyDataTypeChangesIfApplicable(params);
-// 	refThis.applyCustomParamValuesfApplicable(params);
-// 	for (var key in params) {
-// 		try {
-// 			if (CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
-// 				if (CONSTANTS.TOLOWERCASE_IDENTITY_PARAMS.indexOf(key) > -1) {
-// 					params[key] = params[key].toLowerCase();
-// 				}
-// 				if (CONSTANTS.JSON_VALUE_KEYS.indexOf(key) > -1) {
-// 					params[key] = JSON.parse(params[key]);
-// 				}
-// 				userIdParams = refThis.getNestedObjectFromString(userIdParams, ".", key, params[key]);
-// 			}
-// 		} catch (ex) {
-// 			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
-// 		}
-// 	}
-// 	// if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
-// 	// 	refThis.initLiveRampAts(userIdParams); 
-// 	// }
-// 	// if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
-// 	// 	refThis.initZeoTapJs(userIdParams);
-// 	// }
-// 	// if (userIdParams && userIdParams.params && userIdParams.params["loadLauncher"] == "true") {
-// 	// 	refThis.initLauncherJs(userIdParams); 
-// 	// }
-// 	console.log("nitin", userIdParams);
-// 	return userIdParams;
-// };
 
 exports.getUserIds = function () {
 	if (refThis.isFunction(window[pbNameSpace].getUserIds)) {
@@ -380,16 +340,6 @@ exports.getNestedObjectFromArray = function (sourceObject, sourceArray, valueOfL
 	return convertedObject;
 };
 
-// exports.getNestedObjectFromString = function (sourceObject, separator, key, value) {
-// 	var splitParams = key.split(separator);
-// 	if (splitParams.length == 1) {
-// 		sourceObject[key] = value;
-// 	} else {
-// 		sourceObject = refThis.getNestedObjectFromArray(sourceObject, splitParams, value);
-// 	}
-// 	return sourceObject;
-// };
-
 exports.updateAdUnits = function (adUnits) {
 	if (refThis.isArray(adUnits)) {
 		adUnits.forEach(function (adUnit) {
@@ -433,59 +383,10 @@ exports.updateUserIds = function (bid) {
 	}
 };
 
-// exports.applyDataTypeChangesIfApplicable = function(params) {
-// 	var value;
-// 	if(params.name in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
-// 		for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
-// 			if (partnerName === params.name) {
-// 				for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
-// 					var paramValue = params[key];
-// 					switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
-// 						case 'number':
-// 							if(paramValue && typeof paramValue !== 'number') {
-// 								value = parseInt(paramValue)
-// 								isNaN(value) ?
-// 									refThis.logError(partnerName + ": Invalid parameter value '" + paramValue + "' for parameter " + key) :
-// 									params[key] = value;
-// 							}
-// 							break;
-// 						case 'array': 
-// 							if (paramValue) {
-// 								if (typeof paramValue === 'string') {
-// 									var arr = paramValue.split(",").map(function(item) {
-// 										return item.trim();
-// 									});
-// 									//var arr = params[key].split(",");
-// 									if (arr.length > 0) {
-// 										params[key] = arr;
-// 									}
-// 								} else if (typeof paramValue === 'number') {
-// 									params[key] = [paramValue];
-// 								}
-// 							}
-// 						default:
-// 							return;
-// 					}
-// 				}
-// 			}
-// 		}
-// 	}
-// }
-
-// exports.applyCustomParamValuesfApplicable = function(params) {
-// 	if (params.name in CONSTANTS.ID_PARTNERS_CUSTOM_VALUES) {
-// 		var partnerValues = CONSTANTS.ID_PARTNERS_CUSTOM_VALUES[params.name];
-// 		var i = 0;
-// 		for (;i<partnerValues.length;i++) {
-// 			params[partnerValues[i]["key"]] = partnerValues[i]["value"];
-// 		}
-// 	}
-// };
 
 exports.loadScript  = function(script){
-	debugger;
-	(function(e, t) {
-	  var r = t.createElement("script")
+	(function(e, doc) {
+	  var r = doc.createElement("script")
 	  r.type = "text/javascript"
 	  for (let attr in script) {
 		const val = script[attr]
@@ -497,7 +398,7 @@ exports.loadScript  = function(script){
 		  r.setAttribute(attr, val)
 		}
 	  }
-	  t.body.appendChild(r)
+	  doc.body.appendChild(r)
 	  if (script.onload && typeof script.onload === "function") {
 		r.onload = script.onload
 	  }
