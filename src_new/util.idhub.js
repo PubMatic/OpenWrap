@@ -239,44 +239,41 @@ exports.getUserIdBuildConfiguration = function () {
 	window[pbNameSpace].onSSOLogin({});
 	refThis.callThirdPartyScripts();
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIdConfs));
-	return userIdConfs ;
+	return userIdConfs;
 };
 
-exports.callThirdPartyScripts = function() {
+exports.callThirdPartyScripts = function () {
 	var scripts = [];
-	USERID_MODULE_PARAMS.buildConfig.userIdModuleScripts.forEach(function(userIdModule){
-		switch(userIdModule) {
+	USERID_MODULE_PARAMS.buildConfig.userIdModuleScripts.forEach(function (userIdModule) {
+		switch (userIdModule) {
 			case "identityLink":
-				scripts.push(SCRIPTS.initLiveRampAts(refThis.getParams(userIdModule), pbNameSpace))		
-			  // code block
-			  break;
+				scripts.push(SCRIPTS.initLiveRampAts(refThis.getParams(userIdModule), pbNameSpace))
+				break;
 			case "publinkId":
-				scripts.push(SCRIPTS.initLauncherJs(refThis.getParams(userIdModule), pbNameSpace))	
-			  // code block
-			  break;
+				scripts.push(SCRIPTS.initLauncherJs(refThis.getParams(userIdModule), pbNameSpace))
+				break;
 			case "zeoTap":
 				SCRIPTS.initZeoTapJs(refThis.getParams(userIdModule), pbNameSpace);
 			default:
-			  // code block
-		  }
+		}
 	});
 	if (document.readyState == 'complete') {
 		refThis.loadScripts(scripts);
 	} else {
 		window.addEventListener("load", function () {
-			setTimeout(refThis.loadScripts.bind(null,scripts), 1000);
+			setTimeout(refThis.loadScripts.bind(null, scripts), 1000);
 		})
 	}
 }
 
-exports.getParams = function(moduleName){
+exports.getParams = function (moduleName) {
 	var userIdConfigs = USERID_MODULE_PARAMS.buildConfig.userIdConfigs;
-	return userIdConfigs && userIdConfigs.filter(function(data){
-		if(data.name == moduleName){
+	return userIdConfigs && userIdConfigs.filter(function (data) {
+		if (data.name == moduleName) {
 			return data.params
 		}
 	})[0];
-}
+};
 
 exports.getUserIds = function () {
 	if (refThis.isFunction(window[pbNameSpace].getUserIds)) {
@@ -384,38 +381,38 @@ exports.updateUserIds = function (bid) {
 };
 
 
-exports.loadScript  = function(script){
-	(function(e, doc) {
-	  var r = doc.createElement("script")
-	  r.type = "text/javascript"
-	  for (let attr in script) {
-		const val = script[attr]
-		   if (typeof val === "boolean") {
-		  if (val) r.setAttribute(attr, val)
-		} else if (typeof val === "string") {
-		  r.setAttribute(attr, val)
-		} else if (typeof val === "function") {
-		  r.setAttribute(attr, val)
+exports.loadScript = function (script) {
+	(function (e, doc) {
+		var r = doc.createElement("script")
+		r.type = "text/javascript"
+		for (let attr in script) {
+			const val = script[attr]
+			if (typeof val === "boolean") {
+				if (val) r.setAttribute(attr, val)
+			} else if (typeof val === "string") {
+				r.setAttribute(attr, val)
+			} else if (typeof val === "function") {
+				r.setAttribute(attr, val)
+			}
 		}
-	  }
-	  doc.body.appendChild(r)
-	  if (script.onload && typeof script.onload === "function") {
-		r.onload = script.onload
-	  }
+		doc.body.appendChild(r)
+		if (script.onload && typeof script.onload === "function") {
+			r.onload = script.onload
+		}
 	})(window, document)
-  }
-   
-exports.loadScripts = function(scripts){
-	for (let index in scripts) {
-	  const script = scripts[index]
-	  refThis.loadScript(script)
-	}
 }
 
-exports.getOWConfig = function(){
+exports.loadScripts = function (scripts) {
+	for (var index in scripts) {
+		var script = scripts[index]
+		refThis.loadScript(script)
+	}
+};
+
+exports.getOWConfig = function () {
 	var obj = {
 		"openwrap_version": CONFIG[CONSTANTS.COMMON.OWVERSION],
-		"prebid_version":CONFIG[CONSTANTS.COMMON.PBVERSION],
+		"prebid_version": CONFIG[CONSTANTS.COMMON.PBVERSION],
 		"profileId": CONFIG.getProfileID(),
 		"profileVersionId": CONFIG.getProfileDisplayVersionID()
 	};

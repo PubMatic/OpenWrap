@@ -413,7 +413,7 @@ gulp.task('bundle-prod',[ 'build-userconfigs', 'webpack'], function () {
     var prebidFileName = '/build/dist/prebid.js';
     var prependscript = "", appendScript = "";
     console.log("##################### prebidfilename picked = "+prebidFileName);
-    return gulp.src([prependscript, prebidRepoPath + prebidFileName, 'temp/primus.js',  './build/dist/owt.js', appendScript])
+    return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 });
