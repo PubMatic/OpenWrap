@@ -110,6 +110,31 @@ exports.getPublinkLauncherParams = function(params,pbNameSpace) {
 };
 
 
+exports.getEmailHashes = function(pbNameSpace){
+	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
+	var enableSSO = CONFIG.isSSOEnabled() || false;
+	var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
+	return emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+}
+
+exports.initLiveRampLaunchPad = function (params, pbNameSpace) {
+	var lpURL = "https://launchpad-wrapper.privacymanager.io/"+params.custom.configurationId+"/launchpad-liveramp.js";
+	return {
+		src: lpURL,
+		async: true,
+		onload: function(){
+			__launchpad('addEventListener', 1, function(){
+				var isDirectMode = !(ats.outputCurrentConfiguration()['DETECTION_MODULE_INFO']) ||
+									ats.outputCurrentConfiguration()['ENVELOPE_MODULE_INFO']['ENVELOPE_MODULE_CONFIG']['startWithExternalId'];
+				if(isDirectMode){ // If direct or detect/direct mode
+					var emailHashes = refThis.getEmailHashes(pbNameSpace);
+					emailHashes && window.ats.setAdditionalData({'type': 'emailHashes','id': emailHashes});
+				}
+			}, ['atsWrapperLoaded']);
+		}
+	}
+};
+
 exports.initZeoTapJs = function(params, pbNameSpace) {
 	function addZeoTapJs() {
 		var n = document, t = window;

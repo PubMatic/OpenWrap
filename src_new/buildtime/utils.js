@@ -4,10 +4,7 @@ var CONFIG = require("../config.idhub.js");
 var CONSTANTS = require("./constants.js");
 
 
-var typeArray = "Array";
-var typeString = "String";
 var typeFunction = "Function";
-var typeNumber = "Number";
 var toString = Object.prototype.toString;
 var refThis = this;
 refThis.idsAppendedToAdUnits = false;
@@ -26,18 +23,6 @@ exports.isFunction = function (object) {
 	return refThis.isA(object, typeFunction);
 };
 
-exports.isString = function (object) {
-	return refThis.isA(object, typeString);
-};
-
-exports.isArray = function (object) {
-	return refThis.isA(object, typeArray);
-};
-
-exports.isNumber = function (object) {
-	return refThis.isA(object, typeNumber);
-};
-
 exports.isObject = function (object) {
 	return typeof object === "object" && object !== null;
 };
@@ -50,7 +35,6 @@ exports.isOwnProperty = function (theObject, proertyName) {
 	}
 	return false;
 };
-
 
 exports.forEachOnObject = function (theObject, callback) {
 	/* istanbul ignore else */
@@ -95,14 +79,19 @@ exports.getNestedObjectFromString = function (sourceObject, separator, key, valu
 };
 
 exports.getUserIdConfiguration = function () {
-	var userIdConfs = [];
+	var userIdConfs = {};
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(), function (parterId, partnerValues) {
 		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
-			userIdConfs.push(refThis.getUserIdParams(partnerValues));
+			userIdConfs[parterId] = refThis.getUserIdParams(partnerValues)
 		}
 	});
 	return userIdConfs;
 };
+
+exports.deleteCustomParams = function(params){
+	delete params.custom;
+	return params;
+}
 
 exports.getUserIdParams = function (params) {
 	var userIdParams = {};
@@ -133,65 +122,11 @@ exports.getUserIdParams = function (params) {
 	if (userIdParams && userIdParams.params && userIdParams.params["loadLauncher"] == "true") {
 		thirdPartyScripts.push(userIdParams.name);
 	}
-	return userIdParams;
-};
-
-
-exports.getLiverampParams = function(params) {
-	if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
-		params.params.cssSelectors = params.params.cssSelectors.split(",");
+	if (userIdParams && userIdParams.custom && userIdParams.custom["loadLaunchPad"] == "true") {
+		thirdPartyScripts.push(userIdParams.name);
 	}
-	// var userIdentity = owpbjs.getUserIdentities() || {};
-	// var enableSSO = CONFIG.isSSOEnabled() || false;
-	var detectionMechanism = params.params.detectionMechanism;
-	var enableCustomId = params.params.enableCustomId === "true" ? true : false;
-	var atsObject = {
-		"placementID": params.params.pid,
-		"storageType": params.params.storageType,
-		"logging": params.params.logging //"error"
-	};
-	if (enableCustomId) {
-		atsObject.accountID = params.params.accountID;
-		atsObject.customerIDRegex = params.params.customerIDRegex;
-		atsObject.detectionSubject = "customerIdentifier";
-	}
-
-	switch (detectionMechanism) {
-		case undefined:
-		case 'detect':
-			atsObject.detectionType = params.params.detectionType;
-			atsObject.urlParameter = params.params.urlParameter;
-			atsObject.cssSelectors = params.params.cssSelectors;
-			atsObject.detectDynamicNodes = params.params.detectDynamicNodes;
-			break;
-		case 'direct':
-			// var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
-			// atsObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
-			// /* do we want to keep sso data under direct option?
-			// if yes, if sso is enabled and 'direct' is selected as detection mechanism, sso emails will be sent to ats script.
-			// if sso is disabled, and 'direct' is selected as detection mechanism, we will look for publisher provided email ids, and if available the hashes will be sent to ats script.
-			// */
-			// if (enableCustomId && refThis.isFunction(owpbjs.getUserIdentities) && owpbjs.getUserIdentities() !== undefined) {
-			// 	atsObject.customerID = owpbjs.getUserIdentities().customerID || undefined;
-			// }
-			break;
-	};
-	return atsObject;
+	return refThis.deleteCustomParams(userIdParams);
 };
-
-
-
-exports.initLiveRampAts = function (params) {
-	var atsObject = refThis.getLiverampParams(params);
-	return {
-		url: "https://ats.rlcdn.com/ats.js",
-		params: atsObject,
-		onload: function(){
-			window.ats && window.ats.start(atsObject);
-		}
-	}
-};
-
 
 exports.applyDataTypeChangesIfApplicable = function(params) {
 	var value;

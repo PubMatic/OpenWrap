@@ -3,7 +3,20 @@
 var CONFIG = require("./config.idhub.js");
 var CONSTANTS = require("./constants.js");
 var USERID_MODULE_PARAMS = require("./build.conf.js");
-var SCRIPTS = require("./thirdparty/scripts.js")
+var isATSPresent = USERID_MODULE_PARAMS.buildConfig.userIdModuleScripts.includes("identityLink")
+var isZeoTapPresent = USERID_MODULE_PARAMS.buildConfig.userIdModuleScripts.includes("zeotapIdPlus");
+var isPublinkPresent = USERID_MODULE_PARAMS.buildConfig.userIdModuleScripts.includes("publinkId")
+var isLiverampV2 = USERID_MODULE_PARAMS.buildConfig.userIdModuleScripts.includes("identityLink")
+
+
+console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@",isZeoTapPresent);
+var ATS_SCRIPT = isATSPresent && require("./scripts/ats.js");
+if(isZeoTapPresent) {
+	var ZEOTAP_SCRIPT = isZeoTapPresent && require("./scripts/zeotap.js");
+
+}
+var PUBLINK_SCRIPT = isPublinkPresent && require("./scripts/launcher.js");
+
 var debugLogIsEnabled = false;
 
 /* start-test-block */
@@ -235,7 +248,7 @@ exports.addHookOnFunction = function (theObject, useProto, functionName, newFunc
 };
 
 exports.getUserIdBuildConfiguration = function () {
-	var userIdConfs = USERID_MODULE_PARAMS.buildConfig.userIdConfigs;
+	var userIdConfs = Object.values(USERID_MODULE_PARAMS.buildConfig.userIdConfigs);
 	window[pbNameSpace].onSSOLogin({});
 	refThis.callThirdPartyScripts();
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIdConfs));
@@ -245,15 +258,16 @@ exports.getUserIdBuildConfiguration = function () {
 exports.callThirdPartyScripts = function () {
 	var scripts = [];
 	USERID_MODULE_PARAMS.buildConfig.userIdModuleScripts.forEach(function (userIdModule) {
+		var params = USERID_MODULE_PARAMS.buildConfig.userIdConfigs[userIdModule];
 		switch (userIdModule) {
 			case "identityLink":
-				scripts.push(SCRIPTS.initLiveRampAts(refThis.getParams(userIdModule), pbNameSpace))
+				ATS_SCRIPT && scripts.push(ATS_SCRIPT.initLiveRampAts(params, pbNameSpace))
 				break;
 			case "publinkId":
-				scripts.push(SCRIPTS.initLauncherJs(refThis.getParams(userIdModule), pbNameSpace))
+				PUBLINK_SCRIPT && scripts.push(PUBLINK_SCRIPT.initLauncherJs(params, pbNameSpace))
 				break;
 			case "zeoTap":
-				SCRIPTS.initZeoTapJs(refThis.getParams(userIdModule), pbNameSpace);
+				ZEOTAP_SCRIPT && ZEOTAP_SCRIPT.initZeoTapJs(params, pbNameSpace);
 			default:
 		}
 	});
@@ -265,15 +279,6 @@ exports.callThirdPartyScripts = function () {
 		})
 	}
 }
-
-exports.getParams = function (moduleName) {
-	var userIdConfigs = USERID_MODULE_PARAMS.buildConfig.userIdConfigs;
-	return userIdConfigs && userIdConfigs.filter(function (data) {
-		if (data.name == moduleName) {
-			return data.params
-		}
-	})[0];
-};
 
 exports.getUserIds = function () {
 	if (refThis.isFunction(window[pbNameSpace].getUserIds)) {
