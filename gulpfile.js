@@ -5,6 +5,8 @@ var gulp = require('gulp');
 var concat = require('gulp-concat');
 var replace = require('gulp-replace-task');
 var config = require("./src_new/config.js");
+var file = require('gulp-file');
+var UTILS = require("./src_new/buildtime/utils.js");
 
 // var replace = require('gulp-replace');
 // var insert = require('gulp-insert');
@@ -97,8 +99,8 @@ gulp.task('webpack', ['clean'], function() {
         .pipe(webpack(webpackConfig))
         .pipe(jsFsCache)
         .pipe(removeCode(getRemoveCodeConfig()))
-        .pipe(uglify())
-        .pipe(optimizejs())
+        //.pipe(uglify())
+        //.pipe(optimizejs())
         .pipe(jsFsCache.restore)
         .pipe(gulp.dest('build/dist'))
         .pipe(connect.reload())
@@ -391,7 +393,7 @@ gulp.task('bundle-creative', function () {
 
 
 // Task to build non-minified version of owt.js
-gulp.task('devbundle',['devpack'], function () {
+gulp.task('devbundle',['build-userconfigs','devpack'], function () {
     console.log("Executing Dev Build");
     // var prebidFileName = (profileMode === "IH" ? '/build/devIH/prebid.idhub.js' : '/build/dev/prebid.js')
     var prebidFileName = '/build/dev/prebid.js';
@@ -401,7 +403,7 @@ gulp.task('devbundle',['devpack'], function () {
 });
 
 
-gulp.task('bundle-prod',['webpack'], function () {
+gulp.task('bundle-prod',['build-userconfigs','webpack'], function () {
     console.log("Executing bundling");
     // var prebidFileName = (profileMode === "IH" ? '/build/distIH/prebid.idhub.js' : '/build/dist/prebid.js')
     var prebidFileName = '/build/dist/prebid.js';
@@ -445,5 +447,15 @@ gulp.task('update-namespace', function(){
     }))
     .pipe(gulp.dest(prebidRepoPath+'/build/dist/'));
 });
+
+gulp.task('build-userconfigs', function(){
+    var str = "exports.buildConfig = " + JSON.stringify({
+        userIdConfigs: UTILS.getUserIdConfiguration(),
+        userIdModuleScripts: UTILS.getThirdPartyScripts(),
+    })
+    str += ";";
+    return file('build.conf.js', str, { src: true })
+      .pipe(gulp.dest('./src_new/'));
+  });
 
 gulp.task('build-gpt-prod',[''])

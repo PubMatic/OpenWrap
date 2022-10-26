@@ -2,6 +2,8 @@
 
 var CONFIG = require("./config.idhub.js");
 var CONSTANTS = require("./constants.js");
+var USERID_MODULE_PARAMS = require("./build.conf.js");
+var SCRIPTS = require("./thirdparty/scripts.js")
 var debugLogIsEnabled = false;
 
 /* start-test-block */
@@ -232,56 +234,67 @@ exports.addHookOnFunction = function (theObject, useProto, functionName, newFunc
 	}
 };
 
-exports.getUserIdConfiguration = function () {
-	var userIdConfs = [];
+exports.getUserIdBuildConfiguration = function () {
+	var userIdConfs = Object.values(USERID_MODULE_PARAMS.buildConfig.userIdConfigs);
 	window[pbNameSpace].onSSOLogin({});
-	refThis.forEachOnObject(CONFIG.getIdentityPartners(), function (parterId, partnerValues) {
-		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
-			userIdConfs.push(refThis.getUserIdParams(partnerValues));
-		}
-	});
+	refThis.callThirdPartyScripts();
 	refThis.log(CONSTANTS.MESSAGES.IDENTITY.M4 + JSON.stringify(userIdConfs));
 	return userIdConfs;
 };
 
-exports.deleteCustomParams = function(params){
-	 delete params.custom;
-	 return params;
-}
-exports.getUserIdParams = function (params) {
-	var userIdParams = {};
-	refThis.applyDataTypeChangesIfApplicable(params);
-	refThis.applyCustomParamValuesfApplicable(params);
-	for (var key in params) {
-		try {
-			if (CONSTANTS.EXCLUDE_IDENTITY_PARAMS.indexOf(key) == -1) {
-				if (CONSTANTS.TOLOWERCASE_IDENTITY_PARAMS.indexOf(key) > -1) {
-					params[key] = params[key].toLowerCase();
-				}
-				if (CONSTANTS.JSON_VALUE_KEYS.indexOf(key) > -1) {
-					params[key] = JSON.parse(params[key]);
-				}
-				userIdParams = refThis.getNestedObjectFromString(userIdParams, ".", key, params[key]);
-			}
-		} catch (ex) {
-			refThis.logWarning(CONSTANTS.MESSAGES.IDENTITY.M3, ex);
+exports.callThirdPartyScripts = function () {
+	var scripts = [];
+	USERID_MODULE_PARAMS.buildConfig.userIdModuleScripts.forEach(function (configParams) {
+		var userIdModule = configParams.name;
+		switch (userIdModule) {
+			case "identityLink":
+				SCRIPTS && configParams.params.loadATS === "true" && scripts.push(SCRIPTS.initLiveRampAts(configParams, pbNameSpace))
+				SCRIPTS && configParams.custom && configParams.custom.loadLaunchPad === "true" && scripts.push(SCRIPTS.initLiveRampLaunchPad(configParams, pbNameSpace))
+				break;
+			case "publinkId":
+				SCRIPTS && scripts.push(SCRIPTS.initLauncherJs(configParams, pbNameSpace))
+				break;
+			case "zeoTap":
+				SCRIPTS && SCRIPTS.initZeoTapJs(configParams, pbNameSpace);
+			default:
 		}
+	});
+	if (document.readyState == 'complete') {
+		refThis.loadScripts(scripts);
+	} else {
+		window.addEventListener("load", function () {
+			setTimeout(refThis.loadScripts.bind(null, scripts), 1000);
+		})
 	}
-	if (userIdParams && userIdParams.params && userIdParams.params["loadATS"] == "true") {
-		refThis.initLiveRampAts(userIdParams); 
-	}
-	if(userIdParams && userIdParams.params && userIdParams.params['loadIDP'] == 'true'){
-		refThis.initZeoTapJs(userIdParams);
-	}
-	if (userIdParams && userIdParams.params && userIdParams.params["loadLauncher"] == "true") {
-		refThis.initLauncherJs(userIdParams); 
-	}
-	if (userIdParams && userIdParams.custom && userIdParams.custom["loadLaunchPad"] == "true") {
-		refThis.initLiveRampLaunchPad(userIdParams); 
-	}
-	return refThis.deleteCustomParams(userIdParams);
-};
+}
 
+exports.loadScript = function (script) {
+	(function (e, document) {
+		var r = document.createElement("script")
+		r.type = "text/javascript"
+		for (let attr in script) {
+			var val = script[attr]
+			if (typeof val === "boolean") {
+				if (val) r.setAttribute(attr, val)
+			} else if (typeof val === "string") {
+				r.setAttribute(attr, val)
+			} else if (typeof val === "function") {
+				r.setAttribute(attr, val)
+			}
+		}
+		document.body.appendChild(r)
+		if (script.onload && typeof script.onload === "function") {
+			r.onload = script.onload
+		}
+	})(window, document)
+}
+
+exports.loadScripts = function (scripts) {
+	for (var index in scripts) {
+		var script = scripts[index]
+		refThis.loadScript(script)
+	}
+};
 exports.getUserIds = function () {
 	if (refThis.isFunction(window[pbNameSpace].getUserIds)) {
 		return window[pbNameSpace].getUserIds();
@@ -331,231 +344,6 @@ exports.getUserIdsAsEids = function () {
 	}
 };
 
-exports.getNestedObjectFromArray = function (sourceObject, sourceArray, valueOfLastNode) {
-	var convertedObject = sourceObject;
-	var referenceForNesting = convertedObject;
-	for (var i = 0; i < sourceArray.length - 1; i++) {
-		if (!referenceForNesting[sourceArray[i]]) {
-			referenceForNesting[sourceArray[i]] = {};
-		}
-		referenceForNesting = referenceForNesting[sourceArray[i]];
-	}
-	referenceForNesting[sourceArray[sourceArray.length - 1]] = valueOfLastNode;
-	return convertedObject;
-};
-
-exports.getNestedObjectFromString = function (sourceObject, separator, key, value) {
-	var splitParams = key.split(separator);
-	if (splitParams.length == 1) {
-		sourceObject[key] = value;
-	} else {
-		sourceObject = refThis.getNestedObjectFromArray(sourceObject, splitParams, value);
-	}
-	return sourceObject;
-};
-
-exports.getLiverampParams = function(params) {
-	if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
-		params.params.cssSelectors = params.params.cssSelectors.split(",");
-	}
-	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
-	var enableSSO = CONFIG.isSSOEnabled() || false;
-	var detectionMechanism = params.params.detectionMechanism;
-	var enableCustomId = params.params.enableCustomId === "true" ? true : false;
-	var atsObject = {
-		"placementID": params.params.pid,
-		"storageType": params.params.storageType,
-		"logging": params.params.logging //"error"
-	};
-	if (enableCustomId) {
-		atsObject.accountID = params.params.accountID;
-		atsObject.customerIDRegex = params.params.customerIDRegex;
-		atsObject.detectionSubject = "customerIdentifier";
-	}
-
-	switch (detectionMechanism) {
-		case undefined:
-		case 'detect':
-			atsObject.detectionType = params.params.detectionType;
-			atsObject.urlParameter = params.params.urlParameter;
-			atsObject.cssSelectors = params.params.cssSelectors;
-			atsObject.detectDynamicNodes = params.params.detectDynamicNodes;
-			atsObject.detectionEventType = params.params.detectionEventType;
-			if (params.params.triggerElements && params.params.triggerElements.length > 0) {
-				params.params.triggerElements = params.params.triggerElements.split(",");
-				atsObject.triggerElements = params.params.triggerElements;
-			}
-			break;
-		case 'direct':
-			var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
-			atsObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
-			/* do we want to keep sso data under direct option?
-			if yes, if sso is enabled and 'direct' is selected as detection mechanism, sso emails will be sent to ats script.
-			if sso is disabled, and 'direct' is selected as detection mechanism, we will look for publisher provided email ids, and if available the hashes will be sent to ats script.
-			*/
-			if (enableCustomId && refThis.isFunction(window[pbNameSpace].getUserIdentities) && window[pbNameSpace].getUserIdentities() !== undefined) {
-				atsObject.customerID = window[pbNameSpace].getUserIdentities().customerID || undefined;
-			}
-			break;
-	};
-	return atsObject;
-};
-
-exports.initLiveRampAts = function (params) {
-	function addATS() {
-		var atsScript = document.createElement("script");
-		var atsObject = refThis.getLiverampParams(params);
-		atsScript.onload = function () {
-			window.ats && window.ats.start(atsObject);
-		};
-		atsScript.src = "https://ats.rlcdn.com/ats.js";
-		document.body.appendChild(atsScript);
-	}
-	if (document.readyState == 'complete') {
-		addATS();
-	} else {
-		window.addEventListener("load", function () {
-			setTimeout(addATS, 1000);
-		});
-	}
-};
-
-
-exports.getEmailHashes = function(){
-	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
-	var enableSSO = CONFIG.isSSOEnabled() || false;
-	var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
-	return emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
-}
-
-exports.initLiveRampLaunchPad = function (params) {
-	var lpURL = "https://launchpad-wrapper.privacymanager.io/"+params.custom.configurationId+"/launchpad-liveramp.js";
-	function addLaunchPad() {
-		var launchPadScript = document.createElement("script");
-		launchPadScript.onload = function () {
-			__launchpad('addEventListener', 1, function(){
-				var isDirectMode = !(ats.outputCurrentConfiguration()['DETECTION_MODULE_INFO']) ||
-									ats.outputCurrentConfiguration()['ENVELOPE_MODULE_INFO']['ENVELOPE_MODULE_CONFIG']['startWithExternalId'];
-				if(isDirectMode){ // If direct or detect/direct mode
-					var emailHashes = refThis.getEmailHashes();
-					emailHashes && window.ats.setAdditionalData({'type': 'emailHashes','id': emailHashes});
-				}
-			}, ['atsWrapperLoaded']);
-		};
-		launchPadScript.src = lpURL;
-		document.body.appendChild(launchPadScript);
-	}
-	if (document.readyState == 'complete') {
-		addLaunchPad();
-	} else {
-		window.addEventListener("load", function () {
-			setTimeout(addLaunchPad, 1000);
-		});
-	}
-};
-
-exports.initLauncherJs = function (params) {
-	window.cnvr_launcher_options={lid: params.params.launcher_id};
-	function loadLauncher() {
-		var launchScript = document.createElement("script");
-		var launchObject = refThis.getPublinkLauncherParams(params);
-		launchScript.onload = function () {
-			window.conversant.getLauncherObject = function(){
-				return launchObject;
-			}
-			window.conversant && window.conversant.launch('publink', 'start', launchObject);
-		};
-		launchScript.src = "https://secure.cdn.fastclick.net/js/cnvr-launcher/latest/launcher-stub.min.js";
-		document.body.appendChild(launchScript);
-		
-	}
-	if (document.readyState == 'complete') {
-		loadLauncher();
-	} else {
-		window.addEventListener("load", function () {
-			setTimeout(loadLauncher, 1000);
-		});
-	}
-};
-
-exports.getPublinkLauncherParams = function(params) {
-	if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
-		params.params.cssSelectors = params.params.cssSelectors.split(",");
-	}
-	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
-	var enableSSO = CONFIG.isSSOEnabled() || false;
-	var detectionMechanism = params.params.detectionMechanism;
-	var lnchObject = {
-		"apiKey": params.params.api_key,
-		"siteId": params.params.site_id,
-	};
-	
-	switch (detectionMechanism) {
-		case undefined:
-		case 'detect':
-			lnchObject.urlParameter = params.params.urlParameter;
-			lnchObject.cssSelectors = params.params.cssSelectors;
-			lnchObject.detectionSubject = "email";
-			break;
-		case 'direct':
-			var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
-			lnchObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA256']] || undefined;
-			/* do we want to keep sso data under direct option?
-			if yes, if sso is enabled and 'direct' is selected as detection mechanism, sso emails will be sent to ats script.
-			if sso is disabled, and 'direct' is selected as detection mechanism, we will look for publisher provided email ids, and if available the hashes will be sent to ats script.
-			*/
-		break;
-	};
-	return lnchObject;
-};
-
-exports.initZeoTapJs = function(params) {
-	function addZeoTapJs() {
-		var n = document, t = window;
-		var userIdentity = window[pbNameSpace].getUserIdentities() || {};
-		var enableSSO = CONFIG.isSSOEnabled() || false;
-		var userIdentityObject = {
-			email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash['SHA256'] : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash['SHA256'] : undefined
-		};
-		var e=n.createElement("script");
-		e.type="text/javascript",
-		e.crossorigin="anonymous"
-		e.async=!0 ,
-		e.src="https://content.zeotap.com/sdk/idp.min.js",
-		e.onload=function(){};
-		n=n.getElementsByTagName("script")[0];
-		var initialsationObject = {
-			partnerId:params.partnerId,
-			allowIDP: true,
-			useConsent: (CONFIG.getCCPA() || CONFIG.getGdpr()),
-			checkForCMP: (CONFIG.getCCPA() || CONFIG.getGdpr())
-		};
-		n.parentNode.insertBefore(e,n);
-
-		n=t.zeotap||{_q:[],_qcmp:[]};
-
-		!function(n,t,e) {
-			for( var o=0 ;o<t.length;o++)
-				!function(t) {
-					n[t]=function(){
-						n[e].push([t].concat(Array.prototype.slice.call(arguments, 0 )))
-					}
-				}(t[o])
-		}(n,["callMethod"],"_q"),
-		t.zeotap=n,
-		t.zeotap.callMethod("init",initialsationObject),
-		t.zeotap.callMethod("setUserIdentities",userIdentityObject, true);
-	}
-
-	if (document.readyState == 'complete') {
-		addZeoTapJs();
-	} else {
-		window.addEventListener("load", function () {
-			setTimeout(addZeoTapJs, 1000);
-		});
-	}
-};
-
 exports.updateAdUnits = function (adUnits) {
 	if (refThis.isArray(adUnits)) {
 		adUnits.forEach(function (adUnit) {
@@ -599,61 +387,10 @@ exports.updateUserIds = function (bid) {
 	}
 };
 
-exports.applyDataTypeChangesIfApplicable = function(params) {
-	var value;
-	if(params.name in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
-		for(partnerName in CONSTANTS.SPECIAL_CASE_ID_PARTNERS) {
-			if (partnerName === params.name) {
-				for(key in CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName]) {
-					var paramValue = params[key];
-					switch (CONSTANTS.SPECIAL_CASE_ID_PARTNERS[partnerName][key]) {
-						case 'number':
-							if(paramValue && typeof paramValue !== 'number') {
-								value = parseInt(paramValue)
-								isNaN(value) ?
-									refThis.logError(partnerName + ": Invalid parameter value '" + paramValue + "' for parameter " + key) :
-									params[key] = value;
-							}
-							break;
-						case 'array': 
-							if (paramValue) {
-								if (typeof paramValue === 'string') {
-									var arr = paramValue.split(",").map(function(item) {
-										return item.trim();
-									});
-									//var arr = params[key].split(",");
-									if (arr.length > 0) {
-										params[key] = arr;
-									}
-								} else if (typeof paramValue === 'number') {
-									params[key] = [paramValue];
-								}
-							}
-						default:
-							return;
-					}
-				}
-			}
-		}
-	}
-}
-
-exports.applyCustomParamValuesfApplicable = function(params) {
-	if (params.name in CONSTANTS.ID_PARTNERS_CUSTOM_VALUES) {
-		var partnerValues = CONSTANTS.ID_PARTNERS_CUSTOM_VALUES[params.name];
-		var i = 0;
-		for (;i<partnerValues.length;i++) {
-			if(!params[partnerValues[i]["key"]]){
-				params[partnerValues[i]["key"]] = partnerValues[i]["value"];	
-			}
-		}
-	}
-};
-
-exports.getOWConfig = function(){
+exports.getOWConfig = function () {
 	var obj = {
 		"openwrap_version": CONFIG[CONSTANTS.COMMON.OWVERSION],
-		"prebid_version":CONFIG[CONSTANTS.COMMON.PBVERSION],
+		"prebid_version": CONFIG[CONSTANTS.COMMON.PBVERSION],
 		"profileId": CONFIG.getProfileID(),
 		"profileVersionId": CONFIG.getProfileDisplayVersionID()
 	};

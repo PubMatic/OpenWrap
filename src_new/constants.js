@@ -237,55 +237,6 @@ exports.SRA_ENABLED_BIDDERS = {
 	"improvedigital": 2
 };
 
-exports.EXCLUDE_IDENTITY_PARAMS = ["rev_share", "timeout", "throttle"];
-
-exports.TOLOWERCASE_IDENTITY_PARAMS = ["storage.type"];
-
-exports.JSON_VALUE_KEYS = ["params.clientIdentifier"];
-
-exports.AD_SERVER = {
-	"DFP": "DFP",
-	"CUSTOM": "CUSTOM"
-};
-
-exports.SPECIAL_CASE_ID_PARTNERS = {
-	"intentIqId": {
-		"params.partner": "number"
-	},
-	"sharedId": {
-		"params.syncTime": "number"
-	},
-	"id5Id": {
-		"params.partner": "number"
-	},
-	"parrableId": {
-		"params.timezoneFilter.allowedZones": "array"
-	},
-	"imuid": {
-		"params.cid": "number"
-	},
-	"identityLink": {
-		"storage.refreshInSeconds": "number"
-	},
-	"merkleId": {
-		"params.ssp_ids": "array"
-	}
-}; //list of ID partners for whom special handling of datatype is required
-
-exports.ID_PARTNERS_CUSTOM_VALUES = {
-	"id5Id": [{
-			"key": "params.provider",
-			"value": "pubmatic-identity-hub"
-		}
-	],
-	"identityLink": [{
-		"key": "storage.refreshInSeconds",
-		"value": "1800"
-	}]
-};
-
-exports.EXCLUDE_PARTNER_LIST = ['pubProvidedId'];
-
 exports.MEDIATYPE = {
 	BANNER:0 ,
 	VIDEO:1,

@@ -41,7 +41,7 @@ refThis.setConfig = function(){
 			}
 			window.IHPWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 			if(CONFIG.isUserIdModuleEnabled()){
-				prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
+				prebidConfig["userSync"]["userIds"] = util.getUserIdBuildConfiguration();
 			}
 			// Adding a hook for publishers to modify the Prebid Config we have generated
 			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
