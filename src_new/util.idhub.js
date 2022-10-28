@@ -272,7 +272,7 @@ exports.loadScript = function (script) {
 	(function (e, document) {
 		var r = document.createElement("script")
 		r.type = "text/javascript"
-		for (let attr in script) {
+		for (var attr in script) {
 			var val = script[attr]
 			if (typeof val === "boolean") {
 				if (val) r.setAttribute(attr, val)
