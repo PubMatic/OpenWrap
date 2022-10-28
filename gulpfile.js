@@ -6,7 +6,7 @@ var concat = require('gulp-concat');
 var replace = require('gulp-replace-task');
 var config = require("./src_new/config.js");
 var file = require('gulp-file');
-var UTILS = require("./src_new/buildtime/utils.js");
+var UTILS = require("./buildtime/utils.js");
 
 // var replace = require('gulp-replace');
 // var insert = require('gulp-insert');

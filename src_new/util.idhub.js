@@ -295,6 +295,7 @@ exports.loadScripts = function (scripts) {
 		refThis.loadScript(script)
 	}
 };
+
 exports.getUserIds = function () {
 	if (refThis.isFunction(window[pbNameSpace].getUserIds)) {
 		return window[pbNameSpace].getUserIds();

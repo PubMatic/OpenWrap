@@ -1,4 +1,4 @@
-var CONFIG = require("../config.idhub.js");
+var { getIdentityPartners }  = require("../src_new/config.idhub.js");
 var CONSTANTS = require("./constants.js");
 
 var typeFunction = "Function";
@@ -77,8 +77,8 @@ exports.getNestedObjectFromString = function (sourceObject, separator, key, valu
 
 exports.getUserIdConfiguration = function () {
 	var userIdConfs = {};
-	refThis.forEachOnObject(CONFIG.getIdentityPartners(), function (parterId, partnerValues) {
-		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
+	refThis.forEachOnObject(getIdentityPartners(), function (parterId, partnerValues) {
+		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) { 
 			userIdConfs[parterId] = refThis.getUserIdParams(partnerValues)
 		}
 	});
