@@ -144,6 +144,10 @@ exports.getAwc = function () {
 	return awc === "1";
 };
 
+exports.getPbGloabalVarNamespace = function(defaultName) {
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PB_GLOBAL_VAR_NAMESPACE] || defaultName;
+}
+
 /* start-test-block */
 exports.addPrebidAdapter = addPrebidAdapter;
 /* end-test-block */

@@ -22,6 +22,7 @@ var config = require("./src_new/config.js");
 // var optimizejs = require('gulp-optimize-js');
 // var stripCode = require('gulp-strip-code');
 var eslint = require('gulp-eslint');
+const { CONFIG, COMMON } = require('./src_new/constants.js');
 // var karmaServer = require('karma').Server;
 // var stripComments = require('gulp-strip-comments');
 console.timeEnd("Loading plugins");
@@ -434,12 +435,13 @@ gulp.task('update-namespace', function(){
     console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
     console.log("Executing update-namespace - START => ");
     var prebidFileName = '/build/dist/prebid.js';
+    var replacementName = config.getPbGloabalVarNamespace(COMMON.PREBID_NAMESPACE);
     return gulp.src(prebidRepoPath + prebidFileName)
     .pipe(replace({
         patterns: [
             {
             match: /owpbjs/g,
-            replacement: 'ihowpbjs'
+            replacement: replacementName
             }
         ]
     }))

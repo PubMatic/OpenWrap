@@ -20,11 +20,12 @@ exports.pwt = {
 	ccpa: "0",
 	ccpaCmpApi: "iab",
 	ccpaTimeout: "10000",
-	pbv:"v4.33.0",
-	owv:"v21.4.0",
-	abTestEnabled:"0",
+	pbv: "v4.33.0",
+	owv: "v21.4.0",
+	abTestEnabled: "0",
 	pubAnalyticsAdapter: "0",
-	reduceCodeSize:1
+	reduceCodeSize: 1,
+	//pbGlobalVarNamespace: "owpbjsVer1"
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
