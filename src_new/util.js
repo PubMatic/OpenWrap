@@ -731,6 +731,7 @@ exports.addMessageEventListener = function(theWindow, eventHandler){
 // removeIf(removeLegacyAnalyticsRelatedCode)
 exports.safeFrameCommunicationProtocol = function(msg){
 	try{
+		var bidSlotId;
 		msgData = window.JSON.parse(msg.data);
 		/* istanbul ignore else */
 		if(!msgData.pwt_type){
@@ -745,7 +746,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 					return;
 				}
 
-			var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+			var bidDetails = bidSlotId = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
 			if(bidDetails){
 					var theBid = bidDetails.bid;
@@ -835,7 +836,7 @@ exports.safeFrameCommunicationProtocol = function(msg){
 				var msg = { message: 'Prebid Native', adId: msgData.pwt_bidID, action: msgData.pwt_action };
 				window.postMessage(JSON.stringify(msg), "*");
 			}else{
-				var bidDetails = bidManager.getBidById(msgData.pwt_bidID);
+				var bidDetails = bidSlotId = bidManager.getBidById(msgData.pwt_bidID);
 				/* istanbul ignore else */
 				if(bidDetails){
 					var theBid = bidDetails.bid,
@@ -851,6 +852,14 @@ exports.safeFrameCommunicationProtocol = function(msg){
 			break;
 		// endRemoveIf(removeNativeRelatedCode)	
 		}
+
+		// Check if browsers local storage has auction related data and update impression served count accordingly.
+	    var frequencyDepth = JSON.parse(localStorage.getItem('PROFILE_AUCTION_INFO_' + window.location.hostname)) || {};
+		if (frequencyDepth !== null && frequencyDepth.slotLevelFrquencyDepth) {
+			frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[bidSlotId && bidSlotId.slotid]].impressionServed = frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[bidSlotId && bidSlotId.slotid]].impressionServed + 1; 
+			frequencyDepth.impressionServed = frequencyDepth.impressionServed + 1;
+		}
+		localStorage.setItem('PROFILE_AUCTION_INFO_' + window.location.hostname, JSON.stringify(frequencyDepth));		
 	}catch(e){}
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
