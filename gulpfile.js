@@ -257,7 +257,7 @@ gulp.task('change-prebid-keys', () => {
 // Task to build minified version of owt.js
 gulp.task('bundle', ['update-adserver'], function () {
     console.log("Executing build");
-    var prebidFileName = (profileMode === "IH" ? '/build/dist/prebid.idhub.js' : '/build/dist/prebid.js')
+    var prebidFileName = (profileMode === "IH" ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js')
     var prependscript = "", appendScript = "";
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
@@ -433,7 +433,7 @@ gulp.task('update-adserver', function(){
 gulp.task('update-namespace', function(){
     console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
     console.log("Executing update-namespace - START => ");
-    var prebidFileName = '/build/dist/prebid.js';
+    var prebidFileName = (profileMode === "IH" ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js')
     return gulp.src(prebidRepoPath + prebidFileName)
     .pipe(replace({
         patterns: [
