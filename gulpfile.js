@@ -393,7 +393,7 @@ gulp.task('bundle-creative', function () {
 // Task to build non-minified version of owt.js
 gulp.task('devbundle',['devpack'], function () {
     console.log("Executing Dev Build");
-    var prebidFileName = (profileMode === "IH" ? '/build/dev/prebidIdhub.js' : '/build/dev/prebid.js')
+    var prebidFileName = isIdentityOnly ? '/build/dev/prebidIdhub.js' : '/build/dev/prebid.js';
     //var prebidFileName = '/build/dev/prebid.js';
     return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'])
         .pipe(concat('owt.js'))
@@ -403,7 +403,7 @@ gulp.task('devbundle',['devpack'], function () {
 
 gulp.task('bundle-prod',['webpack'], function () {
     console.log("Executing bundling");
-    var prebidFileName = (profileMode === "IH" ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js')
+    var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
     //var prebidFileName = '/build/dist/prebid.js';
     var prependscript = "", appendScript = "";
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
@@ -433,7 +433,7 @@ gulp.task('update-adserver', function(){
 gulp.task('update-namespace', function(){
     console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
     console.log("Executing update-namespace - START => ");
-    var prebidFileName = (profileMode === "IH" ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js')
+    var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
     return gulp.src(prebidRepoPath + prebidFileName)
     .pipe(replace({
         patterns: [
