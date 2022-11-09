@@ -541,7 +541,7 @@ function getAdDomain(bidResponse) {
 exports.getSlotLevelFrequencyDepth = function (frequencyDepth, prop, adUnit) {
 	var freqencyValue; 
 	if(Object.keys(frequencyDepth).length && frequencyDepth.slotLevelFrquencyDepth) {
-		freqencyValue = frequencyDepth.slotLevelFrquencyDepth[adUnit][prop];
+		freqencyValue = frequencyDepth.slotLevelFrquencyDepth[adUnit] && frequencyDepth.slotLevelFrquencyDepth[adUnit][prop];
 	}
 	return freqencyValue;
 }
