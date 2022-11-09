@@ -257,7 +257,7 @@ gulp.task('change-prebid-keys', () => {
 // Task to build minified version of owt.js
 gulp.task('bundle', ['update-adserver'], function () {
     console.log("Executing build");
-    var prebidFileName = (isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js')
+    var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
     var prependscript = "", appendScript = "";
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
