@@ -84,12 +84,6 @@ if (task == CREATIVE_TASK) {
 		
 		shell.cd("../OpenWrap/");
 
-		console.log("Executing update-namespace task ");
-		if(shell.exec("time gulp update-namespace").code !== 0) {
-			shell.echo('Error: Changing owpbjs namespace failed');
-			shell.exit(1);
-		}
-
 		if (argv.mode == "test-build") {
 			if(shell.exec("gulp testall" + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 				shell.echo('Error: test cases failed');
@@ -108,6 +102,12 @@ if (task == CREATIVE_TASK) {
 
 		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode + " " + profileMode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: wrapper build task failed');
+			shell.exit(1);
+		}
+
+		console.log("Executing update-namespace task ");
+		if(shell.exec("time gulp update-namespace").code !== 0) {
+			shell.echo('Error: Changing owpbjs and PWT namespace failed');
 			shell.exit(1);
 		}
 
