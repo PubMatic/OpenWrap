@@ -1941,7 +1941,7 @@ exports.getBrowser = function() {
 	} else if (userAgent.match(/edg/i)) {
 		browserName = "edge";
 	} else {
-		browserName="No browser detection";
+		browserName="*";
 	}
 	return browserName;
 }
