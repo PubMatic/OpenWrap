@@ -1929,19 +1929,12 @@ exports.applyCustomParamValuesfApplicable = function(params) {
 
 exports.getBrowser = function() {
 	var userAgent = navigator.userAgent;
-	var browserName;
-	if (userAgent.match(/chrome|chromium|crios/i)) {
-		browserName = "chrome";
-	} else if (userAgent.match(/firefox|fxios/i)) {
-		browserName = "firefox";
-	} else if (userAgent.match(/safari/i)) {
-		browserName = "safari";
-	} else if (userAgent.match(/opr\//i)) {
-		browserName = "opera";
-	} else if (userAgent.match(/edg/i)) {
-		browserName = "edge";
-	} else {
-		browserName="*";
+	var browserName = userAgent == null ? "UNKNOWN" : "unknown";
+	for( var browser of CONSTANTS.listOfBrowsers ) {
+		if(userAgent.includes(browser)) {
+			browserName = browser;
+			break;
+		}
 	}
 	return browserName;
 }
