@@ -440,3 +440,8 @@ exports.createMacros = function() {
 		"[PROFILE_VERSION]": refThis.getProfileDisplayVersionID().toString()
 	}
 }
+
+exports.getAdServerCurrencyForS2S = function () {
+	var adServerCurrency = refThis.getAdServerCurrency();
+	return adServerCurrency && adServerCurrency !== "USD" ? adServerCurrency : "";
+};
