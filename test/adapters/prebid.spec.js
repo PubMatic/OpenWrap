@@ -1615,7 +1615,8 @@ describe('ADAPTER: Prebid', function() {
 					isPrebidPubMaticAnalyticsEnabled: CONFIG.isPrebidPubMaticAnalyticsEnabled(),
 					isUsePrebidKeysEnabled: CONFIG.isUsePrebidKeysEnabled(),
 					macros: CONFIG.createMacros()
-				}
+				},
+                cur: CONFIG.getAdServerCurrencyForS2S()
 			};
 			done();
 		});
