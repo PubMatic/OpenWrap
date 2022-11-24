@@ -1564,7 +1564,7 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should set userSync properties',function(done){
+        xit('should set userSync properties',function(done){
             PREBID.assignUserSyncConfig(prebidConfig)
             expect(prebidConfig.userSync).to.be.deep.equal(expectedResult);
             done();

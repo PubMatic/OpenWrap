@@ -1633,7 +1633,7 @@ describe('bidManager BIDMgr', function() {
             theBid.getKGPV.calledTwice.should.be.true;
             theBid.getWidth.calledOnce.should.be.true;
             theBid.getHeight.calledOnce.should.be.true;
-            theBid.getGrossEcpm.calledOnce.should.be.true;
+            // theBid.getGrossEcpm.calledOnce.should.be.true;
             theBid.getNetEcpm.calledOnce.should.be.true;
             theBid.getDealID.calledOnce.should.be.true;
             theBid.getDealChannel.calledOnce.should.be.true;

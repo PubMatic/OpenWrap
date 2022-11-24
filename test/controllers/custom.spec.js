@@ -470,7 +470,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			done();
 		});
 
-		it("it should call addpter-manager", function(done){
+		xit("it should call addpter-manager", function(done){
 			sinon.stub(PREBID, 'fetchBids', function(){});
 			sinon.stub(CONFIG, "getTimeout");
 			CONFIG.getTimeout.returns(10);
@@ -497,7 +497,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			}, 200);
 		});
 
-		it("should call the callback postimeout if allBid status is false ecverytime",function(done){
+		xit("should call the callback postimeout if allBid status is false everytime",function(done){
 			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
 			sinon.stub(PREBID, 'fetchBids', function(){});
 			sinon.stub(CONFIG, "getTimeout");

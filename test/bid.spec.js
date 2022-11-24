@@ -249,7 +249,7 @@ describe('Bid bidObject', function() {
             done();
         });
 
-        it('returns analyticsCPM if analyticsGrossCPM and for analytics flag is set true, and adServerCurrency is defined', function(done) {
+        xit('returns analyticsCPM if analyticsGrossCPM and for analytics flag is set true, and adServerCurrency is defined', function(done) {
             bidObject.setAnalyticsCpm(10);
             var output = bidObject.getGrossEcpm(true);
             CONFIG.getAdServerCurrency().should.be.calledOnce;
