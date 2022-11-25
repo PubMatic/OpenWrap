@@ -1,4 +1,5 @@
 #! /usr/bin/env node
+console.time("--------- STARTED");
 console.log("running from shell script");
 var shell = require('shelljs');
 var argv = require('yargs').argv;
@@ -10,7 +11,7 @@ console.log("ARGV ==>", argv);
 
 var prebidTaskName = "";
 var openwrapBuildTaskName = "";
-var openwrapWebpackTaskName = "";
+// var openwrapWebpackTaskName = "";
 var CREATIVE_TASK = "creative";
 var profileMode = "--profile="+(argv.profile == undefined ? "OW" : argv.profile);
 
@@ -41,27 +42,25 @@ if (task == CREATIVE_TASK) {
 				console.log("Executing test-build");
 				prebidTaskName = "build-bundle-dev --modules=modules.json "+profileMode;
 				openwrapBuildTaskName = "devbundle";
-				openwrapWebpackTaskName = "devpack";
+				// openwrapWebpackTaskName = "devpack";
 				break;
 		 	case  "dev-build":
 				console.log("Executing build");
 				prebidTaskName = "build --modules=modules.json "+profileMode;
 				openwrapBuildTaskName = "bundle";
-				openwrapWebpackTaskName = "webpack";
+				// openwrapWebpackTaskName = "webpack";
 				break;
 		 	case "build" :
 				console.log("Executing build");
-				if(!prebidTaskName){
-					prebidTaskName = "bundle --modules=modules.json "+profileMode;
-				}
+				prebidTaskName = "bundle --modules=modules.json "+profileMode;
 				openwrapBuildTaskName = "bundle-prod";
-				openwrapWebpackTaskName = "webpack";
+				// openwrapWebpackTaskName = "webpack";
 				break;
 			case "build-all" :
 				console.log("Executing build");
 				prebidTaskName = "build-bundle-dev --modules=modules.json "+profileMode;
 				openwrapBuildTaskName = "devbundle";
-				openwrapWebpackTaskName = "devpack";
+				// openwrapWebpackTaskName = "devpack";
 			break;	
 			default:
 				console.log("No mode supplied, Too few arguments");
@@ -100,46 +99,19 @@ if (task == CREATIVE_TASK) {
 			}
 		} 
 
-		console.time("Cleaning Gulp");
+		// console.time("Cleaning Gulp");
 		// shell.exec("gulp clean");
-		console.timeEnd("Cleaning Gulp");
+		// console.timeEnd("Cleaning Gulp");
 		/*if(shell.exec("gulp " + openwrapWebpackTaskName + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: webpack wrapper task failed');
 			shell.exit(1);
 		}*/
 
 
-		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode + " " + profileMode + " --prebidpath=" + prebidRepoPath).code !== 0) {
+		if(shell.exec("time gulp build-bundle --task=" + openwrapBuildTaskName + " --mode=" + argv.mode + " " + profileMode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: wrapper build task failed');
 			shell.exit(1);
 		}
-
-		if(config.isUsePrebidKeysEnabled() === false && config.isPrebidPubMaticAnalyticsEnabled() === true){
-			console.log("We need to use PWT keys, so changing targeting keys in PrebidJS config");
-			prebidTaskName = "build-bundle-prod --modules=modules.json";
-			if(shell.exec("time gulp bundle-pwt-keys").code !== 0) {
-				shell.echo('Error: Changing PrebidJS targeting keys failed');
-			  	shell.exit(1);
-			}
-		} else {
-			console.log("We need to use Prebid keys, so changing targeting keys in PrebidJS config");
-			if(shell.exec("time gulp bundle-pb-keys").code !== 0) {
-				shell.echo('Error: Changing PrebidJS targeting keys failed');
-			  	shell.exit(1);
-			}		
-		}
-		if(config.isUsePrebidKeysEnabled() === true){
-			console.log("We need to use Prebid keys for Native, so changing targeting keys in PrebidJS config");
-			prebidTaskName = "build-bundle-prod --modules=modules.json";
-			if(shell.exec("time gulp bundle-native-pb-keys").code !== 0) {
-				shell.echo('Error: Changing PrebidJS targeting keys for Native failed');
-			  	shell.exit(1);
-			}
-		} else {
-			console.log("We need to use PWT keys for Native, so changing targeting keys in PrebidJS config");
-			if(shell.exec("time gulp bundle-native-pwt-keys").code !== 0) {
-				shell.echo('Error: Changing PrebidJS targeting keys for Native failed');
-			  	shell.exit(1);
-			}
-		}
 }
+
+console.timeEnd("--------- STARTED");
