@@ -239,7 +239,7 @@ gulp.task('change-prebid-keys', () => {
 gulp.task('bundle', ['update-adserver'], function () {
     console.log("Executing build");
     var concat = require('gulp-concat');
-    var prebidFileName = (profileMode === "IH" ? '/build/dist/prebid.idhub.js' : '/build/dist/prebid.js')
+    var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
     var prependscript = "", appendScript = "";
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
@@ -385,8 +385,8 @@ gulp.task('bundle-creative', function () {
 gulp.task('devbundle',['devpack'], function () {
     console.log("Executing Dev Build");
     var concat = require('gulp-concat');
-    // var prebidFileName = (profileMode === "IH" ? '/build/devIH/prebid.idhub.js' : '/build/dev/prebid.js')
-    var prebidFileName = '/build/dev/prebid.js';
+    var prebidFileName = isIdentityOnly ? '/build/dev/prebidIdhub.js' : '/build/dev/prebid.js';
+    //var prebidFileName = '/build/dev/prebid.js';
     return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'])
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
@@ -396,8 +396,8 @@ gulp.task('devbundle',['devpack'], function () {
 gulp.task('bundle-prod',['webpack'], function () {
     console.log("Executing bundling");
     var concat = require('gulp-concat');
-    // var prebidFileName = (profileMode === "IH" ? '/build/distIH/prebid.idhub.js' : '/build/dist/prebid.js')
-    var prebidFileName = '/build/dist/prebid.js';
+    var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
+    //var prebidFileName = '/build/dist/prebid.js';
     var prependscript = "", appendScript = "";
     return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
         .pipe(concat('owt.min.js'))
@@ -426,7 +426,7 @@ gulp.task('update-adserver', function(){
 gulp.task('update-namespace', function(){
     console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
     console.log("Executing update-namespace - START => ");
-    var prebidFileName = '/build/dist/prebid.js';
+    var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
     return gulp.src(prebidRepoPath + prebidFileName)
     .pipe(replace({
         patterns: [
