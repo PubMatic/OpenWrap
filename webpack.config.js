@@ -1,6 +1,7 @@
 var conf = require('./src_new/conf.js');
 var StringReplacePlugin = require('string-replace-webpack-plugin');
 var path = require('path');
+var argv = require('yargs').argv;
 
 var controllerPaths = {
 	IDHUB: "./controllers/idhub.js",
@@ -41,7 +42,8 @@ module.exports = {
           {
             test: /\.js$/,
             exclude: /(node_modules)|(test)|(integrationExamples)|(build)|polyfill.js|(src\/adapters\/analytics\/ga.js)/, // TODO: reg ex to exlcude src_new folder ?
-            loader: 'istanbul-instrumenter-loader'
+            use: () => 
+              argv.mode == "test-build" ? "istanbul-instrumenter-loader" : []
           }
         ]
     },
