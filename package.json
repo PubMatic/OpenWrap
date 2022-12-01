@@ -83,7 +83,7 @@
     "karma-webpack": "^1.5.1",
     "mocha": "^1.21.4",
     "open": "0.0.5",
-    "phantomjs": "^1.9.18",
+    "phantomjs": "^2.1.1",
     "requirejs": "^2.1.20",
     "sinon": "^1.12.1",
     "watchify": "^3.9.0"
