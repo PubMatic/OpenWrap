@@ -1070,6 +1070,9 @@ function getFloorsConfiguration(prebidConfig){
 			auctionDelay: CONFIG.getFloorAuctionDelay(),
 			endpoint:{
 				url: CONFIG.getFloorJsonUrl()
+			},
+			additionalSchemaFields : {
+				platform : util.getPltForFloor
 			}
 		}
 	}

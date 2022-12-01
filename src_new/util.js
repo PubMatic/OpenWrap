@@ -1935,3 +1935,7 @@ exports.applyCustomParamValuesfApplicable = function(params) {
 		}
 	}
 }
+
+exports.getPltForFloor = function() {
+	return refThis.getDevicePlatform().toString();
+}

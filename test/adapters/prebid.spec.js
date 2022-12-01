@@ -950,7 +950,10 @@ describe('ADAPTER: Prebid', function() {
                 auctionDelay: 100,
                 endpoint:{
                     url: "externalFloor.json"
-                }
+                },
+				additionalSchemaFields : {
+					platform : UTIL.getPltForFloor
+				}
             }
             function onSSOLogin() {};
             window.owpbjs = {
