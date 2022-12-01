@@ -86,6 +86,6 @@
     "phantomjs": "^1.9.18",
     "requirejs": "^2.1.20",
     "sinon": "^1.12.1",
-    "watchify": "^3.9.0",
+    "watchify": "^3.9.0"
   }
 }
