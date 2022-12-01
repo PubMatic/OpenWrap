@@ -1072,7 +1072,8 @@ function getFloorsConfiguration(prebidConfig){
 				url: CONFIG.getFloorJsonUrl()
 			},
 			additionalSchemaFields : {
-				browser : util.getBrowser
+				browser : util.getBrowser,
+				platform : util.getPltForFloor
 			}
 		}
 	}

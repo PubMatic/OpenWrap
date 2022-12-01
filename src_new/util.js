@@ -1948,3 +1948,6 @@ exports.getBrowser = function() {
 	}
 	return browserName;
 }
+exports.getPltForFloor = function() {
+	return refThis.getDevicePlatform().toString();
+}

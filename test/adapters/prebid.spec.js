@@ -952,7 +952,8 @@ describe('ADAPTER: Prebid', function() {
                     url: "externalFloor.json"
                 },
 				additionalSchemaFields : {
-					browser : UTIL.getBrowser
+					browser : UTIL.getBrowser,
+					platform : UTIL.getPltForFloor
 				}
             }
             function onSSOLogin() {};
