@@ -1504,6 +1504,7 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(theBid, "getPostTimeoutStatus");
             sinon.spy(theBid, "getWinningBidStatus");
             sinon.spy(theBid, "getPbBid");
+			sinon.stub(BIDMgr, 'getSlotLevelFrequencyDepth').returns(1);
 
             theBid.floorRequestData= {
                 'fetchStatus': 'success',
@@ -1563,6 +1564,7 @@ describe('bidManager BIDMgr', function() {
             theBid.getWinningBidStatus.restore();
 
             theBid = null;
+			BIDMgr.getSlotLevelFrequencyDepth.restore();
             done();
         });
 
@@ -1666,6 +1668,21 @@ describe('bidManager BIDMgr', function() {
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].wb).to.exist;
             expect(impressionIDMap[bmEntryObj.getImpressionID()][0]["ps"][0].ss).to.exist;
 			done()
+        });
+
+		it('should log count of bidServed, impServed & request count', function(done) {
+            bmEntryObj.getAnalyticEnabledStatus.returns(true);
+            bmEntryObj.setAdapterEntry(commonAdpterID);
+            bmEntryObj.setNewBid(commonAdpterID, theBid);
+            CONFIG.getBidPassThroughStatus.returns(2);
+
+            BIDMgr.analyticalPixelCallback(slotID, bmEntryObj, impressionIDMap);
+			expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['sn']).to.equal("Slot_1");
+			expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['ps']).to.be.an("array");
+			expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['bs']).to.equal(1);
+			expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['is']).to.equal(1);
+			expect(impressionIDMap[bmEntryObj.getImpressionID()][0]['rc']).to.equal(1);
+            done();
         });
 
         it('should not log any entry in logger for serverside adapter, server responds with error codes 1/2/3/6', function(done) {
