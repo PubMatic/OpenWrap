@@ -1073,7 +1073,7 @@ function getFloorsConfiguration(prebidConfig){
 			},
 			additionalSchemaFields : {
 				browser : util.getBrowser,
-				platform : util.getPltForFloor
+				platform_id : util.getPltForFloor
 			}
 		}
 	}
