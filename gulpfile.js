@@ -266,7 +266,7 @@ gulp.task('bundle', gulp.series('update-adserver', function () {
 }));
 
 gulp.task('bundle-pb-keys', function(){
-      return gulp.src('./build/owt.min.js')
+      return gulp.src('./build/owt.min.js', {"allowEmpty": true})
       .pipe(replace({
         patterns: [
           {
@@ -291,7 +291,7 @@ gulp.task('bundle-pb-keys', function(){
 });
 
 gulp.task('bundle-native-pb-keys', function(){
-    return gulp.src('./build/owt.min.js')
+    return gulp.src('./build/owt.min.js', {"allowEmpty": true})
     .pipe(replace({
       patterns: [
         {
@@ -325,7 +325,7 @@ gulp.task('bundle-native-pb-keys', function(){
 });
 
 gulp.task('bundle-pwt-keys', function(){
-      return gulp.src('./build/owt.min.js')
+      return gulp.src('./build/owt.min.js', {"allowEmpty": true})
       .pipe(replace({
         patterns: [
           {
@@ -352,7 +352,7 @@ gulp.task('bundle-pwt-keys', function(){
 });
 
 gulp.task('bundle-native-pwt-keys', function(){
-    return gulp.src('./build/owt.min.js')
+    return gulp.src('./build/owt.min.js', {"allowEmpty": true})
     .pipe(replace({
       patterns: [
         {
