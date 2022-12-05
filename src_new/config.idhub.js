@@ -86,4 +86,8 @@ exports.isPubMaticIHAnalyticsEnabled = function() {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_IH_ANALYTICS]) === 1;
 }
 
+exports.getIHAnalyticsAdapterExpiry = function() {
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.IH_ANALYTICS_ADAPTER_EXPIRY]);
+}
+
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";

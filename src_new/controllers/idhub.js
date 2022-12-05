@@ -11,6 +11,7 @@ var isPubmaticIHAnalyticsEnabled = CONFIG.isPubMaticIHAnalyticsEnabled();
 
 refThis.enablePubMaticIdentityAnalyticsIfRequired = function(){
 	console.log("IHANALYTICS = ",window[pbNameSpace].enableAnalytics);
+	window.IHPWT.ihAnalyticsAdapterExpiry = CONFIG.getIHAnalyticsAdapterExpiry();
 	if(isPubmaticIHAnalyticsEnabled && util.isFunction(window[pbNameSpace].enableAnalytics)){
 		window[pbNameSpace].enableAnalytics({
 			provider: "pubmaticIH",
@@ -63,6 +64,9 @@ refThis.setConfig = function(){
 			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 			window[pbNameSpace].setConfig(prebidConfig);
 		}
+		if (CONFIG.isUserIdModuleEnabled() && CONFIG.isIdentityOnly()) {
+			refThis.enablePubMaticIdentityAnalyticsIfRequired();
+		}
 		window[pbNameSpace].requestBids([]);
 	}
 };
@@ -105,7 +109,6 @@ exports.initIdHub = function(win){
 exports.init = function(win) { 
 	if (util.isObject(win)) {
 		refThis.initIdHub(win);
-		refThis.enablePubMaticIdentityAnalyticsIfRequired();
 		return true;
 	} else {
 		return false;
