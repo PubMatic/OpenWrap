@@ -1,5 +1,7 @@
 var config = require("./conf.js");
 var CONSTANTS = require("./constants.js");
+var util = require("./util.js");
+
 var refThis = null;
 refThis = this;
 refThis[CONSTANTS.COMMON.OWVERSION] = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.OWVERSION];
@@ -64,6 +66,10 @@ exports.getCCPATimeout = function() {
 	return ccpaTimeout ? window.parseInt(ccpaTimeout) : CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT;
 };
 
+exports.getPublisherId = function () {
+	return util.trim(config.pwt.pubid) || "0";
+};
+
 exports.getProfileID = function () {
 	return config.pwt[CONSTANTS.CONFIG.PROFILE_ID] || "0";
 };
@@ -74,6 +80,10 @@ exports.getProfileDisplayVersionID = function () {
 
 exports.isSSOEnabled = function() {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SSO_ENABLED]) === 1;
+}
+
+exports.isPubMaticIHAnalyticsEnabled = function() {
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_IH_ANALYTICS]) === 1;
 }
 
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";

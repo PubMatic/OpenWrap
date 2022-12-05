@@ -7,6 +7,22 @@ var CONSTANTS = require("../constants.js");
 var util = require("../util.idhub.js");
 var refThis = this;
 var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
+var isPubmaticIHAnalyticsEnabled = CONFIG.isPubMaticIHAnalyticsEnabled();
+
+refThis.enablePubMaticIdentityAnalyticsIfRequired = function(){
+	console.log("IHANALYTICS = ",window[pbNameSpace].enableAnalytics);
+	if(isPubmaticIHAnalyticsEnabled && util.isFunction(window[pbNameSpace].enableAnalytics)){
+		window[pbNameSpace].enableAnalytics({
+			provider: "pubmaticIH",
+			options: {
+				publisherId: CONFIG.getPublisherId(),
+				profileId: CONFIG.getProfileID(),
+				profileVersionId: CONFIG.getProfileDisplayVersionID(),
+				identityOnly: CONFIG.isUserIdModuleEnabled() ? CONFIG.isIdentityOnly() ? 2 : 1 : 0
+			}
+		});
+	}
+}
 
 refThis.setConfig = function(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
@@ -89,6 +105,7 @@ exports.initIdHub = function(win){
 exports.init = function(win) { 
 	if (util.isObject(win)) {
 		refThis.initIdHub(win);
+		refThis.enablePubMaticIdentityAnalyticsIfRequired();
 		return true;
 	} else {
 		return false;

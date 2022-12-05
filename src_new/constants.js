@@ -94,6 +94,7 @@ exports.CONFIG = {
 	"CACHE_URL": "https://ow.pubmatic.com",
 	"VIDEO_PARAM": "video",
 	"ENABLE_PB_PM_ANALYTICS": "pubAnalyticsAdapter",
+	"ENABLE_PB_IH_ANALYTICS": "ihAnalyticsAdapter",
 	"FLOOR_PRICE_MODULE_ENABLED": "floorPriceModuleEnabled",
 	"FLOOR_AUCTION_DELAY":"floorAuctionDelay",
 	"DEFAULT_FLOOR_AUCTION_DELAY": 100,
