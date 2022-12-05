@@ -953,7 +953,7 @@ describe('ADAPTER: Prebid', function() {
                 },
 				additionalSchemaFields : {
 					browser : UTIL.getBrowser,
-					platform : UTIL.getPltForFloor
+					platform_id : UTIL.getPltForFloor
 				}
             }
             function onSSOLogin() {};
