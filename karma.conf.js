@@ -1,11 +1,7 @@
 // Karma configuration
 // Generated on Thu Feb 23 2017 19:29:00 GMT+0530 (India Standard Time)
 var webpackConfig = require('./webpack.config');
-webpackConfig.module.postLoaders = [{
-    test: /\.js$/,
-    exclude: /(node_modules)|(test)|(integrationExamples)|(build)|polyfill.js|(src\/adapters\/analytics\/ga.js)/, // TODO: reg ex to exlcude src_new folder ?
-    loader: 'istanbul-instrumenter'
-}];
+
 module.exports = function(config) {
     config.set({
 
@@ -71,7 +67,7 @@ module.exports = function(config) {
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ['PhantomJS'],
+        browsers: ['ChromeHeadless'],
 
 
         // Continuous Integration mode
@@ -120,10 +116,19 @@ module.exports = function(config) {
             'karma-mocha',
             'karma-sinon',
             'karma-expect',
-            'karma-webpack',
-            'karma-chrome-launcher',
-            'karma-phantomjs-launcher'
-        ]
+            'karma-webpack'
+        ],
 
+        customLaunchers: {
+            ChromeHeadless: {
+              base: 'Chrome',
+              flags: [
+                '--no-sandbox',
+                '--headless',
+                '--disable-gpu',
+                '--remote-debugging-port=9222'
+              ]
+            }
+        }
     })
 }
