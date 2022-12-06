@@ -2448,7 +2448,7 @@ describe("CONTROLLER: GPT", function() {
         });
 
         it('should have logged the arg but not executing post timeout events for incorrect slotname', function(done) {
-            let dummySlotNames = ["dummySlotName"];
+            var dummySlotNames = ["dummySlotName"];
             GPT.postTimeoutRefreshExecution(dummySlotNames, theObject, originalFunction, arg);
             UTIL.log.calledWith("Executing post timeout events, arguments: ").should.be.true;
             UTIL.log.calledWith(arg).should.be.true;
