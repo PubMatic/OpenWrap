@@ -407,6 +407,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
+	outputObj["bm"] = refThis.getBrowser();
 	outputObj["tgid"] = (function() {
 	    var testGroupId = parseInt(PWT.testGroupId || 0);
 	    if (testGroupId <= 15 && testGroupId >= 0) {
@@ -869,5 +870,37 @@ exports.setStandardKeys = function(winningBid, keyValuePairs){
     	util.logWarning('Not generating key-value pairs as invalid winningBid object passed. WinningBid: ');
     	util.logWarning(winningBid);
     }
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+exports.getBrowser = function() {
+	var regExBrowsers = [/\b(?:crmo|crios)\/([\w\.]+)/i,/edg(?:e|ios|a)?\/([\w\.]+)/i,/(opera mini)\/([-\w\.]+)/i,/(opera [mobiletab]{3,6})\b.+version\/([-\w\.]+)/i,/(opera)(?:.+version\/|[\/ ]+)([\w\.]+)/i,
+	/opios[\/ ]+([\w\.]+)/i,/\bopr\/([\w\.]+)/i,/(kindle)\/([\w\.]+)/i,/(lunascape)[\/ ]?([\w\.]*)/i,/(maxthon)[\/ ]?([\w\.]*)/i,/(netfront)[\/ ]?([\w\.]*)/i,/(jasmine)[\/ ]?([\w\.]*)/i,/(blazer)[\/ ]?([\w\.]*)/i,
+	/(avant |iemobile|slim)(?:browser)?[\/ ]?([\w\.]*)/i,/(ba?idubrowser)[\/ ]?([\w\.]+)/i,/(?:ms|\()(ie) ([\w\.]+)/i,/(flock)\/([-\w\.]+)/i,/(rockmelt)\/([-\w\.]+)/i,/(midori)\/([-\w\.]+)/i,/(epiphany)\/([-\w\.]+)/i,
+	/(silk)\/([-\w\.]+)/i,/(skyfire)\/([-\w\.]+)/i,/(ovibrowser)\/([-\w\.]+)/i,/(bolt)\/([-\w\.]+)/i,/(iron)\/([-\w\.]+)/i,/(vivaldi)\/([-\w\.]+)/i,/(iridium)\/([-\w\.]+)/i,/(phantomjs)\/([-\w\.]+)/i,
+	/(bowser)\/([-\w\.]+)/i,/(quark)\/([-\w\.]+)/i,/(qupzilla)\/([-\w\.]+)/i,/(falkon)\/([-\w\.]+)/i,/(rekonq)\/([-\w\.]+)/i,/(puffin)\/([-\w\.]+)/i,/(brave)\/([-\w\.]+)/i,/(whale)\/([-\w\.]+)/i,/(qqbrowserlite)\/([-\w\.]+)/i,
+	/(qq)\/([-\w\.]+)/i,/(duckduckgo)\/([-\w\.]+)/i,/(weibo)__([\d\.]+)/i,/(?:\buc? ?browser|(?:juc.+)ucweb)[\/ ]?([\w\.]+)/i,/microm.+\bqbcore\/([\w\.]+)/i,/\bqbcore\/([\w\.]+).+microm/i,/micromessenger\/([\w\.]+)/i,
+	/konqueror\/([\w\.]+)/i,/trident.+rv[: ]([\w\.]{1,9})\b.+like gecko/i,/yabrowser\/([\w\.]+)/i,/(avast|avg)\/([\w\.]+)/i,/\bfocus\/([\w\.]+)/i,/\bopt\/([\w\.]+)/i,/coc_coc\w+\/([\w\.]+)/i,/dolfin\/([\w\.]+)/i,
+	/coast\/([\w\.]+)/i,/miuibrowser\/([\w\.]+)/i,/fxios\/([-\w\.]+)/i,/\bqihu|(qi?ho?o?|360)browser/i,/(oculus)browser\/([\w\.]+)/i,/(samsung)browser\/([\w\.]+)/i,/(sailfish)browser\/([\w\.]+)/i,/(huawei)browser\/([\w\.]+)/i,
+	/(comodo_dragon)\/([\w\.]+)/i,/(electron)\/([\w\.]+) safari/i,/(tesla)(?: qtcarbrowser|\/(20\d\d\.[-\w\.]+))/i,/m?(qqbrowser|baiduboxapp|2345Explorer)[\/ ]?([\w\.]+)/i,/(metasr)[\/ ]?([\w\.]+)/i,/(lbbrowser)/i,/\[(linkedin)app\]/i,
+	/((?:fban\/fbios|fb_iab\/fb4a)(?!.+fbav)|;fbav\/([\w\.]+);)/i,/safari (line)\/([\w\.]+)/i,/\b(line)\/([\w\.]+)\/iab/i,/(chromium|instagram)[\/ ]([-\w\.]+)/i,/\bgsa\/([\w\.]+) .*safari\//i,/headlesschrome(?:\/([\w\.]+)| )/i,
+	/ wv\).+(chrome)\/([\w\.]+)/i,/droid.+ version\/([\w\.]+)\b.+(?:mobile safari|safari)/i,/(chrome|chromium|crios)\/v?([\w\.]+)/i,/(chrome|omniweb|arora|[tizenoka]{5} ?browser)\/v?([\w\.]+)/i,/version\/([\w\.\,]+) .*mobile\/\w+ (safari)/i,
+	/version\/([\w(\.|\,)]+) .*(mobile ?safari|safari)/i,/webkit.+?(mobile ?safari|safari)(\/[\w\.]+)/i,/(navigator|netscape\d?)\/([-\w\.]+)/i,/mobile vr; rv:([\w\.]+)\).+firefox/i,/ekiohf.+(flow)\/([\w\.]+)/i,/(swiftfox)/i,
+	/(icedragon|iceweasel|camino|chimera|fennec|maemo browser|minimo|conkeror|klar)[\/ ]?([\w\.\+]+)/i,/(seamonkey|k-meleon|icecat|iceape|firebird|phoenix|palemoon|basilisk|waterfox)\/([-\w\.]+)$/i,
+	/(firefox)\/([\w\.]+)/i,/(mozilla)\/([\w\.]+) .+rv\:.+gecko\/\d+/i,/(polaris|lynx|dillo|icab|doris|amaya|w3m|netsurf|sleipnir|obigo|mosaic|(?:go|ice|up)[\. ]?browser)[-\/ ]?v?([\w\.]+)/i,/(links) \(([\w\.]+)/i];
+	var browserMapping = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,
+	65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90];
+
+	var userAgent = navigator.userAgent;
+	var browserName = userAgent == null ? "UNKNOWN" : "unknown";
+	for(var i = 0; i < regExBrowsers.length; i++) {
+		if(userAgent.match(regExBrowsers[i])) {
+			browserName = browserMapping[i];
+			break;
+		}
+	}
+	return browserName;
+
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
