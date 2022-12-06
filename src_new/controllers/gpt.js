@@ -266,7 +266,12 @@ exports.updateStatusOfQualifyingSlotsBeforeCallingAdapters = updateStatusOfQuali
 function arrayOfSelectedSlots(slotNames) { // TDD, i/o : done
     var output = [];
     util.forEachOnArray(slotNames, function(index, slotName) {
-        output.push(refThis.slotsMap[slotName]);
+        if(!!refThis.slotsMap[slotName]){
+            output.push(refThis.slotsMap[slotName]);
+        }
+        else{
+            util.log(CONSTANTS.MESSAGES.M32 + " " + slotName);
+        }
     });
     return output;
 }
@@ -690,9 +695,11 @@ exports.findWinningBidIfRequired_Refresh = findWinningBidIfRequired_Refresh;
 
 function postRederingChores(divID, dmSlot){
     // googleSlot.getSizes() returns applicable sizes as per sizemapping if we pass current available view-port width and height
-    util.createVLogInfoPanel(divID, refThis.slotsMap[dmSlot].getSizes(window.innerWidth, window.innerHeight));
-    util.realignVLogInfoPanel(divID);
-    bidManager.executeAnalyticsPixel();
+    if(!!refThis.slotsMap[dmSlot]){
+        util.createVLogInfoPanel(divID, refThis.slotsMap[dmSlot].getSizes(window.innerWidth, window.innerHeight));
+        util.realignVLogInfoPanel(divID);
+        bidManager.executeAnalyticsPixel();
+    }
 }
 
 /* start-test-block */
@@ -704,11 +711,13 @@ function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFun
     util.log(arg);
     var yesCallRefreshFunction = false;
     util.forEachOnArray(qualifyingSlotNames, function(index, dmSlot) {
-        var divID = refThis.slotsMap[dmSlot].getDivID();
-        yesCallRefreshFunction = refThis.findWinningBidIfRequired_Refresh(dmSlot, divID, yesCallRefreshFunction);
-        window.setTimeout(function() {
-            refThis.postRederingChores(divID, dmSlot);
-        }, 2000);
+        if(!!refThis.slotsMap[dmSlot]){
+            var divID = refThis.slotsMap[dmSlot].getDivID();
+            yesCallRefreshFunction = refThis.findWinningBidIfRequired_Refresh(dmSlot, divID, yesCallRefreshFunction);
+            window.setTimeout(function() {
+                refThis.postRederingChores(divID, dmSlot);
+            }, 2000);
+        }
     });
     this.callOriginalRefeshFunction(yesCallRefreshFunction, theObject, originalFunction, arg);
 }

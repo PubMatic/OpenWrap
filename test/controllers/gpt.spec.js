@@ -1112,12 +1112,14 @@ describe("CONTROLLER: GPT", function() {
             GPT.slotsMap["slot_3"] = slot_3;
 
             sinon.spy(UTIL, "forEachOnArray");
+            sinon.spy(UTIL, "log");
             done();
         });
 
         afterEach(function(done) {
             GPT.slotsMap = {};
             UTIL.forEachOnArray.restore();
+            UTIL.log.restore();
             done();
         });
 
@@ -1136,6 +1138,13 @@ describe("CONTROLLER: GPT", function() {
             GPT.arrayOfSelectedSlots(slotNames).should.deep.equal([slot_1, slot_2, slot_3]);
             Object.keys(GPT.slotsMap).should.be.deep.equal(slotNames);
             Object.keys(GPT.slotsMap).length.should.be.equal(slotNames.length);
+            done();
+        });
+
+        it('log message if slot name is not present in  slotMap', function(done) {
+            GPT.arrayOfSelectedSlots(["dummyName"]).should.be.a('array');
+            GPT.arrayOfSelectedSlots(["dummyName"]).length.should.be.equal(0);
+            UTIL.log.calledWith("Slot not found for dummyName").should.be.true;
             done();
         });
     });
@@ -2320,6 +2329,15 @@ describe("CONTROLLER: GPT", function() {
             BM.executeAnalyticsPixel.called.should.be.true;
             done();
         });
+
+        it('all internal functions are not called for incorrect slot name', function(done){
+            GPT.slotsMap['dmSlotName'] = SLOT.createSlot('dmSlotName');
+            GPT.postRederingChores('DIV_1', 'dumySlotName');
+            UTIL.createVLogInfoPanel.called.should.be.false;
+            UTIL.realignVLogInfoPanel.called.should.be.false;
+            BM.executeAnalyticsPixel.called.should.be.false;
+            done();
+        });
     });
 
     describe('#postTimeoutRefreshExecution', function() {
@@ -2426,6 +2444,17 @@ describe("CONTROLLER: GPT", function() {
             UTIL.forEachOnArray.calledWith(qualifyingSlotNames).should.be.true;
             window.setTimeout.called.should.be.true;
             GPT.callOriginalRefeshFunction.calledWith(true, theObject, originalFunction, arg).should.be.true;
+            done();
+        });
+
+        it('should have logged the arg but not executing post timeout events for incorrect slotname', function(done) {
+            let dummySlotNames = ["dummySlotName"];
+            GPT.postTimeoutRefreshExecution(dummySlotNames, theObject, originalFunction, arg);
+            UTIL.log.calledWith("Executing post timeout events, arguments: ").should.be.true;
+            UTIL.log.calledWith(arg).should.be.true;
+            UTIL.forEachOnArray.calledWith(dummySlotNames).should.be.true;
+            window.setTimeout.called.should.be.false;
+            GPT.callOriginalRefeshFunction.calledWith(true, theObject, originalFunction, arg).should.be.false;
             done();
         });
     });
