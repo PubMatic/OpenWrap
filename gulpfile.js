@@ -423,21 +423,49 @@ gulp.task('update-adserver', function(){
     }
 });
 
-gulp.task('update-namespace', function(){
-    console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
+// gulp.task('update-namespace', function(){
+//     console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
+//     console.log("Executing update-namespace - START => ");
+//     var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
+//     return gulp.src(prebidRepoPath + prebidFileName)
+//     .pipe(replace({
+//         patterns: [
+//             {
+//             match: /owpbjs/g,
+//             replacement: 'ihowpbjs'
+//             }
+//         ]
+//     }))
+//     .pipe(gulp.dest(prebidRepoPath+'/build/dist/'));
+// });
+
+function updateNamespace(srcPath, destPath) {
     console.log("Executing update-namespace - START => ");
-    var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
-    return gulp.src(prebidRepoPath + prebidFileName)
+    var owName = config.getOwGloabalVarNamespace(COMMON.OPENWRAP_NAMESPACE);
+    var pbName = config.getPbGloabalVarNamespace(COMMON.PREBID_NAMESPACE);
+    return gulp.src(srcPath)
     .pipe(replace({
         patterns: [
             {
-            match: /owpbjs/g,
-            replacement: 'ihowpbjs'
+                match: /PWT/g,
+                replacement: owName
+            },
+            {
+                match: /owpbjs/g,
+                replacement: pbName
             }
         ]
     }))
-    .pipe(gulp.dest(prebidRepoPath+'/build/dist/'));
+    .pipe(gulp.dest(destPath));
+}
+
+gulp.task('update-namespace', function() {
+    return updateNamespace('build/*.js','build/');
 });
+
+// gulp.task('update-prod-namespace', function(){
+//     return updateNamespace('build/owt.min.js','build/');
+// });
 
 gulp.task('build-gpt-prod',[''])
 gulp.task('build-bundle', [argv.task || ''], function() {
