@@ -880,13 +880,14 @@ exports.getBrowser = function() {
 
 	var userAgent = navigator.userAgent;
 	var browserName = userAgent == null ? "UNKNOWN" : "unknown";
-	for(var i = 0; i < regExBrowsers.length; i++) {
-		if(userAgent.match(regExBrowsers[i])) {
-			browserName = browserMapping[i];
-			break;
+	if(userAgent) {
+		for(var i = 0; i < regExBrowsers.length; i++) {
+			if(userAgent.match(regExBrowsers[i])) {
+				browserName = browserMapping[i];
+				break;
+			}
 		}
 	}
 	return browserName;
-
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
