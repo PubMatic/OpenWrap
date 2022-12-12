@@ -5,7 +5,9 @@ var util = require("./util.js");
 var bmEntry = require("./bmEntry.js");
 
 var refThis = this;
-
+var storedObject;
+var frequencyDepth;
+const PREFIX = 'PROFILE_AUCTION_INFO_';
 function createBidEntry(divID){ // TDD, i/o : done
 	/* istanbul ignore else */
 	if(! util.isOwnProperty(window.PWT.bidMap, divID) ){
@@ -357,6 +359,7 @@ exports.getBidById = function(bidID) { // TDD, i/o : done
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
+	storedObject = localStorage.getItem(PREFIX + window.location.hostname);
 	var bidDetails = refThis.getBidById(bidID);
 	/* istanbul ignore else */
 	if(bidDetails){
@@ -366,12 +369,21 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 		util.displayCreative(theDocument, theBid);
 		util.vLogInfo(divID, {type: 'disp', adapter: theBid.getAdapterID()});
 		refThis.executeMonetizationPixel(divID, theBid);
+		// Check if browsers local storage has auction related data and update impression served count accordingly.
+	    var frequencyDepth = JSON.parse(localStorage.getItem(PREFIX + window.location.hostname)) || {};
+		if (frequencyDepth !== null && frequencyDepth.slotLevelFrquencyDepth) {
+			frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed = frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed + 1; 
+			frequencyDepth.impressionServed = frequencyDepth.impressionServed + 1;
+		}
+		localStorage.setItem(PREFIX + window.location.hostname, JSON.stringify(frequencyDepth));
 	}
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
+	storedObject = localStorage.getItem(PREFIX + window.location.hostname);
+    frequencyDepth = storedObject !== null ? JSON.parse(storedObject) : {};
 	var outputObj = {
 			s: []
 		},
@@ -402,6 +414,14 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	    }
 	    return 0;
 	})();
+
+	if(Object.keys(frequencyDepth).length) {
+		outputObj["tpv"] = frequencyDepth.pageView;
+		outputObj["trc"] = frequencyDepth.slotCnt;
+		outputObj["tbs"] = frequencyDepth.bidServed;
+		outputObj["tis"] = frequencyDepth.impressionServed;
+		outputObj["lip"] = frequencyDepth.lip;
+	}
 
 	// As discussed we won't be seding gdpr data to logger
 	// if (CONFIG.getGdpr()) {
@@ -517,6 +537,14 @@ function getAdDomain(bidResponse) {
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+// Returns property from localstorages slotlevel object
+exports.getSlotLevelFrequencyDepth = function (frequencyDepth, prop, adUnit) {
+	var freqencyValue; 
+	if(Object.keys(frequencyDepth).length && frequencyDepth.slotLevelFrquencyDepth) {
+		freqencyValue = frequencyDepth.slotLevelFrquencyDepth[adUnit] && frequencyDepth.slotLevelFrquencyDepth[adUnit][prop];
+	}
+	return freqencyValue;
+}
 /**
  * Prepare meta object to pass in logger call
  * @param {*} meta 
@@ -546,6 +574,8 @@ exports.getMetadata = getMetadata;
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
+	storedObject = localStorage.getItem(PREFIX + window.location.hostname);
+    var frequencyDepth = storedObject !== null ? JSON.parse(storedObject) : {};
 	var usePBSAdapter = CONFIG.usePBSAdapter();
 	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = (usePBSAdapter && window.pbsLatency) ? 0 : undefined;
@@ -561,7 +591,11 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 			"au": adUnitInfo.adUnitId || slotID,
 			"fskp" : window.PWT.floorData ? (window.PWT.floorData[impressionID] ? (window.PWT.floorData[impressionID].floorRequestData ? (window.PWT.floorData[impressionID].floorRequestData.skipped == false ? 0 : 1) : undefined) : undefined) : undefined,
 			"mt": refThis.getAdUnitAdFormats(adUnitInfo.mediaTypes),
-			"ps": []
+			"ps": [],
+			"bs": refThis.getSlotLevelFrequencyDepth(frequencyDepth, 'bidServed', adUnitInfo.adUnitId),
+			"is": refThis.getSlotLevelFrequencyDepth(frequencyDepth, 'impressionServed', adUnitInfo.adUnitId),
+			"rc": refThis.getSlotLevelFrequencyDepth(frequencyDepth, 'slotCnt', adUnitInfo.adUnitId),
+			"vw": frequencyDepth && frequencyDepth.viewedSlot && frequencyDepth.viewedSlot[adUnitInfo.adUnitId]
 		};
         bmEntry.setExpired();
         impressionIDMap[impressionID] = impressionIDMap[impressionID] || [];
