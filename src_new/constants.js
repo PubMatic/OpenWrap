@@ -316,3 +316,9 @@ exports.DEFAULT_ALIASES = {
 	pubmatic2: "pubmatic"
 }
 exports.YAHOOSSP = "yahoossp";
+
+exports.CF_WORKER_TO_FETCH_COUNTRY = {
+	url: "https://geo.kapiltuptewar.workers.dev/"
+}
+
+exports.USER_GEO = "USER_GEO";

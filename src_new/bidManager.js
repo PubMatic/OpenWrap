@@ -382,6 +382,10 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
+	var geoObj = localStorage.getItem(CONSTANTS.USER_GEO);
+	if(geoObj) {
+		geoObj = JSON.parse(geoObj);
+	}
 	storedObject = localStorage.getItem(PREFIX + window.location.hostname);
     frequencyDepth = storedObject !== null ? JSON.parse(storedObject) : {};
 	var outputObj = {
@@ -414,7 +418,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	    }
 	    return 0;
 	})();
-
+	outputObj["ctry"] = geoObj && geoObj.country;
 	if(Object.keys(frequencyDepth).length) {
 		outputObj["tpv"] = frequencyDepth.pageView;
 		outputObj["trc"] = frequencyDepth.slotCnt;

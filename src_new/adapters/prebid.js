@@ -1344,6 +1344,14 @@ function fetchBids(activeSlots){
 				util.log("PreBid js requestBids function is not available");
 				return;
 			}
+			// Fetch country using cloudflare service worker and add to local storage
+			util.ajaxRequest(CONSTANTS.CF_WORKER_TO_FETCH_COUNTRY.url, function(response, status) {
+				try {
+					localStorage.setItem(CONSTANTS.USER_GEO, response);
+				} catch (ex) {
+					util.logError("Fetching Geo errored with:", status);
+				}
+			}, null, { method: 'GET' });
 		} catch (e) {
 			util.logError("Error occured in calling PreBid.");
 			util.logError(e);
