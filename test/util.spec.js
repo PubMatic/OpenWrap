@@ -4036,4 +4036,16 @@ describe('UTIL', function() {
     });  
     
   
+	describe('#getBrowserDetails', function() {
+		it('is a function', function(done) {
+            UTIL.getBrowserDetails.should.be.a('function');
+            done();
+        });
+
+        it('should have return browser mapping value', function(done) {
+            var browserMapping = UTIL.getBrowserDetails();
+			expect(browserMapping).not.to.be.null;
+            done();
+        });
+	});
 });

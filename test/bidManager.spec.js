@@ -2218,17 +2218,4 @@ describe('bidManager BIDMgr', function() {
             expect(metadataObj).to.equal(undefined);
         });
     });
-
-	describe('#getBrowser', function() {
-		it('is a function', function(done) {
-            BIDMgr.getBrowser.should.be.a('function');
-            done();
-        });
-
-        it('should have return browser mapping value', function(done) {
-            var browserMapping = BIDMgr.getBrowser();
-			expect(browserMapping).not.to.be.null;
-            done();
-        });
-	});
 });
