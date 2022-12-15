@@ -1935,3 +1935,7 @@ exports.applyCustomParamValuesfApplicable = function(params) {
 		}
 	}
 }
+
+exports.getBrowserDetails = function() {
+	return bidManager.getBrowser().toString();
+}
