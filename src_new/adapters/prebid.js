@@ -556,6 +556,17 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		/* istanbul ignore next */
 		slotParams[key] = value;
 	});
+
+	//Setting Viewablity from localCache
+	var getAndParseFromLocalStorage = function getAndParseFromLocalStorage(key) {
+		try{
+		return JSON.parse(window.localStorage.getItem(key));
+		}catch{
+			return undefined
+		}
+	  };
+	
+	var bvs= getAndParseFromLocalStorage('viewability-data');
 	
 	if(isPrebidPubMaticAnalyticsEnabled){
 		slotParams["kgpv"] = generatedKey; // TODO : Update this in case of video, change the size to 0x0 
@@ -608,7 +619,11 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["adSlot"] = generatedKey;
 			if(isPrebidPubMaticAnalyticsEnabled === false){
 				slotParams["wiid"] = impressionID;
-			}
+			}	
+			//adding viewability as SlotParam only when populated by cache 
+		    if(bvs){
+			slotParams["bidViewability"]=bvs
+		    }
 			slotParams["profId"] = CONFIG.getProfileID();
 			/* istanbul ignore else*/
 			if(window.PWT.udpv){
@@ -641,6 +656,10 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				slotParams["adSlot"] = slotParams["hashedKey"];
 			}
 		}
+		//adding viewability as BidderParam when populated by cache 
+		   if(bvs){
+			slotParams["bidViewability"]=bvs
+		   }
 
 			// We are removing mimes because it merges with the existing adUnit mimes
 			// if(slotParams["video"] && slotParams["video"]["mimes"]){
