@@ -557,17 +557,22 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		slotParams[key] = value;
 	});
 
-	//Setting Viewablity from localCache, if not found log error with undefined Bid Viewability Score
-	var getAndParseBVSFromLocalStorage = function getAndParseBVSFromLocalStorage(key) {
+	//Getting Viewablity from localCache, if not found log error with undefined Bid Viewability Score
+	function getBidViewabilityScore(key) {
 		try{
-		return JSON.parse(window.localStorage.getItem(key));
-		}catch{
+			let bvsObj=window.localStorage.getItem(key)
+			if (bvsObj!=null){
+				return JSON.parse(bvsObj);
+			}else{
+				return undefined;
+			}
+		}catch(e){
 			util.log(CONSTANTS.MESSAGES.M32);
-			return undefined
+			return undefined;
 		}
-	  };
-	
-	var bvs= getAndParseBVSFromLocalStorage('viewability-data');
+	};
+	//populating Bid Viewability Score
+	var bvs= getBidViewabilityScore('viewability-data');
 	
 	if(isPrebidPubMaticAnalyticsEnabled){
 		slotParams["kgpv"] = generatedKey; // TODO : Update this in case of video, change the size to 0x0 
@@ -620,11 +625,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["adSlot"] = generatedKey;
 			if(isPrebidPubMaticAnalyticsEnabled === false){
 				slotParams["wiid"] = impressionID;
-			}	
-			//adding viewability as SlotParam only when populated by cache 
-		    if(bvs){
-			slotParams["bidViewability"]=bvs
-		    }
+			}
 			slotParams["profId"] = CONFIG.getProfileID();
 			/* istanbul ignore else*/
 			if(window.PWT.udpv){
@@ -657,10 +658,11 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 				slotParams["adSlot"] = slotParams["hashedKey"];
 			}
 		}
-		//adding viewability as BidderParam when populated by cache 
-		   if(bvs){
-			slotParams["bidViewability"]=bvs
+			//adding viewability from BVS for specific adunit.code only when present
+		   if(bvs && bvs.hasOwnProperty(code)){
+				slotParams["bidViewability"]=bvs[code];
 		   }
+
 			// We are removing mimes because it merges with the existing adUnit mimes
 			// if(slotParams["video"] && slotParams["video"]["mimes"]){
 			// 	delete slotParams["video"]["mimes"];
