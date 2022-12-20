@@ -11,7 +11,6 @@ var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONS
 var isPubmaticIHAnalyticsEnabled = CONFIG.isPubMaticIHAnalyticsEnabled();
 
 refThis.enablePubMaticIdentityAnalyticsIfRequired = function(){
-	console.log("IHANALYTICS = ",window[pbNameSpace].enableAnalytics);
 	window.IHPWT.ihAnalyticsAdapterExpiry = CONFIG.getIHAnalyticsAdapterExpiry();
 	if(isPubmaticIHAnalyticsEnabled && util.isFunction(window[pbNameSpace].enableAnalytics)){
 		window[pbNameSpace].enableAnalytics({
