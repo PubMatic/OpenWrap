@@ -439,28 +439,55 @@ gulp.task('update-adserver', function(){
 //     .pipe(gulp.dest(prebidRepoPath+'/build/dist/'));
 // });
 
-function updateNamespace(srcPath, destPath) {
-    console.log("Executing update-namespace - START => ");
-    var owName = config.getOwGloabalVarNamespace(COMMON.OPENWRAP_NAMESPACE);
-    var pbName = config.getPbGloabalVarNamespace(COMMON.PREBID_NAMESPACE);
-    return gulp.src(srcPath)
-    .pipe(replace({
-        patterns: [
-            {
-                match: /PWT/g,
-                replacement: owName
-            },
-            {
-                match: /owpbjs/g,
-                replacement: pbName
-            }
-        ]
-    }))
-    .pipe(gulp.dest(destPath));
+function getPatternsToReplace() {
+  const { COMMON } = require('./src_new/constants.js');
+  var patterns = [];
+  if (isIdentityOnly) {
+    var ihPbName = config.getPbGloabalVarNamespace(COMMON.IH_NAMESPACE);
+    patterns.push({
+      match: /owpbjs/g,
+      replacement: ihPbName
+    });
+
+    var ihOwName = config.getOwGloabalVarNamespace(null);
+    if(ihOwName) {
+      patterns.push({
+        match: /IHPWT/g,
+        replacement: ihOwName
+      });
+    }
+  } else {
+    // Passing null as we don't want to replace the used value(i.e. PWT) with default value(i.e. PWT) as both are same,
+    var owName = config.getOwGloabalVarNamespace(null);
+    var pbName = config.getPbGloabalVarNamespace(null);
+    if (owName) {
+      patterns.push({
+        match: /PWT/g,
+        replacement: owName
+      });
+    }
+    if (pbName) {
+      patterns.push({
+        match: /owpbjs/g,
+        replacement: pbName
+      });
+    }
+  }
+  return patterns;
 }
 
 gulp.task('update-namespace', function() {
-    return updateNamespace('build/*.js','build/');
+  console.log("Executing update-namespace - START => ");
+  var patternsToReplace = getPatternsToReplace();
+  if(patternsToReplace.length > 0) {
+    return gulp.src('build/*.js')
+    .pipe(replace({
+      patterns: patternsToReplace
+    }))
+    .pipe(gulp.dest('build/'));
+  } else {
+    console.log("default namespaces(owpbjs and PWT) are using.");
+  }
 });
 
 // gulp.task('update-prod-namespace', function(){
