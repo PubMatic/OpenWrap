@@ -74,6 +74,19 @@ exports.getProfileDisplayVersionID = function () {
 
 exports.isSSOEnabled = function() {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SSO_ENABLED]) === 1;
-}
+};
+
+exports.getPublisherId = function () {
+	return config.pwt[CONSTANTS.CONFIG.PUBLISHER_ID] || "0";
+};
+
+exports.isPubMaticIHAnalyticsEnabled = function() {
+	var isEnabled = parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_IH_ANALYTICS]);
+	return isNaN(isEnabled) ? 1 : isEnabled;
+};
+
+exports.getIHAnalyticsAdapterExpiry = function() {
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IH_ANALYTICS_ADAPTER_EXPIRY]) || CONSTANTS.COMMON.IH_ANALYTICS_ADAPTER_DEFAULT_EXPIRY;
+};
 
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";
