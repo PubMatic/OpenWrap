@@ -8,6 +8,24 @@ var util = require("../util.idhub.js");
 var refThis = this;
 var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 
+var isPubmaticIHAnalyticsEnabled = CONFIG.isPubMaticIHAnalyticsEnabled();
+
+refThis.enablePubMaticIdentityAnalyticsIfRequired = function(){
+	window.IHPWT.ihAnalyticsAdapterExpiry = CONFIG.getIHAnalyticsAdapterExpiry();
+	if(isPubmaticIHAnalyticsEnabled && util.isFunction(window[pbNameSpace].enableAnalytics)){
+		window[pbNameSpace].enableAnalytics({
+			provider: "pubmaticIH",
+			options: {
+				publisherId: CONFIG.getPublisherId(),
+				profileId: CONFIG.getProfileID(),
+				profileVersionId: CONFIG.getProfileDisplayVersionID(),
+				identityOnly: CONFIG.isUserIdModuleEnabled() ? CONFIG.isIdentityOnly() ? 2 : 1 : 0,
+				domain: util.getDomainFromURL() 
+			}
+		});
+	}
+}
+
 refThis.setConfig = function(){
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 		if(CONFIG.isIdentityOnly()) {
@@ -47,6 +65,10 @@ refThis.setConfig = function(){
 			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 			window[pbNameSpace].setConfig(prebidConfig);
 		}
+		if (CONFIG.isUserIdModuleEnabled() && CONFIG.isIdentityOnly()) {
+			refThis.enablePubMaticIdentityAnalyticsIfRequired();
+		}
+		util.isFunction(window[pbNameSpace].firePubMaticIHLoggerCall) && window[pbNameSpace].firePubMaticIHLoggerCall();
 		window[pbNameSpace].requestBids([]);
 	}
 };
