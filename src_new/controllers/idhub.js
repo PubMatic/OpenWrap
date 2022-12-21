@@ -68,7 +68,7 @@ refThis.setConfig = function(){
 		if (CONFIG.isUserIdModuleEnabled() && CONFIG.isIdentityOnly()) {
 			refThis.enablePubMaticIdentityAnalyticsIfRequired();
 		}
-		window[pbNameSpace].firePubMaticIHLoggerCall();
+		util.isFunction(window[pbNameSpace].firePubMaticIHLoggerCall) && window[pbNameSpace].firePubMaticIHLoggerCall();
 		window[pbNameSpace].requestBids([]);
 	}
 };
