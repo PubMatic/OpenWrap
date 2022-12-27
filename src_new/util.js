@@ -1936,17 +1936,8 @@ exports.applyCustomParamValuesfApplicable = function(params) {
 	}
 }
 
-exports.getBrowser = function() {
-	var userAgent = navigator.userAgent;
-	var browserName = userAgent == null ? "UNKNOWN" : "unknown";
-	var i;
-	for( i = 0; i < CONSTANTS.listOfBrowsers.length; i++ ) {
-		if(userAgent.includes(CONSTANTS.listOfBrowsers[i])) {
-			browserName = CONSTANTS.listOfBrowsers[i];
-			break;
-		}
-	}
-	return browserName;
+exports.getBrowserDetails = function() {
+	return bidManager.getBrowser().toString();
 }
 exports.getPltForFloor = function() {
 	return refThis.getDevicePlatform().toString();

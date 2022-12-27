@@ -952,7 +952,7 @@ describe('ADAPTER: Prebid', function() {
                     url: "externalFloor.json"
                 },
 				additionalSchemaFields : {
-					browser : UTIL.getBrowser,
+					browser : UTIL.getBrowserDetails,
 					platform_id : UTIL.getPltForFloor
 				}
             }
