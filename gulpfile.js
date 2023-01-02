@@ -445,14 +445,14 @@ function getPatternsToReplace() {
   if (isIdentityOnly) {
     var ihPbName = config.getPbGloabalVarNamespace(COMMON.IH_NAMESPACE);
     patterns.push({
-      match: /owpbjs/g,
+      match: /\bihowpbjs\b|\bowpbjs\b/g,
       replacement: ihPbName
     });
 
     var ihOwName = config.getOwGloabalVarNamespace(null);
     if(ihOwName) {
       patterns.push({
-        match: /IHPWT/g,
+        match: /\bIHPWT\b/g,
         replacement: ihOwName
       });
     }
@@ -462,13 +462,13 @@ function getPatternsToReplace() {
     var pbName = config.getPbGloabalVarNamespace(null);
     if (owName) {
       patterns.push({
-        match: /PWT/g,
+        match: /\bPWT\b/g,
         replacement: owName
       });
     }
     if (pbName) {
       patterns.push({
-        match: /owpbjs/g,
+        match: /\bowpbjs\b/g,
         replacement: pbName
       });
     }
