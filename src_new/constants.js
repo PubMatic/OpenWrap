@@ -283,6 +283,10 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 	"identityLink": [{
 		"key": "storage.refreshInSeconds",
 		"value": "1800"
+	}],
+	"liveIntentId": [{
+		"key": "params.requestedAttributesOverrides",
+		"value": {'uid2': true}
 	}]
 };
 
