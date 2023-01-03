@@ -1935,3 +1935,10 @@ exports.applyCustomParamValuesfApplicable = function(params) {
 		}
 	}
 }
+
+exports.getBrowserDetails = function() {
+	return bidManager.getBrowser().toString();
+}
+exports.getPltForFloor = function() {
+	return refThis.getDevicePlatform().toString();
+}
