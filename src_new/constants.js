@@ -46,7 +46,9 @@ exports.COMMON = {
 	"GRANULARITY_MULTIPLIER" : "granularityMultiplier",
 	"TEST_PARTNER": "test_adapters",
 	"REDUCE_CODE_SIZE": "reduceCodeSize",
-	"TEST_IDENTITY_PARTNER": "test_identityPartners"
+	"TEST_IDENTITY_PARTNER": "test_identityPartners",
+	"IH_ANALYTICS_ADAPTER_EXPIRY": "ihAnalyticsAdapterExpiry",
+	"IH_ANALYTICS_ADAPTER_DEFAULT_EXPIRY": 7
 };
 
 exports.CONFIG = {
