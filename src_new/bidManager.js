@@ -407,6 +407,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
 	outputObj[CONSTANTS.CONFIG.PROFILE_ID] = CONFIG.getProfileID();
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
+	outputObj["bm"] = refThis.getBrowser();
 	outputObj["tgid"] = (function() {
 	    var testGroupId = parseInt(PWT.testGroupId || 0);
 	    if (testGroupId <= 15 && testGroupId >= 0) {
@@ -869,5 +870,24 @@ exports.setStandardKeys = function(winningBid, keyValuePairs){
     	util.logWarning('Not generating key-value pairs as invalid winningBid object passed. WinningBid: ');
     	util.logWarning(winningBid);
     }
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+exports.getBrowser = function() {
+	var regExBrowsers = CONSTANTS.REGEX_BROWSERS;
+	var browserMapping = CONSTANTS.BROWSER_MAPPING;
+
+	var userAgent = navigator.userAgent;
+	var browserName = userAgent == null ? "UNKNOWN" : "unknown";
+	if(userAgent) {
+		for(var i = 0; i < regExBrowsers.length; i++) {
+			if(userAgent.match(regExBrowsers[i])) {
+				browserName = browserMapping[i];
+				break;
+			}
+		}
+	}
+	return browserName;
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
