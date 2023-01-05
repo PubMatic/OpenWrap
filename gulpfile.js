@@ -6,24 +6,7 @@ var concat = require('gulp-concat');
 var replace = require('gulp-replace-task');
 var config = require("./src_new/config.js");
 
-// var replace = require('gulp-replace');
-// var insert = require('gulp-insert');
-// var uglify = require('gulp-uglify');
-// var jshint = require('gulp-jshint');
-// var jscs = require('gulp-jscs');
-// var karma = require('gulp-karma');
-// var mocha = require('gulp-mocha');
-// var gutil = require('gulp-util');
-// var opens = require('open');
-// var webserver = require('gulp-webserver');
-// var webpack = require('webpack-stream');
-// var webpackConfig = require('./webpack.config.js');
-// var replace = require('gulp-replace');
-// var optimizejs = require('gulp-optimize-js');
-// var stripCode = require('gulp-strip-code');
 var eslint = require('gulp-eslint');
-// var karmaServer = require('karma').Server;
-// var stripComments = require('gulp-strip-comments');
 console.timeEnd("Loading plugins");
 var CI_MODE = (argv.mode === 'test-build') ? true : false;
 var isIdentityOnly = config.isIdentityOnly();
@@ -33,14 +16,33 @@ console.log("argv ==>", argv);
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
 
-gulp.task('clean', ['update-adserver'], function() {
+gulp.task('update-adserver', async function(){
+    console.log("In update-adserver isIdentityOnly = " + isIdentityOnly);
+    if (isIdentityOnly) {
+        console.log("Executing update-adserver - START");
+        var result = gulp.src(['./src_new/conf.js'])
+          .pipe(replace({
+            patterns: [
+              {
+                match: /['"]*adserver['"]*:[\s]*['"]*DFP['"]*/,
+                replacement: '"adserver": "IDHUB"'
+              }
+            ]
+          }))
+          .pipe(gulp.dest('./src_new/'));
+        console.log("Executing update-adserver - END");
+        return result;
+    }
+});
+
+gulp.task('clean', gulp.series('update-adserver', function() {
     var clean = require('gulp-clean');
     return gulp.src(['dist/**/*.js', 'build/'], {
             read: false,
             allowEmpty: true
         })
         .pipe(clean());
-});
+}));
 
 function getRemoveCodeConfig(){
 
@@ -79,7 +81,7 @@ function getRemoveCodeConfig(){
 }
 
 // What all processing needs to be done ?
-gulp.task('webpack', ['clean'], function() {
+gulp.task('webpack', gulp.series('clean', function() {
     var config = require("./src_new/config.js");
     console.log("Executing webpack");
     var connect = require('gulp-connect');
@@ -103,10 +105,10 @@ gulp.task('webpack', ['clean'], function() {
         .pipe(gulp.dest('build/dist'))
         .pipe(connect.reload())
     ;
-});
+}));
 
 // Run below task to create owt.js for creative
-gulp.task('webpack-creative', ['clean'], function() {
+gulp.task('webpack-creative', gulp.series('clean', function() {
     var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
     var webpack = require('webpack-stream');
@@ -121,10 +123,10 @@ gulp.task('webpack-creative', ['clean'], function() {
         .pipe(gulp.dest('build/dist'))
         .pipe(connect.reload())
     ;
-});
+}));
 
 
-gulp.task('devpack', ['clean'],function () {
+gulp.task('devpack', gulp.series('clean',function () {
 var config = require("./src_new/config.js");
 var connect = require('gulp-connect');
 var webpack = require('webpack-stream');
@@ -139,11 +141,29 @@ var webpackConfig = require('./webpack.config.js');
     .pipe(removeCode(getRemoveCodeConfig()))
     .pipe(gulp.dest('build/dev'))
     .pipe(connect.reload());
+}));
+
+// Task to remove privately exposed functions as well as remove test cases which test private functions
+gulp.task('unexpose', function() {
+    var stripCode = require('gulp-strip-code');
+    
+    return gulp
+        .src([
+            'src_new/**/*.js',
+            'test/**/*.js'
+            ],
+            { base: './' }
+        )
+        .pipe(stripCode({
+            start_comment: "start-test-block",
+            end_comment: "end-test-block"
+        }))
+        .pipe(gulp.dest('./temp/'));
 });
 
 
 // Test all code without private functions
-gulp.task('test', ['unexpose'], function (done) {
+gulp.task('test', gulp.series('unexpose', function (done) {
     var karma = require('gulp-karma');
     var karmaServer = require('karma').Server;
 
@@ -165,11 +185,11 @@ gulp.task('test', ['unexpose'], function (done) {
             }
         });
     }).start();
-});
+}));
 
 
 // Test all code including private functions
-gulp.task('testall', function (done) {
+gulp.task('testall', async function (done) {
     var karma = require('gulp-karma');
     var karmaServer = require('karma').Server;
     var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
@@ -199,25 +219,6 @@ var opens = require('open');
     });
     opens('http://localhost:' + coveragePort + '/coverage/');
     done();
-});
-
-
-// Task to remove privately exposed functions as well as remove test cases which test private functions
-gulp.task('unexpose', function() {
-    var stripCode = require('gulp-strip-code');
-    
-    return gulp
-        .src([
-            'src_new/**/*.js',
-            'test/**/*.js'
-            ],
-            { base: './' }
-        )
-        .pipe(stripCode({
-            start_comment: "start-test-block",
-            end_comment: "end-test-block"
-        }))
-        .pipe(gulp.dest('./temp/'));
 });
 
 
@@ -255,17 +256,17 @@ gulp.task('change-prebid-keys', () => {
 });
 
 // Task to build minified version of owt.js
-gulp.task('bundle', ['update-adserver'], function () {
+gulp.task('bundle', gulp.series('update-adserver', function () {
     console.log("Executing build");
     var prebidFileName = (profileMode === "IH" ? '/build/dist/prebid.idhub.js' : '/build/dist/prebid.js')
     console.log("##################### prebidfilename picked = "+prebidFileName);
     return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
-});
+}));
 
 gulp.task('bundle-pb-keys', function(){
-      return gulp.src('./build/owt.min.js')
+      return gulp.src('./build/owt.min.js', {"allowEmpty": true})
       .pipe(replace({
         patterns: [
           {
@@ -290,7 +291,7 @@ gulp.task('bundle-pb-keys', function(){
 });
 
 gulp.task('bundle-native-pb-keys', function(){
-    return gulp.src('./build/owt.min.js')
+    return gulp.src('./build/owt.min.js', {"allowEmpty": true})
     .pipe(replace({
       patterns: [
         {
@@ -324,7 +325,7 @@ gulp.task('bundle-native-pb-keys', function(){
 });
 
 gulp.task('bundle-pwt-keys', function(){
-      return gulp.src('./build/owt.min.js')
+      return gulp.src('./build/owt.min.js', {"allowEmpty": true})
       .pipe(replace({
         patterns: [
           {
@@ -351,7 +352,7 @@ gulp.task('bundle-pwt-keys', function(){
 });
 
 gulp.task('bundle-native-pwt-keys', function(){
-    return gulp.src('./build/owt.min.js')
+    return gulp.src('./build/owt.min.js', {"allowEmpty": true})
     .pipe(replace({
       patterns: [
         {
@@ -391,7 +392,7 @@ gulp.task('bundle-creative', function () {
 
 
 // Task to build non-minified version of owt.js
-gulp.task('devbundle',['devpack'], function () {
+gulp.task('devbundle', gulp.series('devpack', function () {
     console.log("Executing Dev Build");
     // var prebidFileName = (profileMode === "IH" ? '/build/devIH/prebid.idhub.js' : '/build/dev/prebid.js')
     var prebidFileName = '/build/dev/prebid.js';
@@ -399,10 +400,10 @@ gulp.task('devbundle',['devpack'], function () {
     return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'])
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
-});
+}));
 
 
-gulp.task('bundle-prod',['webpack'], function () {
+gulp.task('bundle-prod', gulp.series('webpack', function () {
     console.log("Executing bundling");
     // var prebidFileName = (profileMode === "IH" ? '/build/distIH/prebid.idhub.js' : '/build/dist/prebid.js')
     var prebidFileName = '/build/dist/prebid.js';
@@ -410,25 +411,6 @@ gulp.task('bundle-prod',['webpack'], function () {
     return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
-});
+}));
 
-gulp.task('update-adserver', function(){
-    console.log("In update-adserver isIdentityOnly = " + isIdentityOnly);
-    if (isIdentityOnly) {
-        console.log("Executing update-adserver - START");
-        var result = gulp.src(['./src_new/conf.js'])
-          .pipe(replace({
-            patterns: [
-              {
-                match: /['"]*adserver['"]*:[\s]*['"]*DFP['"]*/,
-                replacement: '"adserver": "IDHUB"'
-              }
-            ]
-          }))
-          .pipe(gulp.dest('./src_new/'));
-        console.log("Executing update-adserver - END");
-        return result;
-    }
-});
-
-gulp.task('build-gpt-prod',[''])
+gulp.task('build-gpt-prod');
