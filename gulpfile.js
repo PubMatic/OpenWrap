@@ -65,18 +65,6 @@ function getRemoveCodeConfig(){
     };
 
     return removeCodeConfig; // todo: only for dev purpose; remove later
-
-    // var slotConfig = config.getSlotConfiguration();
-    // if(!slotConfig){
-    //     removeCodeConfig.removeNativeRelatedCode = true;
-    //     removeCodeConfig.removeOutStreamRelatedCode = true;
-    //     removeCodeConfig.removeInStreamRelatedCode = true;
-    // } else {
-    //     //todo: Add logic to set the flags by checking the config
-    //     //      might be a case where only one of these is enabled: Native, in-stream or out-stream
-    // }    
-
-    return removeCodeConfig;
 }
 
 // What all processing needs to be done ?
@@ -428,24 +416,5 @@ gulp.task('bundle-prod', gulp.series('webpack', function () {
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 }));
-
-gulp.task('update-adserver', function(){
-    console.log("In update-adserver isIdentityOnly = " + isIdentityOnly);
-    if (isIdentityOnly) {
-        console.log("Executing update-adserver - START");
-        var result = gulp.src(['./src_new/conf.js'])
-          .pipe(replace({
-            patterns: [
-              {
-                match: /['"]*adserver['"]*:[\s]*['"]*DFP['"]*/,
-                replacement: '"adserver": "IDHUB"'
-              }
-            ]
-          }))
-          .pipe(gulp.dest('./src_new/'));
-        console.log("Executing update-adserver - END");
-        return result;
-    }
-});
 
 gulp.task('build-gpt-prod');
