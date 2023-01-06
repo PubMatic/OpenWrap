@@ -405,4 +405,4 @@ gulp.task('bundle-prod', gulp.series('webpack', function () {
         .pipe(gulp.dest('build'));
 }));
 
-gulp.task('build-gpt-prod',[''])
+gulp.task('build-gpt-prod')
