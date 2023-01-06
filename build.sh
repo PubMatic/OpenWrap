@@ -1,4 +1,5 @@
 #! /usr/bin/env node
+
 console.log("running from shell script");
 var shell = require('shelljs');
 var argv = require('yargs').argv;
@@ -89,9 +90,9 @@ if (task == CREATIVE_TASK) {
 			}
 		} 
 
-		console.time("Cleaning Gulp");
+		// console.time("Cleaning Gulp");
 		// shell.exec("gulp clean");
-		console.timeEnd("Cleaning Gulp");
+		// console.timeEnd("Cleaning Gulp");
 		/*if(shell.exec("gulp " + openwrapWebpackTaskName + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: webpack wrapper task failed');
 			shell.exit(1);
