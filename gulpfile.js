@@ -387,3 +387,57 @@ gulp.task('bundle-native-keys', function() {
 });
 
 gulp.task('bundle-keys', gulp.series('bundle-pwt-keys', 'bundle-native-keys'));
+
+// Task to build minified version of owt.js
+gulp.task('bundle-creative', function () {
+    console.log("Executing creative-build");
+    var concat = require('gulp-concat');
+    return gulp.src(['./build/dist/owt.js'])
+        .pipe(concat('owt.min.js'))
+        .pipe(gulp.dest('build'));
+});
+
+
+// Task to build non-minified version of owt.js
+gulp.task('devbundle', gulp.series('devpack', function () {
+    console.log("Executing Dev Build");
+    var concat = require('gulp-concat');
+    var prebidFileName = isIdentityOnly ? '/build/dev/prebidIdhub.js' : '/build/dev/prebid.js';
+    //var prebidFileName = '/build/dev/prebid.js';
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'])
+        .pipe(concat('owt.js'))
+        .pipe(gulp.dest('build'));
+}));
+
+
+gulp.task('bundle-prod', gulp.series('webpack', function () {
+    console.log("Executing bundling");
+    var concat = require('gulp-concat');
+    var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
+    //var prebidFileName = '/build/dist/prebid.js';
+    // var prependscript = "", appendScript = "";
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js'], { "allowEmpty": true })
+        .pipe(concat('owt.min.js'))
+        .pipe(gulp.dest('build'));
+}));
+
+gulp.task('update-namespace', function(){
+    console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
+    console.log("Executing update-namespace - START => ");
+    var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
+    return gulp.src(prebidRepoPath + prebidFileName)
+    .pipe(replace({
+        patterns: [
+            {
+            match: /owpbjs/g,
+            replacement: 'ihowpbjs'
+            }
+        ]
+    }))
+    .pipe(gulp.dest(prebidRepoPath+'/build/dist/'));
+});
+
+gulp.task('build-gpt-prod');
+
+let tasks = argv.task ? [argv.task, 'bundle-keys'] : ['bundle-keys'];
+gulp.task('build-bundle', gulp.series(tasks));
