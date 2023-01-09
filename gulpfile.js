@@ -246,9 +246,9 @@ gulp.task('change-prebid-keys', function() {
 gulp.task('bundle', gulp.series('update-adserver', function () {
     console.log("Executing build");
     var concat = require('gulp-concat');
-    var prebidFileName = (profileMode === "IH" ? '/build/dist/prebid.idhub.js' : '/build/dist/prebid.js')
-    var prependscript = "", appendScript = "";
-    return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
+    var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
+    // var prependscript = "", appendScript = "";
+    return gulp.src([prebidRepoPath, './build/dist/owt.js'], { "allowEmpty": true })
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 }));
@@ -400,9 +400,25 @@ gulp.task('bundle-prod', gulp.series('webpack', function () {
     // var prebidFileName = (profileMode === "IH" ? '/build/distIH/prebid.idhub.js' : '/build/dist/prebid.js')
     var prebidFileName = '/build/dist/prebid.js';
     var prependscript = "", appendScript = "";
-    return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript])
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js'], { "allowEmpty": true })
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 }));
+
+gulp.task('update-namespace', function(){
+    console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
+    console.log("Executing update-namespace - START => ");
+    var prebidFileName = '/build/dist/prebid.js';
+    return gulp.src(prebidRepoPath + prebidFileName)
+    .pipe(replace({
+        patterns: [
+            {
+            match: /owpbjs/g,
+            replacement: 'ihowpbjs'
+            }
+        ]
+    }))
+    .pipe(gulp.dest(prebidRepoPath+'/build/dist/'));
+});
 
 gulp.task('build-gpt-prod')
