@@ -166,7 +166,7 @@ gulp.task('test', gulp.series('unexpose', async function (done) {
     // var karma = require('gulp-karma');
     var karmaServer = require('karma').Server;
 
-    var defaultBrowsers = CI_MODE ? ['ChromeHeadless'] : ['Chrome'];
+    var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
     new karmaServer({
         browsers: defaultBrowsers,
         basePath: './temp',
@@ -191,7 +191,7 @@ gulp.task('test', gulp.series('unexpose', async function (done) {
 gulp.task('testall', async function (done) {
     // var karma = require('gulp-karma');
     var karmaServer = require('karma').Server;
-    var defaultBrowsers = CI_MODE ? ['ChromeHeadless'] : ['Chrome'];
+    var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
     new karmaServer({
         browsers: defaultBrowsers,
         configFile: __dirname + '/karma.conf.js',
