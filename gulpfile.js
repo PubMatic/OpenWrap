@@ -405,14 +405,16 @@ gulp.task('bundle-prod', gulp.series('webpack', function () {
     // var prebidFileName = (profileMode === "IH" ? '/build/distIH/prebid.idhub.js' : '/build/dist/prebid.js')
     var prebidFileName = '/build/dist/prebid.js';
     var prependscript = "", appendScript = "";
+    var sources = [prebidRepoPath + prebidFileName, './build/dist/owt.js'];
     console.log("profile mode = ", profileMode, " and isIdentityOnly = ", isIdentityOnly);
     if (isIdentityOnly) {
         prependscript = "src_new/ih_header.js";
         appendScript = "src_new/ih_footer.js";
         console.log("#### prepending script for identity only profile ", prependscript);
+        sources = [prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript];
     }
     console.log("##################### prebidfilename picked = "+prebidFileName);
-    return gulp.src([prependscript, prebidRepoPath + prebidFileName, './build/dist/owt.js', appendScript], { "allowEmpty": true })
+    return gulp.src(sources, { "allowEmpty": true })
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 }));
