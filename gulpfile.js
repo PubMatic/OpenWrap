@@ -108,7 +108,7 @@ gulp.task('webpack-creative', gulp.series('clean', function() {
     var webpack = require('webpack-stream');
     var webpackConfig = require('./webpack.config.js');
     var optimizejs = require('gulp-optimize-js');
-    webpackConfig.devtool = null;
+    webpackConfig.devtool = false;
 
     return gulp.src('src_new/creative/owCreativeRenderer.js')
         .pipe(webpack(webpackConfig))
