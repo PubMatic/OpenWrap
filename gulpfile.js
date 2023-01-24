@@ -380,6 +380,7 @@ gulp.task('bundle-native-pwt-keys', function(){
 // Task to build minified version of owt.js
 gulp.task('bundle-creative', function () {
     console.log("Executing creative-build");
+    var concat = require('gulp-concat');
     return gulp.src(['./build/dist/owt.js'])
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
