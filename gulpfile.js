@@ -1,5 +1,5 @@
 'use strict';
-console.time("Loading plugins");
+console.time("Loading plugins OW");
 var argv = require('yargs').argv;
 var gulp = require('gulp');
 var replace = require('gulp-replace-task');
@@ -79,9 +79,9 @@ gulp.task('webpack', gulp.series('clean', function() {
     var fsCache = require('gulp-fs-cache');
     var removeCode = require('gulp-remove-code');
     var jsFsCache = fsCache('.tmp/jscache');
-    webpackConfig.devtool = null;
+    webpackConfig.devtool = false;
 
-    return gulp.src(isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js')
+    return gulp.src(isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js', { allowEmpty: true })
     // return gulp.src('src_new/owt.js')
         .pipe(webpack(webpackConfig))
         .pipe(jsFsCache)
@@ -101,7 +101,7 @@ gulp.task('webpack-creative', gulp.series('clean', function() {
     var webpack = require('webpack-stream');
     var webpackConfig = require('./webpack.config.js');
     var optimizejs = require('gulp-optimize-js');
-    webpackConfig.devtool = null;
+    webpackConfig.devtool = false;
 
     return gulp.src('src_new/creative/owCreativeRenderer.js')
         .pipe(webpack(webpackConfig))
@@ -122,7 +122,7 @@ gulp.task('devpack', gulp.series('clean', function () {
 
     webpackConfig.devtool = 'source-map';
 
-    return gulp.src(isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js')
+    return gulp.src(isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js', { allowEmpty: true })
     // return gulp.src('src_new/owt.js')
         .pipe(webpack(webpackConfig))
         .pipe(removeCode(getRemoveCodeConfig()))
@@ -151,7 +151,7 @@ gulp.task('unexpose', function() {
 
 // Test all code without private functions
 gulp.task('test', gulp.series('unexpose', async function (done) {
-    var karma = require('gulp-karma');
+    // var karma = require('gulp-karma');
     var karmaServer = require('karma').Server;
 
     var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
@@ -388,7 +388,7 @@ gulp.task('devbundle', gulp.series('devpack', function () {
     // var prebidFileName = (profileMode === "IH" ? '/build/devIH/prebid.idhub.js' : '/build/dev/prebid.js')
     var prebidFileName = '/build/dev/prebid.js';
     console.log("##################### prebidfilename picked = "+prebidFileName);
-    return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'])
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'], { allowEmpty: true })
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
 }));
