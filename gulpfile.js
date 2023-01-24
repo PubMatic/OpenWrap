@@ -91,9 +91,9 @@ gulp.task('webpack', gulp.series('clean', function() {
     var fsCache = require('gulp-fs-cache');
     var removeCode = require('gulp-remove-code');
     var jsFsCache = fsCache('.tmp/jscache');
-    webpackConfig.devtool = null;
+    webpackConfig.devtool = false;
 
-    return gulp.src(isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js')
+    return gulp.src(isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js', { "allowEmpty": true })
     // return gulp.src('src_new/owt.js')
         .pipe(webpack(webpackConfig))
         .pipe(jsFsCache)
@@ -113,7 +113,7 @@ gulp.task('webpack-creative', gulp.series('clean', function() {
     var webpack = require('webpack-stream');
     var webpackConfig = require('./webpack.config.js');
     var optimizejs = require('gulp-optimize-js');
-    webpackConfig.devtool = null;
+    webpackConfig.devtool = false;
 
     return gulp.src('src_new/creative/owCreativeRenderer.js')
         .pipe(webpack(webpackConfig))
@@ -134,7 +134,7 @@ gulp.task('devpack', gulp.series('clean', function () {
 
     webpackConfig.devtool = 'source-map';
 
-    return gulp.src(isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js')
+    return gulp.src(isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js', { "allowEmpty": true })
     // return gulp.src('src_new/owt.js')
         .pipe(webpack(webpackConfig))
         .pipe(removeCode(getRemoveCodeConfig()))
@@ -163,7 +163,7 @@ gulp.task('unexpose', function() {
 
 // Test all code without private functions
 gulp.task('test', gulp.series('unexpose', async function (done) {
-    var karma = require('gulp-karma');
+    // var karma = require('gulp-karma');
     var karmaServer = require('karma').Server;
 
     var defaultBrowsers = CI_MODE ? ['PhantomJS'] : ['Chrome'];
