@@ -410,21 +410,72 @@ gulp.task('bundle-prod', gulp.series('webpack', function () {
         .pipe(gulp.dest('build'));
 }));
 
-gulp.task('update-namespace', function(){
-    console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
+// gulp.task('update-namespace', function(){
+//     console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
+//     console.log("Executing update-namespace - START => ");
+//     //var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
+//     var prebidFileName = '/build/dist/prebid.js';
+//     return gulp.src(prebidRepoPath + prebidFileName)
+//     .pipe(replace({
+//         patterns: [
+//             {
+//             match: /owpbjs/g,
+//             replacement: 'ihowpbjs'
+//             }
+//         ]
+//     }))
+//     .pipe(gulp.dest(prebidRepoPath+'/build/dist/'));
+// });
+
+function getPatternsToReplace() {
+    const { COMMON } = require('./src_new/constants.js');
+    var patterns = [];
+    if (isIdentityOnly) {
+        var ihPbName = config.getPbGloabalVarNamespace(COMMON.IH_NAMESPACE);
+        patterns.push({
+            match: /\bihowpbjs\b|\bowpbjs\b/g,
+            replacement: ihPbName
+        });
+
+        var ihOwName = config.getOwGloabalVarNamespace(null);
+        if (ihOwName) {
+            patterns.push({
+                match: /\bIHPWT\b/g,
+                replacement: ihOwName
+            });
+        }
+    } else {
+        // Passing null as we don't want to replace the used value(i.e. PWT) with default value(i.e. PWT) as both are same,
+        var owName = config.getOwGloabalVarNamespace(null);
+        var pbName = config.getPbGloabalVarNamespace(null);
+        if (owName) {
+            patterns.push({
+                match: /\bPWT\b/g,
+                replacement: owName
+            });
+        }
+        if (pbName) {
+            patterns.push({
+                match: /\bowpbjs\b/g,
+                replacement: pbName
+            });
+        }
+    }
+    return patterns;
+}
+
+gulp.task('update-namespace', function () {
     console.log("Executing update-namespace - START => ");
-    //var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
-    var prebidFileName = '/build/dist/prebid.js';
-    return gulp.src(prebidRepoPath + prebidFileName)
-    .pipe(replace({
-        patterns: [
-            {
-            match: /owpbjs/g,
-            replacement: 'ihowpbjs'
-            }
-        ]
-    }))
-    .pipe(gulp.dest(prebidRepoPath+'/build/dist/'));
+    var patternsToReplace = getPatternsToReplace();
+    if (patternsToReplace.length > 0) {
+        return gulp.src('build/*.js')
+            .pipe(replace({
+                patterns: patternsToReplace
+            }))
+            .pipe(gulp.dest('build/'));
+    } else {
+        console.log("default namespaces(owpbjs and PWT) are using.");
+    }
 });
 
 gulp.task('build-gpt-prod');

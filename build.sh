@@ -83,14 +83,6 @@ if (task == CREATIVE_TASK) {
 		
 		shell.cd("../OpenWrap/");
 
-		console.log("Executing update-namespace task if identityOnly = 1, => ", config.isIdentityOnly());
-		if(config.isIdentityOnly()) {
-			console.log("Updating owpbjs namespace to use ihowpbjs for identity only profiles");
-			if(shell.exec("time gulp update-namespace").code !== 0) {
-				shell.echo('Error: Changing owpbjs namespace to use ihowpbjs failed');
-				shell.exit(1);
-			}
-		}
 
 		if (argv.mode == "test-build") {
 			if(shell.exec("gulp testall" + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
@@ -112,6 +104,12 @@ if (task == CREATIVE_TASK) {
 			shell.echo('Error: wrapper build task failed');
 			shell.exit(1);
 		}
+
+		console.log("Executing update-namespace task ");
+    if(shell.exec("time gulp update-namespace").code !== 0) {
+      shell.echo('Error: Changing owpbjs and PWT namespace failed');
+      shell.exit(1);
+    }
 }
 
 console.timeEnd("--------- STARTED");
