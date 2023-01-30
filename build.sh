@@ -105,7 +105,6 @@ if (task == CREATIVE_TASK) {
 			shell.exit(1);
 		}
 
-		console.log("Executing update-namespace task ");
     if(shell.exec("time gulp update-namespace").code !== 0) {
       shell.echo('Error: Changing owpbjs and PWT namespace failed');
       shell.exit(1);

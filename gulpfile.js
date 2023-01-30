@@ -464,9 +464,10 @@ function getPatternsToReplace() {
     return patterns;
 }
 
-gulp.task('update-namespace', function () {
+gulp.task('update-namespace', async function () {
     console.log("Executing update-namespace - START => ");
     var patternsToReplace = getPatternsToReplace();
+    console.log("Patterns to replace => ", patternsToReplace);
     if (patternsToReplace.length > 0) {
         return gulp.src('build/*.js')
             .pipe(replace({
