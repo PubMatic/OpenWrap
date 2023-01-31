@@ -394,18 +394,19 @@ gulp.task('devbundle', gulp.series('devpack', function () {
     var concat = require('gulp-concat');
     //var prebidFileName = isIdentityOnly ? '/build/dev/prebidIdhub.js' : '/build/dev/prebid.js';
     var prebidFileName = '/build/dev/prebid.js';
-    return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'], { allowEmpty: true })
+    var footerFileName = isIdentityOnly ? './src_new/ih_footer.js' : './src_new/ow_footer.js';
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js', footerFileName], { allowEmpty: true })
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
 }));
-
 
 gulp.task('bundle-prod', gulp.series('webpack', function () {
     console.log("Executing bundling");
     var concat = require('gulp-concat');
     //var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
     var prebidFileName = '/build/dist/prebid.js';
-    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js'], { allowEmpty: true })
+    var footerFileName = isIdentityOnly ? './src_new/ih_footer.js' : './src_new/ow_footer.js';
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js', footerFileName], { allowEmpty: true })
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 }));
