@@ -426,40 +426,25 @@ gulp.task('bundle-prod', gulp.series('webpack', function () {
 //     }))
 //     .pipe(gulp.dest(prebidRepoPath+'/build/dist/'));
 // });
+function addPattern(patterns, match, replacement) {
+    if (replacement) {
+        patterns.push({
+            match: match,
+            replacement: replacement
+        });
+    }
+}
 
 function getPatternsToReplace() {
     const { COMMON } = require('./src_new/constants.js');
     var patterns = [];
     if (isIdentityOnly) {
-        var ihPbName = config.getPbGloabalVarNamespace(COMMON.IH_NAMESPACE);
-        patterns.push({
-            match: /\bihowpbjs\b|\bowpbjs\b/g,
-            replacement: ihPbName
-        });
-
-        var ihOwName = config.getOwGloabalVarNamespace(null);
-        if (ihOwName) {
-            patterns.push({
-                match: /\bIHPWT\b/g,
-                replacement: ihOwName
-            });
-        }
+        addPattern(patterns, /ihowpbjs|owpbjs/g, config.getPbGloabalVarNamespace(COMMON.IH_NAMESPACE));
+        addPattern(patterns, /IHPWT/g, config.getOwGloabalVarNamespace(null));
     } else {
         // Passing null as we don't want to replace the used value(i.e. PWT) with default value(i.e. PWT) as both are same,
-        var owName = config.getOwGloabalVarNamespace(null);
-        var pbName = config.getPbGloabalVarNamespace(null);
-        if (owName) {
-            patterns.push({
-                match: /PWT/g,
-                replacement: owName
-            });
-        }
-        if (pbName) {
-            patterns.push({
-                match: /owpbjs/g,
-                replacement: pbName
-            });
-        }
+        addPattern(patterns, /owpbjs/g, config.getPbGloabalVarNamespace(null));
+        addPattern(patterns, /PWT/g, config.getOwGloabalVarNamespace(null));
     }
     return patterns;
 }
