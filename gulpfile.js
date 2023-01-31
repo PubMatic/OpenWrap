@@ -450,13 +450,13 @@ function getPatternsToReplace() {
         var pbName = config.getPbGloabalVarNamespace(null);
         if (owName) {
             patterns.push({
-                match: /\bPWT\b/g,
+                match: /PWT/g,
                 replacement: owName
             });
         }
         if (pbName) {
             patterns.push({
-                match: /\bowpbjs\b/g,
+                match: /owpbjs/g,
                 replacement: pbName
             });
         }
