@@ -218,6 +218,94 @@ function findWinningBidAndGenerateTargeting(divId) {
 exports.findWinningBidAndGenerateTargeting = findWinningBidAndGenerateTargeting;
 /* end-test-block */
 
+function origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction){
+	//GDPR.getUserConsentDataFromCMP(); // Commenting this as GDPR will be handled by Prebid and we won't be seding GDPR info to tracker and logger
+
+	if (!util.isArray(arrayOfAdUnits)) {
+		util.error("First argument to PWT.requestBids API, arrayOfAdUnits is mandatory and it should be an array.");
+		callbackFunction(arrayOfAdUnits);
+		return;
+	}
+
+	if (!util.isFunction(callbackFunction)) {
+		util.error("Second argument to PWT.requestBids API, callBackFunction is mandatory and it should be a function.");
+		return;
+	}
+
+	var qualifyingSlots = [];
+	var mapOfDivToCode = {};
+	var qualifyingSlotDivIds = [];
+	util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject) {
+		if (refThis.validateAdUnitObject(anAdUnitObject)) { // returns true for valid adUnit
+			var dmSlotName = anAdUnitObject.code;
+			var slot = SLOT.createSlot(dmSlotName);
+			window.PWT.adUnits = window.PWT.adUnits || {};
+			window.PWT.adUnits[dmSlotName] = anAdUnitObject;
+			// IMPORTANT:: bidManager stores all data at divId level but in custom controller, divId is not mandatory.
+			// so we woll set value of code to divId if divId is not present
+			// also we will pass array of divId to the bidManager.getAllPartnersBidStatuses API 
+			slot.setDivID(anAdUnitObject.divId || dmSlotName);
+			slot.setPubAdServerObject(anAdUnitObject);
+			slot.setAdUnitID(anAdUnitObject.adUnitId || "");
+			slot.setAdUnitIndex(anAdUnitObject.adUnitIndex || 0);
+			slot.setSizes(refThis.getAdSlotSizesArray(anAdUnitObject));
+			qualifyingSlots.push(slot);
+			mapOfDivToCode[slot.getDivID()] = slot.getName();
+			qualifyingSlotDivIds.push(slot.getDivID());
+			util.createVLogInfoPanel(slot.getDivID(), slot.getSizes());
+		}
+	});
+
+	if (qualifyingSlots.length == 0) {
+		util.error("There are no qualifyingSlots, so not calling bidders.");
+		callbackFunction(arrayOfAdUnits);
+		return;
+	}
+
+	// new approach without adapter-managers
+	prebid.fetchBids(qualifyingSlots);
+
+	var posTimeoutTime = Date.now() + CONFIG.getTimeout(); // post timeout condition
+	var intervalId = window.setInterval(function() {
+		// todo: can we move this code to a function?
+		if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || Date.now() >= posTimeoutTime) {
+
+			clearInterval(intervalId);
+			// removeIf(removeLegacyAnalyticsRelatedCode)
+			if(isPrebidPubMaticAnalyticsEnabled === false){
+				// after some time call fire the analytics pixel
+				setTimeout(function() {
+					bidManager.executeAnalyticsPixel();
+				}, 2000);	
+			}
+			// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+			var winningBids = {}; // object:: { code : response bid or just key value pairs }
+			// we should loop on qualifyingSlotDivIds to avoid confusion if two parallel calls are fired to our PWT.requestBids 
+			util.forEachOnArray(qualifyingSlotDivIds, function(index, divId) {
+				var code = mapOfDivToCode[divId];				
+				winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId);
+				// we need to delay the realignment as we need to do it post creative rendering :)
+				// delaying by 1000ms as creative rendering may tke time
+				setTimeout(util.realignVLogInfoPanel, 1000, divId);
+			});
+
+			// for each adUnit in arrayOfAdUnits find the winningBids, we need to return this updated arrayOfAdUnits
+			util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject) {
+				if (winningBids.hasOwnProperty(anAdUnitObject.code)) {
+					anAdUnitObject.bidData = winningBids[anAdUnitObject.code];
+				}
+			});
+
+			callbackFunction(arrayOfAdUnits);
+		}
+	}, 10); // check every 10 milliseconds if we have all bids or timeout has been happened.
+}
+
+/* start-test-block */
+exports.origCustomServerExposedAPI = origCustomServerExposedAPI;
+/* end-test-block */
+
 /*
 	Input: 
 		arrayOfAdUnits
@@ -239,91 +327,14 @@ exports.findWinningBidAndGenerateTargeting = findWinningBidAndGenerateTargeting;
 			a function that accepts response
 */
 function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
-
-	setTimeout(function(){
-		//GDPR.getUserConsentDataFromCMP(); // Commenting this as GDPR will be handled by Prebid and we won't be seding GDPR info to tracker and logger
-
-		if (!util.isArray(arrayOfAdUnits)) {
-			util.error("First argument to PWT.requestBids API, arrayOfAdUnits is mandatory and it should be an array.");
-			callbackFunction(arrayOfAdUnits);
-			return;
-		}
-
-		if (!util.isFunction(callbackFunction)) {
-			util.error("Second argument to PWT.requestBids API, callBackFunction is mandatory and it should be a function.");
-			return;
-		}
-
-		var qualifyingSlots = [];
-		var mapOfDivToCode = {};
-		var qualifyingSlotDivIds = [];
-		util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject) {
-			if (refThis.validateAdUnitObject(anAdUnitObject)) { // returns true for valid adUnit
-				var dmSlotName = anAdUnitObject.code;
-				var slot = SLOT.createSlot(dmSlotName);
-				window.PWT.adUnits = window.PWT.adUnits || {};
-				window.PWT.adUnits[dmSlotName] = anAdUnitObject;
-				// IMPORTANT:: bidManager stores all data at divId level but in custom controller, divId is not mandatory.
-				// so we woll set value of code to divId if divId is not present
-				// also we will pass array of divId to the bidManager.getAllPartnersBidStatuses API 
-				slot.setDivID(anAdUnitObject.divId || dmSlotName);
-				slot.setPubAdServerObject(anAdUnitObject);
-				slot.setAdUnitID(anAdUnitObject.adUnitId || "");
-				slot.setAdUnitIndex(anAdUnitObject.adUnitIndex || 0);
-				slot.setSizes(refThis.getAdSlotSizesArray(anAdUnitObject));
-				qualifyingSlots.push(slot);
-				mapOfDivToCode[slot.getDivID()] = slot.getName();
-				qualifyingSlotDivIds.push(slot.getDivID());
-				util.createVLogInfoPanel(slot.getDivID(), slot.getSizes());
-			}
-		});
-
-		if (qualifyingSlots.length == 0) {
-			util.error("There are no qualifyingSlots, so not calling bidders.");
-			callbackFunction(arrayOfAdUnits);
-			return;
-		}
-
-		// new approach without adapter-managers
-		prebid.fetchBids(qualifyingSlots);
-
-		var posTimeoutTime = Date.now() + CONFIG.getTimeout(); // post timeout condition
-		var intervalId = window.setInterval(function() {
-			// todo: can we move this code to a function?
-			if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || Date.now() >= posTimeoutTime) {
-
-				clearInterval(intervalId);
-				// removeIf(removeLegacyAnalyticsRelatedCode)
-				if(isPrebidPubMaticAnalyticsEnabled === false){
-					// after some time call fire the analytics pixel
-					setTimeout(function() {
-						bidManager.executeAnalyticsPixel();
-					}, 2000);	
-				}
-				// endRemoveIf(removeLegacyAnalyticsRelatedCode)
-
-				var winningBids = {}; // object:: { code : response bid or just key value pairs }
-				// we should loop on qualifyingSlotDivIds to avoid confusion if two parallel calls are fired to our PWT.requestBids 
-				util.forEachOnArray(qualifyingSlotDivIds, function(index, divId) {
-					var code = mapOfDivToCode[divId];				
-					winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId);
-					// we need to delay the realignment as we need to do it post creative rendering :)
-					// delaying by 1000ms as creative rendering may tke time
-					setTimeout(util.realignVLogInfoPanel, 1000, divId);
-				});
-
-				// for each adUnit in arrayOfAdUnits find the winningBids, we need to return this updated arrayOfAdUnits
-				util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject) {
-					if (winningBids.hasOwnProperty(anAdUnitObject.code)) {
-						anAdUnitObject.bidData = winningBids[anAdUnitObject.code];
-					}
-				});
-
-				callbackFunction(arrayOfAdUnits);
-			}
-		}, 10); // check every 10 milliseconds if we have all bids or timeout has been happened.
-	},0);
-	
+	if(!!window.PWT.isSyncAuction){
+		refThis.origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction);
+	}
+	else{
+		setTimeout(function(){
+			refThis.origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction)
+		},0);
+	}
 }
 /* start-test-block */
 exports.customServerExposedAPI = customServerExposedAPI;
