@@ -34,6 +34,7 @@ exports.COMMON = {
 	"PROTOCOL": "https://",
 	"SLOT_CONFIG": "slotConfig",
 	"DEFAULT": "default",
+	"MCONF_REGEX": "regex",
 	"ADSERVER":"adserver",
 	"OWVERSION":"owv",
 	"PBVERSION":"pbv",

@@ -1102,6 +1102,35 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 			return Object.keys(slotConfig['config']).toString().toLowerCase().indexOf(kgpv.toLowerCase()) > -1 ? true : false;
 		}
 	}
+
+	function isAdunitRegex(){
+		var regexKeys = Object.keys(slotConfig['config']);
+		let matchedRegex;
+		regexKeys.forEach((exp)=> {
+			if(kgpv.match(exp)){
+				matchedRegex = exp;
+				return;
+			}
+		})
+		if(matchedRegex){
+			return slotConfig["config"][matchedRegex];
+		} else {
+			return undefined;
+		}
+	}
+
+	function selectSlotConfig(){
+		//slotLevel
+		if(iskgpvpresent()){
+			return slotConfig["config"][kgpv]
+		} else if(isregexEnabled()){
+			return isAdunitRegex()
+		}
+	}
+	
+	function isregexEnabled(){
+		return slotConfig &&(Object.keys(slotConfig).indexOf(CONSTANTS.COMMON.MCONF_REGEX)> -1)&&(slotConfig[CONSTANTS.COMMON.MCONF_REGEX] == true)? true : false;
+	}
 	var adUnitConfig = {};
 	var mediaTypeObject = {};
 	var slotConfig = CONFIG.getSlotConfiguration();
@@ -1135,8 +1164,14 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					adUnitConfig['renderer'] = config.renderer;
 				}
 			}
-			if(refThis.isOwnProperty(slotConfig['config'], kgpv) || iskgpvpresent()){
-				config = slotConfig["config"][kgpv];
+			if(refThis.isOwnProperty(slotConfig['config'], kgpv) || iskgpvpresent()|| isregexEnabled()){
+				//populating slotlevel config
+				let SSConfig  = selectSlotConfig();
+				// if SSConfig present then override config else use defaultly initialized config
+				if(SSConfig) {
+					config = SSConfig;
+				}
+
 				if(!config) {
 					config = slotConfig["config"][Object.keys(slotConfig["config"]).filter(function(key){
 						return key.toLocaleLowerCase() === kgpv.toLowerCase();
