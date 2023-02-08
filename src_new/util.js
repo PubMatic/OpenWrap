@@ -1102,32 +1102,37 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 			return Object.keys(slotConfig['config']).toString().toLowerCase().indexOf(kgpv.toLowerCase()) > -1 ? true : false;
 		}
 	}
-
-	function isAdunitRegex(){
+// Returns regex-matched config for kgpv, if not found returns undefined
+	function isAdunitRegex() {
 		var regexKeys = Object.keys(slotConfig['config']);
 		let matchedRegex;
-		regexKeys.forEach((exp)=> {
-			if(kgpv.match(exp)){
-				matchedRegex = exp;
-				return;
+		regexKeys.forEach((exp) => {
+			try {
+				// Ignores "default" key and RegExp performs case insensitive check
+				if (exp.length > 0 && exp!= CONSTANTS.COMMON.DEFAULT && kgpv.match(new RegExp(exp, "i"))) {
+					matchedRegex = exp;
+					return;
+				}
+			} catch (ex) {
+				refThis.logError(CONSTANTS.MESSAGES.M32 + JSON.stringify(exp));
 			}
 		})
-		if(matchedRegex){
+		if (matchedRegex) {
 			return slotConfig["config"][matchedRegex];
 		} else {
 			return undefined;
 		}
 	}
-
+	// returns selected MediaConfig
 	function selectSlotConfig(){
-		//slotLevel
+		//exact-match else regex check
 		if(iskgpvpresent()){
-			return slotConfig["config"][kgpv]
+			return slotConfig["config"][kgpv];
 		} else if(isregexEnabled()){
-			return isAdunitRegex()
+			return isAdunitRegex();
 		}
 	}
-	
+	// checks if regex is present and enabled
 	function isregexEnabled(){
 		return slotConfig &&(Object.keys(slotConfig).indexOf(CONSTANTS.COMMON.MCONF_REGEX)> -1)&&(slotConfig[CONSTANTS.COMMON.MCONF_REGEX] == true)? true : false;
 	}
@@ -1165,11 +1170,11 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 				}
 			}
 			if(refThis.isOwnProperty(slotConfig['config'], kgpv) || iskgpvpresent()|| isregexEnabled()){
-				//populating slotlevel config
-				let SSConfig  = selectSlotConfig();
-				// if SSConfig present then override config else use defaultly initialized config
-				if(SSConfig) {
-					config = SSConfig;
+				//populating slotlevel config 
+				let SLConfig  = selectSlotConfig();
+				// if SLConfig present then override default config
+				if(SLConfig) {
+					config = SLConfig;
 				}
 
 				if(!config) {
