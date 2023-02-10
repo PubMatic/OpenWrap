@@ -1104,7 +1104,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 	}
 	// checks if regex is present and enabled
 	function isregexEnabled() {
-		return slotConfig && (refThis.isOwnProperty(slotConfig, CONSTANTS.COMMON.MCONF_REGEX)) && (slotConfig[CONSTANTS.COMMON.MCONF_REGEX] == true) ? true : false;
+		return slotConfig && (slotConfig[CONSTANTS.COMMON.MCONF_REGEX] == true) ? true : false;
 	}
 	// Returns regex-matched config for kgpv, if not found returns undefined
 	function isAdunitRegex() {
