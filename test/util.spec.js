@@ -2810,7 +2810,7 @@ describe('UTIL', function() {
             var expectedResult =  {"video":{"context":"instream","connectiontype": [1, 6],"minduration": 20,"maxduration": 80,"battr": [ 5, 6],"skipmin": 20,"skipafter": 5}};
             // initializing  regex key and respective expression
             slotConfiguration["regex"]=true;
-            slotConfiguration["config"]["div_*"] = {
+            slotConfiguration["config"]["div_[0-9]*"] = {
                 "banner":{
                     enabled:false,
                 },
@@ -2822,9 +2822,7 @@ describe('UTIL', function() {
                     "config": {"context":"instream","connectiontype": [1, 6],"minduration": 20,"maxduration": 80,"battr": [ 5, 6],"skipmin": 20,"skipafter": 5}
                 }
             };
-            // console.log("Slot= ",currentSlot.getDivID,"Slot congis rex  :",slotConfiguration["config"]);
             var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
-            // console.log("resukt congis rex  :",result);
             expect(result.should.deep.equal(expectedResult));
             done();
         });
@@ -2849,9 +2847,7 @@ describe('UTIL', function() {
                     "config": {"context":"instream","connectiontype": [1, 6],"minduration": 20,"maxduration": 80,"battr": [ 5, 6],"skipmin": 20,"skipafter": 5}
                 }
             };
-            console.log("Slot= ",currentSlot.getDivID,"Slot congis rex  :",slotConfiguration["config"]);
             var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
-            console.log(" exactresukt congis rex  :",result);
             expect(result.should.deep.equal(expectedResult));
             done();
         });
@@ -2904,14 +2900,12 @@ describe('UTIL', function() {
                     "config": {"context":"instream","connectiontype": [2, 6],"minduration": 100,"maxduration": 120,"battr": [  7],"skip": 1,"skipmin": 100,"skipafter": 150 }
                 }
             }
-            console.log("Slot= ",currentSlot.getDivID,"Slot congis rex  :",slotConfiguration["config"]);
             var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
-            console.log(" exactresukt congis rex  :",result);
             expect(result.should.deep.equal(expectedResult));
             done();
         });
 
-        it('should return default settings match if both DIV and respective regex is absent in MediaConfig and regex is enabled',function(done){
+        it('should return only banner(default behaviour) settings match if default, DIV/AU and respective regex is absent in MediaConfig and regex is enabled',function(done){
             currentSlot.getDivID.restore();
             // DivId settings not registered in MediaConfiguration 
             sinon.stub(currentSlot, "getDivID").returns("NOT_REGISTERED");
@@ -2920,9 +2914,7 @@ describe('UTIL', function() {
             // initializing invalid regex key and respective expression
             slotConfiguration["regex"]=true;
             slotConfiguration["config"]["div_*"] = {"banner":{    enabled:false,},"native":{    enabled: false,},"video": {    "enabled": true,    "config": {"context":"instream","connectiontype": [1, 6],"minduration": 20,"maxduration": 80,"battr": [ 5, 6],"skipmin": 20,"skipafter": 5}}};
-            console.log("Slot= ",currentSlot.getDivID,"Slot congis rex  :",slotConfiguration["config"]);
             var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
-            console.log(" exactresukt congis rex  :",result);
             expect(result.should.deep.equal(expectedResult));
             done();
         });

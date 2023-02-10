@@ -1102,19 +1102,23 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 			return Object.keys(slotConfig['config']).toString().toLowerCase().indexOf(kgpv.toLowerCase()) > -1 ? true : false;
 		}
 	}
-// Returns regex-matched config for kgpv, if not found returns undefined
+	// checks if regex is present and enabled
+	function isregexEnabled() {
+		return slotConfig && (refThis.isOwnProperty(slotConfig, CONSTANTS.COMMON.MCONF_REGEX)) && (slotConfig[CONSTANTS.COMMON.MCONF_REGEX] == true) ? true : false;
+	}
+	// Returns regex-matched config for kgpv, if not found returns undefined
 	function isAdunitRegex() {
 		var regexKeys = Object.keys(slotConfig['config']);
-		let matchedRegex;
-		regexKeys.forEach((exp) => {
+		var matchedRegex;
+		regexKeys.forEach(function (exp) {
 			try {
 				// Ignores "default" key and RegExp performs case insensitive check
-				if (exp.length > 0 && exp!= CONSTANTS.COMMON.DEFAULT && kgpv.match(new RegExp(exp, "i"))) {
+				if (exp.length > 0 && exp != CONSTANTS.COMMON.DEFAULT && kgpv.match(new RegExp(exp, "i"))) {
 					matchedRegex = exp;
 					return;
 				}
 			} catch (ex) {
-				refThis.logError(CONSTANTS.MESSAGES.M32 + JSON.stringify(exp));
+				refThis.log(CONSTANTS.MESSAGES.M32 + JSON.stringify(exp));
 			}
 		})
 		if (matchedRegex) {
@@ -1124,18 +1128,15 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 		}
 	}
 	// returns selected MediaConfig
-	function selectSlotConfig(){
+	function selectSlotConfig() {
 		//exact-match else regex check
-		if(iskgpvpresent()){
+		if (iskgpvpresent()) {
 			return slotConfig["config"][kgpv];
-		} else if(isregexEnabled()){
+		} else if (isregexEnabled()) {
 			return isAdunitRegex();
 		}
 	}
-	// checks if regex is present and enabled
-	function isregexEnabled(){
-		return slotConfig &&(Object.keys(slotConfig).indexOf(CONSTANTS.COMMON.MCONF_REGEX)> -1)&&(slotConfig[CONSTANTS.COMMON.MCONF_REGEX] == true)? true : false;
-	}
+
 	var adUnitConfig = {};
 	var mediaTypeObject = {};
 	var slotConfig = CONFIG.getSlotConfiguration();
@@ -1169,12 +1170,12 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					adUnitConfig['renderer'] = config.renderer;
 				}
 			}
-			if(refThis.isOwnProperty(slotConfig['config'], kgpv) || iskgpvpresent()|| isregexEnabled()){
+			if (refThis.isOwnProperty(slotConfig['config'], kgpv) || iskgpvpresent() || isregexEnabled()) {
 				//populating slotlevel config 
-				let SLConfig  = selectSlotConfig();
+				const slConfig = selectSlotConfig();
 				// if SLConfig present then override default config
-				if(SLConfig) {
-					config = SLConfig;
+				if (slConfig) {
+					config = slConfig;
 				}
 
 				if(!config) {
