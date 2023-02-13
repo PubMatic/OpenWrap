@@ -144,12 +144,13 @@ exports.getAwc = function () {
 	return awc === "1";
 };
 
-exports.getPbGloabalVarNamespace = function(defaultName) {
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PB_GLOBAL_VAR_NAMESPACE] || defaultName;
-}
-
-exports.getOwGloabalVarNamespace = function(defaultName) {
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.OW_GLOBAL_VAR_NAMESPACE] || defaultName;
+exports.getOverrideNamespace = function(configKey, defaultName, returnValueInCaseMissingNamespace) {
+	var pbNamespace = config[CONSTANTS.CONFIG.COMMON][configKey];
+	if (pbNamespace) {
+		return pbNamespace === defaultName ? returnValueInCaseMissingNamespace : pbNamespace;
+	} else {
+		return returnValueInCaseMissingNamespace;
+	}
 }
 
 /* start-test-block */

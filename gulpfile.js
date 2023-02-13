@@ -437,15 +437,15 @@ function addPattern(patterns, match, replacement) {
 }
 
 function getPatternsToReplace() {
-    const { COMMON } = require('./src_new/constants.js');
+    const { COMMON, CONFIG } = require('./src_new/constants.js');
     var patterns = [];
     if (isIdentityOnly) {
-        addPattern(patterns, /ihowpbjs|owpbjs/g, config.getPbGloabalVarNamespace(COMMON.IH_NAMESPACE));
-        addPattern(patterns, /IHPWT/g, config.getOwGloabalVarNamespace(null));
+        addPattern(patterns, /ihowpbjs|owpbjs/g, config.getOverrideNamespace(CONFIG.PB_GLOBAL_VAR_NAMESPACE, COMMON.IH_NAMESPACE, COMMON.IH_NAMESPACE));
+        addPattern(patterns, /IHPWT/g, config.getOverrideNamespace(CONFIG.OW_GLOBAL_VAR_NAMESPACE, COMMON.IH_OW_NAMESPACE, null));
     } else {
         // Passing null as we don't want to replace the used value(i.e. PWT) with default value(i.e. PWT) as both are same,
-        addPattern(patterns, /owpbjs/g, config.getPbGloabalVarNamespace(null));
-        addPattern(patterns, /PWT/g, config.getOwGloabalVarNamespace(null));
+        addPattern(patterns, /owpbjs/g, config.getOverrideNamespace(CONFIG.PB_GLOBAL_VAR_NAMESPACE, COMMON.PREBID_NAMESPACE, null));
+        addPattern(patterns, /PWT/g, config.getOverrideNamespace(CONFIG.OW_GLOBAL_VAR_NAMESPACE, COMMON.OPENWRAP_NAMESPACE, null));
     }
     return patterns;
 }
