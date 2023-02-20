@@ -629,6 +629,14 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 									params[key] = [paramValue];
 								}
 							}
+							break;
+						case "customObject":
+							if (paramValue) {
+								if (key === "params.requestedAttributesOverrides") {
+									params[key] = {'uid2': (paramValue === "1")}
+								}
+							}
+							break;
 						default:
 							return;
 					}

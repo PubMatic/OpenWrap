@@ -3896,6 +3896,40 @@ describe('UTIL', function() {
             expect(paramsForParrable["params.timezoneFilter.allowedZones"]).to.be.undefined
             done();
         });
+        it('should keep the param value unchanged and print a log message if datatype conversion is not possible',function(done){
+            params = {"name": "intentIqId","params.partner":"abc","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+            var expectedResult = {"name": "intentIqId","params.partner":"abc","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+
+            UTIL.applyDataTypeChangesIfApplicable(params);
+            params.should.deep.equal(expectedResult);
+            UTIL.logError.should.be.calledOnce;
+
+            done();
+        });
+
+        it('should set requestedAttributesOverrides value as true if value set in config is 1', function(done) {
+            params = {"name": "liveIntentId","params.publisherId": "12432415","params.requestedAttributesOverrides": "1"};
+            var expectedResult = {
+                name: "liveIntentId",
+                "params.publisherId": "12432415",
+                "params.requestedAttributesOverrides": {"uid2": true}
+            };
+            UTIL.applyDataTypeChangesIfApplicable(params);
+            params.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should set requestedAttributesOverrides value as false if value set in config is 0', function(done) {
+            params = {"name": "liveIntentId","params.publisherId": "12432415","params.requestedAttributesOverrides": "0"};
+            var expectedResult = {
+                name: "liveIntentId",
+                "params.publisherId": "12432415",
+                "params.requestedAttributesOverrides": {"uid2": false}
+            };
+            UTIL.applyDataTypeChangesIfApplicable(params);
+            params.should.deep.equal(expectedResult);
+            done();
+        });
     });  
 
     describe('#applyCustomParamValuesfApplicable', function() {
