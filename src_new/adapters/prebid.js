@@ -1057,6 +1057,19 @@ function gets2sConfig(prebidConfig){
 			macros: CONFIG.createMacros()
 		}	
 	}
+	// adding support for marketplace
+	if(!!CONFIG.getMarketplaceBidders()){
+		prebidConfig["s2sConfig"]["allowUnknownBidderCodes"] = true;
+		prebidConfig["s2sConfig"]["extPrebid"]["alternatebiddercodes"] = {
+			enabled: true,
+			bidders: {
+				pubmatic: {
+					enabled: true,
+					allowedbiddercodes: CONFIG.getMarketplaceBidders()
+				}
+			}
+		}
+	}
 }
 
 exports.gets2sConfig = gets2sConfig;
@@ -1234,7 +1247,11 @@ function setPbjsBidderSettingsIfRequired(){
 	CONFIG.forEachAdapter(function(adapterID){
 		if(window[pbNameSpace].bidderSettings.hasOwnProperty(adapterID) === false){
 			window[pbNameSpace].bidderSettings[adapterID] = {};
-
+			// adding marketplace params
+			if(adapterID === "pubmatic" && !!CONFIG.getMarketplaceBidders()){
+				window[pbNameSpace].bidderSettings[adapterID]['allowAlternateBidderCodes'] = true;
+				window[pbNameSpace].bidderSettings[adapterID]['allowedAlternateBidderCodes'] = ["groupm"];
+			}
 			// adding bidCpmAdjustment			
 			window[pbNameSpace].bidderSettings[adapterID]['bidCpmAdjustment'] = function(bidCpm, bid){
 				return window.parseFloat((bidCpm * CONFIG.getAdapterRevShare(adapterID)).toFixed(CONSTANTS.COMMON.BID_PRECISION));
