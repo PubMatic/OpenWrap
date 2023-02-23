@@ -1620,12 +1620,14 @@ describe('ADAPTER: Prebid', function() {
 					isUsePrebidKeysEnabled: CONFIG.isUsePrebidKeysEnabled(),
 					macros: CONFIG.createMacros()
 				}
-			};
+            };
+            sinon.stub(CONFIG,'getMarketplaceBidders');
 			done();
 		});
 
 		afterEach(function(done){
-			prebidConfig = {};
+            prebidConfig = {};
+            CONFIG.getMarketplaceBidders.restore();
 			done();
 		});
 
@@ -1638,7 +1640,24 @@ describe('ADAPTER: Prebid', function() {
 			PREBID.gets2sConfig(prebidConfig);
 			expect(prebidConfig.s2sConfig).to.be.deep.equal(expectedResult);
 			done();
-		});
+        });
+        
+        it("should set marketplace parameters in s2sConfig properties, if marketplqace is enabled",function(done){
+            CONFIG.getMarketplaceBidders.returns(["groupm"]);
+            expectedResult["allowUnknownBidderCodes"] = true;
+            expectedResult["extPrebid"]["alternatebiddercodes"] = {
+                enabled: true,
+                bidders: {
+                    pubmatic: {
+                        enabled: true,
+                        allowedbiddercodes: CONFIG.getMarketplaceBidders()
+                    }
+                }
+            }
+			PREBID.gets2sConfig(prebidConfig);
+			expect(prebidConfig.s2sConfig).to.be.deep.equal(expectedResult);
+            done();
+        });
 	})
 
     describe('#addOnBidRequestHandler',function(){
