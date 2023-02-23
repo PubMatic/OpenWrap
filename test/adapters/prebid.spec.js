@@ -1641,6 +1641,24 @@ describe('ADAPTER: Prebid', function() {
 		});
 	})
 
+	// Test cases for inventory packaging 
+	describe("assignPackagingInventoryConfig",function(){
+		var prebidConfig = {};
+		var expectedResult = {
+				enabled:  true
+		};
+		it("should be a functiion",function(done){
+			PREBID.assignPackagingInventoryConfig.should.be.a("function");
+			done();
+		});
+
+		it("should set s2sConfig properties",function(done){
+			PREBID.assignPackagingInventoryConfig(prebidConfig);
+			expect(prebidConfig.viewabilityScoreGeneration).to.be.deep.equal(expectedResult);
+			done();
+		});
+	});
+
     describe('#addOnBidRequestHandler',function(){
         beforeEach(function(done) {
             sinon.stub(UTIL, 'isFunction');

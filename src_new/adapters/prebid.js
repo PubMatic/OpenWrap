@@ -996,6 +996,7 @@ function setPrebidConfig(){
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
+		refThis.assignPackagingInventoryConfig(prebidConfig);
 		// if usePBSAdapter is 1 then add s2sConfig
 		if(CONFIG.usePBSAdapter()) {
 			refThis.gets2sConfig(prebidConfig);
@@ -1100,6 +1101,15 @@ function checkForYahooSSPBidder(prebidConfig){
 }
 
 exports.checkForYahooSSPBidder = checkForYahooSSPBidder;
+
+
+function assignPackagingInventoryConfig(prebidConfig) {
+	prebidConfig["viewabilityScoreGeneration"] = {
+		enabled:  true
+	}
+}
+
+exports.assignPackagingInventoryConfig = assignPackagingInventoryConfig;
 
 function getPbjsAdServerTargetingConfig(){
 	// Todo: Handle send-all bids feature enabled case
