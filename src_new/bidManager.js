@@ -879,7 +879,7 @@ exports.getBrowser = function() {
 	var browserMapping = CONSTANTS.BROWSER_MAPPING;
 
 	var userAgent = navigator.userAgent;
-	var browserName = userAgent == null ? "UNKNOWN" : "unknown";
+	var browserName = userAgent == null ? -1 : 0;
 	if(userAgent) {
 		for(var i = 0; i < regExBrowsers.length; i++) {
 			if(userAgent.match(regExBrowsers[i])) {
