@@ -1102,6 +1102,41 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 			return Object.keys(slotConfig['config']).toString().toLowerCase().indexOf(kgpv.toLowerCase()) > -1 ? true : false;
 		}
 	}
+	// checks if regex is present and enabled
+	function isregexEnabled() {
+		return slotConfig && (slotConfig[CONSTANTS.COMMON.MCONF_REGEX] == true) ? true : false;
+	}
+	// Returns regex-matched config for kgpv, if not found returns undefined
+	function isAdunitRegex() {
+		var regexKeys = Object.keys(slotConfig['config']);
+		var matchedRegex;
+		regexKeys.forEach(function (exp) {
+			try {
+				// Ignores "default" key and RegExp performs case insensitive check
+				if (exp.length > 0 && exp != CONSTANTS.COMMON.DEFAULT && kgpv.match(new RegExp(exp, "i"))) {
+					matchedRegex = exp;
+					return;
+				}
+			} catch (ex) {
+				refThis.log(CONSTANTS.MESSAGES.M32 + JSON.stringify(exp));
+			}
+		})
+		if (matchedRegex) {
+			return slotConfig["config"][matchedRegex];
+		} else {
+			return undefined;
+		}
+	}
+	// returns selected MediaConfig
+	function selectSlotConfig() {
+		//exact-match else regex check
+		if (iskgpvpresent()) {
+			return slotConfig["config"][kgpv];
+		} else if (isregexEnabled()) {
+			return isAdunitRegex();
+		}
+	}
+
 	var adUnitConfig = {};
 	var mediaTypeObject = {};
 	var slotConfig = CONFIG.getSlotConfiguration();
@@ -1135,8 +1170,14 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					adUnitConfig['renderer'] = config.renderer;
 				}
 			}
-			if(refThis.isOwnProperty(slotConfig['config'], kgpv) || iskgpvpresent()){
-				config = slotConfig["config"][kgpv];
+			if (refThis.isOwnProperty(slotConfig['config'], kgpv) || iskgpvpresent() || isregexEnabled()) {
+				//populating slotlevel config 
+				const slConfig = selectSlotConfig();
+				// if SLConfig present then override default config
+				if (slConfig) {
+					config = slConfig;
+				}
+
 				if(!config) {
 					config = slotConfig["config"][Object.keys(slotConfig["config"]).filter(function(key){
 						return key.toLocaleLowerCase() === kgpv.toLowerCase();
