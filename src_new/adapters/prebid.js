@@ -1250,7 +1250,7 @@ function setPbjsBidderSettingsIfRequired(){
 			// adding marketplace params
 			if(adapterID === "pubmatic" && !!CONFIG.getMarketplaceBidders()){
 				window[pbNameSpace].bidderSettings[adapterID]['allowAlternateBidderCodes'] = true;
-				window[pbNameSpace].bidderSettings[adapterID]['allowedAlternateBidderCodes'] = ["groupm"];
+				window[pbNameSpace].bidderSettings[adapterID]['allowedAlternateBidderCodes'] = CONFIG.getMarketplaceBidders();
 			}
 			// adding bidCpmAdjustment			
 			window[pbNameSpace].bidderSettings[adapterID]['bidCpmAdjustment'] = function(bidCpm, bid){

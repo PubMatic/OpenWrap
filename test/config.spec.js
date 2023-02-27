@@ -2354,7 +2354,7 @@ describe('Config', function() {
     describe('#getMarketplaceBidders', function() {
         beforeEach(function(done) {
             CONF.pwt = {
-                marketplaceBidders : ["groupm"]
+                marketplaceBidders : "groupm"
             }
             done();
         });
@@ -2368,7 +2368,7 @@ describe('Config', function() {
             done();
         });
 
-        it('should return the input value , if present in marketplace array', function(done) {
+        it('should return the value in form of array, if marketplaceBidder string is present', function(done) {
             expect(CONFIG.getMarketplaceBidders()).to.be.an("array");
             expect(CONFIG.getMarketplaceBidders()[0]).to.equal("groupm");
             done();
@@ -2376,7 +2376,7 @@ describe('Config', function() {
         
         it('should return false , if marketplace array is not present', function(done) {
             CONF.pwt = {
-                marketplaceBidders : null
+                marketplaceBidders : 0
             }
             expect(CONFIG.getMarketplaceBidders()).to.equal(false);
             done();

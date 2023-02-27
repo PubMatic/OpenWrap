@@ -442,5 +442,5 @@ exports.createMacros = function() {
 }
 
 exports.getMarketplaceBidders = function(){
-	return config.pwt.marketplaceBidders || false;
+	return config.pwt.marketplaceBidders ? config.pwt.marketplaceBidders.split(',') : false;
 }
