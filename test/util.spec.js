@@ -4024,7 +4024,7 @@ describe('UTIL', function() {
             done();
         });
 
-        it('should set requestedAttributesOverrides value as true if value set in config is 1', function(done) {
+        it('should set requestedAttributesOverrides value as true if value set in config is true', function(done) {
             params = {"name": "liveIntentId","params.publisherId": "12432415","params.requestedAttributesOverrides": "true"};
             var expectedResult = {
                 name: "liveIntentId",
@@ -4036,7 +4036,7 @@ describe('UTIL', function() {
             done();
         });
 
-        it('should set requestedAttributesOverrides value as false if value set in config is 0', function(done) {
+        it('should set requestedAttributesOverrides value as false if value set in config is false', function(done) {
             params = {"name": "liveIntentId","params.publisherId": "12432415","params.requestedAttributesOverrides": "false"};
             var expectedResult = {
                 name: "liveIntentId",
