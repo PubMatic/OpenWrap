@@ -1918,7 +1918,7 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 						case "customObject":
 							if (paramValue) {
 								if (key === "params.requestedAttributesOverrides") {
-									params[key] = {'uid2': (paramValue === "1")}
+									params[key] = {'uid2': (paramValue === "true" || paramValue === "1")}
 								}
 							}
 							break;

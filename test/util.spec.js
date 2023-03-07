@@ -3908,7 +3908,7 @@ describe('UTIL', function() {
         });
 
         it('should set requestedAttributesOverrides value as true if value set in config is 1', function(done) {
-            params = {"name": "liveIntentId","params.publisherId": "12432415","params.requestedAttributesOverrides": "1"};
+            params = {"name": "liveIntentId","params.publisherId": "12432415","params.requestedAttributesOverrides": "true"};
             var expectedResult = {
                 name: "liveIntentId",
                 "params.publisherId": "12432415",
@@ -3920,13 +3920,15 @@ describe('UTIL', function() {
         });
 
         it('should set requestedAttributesOverrides value as false if value set in config is 0', function(done) {
-            params = {"name": "liveIntentId","params.publisherId": "12432415","params.requestedAttributesOverrides": "0"};
+            params = {"name": "liveIntentId","params.publisherId": "12432415","params.requestedAttributesOverrides": "false"};
             var expectedResult = {
                 name: "liveIntentId",
                 "params.publisherId": "12432415",
                 "params.requestedAttributesOverrides": {"uid2": false}
             };
+
             UTIL.applyDataTypeChangesIfApplicable(params);
+            console.log("################ --> ", params);
             params.should.deep.equal(expectedResult);
             done();
         });
