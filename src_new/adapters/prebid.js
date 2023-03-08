@@ -1062,7 +1062,7 @@ function gets2sConfig(prebidConfig){
 exports.gets2sConfig = gets2sConfig;
 
 function getFloorsConfiguration(prebidConfig){
-	if(CONFIG.isFloorPriceModuleEnabled() == true){
+	if(CONFIG.isFloorPriceModuleEnabled() == true && CONFIG.getFloorSource() === CONSTANTS.COMMON.EXTERNAL_FLOOR){
 		prebidConfig["floors"]={
 			enforcement: {
 				enforceJS: CONFIG.getFloorType()

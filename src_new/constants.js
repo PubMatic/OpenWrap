@@ -49,7 +49,8 @@ exports.COMMON = {
 	"REDUCE_CODE_SIZE": "reduceCodeSize",
 	"TEST_IDENTITY_PARTNER": "test_identityPartners",
 	"IH_ANALYTICS_ADAPTER_EXPIRY": "ihAnalyticsAdapterExpiry",
-	"IH_ANALYTICS_ADAPTER_DEFAULT_EXPIRY": 7
+	"IH_ANALYTICS_ADAPTER_DEFAULT_EXPIRY": 7,
+	"EXTERNAL_FLOOR": "External Floor"
 };
 
 exports.CONFIG = {
@@ -106,7 +107,8 @@ exports.CONFIG = {
 	"USE_PREBID_KEYS": "usePBJSKeys",
 	"AB_TEST_ENABLED": "abTestEnabled",
 	"TIMEOUT_ADJUSTMENT": 50,
-	"SSO_ENABLED": "ssoEnabled"
+	"SSO_ENABLED": "ssoEnabled",
+	"FLOOR_SOURCE": "floorSource"
 };
 
 exports.METADATA_MACROS = {

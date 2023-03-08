@@ -939,6 +939,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(UTIL, 'isFunction');
             sinon.stub(UTIL, 'logWarning');
             sinon.stub(CONFIG, 'isFloorPriceModuleEnabled');
+            sinon.stub(CONFIG, 'getFloorSource');
             sinon.stub(CONFIG, 'getFloorJsonUrl').returns("externalFloor.json");
             sinon.stub(CONFIG, 'getFloorAuctionDelay').returns(100);
             CONF.pwt.identityOnly = "0";
@@ -1001,6 +1002,7 @@ describe('ADAPTER: Prebid', function() {
             UTIL.isFunction.restore();
             UTIL.logWarning.restore();
             CONFIG.isFloorPriceModuleEnabled.restore();
+            CONFIG.getFloorSource.restore();
             CONFIG.getFloorJsonUrl.restore();
             CONFIG.getFloorAuctionDelay.restore();
             windowPbJS2Stub.onEvent.restore();
@@ -1030,15 +1032,25 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should set floor module with default inputs',function(done){
+        it('should set floor module with default inputs if floor source is External Floor',function(done){
             CONFIG.isFloorPriceModuleEnabled.returns(true);
+            CONFIG.getFloorSource.returns('External Floor');
             PREBID.setPrebidConfig();
             expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
             done();
         });
 
+        it('should not set floor module if floor source is not External Floor',function(done){
+            CONFIG.isFloorPriceModuleEnabled.returns(true);
+            CONFIG.getFloorSource.returns('External Floor w/o Config');
+            PREBID.setPrebidConfig();
+            expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(undefined);
+            done();
+        });
+
         it('should set floor module with auctionDelay as 300',function(done){
             CONFIG.isFloorPriceModuleEnabled.returns(true);
+            CONFIG.getFloorSource.returns('External Floor');
             CONFIG.getFloorAuctionDelay.returns(300);
             floorObj.auctionDelay = 300;
             PREBID.setPrebidConfig();

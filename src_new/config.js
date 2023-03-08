@@ -245,6 +245,10 @@ exports.isFloorPriceModuleEnabled = function(){
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_PRICE_MODULE_ENABLED]) === 1;
 }
 
+exports.getFloorSource = function(){
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_SOURCE];
+}
+
 exports.getFloorJsonUrl = function(){
 	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_JSON_URL];
 }
