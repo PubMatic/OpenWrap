@@ -1045,6 +1045,31 @@ describe('ADAPTER: Prebid', function() {
             expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
             done();
         });
+
+		it('should not enforce floor when floorType is not defined ', function(done) {
+			CONFIG.isFloorPriceModuleEnabled.returns(true);
+			PREBID.setPrebidConfig();
+			expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
+			done();
+		});
+
+		it('should not enforce floor when floorType is defined as soft', function(done) {
+			CONFIG.isFloorPriceModuleEnabled.returns(true);
+			CONF.pwt.floorType = 'soft';
+			PREBID.setPrebidConfig();
+			expect(window.owpbjs.getConfig()["floors"]["enforcement"]["enforceJS"]).to.equal(false);
+			delete CONF.pwt.floorType;
+			done();
+		});
+
+		it('should enforce floor when floorType is defined as hard ', function(done) {
+			CONFIG.isFloorPriceModuleEnabled.returns(true);
+			PREBID.setPrebidConfig();
+			CONF.pwt.floorType = 'hard';
+			expect(window.owpbjs.getConfig()["floors"]["enforcement"]["enforceJS"]).to.equal(true);
+			delete CONF.pwt.floorType;
+			done();
+		});
     });
 
     describe('#fetchBids', function() {

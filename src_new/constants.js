@@ -49,7 +49,8 @@ exports.COMMON = {
 	"REDUCE_CODE_SIZE": "reduceCodeSize",
 	"TEST_IDENTITY_PARTNER": "test_identityPartners",
 	"IH_ANALYTICS_ADAPTER_EXPIRY": "ihAnalyticsAdapterExpiry",
-	"IH_ANALYTICS_ADAPTER_DEFAULT_EXPIRY": 7
+	"IH_ANALYTICS_ADAPTER_DEFAULT_EXPIRY": 7,
+	"SOFT_FLOOR": "soft"
 };
 
 exports.CONFIG = {

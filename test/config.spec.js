@@ -1159,7 +1159,7 @@ describe('Config', function() {
 
     describe('#getFloorType',function(){
         beforeEach(function(done){
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "1";
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "hard";
             done();
         });
 
@@ -1187,7 +1187,7 @@ describe('Config', function() {
 
         it('should return false if getFloorType set to "0"', function(done) {
             var expectedResult = false;
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "0";
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "soft";
             CONFIG.getFloorType().should.be.deep.equal(expectedResult);
             done();
         });
