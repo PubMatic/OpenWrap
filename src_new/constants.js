@@ -50,7 +50,7 @@ exports.COMMON = {
 	"TEST_IDENTITY_PARTNER": "test_identityPartners",
 	"IH_ANALYTICS_ADAPTER_EXPIRY": "ihAnalyticsAdapterExpiry",
 	"IH_ANALYTICS_ADAPTER_DEFAULT_EXPIRY": 7,
-	"EXTERNAL_FLOOR": "External Floor"
+	"EXTERNAL_FLOOR_WO_CONFIG": "External Floor w/o Config"
 };
 
 exports.CONFIG = {
