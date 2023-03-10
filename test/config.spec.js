@@ -1181,7 +1181,7 @@ describe('Config', function() {
 
         it('should return false if getFloorType is not present',function(done){
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS];
-            expect(CONFIG.getFloorType()).to.equal(true);
+            expect(CONFIG.getFloorType()).to.equal(false);
             done();
         });
 

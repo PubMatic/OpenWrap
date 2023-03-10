@@ -945,7 +945,7 @@ describe('ADAPTER: Prebid', function() {
             UTIL.pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
             floorObj = {
                 enforcement:{
-                    enforceJS: true
+                    enforceJS: false
                 },
                 auctionDelay: 100,
                 endpoint:{
@@ -1064,8 +1064,8 @@ describe('ADAPTER: Prebid', function() {
 
 		it('should enforce floor when floorType is defined as hard ', function(done) {
 			CONFIG.isFloorPriceModuleEnabled.returns(true);
-			PREBID.setPrebidConfig();
 			CONF.pwt.floorType = 'hard';
+			PREBID.setPrebidConfig();
 			expect(window.owpbjs.getConfig()["floors"]["enforcement"]["enforceJS"]).to.equal(true);
 			delete CONF.pwt.floorType;
 			done();
