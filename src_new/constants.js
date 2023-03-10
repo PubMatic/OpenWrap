@@ -274,6 +274,9 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 	},
 	"merkleId": {
 		"params.ssp_ids": "array"
+	},
+	"liveIntentId": {
+		"params.requestedAttributesOverrides": "customObject"
 	}
 }; //list of ID partners for whom special handling of datatype is required
 
@@ -286,10 +289,6 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 	"identityLink": [{
 		"key": "storage.refreshInSeconds",
 		"value": "1800"
-	}],
-	"liveIntentId": [{
-		"key": "params.requestedAttributesOverrides",
-		"value": {'uid2': true}
 	}]
 };
 

@@ -440,3 +440,7 @@ exports.createMacros = function() {
 		"[PROFILE_VERSION]": refThis.getProfileDisplayVersionID().toString()
 	}
 }
+
+exports.getMarketplaceBidders = function(){
+	return config.pwt.marketplaceBidders ? config.pwt.marketplaceBidders.split(',') : false;
+}
