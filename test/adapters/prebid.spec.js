@@ -946,7 +946,7 @@ describe('ADAPTER: Prebid', function() {
             UTIL.pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
             floorObj = {
                 enforcement:{
-                    enforceJS: true
+                    enforceJS: false
                 },
                 auctionDelay: 100,
                 endpoint:{
@@ -1057,6 +1057,31 @@ describe('ADAPTER: Prebid', function() {
             expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
             done();
         });
+
+		it('should not enforce floor when floorType is not defined ', function(done) {
+			CONFIG.isFloorPriceModuleEnabled.returns(true);
+			PREBID.setPrebidConfig();
+			expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
+			done();
+		});
+
+		it('should not enforce floor when floorType is defined as soft', function(done) {
+			CONFIG.isFloorPriceModuleEnabled.returns(true);
+			CONF.pwt.floorType = 'soft';
+			PREBID.setPrebidConfig();
+			expect(window.owpbjs.getConfig()["floors"]["enforcement"]["enforceJS"]).to.equal(false);
+			delete CONF.pwt.floorType;
+			done();
+		});
+
+		it('should enforce floor when floorType is defined as hard ', function(done) {
+			CONFIG.isFloorPriceModuleEnabled.returns(true);
+			CONF.pwt.floorType = 'hard';
+			PREBID.setPrebidConfig();
+			expect(window.owpbjs.getConfig()["floors"]["enforcement"]["enforceJS"]).to.equal(true);
+			delete CONF.pwt.floorType;
+			done();
+		});
     });
 
     describe('#fetchBids', function() {
@@ -1632,12 +1657,14 @@ describe('ADAPTER: Prebid', function() {
 					isUsePrebidKeysEnabled: CONFIG.isUsePrebidKeysEnabled(),
 					macros: CONFIG.createMacros()
 				}
-			};
+            };
+            sinon.stub(CONFIG,'getMarketplaceBidders');
 			done();
 		});
 
 		afterEach(function(done){
-			prebidConfig = {};
+            prebidConfig = {};
+            CONFIG.getMarketplaceBidders.restore();
 			done();
 		});
 
@@ -1650,8 +1677,43 @@ describe('ADAPTER: Prebid', function() {
 			PREBID.gets2sConfig(prebidConfig);
 			expect(prebidConfig.s2sConfig).to.be.deep.equal(expectedResult);
 			done();
-		});
+        });
+        
+        it("should set marketplace parameters in s2sConfig properties, if marketplqace is enabled",function(done){
+            CONFIG.getMarketplaceBidders.returns(["groupm"]);
+            expectedResult["allowUnknownBidderCodes"] = true;
+            expectedResult["extPrebid"]["alternatebiddercodes"] = {
+                enabled: true,
+                bidders: {
+                    pubmatic: {
+                        enabled: true,
+                        allowedbiddercodes: CONFIG.getMarketplaceBidders()
+                    }
+                }
+            }
+			PREBID.gets2sConfig(prebidConfig);
+			expect(prebidConfig.s2sConfig).to.be.deep.equal(expectedResult);
+            done();
+        });
 	})
+
+	// Test cases for inventory packaging 
+	describe("assignPackagingInventoryConfig",function(){
+		var prebidConfig = {};
+		var expectedResult = {
+				enabled:  true
+		};
+		it("should be a functiion",function(done){
+			PREBID.assignPackagingInventoryConfig.should.be.a("function");
+			done();
+		});
+
+		it("should set s2sConfig properties",function(done){
+			PREBID.assignPackagingInventoryConfig(prebidConfig);
+			expect(prebidConfig.viewabilityScoreGeneration).to.be.deep.equal(expectedResult);
+			done();
+		});
+	});
 
     describe('#addOnBidRequestHandler',function(){
         beforeEach(function(done) {

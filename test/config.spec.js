@@ -1159,7 +1159,7 @@ describe('Config', function() {
 
     describe('#getFloorType',function(){
         beforeEach(function(done){
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "1";
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "hard";
             done();
         });
 
@@ -1181,13 +1181,13 @@ describe('Config', function() {
 
         it('should return false if getFloorType is not present',function(done){
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS];
-            expect(CONFIG.getFloorType()).to.equal(true);
+            expect(CONFIG.getFloorType()).to.equal(false);
             done();
         });
 
         it('should return false if getFloorType set to "0"', function(done) {
             var expectedResult = false;
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "0";
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "soft";
             CONFIG.getFloorType().should.be.deep.equal(expectedResult);
             done();
         });
@@ -2349,6 +2349,38 @@ describe('Config', function() {
             delete CONF[CONSTANTS.CONFIG.SSO_ENABLED];
             done();
         })
+    });
+
+    describe('#getMarketplaceBidders', function() {
+        beforeEach(function(done) {
+            CONF.pwt = {
+                marketplaceBidders : "groupm"
+            }
+            done();
+        });
+        afterEach(function(done) {
+            CONF.pwt = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            CONFIG.getAdapterNameForAlias.should.be.a('function');
+            done();
+        });
+
+        it('should return the value in form of array, if marketplaceBidder string is present', function(done) {
+            expect(CONFIG.getMarketplaceBidders()).to.be.an("array");
+            expect(CONFIG.getMarketplaceBidders()[0]).to.equal("groupm");
+            done();
+        });
+        
+        it('should return false , if marketplace array is not present', function(done) {
+            CONF.pwt = {
+                marketplaceBidders : 0
+            }
+            expect(CONFIG.getMarketplaceBidders()).to.equal(false);
+            done();
+        });
     });
 
     describe('#getFloorSource',function(){

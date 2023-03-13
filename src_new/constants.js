@@ -50,7 +50,8 @@ exports.COMMON = {
 	"TEST_IDENTITY_PARTNER": "test_identityPartners",
 	"IH_ANALYTICS_ADAPTER_EXPIRY": "ihAnalyticsAdapterExpiry",
 	"IH_ANALYTICS_ADAPTER_DEFAULT_EXPIRY": 7,
-	"EXTERNAL_FLOOR_WO_CONFIG": "External Floor w/o Config"
+	"EXTERNAL_FLOOR_WO_CONFIG": "External Floor w/o Config",
+	"HARD_FLOOR": "hard"
 };
 
 exports.CONFIG = {
@@ -275,6 +276,9 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 	},
 	"merkleId": {
 		"params.ssp_ids": "array"
+	},
+	"liveIntentId": {
+		"params.requestedAttributesOverrides": "customObject"
 	}
 }; //list of ID partners for whom special handling of datatype is required
 
@@ -287,10 +291,6 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 	"identityLink": [{
 		"key": "storage.refreshInSeconds",
 		"value": "1800"
-	}],
-	"liveIntentId": [{
-		"key": "params.requestedAttributesOverrides",
-		"value": {'uid2': true}
 	}]
 };
 
