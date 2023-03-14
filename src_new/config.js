@@ -261,7 +261,7 @@ exports.getFloorAuctionDelay = function(){
 
 // It will return the floorType specified in conf.js or else default is true
 exports.getFloorType = function(){
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] == CONSTANTS.COMMON.HARD_FLOOR ? true : false;
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] && (config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS]).toLowerCase() === CONSTANTS.COMMON.HARD_FLOOR ? true : false;
 }
 
 exports.isPrebidPubMaticAnalyticsEnabled = function () {
