@@ -2351,4 +2351,35 @@ describe('Config', function() {
         })
     });
 
+    describe('#getMarketplaceBidders', function() {
+        beforeEach(function(done) {
+            CONF.pwt = {
+                marketplaceBidders : "groupm"
+            }
+            done();
+        });
+        afterEach(function(done) {
+            CONF.pwt = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            CONFIG.getAdapterNameForAlias.should.be.a('function');
+            done();
+        });
+
+        it('should return the value in form of array, if marketplaceBidder string is present', function(done) {
+            expect(CONFIG.getMarketplaceBidders()).to.be.an("array");
+            expect(CONFIG.getMarketplaceBidders()[0]).to.equal("groupm");
+            done();
+        });
+        
+        it('should return false , if marketplace array is not present', function(done) {
+            CONF.pwt = {
+                marketplaceBidders : 0
+            }
+            expect(CONFIG.getMarketplaceBidders()).to.equal(false);
+            done();
+        });
+    });
 });
