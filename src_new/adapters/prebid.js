@@ -997,6 +997,7 @@ function setPrebidConfig(){
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
+		refThis.assignPackagingInventoryConfig(prebidConfig);
 		// if usePBSAdapter is 1 then add s2sConfig
 		if(CONFIG.usePBSAdapter()) {
 			refThis.gets2sConfig(prebidConfig);
@@ -1058,6 +1059,19 @@ function gets2sConfig(prebidConfig){
 			macros: CONFIG.createMacros()
 		}	
 	}
+	// adding support for marketplace
+	if(!!CONFIG.getMarketplaceBidders()){
+		prebidConfig["s2sConfig"]["allowUnknownBidderCodes"] = true;
+		prebidConfig["s2sConfig"]["extPrebid"]["alternatebiddercodes"] = {
+			enabled: true,
+			bidders: {
+				pubmatic: {
+					enabled: true,
+					allowedbiddercodes: CONFIG.getMarketplaceBidders()
+				}
+			}
+		}
+	}
 }
 
 exports.gets2sConfig = gets2sConfig;
@@ -1101,6 +1115,15 @@ function checkForYahooSSPBidder(prebidConfig){
 }
 
 exports.checkForYahooSSPBidder = checkForYahooSSPBidder;
+
+
+function assignPackagingInventoryConfig(prebidConfig) {
+	prebidConfig["viewabilityScoreGeneration"] = {
+		enabled:  true
+	}
+}
+
+exports.assignPackagingInventoryConfig = assignPackagingInventoryConfig;
 
 function getPbjsAdServerTargetingConfig(){
 	// Todo: Handle send-all bids feature enabled case
@@ -1235,7 +1258,11 @@ function setPbjsBidderSettingsIfRequired(){
 	CONFIG.forEachAdapter(function(adapterID){
 		if(window[pbNameSpace].bidderSettings.hasOwnProperty(adapterID) === false){
 			window[pbNameSpace].bidderSettings[adapterID] = {};
-
+			// adding marketplace params
+			if(adapterID === "pubmatic" && !!CONFIG.getMarketplaceBidders()){
+				window[pbNameSpace].bidderSettings[adapterID]['allowAlternateBidderCodes'] = true;
+				window[pbNameSpace].bidderSettings[adapterID]['allowedAlternateBidderCodes'] = CONFIG.getMarketplaceBidders();
+			}
 			// adding bidCpmAdjustment			
 			window[pbNameSpace].bidderSettings[adapterID]['bidCpmAdjustment'] = function(bidCpm, bid){
 				return window.parseFloat((bidCpm * CONFIG.getAdapterRevShare(adapterID)).toFixed(CONSTANTS.COMMON.BID_PRECISION));
