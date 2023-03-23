@@ -4045,7 +4045,6 @@ describe('UTIL', function() {
             };
 
             UTIL.applyDataTypeChangesIfApplicable(params);
-            console.log("################ --> ", params);
             params.should.deep.equal(expectedResult);
             done();
         });
