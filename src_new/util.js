@@ -1542,7 +1542,9 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		sspID = theBid.sspID || "";	
 	}
 
-	adUnitId = bidManager.getAdUnitInfo(slotID).adUnitId || slotID;
+	var origAdUnit = bidManager.getAdUnitInfo(slotID);
+	adUnitId = origAdUnit.adUnitId || slotID;
+	var isRefreshed = origAdUnit.pubmaticAutoRefresh && origAdUnit.pubmaticAutoRefresh.isRefreshed ? 1 : 0;
 
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
@@ -1560,6 +1562,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&eg=" + window.encodeURIComponent(grossEcpm);
 	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
 	pixelURL += "&piid=" + window.encodeURIComponent(sspID);
+	pixelURL += "&rf=" + window.encodeURIComponent(isRefreshed);
 
 	return CONSTANTS.COMMON.PROTOCOL + pixelURL;
 };
