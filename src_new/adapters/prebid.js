@@ -314,10 +314,26 @@ function pbBidRequestHandler(pbBid){
 	});
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
-  
+
 // removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.pbBidRequestHandler = pbBidRequestHandler;
+/* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+function pbAuctionEndHandler(args){
+	args.adUnits.forEach(adUnit => {
+		if(!!adUnit.pubmaticAutoRefresh){
+			window.PWT.adUnits[adUnit.code].pubmaticAutoRefresh = adUnit.pubmaticAutoRefresh;
+		}
+	});
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+/* start-test-block */
+exports.pbAuctionEndHandler = pbAuctionEndHandler;
 /* end-test-block */
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
@@ -949,6 +965,18 @@ exports.addOnBidResponseHandler = addOnBidResponseHandler;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
+function addOnAuctionEndHandler(){
+	if(util.isFunction(window[pbNameSpace].onEvent)){
+		window[pbNameSpace].onEvent('auctionEnd', refThis.pbAuctionEndHandler);
+	} else {
+		util.logWarning("PreBid js onEvent method is not available");
+		return;
+	}
+}
+exports.addOnAuctionEndHandler = addOnAuctionEndHandler;
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function addOnBidRequestHandler(){
 	if(util.isFunction(window[pbNameSpace].onEvent)){
 		window[pbNameSpace].onEvent('bidRequested', refThis.pbBidRequestHandler);
@@ -1360,6 +1388,7 @@ function fetchBids(activeSlots){
 					// we do not want this call when we have PrebidAnalytics enabled
 					refThis.addOnBidResponseHandler();
 					refThis.addOnBidRequestHandler();
+					refThis.addOnAuctionEndHandler();
 				}
 				// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 

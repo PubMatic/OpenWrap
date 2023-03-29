@@ -166,7 +166,7 @@ function updateSlotsMapFromGoogleSlots(googleSlotsArray, argumentsFromCallingFun
             adUnitId : activeSlot.adUnitID,
             mediaTypes : util.getAdUnitConfig(activeSlot.sizes, activeSlot).mediaTypeObject
         }
-    })
+    });
 
     util.log(refThis.slotsMap);
 }
