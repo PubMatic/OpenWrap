@@ -323,7 +323,7 @@ exports.pbBidRequestHandler = pbBidRequestHandler;
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function pbAuctionEndHandler(args){
-	args.adUnits.forEach(adUnit => {
+	args.adUnits.forEach(function(adUnit){
 		if(!!adUnit.pubmaticAutoRefresh){
 			window.PWT.adUnits[adUnit.code].pubmaticAutoRefresh = adUnit.pubmaticAutoRefresh;
 		}
