@@ -425,7 +425,13 @@ exports.getEmailHashes = function(){
 	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
-	return emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+	var emailHashArr = [];
+	refThis.forEachOnObject(emailHash, function (keyName, keyValue) {
+		if (keyValue !== undefined) {
+			emailHashArr.push(keyValue);
+		}
+	});
+	return emailHashArr.length > 0 ? emailHashArr : undefined;
 }
 
 exports.initLiveRampLaunchPad = function (params) {
@@ -445,13 +451,7 @@ exports.initLiveRampLaunchPad = function (params) {
 		launchPadScript.src = lpURL;
 		document.body.appendChild(launchPadScript);
 	}
-	if (document.readyState == 'complete') {
-		addLaunchPad();
-	} else {
-		window.addEventListener("load", function () {
-			setTimeout(addLaunchPad, 1000);
-		});
-	}
+	addLaunchPad();
 };
 
 exports.initLauncherJs = function (params) {

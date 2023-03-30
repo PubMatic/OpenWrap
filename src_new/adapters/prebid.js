@@ -882,7 +882,8 @@ function enablePrebidPubMaticAnalyticIfRequired(){
 			options: {
 				publisherId: CONFIG.getPublisherId(),
 				profileId: CONFIG.getProfileID(),
-				profileVersionId: CONFIG.getProfileDisplayVersionID()
+				profileVersionId: CONFIG.getProfileDisplayVersionID(),
+				identityOnly: (CONFIG.isUserIdModuleEnabled() ? 1 : 0)
 			}
 		});
 	}
@@ -1104,7 +1105,7 @@ function gets2sConfig(prebidConfig){
 exports.gets2sConfig = gets2sConfig;
 
 function getFloorsConfiguration(prebidConfig){
-	if(CONFIG.isFloorPriceModuleEnabled() == true){
+	if(CONFIG.isFloorPriceModuleEnabled() == true && CONFIG.getFloorSource() !== CONSTANTS.COMMON.EXTERNAL_FLOOR_WO_CONFIG){
 		prebidConfig["floors"]={
 			enforcement: {
 				enforceJS: CONFIG.getFloorType()

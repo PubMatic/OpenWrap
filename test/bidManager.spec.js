@@ -1129,6 +1129,7 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(CONFIG, "getTimeout");
             sinon.spy(CONFIG, "getProfileID");
             sinon.spy(CONFIG, "getProfileDisplayVersionID");
+            sinon.spy(CONFIG, "isUserIdModuleEnabled");
 
             var timeNow = new Date().getTime();
             sinon.stub(UTIL, "getCurrentTimestamp").returns(timeNow);
@@ -1163,6 +1164,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getTimeout.restore();
             CONFIG.getProfileID.restore();
             CONFIG.getProfileDisplayVersionID.restore();
+            CONFIG.isUserIdModuleEnabled.restore();
 
             UTIL.getCurrentTimestamp.restore();
             UTIL.forEachOnObject.restore();
@@ -1193,6 +1195,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getTimeout.called.should.be.true;
             CONFIG.getProfileID.called.should.be.true;
             CONFIG.getProfileDisplayVersionID.called.should.be.true;
+            CONFIG.isUserIdModuleEnabled.called.should.be.true;
 
             // GDPR.getUserConsentDataFromLS.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
