@@ -1779,13 +1779,7 @@ exports.initLiveRampLaunchPad = function (params) {
 		launchPadScript.src = lpURL;
 		document.body.appendChild(launchPadScript);
 	}
-	if (document.readyState == 'complete') {
-		addLaunchPad();
-	} else {
-		window.addEventListener("load", function () {
-			setTimeout(addLaunchPad, 1000);
-		});
-	}
+	addLaunchPad();
 };
 
 exports.getPublinkLauncherParams = function(params) {
