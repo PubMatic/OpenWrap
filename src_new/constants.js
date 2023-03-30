@@ -202,6 +202,7 @@ exports.MESSAGES = {
 	"M29": "Unable to parse Partner configuration",
 	"M30": "AB Test Enabled With Config",
 	"M31": "AB Test Enabled With Partner Config",
+	"M32": "Error in Parsing Bid Viewability Score",
 	IDENTITY: {
 		M1: "Unable to get User Id from OpenIdentity",
 		M2: "Setting UserIds to EB ",
