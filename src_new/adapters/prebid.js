@@ -866,7 +866,8 @@ function enablePrebidPubMaticAnalyticIfRequired(){
 			options: {
 				publisherId: CONFIG.getPublisherId(),
 				profileId: CONFIG.getProfileID(),
-				profileVersionId: CONFIG.getProfileDisplayVersionID()
+				profileVersionId: CONFIG.getProfileDisplayVersionID(),
+				identityOnly: (CONFIG.isUserIdModuleEnabled() ? 1 : 0)
 			}
 		});
 	}
