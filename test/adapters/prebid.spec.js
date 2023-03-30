@@ -939,13 +939,14 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(UTIL, 'isFunction');
             sinon.stub(UTIL, 'logWarning');
             sinon.stub(CONFIG, 'isFloorPriceModuleEnabled');
+            sinon.stub(CONFIG, 'getFloorSource');
             sinon.stub(CONFIG, 'getFloorJsonUrl').returns("externalFloor.json");
             sinon.stub(CONFIG, 'getFloorAuctionDelay').returns(100);
             CONF.pwt.identityOnly = "0";
             UTIL.pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
             floorObj = {
                 enforcement:{
-                    enforceJS: true
+                    enforceJS: false
                 },
                 auctionDelay: 100,
                 endpoint:{
@@ -1001,6 +1002,7 @@ describe('ADAPTER: Prebid', function() {
             UTIL.isFunction.restore();
             UTIL.logWarning.restore();
             CONFIG.isFloorPriceModuleEnabled.restore();
+            CONFIG.getFloorSource.restore();
             CONFIG.getFloorJsonUrl.restore();
             CONFIG.getFloorAuctionDelay.restore();
             windowPbJS2Stub.onEvent.restore();
@@ -1030,21 +1032,56 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should set floor module with default inputs',function(done){
+        it('should set floor module with default inputs if floor source is External Floor',function(done){
             CONFIG.isFloorPriceModuleEnabled.returns(true);
+            CONFIG.getFloorSource.returns('External Floor');
             PREBID.setPrebidConfig();
             expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
             done();
         });
 
+        it('should not set floor module if floor source is not External Floor',function(done){
+            CONFIG.isFloorPriceModuleEnabled.returns(true);
+            CONFIG.getFloorSource.returns('External Floor w/o Config');
+            PREBID.setPrebidConfig();
+            expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(undefined);
+            done();
+        });
+
         it('should set floor module with auctionDelay as 300',function(done){
             CONFIG.isFloorPriceModuleEnabled.returns(true);
+            CONFIG.getFloorSource.returns('External Floor');
             CONFIG.getFloorAuctionDelay.returns(300);
             floorObj.auctionDelay = 300;
             PREBID.setPrebidConfig();
             expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
             done();
         });
+
+		it('should not enforce floor when floorType is not defined ', function(done) {
+			CONFIG.isFloorPriceModuleEnabled.returns(true);
+			PREBID.setPrebidConfig();
+			expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
+			done();
+		});
+
+		it('should not enforce floor when floorType is defined as soft', function(done) {
+			CONFIG.isFloorPriceModuleEnabled.returns(true);
+			CONF.pwt.floorType = 'soft';
+			PREBID.setPrebidConfig();
+			expect(window.owpbjs.getConfig()["floors"]["enforcement"]["enforceJS"]).to.equal(false);
+			delete CONF.pwt.floorType;
+			done();
+		});
+
+		it('should enforce floor when floorType is defined as hard ', function(done) {
+			CONFIG.isFloorPriceModuleEnabled.returns(true);
+			CONF.pwt.floorType = 'hard';
+			PREBID.setPrebidConfig();
+			expect(window.owpbjs.getConfig()["floors"]["enforcement"]["enforceJS"]).to.equal(true);
+			delete CONF.pwt.floorType;
+			done();
+		});
     });
 
     describe('#fetchBids', function() {

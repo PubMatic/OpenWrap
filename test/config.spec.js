@@ -1159,7 +1159,7 @@ describe('Config', function() {
 
     describe('#getFloorType',function(){
         beforeEach(function(done){
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "1";
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "hard";
             done();
         });
 
@@ -1181,13 +1181,13 @@ describe('Config', function() {
 
         it('should return false if getFloorType is not present',function(done){
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS];
-            expect(CONFIG.getFloorType()).to.equal(true);
+            expect(CONFIG.getFloorType()).to.equal(false);
             done();
         });
 
         it('should return false if getFloorType set to "0"', function(done) {
             var expectedResult = false;
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "0";
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] = "soft";
             CONFIG.getFloorType().should.be.deep.equal(expectedResult);
             done();
         });
@@ -2349,6 +2349,35 @@ describe('Config', function() {
             delete CONF[CONSTANTS.CONFIG.SSO_ENABLED];
             done();
         })
+    });
+
+    describe('#getFloorSource',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_SOURCE] = "External Floor";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_SOURCE];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.getFloorSource.should.be.a('function');
+            done();
+        });
+
+        it('should return the value of floor source by reading from config', function(done) {
+            var expectedResult = 200;
+            expect(CONFIG.getFloorSource()).to.equal('External Floor');
+            done();
+        });
+
+        it('should return undefined if floor source is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_SOURCE];
+            expect(CONFIG.getFloorSource()).to.equal(undefined);
+            done();
+        });
     });
 
     describe('#getMarketplaceBidders', function() {
