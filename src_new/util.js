@@ -1736,7 +1736,7 @@ exports.getLiverampParams = function(params) {
 			break;
 		case 'direct':
 			atsObject.emailHashes = undefined;
-			if (window.PWT && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("identityLink")) {
+			if (window.PWT && (window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("identityLink")) || window.PWT.OVERRIDES_SCRIPT_BASED_MODULES === undefined) {
 				var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
 				atsObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
 			} 
@@ -1774,7 +1774,7 @@ exports.initLiveRampLaunchPad = function (params) {
 				var isDirectMode = !(ats.outputCurrentConfiguration()['DETECTION_MODULE_INFO']) ||
 									ats.outputCurrentConfiguration()['ENVELOPE_MODULE_INFO']['ENVELOPE_MODULE_CONFIG']['startWithExternalId'];
 				if(isDirectMode){ // If direct or detect/direct mode
-					if (window.PWT && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("identityLink")) {
+					if (window.PWT && (window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("identityLink")) || window.PWT.OVERRIDES_SCRIPT_BASED_MODULES === undefined) {
 						var emailHashes = refThis.getEmailHashes();
 						emailHashes && window.ats.setAdditionalData({'type': 'emailHashes','id': emailHashes});
 					}
@@ -1807,7 +1807,7 @@ exports.getPublinkLauncherParams = function(params) {
 			lnchObject.detectionSubject = "email";
 			break;
 		case 'direct':
-			if (window.PWT && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("publinkId")) {
+			if (window.PWT && (window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("publinkId")) || window.PWT.OVERRIDES_SCRIPT_BASED_MODULES === undefined) {
 				var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
 				lnchObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA256']] || undefined;
 			}
@@ -1845,7 +1845,7 @@ exports.initZeoTapJs = function(params) {
 		var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 		var enableSSO = CONFIG.isSSOEnabled() || false;
 		var userIdentityObject = {};
-		if (window.PWT && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("zeotapIdPlus")) {
+		if (window.PWT && (window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("zeotapIdPlus")) || window.PWT.OVERRIDES_SCRIPT_BASED_MODULES === undefined) {
 			userIdentityObject = {
 				email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash['SHA256'] : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash['SHA256'] : undefined
 			};
