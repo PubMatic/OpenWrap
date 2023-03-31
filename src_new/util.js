@@ -1735,8 +1735,11 @@ exports.getLiverampParams = function(params) {
 			}
 			break;
 		case 'direct':
-			var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
-			atsObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+			atsObject.emailHashes = undefined;
+			if (window.PWT && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("identityLink")) {
+				var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
+				atsObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+			} 
 			/* do we want to keep sso data under direct option?
 			if yes, if sso is enabled and 'direct' is selected as detection mechanism, sso emails will be sent to ats script.
 			if sso is disabled, and 'direct' is selected as detection mechanism, we will look for publisher provided email ids, and if available the hashes will be sent to ats script.
@@ -1771,8 +1774,10 @@ exports.initLiveRampLaunchPad = function (params) {
 				var isDirectMode = !(ats.outputCurrentConfiguration()['DETECTION_MODULE_INFO']) ||
 									ats.outputCurrentConfiguration()['ENVELOPE_MODULE_INFO']['ENVELOPE_MODULE_CONFIG']['startWithExternalId'];
 				if(isDirectMode){ // If direct or detect/direct mode
-					var emailHashes = refThis.getEmailHashes();
-					emailHashes && window.ats.setAdditionalData({'type': 'emailHashes','id': emailHashes});
+					if (window.PWT && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("identityLink")) {
+						var emailHashes = refThis.getEmailHashes();
+						emailHashes && window.ats.setAdditionalData({'type': 'emailHashes','id': emailHashes});
+					}
 				}
 			}, ['atsWrapperLoaded']);
 		};
@@ -1802,8 +1807,10 @@ exports.getPublinkLauncherParams = function(params) {
 			lnchObject.detectionSubject = "email";
 			break;
 		case 'direct':
-			var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
-			lnchObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA256']] || undefined;
+			if (window.PWT && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("publinkId")) {
+				var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
+				lnchObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA256']] || undefined;
+			}
 			/* do we want to keep sso data under direct option?
 			if yes, if sso is enabled and 'direct' is selected as detection mechanism, sso emails will be sent to ats script.
 			if sso is disabled, and 'direct' is selected as detection mechanism, we will look for publisher provided email ids, and if available the hashes will be sent to ats script.
@@ -1837,8 +1844,11 @@ exports.initZeoTapJs = function(params) {
 		var n = document, t = window;
 		var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 		var enableSSO = CONFIG.isSSOEnabled() || false;
-		var userIdentityObject = {
-			email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash['SHA256'] : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash['SHA256'] : undefined
+		var userIdentityObject = {};
+		if (window.PWT && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("zeotapIdPlus")) {
+			userIdentityObject = {
+				email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash['SHA256'] : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash['SHA256'] : undefined
+			};
 		};
 		var e=n.createElement("script");
 		e.type="text/javascript",
