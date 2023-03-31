@@ -1256,7 +1256,15 @@ describe('bidManager BIDMgr', function() {
             window.PWT = {
                 bidMap: {},
                 adUnits: {
-                    "Slot_1":{"divID": slotID, "code":slotID, "adUnitId": adUnitId, "mediaTypes": {'banner': {'sizes': [0]}}}
+                    "Slot_1":{
+                        "divID": slotID, 
+                        "code":slotID, 
+                        "adUnitId": adUnitId, 
+                        "mediaTypes": {'banner': {'sizes': [0]}},
+                        "pubmaticAutoRefresh":{
+                            "isRefreshed": true
+                        }
+                    }
                 }
             };
             window.PWT.bidMap[slotID] = {
@@ -1353,7 +1361,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(14);
+            window.encodeURIComponent.callCount.should.be.equal(15);
 
             done();
         });
@@ -1378,6 +1386,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
             pixelURL += "&piid=" + window.encodeURIComponent(theBid.getsspID());
+            pixelURL += "&rf=" + window.encodeURIComponent(1);
 
             BIDMgr.executeMonetizationPixel(slotID, theBid);
             BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;
@@ -1406,6 +1415,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
             pixelURL += "&piid=" + window.encodeURIComponent(theBid.getsspID());
+            pixelURL += "&rf=" + window.encodeURIComponent(1);
 
             BIDMgr.executeMonetizationPixel(slotID, theBid);
             BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;
