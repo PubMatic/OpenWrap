@@ -1821,4 +1821,101 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
     });
+
+    describe('#addOnAuctionEndHandler',function(){
+        beforeEach(function(done) {
+            sinon.stub(UTIL, 'isFunction');
+            sinon.spy(UTIL, 'logWarning');
+
+            window.owpbjs = {
+
+            };
+            windowPbJS2Stub = {
+                onEvent: function () {
+                    return "onEvent";
+                }
+            };
+            sinon.spy(windowPbJS2Stub, "onEvent");
+            window["owpbjs"] = windowPbJS2Stub;
+
+            done();
+        });
+
+        afterEach(function(done){
+            UTIL.isFunction.restore();
+            UTIL.logWarning.restore();
+            windowPbJS2Stub.onEvent.restore();
+
+            delete window.owpbjs;
+            done();
+        })
+        it('should be a functiion',function(done){
+            PREBID.addOnAuctionEndHandler.should.be.a('function');
+            done();
+        });
+
+        it('should log warning if onEvent is not a function',function(done){
+            UTIL.isFunction.returns(false);
+            PREBID.addOnAuctionEndHandler()
+            UTIL.logWarning.calledWith("PreBid js onEvent method is not available").should.be.true;
+            done();
+        });
+
+        it('should call onEvent if onEvent is function',function(done){
+            UTIL.isFunction.returns(true);
+            PREBID.addOnAuctionEndHandler();
+            window["owpbjs"].onEvent.should.be.called;
+            done();
+        });
+    });
+
+    describe('#pbAuctionEndHandler',function(){
+        var auctionArgs = {
+            auctionId: "2c1dc7f4-85cd-4557-b252-d4502ae98bf9",
+            auctionStart: 1630586818462,
+            bidderCode: "rubicon",
+            adUnits: [{
+                code:'Div1',
+                pubmaticAutoRefresh:{
+                    isRefreshed: true
+                }
+            }],
+            
+        }
+
+        beforeEach(function(done) {
+            window.PWT = {
+                adUnits: {
+                    "Div1": {
+                        "code": 'Div1'
+                    }
+                }
+            }
+            done();
+        });
+
+        afterEach(function(done){
+            window.PWT.adUnits = {};
+            done();
+        });
+
+        it('should be a functiion',function(done){
+            PREBID.pbAuctionEndHandler.should.be.a('function');
+            done();
+        });
+
+        it('should copy pubmaticAutoRefresh data into window.PWT.adUnit',function(done){
+            PREBID.pbAuctionEndHandler(auctionArgs);
+	        expect(window.PWT.adUnits["Div1"]["pubmaticAutoRefresh"]).to.be.an.object;
+	        expect(window.PWT.adUnits["Div1"]["pubmaticAutoRefresh"]["isRefreshed"]).to.be.true;
+            done();
+        });
+
+        it('should not copy pubmaticAutoRefresh data into window.PWT.adUnit when the entry is missing',function(done){
+            delete auctionArgs.adUnits[0].pubmaticAutoRefresh;
+            PREBID.pbAuctionEndHandler(auctionArgs);
+	        expect(window.PWT.adUnits["Div1"]["pubmaticAutoRefresh"]).to.be.undefined;
+            done();
+        });
+    });
 });
