@@ -1260,9 +1260,15 @@ describe('bidManager BIDMgr', function() {
                         "divID": slotID, 
                         "code":slotID, 
                         "adUnitId": adUnitId, 
-                        "mediaTypes": {'banner': {'sizes': [0]}},
-                        "pubmaticAutoRefresh":{
-                            "isRefreshed": true
+                        "mediaTypes": {'banner': {'sizes': [0]}}
+                    }
+                },
+                newAdUnits:{
+                    "123123":{
+                        "Slot_1":{
+                            "pubmaticAutoRefresh":{ 
+                                "isRefreshed": true
+                            }
                         }
                     }
                 }

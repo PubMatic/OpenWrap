@@ -1885,9 +1885,16 @@ describe('ADAPTER: Prebid', function() {
 
         beforeEach(function(done) {
             window.PWT = {
-                adUnits: {
-                    "Div1": {
-                        "code": 'Div1'
+                newAdUnits: {
+                    "123123123":{
+                        "Div1": {
+                            "code": 'Div1'
+                        }
+                    }
+                },
+                bidMap:{
+                    "Div1" : {
+                        impressionID: "123123123"
                     }
                 }
             }
@@ -1895,7 +1902,7 @@ describe('ADAPTER: Prebid', function() {
         });
 
         afterEach(function(done){
-            window.PWT.adUnits = {};
+            window.PWT.newAdUnits = {};
             done();
         });
 
@@ -1906,15 +1913,15 @@ describe('ADAPTER: Prebid', function() {
 
         it('should copy pubmaticAutoRefresh data into window.PWT.adUnit',function(done){
             PREBID.pbAuctionEndHandler(auctionArgs);
-	        expect(window.PWT.adUnits["Div1"]["pubmaticAutoRefresh"]).to.be.an.object;
-	        expect(window.PWT.adUnits["Div1"]["pubmaticAutoRefresh"]["isRefreshed"]).to.be.true;
+	        expect(window.PWT.newAdUnits["123123123"]["Div1"]["pubmaticAutoRefresh"]).to.be.an.object;
+	        expect(window.PWT.newAdUnits["123123123"]["Div1"]["pubmaticAutoRefresh"]["isRefreshed"]).to.be.true;
             done();
         });
 
         it('should not copy pubmaticAutoRefresh data into window.PWT.adUnit when the entry is missing',function(done){
             delete auctionArgs.adUnits[0].pubmaticAutoRefresh;
             PREBID.pbAuctionEndHandler(auctionArgs);
-	        expect(window.PWT.adUnits["Div1"]["pubmaticAutoRefresh"]).to.be.undefined;
+	        expect(window.PWT.newAdUnits["123123123"]["Div1"]["pubmaticAutoRefresh"]).to.be.undefined;
             done();
         });
     });

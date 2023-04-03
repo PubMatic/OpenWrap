@@ -1544,7 +1544,8 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 
 	var origAdUnit = bidManager.getAdUnitInfo(slotID);
 	adUnitId = origAdUnit.adUnitId || slotID;
-	var isRefreshed = origAdUnit.pubmaticAutoRefresh && origAdUnit.pubmaticAutoRefresh.isRefreshed ? 1 : 0;
+	var iiid = window.PWT.bidMap[slotID].getImpressionID();
+	var isRefreshed = (window.PWT.newAdUnits && window.PWT.newAdUnits[iiid] && window.PWT.newAdUnits[iiid][slotID] && window.PWT.newAdUnits[iiid][slotID]['pubmaticAutoRefresh'] && window.PWT.newAdUnits[iiid][slotID]['pubmaticAutoRefresh']['isRefreshed']) ? 1 : 0;
 
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
