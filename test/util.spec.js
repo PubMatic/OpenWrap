@@ -919,7 +919,8 @@ describe('UTIL', function() {
                 },
                 pbbid:{
                     mediaType:"banner"
-                }
+                },
+                getGrossEcpm:function(){ return "10.55" }
             };
             sinon.stub(UTIL, "resizeWindow")
             // .returns(true);
@@ -976,44 +977,20 @@ describe('UTIL', function() {
             done();
         });
 
-        it('should have called replace Auction Price method of the passed object if bid is of APPIER', function(done) {
-            bid.getAdapterID = function(){ return "appier" };
-            bid.getGrossEcpm = function(){ return "10.55" };
+        it('should have called replace Auction Price method of the passed object irrespective of bidder', function(done) {
             UTIL.displayCreative(theDocument, bid);
             theDocument.write.calledWith(bid.adHtml).should.be.true;
             UTIL.replaceAuctionPrice.calledWith(bid.adHtml,bid.getGrossEcpm()).should.be.true;
             done();
         });
 
-        it('should have called replace auction price and  writeIframe method if adUrl is present in given bid and adHtml is not and bidder is appier', function(done) {
+        it('should have called replace auction price and  writeIframe method if adUrl is present in given bid and adHtml is not and irrespective of bidder', function(done) {
             delete bid.adHtml;
-            bid.getAdapterID = function(){ return "appier" };
-            bid.getGrossEcpm = function(){ return "10.55" };
             UTIL.displayCreative(theDocument, bid);
             UTIL.replaceAuctionPrice.calledWith(bid.adUrl,bid.getGrossEcpm()).should.be.true;
             UTIL.writeIframe.calledWith(theDocument, bid.adUrl, bid.width, bid.height, "").should.be.true;
             done();
         });
-
-        it('should have called replace Auction Price method of the passed object if bid is of DeepIntent', function(done) {
-            bid.getAdapterID = function(){ return "deepintent" };
-            bid.getGrossEcpm = function(){ return "10.55" };
-            UTIL.displayCreative(theDocument, bid);
-            theDocument.write.calledWith(bid.adHtml).should.be.true;
-            UTIL.replaceAuctionPrice.calledWith(bid.adHtml,bid.getGrossEcpm()).should.be.true;
-            done();
-        });
-
-        it('should have called replace auction price and  writeIframe method if adUrl is present in given bid and adHtml is not and bidder is DeepIntent', function(done) {
-            delete bid.adHtml;
-            bid.getAdapterID = function(){ return "deepintent" };
-            bid.getGrossEcpm = function(){ return "10.55" };
-            UTIL.displayCreative(theDocument, bid);
-            UTIL.replaceAuctionPrice.calledWith(bid.adUrl,bid.getGrossEcpm()).should.be.true;
-            UTIL.writeIframe.calledWith(theDocument, bid.adUrl, bid.width, bid.height, "").should.be.true;
-            done();
-        });
-
     });
 
     describe('#forEachOnObject', function() {
