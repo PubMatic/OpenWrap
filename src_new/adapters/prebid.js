@@ -840,6 +840,20 @@ function assignCcpaConfigIfRequired(prebidConfig){
 
 exports.assignCcpaConfigIfRequired = assignCcpaConfigIfRequired;
 
+function assignGppConfigIfRequired(prebidConfig) {
+	if (CONFIG.getGppConsent()) {
+		if (!prebidConfig["consentManagement"]) {
+			prebidConfig["consentManagement"] = {};
+		}
+		prebidConfig["consentManagement"]['gpp'] = {
+			cmpApi: CONFIG.getGppCmpApi(),
+			timeout: CONFIG.getGppTimeout()
+		};
+	}
+}
+
+exports.assignGppConfigIfRequired = assignGppConfigIfRequired;
+
 function assignCurrencyConfigIfRequired(prebidConfig){
 	if(CONFIG.getAdServerCurrency()){
 		// get AdServer currency from Config
@@ -1022,6 +1036,7 @@ function setPrebidConfig(){
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
+		refThis.assignGppConfigIfRequired(prebidConfig);
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);

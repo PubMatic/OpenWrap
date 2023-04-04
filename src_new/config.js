@@ -448,3 +448,17 @@ exports.createMacros = function() {
 exports.getMarketplaceBidders = function(){
 	return config.pwt.marketplaceBidders ? config.pwt.marketplaceBidders.split(',') : false;
 }
+
+exports.getGppConsent = function () {
+	var gpp = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CONSENT] || CONSTANTS.CONFIG.DEFAULT_GPP_CONSENT;
+	return gpp === "1";
+};
+
+exports.getGppCmpApi = function () {
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CMPAPI] || CONSTANTS.CONFIG.DEFAULT_GPP_CMPAPI;
+};
+
+exports.getGppTimeout = function () {
+	var gppTimeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_TIMEOUT];
+	return gppTimeout ? window.parseInt(gppTimeout) : CONSTANTS.CONFIG.DEFAULT_GPP_TIMEOUT;
+};
