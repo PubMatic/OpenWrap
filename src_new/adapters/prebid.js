@@ -1286,6 +1286,7 @@ function setPbjsBidderSettingsIfRequired(){
 	window[pbNameSpace].bidderSettings = {
 		'standard': {
 			'suppressEmptyKeys': true, // this boolean flag can be used to avoid sending those empty values to the ad server.
+			'storageAllowed': true // marking the storage allowed as true for 7.39 upgrade
 		}		
 	};
 
