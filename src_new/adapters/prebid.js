@@ -10,6 +10,7 @@ var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var CONF = require("../conf.js");
+var owIdhubCommon = require("../owIdhubCommon.js");
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
@@ -842,13 +843,7 @@ exports.assignCcpaConfigIfRequired = assignCcpaConfigIfRequired;
 
 function assignGppConfigIfRequired(prebidConfig) {
 	if (CONFIG.getGppConsent()) {
-		if (!prebidConfig["consentManagement"]) {
-			prebidConfig["consentManagement"] = {};
-		}
-		prebidConfig["consentManagement"]['gpp'] = {
-			cmpApi: CONFIG.getGppCmpApi(),
-			timeout: CONFIG.getGppTimeout()
-		};
+		prebidConfig = owIdhubCommon.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
 	}
 }
 
