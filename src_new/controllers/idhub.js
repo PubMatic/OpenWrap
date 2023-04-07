@@ -61,7 +61,9 @@ refThis.setConfig = function(){
 
 			// Set Gpp consent config
 			if (CONFIG.getGppConsent()) {
-				prebidConfig = owIdhubCommon.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
+				consentConfig = owIdhubCommon.setConsentConfig({}, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
+				// Setting this config to PBJS_NAMESPACE as prebid needs to read consent from CMP and set it in a bidderRequest.
+				window[CONFIG.PBJS_NAMESPACE].setConfig(consentConfig);
 			}
 
 			window.IHPWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
