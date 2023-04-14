@@ -26,6 +26,7 @@ exports.kgpvMap = kgpvMap;
 
 var refThis = this;
 var onEventAdded = false;
+var onAuctionEndEventAdded = false;
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
 var defaultAliases = CONSTANTS.DEFAULT_ALIASES;
@@ -314,10 +315,33 @@ function pbBidRequestHandler(pbBid){
 	});
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
-  
+
 // removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.pbBidRequestHandler = pbBidRequestHandler;
+/* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+function pbAuctionEndHandler(args){
+	window.PWT.newAdUnits = window.PWT.newAdUnits || {};
+	args.adUnits.forEach(function(adUnit){
+		if(!!adUnit.pubmaticAutoRefresh){
+			if(!window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID]){
+				window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID] = {};
+			}
+			if(!window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID][adUnit.code]){
+				window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID][adUnit.code] = {}
+			}
+			window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID][adUnit.code].pubmaticAutoRefresh = adUnit.pubmaticAutoRefresh;
+		}
+	});
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+/* start-test-block */
+exports.pbAuctionEndHandler = pbAuctionEndHandler;
 /* end-test-block */
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
@@ -866,7 +890,8 @@ function enablePrebidPubMaticAnalyticIfRequired(){
 			options: {
 				publisherId: CONFIG.getPublisherId(),
 				profileId: CONFIG.getProfileID(),
-				profileVersionId: CONFIG.getProfileDisplayVersionID()
+				profileVersionId: CONFIG.getProfileDisplayVersionID(),
+				identityOnly: (CONFIG.isUserIdModuleEnabled() ? 1 : 0)
 			}
 		});
 	}
@@ -946,6 +971,21 @@ function addOnBidResponseHandler(){
 	}
 }
 exports.addOnBidResponseHandler = addOnBidResponseHandler;
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+function addOnAuctionEndHandler(){
+	if(util.isFunction(window[pbNameSpace].onEvent)){
+		if(!onAuctionEndEventAdded){
+			window[pbNameSpace].onEvent('auctionEnd', refThis.pbAuctionEndHandler);
+			onAuctionEndEventAdded = true;
+		}
+	} else {
+		util.logWarning("PreBid js onEvent method is not available");
+		return;
+	}
+}
+exports.addOnAuctionEndHandler = addOnAuctionEndHandler;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
@@ -1076,7 +1116,7 @@ function gets2sConfig(prebidConfig){
 exports.gets2sConfig = gets2sConfig;
 
 function getFloorsConfiguration(prebidConfig){
-	if(CONFIG.isFloorPriceModuleEnabled() == true){
+	if(CONFIG.isFloorPriceModuleEnabled() == true && CONFIG.getFloorSource() !== CONSTANTS.COMMON.EXTERNAL_FLOOR_WO_CONFIG){
 		prebidConfig["floors"]={
 			enforcement: {
 				enforceJS: CONFIG.getFloorType()
@@ -1240,12 +1280,18 @@ exports.getPbjsAdServerTargetingConfig = getPbjsAdServerTargetingConfig;
 
 function setPbjsBidderSettingsIfRequired(){
 	if(isPrebidPubMaticAnalyticsEnabled === false){
+		window[pbNameSpace].bidderSettings = {
+			'standard': {
+				'storageAllowed': true // marking the storage allowed as true for 7.39 upgrade
+			}		
+		};
 		return;
 	}
 
 	window[pbNameSpace].bidderSettings = {
 		'standard': {
 			'suppressEmptyKeys': true, // this boolean flag can be used to avoid sending those empty values to the ad server.
+			'storageAllowed': true // marking the storage allowed as true for 7.39 upgrade
 		}		
 	};
 
@@ -1360,6 +1406,7 @@ function fetchBids(activeSlots){
 					// we do not want this call when we have PrebidAnalytics enabled
 					refThis.addOnBidResponseHandler();
 					refThis.addOnBidRequestHandler();
+					refThis.addOnAuctionEndHandler();
 				}
 				// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 

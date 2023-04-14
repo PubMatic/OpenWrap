@@ -1129,6 +1129,7 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(CONFIG, "getTimeout");
             sinon.spy(CONFIG, "getProfileID");
             sinon.spy(CONFIG, "getProfileDisplayVersionID");
+            sinon.spy(CONFIG, "isUserIdModuleEnabled");
 
             var timeNow = new Date().getTime();
             sinon.stub(UTIL, "getCurrentTimestamp").returns(timeNow);
@@ -1163,6 +1164,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getTimeout.restore();
             CONFIG.getProfileID.restore();
             CONFIG.getProfileDisplayVersionID.restore();
+            CONFIG.isUserIdModuleEnabled.restore();
 
             UTIL.getCurrentTimestamp.restore();
             UTIL.forEachOnObject.restore();
@@ -1193,6 +1195,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getTimeout.called.should.be.true;
             CONFIG.getProfileID.called.should.be.true;
             CONFIG.getProfileDisplayVersionID.called.should.be.true;
+            CONFIG.isUserIdModuleEnabled.called.should.be.true;
 
             // GDPR.getUserConsentDataFromLS.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
@@ -1253,7 +1256,21 @@ describe('bidManager BIDMgr', function() {
             window.PWT = {
                 bidMap: {},
                 adUnits: {
-                    "Slot_1":{"divID": slotID, "code":slotID, "adUnitId": adUnitId, "mediaTypes": {'banner': {'sizes': [0]}}}
+                    "Slot_1":{
+                        "divID": slotID, 
+                        "code":slotID, 
+                        "adUnitId": adUnitId, 
+                        "mediaTypes": {'banner': {'sizes': [0]}}
+                    }
+                },
+                newAdUnits:{
+                    "123123":{
+                        "Slot_1":{
+                            "pubmaticAutoRefresh":{ 
+                                "isRefreshed": true
+                            }
+                        }
+                    }
                 }
             };
             window.PWT.bidMap[slotID] = {
@@ -1350,7 +1367,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(14);
+            window.encodeURIComponent.callCount.should.be.equal(15);
 
             done();
         });
@@ -1375,6 +1392,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
             pixelURL += "&piid=" + window.encodeURIComponent(theBid.getsspID());
+            pixelURL += "&rf=" + window.encodeURIComponent(1);
 
             BIDMgr.executeMonetizationPixel(slotID, theBid);
             BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;
@@ -1403,6 +1421,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
             pixelURL += "&piid=" + window.encodeURIComponent(theBid.getsspID());
+            pixelURL += "&rf=" + window.encodeURIComponent(1);
 
             BIDMgr.executeMonetizationPixel(slotID, theBid);
             BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;

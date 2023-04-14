@@ -483,14 +483,10 @@ exports.displayCreative = function(theDocument, bid){
 	else{
 		refThis.resizeWindow(theDocument, bid.width, bid.height);
 		if(bid.adHtml){
-			if(bid.getAdapterID().toLowerCase() == "appier" || bid.getAdapterID().toLowerCase() == "deepintent"){
-				bid.adHtml = refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());
-			}
+			bid.adHtml = refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());
 			theDocument.write(bid.adHtml);
 		}else if(bid.adUrl){
-			if(bid.getAdapterID().toLowerCase() == "appier" || bid.getAdapterID().toLowerCase() == "deepintent"){
-				bid.adUrl = refThis.replaceAuctionPrice(bid.adUrl, bid.getGrossEcpm());
-			}
+			bid.adUrl = refThis.replaceAuctionPrice(bid.adUrl, bid.getGrossEcpm());
 			refThis.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
 		}else{
 			refThis.logError("creative details are not found");
@@ -1542,7 +1538,10 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 		sspID = theBid.sspID || "";	
 	}
 
-	adUnitId = bidManager.getAdUnitInfo(slotID).adUnitId || slotID;
+	var origAdUnit = bidManager.getAdUnitInfo(slotID);
+	adUnitId = origAdUnit.adUnitId || slotID;
+	var iiid = window.PWT.bidMap[slotID].getImpressionID();
+	var isRefreshed = (window.PWT.newAdUnits && window.PWT.newAdUnits[iiid] && window.PWT.newAdUnits[iiid][slotID] && window.PWT.newAdUnits[iiid][slotID]['pubmaticAutoRefresh'] && window.PWT.newAdUnits[iiid][slotID]['pubmaticAutoRefresh']['isRefreshed']) ? 1 : 0;
 
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
@@ -1560,6 +1559,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&eg=" + window.encodeURIComponent(grossEcpm);
 	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
 	pixelURL += "&piid=" + window.encodeURIComponent(sspID);
+	pixelURL += "&rf=" + window.encodeURIComponent(isRefreshed);
 
 	return CONSTANTS.COMMON.PROTOCOL + pixelURL;
 };
@@ -1735,8 +1735,11 @@ exports.getLiverampParams = function(params) {
 			}
 			break;
 		case 'direct':
-			var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
-			atsObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+			atsObject.emailHashes = undefined;
+			if (window.PWT && (window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("identityLink")) || window.PWT.OVERRIDES_SCRIPT_BASED_MODULES === undefined) {
+				var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
+				atsObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+			} 
 			/* do we want to keep sso data under direct option?
 			if yes, if sso is enabled and 'direct' is selected as detection mechanism, sso emails will be sent to ats script.
 			if sso is disabled, and 'direct' is selected as detection mechanism, we will look for publisher provided email ids, and if available the hashes will be sent to ats script.
@@ -1753,7 +1756,13 @@ exports.getEmailHashes = function(){
 	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
-	return emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+	var emailHashArr = [];
+	refThis.forEachOnObject(emailHash, function (keyName, keyValue) {
+		if (keyValue !== undefined) {
+			emailHashArr.push(keyValue);
+		}
+	});
+	return emailHashArr.length > 0 ? emailHashArr : undefined;
 }
 
 exports.initLiveRampLaunchPad = function (params) {
@@ -1765,21 +1774,17 @@ exports.initLiveRampLaunchPad = function (params) {
 				var isDirectMode = !(ats.outputCurrentConfiguration()['DETECTION_MODULE_INFO']) ||
 									ats.outputCurrentConfiguration()['ENVELOPE_MODULE_INFO']['ENVELOPE_MODULE_CONFIG']['startWithExternalId'];
 				if(isDirectMode){ // If direct or detect/direct mode
-					var emailHashes = refThis.getEmailHashes();
-					emailHashes && window.ats.setAdditionalData({'type': 'emailHashes','id': emailHashes});
+					if (window.PWT && (window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("identityLink")) || window.PWT.OVERRIDES_SCRIPT_BASED_MODULES === undefined) {
+						var emailHashes = refThis.getEmailHashes();
+						emailHashes && window.ats.setAdditionalData({'type': 'emailHashes','id': emailHashes});
+					}
 				}
 			}, ['atsWrapperLoaded']);
 		};
 		launchPadScript.src = lpURL;
 		document.body.appendChild(launchPadScript);
 	}
-	if (document.readyState == 'complete') {
-		addLaunchPad();
-	} else {
-		window.addEventListener("load", function () {
-			setTimeout(addLaunchPad, 1000);
-		});
-	}
+	addLaunchPad();
 };
 
 exports.getPublinkLauncherParams = function(params) {
@@ -1802,8 +1807,10 @@ exports.getPublinkLauncherParams = function(params) {
 			lnchObject.detectionSubject = "email";
 			break;
 		case 'direct':
-			var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
-			lnchObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA256']] || undefined;
+			if (window.PWT && (window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("publinkId")) || window.PWT.OVERRIDES_SCRIPT_BASED_MODULES === undefined) {
+				var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
+				lnchObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA256']] || undefined;
+			}
 			/* do we want to keep sso data under direct option?
 			if yes, if sso is enabled and 'direct' is selected as detection mechanism, sso emails will be sent to ats script.
 			if sso is disabled, and 'direct' is selected as detection mechanism, we will look for publisher provided email ids, and if available the hashes will be sent to ats script.
@@ -1837,8 +1844,11 @@ exports.initZeoTapJs = function(params) {
 		var n = document, t = window;
 		var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 		var enableSSO = CONFIG.isSSOEnabled() || false;
-		var userIdentityObject = {
-			email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash['SHA256'] : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash['SHA256'] : undefined
+		var userIdentityObject = {};
+		if (window.PWT && (window.PWT.OVERRIDES_SCRIPT_BASED_MODULES && window.PWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("zeotapIdPlus")) || window.PWT.OVERRIDES_SCRIPT_BASED_MODULES === undefined) {
+			userIdentityObject = {
+				email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash['SHA256'] : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash['SHA256'] : undefined
+			};
 		};
 		var e=n.createElement("script");
 		e.type="text/javascript",
