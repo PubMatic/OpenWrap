@@ -8,6 +8,21 @@ var refThis = this;
 var storedObject;
 var frequencyDepth;
 const PREFIX = 'PROFILE_AUCTION_INFO_';
+
+const TRACKER_METHODS = {
+	img: 1,
+	js: 2,
+	1: 'img',
+	2: 'js'
+}
+  
+const TRACKER_EVENTS = {
+	impression: 1,
+	'viewable-mrc50': 2,
+	'viewable-mrc100': 3,
+	'viewable-video50': 4,
+}
+  
 function createBidEntry(divID){ // TDD, i/o : done
 	/* istanbul ignore else */
 	if(! util.isOwnProperty(window.PWT.bidMap, divID) ){
@@ -821,25 +836,35 @@ exports.fireTracker = function(bidDetails, action) {
 	var trackers;
 
 	if (action === "click") {
-		trackers = bidDetails["native"] && bidDetails["native"].clickTrackers;
+		trackers = bidDetails["native"] && bidDetails["native"].ortb &&
+			bidDetails["native"].ortb.link && bidDetails["native"].ortb.link.clickTrackers;
 	} else if(action === "imptrackers") {
-		trackers = bidDetails["native"] && bidDetails["native"].impressionTrackers;
-		if (bidDetails['native'] && bidDetails['native'].javascriptTrackers) {
-			var iframe = util.createInvisibleIframe();
-			/* istanbul ignore else */
-			if(!iframe){
-				throw {message: 'Failed to create invisible frame for native javascript trackers'};
+		const nativeResponse = bidDetails.native.ortb || bidDetails.native;
+
+		const impTrackers = (nativeResponse.eventtrackers || [])
+			.filter(tracker => tracker.event === TRACKER_EVENTS.impression);
+	
+		let {img, js} = impTrackers.reduce((tally, tracker) => {
+			if (TRACKER_METHODS.hasOwnProperty(tracker.method)) {
+		  		tally[TRACKER_METHODS[tracker.method]].push(tracker.url)
 			}
-			/* istanbul ignore else */
-			if(!iframe.contentWindow){
-				throw {message: 'Unable to access frame window for native javascript trackers'};
-			}
-			window.document.body.appendChild(iframe);
-			iframe.contentWindow.document.open();
-			iframe.contentWindow.document.write(bidDetails['native'].javascriptTrackers);
-			iframe.contentWindow.document.close();
+			return tally;
+	  	}, {img: [], js: []});
+	
+		if (img.length == 0 && nativeResponse.imptrackers) {
+			img = img.concat(nativeResponse.imptrackers);
 		}
+		trackers = img;
+	
+		if (js.length == 0 && nativeResponse.jstracker) {
+			// jstracker is already HTML markup
+			js = js.concat([nativeResponse.jstracker]);
+		}
+		if (js.length) {
+			util.insertHtmlIntoIframe(js.join('\n'));
+		}	  
 	}
+
 	(trackers || []).forEach(function(url){refThis.setImageSrcToPixelURL(url,false);});
 };
 // endRemoveIf(removeNativeRelatedCode)
