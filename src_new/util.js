@@ -689,7 +689,7 @@ exports.getBididForPMP = function(values, priorityArray){
 
 function insertElement(elm, doc, target, asLastChildChild) {
 	doc = doc || document;
-	let parentEl;
+	var parentEl;
 	if (target) {
 	  parentEl = doc.getElementsByTagName(target);
 	} else {
@@ -699,7 +699,7 @@ function insertElement(elm, doc, target, asLastChildChild) {
 	  parentEl = parentEl.length ? parentEl : doc.getElementsByTagName('body');
 	  if (parentEl.length) {
 		parentEl = parentEl[0];
-		let insertBeforeEl = asLastChildChild ? null : parentEl.firstChild;
+		var insertBeforeEl = asLastChildChild ? null : parentEl.firstChild;
 		return parentEl.insertBefore(elm, insertBeforeEl);
 	  }
 	} catch (e) {}
@@ -710,7 +710,7 @@ exports.insertHtmlIntoIframe = function(htmlCode) {
 	  return;
 	}
   
-	let iframe = document.createElement('iframe');
+	var iframe = document.createElement('iframe');
 	iframe.id = refThis.getUniqueIdentifierStr();
 	iframe.width = 0;
 	iframe.height = 0;

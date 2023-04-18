@@ -842,27 +842,29 @@ exports.fireTracker = function(bidDetails, action) {
 		const nativeResponse = bidDetails.native.ortb || bidDetails.native;
 
 		const impTrackers = (nativeResponse.eventtrackers || [])
-			.filter(tracker => tracker.event === TRACKER_EVENTS.impression);
-	
-		let {img, js} = impTrackers.reduce((tally, tracker) => {
+			.filter(function(tracker) {
+				tracker.event === TRACKER_EVENTS.impression
+			});
+
+		const tally = {img: [], js: []};
+		impTrackers.forEach(function(tracker) {
 			if (TRACKER_METHODS.hasOwnProperty(tracker.method)) {
-		  		tally[TRACKER_METHODS[tracker.method]].push(tracker.url)
+				tally[TRACKER_METHODS[tracker.method]].push(tracker.url);
 			}
-			return tally;
-	  	}, {img: [], js: []});
+		});
 	
-		if (img.length == 0 && nativeResponse.imptrackers) {
-			img = img.concat(nativeResponse.imptrackers);
+		if (tally.img.length == 0 && nativeResponse.imptrackers) {
+			tally.img = tally.img.concat(nativeResponse.imptrackers);
 		}
-		trackers = img;
+		trackers = tally.img;
 	
-		if (js.length == 0 && nativeResponse.jstracker) {
+		if (tally.js.length == 0 && nativeResponse.jstracker) {
 			// jstracker is already HTML markup
-			js = js.concat([nativeResponse.jstracker]);
+			tally.js = tally.js.concat([nativeResponse.jstracker]);
 		}
-		if (js.length) {
-			util.insertHtmlIntoIframe(js.join('\n'));
-		}	  
+		if (tally.js.length) {
+			util.insertHtmlIntoIframe(tally.js.join('\n'));
+		}
 	}
 
 	(trackers || []).forEach(function(url){refThis.setImageSrcToPixelURL(url,false);});
