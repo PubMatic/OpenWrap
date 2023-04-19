@@ -598,7 +598,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 			"is": refThis.getSlotLevelFrequencyDepth(frequencyDepth, 'impressionServed', adUnitInfo.adUnitId),
 			"rc": refThis.getSlotLevelFrequencyDepth(frequencyDepth, 'slotCnt', adUnitInfo.adUnitId),
 			"vw": frequencyDepth && frequencyDepth.viewedSlot && frequencyDepth.viewedSlot[adUnitInfo.adUnitId],
-			"rf": adUnitInfo.pubmaticAutoRefresh && adUnitInfo.pubmaticAutoRefresh.isRefreshed ? 1 : 0
+			"rf": window.PWT.newAdUnits ? (window.PWT.newAdUnits[impressionID] ? (window.PWT.newAdUnits[impressionID][slotID] ? (window.PWT.newAdUnits[impressionID][slotID]['pubmaticAutoRefresh'] ? (window.PWT.newAdUnits[impressionID][slotID]['pubmaticAutoRefresh']['isRefreshed'] ? 1: 0 ) : 0): 0 ) : 0 ): 0,
 		};
         bmEntry.setExpired();
         impressionIDMap[impressionID] = impressionIDMap[impressionID] || [];

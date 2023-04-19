@@ -27,6 +27,7 @@ exports.kgpvMap = kgpvMap;
 
 var refThis = this;
 var onEventAdded = false;
+var onAuctionEndEventAdded = false;
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
 var defaultAliases = CONSTANTS.DEFAULT_ALIASES;
@@ -324,9 +325,16 @@ exports.pbBidRequestHandler = pbBidRequestHandler;
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function pbAuctionEndHandler(args){
+	window.PWT.newAdUnits = window.PWT.newAdUnits || {};
 	args.adUnits.forEach(function(adUnit){
 		if(!!adUnit.pubmaticAutoRefresh){
-			window.PWT.adUnits[adUnit.code].pubmaticAutoRefresh = adUnit.pubmaticAutoRefresh;
+			if(!window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID]){
+				window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID] = {};
+			}
+			if(!window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID][adUnit.code]){
+				window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID][adUnit.code] = {}
+			}
+			window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID][adUnit.code].pubmaticAutoRefresh = adUnit.pubmaticAutoRefresh;
 		}
 	});
 }
@@ -977,7 +985,10 @@ exports.addOnBidResponseHandler = addOnBidResponseHandler;
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function addOnAuctionEndHandler(){
 	if(util.isFunction(window[pbNameSpace].onEvent)){
-		window[pbNameSpace].onEvent('auctionEnd', refThis.pbAuctionEndHandler);
+		if(!onAuctionEndEventAdded){
+			window[pbNameSpace].onEvent('auctionEnd', refThis.pbAuctionEndHandler);
+			onAuctionEndEventAdded = true;
+		}
 	} else {
 		util.logWarning("PreBid js onEvent method is not available");
 		return;
@@ -1279,12 +1290,18 @@ exports.getPbjsAdServerTargetingConfig = getPbjsAdServerTargetingConfig;
 
 function setPbjsBidderSettingsIfRequired(){
 	if(isPrebidPubMaticAnalyticsEnabled === false){
+		window[pbNameSpace].bidderSettings = {
+			'standard': {
+				'storageAllowed': true // marking the storage allowed as true for 7.39 upgrade
+			}		
+		};
 		return;
 	}
 
 	window[pbNameSpace].bidderSettings = {
 		'standard': {
 			'suppressEmptyKeys': true, // this boolean flag can be used to avoid sending those empty values to the ad server.
+			'storageAllowed': true // marking the storage allowed as true for 7.39 upgrade
 		}		
 	};
 

@@ -483,14 +483,10 @@ exports.displayCreative = function(theDocument, bid){
 	else{
 		refThis.resizeWindow(theDocument, bid.width, bid.height);
 		if(bid.adHtml){
-			if(bid.getAdapterID().toLowerCase() == "appier" || bid.getAdapterID().toLowerCase() == "deepintent"){
-				bid.adHtml = refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());
-			}
+			bid.adHtml = refThis.replaceAuctionPrice(bid.adHtml, bid.getGrossEcpm());
 			theDocument.write(bid.adHtml);
 		}else if(bid.adUrl){
-			if(bid.getAdapterID().toLowerCase() == "appier" || bid.getAdapterID().toLowerCase() == "deepintent"){
-				bid.adUrl = refThis.replaceAuctionPrice(bid.adUrl, bid.getGrossEcpm());
-			}
+			bid.adUrl = refThis.replaceAuctionPrice(bid.adUrl, bid.getGrossEcpm());
 			refThis.writeIframe(theDocument, bid.adUrl, bid.width, bid.height, "");
 		}else{
 			refThis.logError("creative details are not found");
@@ -1544,7 +1540,8 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 
 	var origAdUnit = bidManager.getAdUnitInfo(slotID);
 	adUnitId = origAdUnit.adUnitId || slotID;
-	var isRefreshed = origAdUnit.pubmaticAutoRefresh && origAdUnit.pubmaticAutoRefresh.isRefreshed ? 1 : 0;
+	var iiid = window.PWT.bidMap[slotID].getImpressionID();
+	var isRefreshed = (window.PWT.newAdUnits && window.PWT.newAdUnits[iiid] && window.PWT.newAdUnits[iiid][slotID] && window.PWT.newAdUnits[iiid][slotID]['pubmaticAutoRefresh'] && window.PWT.newAdUnits[iiid][slotID]['pubmaticAutoRefresh']['isRefreshed']) ? 1 : 0;
 
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
