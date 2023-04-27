@@ -90,7 +90,6 @@ describe('CONFIG IDHUB FILE', function () {
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ENABLE_USER_ID];
             done();
         })
-
         it('is a function', function(done) {
             CONFIG.isUserIdModuleEnabled.should.be.a('function');
             done();
@@ -119,7 +118,6 @@ describe('CONFIG IDHUB FILE', function () {
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY];
             done();
         })
-
         it('is a function', function(done) {
             CONFIG.isIdentityOnly.should.be.a('function');
             done();
@@ -171,7 +169,6 @@ describe('CONFIG IDHUB FILE', function () {
             delete CONF[CONSTANTS.COMMON.IDENTITY_PARTNERS];
             done();
         })
-
         it('is a function', function(done) {
             CONFIG.getIdentityPartners.should.be.a('function');
             done();
@@ -216,7 +213,6 @@ describe('CONFIG IDHUB FILE', function () {
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS];
             done();
         })
-
         it('is a function', function(done) {
             CONFIG.getIdentityConsumers.should.be.a('function');
             done();

@@ -1210,7 +1210,6 @@ describe('IDHUBUTIL', function() {
             bid.should.be.deep.equal(expectedResult);
             done();
         })
-
         // TODO: UnComment Below Test Cases once PhantomJs is replaced by ChromeHeadless in build.sh production and test mode
         xit('should update with IH values if same id is present', function(done){
             var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","id":1}]}
@@ -1221,7 +1220,6 @@ describe('IDHUBUTIL', function() {
             done();
         })
     })
-
     describe('#applyDataTypeChangesIfApplicable', function() {
         var params;
         beforeEach(function(done) {
