@@ -1281,18 +1281,12 @@ exports.getPbjsAdServerTargetingConfig = getPbjsAdServerTargetingConfig;
 
 function setPbjsBidderSettingsIfRequired(){
 	if(isPrebidPubMaticAnalyticsEnabled === false){
-		window[pbNameSpace].bidderSettings = {
-			'standard': {
-				'storageAllowed': true // marking the storage allowed as true for 7.39 upgrade
-			}		
-		};
 		return;
 	}
 
 	window[pbNameSpace].bidderSettings = {
 		'standard': {
 			'suppressEmptyKeys': true, // this boolean flag can be used to avoid sending those empty values to the ad server.
-			'storageAllowed': true // marking the storage allowed as true for 7.39 upgrade
 		}		
 	};
 
