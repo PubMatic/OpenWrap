@@ -1465,6 +1465,16 @@ exports.getPartnerParams = function(params){
 };
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
+exports.getTgid = function() {
+	var testGroupId = parseInt(PWT.testGroupId || 0);
+	if (testGroupId <= 15 && testGroupId >= 0) {
+	  return testGroupId;
+	}
+	return 0;
+};
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
@@ -1542,6 +1552,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	adUnitId = origAdUnit.adUnitId || slotID;
 	var iiid = window.PWT.bidMap[slotID].getImpressionID();
 	var isRefreshed = (window.PWT.newAdUnits && window.PWT.newAdUnits[iiid] && window.PWT.newAdUnits[iiid][slotID] && window.PWT.newAdUnits[iiid][slotID]['pubmaticAutoRefresh'] && window.PWT.newAdUnits[iiid][slotID]['pubmaticAutoRefresh']['isRefreshed']) ? 1 : 0;
+	var { impressionID } = PWT.bidMap[slotID];
 
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
@@ -1561,6 +1572,16 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&piid=" + window.encodeURIComponent(sspID);
 	pixelURL += "&rf=" + window.encodeURIComponent(isRefreshed);
 
+	pixelURL += '&plt=' + window.encodeURIComponent(refThis.getDevicePlatform());
+	pixelURL += '&psz=' + window.encodeURIComponent(theBid.width + 'x' + theBid.height);
+	pixelURL += '&tgid=' + window.encodeURIComponent(refThis.getTgid());
+	pixelURL += '&adv=' + window.encodeURIComponent(getAdDomain(theBid.pbbid) || undefined);
+	pixelURL += '&orig=' + window.encodeURIComponent(refThis.metaInfo.pageDomain);
+	pixelURL += '&ss=' + window.encodeURIComponent(theBid.isServerSide ? 1 : 0);
+	pixelURL += '&fskp=' + window.encodeURIComponent(window.PWT.floorData ? (window.PWT.floorData[impressionID] ?
+		(window.PWT.floorData[impressionID].floorRequestData ? (window.PWT.floorData[impressionID].floorRequestData.skipped == false ? 0 : 1) : undefined) : undefined) : undefined);
+	pixelURL += '&af=' + window.encodeURIComponent(theBid.adFormat || undefined);
+  
 	return CONSTANTS.COMMON.PROTOCOL + pixelURL;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)

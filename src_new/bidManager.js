@@ -409,13 +409,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
 	outputObj['ih'] = CONFIG.isUserIdModuleEnabled() ? 1 : 0;
 	outputObj["bm"] = refThis.getBrowser();
-	outputObj["tgid"] = (function() {
-	    var testGroupId = parseInt(PWT.testGroupId || 0);
-	    if (testGroupId <= 15 && testGroupId >= 0) {
-	      return testGroupId;
-	    }
-	    return 0;
-	})();
+	outputObj["tgid"] = util.getTgid();
 
 	if(Object.keys(frequencyDepth).length) {
 		outputObj["tpv"] = frequencyDepth.pageView;
@@ -519,24 +513,6 @@ function getAdUnitAdFormats(mediaTypes){
 /* start-test-block */
 exports.getAdUnitAdFormats = getAdUnitAdFormats;
 /* end-test-block */
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
-
-// removeIf(removeLegacyAnalyticsRelatedCode)
-function getAdDomain(bidResponse) {
-	if (bidResponse.meta && bidResponse.meta.advertiserDomains && bidResponse.meta.advertiserDomains.length > 0) {
-		var adomain = bidResponse.meta.advertiserDomains[0];
-	
-		if (adomain) {
-			try {
-				var hostname = new URL(adomain);
-				return hostname.hostname.replace('www.', '');
-			} catch (e) {
-				util.log("Adomain URL (Not a proper URL):"+ adomain);
-				return adomain.split('/')[0].replace('www.', '');
-			}
-		}
-	}
-}
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // Returns property from localstorages slotlevel object
@@ -692,7 +668,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "dc": theBid.getDealChannel(),
                     "l1": theBid.getServerSideStatus() ? theBid.getServerSideResponseTime() : (endTime - startTime),
 					"l2": 0,
-					"adv": pbbid ? getAdDomain(pbbid) || undefined : undefined,
+					"adv": pbbid ? util.getAdDomain(pbbid) || undefined : undefined,
 					"ss": theBid.getServerSideStatus(),
                     "t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
                     "wb": theBid.getWinningBidStatus() === true ? 1 : 0,
