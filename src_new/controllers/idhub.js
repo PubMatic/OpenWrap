@@ -38,15 +38,18 @@ refThis.setConfig = function(){
 			};
 
 			if (CONFIG.getGdpr()) {
-				if(!prebidConfig["consentManagement"]){
-					prebidConfig["consentManagement"] = {};
+				//check for user timezone, if Non Europe, do not add Gdpr config params
+				if (!(Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone) || Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone?.includes("Europe")) {
+					if(!prebidConfig["consentManagement"]){
+						prebidConfig["consentManagement"] = {};
+					}
+					prebidConfig["consentManagement"]['gdpr'] = {
+						cmpApi: CONFIG.getCmpApi(),
+						timeout: CONFIG.getGdprTimeout(),
+						allowAuctionWithoutConsent: CONFIG.getAwc(),
+						defaultGdprScope: true
+					};
 				}
-				prebidConfig["consentManagement"]['gdpr'] = {
-					cmpApi: CONFIG.getCmpApi(),
-					timeout: CONFIG.getGdprTimeout(),
-					allowAuctionWithoutConsent: CONFIG.getAwc(),
-					defaultGdprScope: true
-				};
 			}
 
 			if (CONFIG.getCCPA()) {
