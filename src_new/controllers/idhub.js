@@ -39,7 +39,8 @@ refThis.setConfig = function(){
 
 			if (CONFIG.getGdpr()) {
 				//check for user timezone, if Non Europe, do not add Gdpr config params
-				if (!(Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone) || Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone?.includes("Europe")) {
+				var tzSettings = Intl && util.isFunction(Intl.DateTimeFormat) && util.isFunction(Intl.DateTimeFormat().resolvedOptions) && Intl.DateTimeFormat().resolvedOptions().timeZone;
+				if (!tzSettings || tzSettings.includes("Europe")) {
 					if(!prebidConfig["consentManagement"]){
 						prebidConfig["consentManagement"] = {};
 					}
