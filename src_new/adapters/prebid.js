@@ -827,7 +827,8 @@ function assignGdprConfigIfRequired(prebidConfig){
 		prebidConfig["consentManagement"]['gdpr'] = {
 			cmpApi: CONFIG.getCmpApi(),
 			timeout: CONFIG.getGdprTimeout(),
-			allowAuctionWithoutConsent: CONFIG.getAwc() // Auction without consent
+			allowAuctionWithoutConsent: CONFIG.getAwc(), // Auction without consent
+			defaultGdprScope: true
 		};
 	}
 }
