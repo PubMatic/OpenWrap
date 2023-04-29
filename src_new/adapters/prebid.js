@@ -821,19 +821,15 @@ exports.assignUserSyncConfig = assignUserSyncConfig;
 
 function assignGdprConfigIfRequired(prebidConfig){
 	if (CONFIG.getGdpr()) {
-		//check for user timezone, if Non Europe, do not add Gdpr config params
-		var tzSettings = Intl && util.isFunction(Intl.DateTimeFormat) && util.isFunction(Intl.DateTimeFormat().resolvedOptions) && Intl.DateTimeFormat().resolvedOptions().timeZone;
-		if (!tzSettings || tzSettings.includes("Europe")) {
-			if(!prebidConfig["consentManagement"]){
-				prebidConfig["consentManagement"] = {};
-			}
-			prebidConfig["consentManagement"]['gdpr'] = {
-				cmpApi: CONFIG.getCmpApi(),
-				timeout: CONFIG.getGdprTimeout(),
-				allowAuctionWithoutConsent: CONFIG.getAwc(), // Auction without consent
-				defaultGdprScope: true
-			};
+		if(!prebidConfig["consentManagement"]){
+			prebidConfig["consentManagement"] = {};
 		}
+		prebidConfig["consentManagement"]['gdpr'] = {
+			cmpApi: CONFIG.getCmpApi(),
+			timeout: CONFIG.getGdprTimeout(),
+			allowAuctionWithoutConsent: CONFIG.getAwc(), // Auction without consent
+			defaultGdprScope: true
+		};
 	}
 }
 
