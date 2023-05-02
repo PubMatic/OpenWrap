@@ -38,19 +38,15 @@ refThis.setConfig = function(){
 			};
 
 			if (CONFIG.getGdpr()) {
-				//check for user timezone, if Non Europe, do not add Gdpr config params
-				var tzSettings = Intl && util.isFunction(Intl.DateTimeFormat) && util.isFunction(Intl.DateTimeFormat().resolvedOptions) && Intl.DateTimeFormat().resolvedOptions().timeZone;
-				if (!tzSettings || tzSettings.toLowerCase().includes("europe")) {
-					if(!prebidConfig["consentManagement"]){
-						prebidConfig["consentManagement"] = {};
-					}
-					prebidConfig["consentManagement"]['gdpr'] = {
-						cmpApi: CONFIG.getCmpApi(),
-						timeout: CONFIG.getGdprTimeout(),
-						allowAuctionWithoutConsent: CONFIG.getAwc(),
-						defaultGdprScope: true
-					};
+				if(!prebidConfig["consentManagement"]){
+					prebidConfig["consentManagement"] = {};
 				}
+				prebidConfig["consentManagement"]['gdpr'] = {
+					cmpApi: CONFIG.getCmpApi(),
+					timeout: CONFIG.getGdprTimeout(),
+					allowAuctionWithoutConsent: CONFIG.getAwc(),
+					defaultGdprScope: true
+				};
 			}
 
 			if (CONFIG.getCCPA()) {
