@@ -21,6 +21,10 @@ window.IHPWT.getUserIds = function(){
 	return util.getUserIds();
 };
 
+window.IHPWT.deepMergeIds = function(target,source,key){
+	return util.deepMergeIds(target, source, key);
+};
+
 window.IHPWT.versionDetails =  util.getOWConfig();
 
 controller.init(window);
