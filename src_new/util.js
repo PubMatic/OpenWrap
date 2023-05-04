@@ -2000,36 +2000,3 @@ exports.getBrowserDetails = function() {
 exports.getPltForFloor = function() {
 	return refThis.getDevicePlatform().toString();
 }
-
-exports.deepMergeIds = function (target, source, keyName) {
-	var keyName = keyName ? keyName : "source";
-	if (refThis.isArray(target) && refThis.isArray(source)) {
-		var mergedArr = [].concat(target);
-		source.forEach(function (item2) {
-			var found = false;
-			mergedArr.forEach(function (item1, index) {
-				if (item1[keyName] === item2[keyName]) {
-					mergedArr[index] = refThis.deepMergeIds(item1, item2);
-					found = true;
-				}
-			});
-			if (!found) {
-				mergedArr.push(item2);
-			}
-		});
-		return mergedArr;
-	}
-
-	if (refThis.isObject(target) && refThis.isObject(source)) {
-		var mergedObj = Object.assign({}, target);
-		Object.keys(source).forEach(function (key) {
-			if (mergedObj[key] && typeof mergedObj[key] === 'object' && typeof source[key] === 'object') {
-				mergedObj[key] = refThis.deepMergeIds(mergedObj[key], source[key]);
-			} else {
-				mergedObj[key] = source[key];
-			}
-		});
-		return mergedObj;
-	}
-	return source;
-}
