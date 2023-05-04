@@ -10,7 +10,6 @@ var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var CONF = require("../conf.js");
-
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
 var pbNameSpace = /*CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : */ CONSTANTS.COMMON.PREBID_NAMESPACE;
@@ -1350,12 +1349,18 @@ function initPbjsConfig(){
 		util.logError("PreBid js is not loaded");
 		return;
 	}
-	window[pbNameSpace].logging = util.isDebugLogEnabled();
-	refThis.realignPubmaticAdapters();
-	refThis.setPrebidConfig();
-	refThis.configureBidderAliasesIfAvailable();
-	refThis.enablePrebidPubMaticAnalyticIfRequired();
-	refThis.setPbjsBidderSettingsIfRequired();
+
+	var geoDetectionURL = CONF.pwt.gdURL;
+	window[pbNameSpace].detectLocation(geoDetectionURL, CONF.pwt.regionPath, function(loc) {
+		console.log("REGION : " + (loc.error || loc.region));
+		CONF.pwt.gdLoc = loc; // TODO change this location to store data
+		window[pbNameSpace].logging = util.isDebugLogEnabled();
+		refThis.realignPubmaticAdapters();
+		refThis.setPrebidConfig();
+		refThis.configureBidderAliasesIfAvailable();
+		refThis.enablePrebidPubMaticAnalyticIfRequired();
+		refThis.setPbjsBidderSettingsIfRequired();	
+	});
 }
 exports.initPbjsConfig = initPbjsConfig;
 
