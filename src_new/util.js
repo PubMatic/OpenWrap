@@ -1465,6 +1465,24 @@ exports.getPartnerParams = function(params){
 };
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
+exports.getAdDomain = function(bidResponse) {
+	if (bidResponse.meta && bidResponse.meta.advertiserDomains && bidResponse.meta.advertiserDomains.length > 0) {
+		var adomain = bidResponse.meta.advertiserDomains[0];
+
+		if (adomain) {
+			try {
+				var hostname = new URL(adomain);
+				return hostname.hostname.replace('www.', '');
+			} catch (e) {
+				refThis.log("Adomain URL (Not a proper URL):"+ adomain);
+				return adomain.split('/')[0].replace('www.', '');
+			}
+		}
+	}
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.getTgid = function() {
 	var testGroupId = parseInt(PWT.testGroupId || 0);
 	if (testGroupId <= 15 && testGroupId >= 0) {
@@ -1573,15 +1591,22 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&rf=" + window.encodeURIComponent(isRefreshed);
 
 	pixelURL += '&plt=' + window.encodeURIComponent(refThis.getDevicePlatform());
-	pixelURL += '&psz=' + window.encodeURIComponent(theBid.width + 'x' + theBid.height);
+	pixelURL += (refThis.isFunction(theBid.getWidth) && refThis.isFunction(theBid.getHeight)) ?
+		('&psz=' + window.encodeURIComponent(theBid.getWidth() + 'x' + theBid.getHeight())) :
+			((refThis.isFunction(theBid.getSize)) ? 
+				('&psz=' + window.encodeURIComponent(theBid.getSize())) :
+					'&psz=' + window.encodeURIComponent(theBid.width + 'x' + theBid.height));
 	pixelURL += '&tgid=' + window.encodeURIComponent(refThis.getTgid());
-	pixelURL += '&adv=' + window.encodeURIComponent(getAdDomain(theBid.pbbid) || undefined);
-	pixelURL += '&orig=' + window.encodeURIComponent(refThis.metaInfo.pageDomain);
-	pixelURL += '&ss=' + window.encodeURIComponent(theBid.isServerSide ? 1 : 0);
+	pixelURL += '&adv=' + window.encodeURIComponent(refThis.getAdDomain(theBid) || undefined);
+	pixelURL += '&orig=' + window.encodeURIComponent((refThis.metaInfo && refThis.metaInfo.pageDomain) || '');
+	pixelURL += '&ss=' + window.encodeURIComponent(refThis.isFunction(theBid.getServerSideStatus) ?
+		(theBid.getServerSideStatus() ? 1 : 0) :
+		(CONFIG.isServerSideAdapter(adapterId) ? 1 : 0));
 	pixelURL += '&fskp=' + window.encodeURIComponent(window.PWT.floorData ? (window.PWT.floorData[impressionID] ?
 		(window.PWT.floorData[impressionID].floorRequestData ? (window.PWT.floorData[impressionID].floorRequestData.skipped == false ? 0 : 1) : undefined) : undefined) : undefined);
-	pixelURL += '&af=' + window.encodeURIComponent(theBid.adFormat || undefined);
-  
+	pixelURL += '&af=' + window.encodeURIComponent(refThis.isFunction(theBid.getAdFormat) ?
+		theBid.getAdFormat() : (theBid.mediaType || undefined));
+
 	return CONSTANTS.COMMON.PROTOCOL + pixelURL;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
