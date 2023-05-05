@@ -1570,7 +1570,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	adUnitId = origAdUnit.adUnitId || slotID;
 	var iiid = window.PWT.bidMap[slotID].getImpressionID();
 	var isRefreshed = (window.PWT.newAdUnits && window.PWT.newAdUnits[iiid] && window.PWT.newAdUnits[iiid][slotID] && window.PWT.newAdUnits[iiid][slotID]['pubmaticAutoRefresh'] && window.PWT.newAdUnits[iiid][slotID]['pubmaticAutoRefresh']['isRefreshed']) ? 1 : 0;
-	var { impressionID } = PWT.bidMap[slotID];
+	// var impressionID = PWT.bidMap[slotID].impressionID;
 
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
@@ -1602,8 +1602,8 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += '&ss=' + window.encodeURIComponent(refThis.isFunction(theBid.getServerSideStatus) ?
 		(theBid.getServerSideStatus() ? 1 : 0) :
 		(CONFIG.isServerSideAdapter(adapterId) ? 1 : 0));
-	pixelURL += '&fskp=' + window.encodeURIComponent(window.PWT.floorData ? (window.PWT.floorData[impressionID] ?
-		(window.PWT.floorData[impressionID].floorRequestData ? (window.PWT.floorData[impressionID].floorRequestData.skipped == false ? 0 : 1) : undefined) : undefined) : undefined);
+	pixelURL += '&fskp=' + window.encodeURIComponent(window.PWT.floorData ? (window.PWT.floorData[iiid] ?
+		(window.PWT.floorData[iiid].floorRequestData ? (window.PWT.floorData[iiid].floorRequestData.skipped == false ? 0 : 1) : undefined) : undefined) : undefined);
 	pixelURL += '&af=' + window.encodeURIComponent(refThis.isFunction(theBid.getAdFormat) ?
 		theBid.getAdFormat() : (theBid.mediaType || undefined));
 
