@@ -593,7 +593,7 @@ exports.updateUserIds = function (bid) {
 		bid["userIdAsEids"] = refThis.getUserIdsAsEids();
 	} else if (refThis.isArray(bid.userIdAsEids)) {
 		var idsPresent = new Set();
-		var ids = refThis.getUserIdsAsEids().concat(bid.userIdAsEids);
+		var ids = bid.userIdAsEids.concat(refThis.getUserIdsAsEids());
 		if (refThis.isArray(ids) && ids.length > 0) {
 			ids = ids.filter(function (id) {
 				if (id.source) {

@@ -44,7 +44,8 @@ refThis.setConfig = function(){
 				prebidConfig["consentManagement"]['gdpr'] = {
 					cmpApi: CONFIG.getCmpApi(),
 					timeout: CONFIG.getGdprTimeout(),
-					allowAuctionWithoutConsent: CONFIG.getAwc()
+					allowAuctionWithoutConsent: CONFIG.getAwc(),
+					defaultGdprScope: true
 				};
 			}
 
