@@ -459,6 +459,15 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should handle if the value is array', function(done) {
+            copyFromArray = {
+                "k1": ["v1", "v11"],
+                "k2": "v2"
+            };
+            UTIL.copyKeyValueObject(copyTo, copyFromArray);
+            done();
+        });
+
         it('should have copied keys and values from given object to target object', function(done) {
             UTIL.copyKeyValueObject(copyTo, copyFrom);
             copyTo.should.deep.equal({ "k1": [ 'v3', 'v1' ], "k2": [ 'v2' ] });
@@ -570,7 +579,7 @@ describe('UTIL', function() {
         });
 
         // Uncomment Below code once phantom js has been replaced with chrome headless
-        xit('should have assigned videoSlot if video config is present',function(done){
+        it('should have assigned videoSlot if video config is present',function(done){
             videoSlot = [];
             UTIL.mediaTypeConfig = {
                 "Div_1":{
@@ -588,7 +597,7 @@ describe('UTIL', function() {
         });
 
         //TODO: Uncomment Below code once phantom js has been replaced with chrome headless
-        xit('should not have assigned videoSlot if video config is not present',function(done){
+        it('should not have assigned videoSlot if video config is not present',function(done){
             videoSlot = [];
             UTIL.mediaTypeConfig ={};
             pattern = '_DIV_@_W_x_H_';
@@ -599,7 +608,7 @@ describe('UTIL', function() {
         });
 
         //TODO: Uncomment Below code once phantom js has been replaced with chrome headless
-        xit('should not have assigned videoSlot if video config is present but flag for video is false',function(done){
+        it('should not have assigned videoSlot if video config is present but flag for video is false',function(done){
             videoSlot = [];
             UTIL.mediaTypeConfig = {
                 "Div_1":{
@@ -617,7 +626,7 @@ describe('UTIL', function() {
         });
 
         //TODO: Uncomment Below code once phantom js has been replaced with chrome headless
-        xit('should not update the sizes of active slot', function(done){
+        it('should not update the sizes of active slot', function(done){
             videoSlot = [];
             UTIL.mediaTypeConfig = {
                 "Div_1":{
@@ -778,7 +787,7 @@ describe('UTIL', function() {
             done();
         });
 
-        xit('should check whether activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
+        it('should check whether activeSlots is not empty ad key generation pattern must be greater than 3 in length ', function(done) {
             UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
             UTIL.forEachOnArray.should.be.calledOnce;
             UTIL.generateSlotNamesFromPattern.should.be.calledOnce;
@@ -804,7 +813,7 @@ describe('UTIL', function() {
             done();
         });
 
-        xit('should check call handler function if activeslots is not empty ad key generation pattern is regex pattern', function(done) {
+        it('should check call handler function if activeslots is not empty ad key generation pattern is regex pattern', function(done) {
             adapterConfig.kgp = undefined;
             adapterConfig.kgp_rx = "_AU_@_DIV_@_W_x_H_";
             UTIL.forEachGeneratedKey(adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, activeSlots, handlerFunction, addZeroBids);
@@ -920,7 +929,15 @@ describe('UTIL', function() {
                 pbbid:{
                     mediaType:"banner"
                 },
-                getGrossEcpm:function(){ return "10.55" }
+                getGrossEcpm:function(){ return "10.55" },
+                renderer: {
+                    render: function() {
+                        return 'something';
+                    }
+                },
+                getPbBid: function() {
+                    return 'something';
+                }
             };
             sinon.stub(UTIL, "resizeWindow")
             // .returns(true);
@@ -949,6 +966,11 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should call the render method of bid object', function(done) {
+            bid['pbbid']['mediaType'] = 'video';
+            UTIL.displayCreative(theDocument, bid);
+            done();
+        });
 
         it('should have calle resizeWindow', function(done) {
             UTIL.displayCreative(theDocument, bid);
@@ -1174,6 +1196,25 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should handle when parent.document is different than document', function(done) {
+            obj = {
+                "k1": "v1"
+            };
+            differentObj = {
+                "k1": "v1"
+            };
+
+            cWin = {
+                parent: {
+                    document: obj
+                },
+                document: differentObj
+            };
+
+            UTIL.getTopFrameOfSameDomain(cWin);
+            done();
+        });
+
         it('should return the passed object if parent and the original document objet are same', function(done) {
             UTIL.getTopFrameOfSameDomain(cWin).should.be.deep.equal(cWin);
             done();
@@ -1221,6 +1262,20 @@ describe('UTIL', function() {
 
         it('is a function', function(done) {
             UTIL.getMetaInfo.should.be.a('function');
+            done();
+        });
+
+        it('should handle when protocol is http', function(done) {
+            frameStub.refurl = undefined;
+            frameStub.location.protocol = "http:";
+            UTIL.getMetaInfo(cWin);
+            done();
+        });
+
+        it('should handle when refurl is not available', function(done) {
+            frameStub.refurl = undefined;
+            frameStub.document.referrer = undefined;
+            UTIL.getMetaInfo(cWin);
             done();
         });
 
@@ -1392,6 +1447,13 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should add hook on function', function(done) {
+            UTIL.addHookOnFunction(theObject, false, functionName, obj.newFunction);
+            UTIL.isObject.calledOnce.should.be.true;
+            UTIL.isFunction.calledOnce.should.be.true;
+            done();
+        });
+
         it('should have logged if passed object doesnt have function which we want to add hook on', function(done) {
             functionName = "non_existing_fn_name";
             UTIL.addHookOnFunction(theObject, useProto, functionName, obj.newFunction);
@@ -1415,8 +1477,41 @@ describe('UTIL', function() {
         var values = null,
             priorityArray = null;
 
+        beforeEach(function(done) {
+            sinon.spy(UTIL, "log");
+            done();
+        });
+
+        afterEach(function(done) {
+            UTIL.log.restore();
+            done();
+        });
+        
         it('is a function', function(done) {
             UTIL.getBididForPMP.should.be.a('function');
+            done();
+        });
+
+        it('should log the error when values is empty', function(done) {
+            UTIL.getBididForPMP('', []);
+            done();
+        });
+
+        it('should give selectedPMPDeal empty', function(done) {
+            UTIL.getBididForPMP('values,to,test', ['somethingelse']);
+            UTIL.log.calledWith('No PMP-Deal was found matching PriorityArray, So Selecting first PMP-Deal: values').should.be.true;
+            done();
+        });
+
+        it('should give selectedPMPDeal value', function(done) {
+            UTIL.getBididForPMP('some,values,to,test', ['some']);
+            UTIL.log.calledWith('Selecting PMP-Deal: some').should.be.true;
+            done();
+        });
+
+        it('should return bidID value', function(done) {
+            bidID = UTIL.getBididForPMP('PMPG_-_dealxyz_-_123456', ['PMPG_-_dealxyz_-_123456']);
+            bidID.should.be.equal('123456');
             done();
         });
     });
@@ -1613,6 +1708,8 @@ describe('UTIL', function() {
             UTIL.logError.restore();
             UTIL.writeIframe.restore();
 
+            bidDetailsStub.bid.pbbid = undefined;
+            bidDetailsStub.bid.renderer = undefined;
             bidDetailsStub.bid.getAdapterID.restore();
             msg.source.postMessage.restore();
             window.document.body.appendChild.restore();
@@ -1621,6 +1718,7 @@ describe('UTIL', function() {
             msg = null;
             done();
         });
+
 
         it('is a function', function(done) {
             UTIL.safeFrameCommunicationProtocol.should.be.a('function');
@@ -1653,6 +1751,18 @@ describe('UTIL', function() {
                     pwt_type: 2,
                     pwt_bid: bidDetailsStub.bid
                 }), 1).should.be.true;
+                done();
+            });
+
+            it('should call render method of renderer', function(done) {
+                window.PWT.isSafeFrame = false;
+                bidDetailsStub.bid.pbbid = {
+                    mediaType: 'video'
+                };
+                bidDetailsStub.bid.renderer = {
+                    render: function() {}
+                }
+                UTIL.safeFrameCommunicationProtocol(msg);
                 done();
             });
         });
@@ -2141,6 +2251,37 @@ describe('UTIL', function() {
             infoObject.bidDetails.getGrossEcpm.called.should.be.true;
             window.document.createTextNode.calledWith("Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + ")USD :" + 0 + "ms" + ": POST-TIMEOUT").should.be.true;
             infoPanelElementStub.appendChild.calledTwice.should.be.true;
+            done();
+        });
+
+        it('should assign currencyMsg to adServerCurrency value', function(done) {
+            infoObject.type = 'bid';
+            infoObject.adServerCurrency = 'someValue';
+            UTIL.vLogInfo(divID, infoObject);
+            window.document.createTextNode.calledWith(
+                "Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + ")" + infoObject.adServerCurrency + " :100ms"
+            ).should.be.true;
+            done();
+        });
+
+        it('should assign currencyMsg to USD when adServerCurrency is 0', function(done) {
+            infoObject.type = 'bid';
+            infoObject.adServerCurrency = 0;
+            UTIL.vLogInfo(divID, infoObject);
+            window.document.createTextNode.calledWith(
+                "Bid: " + infoObject.bidder + ": " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + ")USD :100ms"
+            ).should.be.true;
+            done();
+        });
+
+        it('should add s2s to the node', function(done) {
+            infoObject.type = 'bid';
+            infoObject.s2s = true;
+            infoObject.adServerCurrency = 0;
+            UTIL.vLogInfo(divID, infoObject);
+            window.document.createTextNode.calledWith(
+                "Bid: " + infoObject.bidder + "(s2s): " + infoObject.bidDetails.getNetEcpm() + "(" + infoObject.bidDetails.getGrossEcpm() + ")USD :100ms"
+            ).should.be.true;
             done();
         });
 
@@ -2898,12 +3039,67 @@ describe('UTIL', function() {
         });
     });
 
+    describe('#addEventListenerForClass', function() {
+        var theWindow = null;
+            theEvent = "",
+            theClass = "",
+            eventHandler = null,
+            obj = undefined;
+
+        beforeEach(function(done) {
+            theWindow = {};
+            theEvent = "someEvent",
+            theClass = "someClass",
+            eventHandler = function() {};
+            obj = {
+                addEventListener: function() {}
+            };
+            sinon.spy(obj, "addEventListener");
+            sinon.spy(UTIL, "log");
+            sinon.stub(UTIL, 'findElementsByClass').returns([obj]);
+            done();
+        });
+
+        afterEach(function(done) {
+            theWindow = null;
+            theEvent = "",
+            theClass = "",
+            eventHandler = null;
+            obj.addEventListener.restore();
+            UTIL.log.restore();
+            UTIL.findElementsByClass.restore();
+            obj = undefined;
+            done();
+        });
+
+        it('should be a function',function(done){
+            UTIL.addEventListenerForClass.should.be.a('function');
+            done();
+        });
+
+        it('should return true',function(done){
+            var result = UTIL.addEventListenerForClass(theWindow, theEvent, theClass, eventHandler);
+            UTIL.log.should.not.be.called;
+            obj.addEventListener.should.be.calledOnce;
+            result.should.be.equal(true);
+            done();
+        });
+
+        it('should return false for no eventHandler',function(done){
+            eventHandler = "";
+            var result = UTIL.addEventListenerForClass(theWindow, theEvent, theClass, eventHandler);
+            UTIL.log.calledWith("EventHandler should be a function");
+            result.should.be.equal(false);
+            done();
+        });
+    });
+
     describe('#getAdFormatFromBidAd', function(){
         var adFormat, videoAdString, nativeAdString, bannerAdString;
 
         beforeEach(function(done){
             adFormat= undefined;
-            videoAdString= '<?xml version="1.0" encoding="UTF-8"?><VAST xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vast.xsd" version="3.0"><Ad id="4794680078"><Wrapper><AdSystem>GDFP</AdSystem><VASTAdTagURI><![CDATA[http://ow.pubmatic.com/cache?uuid=910ad57b-fddd-4ddf-a94f-cc597930adeb]]></VASTAdTagURI><Error><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=videoplayfailed[ERRORCODE]]]></Error><Impression><![CDATA[https://securepubads.g.doubleclick.net/pcs/view?xai=AKAOjssRKo6cE9xtv3Vb4p3oM4ZibMiNs08ryvPLLmuJiwYYFTaKC7utY2Li_vjzTfvcO2luVVYCl3j2uTRrkxTr68707p6Ccrex7TiIKb1kt1oROgJ3jDNSY2j9YQ1xSCB6LbPXwDUF6_HRjLgBA6vaTV_HS1-NUyGOk5jR_8WxWSwNK_tyKdqhhjn711kBzLk3IwdQ05wC_j31jB94zjWj6l8LRysGFoykRdciTyEYIZwx6KK1byUzL52qIlaIBGvzAW64omi-cCs&sig=Cg0ArKJSzF5yMoWclp4jEAE&adurl=]]></Impression><Creatives><Creative id="138243726392" sequence="1"> <Linear><VideoClicks><ClickTracking id="GDFP"><![CDATA[https://pubads.g.doubleclick.net/pcs/click?xai=AKAOjstvB03z7ObaZOr6VhAeAaRVPBUY_gg6C5Ufe3K899AeYrg2SHOOpwS5JQuXRzdG6ug9BLPgZDm4_vSZEQHfD681sq_J8yLtoe_kriDJuNJ_05UxH90rr5AvWd3AllOLUy_zz3UTzezIs1LnYhQZl1ke1TkSVHQEebLpH2SZgpP40Z10HQnknJVPGV0BCevR_Z7UK8Yz9Q4WjDEHg2oWoPZf0vA1UAPzyvRGACOfl2rcn5rjqATfRN4FvHhLhA6F3WMwoWQ&sig=Cg0ArKJSzH_dYYoGDUutEAE&urlfix=1]]></ClickTracking></VideoClicks></Linear></Creative></Creatives><Extensions><Extension type="geo"><Country>IN</Country><Bandwidth>4</Bandwidth><BandwidthKbps>20000</BandwidthKbps></Extension><Extension type="activeview"><CustomTracking><Tracking event="viewable_impression"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=viewable_impression&acvw=[VIEWABILITY]&gv=[GOOGLE_VIEWABILITY]&ad_mt=[AD_MT]]]></Tracking><Tracking event="abandon"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=video_abandon&acvw=[VIEWABILITY]&gv=[GOOGLE_VIEWABILITY]]]></Tracking></CustomTracking></Extension><Extension type="metrics"><FeEventId>LDqrXPqIGJLGoAPQz604</FeEventId><AdEventId>CPuFoMO7wOECFYmhaAodN2kDUA</AdEventId></Extension><Extension type="ShowAdTracking"><CustomTracking><Tracking event="show_ad"><![CDATA[https://securepubads.g.doubleclick.net/pcs/view?xai=AKAOjsskNiPPjzZVPnZTBoKXb_68n48JD6kaep6DzszP8q8TNeVevCWVxd9OtqdyPGE08DACHmQ3uWvMuuPLGoB7OwX-pWHFAGkybgx_fK17KoOoYPQFo5GhdtsUvPOE5yria9eKwS1BZq2rWr07Y85DJDMBcfJZiaKPmInowRG292edDkl6KaA-rGAgxhgeOQt5hpU6HMTPpeVQuya7RrCmRcyydAhf2-sm7bp23l0R5LYOJHntFGwQ4ua_Q9e8TrrG2LMspXcyOV1TQQ&sig=Cg0ArKJSzBAXwIdOUAQvEAE&adurl=]]></Tracking></CustomTracking></Extension><Extension type="wrapper_info"><Duration>00:00:01</Duration></Extension><Extension type="video_ad_loaded"><CustomTracking><Tracking event="loaded"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=video_ad_loaded]]></Tracking></CustomTracking></Extension></Extensions></Wrapper></Ad></VAST>';
+            videoAdString= '<?xml version="1.0" encoding="UTF-8"?><VAST version="3.0"><Ad id="4794680078"><Wrapper><AdSystem>GDFP</AdSystem><VASTAdTagURI><![CDATA[http://ow.pubmatic.com/cache?uuid=910ad57b-fddd-4ddf-a94f-cc597930adeb]]></VASTAdTagURI><Error><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=videoplayfailed[ERRORCODE]]]></Error><Impression><![CDATA[https://securepubads.g.doubleclick.net/pcs/view?xai=AKAOjssRKo6cE9xtv3Vb4p3oM4ZibMiNs08ryvPLLmuJiwYYFTaKC7utY2Li_vjzTfvcO2luVVYCl3j2uTRrkxTr68707p6Ccrex7TiIKb1kt1oROgJ3jDNSY2j9YQ1xSCB6LbPXwDUF6_HRjLgBA6vaTV_HS1-NUyGOk5jR_8WxWSwNK_tyKdqhhjn711kBzLk3IwdQ05wC_j31jB94zjWj6l8LRysGFoykRdciTyEYIZwx6KK1byUzL52qIlaIBGvzAW64omi-cCs&sig=Cg0ArKJSzF5yMoWclp4jEAE&adurl=]]></Impression><Creatives><Creative id="138243726392" sequence="1"> <Linear><VideoClicks><ClickTracking id="GDFP"><![CDATA[https://pubads.g.doubleclick.net/pcs/click?xai=AKAOjstvB03z7ObaZOr6VhAeAaRVPBUY_gg6C5Ufe3K899AeYrg2SHOOpwS5JQuXRzdG6ug9BLPgZDm4_vSZEQHfD681sq_J8yLtoe_kriDJuNJ_05UxH90rr5AvWd3AllOLUy_zz3UTzezIs1LnYhQZl1ke1TkSVHQEebLpH2SZgpP40Z10HQnknJVPGV0BCevR_Z7UK8Yz9Q4WjDEHg2oWoPZf0vA1UAPzyvRGACOfl2rcn5rjqATfRN4FvHhLhA6F3WMwoWQ&sig=Cg0ArKJSzH_dYYoGDUutEAE&urlfix=1]]></ClickTracking></VideoClicks></Linear></Creative></Creatives><Extensions><Extension type="geo"><Country>IN</Country><Bandwidth>4</Bandwidth><BandwidthKbps>20000</BandwidthKbps></Extension><Extension type="activeview"><CustomTracking><Tracking event="viewable_impression"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=viewable_impression&acvw=[VIEWABILITY]&gv=[GOOGLE_VIEWABILITY]&ad_mt=[AD_MT]]]></Tracking><Tracking event="abandon"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=video_abandon&acvw=[VIEWABILITY]&gv=[GOOGLE_VIEWABILITY]]]></Tracking></CustomTracking></Extension><Extension type="metrics"><FeEventId>LDqrXPqIGJLGoAPQz604</FeEventId><AdEventId>CPuFoMO7wOECFYmhaAodN2kDUA</AdEventId></Extension><Extension type="ShowAdTracking"><CustomTracking><Tracking event="show_ad"><![CDATA[https://securepubads.g.doubleclick.net/pcs/view?xai=AKAOjsskNiPPjzZVPnZTBoKXb_68n48JD6kaep6DzszP8q8TNeVevCWVxd9OtqdyPGE08DACHmQ3uWvMuuPLGoB7OwX-pWHFAGkybgx_fK17KoOoYPQFo5GhdtsUvPOE5yria9eKwS1BZq2rWr07Y85DJDMBcfJZiaKPmInowRG292edDkl6KaA-rGAgxhgeOQt5hpU6HMTPpeVQuya7RrCmRcyydAhf2-sm7bp23l0R5LYOJHntFGwQ4ua_Q9e8TrrG2LMspXcyOV1TQQ&sig=Cg0ArKJSzBAXwIdOUAQvEAE&adurl=]]></Tracking></CustomTracking></Extension><Extension type="wrapper_info"><Duration>00:00:01</Duration></Extension><Extension type="video_ad_loaded"><CustomTracking><Tracking event="loaded"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BrL63LDqrXPu_GInDogO30o2ABZ31halFAAAAEAEg0fv0CDgAWLi43_-CBGDl6uaDvA6yAQx3d3cudGVzdC5jb226ARMzMjB4MjU0LDMzNngyNjlfeG1syAEF2gEbaHR0cDovL3d3dy50ZXN0LmNvbS8_cHd0dj0xwAIC4AIA6gIYLzE1NjcxMzY1L01HX1ZpZGVvQWRVbml0-AKF0h6AAwGQA5oImAPgA6gDAeAEAdIFBhCOhqTuEZAGAaAGJNgHAOAHH9IIBwiAYRABGAE&sigh=ovOJ-wYjWfs&label=video_ad_loaded]]></Tracking></CustomTracking></Extension></Extensions></Wrapper></Ad></VAST>';
             nativeAdString= '{"native":{"assets":[{"id":1,"required":0,"title":{"text":"Lexus - Luxury vehicles company"}},{"id":2,"img":{"h":150,"url":"https://stagingnyc.pubmatic.com:8443//sdk/lexus_logo.png","w":150},"required":0},{"id":3,"img":{"h":428,"url":"https://stagingnyc.pubmatic.com:8443//sdk/28f48244cafa0363b03899f267453fe7%20copy.png","w":214},"required":0},{"data":{"value":"Goto PubMatic"},"id":4,"required":0},{"data":{"value":"Lexus - Luxury vehicles company"},"id":5,"required":0},{"data":{"value":"4"},"id":6,"required":0}],"imptrackers":["http://phtrack.pubmatic.com/?ts=1496043362&r=84137f17-eefd-4f06-8380-09138dc616e6&i=c35b1240-a0b3-4708-afca-54be95283c61&a=130917&t=9756&au=10002949&p=&c=10014299&o=10002476&wl=10009731&ty=1"],"link":{"clicktrackers":["http://ct.pubmatic.com/track?ts=1496043362&r=84137f17-eefd-4f06-8380-09138dc616e6&i=c35b1240-a0b3-4708-afca-54be95283c61&a=130917&t=9756&au=10002949&p=&c=10014299&o=10002476&wl=10009731&ty=3&url="],"url":"http://www.lexus.com/"},"ver":1}}';
             bannerAdString = '<img src="http://ads.pubmatic.com/AdTag/728x90.png"></img><div style="position:absolute;left:0px;top:0px;visibility:hidden;"><img src="http://sin1-ib.adnxs.com/it?e=wqT_3QKqB6CqAwAAAwDWAAUBCIKHsdoFELzlh5jb&s=dfa92ae59f49b6052953a52fcc0152434618139a&referrer=http%253A%252F%252Febay.com%252Finte%252Fappnexus.html%253Fpwtvc%253D1%2526pwtv%253D2%2526profileid%253D2514"></div>'
             done();
@@ -2919,14 +3115,12 @@ describe('UTIL', function() {
             done();
         });
 
-        // it('should return video if ad html consists of video string ',function(done){
-        //     var expectedResult = CONSTANTS.FORMAT_VALUES.VIDEO;
-        //     var oParser = new DOMParser();
-        //     var oDOM = oParser.parseFromString(videoAdString, "text/xml");
-        //     var result =  UTIL.getAdFormatFromBidAd(oDOM);
-        //     result.should.deep.equal(expectedResult);
-        //     done();
-        // });
+        it('should return video if ad html consists of video string ',function(done){
+            var expectedResult = CONSTANTS.FORMAT_VALUES.VIDEO;
+            var result =  UTIL.getAdFormatFromBidAd(videoAdString);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
 
         it('should return native if ad html consists of native string ',function(done){
             var expectedResult = CONSTANTS.FORMAT_VALUES.NATIVE
@@ -3156,6 +3350,28 @@ describe('UTIL', function() {
             var expectedResult = {"name":"pubCommonId","storage":{"type":"cookie","name":"_pubCommonId","expires":"1825"}};
             var result = UTIL.getUserIdParams(params);
             result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should handle JSON value keys', function(done) {
+            var clientIdentifierInfo = "{}";
+            var params = {
+                name: "identityLink",
+                "params.pid": "23",
+                "params.clientIdentifier": clientIdentifierInfo,
+                "storage.type": "cookie",
+                "params.loadATS": "true", // or false// boolean default is false,
+                "params.placementID": "23",
+                "params.storageType": "localstorage",
+                "params.detectionType": "scrapeAndUrl",
+                "params.urlParameter": "eparam",
+                "params.cssSelectors": "input[type=text], input[type=email]",
+                "params.logging": "info",
+                "storage.name": "somenamevalue",
+                "storage.expires": "60"
+            };
+            UTIL.getUserIdParams(params);
+            window[UTIL.pbNameSpace] = undefined;
             done();
         });
 
@@ -3423,6 +3639,101 @@ describe('UTIL', function() {
             window[UTIL.pbNameSpace] = undefined;
             done();
         });
+
+        it('should call initLauncherJs if loadLauncher is set to true', function(done) {
+            var params = {
+                "params.partnerId": "b13e43f5-9846-4349-ae87-23ea3c3c25de",
+                "params.loadLauncher": "true",
+            };
+            UTIL.getUserIdParams(params);
+            UTIL.initLauncherJs.should.be.called;
+            done();
+        });
+    });
+
+    describe('#getPublinkLauncherParams', function() {
+        var params = null;
+
+        beforeEach(function(done) {
+            params = {
+                params: {
+                    site_id: "123456",
+                    api_key: "00000000-0000-0000-0000-00000000000",
+                    detectionMechanism: "detect", // "direct"
+                    urlParameter: "eparam",
+                    cssSelectors: "input[type=text],input[type=email]",
+                }
+            };
+
+            done();
+        });
+
+        afterEach(function(done) {
+            params = null;
+            done();
+        })
+
+        it('is a function', function(done) {
+            UTIL.getPublinkLauncherParams.should.be.a('function');
+            done();
+        });
+
+        it('should return params with detectionMechanism detect', function(done) {
+            var expectedResult = {
+                apiKey: "00000000-0000-0000-0000-00000000000",
+                siteId:"123456",
+                urlParameter:"eparam",
+                cssSelectors: ["input[type=text]","input[type=email]"],
+                detectionSubject:"email"
+            };
+            var result = UTIL.getPublinkLauncherParams(params);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return params with detectionMechanism direct', function(done) {
+            params.params.detectionMechanism = "direct";
+            var expectedResult = {
+                apiKey: "00000000-0000-0000-0000-00000000000",
+                siteId: "123456",
+                emailHashes: ["4e8fb772f3a4034906153f2d4258ee5c","ee278943de84e5d6243578ee1a1057bcce0e50daad9755f45dfa64b60b13bc5d"]
+            };
+            var result = UTIL.getPublinkLauncherParams(params);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#getPartnerParams', function() {
+        beforeEach(function(done) {
+            sinon.spy(UTIL, 'logWarning');
+            done();
+        });
+
+        afterEach(function(done) {
+            UTIL.logWarning.restore();
+            done();
+        })
+
+        it('is a function', function(done) {
+            UTIL.getPartnerParams.should.be.a('function');
+            done();
+        });
+
+        it('should return partner params', function(done) {
+            var expectedResult = {'k1': { 'k2' : { 'k3': 'value'}}};
+            var result = UTIL.getPartnerParams({'k1.k2.k3' : 'value'});
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should log warning', function(done) {
+            sinon.stub(UTIL, 'getNestedObjectFromString').throws();
+            UTIL.getPartnerParams({'k1.k2.k3' : 'value'});
+            UTIL.logWarning.calledWith('Unable to parse Partner configuration').should.be.true;
+            UTIL.getNestedObjectFromString.restore();
+            done();
+        });
     });
 
     describe('#getNestedObjectFromString', function() {
@@ -3585,6 +3896,90 @@ describe('UTIL', function() {
         });
     });
     
+    describe('#getUserIds', function() {
+        beforeEach(function(done) {
+            sinon.spy(UTIL, "logWarning");
+            done();
+        });
+
+        afterEach(function(done) {
+            UTIL.logWarning.restore();
+            done();
+        });
+
+        it('should be a function',function(done){
+            UTIL.getUserIds.should.be.a('function');
+            done();
+        });
+
+        it('should return function',function(done) {
+            window.owpbjs = {
+                getUserIds: function(){
+                    return 'someValue';
+                }
+            };
+            UTIL.getUserIds();
+            UTIL.logWarning.should.not.be.called;
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('should give warning',function(done) {
+            window.owpbjs = {};
+            UTIL.getUserIds();
+            UTIL.logWarning.calledWith('getUserIds function is not available. Make sure userId module is included.').should.be.true;
+            window.owpbjs = undefined;
+            done();
+        });
+    });
+
+    describe('#getUserIdsAsEids', function() {
+        beforeEach(function(done) {
+            sinon.spy(UTIL, "logWarning");
+            done();
+        });
+
+        afterEach(function(done) {
+            UTIL.logWarning.restore();
+            done();
+        });
+
+        it('should be a function',function(done){
+            UTIL.getUserIdsAsEids.should.be.a('function');
+            done();
+        });
+
+        it('should return function',function(done) {
+            window.owpbjs = {
+                getUserIdsAsEids: function(){
+                    return 'someValue';
+                }
+            };
+            UTIL.getUserIdsAsEids();
+            UTIL.logWarning.should.not.be.called;
+            window.owpbjs = undefined;
+            done();
+        });
+
+        it('should give warning',function(done) {
+            window.owpbjs = {};
+            UTIL.getUserIdsAsEids();
+            UTIL.logWarning.calledWith('getUserIdsAsEids function is not available. Make sure userId module is included.').should.be.true;
+            window.owpbjs = undefined;
+            done();
+        });
+    });
+
+    describe('#UpdateVastWithTracker', function() {
+        beforeEach(function(done) {
+            done();
+        });
+
+        afterEach(function(done) {
+            done();
+        })
+    });
+
     describe('#callHandlerFunctionForMapping',function(){
         var adapterID, adUnits, adapterConfig, impressionID, slotConfigMandatoryParams, generatedKeys, activeSlot, handlerFunction, addZeroBids,keyGenerationPattern,videoSlotName,keyGenerationPattern,obj;
         beforeEach(function(done){
@@ -3604,6 +3999,7 @@ describe('UTIL', function() {
             slotConfigMandatoryParams = "slotConfigMandatoryParams";
             activeSlots = [new SLOT("slot_1"), new SLOT("slot_2")];
             activeSlots[0].setSizes([[300,250]]);
+            activeSlots[0].setDivID("div1");
             activeSlots[1].setSizes([300,250]);
             obj = {
                 handlerFunction : function(a,b,c,d,e,f,g,h,i,j) {
@@ -3619,6 +4015,13 @@ describe('UTIL', function() {
             sinon.spy(UTIL,"checkMandatoryParams")
             sinon.spy(obj, "handlerFunction");
             addZeroBids = true;
+
+            window.PWT = {
+                bidMap: {
+
+                }
+            };
+
             done();
         });
 
@@ -3636,6 +4039,14 @@ describe('UTIL', function() {
             addZeroBids = null;
             obj.handlerFunction.restore();
             UTIL.checkMandatoryParams.restore();
+            done();
+        });
+
+        it('should handle keylookupmap value when klm is not available', function(done) {
+            adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = undefined;
+            adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] = undefined;
+            UTIL.callHandlerFunctionForMapping(adapterID,adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,false,keyGenerationPattern,videoSlotName);
+            UTIL.forEachOnArray.should.be.calledOnce;
             done();
         });
 
@@ -3666,6 +4077,24 @@ describe('UTIL', function() {
         });
 
         describe('flow for regex mapping',function(){
+            it('should handle keylookupmap value when klm is not available', function(done) {
+                adapterConfig[CONSTANTS.CONFIG.REGEX_KEY_LOOKUP_MAP] = [{
+                    rx: {
+                        DIV: ".*",
+                        AU: "^/12345678/test",
+                        SIZE: "728x90"
+                    },
+                    rx_config: {
+                        zoneId: "123456",
+                        siteId: "987654",
+                        floor: "0"
+                    }
+                }];
+                UTIL.callHandlerFunctionForMapping(adapterID,adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,false,keyGenerationPattern,videoSlotName);
+                UTIL.getConfigFromRegex.should.be.calledOnce;
+                UTIL.log.should.be.calledOnce;
+                done();
+            });
 
             it('should  call handler function',function(done){
                 adapterConfig[CONSTANTS.CONFIG.KEY_LOOKUP_MAP] = undefined;
@@ -3677,6 +4106,7 @@ describe('UTIL', function() {
 
         it('should create bid if addZeroBids is true',function(done){
             addZeroBids = true;
+            UTIL.callHandlerFunctionForMapping(adapterID,adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,addZeroBids,keyGenerationPattern,videoSlotName);
             BID.createBid.should.be.calledOnce;
             BIDMgr.setBidFromBidder.should.be.calledOnce;
             done();     
@@ -3684,6 +4114,7 @@ describe('UTIL', function() {
 
         it('should create bid if addZeroBids is false',function(done){
             addZeroBids = false;
+            UTIL.callHandlerFunctionForMapping(adapterID,adUnits,adapterConfig,impressionID,slotConfigMandatoryParams,generatedKeys,activeSlots[0],obj.handlerFunction,addZeroBids,keyGenerationPattern,videoSlotName);
             BID.createBid.should.not.be.called;
             BIDMgr.setBidFromBidder.should.not.be.called;
             done();     
@@ -3865,6 +4296,29 @@ describe('UTIL', function() {
         it('should add UserId in bid if userIds is not present', function(done){
             var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","id":1}]}
             UTIL.updateUserIds(bid)
+            bid.should.be.deep.equal(expectedResult);
+            done();
+        })
+
+        it('should add UserId in bid returned from getUserIds', function(done){
+            bid.userId = {id: 123};
+            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","id":1}]};
+            UTIL.updateUserIds(bid);
+            bid.should.be.deep.equal(expectedResult);
+            done();
+        })
+
+        it('should handle when bid contains userIdAsEids array', function(done){
+            bid.userIdAsEids = [{"source":"aId","id":10}, {"source":"myId","id":1}];
+            var expectedResult = {
+                ecpm: "10.00",
+                userId: {id: 1},
+                userIdAsEids: [
+                    {source: "myId", id: 1},
+                    {source: "aId", id: 10}
+                ]
+            };
+            UTIL.updateUserIds(bid);
             bid.should.be.deep.equal(expectedResult);
             done();
         })
@@ -4160,6 +4614,14 @@ describe('UTIL', function() {
             adFormat = "video";
             kgpv = "Div1";
             var expectedResult = "Div1";
+            UTIL.getUpdatedKGPVForVideo(kgpv, adFormat).should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should consider div@wxh:div kgpv format if adformat is video',function(done){
+            adFormat = "video";
+            kgpv = "Div1@640x480:Div1";
+            var expectedResult = "Div1@0x0:Div1";
             UTIL.getUpdatedKGPVForVideo(kgpv, adFormat).should.deep.equal(expectedResult);
             done();
         });
