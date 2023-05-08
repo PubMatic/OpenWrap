@@ -1279,6 +1279,10 @@ describe('ADAPTER: Prebid', function() {
             sinon.spy(CONFIG, 'getCCPATimeout');
             sinon.stub(CONFIG, 'getCCPA').returns(true);
 
+            sinon.spy(CONFIG, 'getGppTimeout');
+            sinon.spy(CONFIG, 'getGppCmpApi');
+            sinon.stub(CONFIG, 'getGppConsent').returns(true);
+
             sinon.stub(BM, 'resetBid', function(){});
             sinon.stub(BM, 'setSizes', function(){});
 
@@ -1348,6 +1352,10 @@ describe('ADAPTER: Prebid', function() {
 
             CONFIG.getCCPA.restore();
             CONFIG.getCCPATimeout.restore();
+
+            CONFIG.getGppConsent.restore();
+            CONFIG.getGppCmpApi.restore();
+            CONFIG.getGppTimeout.restore();
 
             BM.resetBid.restore();
             BM.setSizes.restore();
@@ -1420,6 +1428,9 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.getCCPA().should.be.true;
             CONFIG.getCCPACmpApi().should.be.called;
             CONFIG.getCCPATimeout().should.be.called;
+            CONFIG.getGppConsent().should.be.true;
+            CONFIG.getGppCmpApi().should.be.called;
+            CONFIG.getGppTimeout().should.be.called;
             done();
         });
 
