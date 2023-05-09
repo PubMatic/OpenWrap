@@ -1334,6 +1334,33 @@ describe('IDHUBUTIL', function() {
         });
     });
 
+    describe.only('#deepMerge', function(done) {
+        var idhubIds={hadronId:"0001yum0eak8dl8gdh96b9g6jgf7ckk7j8eja6ejc8abackkc2jl",id5id:{uid:"ID5*sKxFKbOtatCNM50_3IIRVMQ--jSt4JanBGfijnL1DXJHmX8g3-OyEFpze85ZUpb9R5rh8w3TLhT22sPBINYpmw",ext:{linkType:2}},lotamePanoramaId:"eec2b20f00590e28df32d1fe971da9fb927a4c9289cc4feaf6f0446d73d314f6",pubcid:"8577d672-7ea8-409f-9fbf-f0cf5b8fbf6b",tdid:"427f59e4-4b0e-478c-a6a7-ca5e6446da6f"};
+        var prebidIds={hadronId:"test-hardon-id",id5id:{uid:"test-id5id-id",ext:{linkType:2}}};
+        var expectedIdsResult={hadronId:"test-hardon-id",id5id:{uid:"test-id5id-id",ext:{linkType:2}},lotamePanoramaId:"eec2b20f00590e28df32d1fe971da9fb927a4c9289cc4feaf6f0446d73d314f6",pubcid:"8577d672-7ea8-409f-9fbf-f0cf5b8fbf6b",tdid:"427f59e4-4b0e-478c-a6a7-ca5e6446da6f"};
+        var idhubEids=[{source:"audigent.com",uids:[{id:"0001yum0eak8dl8gdh96b9g6jgf7ckk7j8eja6ejc8abackkc2jl",atype:1}]},{source:"id5-sync.com",uids:[{id:"ID5*sKxFKbOtatCNM50_3IIRVMQ--jSt4JanBGfijnL1DXJHmX8g3-OyEFpze85ZUpb9R5rh8w3TLhT22sPBINYpmw",atype:1,ext:{linkType:2}}]},{source:"crwdcntrl.net",uids:[{id:"eec2b20f00590e28df32d1fe971da9fb927a4c9289cc4feaf6f0446d73d314f6",atype:1}]},{source:"pubcid.org",uids:[{id:"8577d672-7ea8-409f-9fbf-f0cf5b8fbf6b",atype:1}]},{source:"adserver.org",uids:[{id:"427f59e4-4b0e-478c-a6a7-ca5e6446da6f",atype:1,ext:{rtiPartner:"TDID"}}]}];
+        var prebidEids=[{source:"audigent.com",uids:[{id:"prebid-id-audigent",atype:1}]},{source:"adserver.org",uids:[{id:"prebid-id-adserver.org",atype:1,ext:{rtiPartner:"TDID"}}]}];
+        var expectedResult=[{source:"audigent.com",uids:[{id:"prebid-id-audigent",atype:1}]},{source:"id5-sync.com",uids:[{id:"ID5*sKxFKbOtatCNM50_3IIRVMQ--jSt4JanBGfijnL1DXJHmX8g3-OyEFpze85ZUpb9R5rh8w3TLhT22sPBINYpmw",atype:1,ext:{linkType:2}}]},{source:"crwdcntrl.net",uids:[{id:"eec2b20f00590e28df32d1fe971da9fb927a4c9289cc4feaf6f0446d73d314f6",atype:1}]},{source:"pubcid.org",uids:[{id:"8577d672-7ea8-409f-9fbf-f0cf5b8fbf6b",atype:1}]},{source:"adserver.org",uids:[{id:"prebid-id-adserver.org",atype:1,ext:{rtiPartner:"TDID"}}]}];
+        beforeEach(function(done) {
+            done();
+        });
+        afterEach(function(done) {
+            done();
+        });
+
+        it('should merge the IDHUB ids with PREBID ids and not override them', function(done) {
+            var resultIds = IDHUBUTIL.deepMerge(idhubIds,prebidIds);
+            resultIds.should.deep.equal(expectedIdsResult);
+            done();
+        });
+
+        it('should merge the IDHUB eids with PREBID eids and not override them', function(done) {
+            var result = IDHUBUTIL.deepMerge(idhubEids,prebidEids);
+            result.should.deep.equal(expectedResult);
+            done();
+        });
+    });
+
     // describe('#deleteCustomParams', function() {
     //     var paramsForLiverampV2;
     //     beforeEach(function(done) {
