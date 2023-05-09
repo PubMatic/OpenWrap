@@ -21,9 +21,9 @@ exports.isA = function(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
 }
 
-/* start-test-block */
-exports.isA = isA;
-/* end-test-block */
+// /* start-test-block */
+// exports.isA = isA;
+// /* end-test-block */
 
 exports.isFunction = function (object) {
 	return refThis.isA(object, typeFunction);

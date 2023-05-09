@@ -1334,7 +1334,7 @@ describe('IDHUBUTIL', function() {
         });
     });
 
-    describe.only('#deepMerge', function(done) {
+    describe('#deepMerge', function(done) {
         var idhubIds={hadronId:"0001yum0eak8dl8gdh96b9g6jgf7ckk7j8eja6ejc8abackkc2jl",id5id:{uid:"ID5*sKxFKbOtatCNM50_3IIRVMQ--jSt4JanBGfijnL1DXJHmX8g3-OyEFpze85ZUpb9R5rh8w3TLhT22sPBINYpmw",ext:{linkType:2}},lotamePanoramaId:"eec2b20f00590e28df32d1fe971da9fb927a4c9289cc4feaf6f0446d73d314f6",pubcid:"8577d672-7ea8-409f-9fbf-f0cf5b8fbf6b",tdid:"427f59e4-4b0e-478c-a6a7-ca5e6446da6f"};
         var prebidIds={hadronId:"test-hardon-id",id5id:{uid:"test-id5id-id",ext:{linkType:2}}};
         var expectedIdsResult={hadronId:"test-hardon-id",id5id:{uid:"test-id5id-id",ext:{linkType:2}},lotamePanoramaId:"eec2b20f00590e28df32d1fe971da9fb927a4c9289cc4feaf6f0446d73d314f6",pubcid:"8577d672-7ea8-409f-9fbf-f0cf5b8fbf6b",tdid:"427f59e4-4b0e-478c-a6a7-ca5e6446da6f"};
