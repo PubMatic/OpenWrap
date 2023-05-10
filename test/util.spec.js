@@ -3839,7 +3839,7 @@ describe('UTIL', function() {
         });
     });
 
-    describe.only('updateUserIds', function(){
+    describe('updateUserIds', function(){
         var bid;
         beforeEach(function(done){
             bid = {
