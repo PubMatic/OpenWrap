@@ -28,13 +28,13 @@ var mediaTypeConfigPerSlot = {};
 exports.mediaTypeConfig = mediaTypeConfigPerSlot;
 var pbNameSpace = parseInt(conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY) ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 exports.pbNameSpace = pbNameSpace;
-function isA(object, testForType) {
+exports.isA = function(object, testForType) {
 	return toString.call(object) === "[object " + testForType + "]";
 }
 
-/* start-test-block */
-exports.isA = isA;
-/* end-test-block */
+// /* start-test-block */
+// exports.isA = isA;
+// /* end-test-block */
 
 exports.isFunction = function (object) {
 	return refThis.isA(object, typeFunction);

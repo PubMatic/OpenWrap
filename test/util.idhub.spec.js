@@ -1178,7 +1178,7 @@ describe('IDHUBUTIL', function() {
                 'ecpm':'10.00'
             }
             sinon.stub(IDHUBUTIL,'getUserIds').returns({id:1})
-            sinon.stub(IDHUBUTIL,'getUserIdsAsEids').returns([{"source":"myId",id:1}])
+            sinon.stub(IDHUBUTIL,'getUserIdsAsEids').returns([{"source":"myId",uids:[{ "id": "idhub-id"}]}])
             done();
         });
 
@@ -1195,31 +1195,31 @@ describe('IDHUBUTIL', function() {
         });
 
         it('should add UserId in bid if userIds is not present', function(done){
-            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","id":1}]}
+            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId",uids:[{ "id": "idhub-id"}]}]}
             IDHUBUTIL.updateUserIds(bid)
             bid.should.be.deep.equal(expectedResult);
             done();
         })
 
-        // TODO: UnComment Below Test Cases once PhantomJs is replaced by ChromeHeadless in build.sh production and test mode
-        xit('should update UserID in bid if userIds is present',function(done){
-            var expectedResult = {"ecpm":"10.00","userId":{"existingId":2,"id":1},"userIdAsEids":[{"source":"myId","id":1},{"source":"existingMyId","existingId":2}]} 
+        it('should update(or merge) UserID in bid if userIds is present',function(done){
+            var expectedResult = {"ecpm":"10.00","userId":{"existingId":2,"id":1},"userIdAsEids":[{"source":"existingMyId","uids": [{"id": "prebid-id"}]},{"source":"myId",uids:[{ "id": "idhub-id"}]}]} 
             bid['userId'] = {"existingId":2}
-            bid['userIdAsEids'] = [{"source":"existingMyId","existingId":2}]
+            bid['userIdAsEids'] = [{"source":"existingMyId","uids": [{"id": "prebid-id"}]}]
             IDHUBUTIL.updateUserIds(bid)
             bid.should.be.deep.equal(expectedResult);
             done();
         })
-        // TODO: UnComment Below Test Cases once PhantomJs is replaced by ChromeHeadless in build.sh production and test mode
-        xit('should update with IH values if same id is present', function(done){
-            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","id":1}]}
+        
+        it('should update or pass prebid ID instead of IH ID in bid if same id is present', function(done){
+            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","uids": [{"id": "prebid-id"}]}]}
             bid['userId'] = {"id":2}
-            bid['userIdAsEids'] = [{"source":"myId","id":2}]
+            bid['userIdAsEids'] = [{"source":"myId","uids": [{"id": "prebid-id"}]}]
             IDHUBUTIL.updateUserIds(bid);
             bid.should.be.deep.equal(expectedResult);
             done();
         })
-    })
+    });
+    
     describe('#applyDataTypeChangesIfApplicable', function() {
         var params;
         beforeEach(function(done) {
@@ -1330,6 +1330,33 @@ describe('IDHUBUTIL', function() {
             IDHUBUTIL.applyCustomParamValuesfApplicable(paramsForID5);
             expect(paramsForID5["params.provider"]).to.be.defined;
             expect(paramsForID5["params.provider"]).to.be.equal("pubmatic-identity-hub");
+            done();
+        });
+    });
+
+    describe('#deepMerge', function(done) {
+        var idhubIds={hadronId:"0001yum0eak8dl8gdh96b9g6jgf7ckk7j8eja6ejc8abackkc2jl",id5id:{uid:"ID5*sKxFKbOtatCNM50_3IIRVMQ--jSt4JanBGfijnL1DXJHmX8g3-OyEFpze85ZUpb9R5rh8w3TLhT22sPBINYpmw",ext:{linkType:2}},lotamePanoramaId:"eec2b20f00590e28df32d1fe971da9fb927a4c9289cc4feaf6f0446d73d314f6",pubcid:"8577d672-7ea8-409f-9fbf-f0cf5b8fbf6b",tdid:"427f59e4-4b0e-478c-a6a7-ca5e6446da6f"};
+        var prebidIds={hadronId:"test-hardon-id",id5id:{uid:"test-id5id-id",ext:{linkType:2}}};
+        var expectedIdsResult={hadronId:"test-hardon-id",id5id:{uid:"test-id5id-id",ext:{linkType:2}},lotamePanoramaId:"eec2b20f00590e28df32d1fe971da9fb927a4c9289cc4feaf6f0446d73d314f6",pubcid:"8577d672-7ea8-409f-9fbf-f0cf5b8fbf6b",tdid:"427f59e4-4b0e-478c-a6a7-ca5e6446da6f"};
+        var idhubEids=[{source:"audigent.com",uids:[{id:"0001yum0eak8dl8gdh96b9g6jgf7ckk7j8eja6ejc8abackkc2jl",atype:1}]},{source:"id5-sync.com",uids:[{id:"ID5*sKxFKbOtatCNM50_3IIRVMQ--jSt4JanBGfijnL1DXJHmX8g3-OyEFpze85ZUpb9R5rh8w3TLhT22sPBINYpmw",atype:1,ext:{linkType:2}}]},{source:"crwdcntrl.net",uids:[{id:"eec2b20f00590e28df32d1fe971da9fb927a4c9289cc4feaf6f0446d73d314f6",atype:1}]},{source:"pubcid.org",uids:[{id:"8577d672-7ea8-409f-9fbf-f0cf5b8fbf6b",atype:1}]},{source:"adserver.org",uids:[{id:"427f59e4-4b0e-478c-a6a7-ca5e6446da6f",atype:1,ext:{rtiPartner:"TDID"}}]}];
+        var prebidEids=[{source:"audigent.com",uids:[{id:"prebid-id-audigent",atype:1}]},{source:"adserver.org",uids:[{id:"prebid-id-adserver.org",atype:1,ext:{rtiPartner:"TDID"}}]}];
+        var expectedResult=[{source:"audigent.com",uids:[{id:"prebid-id-audigent",atype:1}]},{source:"id5-sync.com",uids:[{id:"ID5*sKxFKbOtatCNM50_3IIRVMQ--jSt4JanBGfijnL1DXJHmX8g3-OyEFpze85ZUpb9R5rh8w3TLhT22sPBINYpmw",atype:1,ext:{linkType:2}}]},{source:"crwdcntrl.net",uids:[{id:"eec2b20f00590e28df32d1fe971da9fb927a4c9289cc4feaf6f0446d73d314f6",atype:1}]},{source:"pubcid.org",uids:[{id:"8577d672-7ea8-409f-9fbf-f0cf5b8fbf6b",atype:1}]},{source:"adserver.org",uids:[{id:"prebid-id-adserver.org",atype:1,ext:{rtiPartner:"TDID"}}]}];
+        beforeEach(function(done) {
+            done();
+        });
+        afterEach(function(done) {
+            done();
+        });
+
+        it('should merge the IDHUB ids with PREBID ids and not override them', function(done) {
+            var resultIds = IDHUBUTIL.deepMerge(idhubIds,prebidIds);
+            resultIds.should.deep.equal(expectedIdsResult);
+            done();
+        });
+
+        it('should merge the IDHUB eids with PREBID eids and not override them', function(done) {
+            var result = IDHUBUTIL.deepMerge(idhubEids,prebidEids);
+            result.should.deep.equal(expectedResult);
             done();
         });
     });
