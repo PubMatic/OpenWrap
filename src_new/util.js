@@ -1655,7 +1655,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += '&ss=' + window.encodeURIComponent(refThis.isFunction(theBid.getServerSideStatus) ?
 		(theBid.getServerSideStatus() ? 1 : 0) :
 		(CONFIG.isServerSideAdapter(adapterId) ? 1 : 0));
-	fskp && (pixelURL += '&fskp=' + window.encodeURIComponent(fskp));
+	(fskp != undefined) && (pixelURL += '&fskp=' + window.encodeURIComponent(fskp));
 	pixelURL += '&af=' + window.encodeURIComponent(refThis.isFunction(theBid.getAdFormat) ?
 		theBid.getAdFormat() : (theBid.mediaType || undefined));
 
