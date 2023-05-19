@@ -1367,7 +1367,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(15);
+            window.encodeURIComponent.callCount.should.be.equal(21);
 
             done();
         });
@@ -1376,6 +1376,15 @@ describe('bidManager BIDMgr', function() {
         it('should generate proper pixelURL ', function(done) {
 
             var pixelURL = CONSTANTS.COMMON.PROTOCOL + CONFIG.getMonetizationPixelURL();
+            var adv = UTIL.getAdDomain(theBid) || undefined;
+            var fskp = window.PWT.floorData ?
+                (window.PWT.floorData[impressionID] ?
+                    (window.PWT.floorData[impressionID].floorRequestData ?
+                        (window.PWT.floorData[impressionID].floorRequestData.skipped == false ? 0 : 1) :
+                        undefined) :
+                    undefined) :
+                undefined;
+
             pixelURL += "pubid=" + CONFIG.getPublisherId();
             pixelURL += "&purl=" + window.encodeURIComponent(UTIL.metaInfo.pageURL);
             pixelURL += "&tst=" + UTIL.getCurrentTimestamp();
@@ -1393,6 +1402,22 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
             pixelURL += "&piid=" + window.encodeURIComponent(theBid.getsspID());
             pixelURL += "&rf=" + window.encodeURIComponent(1);
+
+            pixelURL += '&plt=' + window.encodeURIComponent(UTIL.getDevicePlatform());
+            pixelURL += (UTIL.isFunction(theBid.getWidth) && UTIL.isFunction(theBid.getHeight)) ?
+                ('&psz=' + window.encodeURIComponent(theBid.getWidth() + 'x' + theBid.getHeight())) :
+                    ((UTIL.isFunction(theBid.getSize)) ? 
+                        ('&psz=' + window.encodeURIComponent(theBid.getSize())) :
+                            '&psz=' + window.encodeURIComponent(theBid.width + 'x' + theBid.height));
+            pixelURL += '&tgid=' + window.encodeURIComponent(UTIL.getTgid());
+            adv && (pixelURL += '&adv=' + window.encodeURIComponent(adv));
+            pixelURL += '&orig=' + window.encodeURIComponent((UTIL.metaInfo && UTIL.metaInfo.pageDomain) || '');
+            pixelURL += '&ss=' + window.encodeURIComponent(UTIL.isFunction(theBid.getServerSideStatus) ?
+                (theBid.getServerSideStatus() ? 1 : 0) :
+                (CONFIG.isServerSideAdapter(adapterId) ? 1 : 0));
+            fskp && (pixelURL += '&fskp=' + window.encodeURIComponent(fskp));
+            pixelURL += '&af=' + window.encodeURIComponent(UTIL.isFunction(theBid.getAdFormat) ?
+                theBid.getAdFormat() : (theBid.mediaType || undefined));
 
             BIDMgr.executeMonetizationPixel(slotID, theBid);
             BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;
@@ -1405,6 +1430,15 @@ describe('bidManager BIDMgr', function() {
             theBid.adapterID = "pubmatic21";
             CONFIG.getAdapterNameForAlias.returns('pubmatic');
             var pixelURL = CONSTANTS.COMMON.PROTOCOL + CONFIG.getMonetizationPixelURL();
+            var adv = UTIL.getAdDomain(theBid) || undefined;
+            var fskp = window.PWT.floorData ?
+                (window.PWT.floorData[impressionID] ?
+                    (window.PWT.floorData[impressionID].floorRequestData ?
+                        (window.PWT.floorData[impressionID].floorRequestData.skipped == false ? 0 : 1) :
+                        undefined) :
+                    undefined) :
+                undefined;
+
             pixelURL += "pubid=" + CONFIG.getPublisherId();
             pixelURL += "&purl=" + window.encodeURIComponent(UTIL.metaInfo.pageURL);
             pixelURL += "&tst=" + UTIL.getCurrentTimestamp();
@@ -1422,6 +1456,22 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
             pixelURL += "&piid=" + window.encodeURIComponent(theBid.getsspID());
             pixelURL += "&rf=" + window.encodeURIComponent(1);
+
+            pixelURL += '&plt=' + window.encodeURIComponent(UTIL.getDevicePlatform());
+            pixelURL += (UTIL.isFunction(theBid.getWidth) && UTIL.isFunction(theBid.getHeight)) ?
+                ('&psz=' + window.encodeURIComponent(theBid.getWidth() + 'x' + theBid.getHeight())) :
+                    ((UTIL.isFunction(theBid.getSize)) ? 
+                        ('&psz=' + window.encodeURIComponent(theBid.getSize())) :
+                            '&psz=' + window.encodeURIComponent(theBid.width + 'x' + theBid.height));
+            pixelURL += '&tgid=' + window.encodeURIComponent(UTIL.getTgid());
+            adv && (pixelURL += '&adv=' + window.encodeURIComponent(adv));
+            pixelURL += '&orig=' + window.encodeURIComponent((UTIL.metaInfo && UTIL.metaInfo.pageDomain) || '');
+            pixelURL += '&ss=' + window.encodeURIComponent(UTIL.isFunction(theBid.getServerSideStatus) ?
+                (theBid.getServerSideStatus() ? 1 : 0) :
+                (CONFIG.isServerSideAdapter(adapterId) ? 1 : 0));
+            fskp && (pixelURL += '&fskp=' + window.encodeURIComponent(fskp));
+            pixelURL += '&af=' + window.encodeURIComponent(UTIL.isFunction(theBid.getAdFormat) ?
+                theBid.getAdFormat() : (theBid.mediaType || undefined));
 
             BIDMgr.executeMonetizationPixel(slotID, theBid);
             BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;

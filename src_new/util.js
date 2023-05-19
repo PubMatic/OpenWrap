@@ -1465,6 +1465,34 @@ exports.getPartnerParams = function(params){
 };
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
+exports.getAdDomain = function(bidResponse) {
+	if (bidResponse.meta && bidResponse.meta.advertiserDomains && bidResponse.meta.advertiserDomains.length > 0) {
+		var adomain = bidResponse.meta.advertiserDomains[0];
+
+		if (adomain) {
+			try {
+				var hostname = new URL(adomain);
+				return hostname.hostname.replace('www.', '');
+			} catch (e) {
+				refThis.log("Adomain URL (Not a proper URL):"+ adomain);
+				return adomain.split('/')[0].replace('www.', '');
+			}
+		}
+	}
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+exports.getTgid = function() {
+	var testGroupId = parseInt(PWT.testGroupId || 0);
+	if (testGroupId <= 15 && testGroupId >= 0) {
+	  return testGroupId;
+	}
+	return 0;
+};
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.generateMonetizationPixel = function(slotID, theBid){
 	var pixelURL = CONFIG.getMonetizationPixelURL(),
 		pubId = CONFIG.getPublisherId();
@@ -1542,6 +1570,15 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	adUnitId = origAdUnit.adUnitId || slotID;
 	var iiid = window.PWT.bidMap[slotID].getImpressionID();
 	var isRefreshed = (window.PWT.newAdUnits && window.PWT.newAdUnits[iiid] && window.PWT.newAdUnits[iiid][slotID] && window.PWT.newAdUnits[iiid][slotID]['pubmaticAutoRefresh'] && window.PWT.newAdUnits[iiid][slotID]['pubmaticAutoRefresh']['isRefreshed']) ? 1 : 0;
+	// var impressionID = PWT.bidMap[slotID].impressionID;
+	const adv = refThis.getAdDomain(theBid.pbbid || theBid) || undefined;
+	const fskp = window.PWT.floorData ?
+		(window.PWT.floorData[iiid] ?
+			(window.PWT.floorData[iiid].floorRequestData ?
+				(window.PWT.floorData[iiid].floorRequestData.skipped == false ? 0 : 1) :
+				undefined)
+			: undefined)
+		: undefined;
 
 	pixelURL += "pubid=" + pubId;
 	pixelURL += "&purl=" + window.encodeURIComponent(refThis.metaInfo.pageURL);
@@ -1560,6 +1597,22 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
 	pixelURL += "&piid=" + window.encodeURIComponent(sspID);
 	pixelURL += "&rf=" + window.encodeURIComponent(isRefreshed);
+
+	pixelURL += '&plt=' + window.encodeURIComponent(refThis.getDevicePlatform());
+	pixelURL += (refThis.isFunction(theBid.getWidth) && refThis.isFunction(theBid.getHeight)) ?
+		('&psz=' + window.encodeURIComponent(theBid.getWidth() + 'x' + theBid.getHeight())) :
+			((refThis.isFunction(theBid.getSize)) ? 
+				('&psz=' + window.encodeURIComponent(theBid.getSize())) :
+					'&psz=' + window.encodeURIComponent(theBid.width + 'x' + theBid.height));
+	pixelURL += '&tgid=' + window.encodeURIComponent(refThis.getTgid());
+	adv && (pixelURL += '&adv=' + window.encodeURIComponent(adv));
+	pixelURL += '&orig=' + window.encodeURIComponent((refThis.metaInfo && refThis.metaInfo.pageDomain) || '');
+	pixelURL += '&ss=' + window.encodeURIComponent(refThis.isFunction(theBid.getServerSideStatus) ?
+		(theBid.getServerSideStatus() ? 1 : 0) :
+		(CONFIG.isServerSideAdapter(adapterId) ? 1 : 0));
+	(fskp != undefined) && (pixelURL += '&fskp=' + window.encodeURIComponent(fskp));
+	pixelURL += '&af=' + window.encodeURIComponent(refThis.isFunction(theBid.getAdFormat) ?
+		theBid.getAdFormat() : (theBid.mediaType || undefined));
 
 	return CONSTANTS.COMMON.PROTOCOL + pixelURL;
 };
