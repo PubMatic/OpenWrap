@@ -3846,7 +3846,7 @@ describe('UTIL', function() {
                 'ecpm':'10.00'
             }
             sinon.stub(UTIL,'getUserIds').returns({id:1})
-            sinon.stub(UTIL,'getUserIdsAsEids').returns([{"source":"myId",id:1}])
+            sinon.stub(UTIL,'getUserIdsAsEids').returns([{"source":"myId",uids:[{ "id": "idhub-id"}]}])
             done();
         });
 
@@ -3863,27 +3863,25 @@ describe('UTIL', function() {
         });
 
         it('should add UserId in bid if userIds is not present', function(done){
-            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","id":1}]}
+            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId",uids:[{ "id": "idhub-id"}]}]}
             UTIL.updateUserIds(bid)
             bid.should.be.deep.equal(expectedResult);
             done();
         })
 
-        // TODO: UnComment Below Test Cases once PhantomJs is replaced by ChromeHeadless in build.sh production and test mode
-        xit('should update UserID in bid if userIds is present',function(done){
-            var expectedResult = {"ecpm":"10.00","userId":{"existingId":2,"id":1},"userIdAsEids":[{"source":"myId","id":1},{"source":"existingMyId","existingId":2}]} 
+        it('should update(or merge) UserID in bid if userIds is present',function(done){
+            var expectedResult = {"ecpm":"10.00","userId":{"existingId":2,"id":1},"userIdAsEids":[{"source":"existingMyId","uids": [{"id": "prebid-id"}]},{"source":"myId",uids:[{ "id": "idhub-id"}]}]} 
             bid['userId'] = {"existingId":2}
-            bid['userIdAsEids'] = [{"source":"existingMyId","existingId":2}]
+            bid['userIdAsEids'] = [{"source":"existingMyId","uids": [{"id": "prebid-id"}]}]
             UTIL.updateUserIds(bid)
             bid.should.be.deep.equal(expectedResult);
             done();
         })
         
-        // TODO: UnComment Below Test Cases once PhantomJs is replaced by ChromeHeadless in build.sh production and test mode
-        xit('should update with IH values if same id is present', function(done){
-            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","id":1}]}
+        it('should update or pass prebid ID instead of IH ID in bid if same id is present', function(done){
+            var expectedResult = {"ecpm":"10.00","userId":{"id":1},"userIdAsEids":[{"source":"myId","uids": [{"id": "prebid-id"}]}]}
             bid['userId'] = {"id":2}
-            bid['userIdAsEids'] = [{"source":"myId","id":2}]
+            bid['userIdAsEids'] = [{"source":"myId","uids": [{"id": "prebid-id"}]}]
             UTIL.updateUserIds(bid);
             bid.should.be.deep.equal(expectedResult);
             done();
