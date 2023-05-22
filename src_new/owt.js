@@ -167,7 +167,8 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 	if(adUnit.bid){
 		params["bid"] = adUnit.bid;
 	}
-	dfpurl = window.owpbjs.adServers.dfp.buildVideoUrl(params);
+	var namespace = CONFIG.getPbGloabalVarNamespace(CONSTANTS.COMMON.PREBID_NAMESPACE);
+	dfpurl = window[namespace].adServers.dfp.buildVideoUrl(params);
 	return dfpurl;
 };
 // endRemoveIf(removeInStreamRelatedCode)
