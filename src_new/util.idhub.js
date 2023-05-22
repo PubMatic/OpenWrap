@@ -387,8 +387,11 @@ exports.getLiverampParams = function(params) {
 			}
 			break;
 		case 'direct':
-			var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
-			atsObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+			atsObject.emailHashes = undefined;
+			if (window.IHPWT && (window.IHPWT.OVERRIDES_SCRIPT_BASED_MODULES && window.IHPWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("identityLink")) || window.IHPWT.OVERRIDES_SCRIPT_BASED_MODULES === undefined) {
+				var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
+				atsObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+			} 
 			/* do we want to keep sso data under direct option?
 			if yes, if sso is enabled and 'direct' is selected as detection mechanism, sso emails will be sent to ats script.
 			if sso is disabled, and 'direct' is selected as detection mechanism, we will look for publisher provided email ids, and if available the hashes will be sent to ats script.
@@ -425,7 +428,13 @@ exports.getEmailHashes = function(){
 	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
-	return emailHash && [emailHash['MD5'], emailHash['SHA1'], emailHash['SHA256']] || undefined;
+	var emailHashArr = [];
+	refThis.forEachOnObject(emailHash, function (keyName, keyValue) {
+		if (keyValue !== undefined) {
+			emailHashArr.push(keyValue);
+		}
+	});
+	return emailHashArr.length > 0 ? emailHashArr : undefined;
 }
 
 exports.initLiveRampLaunchPad = function (params) {
@@ -437,21 +446,17 @@ exports.initLiveRampLaunchPad = function (params) {
 				var isDirectMode = !(ats.outputCurrentConfiguration()['DETECTION_MODULE_INFO']) ||
 									ats.outputCurrentConfiguration()['ENVELOPE_MODULE_INFO']['ENVELOPE_MODULE_CONFIG']['startWithExternalId'];
 				if(isDirectMode){ // If direct or detect/direct mode
-					var emailHashes = refThis.getEmailHashes();
-					emailHashes && window.ats.setAdditionalData({'type': 'emailHashes','id': emailHashes});
+					if (window.IHPWT && (window.IHPWT.OVERRIDES_SCRIPT_BASED_MODULES && window.IHPWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("identityLink")) || window.IHPWT.OVERRIDES_SCRIPT_BASED_MODULES === undefined) {
+						var emailHashes = refThis.getEmailHashes();
+						emailHashes && window.ats.setAdditionalData({'type': 'emailHashes','id': emailHashes});
+					}
 				}
 			}, ['atsWrapperLoaded']);
 		};
 		launchPadScript.src = lpURL;
 		document.body.appendChild(launchPadScript);
 	}
-	if (document.readyState == 'complete') {
-		addLaunchPad();
-	} else {
-		window.addEventListener("load", function () {
-			setTimeout(addLaunchPad, 1000);
-		});
-	}
+	addLaunchPad();
 };
 
 exports.initLauncherJs = function (params) {
@@ -498,8 +503,11 @@ exports.getPublinkLauncherParams = function(params) {
 			lnchObject.detectionSubject = "email";
 			break;
 		case 'direct':
-			var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
-			lnchObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA256']] || undefined;
+			lnchObject.emailHashes = undefined;
+			if (window.IHPWT && (window.IHPWT.OVERRIDES_SCRIPT_BASED_MODULES && window.IHPWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("publinkId")) || window.IHPWT.OVERRIDES_SCRIPT_BASED_MODULES === undefined) {
+				var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
+				lnchObject.emailHashes = emailHash && [emailHash['MD5'], emailHash['SHA256']] || undefined;
+			}
 			/* do we want to keep sso data under direct option?
 			if yes, if sso is enabled and 'direct' is selected as detection mechanism, sso emails will be sent to ats script.
 			if sso is disabled, and 'direct' is selected as detection mechanism, we will look for publisher provided email ids, and if available the hashes will be sent to ats script.
@@ -514,8 +522,11 @@ exports.initZeoTapJs = function(params) {
 		var n = document, t = window;
 		var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 		var enableSSO = CONFIG.isSSOEnabled() || false;
-		var userIdentityObject = {
-			email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash['SHA256'] : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash['SHA256'] : undefined
+		var userIdentityObject = {};
+		if (window.IHPWT && (window.IHPWT.OVERRIDES_SCRIPT_BASED_MODULES && window.IHPWT.OVERRIDES_SCRIPT_BASED_MODULES.includes("zeotapIdPlus")) || window.IHPWT.OVERRIDES_SCRIPT_BASED_MODULES === undefined) {
+			userIdentityObject = {
+				email: enableSSO && userIdentity.emailHash ? userIdentity.emailHash['SHA256'] : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash['SHA256'] : undefined
+			};
 		};
 		var e=n.createElement("script");
 		e.type="text/javascript",
@@ -582,7 +593,7 @@ exports.updateUserIds = function (bid) {
 		bid["userIdAsEids"] = refThis.getUserIdsAsEids();
 	} else if (refThis.isArray(bid.userIdAsEids)) {
 		var idsPresent = new Set();
-		var ids = refThis.getUserIdsAsEids().concat(bid.userIdAsEids);
+		var ids = bid.userIdAsEids.concat(refThis.getUserIdsAsEids());
 		if (refThis.isArray(ids) && ids.length > 0) {
 			ids = ids.filter(function (id) {
 				if (id.source) {
@@ -629,6 +640,14 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 									params[key] = [paramValue];
 								}
 							}
+							break;
+						case "customObject":
+							if (paramValue) {
+								if (key === "params.requestedAttributesOverrides") {
+									params[key] = {'uid2': (paramValue === "true" || paramValue === "1")}
+								}
+							}
+							break;
 						default:
 							return;
 					}
@@ -659,3 +678,36 @@ exports.getOWConfig = function(){
 	};
 	return obj;
 };
+
+exports.deepMerge = function(target, source, keyName) {
+	keyName = keyName ? keyName: "source";
+	if (refThis.isArray(target) && refThis.isArray(source)) {
+		var mergedArr = [].concat(target);
+		source.forEach(function(item2){
+			var found = false;
+			mergedArr.forEach(function(item1, index){
+				if (item1[keyName] === item2[keyName]) {
+					mergedArr[index] = refThis.deepMerge(item1, item2);
+					found = true;
+				}
+			});
+			if (!found) {
+				mergedArr.push(item2);
+			}
+		});
+		return mergedArr;
+	}
+
+	if (refThis.isObject(target) && refThis.isObject(source)) {
+		var mergedObj = Object.assign({}, target);
+		Object.keys(source).forEach(function(key){
+			if (mergedObj[key] && typeof mergedObj[key] === "object" && typeof source[key] === "object") {
+				mergedObj[key] = refThis.deepMerge(mergedObj[key], source[key]);
+			} else {
+				mergedObj[key] = source[key];
+			}
+		});
+		return mergedObj;
+	}
+	return source;
+}

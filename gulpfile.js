@@ -300,7 +300,8 @@ gulp.task('bundle-pwt-keys', function() {
                             "UUID": "hb_uuid",
                             "CACHE_ID": "hb_cache_id",
                             "CACHE_HOST": "hb_cache_host",
-                            "ADOMAIN" : "hb_adomain"
+                            "ADOMAIN" : "hb_adomain",
+                            "ACAT": "hb_acat",
                     }
                 }
             ]

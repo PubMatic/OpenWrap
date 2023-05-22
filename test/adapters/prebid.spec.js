@@ -939,13 +939,14 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(UTIL, 'isFunction');
             sinon.stub(UTIL, 'logWarning');
             sinon.stub(CONFIG, 'isFloorPriceModuleEnabled');
+            sinon.stub(CONFIG, 'getFloorSource');
             sinon.stub(CONFIG, 'getFloorJsonUrl').returns("externalFloor.json");
             sinon.stub(CONFIG, 'getFloorAuctionDelay').returns(100);
             CONF.pwt.identityOnly = "0";
             UTIL.pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
             floorObj = {
                 enforcement:{
-                    enforceJS: true
+                    enforceJS: false
                 },
                 auctionDelay: 100,
                 endpoint:{
@@ -1001,6 +1002,7 @@ describe('ADAPTER: Prebid', function() {
             UTIL.isFunction.restore();
             UTIL.logWarning.restore();
             CONFIG.isFloorPriceModuleEnabled.restore();
+            CONFIG.getFloorSource.restore();
             CONFIG.getFloorJsonUrl.restore();
             CONFIG.getFloorAuctionDelay.restore();
             windowPbJS2Stub.onEvent.restore();
@@ -1030,21 +1032,56 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 
-        it('should set floor module with default inputs',function(done){
+        it('should set floor module with default inputs if floor source is External Floor',function(done){
             CONFIG.isFloorPriceModuleEnabled.returns(true);
+            CONFIG.getFloorSource.returns('External Floor');
             PREBID.setPrebidConfig();
             expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
             done();
         });
 
+        it('should not set floor module if floor source is not External Floor',function(done){
+            CONFIG.isFloorPriceModuleEnabled.returns(true);
+            CONFIG.getFloorSource.returns('External Floor w/o Config');
+            PREBID.setPrebidConfig();
+            expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(undefined);
+            done();
+        });
+
         it('should set floor module with auctionDelay as 300',function(done){
             CONFIG.isFloorPriceModuleEnabled.returns(true);
+            CONFIG.getFloorSource.returns('External Floor');
             CONFIG.getFloorAuctionDelay.returns(300);
             floorObj.auctionDelay = 300;
             PREBID.setPrebidConfig();
             expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
             done();
         });
+
+		it('should not enforce floor when floorType is not defined ', function(done) {
+			CONFIG.isFloorPriceModuleEnabled.returns(true);
+			PREBID.setPrebidConfig();
+			expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
+			done();
+		});
+
+		it('should not enforce floor when floorType is defined as soft', function(done) {
+			CONFIG.isFloorPriceModuleEnabled.returns(true);
+			CONF.pwt.floorType = 'soft';
+			PREBID.setPrebidConfig();
+			expect(window.owpbjs.getConfig()["floors"]["enforcement"]["enforceJS"]).to.equal(false);
+			delete CONF.pwt.floorType;
+			done();
+		});
+
+		it('should enforce floor when floorType is defined as hard ', function(done) {
+			CONFIG.isFloorPriceModuleEnabled.returns(true);
+			CONF.pwt.floorType = 'hard';
+			PREBID.setPrebidConfig();
+			expect(window.owpbjs.getConfig()["floors"]["enforcement"]["enforceJS"]).to.equal(true);
+			delete CONF.pwt.floorType;
+			done();
+		});
     });
 
     describe('#fetchBids', function() {
@@ -1620,12 +1657,14 @@ describe('ADAPTER: Prebid', function() {
 					isUsePrebidKeysEnabled: CONFIG.isUsePrebidKeysEnabled(),
 					macros: CONFIG.createMacros()
 				}
-			};
+            };
+            sinon.stub(CONFIG,'getMarketplaceBidders');
 			done();
 		});
 
 		afterEach(function(done){
-			prebidConfig = {};
+            prebidConfig = {};
+            CONFIG.getMarketplaceBidders.restore();
 			done();
 		});
 
@@ -1638,8 +1677,43 @@ describe('ADAPTER: Prebid', function() {
 			PREBID.gets2sConfig(prebidConfig);
 			expect(prebidConfig.s2sConfig).to.be.deep.equal(expectedResult);
 			done();
-		});
+        });
+        
+        it("should set marketplace parameters in s2sConfig properties, if marketplqace is enabled",function(done){
+            CONFIG.getMarketplaceBidders.returns(["groupm"]);
+            expectedResult["allowUnknownBidderCodes"] = true;
+            expectedResult["extPrebid"]["alternatebiddercodes"] = {
+                enabled: true,
+                bidders: {
+                    pubmatic: {
+                        enabled: true,
+                        allowedbiddercodes: CONFIG.getMarketplaceBidders()
+                    }
+                }
+            }
+			PREBID.gets2sConfig(prebidConfig);
+			expect(prebidConfig.s2sConfig).to.be.deep.equal(expectedResult);
+            done();
+        });
 	})
+
+	// Test cases for inventory packaging 
+	describe("assignPackagingInventoryConfig",function(){
+		var prebidConfig = {};
+		var expectedResult = {
+				enabled:  true
+		};
+		it("should be a functiion",function(done){
+			PREBID.assignPackagingInventoryConfig.should.be.a("function");
+			done();
+		});
+
+		it("should set s2sConfig properties",function(done){
+			PREBID.assignPackagingInventoryConfig(prebidConfig);
+			expect(prebidConfig.viewabilityScoreGeneration).to.be.deep.equal(expectedResult);
+			done();
+		});
+	});
 
     describe('#addOnBidRequestHandler',function(){
         beforeEach(function(done) {
@@ -1744,6 +1818,110 @@ describe('ADAPTER: Prebid', function() {
             PREBID.pbBidRequestHandler(pbBid);
 	expect(window.PWT.floorData["123123123"]["floorRequestData"]["skipped"]).to.be.false;
 	expect(window.PWT.floorData["123123123"]["floorRequestData"]["modelVersion"]).to.be.equal("floorTestModel");
+            done();
+        });
+    });
+
+    describe('#addOnAuctionEndHandler',function(){
+        beforeEach(function(done) {
+            sinon.stub(UTIL, 'isFunction');
+            sinon.spy(UTIL, 'logWarning');
+
+            window.owpbjs = {
+
+            };
+            windowPbJS2Stub = {
+                onEvent: function () {
+                    return "onEvent";
+                }
+            };
+            sinon.spy(windowPbJS2Stub, "onEvent");
+            window["owpbjs"] = windowPbJS2Stub;
+
+            done();
+        });
+
+        afterEach(function(done){
+            UTIL.isFunction.restore();
+            UTIL.logWarning.restore();
+            windowPbJS2Stub.onEvent.restore();
+
+            delete window.owpbjs;
+            done();
+        })
+        it('should be a functiion',function(done){
+            PREBID.addOnAuctionEndHandler.should.be.a('function');
+            done();
+        });
+
+        it('should log warning if onEvent is not a function',function(done){
+            UTIL.isFunction.returns(false);
+            PREBID.addOnAuctionEndHandler()
+            UTIL.logWarning.calledWith("PreBid js onEvent method is not available").should.be.true;
+            done();
+        });
+
+        it('should call onEvent if onEvent is function',function(done){
+            UTIL.isFunction.returns(true);
+            PREBID.addOnAuctionEndHandler();
+            window["owpbjs"].onEvent.should.be.called;
+            done();
+        });
+    });
+
+    describe('#pbAuctionEndHandler',function(){
+        var auctionArgs = {
+            auctionId: "2c1dc7f4-85cd-4557-b252-d4502ae98bf9",
+            auctionStart: 1630586818462,
+            bidderCode: "rubicon",
+            adUnits: [{
+                code:'Div1',
+                pubmaticAutoRefresh:{
+                    isRefreshed: true
+                }
+            }],
+            
+        }
+
+        beforeEach(function(done) {
+            window.PWT = {
+                newAdUnits: {
+                    "123123123":{
+                        "Div1": {
+                            "code": 'Div1'
+                        }
+                    }
+                },
+                bidMap:{
+                    "Div1" : {
+                        impressionID: "123123123"
+                    }
+                }
+            }
+            done();
+        });
+
+        afterEach(function(done){
+            window.PWT.newAdUnits = {};
+            done();
+        });
+
+        it('should be a functiion',function(done){
+            PREBID.pbAuctionEndHandler.should.be.a('function');
+            done();
+        });
+
+        it('should copy pubmaticAutoRefresh data into window.PWT.adUnit',function(done){
+            PREBID.pbAuctionEndHandler(auctionArgs);
+	        expect(window.PWT.newAdUnits["123123123"]["Div1"]["pubmaticAutoRefresh"]).to.be.an.object;
+	        expect(window.PWT.newAdUnits["123123123"]["Div1"]["pubmaticAutoRefresh"]["isRefreshed"]).to.be.true;
+            done();
+        });
+
+        it('should not copy pubmaticAutoRefresh data into window.PWT.adUnit when the entry is missing',function(done){
+            delete auctionArgs.adUnits[0].pubmaticAutoRefresh;
+            PREBID.pbAuctionEndHandler(auctionArgs);
+	        expect(window.PWT.newAdUnits["123123123"]["Div1"]["pubmaticAutoRefresh"]).to.be.undefined;
             done();
         });
     });

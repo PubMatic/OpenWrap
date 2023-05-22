@@ -26,6 +26,7 @@ exports.kgpvMap = kgpvMap;
 
 var refThis = this;
 var onEventAdded = false;
+var onAuctionEndEventAdded = false;
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
 var defaultAliases = CONSTANTS.DEFAULT_ALIASES;
@@ -314,10 +315,33 @@ function pbBidRequestHandler(pbBid){
 	});
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
-  
+
 // removeIf(removeLegacyAnalyticsRelatedCode)
 /* start-test-block */
 exports.pbBidRequestHandler = pbBidRequestHandler;
+/* end-test-block */
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+function pbAuctionEndHandler(args){
+	window.PWT.newAdUnits = window.PWT.newAdUnits || {};
+	args.adUnits.forEach(function(adUnit){
+		if(!!adUnit.pubmaticAutoRefresh){
+			if(!window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID]){
+				window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID] = {};
+			}
+			if(!window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID][adUnit.code]){
+				window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID][adUnit.code] = {}
+			}
+			window.PWT.newAdUnits[window.PWT.bidMap[adUnit.code].impressionID][adUnit.code].pubmaticAutoRefresh = adUnit.pubmaticAutoRefresh;
+		}
+	});
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
+/* start-test-block */
+exports.pbAuctionEndHandler = pbAuctionEndHandler;
 /* end-test-block */
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
@@ -803,7 +827,8 @@ function assignGdprConfigIfRequired(prebidConfig){
 		prebidConfig["consentManagement"]['gdpr'] = {
 			cmpApi: CONFIG.getCmpApi(),
 			timeout: CONFIG.getGdprTimeout(),
-			allowAuctionWithoutConsent: CONFIG.getAwc() // Auction without consent
+			allowAuctionWithoutConsent: CONFIG.getAwc(), // Auction without consent
+			defaultGdprScope: true
 		};
 	}
 }
@@ -866,7 +891,8 @@ function enablePrebidPubMaticAnalyticIfRequired(){
 			options: {
 				publisherId: CONFIG.getPublisherId(),
 				profileId: CONFIG.getProfileID(),
-				profileVersionId: CONFIG.getProfileDisplayVersionID()
+				profileVersionId: CONFIG.getProfileDisplayVersionID(),
+				identityOnly: (CONFIG.isUserIdModuleEnabled() ? 1 : 0)
 			}
 		});
 	}
@@ -949,6 +975,21 @@ exports.addOnBidResponseHandler = addOnBidResponseHandler;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
+function addOnAuctionEndHandler(){
+	if(util.isFunction(window[pbNameSpace].onEvent)){
+		if(!onAuctionEndEventAdded){
+			window[pbNameSpace].onEvent('auctionEnd', refThis.pbAuctionEndHandler);
+			onAuctionEndEventAdded = true;
+		}
+	} else {
+		util.logWarning("PreBid js onEvent method is not available");
+		return;
+	}
+}
+exports.addOnAuctionEndHandler = addOnAuctionEndHandler;
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 function addOnBidRequestHandler(){
 	if(util.isFunction(window[pbNameSpace].onEvent)){
 		window[pbNameSpace].onEvent('bidRequested', refThis.pbBidRequestHandler);
@@ -996,6 +1037,7 @@ function setPrebidConfig(){
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
+		refThis.assignPackagingInventoryConfig(prebidConfig);
 		// if usePBSAdapter is 1 then add s2sConfig
 		if(CONFIG.usePBSAdapter()) {
 			refThis.gets2sConfig(prebidConfig);
@@ -1057,12 +1099,25 @@ function gets2sConfig(prebidConfig){
 			macros: CONFIG.createMacros()
 		}	
 	}
+	// adding support for marketplace
+	if(!!CONFIG.getMarketplaceBidders()){
+		prebidConfig["s2sConfig"]["allowUnknownBidderCodes"] = true;
+		prebidConfig["s2sConfig"]["extPrebid"]["alternatebiddercodes"] = {
+			enabled: true,
+			bidders: {
+				pubmatic: {
+					enabled: true,
+					allowedbiddercodes: CONFIG.getMarketplaceBidders()
+				}
+			}
+		}
+	}
 }
 
 exports.gets2sConfig = gets2sConfig;
 
 function getFloorsConfiguration(prebidConfig){
-	if(CONFIG.isFloorPriceModuleEnabled() == true){
+	if(CONFIG.isFloorPriceModuleEnabled() == true && CONFIG.getFloorSource() !== CONSTANTS.COMMON.EXTERNAL_FLOOR_WO_CONFIG){
 		prebidConfig["floors"]={
 			enforcement: {
 				enforceJS: CONFIG.getFloorType()
@@ -1100,6 +1155,15 @@ function checkForYahooSSPBidder(prebidConfig){
 }
 
 exports.checkForYahooSSPBidder = checkForYahooSSPBidder;
+
+
+function assignPackagingInventoryConfig(prebidConfig) {
+	prebidConfig["viewabilityScoreGeneration"] = {
+		enabled:  true
+	}
+}
+
+exports.assignPackagingInventoryConfig = assignPackagingInventoryConfig;
 
 function getPbjsAdServerTargetingConfig(){
 	// Todo: Handle send-all bids feature enabled case
@@ -1234,7 +1298,11 @@ function setPbjsBidderSettingsIfRequired(){
 	CONFIG.forEachAdapter(function(adapterID){
 		if(window[pbNameSpace].bidderSettings.hasOwnProperty(adapterID) === false){
 			window[pbNameSpace].bidderSettings[adapterID] = {};
-
+			// adding marketplace params
+			if(adapterID === "pubmatic" && !!CONFIG.getMarketplaceBidders()){
+				window[pbNameSpace].bidderSettings[adapterID]['allowAlternateBidderCodes'] = true;
+				window[pbNameSpace].bidderSettings[adapterID]['allowedAlternateBidderCodes'] = CONFIG.getMarketplaceBidders();
+			}
 			// adding bidCpmAdjustment			
 			window[pbNameSpace].bidderSettings[adapterID]['bidCpmAdjustment'] = function(bidCpm, bid){
 				return window.parseFloat((bidCpm * CONFIG.getAdapterRevShare(adapterID)).toFixed(CONSTANTS.COMMON.BID_PRECISION));
@@ -1333,6 +1401,7 @@ function fetchBids(activeSlots){
 					// we do not want this call when we have PrebidAnalytics enabled
 					refThis.addOnBidResponseHandler();
 					refThis.addOnBidRequestHandler();
+					refThis.addOnAuctionEndHandler();
 				}
 				// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 

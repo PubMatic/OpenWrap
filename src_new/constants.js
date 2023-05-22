@@ -36,6 +36,7 @@ exports.COMMON = {
 	"PROTOCOL": "https://",
 	"SLOT_CONFIG": "slotConfig",
 	"DEFAULT": "default",
+	"MCONF_REGEX": "regex",
 	"ADSERVER":"adserver",
 	"OWVERSION":"owv",
 	"PBVERSION":"pbv",
@@ -50,7 +51,9 @@ exports.COMMON = {
 	"REDUCE_CODE_SIZE": "reduceCodeSize",
 	"TEST_IDENTITY_PARTNER": "test_identityPartners",
 	"IH_ANALYTICS_ADAPTER_EXPIRY": "ihAnalyticsAdapterExpiry",
-	"IH_ANALYTICS_ADAPTER_DEFAULT_EXPIRY": 7
+	"IH_ANALYTICS_ADAPTER_DEFAULT_EXPIRY": 7,
+	"EXTERNAL_FLOOR_WO_CONFIG": "External Floor w/o Config",
+	"HARD_FLOOR": "hard"
 };
 
 exports.CONFIG = {
@@ -109,7 +112,8 @@ exports.CONFIG = {
 	"TIMEOUT_ADJUSTMENT": 50,
 	"SSO_ENABLED": "ssoEnabled",
 	"PB_GLOBAL_VAR_NAMESPACE": "pbGlobalVarNamespace",
-	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace"
+	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace",
+	"FLOOR_SOURCE": "floorSource"
 };
 
 exports.METADATA_MACROS = {
@@ -208,6 +212,7 @@ exports.MESSAGES = {
 	"M29": "Unable to parse Partner configuration",
 	"M30": "AB Test Enabled With Config",
 	"M31": "AB Test Enabled With Partner Config",
+	"M32": "Invalid MediaConfig regex pattern : ",
 	IDENTITY: {
 		M1: "Unable to get User Id from OpenIdentity",
 		M2: "Setting UserIds to EB ",
@@ -275,6 +280,9 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 	},
 	"merkleId": {
 		"params.ssp_ids": "array"
+	},
+	"liveIntentId": {
+		"params.requestedAttributesOverrides": "customObject"
 	}
 }; //list of ID partners for whom special handling of datatype is required
 
@@ -287,10 +295,6 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 	"identityLink": [{
 		"key": "storage.refreshInSeconds",
 		"value": "1800"
-	}],
-	"liveIntentId": [{
-		"key": "params.requestedAttributesOverrides",
-		"value": {'uid2': true}
 	}]
 };
 

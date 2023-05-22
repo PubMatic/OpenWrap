@@ -919,7 +919,8 @@ describe('UTIL', function() {
                 },
                 pbbid:{
                     mediaType:"banner"
-                }
+                },
+                getGrossEcpm:function(){ return "10.55" }
             };
             sinon.stub(UTIL, "resizeWindow")
             // .returns(true);
@@ -976,38 +977,15 @@ describe('UTIL', function() {
             done();
         });
 
-        it('should have called replace Auction Price method of the passed object if bid is of APPIER', function(done) {
-            bid.getAdapterID = function(){ return "appier" };
-            bid.getGrossEcpm = function(){ return "10.55" };
+        it('should have called replace Auction Price method of the passed object, irrespective of bidder', function(done) {
             UTIL.displayCreative(theDocument, bid);
             theDocument.write.calledWith(bid.adHtml).should.be.true;
             UTIL.replaceAuctionPrice.calledWith(bid.adHtml,bid.getGrossEcpm()).should.be.true;
             done();
         });
 
-        it('should have called replace auction price and  writeIframe method if adUrl is present in given bid and adHtml is not and bidder is appier', function(done) {
+        it('should have called replace auction price and  writeIframe method if adUrl is present in given bid and adHtml is not, irrespective of bidder', function(done) {
             delete bid.adHtml;
-            bid.getAdapterID = function(){ return "appier" };
-            bid.getGrossEcpm = function(){ return "10.55" };
-            UTIL.displayCreative(theDocument, bid);
-            UTIL.replaceAuctionPrice.calledWith(bid.adUrl,bid.getGrossEcpm()).should.be.true;
-            UTIL.writeIframe.calledWith(theDocument, bid.adUrl, bid.width, bid.height, "").should.be.true;
-            done();
-        });
-
-        it('should have called replace Auction Price method of the passed object if bid is of DeepIntent', function(done) {
-            bid.getAdapterID = function(){ return "deepintent" };
-            bid.getGrossEcpm = function(){ return "10.55" };
-            UTIL.displayCreative(theDocument, bid);
-            theDocument.write.calledWith(bid.adHtml).should.be.true;
-            UTIL.replaceAuctionPrice.calledWith(bid.adHtml,bid.getGrossEcpm()).should.be.true;
-            done();
-        });
-
-        it('should have called replace auction price and  writeIframe method if adUrl is present in given bid and adHtml is not and bidder is DeepIntent', function(done) {
-            delete bid.adHtml;
-            bid.getAdapterID = function(){ return "deepintent" };
-            bid.getGrossEcpm = function(){ return "10.55" };
             UTIL.displayCreative(theDocument, bid);
             UTIL.replaceAuctionPrice.calledWith(bid.adUrl,bid.getGrossEcpm()).should.be.true;
             UTIL.writeIframe.calledWith(theDocument, bid.adUrl, bid.width, bid.height, "").should.be.true;
@@ -2801,6 +2779,123 @@ describe('UTIL', function() {
             expect(result).to.be.deep.equal(expectedResult);
             done();
         });
+
+        it('should return MediaConfigObject according to regex config mapping if regex is enabled, DIV/AU settings present in regex key',function(done){
+            currentSlot.getDivID.restore();
+            // DivId settings not registered in MediaConfiguration 
+            sinon.stub(currentSlot, "getDivID").returns("DIV_22");
+            commonDivID="DIV_22";
+            var expectedResult =  {"video":{"context":"instream","connectiontype": [1, 6],"minduration": 20,"maxduration": 80,"battr": [ 5, 6],"skipmin": 20,"skipafter": 5}};
+            // initializing  regex key and respective expression
+            slotConfiguration["regex"]=true;
+            slotConfiguration["config"]["div_[0-9]*"] = {
+                "banner":{
+                    enabled:false,
+                },
+                "native":{
+                    enabled: false,
+                },
+                "video": {
+                    "enabled": true,
+                    "config": {"context":"instream","connectiontype": [1, 6],"minduration": 20,"maxduration": 80,"battr": [ 5, 6],"skipmin": 20,"skipafter": 5}
+                }
+            };
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
+            expect(result.should.deep.equal(expectedResult));
+            done();
+        });
+
+        it('should return exact- slot/DIV match(Priority over regex)settings for DIV if both DIV and valid regex is present and regex is enabled',function(done){
+            currentSlot.getDivID.restore();
+            // DivId settings not registered in MediaConfiguration 
+            sinon.stub(currentSlot, "getDivID").returns("DIV_2");
+            commonDivID="DIV_2";
+            var expectedResult = {"native":{"image":{"required":true,"sizes":[150,50]},"title":{"required":true,"len":80},"sponsoredBy":{"required":true},"body":{"required":true}},"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15},"banner":{"sizes":[[300,250]]}};
+            // initializing  regex key and respective expression
+            slotConfiguration["regex"]=true;
+            slotConfiguration["config"]["div_*"] = {
+                "banner":{
+                    enabled:false,
+                },
+                "native":{
+                    enabled: false,
+                },
+                "video": {
+                    "enabled": true,
+                    "config": {"context":"instream","connectiontype": [1, 6],"minduration": 20,"maxduration": 80,"battr": [ 5, 6],"skipmin": 20,"skipafter": 5}
+                }
+            };
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
+            expect(result.should.deep.equal(expectedResult));
+            done();
+        });
+
+        it('should return default settings match if both DIV and respective regex are absent in MediaConfig and regex is enabled',function(done){
+            currentSlot.getDivID.restore();
+            // DivId settings not registered in MediaConfiguration 
+            sinon.stub(currentSlot, "getDivID").returns("NOT_REGISTERED");
+            commonDivID="NOT_REGISTERED";
+            var expectedResult = {"native":{"image":{"required":true,"sizes":[250,150]},"title":{"required":true,"len":180},"sponsoredBy":{"required":false},"body":{"required":false}},"video":{"context":"instream","connectiontype": [2, 6],"minduration": 100,"maxduration": 120,"battr": [  7],"skip": 1,"skipmin": 100,"skipafter": 150 },"banner":{"sizes":[[300,250]]}};
+            // initializing  regex key and respective expression
+            slotConfiguration["regex"]=true;
+            slotConfiguration["config"]["div_*"] = {
+                "banner":{
+                    enabled:false,
+                },
+                "native":{
+                    enabled: false,
+                },
+                "video": {
+                    "enabled": true,
+                    "config": {"context":"instream","connectiontype": [1, 6],"minduration": 20,"maxduration": 80,"battr": [ 5, 6],"skipmin": 20,"skipafter": 5}
+                }
+            };
+            slotConfiguration["config"]["default"]={
+                "banner":{
+                    enabled:true
+                },
+                "native":{
+                    enabled: true,
+                    config: {
+                        image: {
+                            required: true,
+                            sizes: [250, 150]
+                        },
+                        title: {
+                            required: true,
+                            len: 180
+                        },
+                        sponsoredBy: {
+                            required: false
+                        },
+                        body: {
+                            required: false
+                        }
+                    }
+                },
+                "video": {
+                    "enabled": true,
+                    "config": {"context":"instream","connectiontype": [2, 6],"minduration": 100,"maxduration": 120,"battr": [  7],"skip": 1,"skipmin": 100,"skipafter": 150 }
+                }
+            }
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
+            expect(result.should.deep.equal(expectedResult));
+            done();
+        });
+
+        it('should return only banner(default behaviour) settings match if default, DIV/AU and respective regex is absent in MediaConfig and regex is enabled',function(done){
+            currentSlot.getDivID.restore();
+            // DivId settings not registered in MediaConfiguration 
+            sinon.stub(currentSlot, "getDivID").returns("NOT_REGISTERED");
+            commonDivID="NOT_REGISTERED";
+            var expectedResult = {"banner":{"sizes":[[300,250]]}};
+            // initializing invalid regex key and respective expression
+            slotConfiguration["regex"]=true;
+            slotConfiguration["config"]["div_*"] = {"banner":{    enabled:false,},"native":{    enabled: false,},"video": {    "enabled": true,    "config": {"context":"instream","connectiontype": [1, 6],"minduration": 20,"maxduration": 80,"battr": [ 5, 6],"skipmin": 20,"skipafter": 5}}};
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
+            expect(result.should.deep.equal(expectedResult));
+            done();
+        });
     });
 
     describe('#getAdFormatFromBidAd', function(){
@@ -3894,6 +3989,41 @@ describe('UTIL', function() {
             };
             UTIL.applyDataTypeChangesIfApplicable(paramsForParrable);
             expect(paramsForParrable["params.timezoneFilter.allowedZones"]).to.be.undefined
+            done();
+        });
+        it('should keep the param value unchanged and print a log message if datatype conversion is not possible',function(done){
+            params = {"name": "intentIqId","params.partner":"abc","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+            var expectedResult = {"name": "intentIqId","params.partner":"abc","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+
+            UTIL.applyDataTypeChangesIfApplicable(params);
+            params.should.deep.equal(expectedResult);
+            UTIL.logError.should.be.calledOnce;
+
+            done();
+        });
+
+        it('should set requestedAttributesOverrides value as true if value set in config is true', function(done) {
+            params = {"name": "liveIntentId","params.publisherId": "12432415","params.requestedAttributesOverrides": "true"};
+            var expectedResult = {
+                name: "liveIntentId",
+                "params.publisherId": "12432415",
+                "params.requestedAttributesOverrides": {"uid2": true}
+            };
+            UTIL.applyDataTypeChangesIfApplicable(params);
+            params.should.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should set requestedAttributesOverrides value as false if value set in config is false', function(done) {
+            params = {"name": "liveIntentId","params.publisherId": "12432415","params.requestedAttributesOverrides": "false"};
+            var expectedResult = {
+                name: "liveIntentId",
+                "params.publisherId": "12432415",
+                "params.requestedAttributesOverrides": {"uid2": false}
+            };
+
+            UTIL.applyDataTypeChangesIfApplicable(params);
+            params.should.deep.equal(expectedResult);
             done();
         });
     });  

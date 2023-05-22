@@ -1129,6 +1129,7 @@ describe('bidManager BIDMgr', function() {
             sinon.spy(CONFIG, "getTimeout");
             sinon.spy(CONFIG, "getProfileID");
             sinon.spy(CONFIG, "getProfileDisplayVersionID");
+            sinon.spy(CONFIG, "isUserIdModuleEnabled");
 
             var timeNow = new Date().getTime();
             sinon.stub(UTIL, "getCurrentTimestamp").returns(timeNow);
@@ -1163,6 +1164,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getTimeout.restore();
             CONFIG.getProfileID.restore();
             CONFIG.getProfileDisplayVersionID.restore();
+            CONFIG.isUserIdModuleEnabled.restore();
 
             UTIL.getCurrentTimestamp.restore();
             UTIL.forEachOnObject.restore();
@@ -1193,6 +1195,7 @@ describe('bidManager BIDMgr', function() {
             CONFIG.getTimeout.called.should.be.true;
             CONFIG.getProfileID.called.should.be.true;
             CONFIG.getProfileDisplayVersionID.called.should.be.true;
+            CONFIG.isUserIdModuleEnabled.called.should.be.true;
 
             // GDPR.getUserConsentDataFromLS.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
@@ -1253,7 +1256,21 @@ describe('bidManager BIDMgr', function() {
             window.PWT = {
                 bidMap: {},
                 adUnits: {
-                    "Slot_1":{"divID": slotID, "code":slotID, "adUnitId": adUnitId, "mediaTypes": {'banner': {'sizes': [0]}}}
+                    "Slot_1":{
+                        "divID": slotID, 
+                        "code":slotID, 
+                        "adUnitId": adUnitId, 
+                        "mediaTypes": {'banner': {'sizes': [0]}}
+                    }
+                },
+                newAdUnits:{
+                    "123123":{
+                        "Slot_1":{
+                            "pubmaticAutoRefresh":{ 
+                                "isRefreshed": true
+                            }
+                        }
+                    }
                 }
             };
             window.PWT.bidMap[slotID] = {
@@ -1350,7 +1367,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(14);
+            window.encodeURIComponent.callCount.should.be.equal(15);
 
             done();
         });
@@ -1375,6 +1392,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
             pixelURL += "&piid=" + window.encodeURIComponent(theBid.getsspID());
+            pixelURL += "&rf=" + window.encodeURIComponent(1);
 
             BIDMgr.executeMonetizationPixel(slotID, theBid);
             BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;
@@ -1403,6 +1421,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&eg=" + window.encodeURIComponent(theBid.getGrossEcpm());
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
             pixelURL += "&piid=" + window.encodeURIComponent(theBid.getsspID());
+            pixelURL += "&rf=" + window.encodeURIComponent(1);
 
             BIDMgr.executeMonetizationPixel(slotID, theBid);
             BIDMgr.setImageSrcToPixelURL.calledWith(pixelURL).should.be.true;
@@ -2220,15 +2239,43 @@ describe('bidManager BIDMgr', function() {
     });
 
 	describe('#getBrowser', function() {
+		var userAgent =  window.navigator.userAgent;
 		it('is a function', function(done) {
             BIDMgr.getBrowser.should.be.a('function');
             done();
         });
 
-        it('should have return browser mapping value', function(done) {
-            var browserMapping = BIDMgr.getBrowser();
-			expect(browserMapping).not.to.be.null;
+		it('should return -1 when userAgent is null', function(done) {
+			window.navigator.__defineGetter__('userAgent', function() {
+				return null;
+			});
+            expect(BIDMgr.getBrowser()).to.equal(-1);
             done();
         });
-	});
+
+		it('should return 0 when userAgent dose not match regex from CONSTANTS.REGEX_BROWSERS', function(done) {
+			window.navigator.__defineGetter__('userAgent', function() {
+				return 'xxx-xxxx-xxxx';
+			});
+            expect(BIDMgr.getBrowser()).to.equal(0);
+            done();
+        });
+
+		it('should return value from CONSTANTS.BROWSER_MAPPING', function(done) {
+			window.navigator.__defineGetter__('userAgent', function() {
+				return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36";
+			});
+            expect(BIDMgr.getBrowser()).to.equal(76);
+            done();
+        });
+
+		it('should return integer value', function(done) {
+			window.navigator.__defineGetter__('userAgent', function() {
+				return userAgent;
+			});
+            expect(BIDMgr.getBrowser()).to.not.be.undefined;
+            done();
+        });
+
+	})
 });
