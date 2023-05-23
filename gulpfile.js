@@ -412,22 +412,6 @@ gulp.task('bundle-prod', gulp.series('webpack', function () {
         .pipe(gulp.dest('build'));
 }));
 
-// gulp.task('update-namespace', function(){
-//     console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
-//     console.log("Executing update-namespace - START => ");
-//     //var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
-//     var prebidFileName = '/build/dist/prebid.js';
-//     return gulp.src(prebidRepoPath + prebidFileName)
-//     .pipe(replace({
-//         patterns: [
-//             {
-//             match: /owpbjs/g,
-//             replacement: 'ihowpbjs'
-//             }
-//         ]
-//     }))
-//     .pipe(gulp.dest(prebidRepoPath+'/build/dist/'));
-// });
 function addPattern(patterns, match, replacement) {
     if (replacement) {
         patterns.push({
