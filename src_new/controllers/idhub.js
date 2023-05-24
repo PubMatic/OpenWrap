@@ -2,6 +2,7 @@
 // tdod: we can still reduce the build size for idhub by,
 // 			- create a separate constants.js with limited required functions
 
+var OW_CONFIG = require("../config.js");
 var CONFIG = require("../config.idhub.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.idhub.js");
@@ -37,7 +38,10 @@ refThis.setConfig = function(){
 				}
 			};
 
-			if (CONFIG.getGdpr()) {
+			var region = OW_CONFIG.getRegion();
+			util.log("User region detected: " + region + ", GDPR enabled: " + CONFIG.getGdpr());
+		
+			if(CONFIG.getGdpr() && (region != CONSTANTS.REGIONS.NON_EUROPE)) {
 				if(!prebidConfig["consentManagement"]){
 					prebidConfig["consentManagement"] = {};
 				}
@@ -47,6 +51,9 @@ refThis.setConfig = function(){
 					allowAuctionWithoutConsent: CONFIG.getAwc()
 				};
 			}
+			(region == CONSTANTS.REGIONS.EUROPE) && !CONFIG.getGdpr() &&
+			util.logWarning("User is from EU region but GDPR is not enabled");
+	
 
 			if (CONFIG.getCCPA()) {
 				if(!prebidConfig["consentManagement"]){
