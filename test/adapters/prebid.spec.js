@@ -94,6 +94,7 @@ describe('ADAPTER: Prebid', function() {
 
         beforeEach(function (done) {
             bid = {
+				sspID: "96802",
                 bidderCode: "pubmatic",
                 cpm: 10,
                 originalCpm: "10",
@@ -139,7 +140,7 @@ describe('ADAPTER: Prebid', function() {
             };
             kgpv = commonKGPV;
             sinon.spy(UTIL, "forEachOnObject");
-
+			sinon.spy(UTIL, "logWarning");
             window.owpbjs = {
 
             };
@@ -155,12 +156,22 @@ describe('ADAPTER: Prebid', function() {
 
         afterEach(function (done) {
             UTIL.forEachOnObject.restore();
+			UTIL.logWarning.restore();
             window.owpbjs = {};
             done();
         });
 
         it('is a function', function (done) {
             PREBID.transformPBBidToOWBid.should.be.a('function');
+            done();
+        });
+
+		it('should return cpm as originalCpm when originalCpm is missing in bid object', function (done) {
+			var copyBid = Object.assign({}, bid);
+			delete copyBid.originalCpm;
+			copyBid.status = "bidRejected";
+            var theBid = PREBID.transformPBBidToOWBid(copyBid, kgpv);
+            theBid.getGrossEcpm().should.be.equal(bid.cpm);
             done();
         });
 
@@ -173,6 +184,7 @@ describe('ADAPTER: Prebid', function() {
             theBid.getAdUrl().should.be.equal(bid.adUrl);
             theBid.getWidth().should.be.equal(bid.width);
             theBid.getHeight().should.be.equal(bid.height);
+			theBid.getsspID().should.be.equal(bid.sspID);
 
             theBid.getReceivedTime().should.be.equal(bid.responseTimestamp);
             theBid.getServerSideResponseTime().should.be.equal(bid.serverSideResponseTime);
@@ -235,7 +247,32 @@ describe('ADAPTER: Prebid', function() {
             theBid.getNative().should.be.equal(bid.native);
             done();
         })
+
+		it('should set video cachekey, vasturl, renderer to bid object', function(done) {
+			bid.videoCacheKey = 'AEDS-543-MANOD';
+			bid.vastUrl = 'https://vast.url.com';
+			bid.vastXml = 'https://vast.url.com';
+			bid.renderer = {name: 'renderer'};
+			var theBid = PREBID.transformPBBidToOWBid(bid, kgpv);
+            const result = theBid.setVastUrl();
+			result.vastUrl.should.be.equal(bid.vastUrl);
+			done();
+		})
+
+		it('should call with log warning when bidMap dose not found slot id', function(done) {
+			var copyBid = Object.assign({}, bid);
+			copyBid.mediaType = 'video';
+			copyBid.videoCacheKey = 'AEDS-543-MANOD';
+			window.PWT = {
+				bidMap: {}
+			}
+			PREBID.transformPBBidToOWBid(copyBid, kgpv);
+			UTIL.logWarning.calledWith("Error in Updating BidId. It might be possible singleImpressionEnabled is false").should.be.true;
+			done();
+		})
+
     });
+	
 
     describe('#pbBidStreamHandler', function () {
 
@@ -334,6 +371,22 @@ describe('ADAPTER: Prebid', function() {
             var pbBid ={adUnitCode:'DIV_1', bidderCode: 'pubmatic'};
             PREBID.pbBidStreamHandler(pbBid);
             PREBID.checkAndModifySizeOfKGPVIfRequired.calledWith(pbBid,PREBID.kgpvMap["DIV_1"]).should.be.true;
+            done();
+        });
+
+		it('should call checkandmodifysizeofkgpv if single impression is turnedon', function(done){
+            CONFIG.isSingleImpressionSettingEnabled.restore();
+            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(1);
+            PREBID.isSingleImpressionSettingEnabled = 1;
+            PREBID.kgpvMap["DIV_1"] = {
+                kgpvs:[{
+                    adapterID:"pubmatic",
+                    kgpv:"somekgpvvalue"
+                }]
+            };
+            var pbBid ={adUnitCode:'DIV_1', bidderCode: 'pubmaticServer', originalBidder: 'pubmatic'};
+            PREBID.pbBidStreamHandler(pbBid);
+			PREBID.transformPBBidToOWBid.should.be.called;
             done();
         });
 
@@ -462,6 +515,20 @@ describe('ADAPTER: Prebid', function() {
             PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             expect(adUnits["DIV_1@pubmatic@340X210"]).to.exist;
             adUnits["DIV_1@pubmatic@340X210"].bids[0].bidder.should.be.equal("pubmatic");
+            done();
+        });
+
+		it('should have created bid object for pubmaticServer', function(done) {
+            adapterID = "pubmaticServer";
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+			expect(adUnits["DIV_1@pubmaticServer@340X210"]).to.exist;
+            done();
+        });
+
+		it('should have created bid object for ix or indexExchange', function(done) {
+            adapterID = "ix";
+            PREBID.generatedKeyCallback(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+			expect(adUnits["DIV_1@ix@340X210"]).to.exist;
             done();
         });
 
@@ -728,6 +795,100 @@ describe('ADAPTER: Prebid', function() {
 
     });
 
+	describe('#generatedKeyCallbackForPbAnalytics', function() {
+        var adapterID = null,
+            adUnits = null,
+            adapterConfig = null,
+            impressionID = null,
+            generatedKey = null,
+            kgpConsistsWidthAndHeight = null,
+            currentSlot = null,
+            keyConfig = null,
+            currentWidth = null,
+            currentHeight = null;
+
+        beforeEach(function(done) {
+            PREBID.kgpvMap = {};
+            currentSlot = {
+                getDivID: function() {
+                    return commonDivID;
+                },
+                getSizes: function() {
+                    return [
+                        [340, 210],
+                        [1024, 768]
+                    ];
+                },
+                getAdUnitID:function(){
+                    return "testAdUnit";
+                },
+                getAdUnitIndex :function(){
+                    return "testAdUnitIndex";
+                }
+            };
+
+            sinon.spy(currentSlot, "getDivID");
+            sinon.spy(currentSlot, "getSizes");
+            sinon.spy(currentSlot, "getAdUnitID");
+            sinon.spy(currentSlot, "getAdUnitIndex");
+            adapterConfig = {
+                "publisherId": 121
+            };
+            adapterID = commonAdapterID;
+            generatedKey = "generatedKey_1";
+            impressionID = 123123123;
+            adUnits = {};
+
+            //sinon.stub(UTIL, "isOwnProperty").returns(false);
+            //sinon.spy(UTIL, "forEachOnObject");
+            sinon.spy(UTIL, "forEachOnArray");
+
+            sinon.stub(CONFIG, "getProfileID").returns("profId");
+            sinon.stub(CONFIG, "getProfileDisplayVersionID").returns("verId");
+            sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(0);
+            PREBID.isSingleImpressionSettingEnabled = 0;            
+            kgpConsistsWidthAndHeight = true;
+            window.PWT = {
+                udpv: {}
+            };
+            currentWidth = 340;
+            currentHeight = 210;
+            done();
+        });
+
+        afterEach(function(done) {
+
+            //UTIL.isOwnProperty.restore();
+            //UTIL.forEachOnObject.restore();
+            UTIL.forEachOnArray.restore();
+
+            currentSlot.getDivID.restore();
+            currentSlot.getSizes.restore();
+            currentSlot.getAdUnitID.restore();
+            currentSlot.getAdUnitIndex.restore();
+
+            CONFIG.getProfileID.restore();
+            CONFIG.getProfileDisplayVersionID.restore();
+            CONFIG.isSingleImpressionSettingEnabled.restore();
+
+            currentSlot = null;
+            kgpConsistsWidthAndHeight = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            PREBID.generatedKeyCallbackForPbAnalytics.should.be.a('function');
+            done();
+        });
+
+		it('should have created bid object by composing from passed in params', function(done) {
+            PREBID.generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            UTIL.forEachOnArray.called.should.be.false;
+            done();
+        });
+
+    });
+
     describe('#generatePbConf', function() {
         var adapterID = null;
         var adapterConfig = null;
@@ -745,6 +906,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(UTIL, 'logError');
 
             sinon.stub(UTIL, 'forEachGeneratedKey');
+			sinon.stub(BM, 'setCallInitTime');
             done();
         });
 
@@ -757,6 +919,7 @@ describe('ADAPTER: Prebid', function() {
             UTIL.log.restore();
             UTIL.logError.restore();
             UTIL.forEachGeneratedKey.restore();
+			BM.setCallInitTime.restore();
             done();
         });
 
@@ -806,6 +969,14 @@ describe('ADAPTER: Prebid', function() {
                 PREBID.generatedKeyCallback,
                 true).should.be.true;
             delete CONF.adapters[adapterID][CONSTANTS.CONFIG.SERVER_SIDE_ENABLED];
+            done();
+        });
+
+		it('should call generateConfig with required inputs and return if adapterConfig is not valid', function(done) {
+            adapterConfig = null;
+            PREBID.generateConfig(adapterID, adapterConfig, activeSlots, adUnits, impressionID);
+            UTIL.log.calledWith(adapterID + CONSTANTS.MESSAGES.M1);
+            UTIL.forEachGeneratedKey.called.should.be.false;
             done();
         });
 
@@ -1925,4 +2096,143 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
     });
+
+	describe('getBid', function() {
+		const outputObj = {
+			wb: null,
+			kvp: {}
+		}
+		beforeEach(function(done) {
+			window.owpbjs = {
+				getHighestCpmBids: function() {},
+				getAdserverTargetingForAdUnitCode: function() {}
+			};
+            sinon.stub(window.owpbjs, "getHighestCpmBids").returns({});
+			sinon.stub(window.owpbjs, "getAdserverTargetingForAdUnitCode").returns({});
+            done();
+        });
+
+        afterEach(function(done) {
+            window.owpbjs.getHighestCpmBids.restore();
+			window.owpbjs.getAdserverTargetingForAdUnitCode.restore();
+            done();
+        });
+
+		it('should copy floorData into window.PWT.floorData',function(done){
+            const response = PREBID.getBid('divID');
+			expect(response).to.deep.equal(outputObj);
+            done();
+        });
+	})
+
+	describe('realignPubmaticAdapters', function() {
+		it('should be a functiion',function(done){
+            PREBID.realignPubmaticAdapters.should.be.a('function');
+            done();
+        });
+		it('should realignPubmaticAdapters', function(done) {
+			PREBID.realignPubmaticAdapters();
+			expect(CONF.adapters['pubmatic']).should.have.object;
+			expect(CONF.adapters['pubmatic']).to.be.an('object');
+			expect(CONF.adapters['pubmatic']).to.have.property('throttle');
+			done();
+		});
+	});
+
+	describe('getPbjsAdServerTargetingConfig', function() {
+		beforeEach(function(done) {
+            sinon.stub(CONFIG, "getPublisherId").returns('5890');
+			sinon.stub(CONFIG, "getProfileID").returns('17610');
+			sinon.stub(CONFIG, "getProfileDisplayVersionID").returns('6');
+            done();
+        });
+
+        afterEach(function(done) {
+			CONFIG.getPublisherId.restore();
+			CONFIG.getProfileID.restore();
+			CONFIG.getProfileDisplayVersionID.restore();
+            done();
+        });
+		it('should be a functiion',function(done){
+            PREBID.getPbjsAdServerTargetingConfig.should.be.a('function');
+            done();
+        });
+		it('should return array of objects of targeting keys', function(done) {
+			const result = PREBID.getPbjsAdServerTargetingConfig();
+			expect(result).to.be.an('array');
+			expect(result[0].val({bidderCode: 'pubmatic'})).to.equal('pubmatic');
+			expect(result[1].val({adId: '3152368'})).to.equal('3152368');
+			expect(result[3].val({size: '[720, 90]'})).to.equal('[720, 90]');
+			expect(result[4].val()).to.equal('');
+			expect(result[5].val({mediaType: 'video', videoCacheKey: 'AY-32-DF-23'})).to.equal('video');
+			expect(result[6].val({dealId: 'pubdeal'})).to.equal('pubdeal');
+			expect(result[7].val({dealId: 'pubdeal', dealChannel: 'PMP', adId: '3152368'})).to.equal('PMP'+CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR+'pubdeal'+CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR+'3152368');
+			expect(result[7].val({})).to.equal('');
+			expect(result[8].val()).to.equal(1);
+			expect(result[9].val()).to.equal('5890');
+			expect(result[10].val()).to.equal('17610');
+			expect(result[11].val()).to.equal('6');
+			expect(result[12].val({mediaType: 'video', videoCacheKey: 'AY-32-DF-23'})).to.equal('AY-32-DF-23');
+			expect(result[13].val({mediaType: 'video', videoCacheKey: 'AY-32-DF-23'})).to.equal(CONSTANTS.CONFIG.CACHE_URL);
+			expect(result[14].val({mediaType: 'video', videoCacheKey: 'AY-32-DF-23'})).to.equal(CONSTANTS.CONFIG.CACHE_PATH);
+			expect(result[15].val()).to.equal('');
+			done();
+		});
+	});
+
+	describe('pbjsBidsBackHandler', function() {
+		beforeEach(function(done) {
+			window.owpbjs = {
+				triggerUserSyncs: function() {}
+			};
+            sinon.stub(window.owpbjs, "triggerUserSyncs").returns({});
+            sinon.stub(UTIL, 'log');
+            done();
+        });
+
+        afterEach(function(done) {
+			window.owpbjs.triggerUserSyncs.restore();
+			UTIL.log.restore();
+            done();
+        });
+		it('should be a functiion',function(done){
+            PREBID.pbjsBidsBackHandler.should.be.a('function');
+            done();
+        });
+		it('should call pbjsBidsBackHandler', function(done) {
+			PREBID.pbjsBidsBackHandler();
+			UTIL.log.calledWith('In PreBid bidsBackHandler with bidResponses: ');
+			done();
+		});
+	});
+
+	describe('addOnBidResponseHandler', function() {
+		beforeEach(function(done) {
+			sinon.stub(UTIL, 'logWarning');
+            done();
+        });
+
+        afterEach(function(done) {
+			UTIL.logWarning.restore();
+            done();
+        });
+		it('should be a functiion',function(done){
+            PREBID.addOnBidResponseHandler.should.be.a('function');
+            done();
+        });
+
+		it('should called with logWarning when onevent function is not available', function(done) {
+			PREBID.addOnBidResponseHandler();
+			UTIL.logWarning.calledWith('PreBid js onEvent method is not available').should.be.true;
+			done();
+		})
+
+		it('should called with when onevent function is not available', function(done) {
+			window.owpbjs.onEvent = function() {};
+			PREBID.addOnBidResponseHandler();
+			expect(window.owpbjs.onEvent).should.have.called;
+			done();
+		})
+	});
+
 });
