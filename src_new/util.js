@@ -899,8 +899,8 @@ exports.safeFrameCommunicationProtocol = function(msg){
 		if (frequencyDepth !== null && frequencyDepth.slotLevelFrquencyDepth) {
 			frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[bidSlotId && bidSlotId.slotid]].impressionServed = frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[bidSlotId && bidSlotId.slotid]].impressionServed + 1; 
 			frequencyDepth.impressionServed = frequencyDepth.impressionServed + 1;
+			localStorage.setItem('PROFILE_AUCTION_INFO_' + window.location.hostname, JSON.stringify(frequencyDepth));	
 		}
-		localStorage.setItem('PROFILE_AUCTION_INFO_' + window.location.hostname, JSON.stringify(frequencyDepth));		
 	}catch(e){}
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)

@@ -389,8 +389,8 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 		if (frequencyDepth !== null && frequencyDepth.slotLevelFrquencyDepth) {
 			frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed = frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed + 1; 
 			frequencyDepth.impressionServed = frequencyDepth.impressionServed + 1;
+			localStorage.setItem(PREFIX + window.location.hostname, JSON.stringify(frequencyDepth));
 		}
-		localStorage.setItem(PREFIX + window.location.hostname, JSON.stringify(frequencyDepth));
 	}
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
