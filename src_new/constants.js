@@ -109,13 +109,7 @@ exports.CONFIG = {
 	"AB_TEST_ENABLED": "abTestEnabled",
 	"TIMEOUT_ADJUSTMENT": 50,
 	"SSO_ENABLED": "ssoEnabled",
-	"FLOOR_SOURCE": "floorSource",
-	"GPP_CONSENT": "gpp",
-	"GPP_CMPAPI": "gppCmpApi",
-	"GPP_TIMEOUT": "gppTimeout",
-	"DEFAULT_GPP_CONSENT": "0",
-	"DEFAULT_GPP_CMPAPI": "iab",
-	"DEFAULT_GPP_TIMEOUT": 10000,
+	"FLOOR_SOURCE": "floorSource"
 };
 
 exports.METADATA_MACROS = {

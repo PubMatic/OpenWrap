@@ -10,7 +10,6 @@ var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var CONF = require("../conf.js");
-var owIdhubCommon = require("../owIdhubCommon.js");
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
@@ -850,14 +849,6 @@ function assignCcpaConfigIfRequired(prebidConfig){
 
 exports.assignCcpaConfigIfRequired = assignCcpaConfigIfRequired;
 
-function assignGppConfigIfRequired(prebidConfig) {
-	if (CONFIG.getGppConsent()) {
-		prebidConfig = owIdhubCommon.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
-	}
-}
-
-exports.assignGppConfigIfRequired = assignGppConfigIfRequired;
-
 function assignCurrencyConfigIfRequired(prebidConfig){
 	if(CONFIG.getAdServerCurrency()){
 		// get AdServer currency from Config
@@ -1043,7 +1034,6 @@ function setPrebidConfig(){
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
-		refThis.assignGppConfigIfRequired(prebidConfig);
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);

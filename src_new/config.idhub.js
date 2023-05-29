@@ -64,23 +64,6 @@ exports.getCCPATimeout = function() {
 	return ccpaTimeout ? window.parseInt(ccpaTimeout) : CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT;
 };
 
-// needed
-exports.getGppConsent = function () {
-	var gpp = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CONSENT] || CONSTANTS.CONFIG.DEFAULT_GPP_CONSENT;
-	return gpp === "1";
-};
-
-// needed
-exports.getGppCmpApi = function () {
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CMPAPI] || CONSTANTS.CONFIG.DEFAULT_GPP_CMPAPI;
-};
-
-// needed
-exports.getGppTimeout = function() {
-	var gppTimeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_TIMEOUT];
-	return gppTimeout ? window.parseInt(gppTimeout) : CONSTANTS.CONFIG.DEFAULT_GPP_TIMEOUT;
-};
-
 exports.getProfileID = function () {
 	return config.pwt[CONSTANTS.CONFIG.PROFILE_ID] || "0";
 };

@@ -24,10 +24,7 @@ exports.pwt = {
 	owv:"v21.4.0",
 	abTestEnabled:"0",
 	pubAnalyticsAdapter: "0",
-	reduceCodeSize:1,
-	gpp: "0",
-	gppCmpApi: "iab",
-	gppTimeout: "10000"
+	reduceCodeSize:1
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
