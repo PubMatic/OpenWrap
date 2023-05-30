@@ -58,6 +58,7 @@ refThis.setConfig = function(){
 					timeout: CONFIG.getCCPATimeout(),
 				};
 			}
+
 			window.IHPWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 			if(CONFIG.isUserIdModuleEnabled()){
 				prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();

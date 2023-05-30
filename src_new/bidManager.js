@@ -8,6 +8,21 @@ var refThis = this;
 var storedObject;
 var frequencyDepth;
 const PREFIX = 'PROFILE_AUCTION_INFO_';
+
+const TRACKER_METHODS = {
+	img: 1,
+	js: 2,
+	1: 'img',
+	2: 'js'
+}
+  
+const TRACKER_EVENTS = {
+	impression: 1,
+	'viewable-mrc50': 2,
+	'viewable-mrc100': 3,
+	'viewable-video50': 4,
+}
+  
 function createBidEntry(divID){ // TDD, i/o : done
 	/* istanbul ignore else */
 	if(! util.isOwnProperty(window.PWT.bidMap, divID) ){
@@ -374,8 +389,8 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 		if (frequencyDepth !== null && frequencyDepth.slotLevelFrquencyDepth) {
 			frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed = frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed + 1; 
 			frequencyDepth.impressionServed = frequencyDepth.impressionServed + 1;
+			localStorage.setItem(PREFIX + window.location.hostname, JSON.stringify(frequencyDepth));
 		}
-		localStorage.setItem(PREFIX + window.location.hostname, JSON.stringify(frequencyDepth));
 	}
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
@@ -409,13 +424,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj[CONSTANTS.CONFIG.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
 	outputObj['ih'] = CONFIG.isUserIdModuleEnabled() ? 1 : 0;
 	outputObj["bm"] = refThis.getBrowser();
-	outputObj["tgid"] = (function() {
-	    var testGroupId = parseInt(PWT.testGroupId || 0);
-	    if (testGroupId <= 15 && testGroupId >= 0) {
-	      return testGroupId;
-	    }
-	    return 0;
-	})();
+	outputObj["tgid"] = util.getTgid();
 
 	if(Object.keys(frequencyDepth).length) {
 		outputObj["tpv"] = frequencyDepth.pageView;
@@ -519,24 +528,6 @@ function getAdUnitAdFormats(mediaTypes){
 /* start-test-block */
 exports.getAdUnitAdFormats = getAdUnitAdFormats;
 /* end-test-block */
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
-
-// removeIf(removeLegacyAnalyticsRelatedCode)
-function getAdDomain(bidResponse) {
-	if (bidResponse.meta && bidResponse.meta.advertiserDomains && bidResponse.meta.advertiserDomains.length > 0) {
-		var adomain = bidResponse.meta.advertiserDomains[0];
-	
-		if (adomain) {
-			try {
-				var hostname = new URL(adomain);
-				return hostname.hostname.replace('www.', '');
-			} catch (e) {
-				util.log("Adomain URL (Not a proper URL):"+ adomain);
-				return adomain.split('/')[0].replace('www.', '');
-			}
-		}
-	}
-}
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // Returns property from localstorages slotlevel object
@@ -692,7 +683,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "dc": theBid.getDealChannel(),
                     "l1": theBid.getServerSideStatus() ? theBid.getServerSideResponseTime() : (endTime - startTime),
 					"l2": 0,
-					"adv": pbbid ? getAdDomain(pbbid) || undefined : undefined,
+					"adv": pbbid ? util.getAdDomain(pbbid) || undefined : undefined,
 					"ss": theBid.getServerSideStatus(),
                     "t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
                     "wb": theBid.getWinningBidStatus() === true ? 1 : 0,
@@ -821,25 +812,37 @@ exports.fireTracker = function(bidDetails, action) {
 	var trackers;
 
 	if (action === "click") {
-		trackers = bidDetails["native"] && bidDetails["native"].clickTrackers;
+		trackers = bidDetails["native"] && bidDetails["native"].ortb &&
+			bidDetails["native"].ortb.link && bidDetails["native"].ortb.link.clickTrackers;
 	} else if(action === "imptrackers") {
-		trackers = bidDetails["native"] && bidDetails["native"].impressionTrackers;
-		if (bidDetails['native'] && bidDetails['native'].javascriptTrackers) {
-			var iframe = util.createInvisibleIframe();
-			/* istanbul ignore else */
-			if(!iframe){
-				throw {message: 'Failed to create invisible frame for native javascript trackers'};
+		const nativeResponse = bidDetails.native.ortb || bidDetails.native;
+
+		const impTrackers = (nativeResponse.eventtrackers || [])
+			.filter(function(tracker) {
+				tracker.event === TRACKER_EVENTS.impression
+			});
+
+		const tally = {img: [], js: []};
+		impTrackers.forEach(function(tracker) {
+			if (TRACKER_METHODS.hasOwnProperty(tracker.method)) {
+				tally[TRACKER_METHODS[tracker.method]].push(tracker.url);
 			}
-			/* istanbul ignore else */
-			if(!iframe.contentWindow){
-				throw {message: 'Unable to access frame window for native javascript trackers'};
-			}
-			window.document.body.appendChild(iframe);
-			iframe.contentWindow.document.open();
-			iframe.contentWindow.document.write(bidDetails['native'].javascriptTrackers);
-			iframe.contentWindow.document.close();
+		});
+	
+		if (tally.img.length == 0 && nativeResponse.imptrackers) {
+			tally.img = tally.img.concat(nativeResponse.imptrackers);
+		}
+		trackers = tally.img;
+	
+		if (tally.js.length == 0 && nativeResponse.jstracker) {
+			// jstracker is already HTML markup
+			tally.js = tally.js.concat([nativeResponse.jstracker]);
+		}
+		if (tally.js.length) {
+			util.insertHtmlIntoIframe(tally.js.join('\n'));
 		}
 	}
+
 	(trackers || []).forEach(function(url){refThis.setImageSrcToPixelURL(url,false);});
 };
 // endRemoveIf(removeNativeRelatedCode)
