@@ -687,6 +687,51 @@ exports.getBididForPMP = function(values, priorityArray){
 	return bidID;
 };
 
+function insertElement(elm, doc, target, asLastChildChild) {
+	doc = doc || document;
+	var parentEl;
+	if (target) {
+	  parentEl = doc.getElementsByTagName(target);
+	} else {
+	  parentEl = doc.getElementsByTagName('head');
+	}
+	try {
+	  parentEl = parentEl.length ? parentEl : doc.getElementsByTagName('body');
+	  if (parentEl.length) {
+		parentEl = parentEl[0];
+		var insertBeforeEl = asLastChildChild ? null : parentEl.firstChild;
+		return parentEl.insertBefore(elm, insertBeforeEl);
+	  }
+	} catch (e) {}
+}
+
+exports.insertHtmlIntoIframe = function(htmlCode) {
+	if (!htmlCode) {
+	  return;
+	}
+  
+	var iframe = document.createElement('iframe');
+	iframe.id = refThis.getUniqueIdentifierStr();
+	iframe.width = 0;
+	iframe.height = 0;
+	iframe.hspace = '0';
+	iframe.vspace = '0';
+	iframe.marginWidth = '0';
+	iframe.marginHeight = '0';
+	iframe.style.display = 'none';
+	iframe.style.height = '0px';
+	iframe.style.width = '0px';
+	iframe.scrolling = 'no';
+	iframe.frameBorder = '0';
+	iframe.allowtransparency = 'true';
+  
+	insertElement(iframe, document, 'body');
+  
+	iframe.contentWindow.document.open();
+	iframe.contentWindow.document.write(htmlCode);
+	iframe.contentWindow.document.close();
+}
+  
 // removeIf(removeNativeRelatedCode)
 exports.createInvisibleIframe = function() {
 	var f = refThis.createDocElement(window, 'iframe');
@@ -854,8 +899,8 @@ exports.safeFrameCommunicationProtocol = function(msg){
 		if (frequencyDepth !== null && frequencyDepth.slotLevelFrquencyDepth) {
 			frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[bidSlotId && bidSlotId.slotid]].impressionServed = frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[bidSlotId && bidSlotId.slotid]].impressionServed + 1; 
 			frequencyDepth.impressionServed = frequencyDepth.impressionServed + 1;
+			localStorage.setItem('PROFILE_AUCTION_INFO_' + window.location.hostname, JSON.stringify(frequencyDepth));	
 		}
-		localStorage.setItem('PROFILE_AUCTION_INFO_' + window.location.hostname, JSON.stringify(frequencyDepth));		
 	}catch(e){}
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)

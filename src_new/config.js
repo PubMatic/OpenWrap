@@ -144,6 +144,15 @@ exports.getAwc = function () {
 	return awc === "1";
 };
 
+exports.getOverrideNamespace = function(configKey, defaultName, returnValueInCaseMissingNamespace) {
+	var pbNamespace = config[CONSTANTS.CONFIG.COMMON][configKey];
+	if (pbNamespace) {
+		return pbNamespace === defaultName ? returnValueInCaseMissingNamespace : pbNamespace;
+	} else {
+		return returnValueInCaseMissingNamespace;
+	}
+}
+
 /* start-test-block */
 exports.addPrebidAdapter = addPrebidAdapter;
 /* end-test-block */

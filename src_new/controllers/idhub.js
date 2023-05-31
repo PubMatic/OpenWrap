@@ -48,7 +48,8 @@ refThis.setConfig = function(){
 				prebidConfig["consentManagement"]['gdpr'] = {
 					cmpApi: CONFIG.getCmpApi(),
 					timeout: CONFIG.getGdprTimeout(),
-					allowAuctionWithoutConsent: CONFIG.getAwc()
+					allowAuctionWithoutConsent: CONFIG.getAwc(),
+					defaultGdprScope: true
 				};
 			}
 			(region == CONSTANTS.REGIONS.EUROPE) && !CONFIG.getGdpr() &&
@@ -64,6 +65,7 @@ refThis.setConfig = function(){
 					timeout: CONFIG.getCCPATimeout(),
 				};
 			}
+
 			window.IHPWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 			if(CONFIG.isUserIdModuleEnabled()){
 				prebidConfig["userSync"]["userIds"] = util.getUserIdConfiguration();
