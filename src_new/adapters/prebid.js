@@ -10,10 +10,10 @@ var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var CONF = require("../conf.js");
-
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
 var pbNameSpace = /*CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : */ CONSTANTS.COMMON.PREBID_NAMESPACE;
+var geoDetectionURL = 'https://www.ebay.com/defaultLocation.json'; //TODO update this
 
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
@@ -820,7 +820,10 @@ function assignUserSyncConfig(prebidConfig){
 exports.assignUserSyncConfig = assignUserSyncConfig;
 
 function assignGdprConfigIfRequired(prebidConfig){
-	if (CONFIG.getGdpr()) {
+	var region = CONFIG.getRegion();
+	util.log("User region detected: " + region + ", GDPR enabled: " + CONFIG.getGdpr());
+
+	if(CONFIG.getGdpr() && (region != CONSTANTS.REGIONS.NON_EUROPE)) {
 		if(!prebidConfig["consentManagement"]){
 			prebidConfig["consentManagement"] = {};
 		}
@@ -831,6 +834,8 @@ function assignGdprConfigIfRequired(prebidConfig){
 			defaultGdprScope: true
 		};
 	}
+	(region == CONSTANTS.REGIONS.EUROPE) && !CONFIG.getGdpr() &&
+		util.logWarning("User is from EU region but GDPR is not enabled");
 }
 
 exports.assignGdprConfigIfRequired = assignGdprConfigIfRequired;
@@ -1338,6 +1343,15 @@ function pbjsBidsBackHandler(bidResponses, activeSlots) {
 
 exports.pbjsBidsBackHandler = pbjsBidsBackHandler;
 
+function initConfig() {
+	window[pbNameSpace].logging = util.isDebugLogEnabled();
+	refThis.realignPubmaticAdapters();
+	refThis.setPrebidConfig();
+	refThis.configureBidderAliasesIfAvailable();
+	refThis.enablePrebidPubMaticAnalyticIfRequired();
+	refThis.setPbjsBidderSettingsIfRequired();
+}
+
 // this function will be called by controllers, 
 // will take care of setting the config as it is configured thru UI
 function initPbjsConfig(){
@@ -1345,12 +1359,15 @@ function initPbjsConfig(){
 		util.logError("PreBid js is not loaded");
 		return;
 	}
-	window[pbNameSpace].logging = util.isDebugLogEnabled();
-	refThis.realignPubmaticAdapters();
-	refThis.setPrebidConfig();
-	refThis.configureBidderAliasesIfAvailable();
-	refThis.enablePrebidPubMaticAnalyticIfRequired();
-	refThis.setPbjsBidderSettingsIfRequired();
+
+	window[pbNameSpace].detectLocation(geoDetectionURL, function(loc) {
+		CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.LOCATION] = loc;// Confirm this location
+		CONFIG.isGeoDetectionEnabled() && initConfig(); // to execute this synchronously
+	});
+
+	if(!CONFIG.isGeoDetectionEnabled()) {
+		initConfig();
+	}
 }
 exports.initPbjsConfig = initPbjsConfig;
 
