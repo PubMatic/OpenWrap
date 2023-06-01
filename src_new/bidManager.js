@@ -373,8 +373,19 @@ exports.getBidById = function(bidID) { // TDD, i/o : done
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
+exports.checkStorageAccess = function() {
+	if(window[CONSTANTS.COMMON.PREBID_NAMESPACE].bidderSettings && window[CONSTANTS.COMMON.PREBID_NAMESPACE].bidderSettings['standard']['storageAllowed']) {
+		return true; 
+	}
+	return false; 
+}
+// endRemoveIf(removeLegacyAnalyticsRelatedCode)
+
+// removeIf(removeLegacyAnalyticsRelatedCode)
 exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
-	storedObject = localStorage.getItem(PREFIX + window.location.hostname);
+	if(refThis.checkStorageAccess()) {
+		storedObject = localStorage.getItem(PREFIX + window.location.hostname);
+	}
 	var bidDetails = refThis.getBidById(bidID);
 	/* istanbul ignore else */
 	if(bidDetails){
@@ -385,11 +396,13 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 		util.vLogInfo(divID, {type: 'disp', adapter: theBid.getAdapterID()});
 		refThis.executeMonetizationPixel(divID, theBid);
 		// Check if browsers local storage has auction related data and update impression served count accordingly.
-	    var frequencyDepth = JSON.parse(localStorage.getItem(PREFIX + window.location.hostname)) || {};
-		if (frequencyDepth !== null && frequencyDepth.slotLevelFrquencyDepth) {
-			frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed = frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed + 1; 
-			frequencyDepth.impressionServed = frequencyDepth.impressionServed + 1;
-			localStorage.setItem(PREFIX + window.location.hostname, JSON.stringify(frequencyDepth));
+		if(refThis.checkStorageAccess()) {
+			var frequencyDepth = JSON.parse(localStorage.getItem(PREFIX + window.location.hostname)) || {};
+			if (frequencyDepth !== null && frequencyDepth.slotLevelFrquencyDepth) {
+				frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed = frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed + 1; 
+				frequencyDepth.impressionServed = frequencyDepth.impressionServed + 1;
+				localStorage.setItem(PREFIX + window.location.hostname, JSON.stringify(frequencyDepth));
+			}
 		}
 	}
 };
@@ -397,8 +410,10 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
-	storedObject = localStorage.getItem(PREFIX + window.location.hostname);
-    frequencyDepth = storedObject !== null ? JSON.parse(storedObject) : {};
+	if(refThis.checkStorageAccess()) {
+		storedObject = localStorage.getItem(PREFIX + window.location.hostname);
+	}
+    frequencyDepth = !storedObject ? {} : JSON.parse(storedObject);
 	var outputObj = {
 			s: []
 		},
@@ -567,8 +582,10 @@ exports.getMetadata = getMetadata;
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
-	storedObject = localStorage.getItem(PREFIX + window.location.hostname);
-    var frequencyDepth = storedObject !== null ? JSON.parse(storedObject) : {};
+	if(refThis.checkStorageAccess()) {
+		storedObject = localStorage.getItem(PREFIX + window.location.hostname);
+	}
+    var frequencyDepth = !storedObject ? {} : JSON.parse(storedObject);
 	var usePBSAdapter = CONFIG.usePBSAdapter();
 	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = (usePBSAdapter && window.pbsLatency) ? 0 : undefined;

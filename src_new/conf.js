@@ -25,8 +25,8 @@ exports.pwt = {
 	abTestEnabled:"0",
 	pubAnalyticsAdapter: "0",
 	reduceCodeSize:1,
-	pbGlobalVarNamespace: "custPbNamespace",
-	owGlobalVarNamespace: "NIT"
+	pbGlobalVarNamespace: "owpbjs", // Will be replaced with provided value during profile creation e.g. custPbNameSpace
+	owGlobalVarNamespace: "PWT" // Will be replaced with provided value during profile creation e.g. NIT
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
