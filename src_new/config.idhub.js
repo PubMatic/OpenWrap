@@ -90,3 +90,12 @@ exports.getIHAnalyticsAdapterExpiry = function() {
 };
 
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";
+
+exports.isInGDPRRegion = function() {
+	var loc = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.LOCATION];
+	return loc && loc.apply_gdpr;
+}
+
+exports.isGeoDetectionEnabled = function() {
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.GEO_DETECTION_ENABLED];
+}

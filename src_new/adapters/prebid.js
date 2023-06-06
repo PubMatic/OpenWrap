@@ -14,6 +14,8 @@ var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
 var pbNameSpace = /*CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : */ CONSTANTS.COMMON.PREBID_NAMESPACE;
 var geoDetectionURL = 'https://www.ebay.com/defaultLocation.json'; //TODO update this
+var HOSTNAME = window.location.host;
+var PREFIX = 'UINFO';
 
 /* start-test-block */
 exports.parentAdapterID = parentAdapterID;
@@ -820,10 +822,18 @@ function assignUserSyncConfig(prebidConfig){
 exports.assignUserSyncConfig = assignUserSyncConfig;
 
 function assignGdprConfigIfRequired(prebidConfig){
-	var region = CONFIG.getRegion();
-	util.log("User region detected: " + region + ", GDPR enabled: " + CONFIG.getGdpr());
+	var isInGDPRRegion = CONFIG.isInGDPRRegion();
+	util.log("User isInGDPRRegion: " + isInGDPRRegion + ", GDPR enabled: " + CONFIG.getGdpr());
 
-	if(CONFIG.getGdpr() && (region != CONSTANTS.REGIONS.NON_EUROPE)) {
+	/*
+		If GEO detection is NOT enabled AND GDPR is enabled 
+		OR
+		If GEO detection is enabled AND GDPR is enabled AND location is EU(or error)
+		THEN ENFORCE GDPR
+	*/
+	if(CONFIG.getGdpr() && (!CONFIG.isGeoDetectionEnabled() ||
+		(CONFIG.isGeoDetectionEnabled() && isInGDPRRegion)
+	)) {
 		if(!prebidConfig["consentManagement"]){
 			prebidConfig["consentManagement"] = {};
 		}
@@ -834,7 +844,7 @@ function assignGdprConfigIfRequired(prebidConfig){
 			defaultGdprScope: true
 		};
 	}
-	(region == CONSTANTS.REGIONS.EUROPE) && !CONFIG.getGdpr() &&
+	isInGDPRRegion && !CONFIG.getGdpr() &&
 		util.logWarning("User is from EU region but GDPR is not enabled");
 }
 
@@ -1355,18 +1365,27 @@ function initConfig() {
 // this function will be called by controllers, 
 // will take care of setting the config as it is configured thru UI
 function initPbjsConfig(){
+	var LOCATION_INFO_VALIDITY = 2 * 24 * 60 * 60 * 1000;
 	if(! window[pbNameSpace]){ // todo: move this code owt.js
 		util.logError("PreBid js is not loaded");
 		return;
 	}
 
-	window[pbNameSpace].detectLocation(geoDetectionURL, function(loc) {
-		CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.LOCATION] = loc;// Confirm this location
-		CONFIG.isGeoDetectionEnabled() && initConfig(); // to execute this synchronously
-	});
-
-	if(!CONFIG.isGeoDetectionEnabled()) {
+	var info = window[pbNameSpace].getDataFromLocalStorage(PREFIX + HOSTNAME, LOCATION_INFO_VALIDITY);
+	if(info) {	// Got valid data
+		CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.LOCATION] = info;
 		initConfig();
+	} else {
+		window[pbNameSpace].detectLocation(geoDetectionURL + "?pubid=" + CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID],
+		function(loc) {
+			window[pbNameSpace].setAndStringifyToLocalStorage(PREFIX + HOSTNAME, loc);
+			CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.LOCATION] = loc;
+			CONFIG.isGeoDetectionEnabled() && initConfig(); // to execute this synchronously
+		});
+	
+		if(!CONFIG.isGeoDetectionEnabled()) {
+			initConfig(); // to execute this without waiting for geo
+		}
 	}
 }
 exports.initPbjsConfig = initPbjsConfig;

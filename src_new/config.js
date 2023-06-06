@@ -458,15 +458,9 @@ exports.getMarketplaceBidders = function(){
 	return config.pwt.marketplaceBidders ? config.pwt.marketplaceBidders.split(',') : false;
 }
 
-exports.getRegion = function() {
+exports.isInGDPRRegion = function() {
 	var loc = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.LOCATION];
-	//TODO we might need to update this on the basis of actual API response
-	if(loc && loc.location && loc.location.region) {
-		return (CONSTANTS.EUROPE_REGION.indexOf(loc.location.region.toLowerCase()) > -1) ?
-			CONSTANTS.REGIONS.EUROPE : CONSTANTS.REGIONS.NON_EUROPE;
-	} else {
-		return CONSTANTS.REGIONS.ERROR;
-	}
+	return loc && loc.apply_gdpr;
 }
 
 exports.isGeoDetectionEnabled = function() {

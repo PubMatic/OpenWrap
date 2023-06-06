@@ -2,7 +2,6 @@
 // tdod: we can still reduce the build size for idhub by,
 // 			- create a separate constants.js with limited required functions
 
-var OW_CONFIG = require("../config.js");
 var CONFIG = require("../config.idhub.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.idhub.js");
@@ -38,10 +37,18 @@ refThis.setConfig = function(){
 				}
 			};
 
-			var region = OW_CONFIG.getRegion();
-			util.log("User region detected: " + region + ", GDPR enabled: " + CONFIG.getGdpr());
-		
-			if(CONFIG.getGdpr() && (region != CONSTANTS.REGIONS.NON_EUROPE)) {
+			var isInGDPRRegion = CONFIG.isInGDPRRegion();
+			util.log("User isInGDPRRegion: " + isInGDPRRegion + ", GDPR enabled: " + CONFIG.getGdpr());
+
+			/*
+				If GEO detection is NOT enabled AND GDPR is enabled 
+				OR
+				If GEO detection is enabled AND GDPR is enabled AND location is EU(or error)
+				THEN ENFORCE GDPR
+			*/
+			if(CONFIG.getGdpr() && (!CONFIG.isGeoDetectionEnabled() ||
+				(CONFIG.isGeoDetectionEnabled() && isInGDPRRegion)
+			)) {
 				if(!prebidConfig["consentManagement"]){
 					prebidConfig["consentManagement"] = {};
 				}
@@ -52,10 +59,9 @@ refThis.setConfig = function(){
 					defaultGdprScope: true
 				};
 			}
-			(region == CONSTANTS.REGIONS.EUROPE) && !CONFIG.getGdpr() &&
+			isInGDPRRegion && !CONFIG.getGdpr() &&
 			util.logWarning("User is from EU region but GDPR is not enabled");
 	
-
 			if (CONFIG.getCCPA()) {
 				if(!prebidConfig["consentManagement"]){
 					prebidConfig["consentManagement"] = {};
