@@ -2098,3 +2098,22 @@ exports.getBrowserDetails = function() {
 exports.getPltForFloor = function() {
 	return refThis.getDevicePlatform().toString();
 }
+
+exports.getGeoInfo = function() {
+	var HOSTNAME = window.location.host;
+	var PREFIX = 'UINFO';
+	var LOCATION_INFO_VALIDITY = 2 * 24 * 60 * 60 * 1000;
+	var geoDetectionURL = 'https://www.ebay.com/defaultLocation.json?pubid=' +
+		conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID]; //TODO update this
+
+	var info = window[pbNameSpace].getDataFromLocalStorage(PREFIX + HOSTNAME, LOCATION_INFO_VALIDITY);
+	if(info) {	// Got valid data
+		window.PWT.CC = info; // TODO: Verify this
+	} else {
+		window[pbNameSpace].detectLocation(geoDetectionURL + "?pubid=" + conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID],
+		function(loc) {
+			window[pbNameSpace].setAndStringifyToLocalStorage(PREFIX + HOSTNAME, loc);
+			window.PWT.CC = loc; // TODO: Verify this
+		});
+	}
+}
