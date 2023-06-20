@@ -10,6 +10,7 @@ var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var CONF = require("../conf.js");
+var COMMON_CONFIG = require("../common.config.js");
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
@@ -830,6 +831,10 @@ function assignGdprConfigIfRequired(prebidConfig){
 			allowAuctionWithoutConsent: CONFIG.getAwc(), // Auction without consent
 			defaultGdprScope: true
 		};
+		var getGdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout()
+		if (getGdprActionTimeout) {
+			prebidConfig["consentManagement"]['gdpr']['actionTimeout'] = getGdprActionTimeout;
+		}
 	}
 }
 

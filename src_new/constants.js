@@ -109,7 +109,8 @@ exports.CONFIG = {
 	"AB_TEST_ENABLED": "abTestEnabled",
 	"TIMEOUT_ADJUSTMENT": 50,
 	"SSO_ENABLED": "ssoEnabled",
-	"FLOOR_SOURCE": "floorSource"
+	"FLOOR_SOURCE": "floorSource",
+	"GDPR_ACTION_TIMEOUT": "gdprActionTimeout",
 };
 
 exports.METADATA_MACROS = {

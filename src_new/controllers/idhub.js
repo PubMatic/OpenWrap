@@ -5,6 +5,7 @@
 var CONFIG = require("../config.idhub.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.idhub.js");
+var COMMON_CONFIG = require("../common.config.js");
 var refThis = this;
 var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 
@@ -47,6 +48,10 @@ refThis.setConfig = function(){
 					allowAuctionWithoutConsent: CONFIG.getAwc(),
 					defaultGdprScope: true
 				};
+				var getGdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout()
+				if (getGdprActionTimeout) {
+					prebidConfig["consentManagement"]['gdpr']['actionTimeout'] = getGdprActionTimeout;
+				}
 			}
 
 			if (CONFIG.getCCPA()) {
