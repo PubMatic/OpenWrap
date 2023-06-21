@@ -2,7 +2,7 @@ var CONF = require("../src_new/conf.js");
 var CONSTANTS = require("../src_new/constants.js");
 var COMMON_CONFIG = require("../src_new/common.config.js");
 
-describe.only('COMMON CONFIG FILE', function () {  
+describe('COMMON CONFIG FILE', function () {  
     describe('#getGdprActionTimeout', function () {
         it('is a function', function (done) {
             COMMON_CONFIG.getGdprActionTimeout.should.be.a('function');

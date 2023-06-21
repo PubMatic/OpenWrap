@@ -48,9 +48,10 @@ refThis.setConfig = function(){
 					allowAuctionWithoutConsent: CONFIG.getAwc(),
 					defaultGdprScope: true
 				};
-				var getGdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout()
-				if (getGdprActionTimeout) {
-					prebidConfig["consentManagement"]['gdpr']['actionTimeout'] = getGdprActionTimeout;
+				var gdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout()
+				if (gdprActionTimeout) {
+					util.log("GDPR IS ENABLED, TIMEOUT: " + prebidConfig["consentManagement"]['gdpr']['timeout'] +", ACTION TIMEOUT: "+ gdprActionTimeout);
+					prebidConfig["consentManagement"]['gdpr']['actionTimeout'] = gdprActionTimeout;
 				}
 			}
 
