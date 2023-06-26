@@ -1015,7 +1015,8 @@ function setPrebidConfig(){
 			targetingControls: {
 				alwaysIncludeDeals: true
 			},
-			testGroupId: parseInt(window.PWT.testGroupId || 0)
+			testGroupId: parseInt(window.PWT.testGroupId || 0),
+			enableTIDs: true // temporary change, need to remove after testing
 		};
 		if(CONFIG.getPriceGranularity()){
 			prebidConfig["priceGranularity"] = CONFIG.getPriceGranularity();
