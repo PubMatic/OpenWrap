@@ -2110,7 +2110,7 @@ exports.getGeoInfo = function() {
 	if(info) {	// Got valid data
 		window.PWT.CC = info; // TODO: Verify this
 	} else {
-		window[pbNameSpace].detectLocation(geoDetectionURL + "?pubid=" + conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID],
+		window[pbNameSpace].detectLocation(geoDetectionURL,
 		function(loc) {
 			window[pbNameSpace].setAndStringifyToLocalStorage(PREFIX + HOSTNAME, loc);
 			window.PWT.CC = loc; // TODO: Verify this
