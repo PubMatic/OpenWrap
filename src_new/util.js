@@ -2102,7 +2102,7 @@ exports.getPltForFloor = function() {
 exports.getGeoInfo = function() {
 	var PREFIX = 'UINFO';
 	var LOCATION_INFO_VALIDITY =  172800000; // 2 * 24 * 60 * 60 * 1000 - 2 days
-	var geoDetectionURL = 'https://t.pubmatic.com/geo?pubid=' +
+	var geoDetectionURL = 'https://ut.pubmatic.com/geo?pubid=' +
 		conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID];
 
 	var info = window[pbNameSpace].getDataFromLocalStorage(PREFIX, LOCATION_INFO_VALIDITY);
