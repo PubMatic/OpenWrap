@@ -2100,20 +2100,19 @@ exports.getPltForFloor = function() {
 }
 
 exports.getGeoInfo = function() {
-	var HOSTNAME = window.location.host;
 	var PREFIX = 'UINFO';
-	var LOCATION_INFO_VALIDITY = 2 * 24 * 60 * 60 * 1000;
-	var geoDetectionURL = 'https://www.ebay.com/defaultLocation.json?pubid=' +
-		conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID]; //TODO update this
+	var LOCATION_INFO_VALIDITY =  172800000; // 2 * 24 * 60 * 60 * 1000 - 2 days
+	var geoDetectionURL = 'https://t.pubmatic.com/geo?pubid=' +
+		conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID];
 
-	var info = window[pbNameSpace].getDataFromLocalStorage(PREFIX + HOSTNAME, LOCATION_INFO_VALIDITY);
-	if(info) {	// Got valid data
-		window.PWT.CC = info; // TODO: Verify this
+	var info = window[pbNameSpace].getDataFromLocalStorage(PREFIX, LOCATION_INFO_VALIDITY);
+	if(info && JSON.parse(info).cc) {	// Got valid data
+		window.PWT.CC = JSON.parse(info);
 	} else {
 		window[pbNameSpace].detectLocation(geoDetectionURL,
 		function(loc) {
-			window[pbNameSpace].setAndStringifyToLocalStorage(PREFIX + HOSTNAME, loc);
-			window.PWT.CC = loc; // TODO: Verify this
+			window[pbNameSpace].setAndStringifyToLocalStorage(PREFIX, loc);
+			window.PWT.CC = loc;
 		});
 	}
 }
