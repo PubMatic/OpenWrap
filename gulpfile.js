@@ -410,8 +410,31 @@ gulp.task('bundle-prod', gulp.series('webpack', function () {
         .pipe(gulp.dest('build'));
 }));
 
-gulp.task('update-namespace', function(){
-    console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
+
+function addPattern(patterns, match, replacement) {
+    if (replacement) {
+        patterns.push({
+            match: match,
+            replacement: replacement
+        });
+    }
+}
+
+function getPatternsToReplace() {
+    const { COMMON, CONFIG } = require('./src_new/constants.js');
+    var patterns = [];
+    if (isIdentityOnly) {
+        addPattern(patterns, /ihowpbjs|owpbjs/g, config.getOverrideNamespace(CONFIG.PB_GLOBAL_VAR_NAMESPACE, COMMON.IH_NAMESPACE, COMMON.IH_NAMESPACE));
+        addPattern(patterns, /IHPWT/g, config.getOverrideNamespace(CONFIG.OW_GLOBAL_VAR_NAMESPACE, COMMON.IH_OW_NAMESPACE, null));
+    } else {
+        // Passing null as we don't want to replace the used value(i.e. PWT) with default value(i.e. PWT) as both are same,
+        addPattern(patterns, /owpbjs/g, config.getOverrideNamespace(CONFIG.PB_GLOBAL_VAR_NAMESPACE, COMMON.PREBID_NAMESPACE, null));
+        addPattern(patterns, /PWT/g, config.getOverrideNamespace(CONFIG.OW_GLOBAL_VAR_NAMESPACE, COMMON.OPENWRAP_NAMESPACE, null));
+    }
+    return patterns;
+}
+
+gulp.task('update-namespace', async function () {
     console.log("Executing update-namespace - START => ");
     //var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
     var prebidFileName = '/build/dist/prebid.js';
