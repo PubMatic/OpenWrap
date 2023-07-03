@@ -26,7 +26,8 @@ exports.pwt = {
 	pubAnalyticsAdapter: "0",
 	reduceCodeSize:1,
 	pbGlobalVarNamespace: "custPbNamespace",
-	owGlobalVarNamespace: "NIT"
+	owGlobalVarNamespace: "NIT",
+	localStorageAccess: true // Added new field for allow local storage feature 
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
