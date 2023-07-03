@@ -25,6 +25,8 @@ exports.pwt = {
 	abTestEnabled:"0",
 	pubAnalyticsAdapter: "0",
 	reduceCodeSize:1,
+	pbGlobalVarNamespace: "custPbNamespace",
+	owGlobalVarNamespace: "NIT",
 	localStorageAccess: true // Added new field for allow local storage feature 
 };
 
