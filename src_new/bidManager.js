@@ -434,7 +434,9 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		outputObj["lip"] = frequencyDepth.lip;
 	}
 
-	window.PWT.CC?.cc && (outputObj.ctr = window.PWT.CC.cc);
+	if(window.PWT.CC && window.PWT.CC.cc) {
+		outputObj.ctr = window.PWT.CC.cc;
+	}
 	// As discussed we won't be seding gdpr data to logger
 	// if (CONFIG.getGdpr()) {
 	// 	consentString = gdprData && gdprData.c ? encodeURIComponent(gdprData.c) : "";
