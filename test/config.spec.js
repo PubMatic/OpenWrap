@@ -2411,4 +2411,41 @@ describe('Config', function() {
             done();
         });
     });
+
+    describe('getOverrideNamespace', function() {
+        var configKey = 'pbGlobalVarNamespace';
+        var defaultName = 'custPbNamespace';
+        var returnValueInCaseMissingNamespace = 'returnValue';
+
+        beforeEach(function(done) {
+            CONF.pwt = {
+                pbGlobalVarNamespace: "custPbNamespace",
+            }
+            done();
+        });
+        afterEach(function(done) {
+            CONF.pwt = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            CONFIG.getOverrideNamespace.should.be.a('function');
+            done();
+        });
+      
+        it('should return returnValueInCaseMissingNamespace if configKey/pbNamespace is missing', function() {
+          var result = CONFIG.getOverrideNamespace("missingKeyName", defaultName, returnValueInCaseMissingNamespace);
+          expect(result).to.equal(returnValueInCaseMissingNamespace);
+        });
+      
+        it('should return returnValueInCaseMissingNamespace if pbNamespace is equal to defaultName', function() {
+          var result = CONFIG.getOverrideNamespace(configKey, defaultName, returnValueInCaseMissingNamespace);
+          expect(result).to.equal(returnValueInCaseMissingNamespace);
+        });
+      
+        it('should return pbNamespace if pbNamespace is not equal to defaultName', function() {
+          var result = CONFIG.getOverrideNamespace(configKey, "randomValue", returnValueInCaseMissingNamespace);
+          expect(result).to.equal(defaultName);
+        });
+    });          
 });
