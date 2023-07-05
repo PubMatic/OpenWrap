@@ -692,7 +692,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
 					"ocry": CONFIG.getAdServerCurrency() ? theBid.getOriginalCurrency() : CONSTANTS.COMMON.ANALYTICS_CURRENCY,
 					"piid": theBid.getsspID(),
-					"frv": theBid.getServerSideStatus() ? undefined : (pbbid ? (pbbid.floorData ? pbbid.floorData.floorRuleValue : undefined) : undefined),
+					"frv": pbbid && pbbid.floorData && pbbid.floorData.floorRuleValue,
 					"md": pbbid ? refThis.getMetadata(pbbid.meta) : undefined,
 				});
             })
