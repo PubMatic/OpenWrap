@@ -24,6 +24,8 @@ exports.COMMON = {
 	"BID_ID": "owbidid",
 	"AD_SERVER_CURRENCY": "adServerCurrency",
 	"SINGLE_IMPRESSION": "singleImpression",
+	"OPENWRAP_NAMESPACE": "PWT",
+	"IH_OW_NAMESPACE": "IHPWT",
 	"PREBID_NAMESPACE": "owpbjs",
 	"IH_NAMESPACE": "ihowpbjs",
 	"ENABLE_USER_ID": "identityEnabled",
@@ -111,6 +113,8 @@ exports.CONFIG = {
 	"SSO_ENABLED": "ssoEnabled",
 	"FLOOR_SOURCE": "floorSource",
 	"GDPR_ACTION_TIMEOUT": "gdprActionTimeout",
+	"PB_GLOBAL_VAR_NAMESPACE": "pbGlobalVarNamespace",
+	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace"
 };
 
 exports.METADATA_MACROS = {
