@@ -10,6 +10,7 @@ var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var CONF = require("../conf.js");
+var COMMON_CONFIG = require("../common.config.js");
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
@@ -830,6 +831,11 @@ function assignGdprConfigIfRequired(prebidConfig){
 			allowAuctionWithoutConsent: CONFIG.getAwc(), // Auction without consent
 			defaultGdprScope: true
 		};
+		var gdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout()
+		if (gdprActionTimeout) {
+			util.log("GDPR IS ENABLED, TIMEOUT: " + prebidConfig["consentManagement"]['gdpr']['timeout'] +", ACTION TIMEOUT: "+ gdprActionTimeout);
+			prebidConfig["consentManagement"]['gdpr']['actionTimeout'] = gdprActionTimeout;
+		}
 	}
 }
 
@@ -1419,6 +1425,7 @@ function fetchBids(activeSlots){
 					},
 					timeout: CONFIG.getTimeout() - CONSTANTS.CONFIG.TIMEOUT_ADJUSTMENT
 				});
+				util.getGeoInfo();
 			} else {
 				util.log("PreBid js requestBids function is not available");
 				return;
