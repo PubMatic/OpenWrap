@@ -1363,6 +1363,7 @@ function initPbjsConfig(){
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
 	refThis.setPbjsBidderSettingsIfRequired();
+	util.getGeoInfo();
 }
 exports.initPbjsConfig = initPbjsConfig;
 
@@ -1425,7 +1426,6 @@ function fetchBids(activeSlots){
 					},
 					timeout: CONFIG.getTimeout() - CONSTANTS.CONFIG.TIMEOUT_ADJUSTMENT
 				});
-				util.getGeoInfo();
 			} else {
 				util.log("PreBid js requestBids function is not available");
 				return;
