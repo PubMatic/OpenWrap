@@ -7,7 +7,7 @@ var BIDMgr = require('../src_new/bidManager');
 var CONFIG = require("../src_new/config.js");
 var CONSTANTS = require("../src_new/constants.js");
 var UTIL = require("../src_new/util.js");
-// var GDPR = require("../src_new/gdpr.js");
+var GDPR = require("../src_new/gdpr.js");
 var bmEntry = require("../src_new/bmEntry.js");
 var bmEntryContstuctor = require("../src_new/bmEntry.js").BMEntry;
 var AdapterEntry = require("../src_new/adapterEntry").AdapterEntry;
@@ -1133,7 +1133,7 @@ describe('bidManager BIDMgr', function() {
 
             var timeNow = new Date().getTime();
             sinon.stub(UTIL, "getCurrentTimestamp").returns(timeNow);
-            // sinon.spy(GDPR, "getUserConsentDataFromLS");
+            sinon.spy(GDPR, "getUserConsentDataFromLS");
             sinon.spy(UTIL, "forEachOnObject");
 
             slotID_1 = "Slot_1";
@@ -1168,7 +1168,7 @@ describe('bidManager BIDMgr', function() {
 
             UTIL.getCurrentTimestamp.restore();
             UTIL.forEachOnObject.restore();
-            // GDPR.getUserConsentDataFromLS.restore();
+            GDPR.getUserConsentDataFromLS.restore();
             window.PWT = null;
 
             BIDMgr.analyticalPixelCallback.restore();
