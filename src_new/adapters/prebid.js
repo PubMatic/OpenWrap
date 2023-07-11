@@ -1292,7 +1292,7 @@ function setPbjsBidderSettingsIfRequired(){
 
 	window[pbNameSpace].bidderSettings = {
 		'standard': {
-			'suppressEmptyKeys': true, // this boolean flag can be used to avoid sending those empty values to the ad server.
+			'suppressEmptyKeys': true // this boolean flag can be used to avoid sending those empty values to the ad server.
 		}		
 	};
 
