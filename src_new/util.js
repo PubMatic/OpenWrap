@@ -2099,3 +2099,20 @@ exports.getPltForFloor = function() {
 	return refThis.getDevicePlatform().toString();
 }
 
+exports.getGeoInfo = function() {
+	var PREFIX = 'UINFO';
+	var LOCATION_INFO_VALIDITY =  172800000; // 2 * 24 * 60 * 60 * 1000 - 2 days
+	var geoDetectionURL = 'https://ut.pubmatic.com/geo?pubid=' +
+		conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID];
+
+	var info = window[pbNameSpace].getDataFromLocalStorage(PREFIX, LOCATION_INFO_VALIDITY);
+	if(info && JSON.parse(info).cc) {	// Got valid data
+		window.PWT.CC = JSON.parse(info);
+	} else {
+		window[pbNameSpace].detectLocation(geoDetectionURL,
+		function(loc) {
+			window[pbNameSpace].setAndStringifyToLocalStorage(PREFIX, loc);
+			window.PWT.CC = loc;
+		});
+	}
+}
