@@ -861,7 +861,8 @@ describe("CONTROLLER: CUSTOM", function() {
 			sinon.spy(CUSTOM, "setWindowReference");
 			sinon.spy(CUSTOM, "defineWrapperTargetingKeys");
 			sinon.spy(CUSTOM, "initSafeFrameListener");
-			sinon.stub(PREBID, "realignPubmaticAdapters")
+			sinon.stub(PREBID, "realignPubmaticAdapters");
+			sinon.stub(UTIL, "getGeoInfo").returns({});
 			done();
 		});
 
@@ -871,6 +872,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			CUSTOM.defineWrapperTargetingKeys.restore();
 			CUSTOM.initSafeFrameListener.restore();
 			PREBID.realignPubmaticAdapters.restore();
+			UTIL.getGeoInfo.restore();
 			done();
 		});
 
