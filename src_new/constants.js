@@ -255,7 +255,9 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 		"params.syncTime": "number"
 	},
 	"id5Id": {
-		"params.partner": "number"
+		"params.partner": "number",
+		"storage.refreshInSeconds": "number",
+		"storage.expires": "number"
 	},
 	"parrableId": {
 		"params.timezoneFilter.allowedZones": "array"
