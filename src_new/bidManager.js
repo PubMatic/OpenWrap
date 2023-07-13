@@ -568,17 +568,17 @@ exports.getMetadata = getMetadata;
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
 	storedObject = localStorage.getItem(PREFIX + window.location.hostname);
-    var frequencyDepth = storedObject !== null ? JSON.parse(storedObject) : {};
-	var usePBSAdapter = CONFIG.usePBSAdapter();
-	var startTime = bmEntry.getCreationTime() || 0;
-	var pslTime = (usePBSAdapter && window.pbsLatency) ? 0 : undefined;
-	var impressionID = bmEntry.getImpressionID();
-	var adUnitInfo = refThis.getAdUnitInfo(slotID);
-	var latencyValue = {};
+    let frequencyDepth = storedObject !== null ? JSON.parse(storedObject) : {};
+	let usePBSAdapter = CONFIG.usePBSAdapter();
+	let startTime = bmEntry.getCreationTime() || 0;
+	let pslTime = (usePBSAdapter && window.pbsLatency) ? 0 : undefined;
+	let impressionID = bmEntry.getImpressionID();
+	let adUnitInfo = refThis.getAdUnitInfo(slotID);
+	let latencyValue = {};
 	const isAnalytics = true; // this flag is required to get grossCpm and netCpm in dollars instead of adserver currency
 	/* istanbul ignore else */
 	if (bmEntry.getAnalyticEnabledStatus() && !bmEntry.getExpiredStatus()) {
-		var slotObject = {
+		let slotObject = {
 			"sn": slotID,
 			"sz": refThis.getAdUnitSizes(bmEntry),
 			"au": adUnitInfo.adUnitId || slotID,
@@ -619,7 +619,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					}
 				}
 				
-				var endTime = theBid.getReceivedTime();
+				let endTime = theBid.getReceivedTime();
 				if (adapterID === "pubmaticServer") {
 					if ((util.isOwnProperty(window.PWT.owLatency, impressionID)) &&
 						(util.isOwnProperty(window.PWT.owLatency[impressionID], "startTime")) &&
@@ -665,7 +665,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 				if( (adapterID === "pubmatic" || adapterID === "pubmatic2") && (theBid.getDefaultBidStatus() ||  (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0))){
 					return;
 				}
-				var pbbid = theBid.getPbBid();
+				let pbbid = theBid.getPbBid();
 
 				//todo: take all these key names from constants
                 slotObject["ps"].push({
