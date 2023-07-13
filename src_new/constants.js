@@ -114,7 +114,8 @@ exports.CONFIG = {
 	"FLOOR_SOURCE": "floorSource",
 	"GDPR_ACTION_TIMEOUT": "gdprActionTimeout",
 	"PB_GLOBAL_VAR_NAMESPACE": "pbGlobalVarNamespace",
-	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace"
+	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace",
+	"ENABLE_COMPLIANCE_ANALYTICS": "complianceAnalyticsEnabled"
 };
 
 exports.METADATA_MACROS = {

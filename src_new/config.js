@@ -457,3 +457,8 @@ exports.createMacros = function() {
 exports.getMarketplaceBidders = function(){
 	return config.pwt.marketplaceBidders ? config.pwt.marketplaceBidders.split(',') : false;
 }
+
+exports.isComplianceAnalyticsEnabled = function() {
+	var isEnabled = parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_COMPLIANCE_ANALYTICS]);
+	return isNaN(isEnabled) ? 1 : isEnabled;
+};

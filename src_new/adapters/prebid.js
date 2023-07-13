@@ -31,6 +31,7 @@ var onAuctionEndEventAdded = false;
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
 var defaultAliases = CONSTANTS.DEFAULT_ALIASES;
+var isComplianceAnalyticsEnabled = CONFIG.isComplianceAnalyticsEnabled();
 
 /* start-test-block */
 exports.isSingleImpressionSettingEnabled = isSingleImpressionSettingEnabled;
@@ -1054,7 +1055,9 @@ function setPrebidConfig(){
 		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 		//todo: stop supporting this hook let pubs use pbjs.requestBids hook
 		// do not set any config below this line as we are executing the hook above
-		
+		refThis.enableComplianceAnalyticsIfRequired();
+        util.isFunction(window[pbNameSpace].fireComplianceLoggerCall) && window[pbNameSpace].fireComplianceLoggerCall();
+
 		window[pbNameSpace].setConfig(prebidConfig);
 	} else {
 		util.logWarning("PreBidJS setConfig method is not available");
@@ -1455,3 +1458,31 @@ function getBid(divID){
 }
 
 exports.getBid = getBid;
+
+function enableComplianceAnalyticsIfRequired() {
+	if(isComplianceAnalyticsEnabled && util.isFunction(window[pbNameSpace].enableAnalytics)){
+		window[pbNameSpace].enableAnalytics({
+			provider: "complianceAnalytics",
+			options: {
+				publisherId: CONFIG.getPublisherId(),
+				profileId: CONFIG.getProfileID(),
+				profileVersionId: CONFIG.getProfileDisplayVersionID(),
+				identityOnly: CONFIG.isUserIdModuleEnabled() ? CONFIG.isIdentityOnly() ? 2 : 1 : 0,
+				domain: util.getDomainFromURL(),
+				userIDModules: CONFIG.getIdentityPartners(),
+				cmpConfig: {
+					gdprEnabled: CONFIG.getGdpr(),
+					cmpApi: CONFIG.getCmpApi(),
+					gdprTO: CONFIG.getGdprTimeout(),
+					//actionTO: CONFIG.getActionTimeout(),
+					ccpaEnabled: CONFIG.getCCPA(),
+					ccpaCmpAPI: CONFIG.getCCPACmpApi(),
+					ccpaTO: CONFIG.getCCPATimeout()
+				}
+			}
+		});
+	}
+}
+
+exports.enableComplianceAnalyticsIfRequired = enableComplianceAnalyticsIfRequired;
+	
