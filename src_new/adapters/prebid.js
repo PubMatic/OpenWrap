@@ -1295,12 +1295,15 @@ function setPbjsBidderSettingsIfRequired(){
 		return;
 	}
 
+	var preBidderSetting = window[pbNameSpace].bidderSettings ? Object.assign({}, window[pbNameSpace].bidderSettings) : {};
 	window[pbNameSpace].bidderSettings = {
 		'standard': {
 			'suppressEmptyKeys': true, // this boolean flag can be used to avoid sending those empty values to the ad server.
 			'storageAllowed': CONF.pwt.localStorageAccess === "1" ? true : null
 		}		
 	};
+
+	window[pbNameSpace].bidderSettings = Object.assign(window[pbNameSpace].bidderSettings, preBidderSetting);
 
 	if(CONFIG.isUsePrebidKeysEnabled() === false){
 		window[pbNameSpace].bidderSettings['standard']['adserverTargeting'] = getPbjsAdServerTargetingConfig();
