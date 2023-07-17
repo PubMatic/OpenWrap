@@ -1474,7 +1474,7 @@ function enableComplianceAnalyticsIfRequired() {
 					gdprEnabled: CONFIG.getGdpr(),
 					cmpApi: CONFIG.getCmpApi(),
 					gdprTO: CONFIG.getGdprTimeout(),
-					//actionTO: CONFIG.getActionTimeout(),
+					actionTO: COMMON_CONFIG.getGdprActionTimeout(),
 					ccpaEnabled: CONFIG.getCCPA(),
 					ccpaCmpAPI: CONFIG.getCCPACmpApi(),
 					ccpaTO: CONFIG.getCCPATimeout()
