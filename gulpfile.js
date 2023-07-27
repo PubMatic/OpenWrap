@@ -80,6 +80,7 @@ gulp.task('webpack', gulp.series('clean', function() {
     console.log("Executing webpack");
     var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
+    var babel = require('gulp-babel');
     var webpack = require('webpack-stream');
     var webpackConfig = require('./webpack.config.js');
     var optimizejs = require('gulp-optimize-js');
@@ -93,6 +94,7 @@ gulp.task('webpack', gulp.series('clean', function() {
         .pipe(webpack(webpackConfig))
         .pipe(jsFsCache)
         .pipe(removeCode(getRemoveCodeConfig()))
+        .pipe(babel({presets: ['@babel/env']}))
         .pipe(uglify())
         .pipe(optimizejs())
         .pipe(jsFsCache.restore)

@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/PubMatic/OpenWrap#readme",
   "dependencies": {
+    "@babel/preset-env": "^7.19.0",
+    "babel-core": "6.26.3",
     "gulp": "^4.0.0",
     "gulp-clean": "^0.3.2",
     "gulp-concat": "^2.6.0",
@@ -36,8 +38,6 @@
     "yargs": "^17.5.1"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.19.0",
-    "babel-core": "6.26.3",
     "babel-loader": "8.2.5",
     "block-loader": "^2.1.0",
     "chai": "^3.3.0",
