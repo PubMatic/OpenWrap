@@ -1294,8 +1294,7 @@ function setPbjsBidderSettingsIfRequired(){
 		};
 		return;
 	}
-
-	var preBidderSetting = window[pbNameSpace].bidderSettings ? Object.assign({}, window[pbNameSpace].bidderSettings) : {};
+	var preBidderSetting = window[pbNameSpace].bidderSettings || {};
 	window[pbNameSpace].bidderSettings = {
 		'standard': {
 			'suppressEmptyKeys': true, // this boolean flag can be used to avoid sending those empty values to the ad server.
@@ -1303,7 +1302,6 @@ function setPbjsBidderSettingsIfRequired(){
 		}		
 	};
 
-	window[pbNameSpace].bidderSettings = Object.assign(window[pbNameSpace].bidderSettings, preBidderSetting);
 
 	if(CONFIG.isUsePrebidKeysEnabled() === false){
 		window[pbNameSpace].bidderSettings['standard']['adserverTargeting'] = getPbjsAdServerTargetingConfig();
@@ -1322,8 +1320,17 @@ function setPbjsBidderSettingsIfRequired(){
 			window[pbNameSpace].bidderSettings[adapterID]['bidCpmAdjustment'] = function(bidCpm, bid){
 				return window.parseFloat((bidCpm * CONFIG.getAdapterRevShare(adapterID)).toFixed(CONSTANTS.COMMON.BID_PRECISION));
 			}
+			// Check if code snippets has storageAllowed set to particular partner
+			if(preBidderSetting[adapterID]) {
+				window[pbNameSpace].bidderSettings[adapterID]['storageAllowed'] = preBidderSetting[adapterID]['storageAllowed'];
+			}
 		}
 	});
+
+	// Check if code snippet modified storageAllowed with standard settings.
+	if(preBidderSetting['standard']) {
+		window[pbNameSpace].bidderSettings['standard']['storageAllowed'] = preBidderSetting['standard']['storageAllowed'];
+	}
 }
 
 exports.setPbjsBidderSettingsIfRequired = setPbjsBidderSettingsIfRequired;
