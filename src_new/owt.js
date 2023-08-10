@@ -5,7 +5,6 @@ var CONSTANTS = require("./constants.js");
 var CONFIG = require("./config.js");
 var ucTag = require("prebid-universal-creative");
 var conf = require("./conf.js");
-var prebid = require("./adapters/prebid.js");
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
 window.PWT.bidMap = window.PWT.bidMap || {};
@@ -76,6 +75,7 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In sfDisplayPMPCreative for: " + values);
 	this.isSafeFrame = true;
+	ucTag = window.ucTag || {};
 	var bidID = util.getBididForPMP(values, priorityArray);
 	if(bidID){
 		if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
@@ -183,7 +183,7 @@ window.PWT.setAuctionTimeout = function(timeout){
 		util.log("updating aution timeout from: " + conf.pwt.t +" to: "+timeout);
 		conf.pwt.t = timeout;
 	}
-}
+};
 
 window.PWT.versionDetails =  util.getOWConfig();
 
