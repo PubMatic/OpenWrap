@@ -2961,6 +2961,7 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(GPT, "addHooksIfPossible");
             sinon.spy(GPT, "initSafeFrameListener");
             sinon.stub(PREBID, "realignPubmaticAdapters")
+			sinon.stub(UTIL, "getGeoInfo").returns({});
             done();
         });
 
@@ -2972,6 +2973,7 @@ describe("CONTROLLER: GPT", function() {
             GPT.addHooksIfPossible.restore();
             GPT.initSafeFrameListener.restore();
             PREBID.realignPubmaticAdapters.restore();
+			UTIL.getGeoInfo.restore();
             done();
         });
 
