@@ -1367,7 +1367,7 @@ describe('bidManager BIDMgr', function() {
 
             window.Image.called.should.be.true;
             UTIL.getCurrentTimestamp.called.should.be.true;
-            window.encodeURIComponent.callCount.should.be.equal(21);
+            window.encodeURIComponent.callCount.should.be.equal(22);
 
             done();
         });
@@ -1402,6 +1402,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
             pixelURL += "&piid=" + window.encodeURIComponent(theBid.getsspID());
             pixelURL += "&rf=" + window.encodeURIComponent(1);
+            pixelURL += "&di=" + window.encodeURIComponent(theBid.getDealID() || "-1");
 
             pixelURL += '&plt=' + window.encodeURIComponent(UTIL.getDevicePlatform());
             pixelURL += (UTIL.isFunction(theBid.getWidth) && UTIL.isFunction(theBid.getHeight)) ?
@@ -1456,6 +1457,7 @@ describe('bidManager BIDMgr', function() {
             pixelURL += "&kgpv=" + window.encodeURIComponent(theBid.getKGPV());
             pixelURL += "&piid=" + window.encodeURIComponent(theBid.getsspID());
             pixelURL += "&rf=" + window.encodeURIComponent(1);
+            pixelURL += "&di=" + window.encodeURIComponent(theBid.getDealID() || "-1");
 
             pixelURL += '&plt=' + window.encodeURIComponent(UTIL.getDevicePlatform());
             pixelURL += (UTIL.isFunction(theBid.getWidth) && UTIL.isFunction(theBid.getHeight)) ?
