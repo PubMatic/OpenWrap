@@ -631,9 +631,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["adUnitId"] = currentSlot.getAdUnitID();
 			slotParams["divId"] = currentSlot.getDivID();
 			slotParams["adSlot"] = generatedKey;
-			if(isPrebidPubMaticAnalyticsEnabled === false){
-				slotParams["wiid"] = impressionID;
-			}
+			slotParams["wiid"] = impressionID;
 			slotParams["profId"] = CONFIG.getProfileID();
 			/* istanbul ignore else*/
 			if(window.PWT.udpv){
