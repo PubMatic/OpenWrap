@@ -2235,4 +2235,26 @@ describe('ADAPTER: Prebid', function() {
 		})
 	});
 
+	describe('setPbjsBidderSettingsIfRequired', function() {
+		beforeEach(function(done) {
+			window.owpbjs = {bidderSettings: {}};
+            done();
+        });
+
+        afterEach(function(done) {
+			delete window.owpbjs;
+            done();
+        });
+		it('should be a functiion',function(done){
+            PREBID.setPbjsBidderSettingsIfRequired.should.be.a('function');
+            done();
+        });
+		it('should have bidderSettings with default configuration', function(done) {
+			PREBID.setPbjsBidderSettingsIfRequired();
+			expect(window.owpbjs.bidderSettings).to.have.property('standard');
+			expect(window.owpbjs.bidderSettings.standard).to.have.property('storageAllowed');
+			expect(window.owpbjs.bidderSettings.standard.storageAllowed).to.equal(true);
+			done();
+		});
+	})
 });
