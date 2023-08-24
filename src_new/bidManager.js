@@ -682,7 +682,7 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "psz": theBid.getWidth() + "x" + theBid.getHeight(),
                     "eg": theBid.getGrossEcpm(isAnalytics),
                     "en": theBid.getNetEcpm(isAnalytics),
-                    "di": theBid.getDealID(),
+                    "di": theBid.getDealID() || "-1",
                     "dc": theBid.getDealChannel(),
                     "l1": theBid.getServerSideStatus() ? theBid.getServerSideResponseTime() : (endTime - startTime),
 					"l2": 0,
