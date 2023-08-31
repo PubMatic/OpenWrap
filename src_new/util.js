@@ -1642,6 +1642,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
 	pixelURL += "&piid=" + window.encodeURIComponent(sspID);
 	pixelURL += "&rf=" + window.encodeURIComponent(isRefreshed);
+	pixelURL += "&di=" + window.encodeURIComponent(theBid.getDealID() || "-1");
 
 	pixelURL += '&plt=' + window.encodeURIComponent(refThis.getDevicePlatform());
 	pixelURL += (refThis.isFunction(theBid.getWidth) && refThis.isFunction(theBid.getHeight)) ?
