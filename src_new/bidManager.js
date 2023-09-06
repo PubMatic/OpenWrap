@@ -669,6 +669,11 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					return;
 				}
 				var pbbid = theBid.getPbBid();
+				var originalLatency = (theBid.getServerSideStatus() ? theBid.getServerSideResponseTime() : (endTime - startTime));
+				var latency_ttr = (pbbid && pbbid.timeToRespond) || originalLatency;
+				// Checking if latency is greater than auctiontime+100, if yes instead of logging actual latency log
+  				// auctiontime+100 to keep actual values and to keep avarage latency in expected range.
+				latency_ttr = latency_ttr > (CONFIG.getTimeout() + 100) ? (CONFIG.getTimeout() + 100) : latency_ttr;
 
 				//todo: take all these key names from constants
                 slotObject["ps"].push({
@@ -684,7 +689,8 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
                     "en": theBid.getNetEcpm(isAnalytics),
                     "di": theBid.getDealID() || "-1",
                     "dc": theBid.getDealChannel(),
-                    "l1": theBid.getServerSideStatus() ? theBid.getServerSideResponseTime() : (endTime - startTime),
+					"l1": latency_ttr,
+                    "ol1": originalLatency,
 					"l2": 0,
 					"adv": pbbid ? util.getAdDomain(pbbid) || undefined : undefined,
 					"ss": theBid.getServerSideStatus(),
