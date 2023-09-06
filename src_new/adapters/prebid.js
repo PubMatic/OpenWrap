@@ -846,6 +846,7 @@ function assignCcpaConfigIfRequired(prebidConfig){
 			cmpApi: CONFIG.getCCPACmpApi(),
 			timeout: CONFIG.getCCPATimeout(),
 		};
+		COMMON_CONFIG.assignAllowActivitiesConfig(prebidConfig);
 	}
 }
 

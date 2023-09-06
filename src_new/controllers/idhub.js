@@ -56,6 +56,7 @@ refThis.setConfig = function(){
 			}
 
 			if (CONFIG.getCCPA()) {
+				COMMON_CONFIG.assignAllowActivitiesConfig(prebidConfig);
 				if(!prebidConfig["consentManagement"]){
 					prebidConfig["consentManagement"] = {};
 				}
