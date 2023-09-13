@@ -614,7 +614,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 	}
 	// for pubmaticServer partner we used to pass wiid when isPrebidPubMaticAnalyticsEnabled is false but now we do not 
 	// get pubmaticServer partner when usePBSAdapter flag is true so we will be adding wiid conditionally.
-	if(isPrebidPubMaticAnalyticsEnabled === false && CONFIG.usePBSAdapter()){
+	if(CONFIG.usePBSAdapter()){
 		slotParams["wiid"] = impressionID;
 		isWiidRequired = true;
 	}
@@ -631,9 +631,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["adUnitId"] = currentSlot.getAdUnitID();
 			slotParams["divId"] = currentSlot.getDivID();
 			slotParams["adSlot"] = generatedKey;
-			if(isPrebidPubMaticAnalyticsEnabled === false){
-				slotParams["wiid"] = impressionID;
-			}
+			slotParams["wiid"] = impressionID;
 			slotParams["profId"] = CONFIG.getProfileID();
 			/* istanbul ignore else*/
 			if(window.PWT.udpv){
@@ -646,9 +644,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		case "pubmatic2":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
 			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
-			if(isPrebidPubMaticAnalyticsEnabled === false){
-				slotParams["wiid"] = impressionID;
-			}
+			slotParams["wiid"] = impressionID;
 			slotParams["profId"] = (adapterID == "pubmatic2") || (adapterName == "pubmatic2")  ? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
 			if((adapterID != "pubmatic2" && adapterName != "pubmatic2") && window.PWT.udpv){
