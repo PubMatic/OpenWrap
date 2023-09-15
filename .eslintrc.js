@@ -5,18 +5,20 @@ module.exports = {
     },
     "extends": "eslint:recommended",
     "rules": {
-        "indent": [
-            "error",
-            "tab"
-        ],
-        "linebreak-style": "off",
-        "quotes": [
-            "error",
-            "double"
-        ],
-        "semi": [
-            "error",
-            "always"
-        ],
+        'comma-dangle': 'off',
+        semi: 'off',
+        'space-before-function-paren': 'off',
+        //'import/extensions': ['error', 'ignorePackages'],
+    
+        // Exceptions below this line are temporary, so that eslint can be added into the CI process.
+        // Violations of these styles should be fixed, and the exceptions removed over time.
+        //
+        // See Issue #1111.
+        eqeqeq: 'off',
+        'no-return-assign': 'off',
+        'no-throw-literal': 'off',
+        'no-undef': 2,
+        'no-useless-escape': 'off',
+        'no-console': 'error',
     }
 };

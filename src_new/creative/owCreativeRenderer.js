@@ -24,7 +24,7 @@ exports.renderCreative = function (theDocument, params) {
 				size: params.size
 			});
 		}
-		catch(e){
+		catch (e) {
 			// Commenting below line due to es lint issue . TODO : Will have to check for rule to allow console.warn message
 			// console.warn("OpenWrap Warning: There's an error rendering the ad.");
 		}
@@ -35,7 +35,7 @@ exports.removeProtocolFromUrl = function (url) {
 	if (refThis.isString(url)) {
 		var outputUrl = url || "";
 		if (url && url.length > 0) {
-			outputUrl= url.replace(/^https{0,1}:\/\//i, "");
+			outputUrl = url.replace(/^https{0,1}:\/\//i, "");
 		}
 		return outputUrl;
 	}

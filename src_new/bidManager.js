@@ -15,17 +15,17 @@ const TRACKER_METHODS = {
 	1: 'img',
 	2: 'js'
 }
-  
+
 const TRACKER_EVENTS = {
 	impression: 1,
 	'viewable-mrc50': 2,
 	'viewable-mrc100': 3,
 	'viewable-video50': 4,
 }
-  
-function createBidEntry(divID){ // TDD, i/o : done
+
+function createBidEntry(divID) { // TDD, i/o : done
 	/* istanbul ignore else */
-	if(! util.isOwnProperty(window.PWT.bidMap, divID) ){
+	if (!util.isOwnProperty(window.PWT.bidMap, divID)) {
 		window.PWT.bidMap[divID] = bmEntry.createBMEntry(divID);
 	}
 }
@@ -34,76 +34,76 @@ function createBidEntry(divID){ // TDD, i/o : done
 exports.createBidEntry = createBidEntry;
 /* end-test-block */
 
-exports.setSizes = function(divID, slotSizes){ // TDD, i/o : done
+exports.setSizes = function (divID, slotSizes) { // TDD, i/o : done
 	refThis.createBidEntry(divID);
 	window.PWT.bidMap[divID].setSizes(slotSizes);
 };
 
-exports.setCallInitTime = function(divID, adapterID){ // TDD, i/o : done
+exports.setCallInitTime = function (divID, adapterID) { // TDD, i/o : done
 	refThis.createBidEntry(divID);
 	window.PWT.bidMap[divID].setAdapterEntry(adapterID);
 };
 
-exports.setAllPossibleBidsReceived = function(divID){
+exports.setAllPossibleBidsReceived = function (divID) {
 	window.PWT.bidMap[divID].setAllPossibleBidsReceived();
 };
 
-exports.setBidFromBidder = function(divID, bidDetails){ // TDD done
+exports.setBidFromBidder = function (divID, bidDetails) { // TDD done
 
 	var bidderID = bidDetails.getAdapterID();
 	var bidID = bidDetails.getBidID();
 	var bidMapEntry = window.PWT.bidMap[divID];
 	/* istanbul ignore else */
-	if(!util.isOwnProperty(window.PWT.bidMap, divID)){
-		util.logWarning("BidManager is not expecting bid for "+ divID +", from " + bidderID);
+	if (!util.isOwnProperty(window.PWT.bidMap, divID)) {
+		util.logWarning("BidManager is not expecting bid for " + divID + ", from " + bidderID);
 		return;
 	}
 
-	var isPostTimeout = (bidMapEntry.getCreationTime()+CONFIG.getTimeout()) < bidDetails.getReceivedTime() ? true : false,
+	var isPostTimeout = (bidMapEntry.getCreationTime() + CONFIG.getTimeout()) < bidDetails.getReceivedTime() ? true : false,
 		latency = bidDetails.getReceivedTime() - bidMapEntry.getCreationTime();
 
 	refThis.createBidEntry(divID);
 
-	util.log("BdManagerSetBid: divID: "+divID+", bidderID: "+bidderID+", ecpm: "+bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth()+"x"+bidDetails.getHeight() + ", postTimeout: "+isPostTimeout + ", defaultBid: " + bidDetails.getDefaultBidStatus());
+	util.log("BdManagerSetBid: divID: " + divID + ", bidderID: " + bidderID + ", ecpm: " + bidDetails.getGrossEcpm() + ", size: " + bidDetails.getWidth() + "x" + bidDetails.getHeight() + ", postTimeout: " + isPostTimeout + ", defaultBid: " + bidDetails.getDefaultBidStatus());
 	/* istanbul ignore else */
-	if(isPostTimeout === true /*&& !bidDetails.isServerSide*/){
+	if (isPostTimeout === true /*&& !bidDetails.isServerSide*/) {
 		bidDetails.setPostTimeoutStatus();
 	}
 
 	var lastBidID = bidMapEntry.getLastBidIDForAdapter(bidderID);
-	if(lastBidID != ""){
+	if (lastBidID != "") {
 
 		var lastBid = bidMapEntry.getBid(bidderID, lastBidID), //todo: what if the lastBid is null
 			lastBidWasDefaultBid = lastBid.getDefaultBidStatus() === 1,
 			lastBidWasErrorBid = lastBid.getDefaultBidStatus() === -1
 			;
 
-		if( lastBidWasDefaultBid || !isPostTimeout || lastBidWasErrorBid){
+		if (lastBidWasDefaultBid || !isPostTimeout || lastBidWasErrorBid) {
 			/* istanbul ignore else */
-			if(lastBidWasDefaultBid){
+			if (lastBidWasDefaultBid) {
 				util.log(CONSTANTS.MESSAGES.M23 + bidderID);
 			}
 
-			if( lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() || lastBidWasErrorBid){
-				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M13+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M14 + bidderID);
+			if (lastBidWasDefaultBid || lastBid.getNetEcpm() < bidDetails.getNetEcpm() || lastBidWasErrorBid) {
+				util.log(CONSTANTS.MESSAGES.M12 + lastBid.getNetEcpm() + CONSTANTS.MESSAGES.M13 + bidDetails.getNetEcpm() + CONSTANTS.MESSAGES.M14 + bidderID);
 				refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
-			}else{
-				util.log(CONSTANTS.MESSAGES.M12+lastBid.getNetEcpm()+CONSTANTS.MESSAGES.M15+bidDetails.getNetEcpm()+CONSTANTS.MESSAGES.M16 +  bidderID);
+			} else {
+				util.log(CONSTANTS.MESSAGES.M12 + lastBid.getNetEcpm() + CONSTANTS.MESSAGES.M15 + bidDetails.getNetEcpm() + CONSTANTS.MESSAGES.M16 + bidderID);
 			}
-		}else{
+		} else {
 			util.log(CONSTANTS.MESSAGES.M17);
 		}
-	}else{
+	} else {
 		util.log(CONSTANTS.MESSAGES.M18 + bidderID);
 		refThis.storeBidInBidMap(divID, bidderID, bidDetails, latency);
 	}
 	if (isPostTimeout) {
-      //explicitly trigger user syncs since its a post timeout bid
-      setTimeout(window[CONSTANTS.COMMON.PREBID_NAMESPACE].triggerUserSyncs, 10);
-    }
+		//explicitly trigger user syncs since its a post timeout bid
+		setTimeout(window[CONSTANTS.COMMON.PREBID_NAMESPACE].triggerUserSyncs, 10);
+	}
 };
 
-function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : done
+function storeBidInBidMap(slotID, adapterID, theBid, latency) { // TDD, i/o : done
 
 	// Adding a hook for publishers to modify the bid we have to store
 	// we should not call the hook for defaultbids and post-timeout bids
@@ -119,7 +119,7 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 	};
 
 	/* istanbul ignore else */
-	if(theBid.getDefaultBidStatus() === 0 && theBid.adapterID !== "pubmaticServer"){
+	if (theBid.getDefaultBidStatus() === 0 && theBid.adapterID !== "pubmaticServer") {
 		util.vLogInfo(slotID, {
 			type: "bid",
 			bidder: adapterID + (CONFIG.getBidPassThroughStatus(adapterID) !== 0 ? '(Passthrough)' : ''),
@@ -135,8 +135,8 @@ function storeBidInBidMap(slotID, adapterID, theBid, latency){ // TDD, i/o : don
 exports.storeBidInBidMap = storeBidInBidMap;
 /* end-test-block */
 
-function resetBid(divID, impressionID){ // TDD, i/o : done
-	util.vLogInfo(divID, {type: "hr"});
+function resetBid(divID, impressionID) { // TDD, i/o : done
+	util.vLogInfo(divID, { type: "hr" });
 	delete window.PWT.bidMap[divID];
 	refThis.createBidEntry(divID);
 	window.PWT.bidMap[divID].setImpressionID(impressionID);
@@ -147,36 +147,36 @@ exports.resetBid = resetBid;
 /* end-test-block */
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-function createMetaDataKey(pattern, bmEntry, keyValuePairs){
+function createMetaDataKey(pattern, bmEntry, keyValuePairs) {
 	var output = "",
 		validBidCount = 0,
 		partnerCount = 0,
 		macros = CONSTANTS.METADATA_MACROS,
 		macroRegexFlag = "g";
 
-		util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
-        if (adapterEntry.getLastBidID() != "") {
-					// If pubmaticServerBidAdapter then don't increase partnerCount
-					(adapterID !== "pubmaticServer") && partnerCount++;
-					util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
+	util.forEachOnObject(bmEntry.adapters, function (adapterID, adapterEntry) {
+		if (adapterEntry.getLastBidID() != "") {
+			// If pubmaticServerBidAdapter then don't increase partnerCount
+			(adapterID !== "pubmaticServer") && partnerCount++;
+			util.forEachOnObject(adapterEntry.bids, function (bidID, theBid) {
 				// Description-> adapterID == "pubmatic" && theBid.netEcpm == 0 this check is put because from pubmaticBidAdapter in prebid we are
 				// passing zero bid when there are no bid under timout for latency reports and this caused issue to have zero bids in pwtm key
 				// so put this check which will not log zero bids for pubmatic. Note : From prebid 1.x onwards we do not get zero bids in case of no bids.
-				if(theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1 || theBid.getGrossEcpm() == 0){
-        			return;
-        		}
-		        validBidCount++;
-		        output += replaceMetaDataMacros(pattern, theBid);
-        	});
-        }
-    });
+				if (theBid.getDefaultBidStatus() == 1 || theBid.getPostTimeoutStatus() == 1 || theBid.getGrossEcpm() == 0) {
+					return;
+				}
+				validBidCount++;
+				output += replaceMetaDataMacros(pattern, theBid);
+			});
+		}
+	});
 
-		if(output.length == 0){
-    	output = pattern;
-    }
-    output = output.replace(new RegExp(macros.BID_COUNT, macroRegexFlag), validBidCount);
-    output = output.replace(new RegExp(macros.PARTNER_COUNT, macroRegexFlag), partnerCount);
-    keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.META_DATA] = encodeURIComponent(output);
+	if (output.length == 0) {
+		output = pattern;
+	}
+	output = output.replace(new RegExp(macros.BID_COUNT, macroRegexFlag), validBidCount);
+	output = output.replace(new RegExp(macros.PARTNER_COUNT, macroRegexFlag), partnerCount);
+	keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.META_DATA] = encodeURIComponent(output);
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
@@ -187,10 +187,10 @@ exports.createMetaDataKey = createMetaDataKey;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-function replaceMetaDataMacros(pattern, theBid){
+function replaceMetaDataMacros(pattern, theBid) {
 	var macros = CONSTANTS.METADATA_MACROS,
 		macroRegexFlag = "g"
-	;
+		;
 	return pattern
 		.replace(new RegExp(macros.PARTNER, macroRegexFlag), theBid.getAdapterID())
 		.replace(new RegExp(macros.WIDTH, macroRegexFlag), theBid.getWidth())
@@ -208,25 +208,25 @@ exports.replaceMetaDataMacros = replaceMetaDataMacros;
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function auctionBids(bmEntry) { // TDD, i/o : done
-    var winningBid = null,
-        keyValuePairs = {};
+	var winningBid = null,
+		keyValuePairs = {};
 
-    util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
-        var obj = refThis.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
-        winningBid  = obj.winningBid;
-        keyValuePairs = obj.keyValuePairs;
-    });
+	util.forEachOnObject(bmEntry.adapters, function (adapterID, adapterEntry) {
+		var obj = refThis.auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid);
+		winningBid = obj.winningBid;
+		keyValuePairs = obj.keyValuePairs;
+	});
 
-    // removeIf(removeLegacyAnalyticsRelatedCode)
-    if(CONFIG.getMataDataPattern() !== null){
-    	createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);
-    }
-    // endRemoveIf(removeLegacyAnalyticsRelatedCode)
+	// removeIf(removeLegacyAnalyticsRelatedCode)
+	if (CONFIG.getMataDataPattern() !== null) {
+		createMetaDataKey(CONFIG.getMataDataPattern(), bmEntry, keyValuePairs);
+	}
+	// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-    return {
-        wb: winningBid,
-        kvp: keyValuePairs
-    };
+	return {
+		wb: winningBid,
+		kvp: keyValuePairs
+	};
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
@@ -238,7 +238,7 @@ exports.auctionBids = auctionBids;
 
 // removeIf(removeNativeRelatedCode)
 function updateNativeTargtingKeys(keyValuePairs) {
-	for(var key in keyValuePairs) {
+	for (var key in keyValuePairs) {
 		if (key.indexOf("native") >= 0 && key.split("_").length === 3) {
 			delete keyValuePairs[key];
 		}
@@ -255,20 +255,20 @@ exports.updateNativeTargtingKeys = updateNativeTargtingKeys;
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid) { // TDD, i/o : done
 	var refThis = this;
-    if (adapterEntry.getLastBidID() != "") {
-        util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
-            // do not consider post-timeout bids
-            /* istanbul ignore else */
-            if (theBid.getPostTimeoutStatus() === true) {
-                return { winningBid: winningBid , keyValuePairs: keyValuePairs };
-            }
+	if (adapterEntry.getLastBidID() != "") {
+		util.forEachOnObject(adapterEntry.bids, function (bidID, theBid) {
+			// do not consider post-timeout bids
+			/* istanbul ignore else */
+			if (theBid.getPostTimeoutStatus() === true) {
+				return { winningBid: winningBid, keyValuePairs: keyValuePairs };
+			}
 
-            /* istanbul ignore else */
-			if(theBid.getDefaultBidStatus() !== 1 && CONFIG.getSendAllBidsStatus() == 1){
+			/* istanbul ignore else */
+			if (theBid.getDefaultBidStatus() !== 1 && CONFIG.getSendAllBidsStatus() == 1) {
 				theBid.setSendAllBidsKeys();
 			}
 
-			if (winningBid !== null ) {
+			if (winningBid !== null) {
 				if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
 					// i.e. the current bid is the winning bid, so remove the native keys from keyValuePairs
 					// removeIf(removeNativeRelatedCode)
@@ -283,23 +283,23 @@ function auctionBidsCallBack(adapterID, adapterEntry, keyValuePairs, winningBid)
 					theBid.keyValuePairs = bidKeyValuePairs;
 				}
 			}
-            util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
+			util.copyKeyValueObject(keyValuePairs, theBid.getKeyValuePairs());
 
-            /* istanbul ignore else */
-            if (CONFIG.getBidPassThroughStatus(adapterID) !== 0) {
-                return { winningBid: winningBid , keyValuePairs: keyValuePairs };
-            }
+			/* istanbul ignore else */
+			if (CONFIG.getBidPassThroughStatus(adapterID) !== 0) {
+				return { winningBid: winningBid, keyValuePairs: keyValuePairs };
+			}
 
-            if (winningBid == null) {
-                winningBid = theBid;
-            } else if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
-                winningBid = theBid;
-            }
+			if (winningBid == null) {
+				winningBid = theBid;
+			} else if (winningBid.getNetEcpm() < theBid.getNetEcpm()) {
+				winningBid = theBid;
+			}
 		});
-        return { winningBid: winningBid , keyValuePairs: keyValuePairs };
-    } else {
-    	return { winningBid: winningBid , keyValuePairs: keyValuePairs };
-    }
+		return { winningBid: winningBid, keyValuePairs: keyValuePairs };
+	} else {
+		return { winningBid: winningBid, keyValuePairs: keyValuePairs };
+	}
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
@@ -310,19 +310,19 @@ exports.auctionBidsCallBack = auctionBidsCallBack;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-exports.getBid = function(divID){ // TDD, i/o : done
+exports.getBid = function (divID) { // TDD, i/o : done
 
 	var winningBid = null;
 	var keyValuePairs = null;
 	/* istanbul ignore else */
-	if( util.isOwnProperty(window.PWT.bidMap, divID) ){
+	if (util.isOwnProperty(window.PWT.bidMap, divID)) {
 		var data = refThis.auctionBids(window.PWT.bidMap[divID]);
 		winningBid = data.wb;
 		keyValuePairs = data.kvp;
 
 		window.PWT.bidMap[divID].setAnalyticEnabled();//Analytics Enabled
 
-		if(winningBid && winningBid.getNetEcpm() > 0){
+		if (winningBid && winningBid.getNetEcpm() > 0) {
 			winningBid.setStatus(1);
 			winningBid.setWinningBidStatus();
 			util.vLogInfo(divID, {
@@ -330,64 +330,64 @@ exports.getBid = function(divID){ // TDD, i/o : done
 				bidDetails: winningBid,
 				adServerCurrency: util.getCurrencyToDisplay()
 			});
-		}else{
+		} else {
 			util.vLogInfo(divID, {
 				type: "win-bid-fail",
 			});
 		}
 	}
 
-	return {wb: winningBid, kvp: keyValuePairs};
+	return { wb: winningBid, kvp: keyValuePairs };
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-exports.getBidById = function(bidID) { // TDD, i/o : done
+exports.getBidById = function (bidID) { // TDD, i/o : done
 	/* istanbul ignore else */
-    if (!util.isOwnProperty(window.PWT.bidIdMap, bidID)) {
-        util.log(CONSTANTS.MESSAGES.M25 + bidID);
-        return null;
-    }
+	if (!util.isOwnProperty(window.PWT.bidIdMap, bidID)) {
+		util.log(CONSTANTS.MESSAGES.M25 + bidID);
+		return null;
+	}
 
-    var divID = window.PWT.bidIdMap[bidID].s;
-    var adapterID = window.PWT.bidIdMap[bidID].a;
+	var divID = window.PWT.bidIdMap[bidID].s;
+	var adapterID = window.PWT.bidIdMap[bidID].a;
 
-    /* istanbul ignore else */
-    if (util.isOwnProperty(window.PWT.bidMap, divID)) {
-        util.log("BidID: " + bidID + ", DivID: " + divID + CONSTANTS.MESSAGES.M19 + adapterID);
-        var theBid = window.PWT.bidMap[divID].getBid(adapterID, bidID);
-        /* istanbul ignore else */
-        if (theBid == null) {
-            return null;
-        }
+	/* istanbul ignore else */
+	if (util.isOwnProperty(window.PWT.bidMap, divID)) {
+		util.log("BidID: " + bidID + ", DivID: " + divID + CONSTANTS.MESSAGES.M19 + adapterID);
+		var theBid = window.PWT.bidMap[divID].getBid(adapterID, bidID);
+		/* istanbul ignore else */
+		if (theBid == null) {
+			return null;
+		}
 
-        return {
-            bid: theBid,
-            slotid: divID
-        };
-    }
+		return {
+			bid: theBid,
+			slotid: divID
+		};
+	}
 
-    util.log(CONSTANTS.MESSAGES.M25 + bidID);
-    return null;
+	util.log(CONSTANTS.MESSAGES.M25 + bidID);
+	return null;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
+exports.displayCreative = function (theDocument, bidID) { // TDD, i/o : done
 	storedObject = localStorage.getItem(PREFIX + window.location.hostname);
 	var bidDetails = refThis.getBidById(bidID);
 	/* istanbul ignore else */
-	if(bidDetails){
+	if (bidDetails) {
 		var theBid = bidDetails.bid,
 			divID = bidDetails.slotid
-		;
+			;
 		util.displayCreative(theDocument, theBid);
-		util.vLogInfo(divID, {type: 'disp', adapter: theBid.getAdapterID()});
+		util.vLogInfo(divID, { type: 'disp', adapter: theBid.getAdapterID() });
 		refThis.executeMonetizationPixel(divID, theBid);
 		// Check if browsers local storage has auction related data and update impression served count accordingly.
-	    var frequencyDepth = JSON.parse(localStorage.getItem(PREFIX + window.location.hostname)) || {};
+		var frequencyDepth = JSON.parse(localStorage.getItem(PREFIX + window.location.hostname)) || {};
 		if (frequencyDepth !== null && frequencyDepth.slotLevelFrquencyDepth) {
-			frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed = frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed + 1; 
+			frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed = frequencyDepth.slotLevelFrquencyDepth[frequencyDepth.codeAdUnitMap[divID]].impressionServed + 1;
 			frequencyDepth.impressionServed = frequencyDepth.impressionServed + 1;
 		}
 		localStorage.setItem(PREFIX + window.location.hostname, JSON.stringify(frequencyDepth));
@@ -396,12 +396,12 @@ exports.displayCreative = function(theDocument, bidID){ // TDD, i/o : done
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
+exports.executeAnalyticsPixel = function () { // TDD, i/o : done
 	storedObject = localStorage.getItem(PREFIX + window.location.hostname);
-    frequencyDepth = storedObject !== null ? JSON.parse(storedObject) : {};
+	frequencyDepth = storedObject !== null ? JSON.parse(storedObject) : {};
 	var outputObj = {
-			s: []
-		},
+		s: []
+	},
 		pubId = CONFIG.getPublisherId(),
 		// gdprData = GDPR.getUserConsentDataFromLS(),
 		// consentString = "",
@@ -409,14 +409,14 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		impressionIDMap = {} // impID => slots[]
 		;
 	/* istanbul ignore else */
-	if(!pixelURL){
+	if (!pixelURL) {
 		return;
 	}
 
 	pixelURL = CONSTANTS.COMMON.PROTOCOL + pixelURL + "pubid=" + pubId;
 
 	outputObj[CONSTANTS.CONFIG.PUBLISHER_ID] = CONFIG.getPublisherId();
-	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMEOUT] = ""+CONFIG.getTimeout();
+	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMEOUT] = "" + CONFIG.getTimeout();
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.PAGE_URL] = window.decodeURIComponent(util.metaInfo.pageURL);
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.PAGE_DOMAIN] = util.metaInfo.pageDomain;
 	outputObj[CONSTANTS.LOGGER_PIXEL_PARAMS.TIMESTAMP] = util.getCurrentTimestamp();
@@ -426,7 +426,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	outputObj["bm"] = refThis.getBrowser();
 	outputObj["tgid"] = util.getTgid();
 
-	if(Object.keys(frequencyDepth).length) {
+	if (Object.keys(frequencyDepth).length) {
 		outputObj["tpv"] = frequencyDepth.pageView;
 		outputObj["trc"] = frequencyDepth.slotCnt;
 		outputObj["tbs"] = frequencyDepth.bidServed;
@@ -434,7 +434,7 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 		outputObj["lip"] = frequencyDepth.lip;
 	}
 
-	if(window.PWT.CC && window.PWT.CC.cc) {
+	if (window.PWT.CC && window.PWT.CC.cc) {
 		outputObj.ctr = window.PWT.CC.cc;
 	}
 	// As discussed we won't be seding gdpr data to logger
@@ -450,22 +450,22 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 	util.forEachOnObject(window.PWT.bidMap, function (slotID, bmEntry) {
 		refThis.analyticalPixelCallback(slotID, bmEntry, impressionIDMap);
 	});
-	util.forEachOnObject(impressionIDMap, function(impressionID, slots){ /* istanbul ignore next */
+	util.forEachOnObject(impressionIDMap, function (impressionID, slots) { /* istanbul ignore next */
 		/* istanbul ignore else */
-		if(slots.length > 0){
+		if (slots.length > 0) {
 			outputObj.s = slots;
 			outputObj[CONSTANTS.COMMON.IMPRESSION_ID] = window.encodeURIComponent(impressionID);
-			if(CONFIG.isFloorPriceModuleEnabled()){
+			if (CONFIG.isFloorPriceModuleEnabled()) {
 				var _floorData = window.PWT.floorData[outputObj[CONSTANTS.COMMON.IMPRESSION_ID]];
 				outputObj["fmv"] = _floorData.floorRequestData ? _floorData.floorRequestData.modelVersion || undefined : undefined,
-				outputObj["ft"] = _floorData.floorResponseData  ? (_floorData.floorResponseData.enforcements.enforceJS == false ? 0 : 1) : undefined;
+					outputObj["ft"] = _floorData.floorResponseData ? (_floorData.floorResponseData.enforcements.enforceJS == false ? 0 : 1) : undefined;
 			}
 			outputObj.psl = slots.psl;
-			outputObj.dvc = { "plt": util.getDevicePlatform()}
+			outputObj.dvc = { "plt": util.getDevicePlatform() }
 			// (new window.Image()).src = pixelURL + "&json=" + window.encodeURIComponent(JSON.stringify(outputObj));
-			util.ajaxRequest(pixelURL, function(){}, "json=" + window.encodeURIComponent(JSON.stringify(outputObj)), {
-				contentType : "application/x-www-form-urlencoded", // as per https://inside.pubmatic.com:8443/confluence/pages/viewpage.action?spaceKey=Products&title=POST+support+for+logger+in+Wrapper-tracker
-				withCredentials : true
+			util.ajaxRequest(pixelURL, function () { }, "json=" + window.encodeURIComponent(JSON.stringify(outputObj)), {
+				contentType: "application/x-www-form-urlencoded", // as per https://inside.pubmatic.com:8443/confluence/pages/viewpage.action?spaceKey=Products&title=POST+support+for+logger+in+Wrapper-tracker
+				withCredentials: true
 			});
 		}
 	});
@@ -473,9 +473,9 @@ exports.executeAnalyticsPixel = function(){ // TDD, i/o : done
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
-	var pixelURL = util.generateMonetizationPixel(slotID,theBid);
-	if(!pixelURL){
+exports.executeMonetizationPixel = function (slotID, theBid) { // TDD, i/o : done
+	var pixelURL = util.generateMonetizationPixel(slotID, theBid);
+	if (!pixelURL) {
 		return;
 	}
 	refThis.setImageSrcToPixelURL(pixelURL);
@@ -483,16 +483,16 @@ exports.executeMonetizationPixel = function(slotID, theBid){ // TDD, i/o : done
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-function getAdUnitSizes(bmEntry){
-	var _adapter = Object.keys(bmEntry.adapters).filter(function(adapter){
-		if( Object.keys(bmEntry.adapters[adapter].bids).filter(function(bid){
-			if(!!bmEntry.adapters[adapter].bids[bid].isWinningBid && bmEntry.adapters[adapter].bids[bid].adFormat === "native")
+function getAdUnitSizes(bmEntry) {
+	var _adapter = Object.keys(bmEntry.adapters).filter(function (adapter) {
+		if (Object.keys(bmEntry.adapters[adapter].bids).filter(function (bid) {
+			if (!!bmEntry.adapters[adapter].bids[bid].isWinningBid && bmEntry.adapters[adapter].bids[bid].adFormat === "native")
 				return bmEntry.adapters[adapter].bids[bid];
-			}).length == 1)
+		}).length == 1)
 			return adapter;
 	})
-	if(!!_adapter.length){
-	  	return ["1x1"];
+	if (!!_adapter.length) {
+		return ["1x1"];
 	}
 	return bmEntry.getSizes();
 }
@@ -505,8 +505,8 @@ exports.getAdUnitSizes = getAdUnitSizes;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-function getAdUnitInfo(slotId){
-	return  window.PWT.adUnits[slotId]|| slotId;
+function getAdUnitInfo(slotId) {
+	return window.PWT.adUnits[slotId] || slotId;
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
@@ -517,10 +517,10 @@ exports.getAdUnitInfo = getAdUnitInfo;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-function getAdUnitAdFormats(mediaTypes){
-	var af = !!mediaTypes ? Object.keys(mediaTypes).map( function(mediatype){
+function getAdUnitAdFormats(mediaTypes) {
+	var af = !!mediaTypes ? Object.keys(mediaTypes).map(function (mediatype) {
 		return CONSTANTS.MEDIATYPE[mediatype.toUpperCase()];
-	}).filter(function(mtype){
+	}).filter(function (mtype) {
 		return mtype != null
 	}) : [];
 	return af || [];
@@ -535,8 +535,8 @@ exports.getAdUnitAdFormats = getAdUnitAdFormats;
 
 // Returns property from localstorages slotlevel object
 exports.getSlotLevelFrequencyDepth = function (frequencyDepth, prop, adUnit) {
-	var freqencyValue; 
-	if(Object.keys(frequencyDepth).length && frequencyDepth.slotLevelFrquencyDepth) {
+	var freqencyValue;
+	if (Object.keys(frequencyDepth).length && frequencyDepth.slotLevelFrquencyDepth) {
 		freqencyValue = frequencyDepth.slotLevelFrquencyDepth[adUnit] && frequencyDepth.slotLevelFrquencyDepth[adUnit][prop];
 	}
 	return freqencyValue;
@@ -571,7 +571,7 @@ exports.getMetadata = getMetadata;
 // removeIf(removeLegacyAnalyticsRelatedCode)
 function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o : done
 	storedObject = localStorage.getItem(PREFIX + window.location.hostname);
-    var frequencyDepth = storedObject !== null ? JSON.parse(storedObject) : {};
+	var frequencyDepth = storedObject !== null ? JSON.parse(storedObject) : {};
 	var usePBSAdapter = CONFIG.usePBSAdapter();
 	var startTime = bmEntry.getCreationTime() || 0;
 	var pslTime = (usePBSAdapter && window.pbsLatency) ? 0 : undefined;
@@ -585,75 +585,75 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 			"sn": slotID,
 			"sz": refThis.getAdUnitSizes(bmEntry),
 			"au": adUnitInfo.adUnitId || slotID,
-			"fskp" : window.PWT.floorData ? (window.PWT.floorData[impressionID] ? (window.PWT.floorData[impressionID].floorRequestData ? (window.PWT.floorData[impressionID].floorRequestData.skipped == false ? 0 : 1) : undefined) : undefined) : undefined,
+			"fskp": window.PWT.floorData ? (window.PWT.floorData[impressionID] ? (window.PWT.floorData[impressionID].floorRequestData ? (window.PWT.floorData[impressionID].floorRequestData.skipped == false ? 0 : 1) : undefined) : undefined) : undefined,
 			"mt": refThis.getAdUnitAdFormats(adUnitInfo.mediaTypes),
 			"ps": [],
 			"bs": refThis.getSlotLevelFrequencyDepth(frequencyDepth, 'bidServed', adUnitInfo.adUnitId),
 			"is": refThis.getSlotLevelFrequencyDepth(frequencyDepth, 'impressionServed', adUnitInfo.adUnitId),
 			"rc": refThis.getSlotLevelFrequencyDepth(frequencyDepth, 'slotCnt', adUnitInfo.adUnitId),
 			"vw": frequencyDepth && frequencyDepth.viewedSlot && frequencyDepth.viewedSlot[adUnitInfo.adUnitId],
-			"rf": window.PWT.newAdUnits ? (window.PWT.newAdUnits[impressionID] ? (window.PWT.newAdUnits[impressionID][slotID] ? (window.PWT.newAdUnits[impressionID][slotID]['pubmaticAutoRefresh'] ? (window.PWT.newAdUnits[impressionID][slotID]['pubmaticAutoRefresh']['isRefreshed'] ? 1: 0 ) : 0): 0 ) : 0 ): 0,
+			"rf": window.PWT.newAdUnits ? (window.PWT.newAdUnits[impressionID] ? (window.PWT.newAdUnits[impressionID][slotID] ? (window.PWT.newAdUnits[impressionID][slotID]['pubmaticAutoRefresh'] ? (window.PWT.newAdUnits[impressionID][slotID]['pubmaticAutoRefresh']['isRefreshed'] ? 1 : 0) : 0) : 0) : 0) : 0,
 		};
-        bmEntry.setExpired();
-        impressionIDMap[impressionID] = impressionIDMap[impressionID] || [];
+		bmEntry.setExpired();
+		impressionIDMap[impressionID] = impressionIDMap[impressionID] || [];
 
-        util.forEachOnObject(bmEntry.adapters, function(adapterID, adapterEntry) {
-        	/* istanbul ignore else */
-            if (CONFIG.getBidPassThroughStatus(adapterID) == 1) {
-                return;
-            }
+		util.forEachOnObject(bmEntry.adapters, function (adapterID, adapterEntry) {
+			/* istanbul ignore else */
+			if (CONFIG.getBidPassThroughStatus(adapterID) == 1) {
+				return;
+			}
 
-			util.forEachOnObject(adapterEntry.bids, function(bidID, theBid) {
-				if(usePBSAdapter) {
+			util.forEachOnObject(adapterEntry.bids, function (bidID, theBid) {
+				if (usePBSAdapter) {
 					// In PrebidServerBidAdapater we are capturing start and end time of request
 					// fetching these values here to calculate psl time for logger call
 					latencyValue = window.pbsLatency && window.pbsLatency[impressionID];
-					if(latencyValue && latencyValue['endTime'] && latencyValue['startTime']) {
+					if (latencyValue && latencyValue['endTime'] && latencyValue['startTime']) {
 						pslTime = latencyValue['endTime'] - latencyValue['startTime'];
 					}
 					// When we use PrebidServerBidAdapter we do not get seatbid for zero bid / no bid partners 
 					// as we need to log PubMatic partner in logger will be changing db = 0. 
-					if((adapterID === "pubmatic" || adapterID === "pubmatic2") && (util.isOwnProperty(window.partnersWithoutErrorAndBids, impressionID) && window.partnersWithoutErrorAndBids[impressionID].includes(adapterID))) {
+					if ((adapterID === "pubmatic" || adapterID === "pubmatic2") && (util.isOwnProperty(window.partnersWithoutErrorAndBids, impressionID) && window.partnersWithoutErrorAndBids[impressionID].includes(adapterID))) {
 						theBid.defaultBid = 0;
-					} else if(util.isOwnProperty(window.partnersWithoutErrorAndBids, impressionID) &&
-							window.partnersWithoutErrorAndBids[impressionID].includes(adapterID) &&
-							CONFIG.getAdapterNameForAlias(adapterID).includes('pubmatic')) {
-						theBid.defaultBid = 0;		
+					} else if (util.isOwnProperty(window.partnersWithoutErrorAndBids, impressionID) &&
+						window.partnersWithoutErrorAndBids[impressionID].includes(adapterID) &&
+						CONFIG.getAdapterNameForAlias(adapterID).includes('pubmatic')) {
+						theBid.defaultBid = 0;
 					}
 				}
-				
+
 				var endTime = theBid.getReceivedTime();
 				if (adapterID === "pubmaticServer") {
 					if ((util.isOwnProperty(window.PWT.owLatency, impressionID)) &&
 						(util.isOwnProperty(window.PWT.owLatency[impressionID], "startTime")) &&
-							(util.isOwnProperty(window.PWT.owLatency[impressionID], "endTime"))) {
+						(util.isOwnProperty(window.PWT.owLatency[impressionID], "endTime"))) {
 						pslTime = (window.PWT.owLatency[impressionID].endTime - window.PWT.owLatency[impressionID].startTime);
 					} else {
 						pslTime = 0;
 						util.log("Logging pubmaticServer latency as 0 for impressionID: " + impressionID);
 					}
-					util.log("PSL logging: time logged for id " +impressionID+ " is " + pslTime);
+					util.log("PSL logging: time logged for id " + impressionID + " is " + pslTime);
 					return;
 				}
 
-				if(CONFIG.getAdapterMaskBidsStatus(adapterID) == 1){
-					if(theBid.getWinningBidStatus() === false){
+				if (CONFIG.getAdapterMaskBidsStatus(adapterID) == 1) {
+					if (theBid.getWinningBidStatus() === false) {
 						return;
 					}
 				}
 				/* if serverside adapter and
-                     db == 0 and
-                     getServerSideResponseTime returns -1, it means that server responded with error code 1/2/6
-                     hence do not add entry in logger.
-                     keeping the check for responseTime on -1 since there could be a case where:
+					 db == 0 and
+					 getServerSideResponseTime returns -1, it means that server responded with error code 1/2/6
+					 hence do not add entry in logger.
+					 keeping the check for responseTime on -1 since there could be a case where:
 						ss status = 1, db status = 0, and responseTime is 0, but error code is 4, i,e. no bid. And for error code 4,
 						we want to log the data not skip it.
-                  */
-	            if (theBid.getServerSideStatus()) {
-	              if (theBid.getDefaultBidStatus() === -1 &&
-	                theBid.getServerSideResponseTime() === -1) {
-	                return;
-	              }
+				  */
+				if (theBid.getServerSideStatus()) {
+					if (theBid.getDefaultBidStatus() === -1 &&
+						theBid.getServerSideResponseTime() === -1) {
+						return;
+					}
 				}
 				// Logic : if adapter is pubmatic and bid falls under two condition :
 				/**
@@ -665,37 +665,37 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 				 * Future Scope : Remove below check to log with appt. value(s)
 				*/
 				/*istanbul ignore else*/
-				if( (adapterID === "pubmatic" || adapterID === "pubmatic2") && (theBid.getDefaultBidStatus() ||  (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0))){
+				if ((adapterID === "pubmatic" || adapterID === "pubmatic2") && (theBid.getDefaultBidStatus() || (theBid.getPostTimeoutStatus() && theBid.getGrossEcpm(isAnalytics) == 0))) {
 					return;
 				}
 				var pbbid = theBid.getPbBid();
 				var originalLatency = (theBid.getServerSideStatus() ? theBid.getServerSideResponseTime() : (endTime - startTime));
 				var latency_ttr = (pbbid && pbbid.timeToRespond) || originalLatency;
 				// Checking if latency is greater than auctiontime+100, if yes instead of logging actual latency log
-  				// auctiontime+100 to keep actual values and to keep avarage latency in expected range.
+				// auctiontime+100 to keep actual values and to keep avarage latency in expected range.
 				latency_ttr = latency_ttr > (CONFIG.getTimeout() + 100) ? (CONFIG.getTimeout() + 100) : latency_ttr;
 
 				//todo: take all these key names from constants
-                slotObject["ps"].push({
-                    "pn": CONFIG.getAdapterNameForAlias(adapterID),
-                    "bc": adapterID,
+				slotObject["ps"].push({
+					"pn": CONFIG.getAdapterNameForAlias(adapterID),
+					"bc": adapterID,
 					"bidid": (pbbid && pbbid.prebidBidId) ? pbbid.prebidBidId : bidID,
 					"origbidid": bidID,
-                    "db": theBid.getDefaultBidStatus(),
-                    "kgpv": theBid.getKGPV(),
-                    "kgpsv": theBid.getKGPV(true),
-                    "psz": theBid.getWidth() + "x" + theBid.getHeight(),
-                    "eg": theBid.getGrossEcpm(isAnalytics),
-                    "en": theBid.getNetEcpm(isAnalytics),
-                    "di": theBid.getDealID() || "-1",
-                    "dc": theBid.getDealChannel(),
+					"db": theBid.getDefaultBidStatus(),
+					"kgpv": theBid.getKGPV(),
+					"kgpsv": theBid.getKGPV(true),
+					"psz": theBid.getWidth() + "x" + theBid.getHeight(),
+					"eg": theBid.getGrossEcpm(isAnalytics),
+					"en": theBid.getNetEcpm(isAnalytics),
+					"di": theBid.getDealID() || "-1",
+					"dc": theBid.getDealChannel(),
 					"l1": latency_ttr,
-                    "ol1": originalLatency,
+					"ol1": originalLatency,
 					"l2": 0,
 					"adv": pbbid ? util.getAdDomain(pbbid) || undefined : undefined,
 					"ss": theBid.getServerSideStatus(),
-                    "t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
-                    "wb": theBid.getWinningBidStatus() === true ? 1 : 0,
+					"t": theBid.getPostTimeoutStatus() === false ? 0 : 1,
+					"wb": theBid.getWinningBidStatus() === true ? 1 : 0,
 					"mi": theBid.getServerSideStatus() ? theBid.getMi(adapterID) : undefined,
 					"af": theBid.getAdFormat(),
 					"ocpm": CONFIG.getAdServerCurrency() ? theBid.getOriginalCpm() : theBid.getGrossEcpm(),
@@ -704,19 +704,19 @@ function analyticalPixelCallback(slotID, bmEntry, impressionIDMap) { // TDD, i/o
 					"frv": theBid.getServerSideStatus() ? undefined : (pbbid ? (pbbid.floorData ? pbbid.floorData.floorRuleValue : undefined) : undefined),
 					"md": pbbid ? refThis.getMetadata(pbbid.meta) : undefined,
 				});
-            })
-        });
+			})
+		});
 
-        impressionIDMap[impressionID].push(slotObject);
+		impressionIDMap[impressionID].push(slotObject);
 		// special handling when all media types are disabled for adunit and
 		// if we are using PrebidServerBidAdapter with 
-		if(usePBSAdapter && CONFIG.getServerEnabledAdaptars().length && pslTime == undefined && !window.pbsLatency) {
+		if (usePBSAdapter && CONFIG.getServerEnabledAdaptars().length && pslTime == undefined && !window.pbsLatency) {
 			pslTime = 0;
 		}
 		if (pslTime !== undefined) {
 			impressionIDMap[impressionID].psl = pslTime;
 		}
-    }
+	}
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
@@ -739,11 +739,11 @@ exports.analyticalPixelCallback = analyticalPixelCallback;
  */
 exports.setImageSrcToPixelURL = function (pixelURL, useProtocol) { // TDD, i/o : done
 	var img = new window.Image();
-	if(useProtocol != undefined && !useProtocol){
+	if (useProtocol != undefined && !useProtocol) {
 		img.src = pixelURL;
 		return;
 	}
-	if(String(pixelURL).trim().substring(0,8) != CONSTANTS.COMMON.PROTOCOL){
+	if (String(pixelURL).trim().substring(0, 8) != CONSTANTS.COMMON.PROTOCOL) {
 		pixelURL = CONSTANTS.COMMON.PROTOCOL + pixelURL;
 	}
 	img.src = pixelURL;
@@ -762,7 +762,7 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
 		// 	});
 		// });
 		// NEW APPROACH: check allPossibleBidsReceived flag which is set when pbjs.requestBids->bidsBackHandler is executed
-		if(bidMaps[divId]){
+		if (bidMaps[divId]) {
 			status = status && (bidMaps[divId].hasAllPossibleBidsReceived() === true);
 		}
 	});
@@ -776,14 +776,14 @@ exports.getAllPartnersBidStatuses = function (bidMaps, divIds) {
  * in case of native. On click of native create element
  * @param {*} event
  */
-exports.loadTrackers = function(event){
+exports.loadTrackers = function (event) {
 	var bidId = util.getBidFromEvent(event);
 	window.parent.postMessage(
 		JSON.stringify({
 			pwt_type: "3",
 			pwt_bidID: bidId,
 			pwt_origin: CONSTANTS.COMMON.PROTOCOL + window.location.hostname,
-			pwt_action:"click"
+			pwt_action: "click"
 		}),
 		"*"
 	);
@@ -795,13 +795,13 @@ exports.loadTrackers = function(event){
  * function takes bidID and post a message to parent pwt.js to execute monetization pixels.
  * @param {*} bidID
  */
-exports.executeTracker = function(bidID){
+exports.executeTracker = function (bidID) {
 	window.parent.postMessage(
 		JSON.stringify({
 			pwt_type: "3",
 			pwt_bidID: bidID,
 			pwt_origin: CONSTANTS.COMMON.PROTOCOL + window.location.hostname,
-			pwt_action:"imptrackers"
+			pwt_action: "imptrackers"
 		}),
 		"*"
 	);
@@ -817,32 +817,32 @@ exports.executeTracker = function(bidID){
  * @param {*} bidDetails
  * @param {*} action
  */
-exports.fireTracker = function(bidDetails, action) {
+exports.fireTracker = function (bidDetails, action) {
 	var trackers;
 
 	if (action === "click") {
 		trackers = bidDetails["native"] && bidDetails["native"].ortb &&
 			bidDetails["native"].ortb.link && bidDetails["native"].ortb.link.clickTrackers;
-	} else if(action === "imptrackers") {
+	} else if (action === "imptrackers") {
 		const nativeResponse = bidDetails.native.ortb || bidDetails.native;
 
 		const impTrackers = (nativeResponse.eventtrackers || [])
-			.filter(function(tracker) {
+			.filter(function (tracker) {
 				tracker.event === TRACKER_EVENTS.impression
 			});
 
-		const tally = {img: [], js: []};
-		impTrackers.forEach(function(tracker) {
+		const tally = { img: [], js: [] };
+		impTrackers.forEach(function (tracker) {
 			if (TRACKER_METHODS.hasOwnProperty(tracker.method)) {
 				tally[TRACKER_METHODS[tracker.method]].push(tracker.url);
 			}
 		});
-	
+
 		if (tally.img.length == 0 && nativeResponse.imptrackers) {
 			tally.img = tally.img.concat(nativeResponse.imptrackers);
 		}
 		trackers = tally.img;
-	
+
 		if (tally.js.length == 0 && nativeResponse.jstracker) {
 			// jstracker is already HTML markup
 			tally.js = tally.js.concat([nativeResponse.jstracker]);
@@ -852,7 +852,7 @@ exports.fireTracker = function(bidDetails, action) {
 		}
 	}
 
-	(trackers || []).forEach(function(url){refThis.setImageSrcToPixelURL(url,false);});
+	(trackers || []).forEach(function (url) { refThis.setImageSrcToPixelURL(url, false); });
 };
 // endRemoveIf(removeNativeRelatedCode)
 
@@ -860,43 +860,43 @@ exports.fireTracker = function(bidDetails, action) {
 // this function generates all satndard key-value pairs for a given bid and setup, set these key-value pairs in an object
 // todo: write unit test cases
 // removeIf(removeLegacyAnalyticsRelatedCode)
-exports.setStandardKeys = function(winningBid, keyValuePairs){
+exports.setStandardKeys = function (winningBid, keyValuePairs) {
 	if (winningBid) {
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID ] = winningBid.getBidID();
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS ] = winningBid.getStatus();
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM ] = winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION);
-        var dealID = winningBid.getDealID();
-        if(dealID){
-            keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID ] = dealID;
-        }
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID ] = winningBid.getAdapterID();
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID ] = CONFIG.getPublisherId();
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID ] = CONFIG.getProfileID();
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID ] = CONFIG.getProfileDisplayVersionID();
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE ] = winningBid.width + 'x' + winningBid.height;
-        keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY ] = (winningBid.getAdFormat() == CONSTANTS.FORMAT_VALUES.VIDEO && winningBid.getcacheUUID()) ? CONSTANTS.PLATFORM_VALUES.VIDEO : (winningBid.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
-		if(winningBid.getAdFormat() == CONSTANTS.FORMAT_VALUES.VIDEO && winningBid.getcacheUUID()){
-			keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_PATH ] = CONSTANTS.CONFIG.CACHE_PATH;
-			keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_URL ] = CONSTANTS.CONFIG.CACHE_URL;
-			keyValuePairs[ CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_ID ] = winningBid.getcacheUUID();
+		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID] = winningBid.getBidID();
+		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS] = winningBid.getStatus();
+		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM] = winningBid.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION);
+		var dealID = winningBid.getDealID();
+		if (dealID) {
+			keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_DEAL_ID] = dealID;
+		}
+		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ADAPTER_ID] = winningBid.getAdapterID();
+		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.PUBLISHER_ID] = CONFIG.getPublisherId();
+		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_ID] = CONFIG.getProfileID();
+		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.PROFILE_VERSION_ID] = CONFIG.getProfileDisplayVersionID();
+		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE] = winningBid.width + 'x' + winningBid.height;
+		keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.PLATFORM_KEY] = (winningBid.getAdFormat() == CONSTANTS.FORMAT_VALUES.VIDEO && winningBid.getcacheUUID()) ? CONSTANTS.PLATFORM_VALUES.VIDEO : (winningBid.getNative() ? CONSTANTS.PLATFORM_VALUES.NATIVE : CONSTANTS.PLATFORM_VALUES.DISPLAY);
+		if (winningBid.getAdFormat() == CONSTANTS.FORMAT_VALUES.VIDEO && winningBid.getcacheUUID()) {
+			keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_PATH] = CONSTANTS.CONFIG.CACHE_PATH;
+			keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_URL] = CONSTANTS.CONFIG.CACHE_URL;
+			keyValuePairs[CONSTANTS.WRAPPER_TARGETING_KEYS.CACHE_ID] = winningBid.getcacheUUID();
 		}
 	} else {
-    	util.logWarning('Not generating key-value pairs as invalid winningBid object passed. WinningBid: ');
-    	util.logWarning(winningBid);
-    }
+		util.logWarning('Not generating key-value pairs as invalid winningBid object passed. WinningBid: ');
+		util.logWarning(winningBid);
+	}
 }
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-exports.getBrowser = function() {
+exports.getBrowser = function () {
 	var regExBrowsers = CONSTANTS.REGEX_BROWSERS;
 	var browserMapping = CONSTANTS.BROWSER_MAPPING;
 
 	var userAgent = navigator.userAgent;
 	var browserName = userAgent == null ? -1 : 0;
-	if(userAgent) {
-		for(var i = 0; i < regExBrowsers.length; i++) {
-			if(userAgent.match(regExBrowsers[i])) {
+	if (userAgent) {
+		for (var i = 0; i < regExBrowsers.length; i++) {
+			if (userAgent.match(regExBrowsers[i])) {
 				browserName = browserMapping[i];
 				break;
 			}

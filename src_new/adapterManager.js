@@ -1,4 +1,3 @@
-var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
 var bidManager = require("./bidManager.js");
@@ -15,7 +14,7 @@ var refThis = this;
 
 // when this function executes, it is only called for prebid adapter; we can remove this flow totally
 // todo: this function can be removed
-exports.callAdapters = function(activeSlots){	
+exports.callAdapters = function (activeSlots) {
 	var impressionID = util.generateUUID();
 	refThis.resetSlots(activeSlots, impressionID);
 	refThis.callAdapter(registeredAdapters, activeSlots, impressionID);
@@ -23,8 +22,8 @@ exports.callAdapters = function(activeSlots){
 
 // when this function executes, it is only called for prebid adapter; we can remove this flow totally
 // todo: this function can be removed
-function callAdapter(adapters, slots, impressionID){
-	util.forEachOnObject(adapters, function(adapterID, theAdapter){
+function callAdapter(adapters, slots, impressionID) {
+	util.forEachOnObject(adapters, function (adapterID, theAdapter) {
 		//Note: if you have any other parent-adapter like prebid, and 
 		//		want to add throttling on the parent-adapters then 
 		//		you will need to add throttling logic here as well
@@ -38,8 +37,8 @@ exports.callAdapter = callAdapter;
 /* end-test-block */
 
 // todo: this function can be removed
-function resetSlots(slots, impressionID){
-	util.forEachOnArray(slots, function(key, slot){
+function resetSlots(slots, impressionID) {
+	util.forEachOnArray(slots, function (key, slot) {
 		var divID = slot.getDivID();
 		bidManager.resetBid(divID, impressionID);
 		bidManager.setSizes(divID, util.generateSlotNamesFromPattern(slot, "_W_x_H_"));
@@ -52,8 +51,8 @@ exports.resetSlots = resetSlots;
 
 // this function is also called by adapters/Prebid to log the init time
 // todo: this function can be removed
-function setInitTimeForSlotsForAdapter(slots, adapterID){
-	util.forEachOnObject(slots, function(j, slot){
+function setInitTimeForSlotsForAdapter(slots, adapterID) {
+	util.forEachOnObject(slots, function (j, slot) {
 		bidManager.setCallInitTime(slot.getDivID(), adapterID);
 	});
 }
@@ -64,7 +63,7 @@ exports.setInitTimeForSlotsForAdapter = setInitTimeForSlotsForAdapter;
 function registerAdapter(bidAdaptor) {
 	if (bidAdaptor) {
 		var adapterID = bidAdaptor.ID();
-		if (util.isFunction(bidAdaptor.fB)){
+		if (util.isFunction(bidAdaptor.fB)) {
 			refThis.registeredAdapters[adapterID] = bidAdaptor;
 		} else {
 			util.log(adapterID + CONSTANTS.MESSAGES.M3);
@@ -80,10 +79,10 @@ exports.registerAdapter = registerAdapter;
 /* end-test-block */
 
 // todo: this function can be removed
-function registerAdapters(){
+function registerAdapters() {
 	refThis.registerAdapter(
 		// prebid.register()
 	);
-};
+}
 
 exports.registerAdapters = registerAdapters;

@@ -2,7 +2,7 @@ var CONSTANTS = require("./constants.js");
 var util = require("./util.js");
 var AdapterEntry = require("./adapterEntry").AdapterEntry;
 
-function BMEntry(name){
+function BMEntry(name) {
 	this.name = name;
 	this.sizes = [];
 	this.adapters = {};
@@ -13,27 +13,27 @@ function BMEntry(name){
 	this.allPossibleBidsReceived = false; // Boolean: this flag will be set to true when Prebid has received all possible bids and Prebid has executed "bidsBackHandler" of pbjs.requestBids
 }
 
-BMEntry.prototype.setExpired = function(){
+BMEntry.prototype.setExpired = function () {
 	this.expired = true;
 	return this;
 };
 
-BMEntry.prototype.getExpiredStatus = function(){
+BMEntry.prototype.getExpiredStatus = function () {
 	return this.expired;
 };
 
-BMEntry.prototype.setAnalyticEnabled = function(){
+BMEntry.prototype.setAnalyticEnabled = function () {
 	this.analyticsEnabled = true;
 	return this;
 };
 
-BMEntry.prototype.getAnalyticEnabledStatus = function(){
+BMEntry.prototype.getAnalyticEnabledStatus = function () {
 	return this.analyticsEnabled;
 };
 
-BMEntry.prototype.setNewBid = function(adapterID, theBid){
+BMEntry.prototype.setNewBid = function (adapterID, theBid) {
 	/* istanbul ignore else */
-	if(!util.isOwnProperty(this.adapters, adapterID)){
+	if (!util.isOwnProperty(this.adapters, adapterID)) {
 		/* istanbul ignore next */
 		this.adapters[adapterID] = new AdapterEntry(adapterID);
 	}
@@ -41,62 +41,62 @@ BMEntry.prototype.setNewBid = function(adapterID, theBid){
 	this.adapters[adapterID].setNewBid(theBid);
 };
 
-BMEntry.prototype.getBid = function(adapterID, bidID){
+BMEntry.prototype.getBid = function (adapterID, bidID) {
 	/* istanbul ignore else */
-	if(util.isOwnProperty(this.adapters, adapterID)){
+	if (util.isOwnProperty(this.adapters, adapterID)) {
 		return this.adapters[adapterID].getBid(bidID);
 	}
 };
 
-BMEntry.prototype.getName = function(){
+BMEntry.prototype.getName = function () {
 	return this.name;
 };
 
-BMEntry.prototype.getCreationTime = function(){
+BMEntry.prototype.getCreationTime = function () {
 	return this.creationTime;
 };
 
-BMEntry.prototype.setImpressionID = function(value){
+BMEntry.prototype.setImpressionID = function (value) {
 	this.impressionID = value;
 	return this;
 };
 
-BMEntry.prototype.getImpressionID = function(){
+BMEntry.prototype.getImpressionID = function () {
 	return this.impressionID;
 };
 
-BMEntry.prototype.setSizes = function(sizes){
+BMEntry.prototype.setSizes = function (sizes) {
 	this.sizes = sizes;
 	return this;
 };
 
-BMEntry.prototype.getSizes = function(){
+BMEntry.prototype.getSizes = function () {
 	return this.sizes;
 };
 
-BMEntry.prototype.setAdapterEntry = function(adapterID){
+BMEntry.prototype.setAdapterEntry = function (adapterID) {
 	/* istanbul ignore else */
-	if(!util.isOwnProperty(this.adapters, adapterID)){
+	if (!util.isOwnProperty(this.adapters, adapterID)) {
 		this.adapters[adapterID] = new AdapterEntry(adapterID);
-		util.log(CONSTANTS.MESSAGES.M4+this.name + " "+adapterID+" "+this.adapters[adapterID].getCallInitiatedTime());
+		util.log(CONSTANTS.MESSAGES.M4 + this.name + " " + adapterID + " " + this.adapters[adapterID].getCallInitiatedTime());
 	}
 	return this;
 };
 
-BMEntry.prototype.getLastBidIDForAdapter = function(adapterID){
+BMEntry.prototype.getLastBidIDForAdapter = function (adapterID) {
 	/* istanbul ignore else */
-	if(util.isOwnProperty(this.adapters, adapterID)){
+	if (util.isOwnProperty(this.adapters, adapterID)) {
 		return this.adapters[adapterID].getLastBidID();
 	}
 	return "";
 };
 
-BMEntry.prototype.setAllPossibleBidsReceived = function(){
+BMEntry.prototype.setAllPossibleBidsReceived = function () {
 	this.allPossibleBidsReceived = true;
 	return this;
 };
 
-BMEntry.prototype.hasAllPossibleBidsReceived = function(){
+BMEntry.prototype.hasAllPossibleBidsReceived = function () {
 	return this.allPossibleBidsReceived;
 };
 
@@ -105,6 +105,6 @@ BMEntry.prototype.hasAllPossibleBidsReceived = function(){
 module.exports.BMEntry = BMEntry;
 /* end-test-block */
 
-exports.createBMEntry = function(name){
+exports.createBMEntry = function (name) {
 	return new BMEntry(name);
 };

@@ -16,7 +16,7 @@ exports.getCmpApi = function () {
 };
 
 // needed
-exports.getGdprTimeout = function() {
+exports.getGdprTimeout = function () {
 	var gdprTimeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_TIMEOUT];
 	return gdprTimeout ? window.parseInt(gdprTimeout) : CONSTANTS.CONFIG.DEFAULT_GDPR_TIMEOUT;
 };
@@ -24,26 +24,26 @@ exports.getGdprTimeout = function() {
 // needed
 exports.getAwc = function () {
 	var awc = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_AWC] || CONSTANTS.CONFIG.DEFAULT_GDPR_AWC;
-	return awc === "1" ;
+	return awc === "1";
 };
 
 // needed
-exports.isUserIdModuleEnabled = function(){
+exports.isUserIdModuleEnabled = function () {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ENABLE_USER_ID] || CONSTANTS.CONFIG.DEFAULT_USER_ID_MODULE);
 };
 
 // needed
-exports.getIdentityPartners = function(){
+exports.getIdentityPartners = function () {
 	return config[CONSTANTS.COMMON.IDENTITY_PARTNERS];
 };
 
 // needed
-exports.isIdentityOnly = function(){
-	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY]|| CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY);
+exports.isIdentityOnly = function () {
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY);
 };
 
 // needed
-exports.getIdentityConsumers = function(){
+exports.getIdentityConsumers = function () {
 	return (config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_CONSUMERS] || "").toLowerCase();
 };
 
@@ -59,7 +59,7 @@ exports.getCCPACmpApi = function () {
 };
 
 // needed
-exports.getCCPATimeout = function() {
+exports.getCCPATimeout = function () {
 	var ccpaTimeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_TIMEOUT];
 	return ccpaTimeout ? window.parseInt(ccpaTimeout) : CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT;
 };
@@ -72,7 +72,7 @@ exports.getProfileDisplayVersionID = function () {
 	return config.pwt[CONSTANTS.CONFIG.PROFILE_VERSION_ID] || "0";
 };
 
-exports.isSSOEnabled = function() {
+exports.isSSOEnabled = function () {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SSO_ENABLED]) === 1;
 };
 
@@ -80,12 +80,12 @@ exports.getPublisherId = function () {
 	return config.pwt[CONSTANTS.CONFIG.PUBLISHER_ID] || "0";
 };
 
-exports.isPubMaticIHAnalyticsEnabled = function() {
+exports.isPubMaticIHAnalyticsEnabled = function () {
 	var isEnabled = parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_IH_ANALYTICS]);
 	return isNaN(isEnabled) ? 1 : isEnabled;
 };
 
-exports.getIHAnalyticsAdapterExpiry = function() {
+exports.getIHAnalyticsAdapterExpiry = function () {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IH_ANALYTICS_ADAPTER_EXPIRY]) || CONSTANTS.COMMON.IH_ANALYTICS_ADAPTER_DEFAULT_EXPIRY;
 };
 

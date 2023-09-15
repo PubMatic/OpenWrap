@@ -10,6 +10,7 @@ var controllerPaths = {
 };
 
 module.exports = {
+  mode: 'development',
     output: {
         filename: 'owt.js'
     },
@@ -42,7 +43,7 @@ module.exports = {
           test: /\.js$/,
           exclude: /(node_modules)|(test)|(integrationExamples)|(build)|polyfill.js|(src\/adapters\/analytics\/ga.js)/, // TODO: reg ex to exlcude src_new folder ?
           use: () => 
-            argv.mode == "test-build" ? "istanbul-instrumenter-loader" : []
+            argv.mode == "test-build1" ? "istanbul-instrumenter-loader" : []
         }
 		  ]
     },

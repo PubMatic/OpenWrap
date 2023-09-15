@@ -27,22 +27,22 @@ util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL,
 
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 
-window.PWT.displayCreative = function(theDocument, bidID){
+window.PWT.displayCreative = function (theDocument, bidID) {
 	util.log("In displayCreative for: " + bidID);
-	if(isPrebidPubMaticAnalyticsEnabled){
+	if (isPrebidPubMaticAnalyticsEnabled) {
 		window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
 	} else {
 		// removeIf(removeLegacyAnalyticsRelatedCode)
-		bidManager.displayCreative(theDocument, bidID);	
+		bidManager.displayCreative(theDocument, bidID);
 		// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 	}
 };
 
-window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
+window.PWT.displayPMPCreative = function (theDocument, values, priorityArray) {
 	util.log("In displayPMPCreative for: " + values);
 	var bidID = util.getBididForPMP(values, priorityArray);
-	if(bidID){
-		if(isPrebidPubMaticAnalyticsEnabled){
+	if (bidID) {
+		if (isPrebidPubMaticAnalyticsEnabled) {
 			window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
 		} else {
 			// removeIf(removeLegacyAnalyticsRelatedCode)
@@ -52,40 +52,40 @@ window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 	}
 };
 
-window.PWT.sfDisplayCreative = function(theDocument, bidID){
+window.PWT.sfDisplayCreative = function (theDocument, bidID) {
 	util.log("In sfDisplayCreative for: " + bidID);
 	ucTag = window.ucTag || {};
 	this.isSafeFrame = true;
-	ucTag = window.ucTag || {};	
-	if(isPrebidPubMaticAnalyticsEnabled){
-		ucTag.renderAd(theDocument, {adId: bidID, pubUrl: document.referrer});
+	ucTag = window.ucTag || {};
+	if (isPrebidPubMaticAnalyticsEnabled) {
+		ucTag.renderAd(theDocument, { adId: bidID, pubUrl: document.referrer });
 	}
 	else {
 		window.parent.postMessage(
 			JSON.stringify({
 				pwt_type: "1",
 				pwt_bidID: bidID,
-				pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
+				pwt_origin: CONSTANTS.COMMON.PROTOCOL + window.location.hostname
 			}),
 			"*"
 		);
 	}
 };
 
-window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
+window.PWT.sfDisplayPMPCreative = function (theDocument, values, priorityArray) {
 	util.log("In sfDisplayPMPCreative for: " + values);
 	this.isSafeFrame = true;
 	ucTag = window.ucTag || {};
 	var bidID = util.getBididForPMP(values, priorityArray);
-	if(bidID){
-		if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
-			ucTag.renderAd(theDocument, {adId: bidID, pubUrl: document.referrer});
-		} else{
+	if (bidID) {
+		if (CONFIG.isPrebidPubMaticAnalyticsEnabled()) {
+			ucTag.renderAd(theDocument, { adId: bidID, pubUrl: document.referrer });
+		} else {
 			window.parent.postMessage(
 				JSON.stringify({
 					pwt_type: "1",
 					pwt_bidID: bidID,
-					pwt_origin: CONSTANTS.COMMON.PROTOCOL+window.location.hostname
+					pwt_origin: CONSTANTS.COMMON.PROTOCOL + window.location.hostname
 				}),
 				"*"
 			);
@@ -95,14 +95,14 @@ window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 
 
 // removeIf(removeNativeRelatedCode)
-window.PWT.initNativeTrackers = function(theDocument,bidID){
+window.PWT.initNativeTrackers = function (theDocument, bidID) {
 	util.log("In startTrackers for: " + bidID);
-	util.addEventListenerForClass(window,"click", CONSTANTS.COMMON.OW_CLICK_NATIVE,bidManager.loadTrackers);
+	util.addEventListenerForClass(window, "click", CONSTANTS.COMMON.OW_CLICK_NATIVE, bidManager.loadTrackers);
 	bidManager.executeTracker(bidID);
 };
 // endRemoveIf(removeNativeRelatedCode)
 
-window.PWT.getUserIds = function(){
+window.PWT.getUserIds = function () {
 	return util.getUserIds();
 };
 
@@ -111,7 +111,7 @@ window.OWT = {
 	externalBidderStatuses: {}
 };
 
-window.OWT.registerExternalBidders = function(divIds) {
+window.OWT.registerExternalBidders = function (divIds) {
 	window.OWT.notifyCount++;
 
 	util.forEachOnArray(divIds, function (key, divId) {
@@ -125,9 +125,9 @@ window.OWT.registerExternalBidders = function(divIds) {
 	return window.OWT.notifyCount;
 };
 
-window.OWT.notifyExternalBiddingComplete = function(notifyId) {
+window.OWT.notifyExternalBiddingComplete = function (notifyId) {
 	util.forEachOnObject(window.OWT.externalBidderStatuses, function (key, obj) {
-		if(obj && (obj.id === notifyId)) {
+		if (obj && (obj.id === notifyId)) {
 			util.log("notify externalBidding complete: " + key);
 			window.OWT.externalBidderStatuses[key] = {
 				id: obj.id,
@@ -138,22 +138,22 @@ window.OWT.notifyExternalBiddingComplete = function(notifyId) {
 };
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-window.PWT.UpdateVastWithTracker = function(bid, vast){
+window.PWT.UpdateVastWithTracker = function (bid, vast) {
 	return util.UpdateVastWithTracker(bid, vast);
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeInStreamRelatedCode)
-window.PWT.generateDFPURL= function(adUnit,cust_params){
+window.PWT.generateDFPURL = function (adUnit, cust_params) {
 	var dfpurl = "";
-	if(!adUnit || !util.isObject(adUnit)) {
+	if (!adUnit || !util.isObject(adUnit)) {
 		util.logError("An AdUnit should be an Object", adUnit);
 	}
-	if(adUnit.bidData && adUnit.bidData.wb && adUnit.bidData.kvp){
+	if (adUnit.bidData && adUnit.bidData.wb && adUnit.bidData.kvp) {
 		adUnit.bid = adUnit.bidData.wb;
 		adUnit.bid["adserverTargeting"] = adUnit.bidData.kvp;
 	}
-	else{
+	else {
 		util.logWarning("No bid found for given adUnit");
 	}
 	var params = {
@@ -164,7 +164,7 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 			output: "vast"
 		}
 	};
-	if(adUnit.bid){
+	if (adUnit.bid) {
 		params["bid"] = adUnit.bid;
 	}
 	dfpurl = window.owpbjs.adServers.dfp.buildVideoUrl(params);
@@ -173,19 +173,19 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 // endRemoveIf(removeInStreamRelatedCode)
 
 // removeIf(removeInStreamRelatedCode)
-window.PWT.getCustomParamsForDFPVideo = function(customParams, bid){
+window.PWT.getCustomParamsForDFPVideo = function (customParams, bid) {
 	return util.getCustomParamsForDFPVideo(customParams, bid);
 };
 // endRemoveIf(removeInStreamRelatedCode)
 
-window.PWT.setAuctionTimeout = function(timeout){
-	if(!isNaN(timeout)){
-		util.log("updating aution timeout from: " + conf.pwt.t +" to: "+timeout);
+window.PWT.setAuctionTimeout = function (timeout) {
+	if (!isNaN(timeout)) {
+		util.log("updating aution timeout from: " + conf.pwt.t + " to: " + timeout);
 		conf.pwt.t = timeout;
 	}
 };
 
-window.PWT.versionDetails =  util.getOWConfig();
+window.PWT.versionDetails = util.getOWConfig();
 
 window.PWT.getAdapterNameForAlias = CONFIG.getAdapterNameForAlias;
 

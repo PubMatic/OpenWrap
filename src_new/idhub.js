@@ -17,14 +17,14 @@ window.IHPWT.udpv = window.IHPWT.udpv || util.findQueryParamInURL(metaInfo.isIfr
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc") && util.enableVisualDebugLog();
 
-window.IHPWT.getUserIds = function(){
+window.IHPWT.getUserIds = function () {
 	return util.getUserIds();
 };
 
-window.IHPWT.deepMerge = function(target,source,key){
+window.IHPWT.deepMerge = function (target, source, key) {
 	return util.deepMerge(target, source, key);
 };
 
-window.IHPWT.versionDetails =  util.getOWConfig();
+window.IHPWT.versionDetails = util.getOWConfig();
 
 controller.init(window);

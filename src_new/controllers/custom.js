@@ -44,7 +44,7 @@ function getAdUnitIndex(currentGoogleSlot) { // TDD, i/o : done
 	try {
 		var adUnitIndexString = currentGoogleSlot.getSlotId().getId().split("_");
 		index = parseInt(adUnitIndexString[adUnitIndexString.length - 1]);
-	} catch (ex) {} // eslint-disable-line no-empty
+	} catch (ex) { } // eslint-disable-line no-empty
 	return index;
 }
 /* start-test-block */
@@ -66,7 +66,7 @@ exports.defineWrapperTargetingKey = defineWrapperTargetingKey;
 
 function defineWrapperTargetingKeys(object) {
 	var output = {};
-	util.forEachOnObject(object, function(key, value) {
+	util.forEachOnObject(object, function (key, value) {
 		output[value] = "";
 	});
 	return output;
@@ -140,20 +140,20 @@ exports.validateAdUnitObject = validateAdUnitObject;
 function getAdSlotSizesArray(anAdUnitObject) {
 	//ToDo: need to habdle fluid sizes
 	// ToDo: for now supporting only banner sizes, need to support native as well
-	if (anAdUnitObject && anAdUnitObject.mediaTypes){
-		if(anAdUnitObject.mediaTypes.banner && util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
+	if (anAdUnitObject && anAdUnitObject.mediaTypes) {
+		if (anAdUnitObject.mediaTypes.banner && util.isArray(anAdUnitObject.mediaTypes.banner.sizes)) {
 			return anAdUnitObject.mediaTypes.banner.sizes;
 		}
 		//TODO : Confirm about the below configuration and correct if needed
 		// Commenting below code to remove custom handling of sizes and will be handled using adSlot.sizes
 		// Uncommenting and making behaviour same as to have player size or w and h as mandatory.
-		if(anAdUnitObject.mediaTypes.video) {
-			if(!util.isArray(anAdUnitObject.mediaTypes.video.playerSize) && !(anAdUnitObject.mediaTypes.video.w && anAdUnitObject.mediaTypes.video.h)){
+		if (anAdUnitObject.mediaTypes.video) {
+			if (!util.isArray(anAdUnitObject.mediaTypes.video.playerSize) && !(anAdUnitObject.mediaTypes.video.w && anAdUnitObject.mediaTypes.video.h)) {
 				util.logError("For slot video playersize or w,h is not defined and may not request bids from SSP for this slot. " + JSON.stringify(anAdUnitObject));
 				return [];
 			}
 		}
-		if(anAdUnitObject.mediaTypes.native || anAdUnitObject.mediaTypes.video){
+		if (anAdUnitObject.mediaTypes.native || anAdUnitObject.mediaTypes.video) {
 			return anAdUnitObject.sizes;
 		}
 		//TODO : Also handle native only configuration
@@ -166,7 +166,7 @@ exports.getAdSlotSizesArray = getAdSlotSizesArray;
 
 function findWinningBidAndGenerateTargeting(divId) {
 	var data;
-	if(isPrebidPubMaticAnalyticsEnabled === true){
+	if (isPrebidPubMaticAnalyticsEnabled === true) {
 		data = prebid.getBid(divId);
 		//todo: we might need to change some proprty names in wb (from PBJS)
 	} else {
@@ -180,16 +180,16 @@ function findWinningBidAndGenerateTargeting(divId) {
 
 	// removeIf(removeLegacyAnalyticsRelatedCode)
 	/* istanbul ignore else*/
-	if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {		
-		bidManager.setStandardKeys(winningBid, keyValuePairs);		
+	if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {
+		bidManager.setStandardKeys(winningBid, keyValuePairs);
 	}
 	// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 	// attaching keyValuePairs from adapters
-	util.forEachOnObject(keyValuePairs, function(key) {
+	util.forEachOnObject(keyValuePairs, function (key) {
 		// if winning bid is not pubmatic then remove buyId targeting key. Ref : UOE-5277
-		/* istanbul ignore else*/ 
-		if (util.isOwnProperty(ignoreTheseKeys, key) || util.isOwnProperty({"pwtpb":1}, key) || (winningBid && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key))) {
+		/* istanbul ignore else*/
+		if (util.isOwnProperty(ignoreTheseKeys, key) || util.isOwnProperty({ "pwtpb": 1 }, key) || (winningBid && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({ "hb_buyid_pubmatic": 1, "pwtbuyid_pubmatic": 1 }, key))) {
 			delete keyValuePairs[key];
 		}
 		else {
@@ -218,7 +218,7 @@ function findWinningBidAndGenerateTargeting(divId) {
 exports.findWinningBidAndGenerateTargeting = findWinningBidAndGenerateTargeting;
 /* end-test-block */
 
-function origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction){
+function origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction) {
 	//GDPR.getUserConsentDataFromCMP(); // Commenting this as GDPR will be handled by Prebid and we won't be seding GDPR info to tracker and logger
 
 	if (!util.isArray(arrayOfAdUnits)) {
@@ -235,7 +235,7 @@ function origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction){
 	var qualifyingSlots = [];
 	var mapOfDivToCode = {};
 	var qualifyingSlotDivIds = [];
-	util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject) {
+	util.forEachOnArray(arrayOfAdUnits, function (index, anAdUnitObject) {
 		if (refThis.validateAdUnitObject(anAdUnitObject)) { // returns true for valid adUnit
 			var dmSlotName = anAdUnitObject.code;
 			var slot = SLOT.createSlot(dmSlotName);
@@ -266,24 +266,24 @@ function origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction){
 	prebid.fetchBids(qualifyingSlots);
 
 	var posTimeoutTime = Date.now() + CONFIG.getTimeout(); // post timeout condition
-	var intervalId = window.setInterval(function() {
+	var intervalId = window.setInterval(function () {
 		// todo: can we move this code to a function?
 		if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || Date.now() >= posTimeoutTime) {
 
 			clearInterval(intervalId);
 			// removeIf(removeLegacyAnalyticsRelatedCode)
-			if(isPrebidPubMaticAnalyticsEnabled === false){
+			if (isPrebidPubMaticAnalyticsEnabled === false) {
 				// after some time call fire the analytics pixel
-				setTimeout(function() {
+				setTimeout(function () {
 					bidManager.executeAnalyticsPixel();
-				}, 2000);	
+				}, 2000);
 			}
 			// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 			var winningBids = {}; // object:: { code : response bid or just key value pairs }
 			// we should loop on qualifyingSlotDivIds to avoid confusion if two parallel calls are fired to our PWT.requestBids 
-			util.forEachOnArray(qualifyingSlotDivIds, function(index, divId) {
-				var code = mapOfDivToCode[divId];				
+			util.forEachOnArray(qualifyingSlotDivIds, function (index, divId) {
+				var code = mapOfDivToCode[divId];
 				winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId);
 				// we need to delay the realignment as we need to do it post creative rendering :)
 				// delaying by 1000ms as creative rendering may tke time
@@ -291,7 +291,7 @@ function origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction){
 			});
 
 			// for each adUnit in arrayOfAdUnits find the winningBids, we need to return this updated arrayOfAdUnits
-			util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject) {
+			util.forEachOnArray(arrayOfAdUnits, function (index, anAdUnitObject) {
 				if (winningBids.hasOwnProperty(anAdUnitObject.code)) {
 					anAdUnitObject.bidData = winningBids[anAdUnitObject.code];
 				}
@@ -327,13 +327,13 @@ exports.origCustomServerExposedAPI = origCustomServerExposedAPI;
 			a function that accepts response
 */
 function customServerExposedAPI(arrayOfAdUnits, callbackFunction) {
-	if(!!window.PWT.isSyncAuction){
+	if (!!window.PWT.isSyncAuction) {
 		refThis.origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction);
 	}
-	else{
-		setTimeout(function(){
+	else {
+		setTimeout(function () {
 			refThis.origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction)
-		},0);
+		}, 0);
 	}
 }
 /* start-test-block */
@@ -355,7 +355,7 @@ function generateConfForGPT(arrayOfGPTSlots) {
 		return gptConfArray;
 	}
 
-	util.forEachOnArray(arrayOfGPTSlots, function(index, googleSlot) {
+	util.forEachOnArray(arrayOfGPTSlots, function (index, googleSlot) {
 		var adUnitId = "";
 		var adUnitIndex = "";
 		var divId = "";
@@ -384,7 +384,7 @@ function generateConfForGPT(arrayOfGPTSlots) {
 				/*
 					The DFP API, googleSlot.getSizes(window.innerWidth, window.innerHeight) upon passing the two arguments, returns applied sizes as per size-mapping.
 				 */
-				util.forEachOnArray(googleSlot.getSizes(window.innerWidth, window.innerHeight), function(index, sizeObj) {
+				util.forEachOnArray(googleSlot.getSizes(window.innerWidth, window.innerHeight), function (index, sizeObj) {
 					/* istanbul ignore else  */
 					if (util.isFunction(sizeObj.getWidth) && util.isFunction(sizeObj.getHeight)) {
 						sizes.push([sizeObj.getWidth(), sizeObj.getHeight()]);
@@ -418,12 +418,12 @@ function addKeyValuePairsToGPTSlots(arrayOfAdUnits) {
 	}
 
 	var arrayOfGPTSlots = [];
-	if(util.isObject(window.googletag) && util.isFunction(window.googletag.pubads)){
-		arrayOfGPTSlots = window.googletag.pubads().getSlots();	
+	if (util.isObject(window.googletag) && util.isFunction(window.googletag.pubads)) {
+		arrayOfGPTSlots = window.googletag.pubads().getSlots();
 	}
 
 	var mapOfDivIdToGoogleSlot = {};
-	util.forEachOnArray(arrayOfGPTSlots, function(index, googleSlot) {
+	util.forEachOnArray(arrayOfGPTSlots, function (index, googleSlot) {
 		if (util.isFunction(googleSlot.getSlotId)) {
 			var slotID = googleSlot.getSlotId();
 			if (slotID && util.isFunction(slotID.getDomId)) {
@@ -436,14 +436,14 @@ function addKeyValuePairsToGPTSlots(arrayOfAdUnits) {
 		}
 	});
 
-	util.forEachOnArray(arrayOfAdUnits, function(index, adUnit) {
+	util.forEachOnArray(arrayOfAdUnits, function (index, adUnit) {
 		if (util.isOwnProperty(mapOfDivIdToGoogleSlot, adUnit.divId)) {
 			var googleSlot = mapOfDivIdToGoogleSlot[adUnit.divId];
-			if(util.isObject(adUnit) && util.isObject(adUnit.bidData) && util.isObject(adUnit.bidData.kvp)){
-				util.forEachOnObject(adUnit.bidData.kvp, function(key, value) {
+			if (util.isObject(adUnit) && util.isObject(adUnit.bidData) && util.isObject(adUnit.bidData.kvp)) {
+				util.forEachOnObject(adUnit.bidData.kvp, function (key, value) {
 					googleSlot.setTargeting(key, [value]);
 				});
-			}			
+			}
 		} else {
 			util.error("GPT-Slot not found for divId: " + adUnit.divId);
 		}
@@ -453,24 +453,24 @@ function addKeyValuePairsToGPTSlots(arrayOfAdUnits) {
 exports.addKeyValuePairsToGPTSlots = addKeyValuePairsToGPTSlots;
 /* end-test-block */
 
-function removeKeyValuePairsFromGPTSlots(arrayOfGPTSlots) {    
+function removeKeyValuePairsFromGPTSlots(arrayOfGPTSlots) {
 	//ToDo: need some fail-safe validations/checks
 	/* istanbul ignore else */
-	util.forEachOnArray(arrayOfGPTSlots, function(index, currentGoogleSlot){
+	util.forEachOnArray(arrayOfGPTSlots, function (index, currentGoogleSlot) {
 		var targetingMap = {};
-		if(util.isFunction(currentGoogleSlot.getTargetingKeys)){
-			util.forEachOnArray(currentGoogleSlot.getTargetingKeys(), function(index, key) {
+		if (util.isFunction(currentGoogleSlot.getTargetingKeys)) {
+			util.forEachOnArray(currentGoogleSlot.getTargetingKeys(), function (index, key) {
 				targetingMap[key] = currentGoogleSlot.getTargeting(key);
 			});
 		}
 		// now clear all targetings
-		if(util.isFunction(currentGoogleSlot.clearTargeting)){
+		if (util.isFunction(currentGoogleSlot.clearTargeting)) {
 			currentGoogleSlot.clearTargeting();
 		}
 		// now set all settings from backup
-		util.forEachOnObject(targetingMap, function(key, value) {
+		util.forEachOnObject(targetingMap, function (key, value) {
 			if (!util.isOwnProperty(refThis.wrapperTargetingKeys, key)) {
-				if(util.isFunction(currentGoogleSlot.setTargeting)){
+				if (util.isFunction(currentGoogleSlot.setTargeting)) {
 					currentGoogleSlot.setTargeting(key, value);
 				}
 			}
@@ -482,7 +482,7 @@ function removeKeyValuePairsFromGPTSlots(arrayOfGPTSlots) {
 exports.removeKeyValuePairsFromGPTSlots = removeKeyValuePairsFromGPTSlots;
 /* end-test-block */
 
-exports.init = function(win) {
+exports.init = function (win) {
 	CONFIG.initConfig();
 	if (util.isObject(win)) {
 		refThis.setWindowReference(win);
@@ -495,7 +495,7 @@ exports.init = function(win) {
 		win.PWT.generateConfForGPT = refThis.generateConfForGPT;
 		win.PWT.addKeyValuePairsToGPTSlots = addKeyValuePairsToGPTSlots;
 		win.PWT.removeKeyValuePairsFromGPTSlots = removeKeyValuePairsFromGPTSlots;
-		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);		
+		refThis.wrapperTargetingKeys = refThis.defineWrapperTargetingKeys(CONSTANTS.WRAPPER_TARGETING_KEYS);
 		return true;
 	} else {
 		return false;

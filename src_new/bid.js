@@ -2,7 +2,7 @@ var CONFIG = require("./config.js");
 var CONSTANTS = require("./constants.js");
 var UTIL = require("./util.js");
 
-function Bid(adapterID, kgpv){
+function Bid(adapterID, kgpv) {
 	this.adapterID = adapterID;
 	this.kgpv = kgpv;
 	this.bidID = UTIL.getUniqueIdentifierStr();
@@ -39,7 +39,7 @@ function Bid(adapterID, kgpv){
 	this.pbBid = undefined;
 }
 
-var getNetECPM = function(grossEcpm, adapterID){
+var getNetECPM = function (grossEcpm, adapterID) {
 	return window.parseFloat((grossEcpm * CONFIG.getAdapterRevShare(adapterID)).toFixed(CONSTANTS.COMMON.BID_PRECISION));
 };
 
@@ -68,28 +68,28 @@ Bid.prototype.setServerSideStatus = function (isServerSide) {
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-Bid.prototype.getAdapterID = function(){
+Bid.prototype.getAdapterID = function () {
 	return this.adapterID;
 };
 
-Bid.prototype.getBidID = function(){
+Bid.prototype.getBidID = function () {
 	return this.bidID;
 };
 
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setGrossEcpm = function(ecpm, origCurrency, displayCurrency, bidStatus){
-	    
+Bid.prototype.setGrossEcpm = function (ecpm, origCurrency, displayCurrency, bidStatus) {
+
 	/* istanbul ignore else */
-	if(ecpm === null){
+	if (ecpm === null) {
 		UTIL.log(CONSTANTS.MESSAGES.M10);
 		UTIL.log(this);
 		return this;
 	}
 	/* istanbul ignore else */
-	if(UTIL.isString(ecpm)){
+	if (UTIL.isString(ecpm)) {
 		ecpm = ecpm.replace(/\s/g, "");
 		/* istanbul ignore else */
-		if(ecpm.length === 0){
+		if (ecpm.length === 0) {
 			UTIL.log(CONSTANTS.MESSAGES.M20);
 			UTIL.log(this);
 			return this;
@@ -98,13 +98,13 @@ Bid.prototype.setGrossEcpm = function(ecpm, origCurrency, displayCurrency, bidSt
 	}
 
 	/* istanbul ignore else */
-	if(window.isNaN(ecpm)){
-		UTIL.log(CONSTANTS.MESSAGES.M11+ecpm);
+	if (window.isNaN(ecpm)) {
+		UTIL.log(CONSTANTS.MESSAGES.M11 + ecpm);
 		UTIL.log(this);
 		return this;
 	}
 
-	if(CONFIG.getAdServerCurrency() && origCurrency && displayCurrency && (UTIL.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].convertCurrency) || typeof window[CONSTANTS.COMMON.PREBID_NAMESPACE].convertCurrency == "function") ){
+	if (CONFIG.getAdServerCurrency() && origCurrency && displayCurrency && (UTIL.isFunction(window[CONSTANTS.COMMON.PREBID_NAMESPACE].convertCurrency) || typeof window[CONSTANTS.COMMON.PREBID_NAMESPACE].convertCurrency == "function")) {
 		ecpm = window[CONSTANTS.COMMON.PREBID_NAMESPACE].convertCurrency(ecpm, origCurrency, displayCurrency)
 	}
 
@@ -117,32 +117,32 @@ Bid.prototype.setGrossEcpm = function(ecpm, origCurrency, displayCurrency, bidSt
 };
 // removeIf(removeLegacyAnalyticsRelatedCode)
 
-Bid.prototype.getGrossEcpm = function(forAnalytics){
+Bid.prototype.getGrossEcpm = function (forAnalytics) {
 	// Check config if currency module is enabled.
-	if(CONFIG.getAdServerCurrency() && this.analyticsGrossCpm && forAnalytics){
+	if (CONFIG.getAdServerCurrency() && this.analyticsGrossCpm && forAnalytics) {
 		return this.analyticsGrossCpm;
 	}
 	return this.grossEcpm;
 };
 
-Bid.prototype.getNetEcpm = function(forAnalytics){
-	if(CONFIG.getAdServerCurrency() && this.analyticsNetCpm && forAnalytics){
+Bid.prototype.getNetEcpm = function (forAnalytics) {
+	if (CONFIG.getAdServerCurrency() && this.analyticsNetCpm && forAnalytics) {
 		return this.analyticsNetCpm;
 	}
 	return this.netEcpm;
 };
 
-Bid.prototype.setDefaultBidStatus = function(status){
+Bid.prototype.setDefaultBidStatus = function (status) {
 	this.defaultBid = status;
 	return this;
 };
 
-Bid.prototype.getDefaultBidStatus = function(){
+Bid.prototype.getDefaultBidStatus = function () {
 	return this.defaultBid;
 };
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setAdHtml = function(adHtml){
+Bid.prototype.setAdHtml = function (adHtml) {
 	this.adHtml = adHtml;
 	this.setAdFormat(adHtml);
 	return this;
@@ -151,13 +151,13 @@ Bid.prototype.setAdHtml = function(adHtml){
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 // should be always removed; not in use at all
-Bid.prototype.getAdHtml = function(){
+Bid.prototype.getAdHtml = function () {
 	return this.adHtml;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setAdUrl = function(adUrl){
+Bid.prototype.setAdUrl = function (adUrl) {
 	this.adUrl = adUrl;
 	return this;
 };
@@ -165,39 +165,39 @@ Bid.prototype.setAdUrl = function(adUrl){
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 // should be always removed; not in use at all
-Bid.prototype.getAdUrl = function(){
+Bid.prototype.getAdUrl = function () {
 	return this.adUrl;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setHeight = function(height){
+Bid.prototype.setHeight = function (height) {
 	this.height = height;
 	return this;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-Bid.prototype.getHeight = function(){
+Bid.prototype.getHeight = function () {
 	return this.height;
 };
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setWidth = function(width){
+Bid.prototype.setWidth = function (width) {
 	this.width = width;
 	return this;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-Bid.prototype.getWidth = function(){
+Bid.prototype.getWidth = function () {
 	return this.width;
 };
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.getKGPV = function(isActualValueRequired, mediaType){
-	if(!isActualValueRequired && this.regexPattern){
+Bid.prototype.getKGPV = function (isActualValueRequired, mediaType) {
+	if (!isActualValueRequired && this.regexPattern) {
 		return this.regexPattern;
 	}
-	if(this.adFormat == CONSTANTS.FORMAT_VALUES.VIDEO || mediaType ==  CONSTANTS.FORMAT_VALUES.VIDEO){
+	if (this.adFormat == CONSTANTS.FORMAT_VALUES.VIDEO || mediaType == CONSTANTS.FORMAT_VALUES.VIDEO) {
 		return UTIL.getUpdatedKGPVForVideo(this.kgpv, CONSTANTS.FORMAT_VALUES.VIDEO);
 	}
 	return this.kgpv;
@@ -205,7 +205,7 @@ Bid.prototype.getKGPV = function(isActualValueRequired, mediaType){
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setKeyValuePair = function(key, value){
+Bid.prototype.setKeyValuePair = function (key, value) {
 	// max length of key is restricted to 20 characters
 	this.keyValuePairs[key.substr(0, 20)] = value;
 	return this;
@@ -213,37 +213,37 @@ Bid.prototype.setKeyValuePair = function(key, value){
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.getKeyValuePairs = function(){
+Bid.prototype.getKeyValuePairs = function () {
 	return this.keyValuePairs;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-Bid.prototype.setPostTimeoutStatus = function(){
+Bid.prototype.setPostTimeoutStatus = function () {
 	this.isPostTimeout = true;
 	return this;
 };
 
-Bid.prototype.getPostTimeoutStatus = function(){
+Bid.prototype.getPostTimeoutStatus = function () {
 	return this.isPostTimeout;
 };
 
-Bid.prototype.setReceivedTime = function(receivedTime){
+Bid.prototype.setReceivedTime = function (receivedTime) {
 	this.receivedTime = receivedTime;
 	return this;
 };
 
-Bid.prototype.getReceivedTime = function(){
+Bid.prototype.getReceivedTime = function () {
 	return this.receivedTime;
 };
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setDealID = function(dealID){
+Bid.prototype.setDealID = function (dealID) {
 	/* istanbul ignore else */
-	if(dealID){
+	if (dealID) {
 		this.dealID = dealID;
 		this.dealChannel = this.dealChannel || "PMP";
 		this.setKeyValuePair(
-			CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+this.adapterID,
+			CONSTANTS.COMMON.DEAL_KEY_FIRST_PART + this.adapterID,
 			this.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + this.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + this.bidID
 		);
 	}
@@ -252,18 +252,18 @@ Bid.prototype.setDealID = function(dealID){
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.getDealID = function(){
+Bid.prototype.getDealID = function () {
 	return this.dealID;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setDealChannel = function(dealChannel){
+Bid.prototype.setDealChannel = function (dealChannel) {
 	/* istanbul ignore else */
-	if(this.dealID && dealChannel){
+	if (this.dealID && dealChannel) {
 		this.dealChannel = dealChannel;
 		this.setKeyValuePair(
-			CONSTANTS.COMMON.DEAL_KEY_FIRST_PART+this.adapterID,
+			CONSTANTS.COMMON.DEAL_KEY_FIRST_PART + this.adapterID,
 			this.dealChannel + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + this.dealID + CONSTANTS.COMMON.DEAL_KEY_VALUE_SEPARATOR + this.bidID
 		);
 	}
@@ -272,47 +272,47 @@ Bid.prototype.setDealChannel = function(dealChannel){
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.getDealChannel = function(){
+Bid.prototype.getDealChannel = function () {
 	return this.dealChannel;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setWinningBidStatus = function(){
+Bid.prototype.setWinningBidStatus = function () {
 	this.isWinningBid = true;
 	return this;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.getWinningBidStatus = function(){
+Bid.prototype.getWinningBidStatus = function () {
 	return this.isWinningBid;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setStatus = function(status){
+Bid.prototype.setStatus = function (status) {
 	this.status = status;
 	return this;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.getStatus = function(){
+Bid.prototype.getStatus = function () {
 	return this.status;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setSendAllBidsKeys = function(){
-	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID+'_'+this.adapterID, this.bidID);
-	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS+'_'+this.adapterID, this.getNetEcpm() > 0 ? 1 : 0);
-	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM+'_'+this.adapterID, this.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
-	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE+'_'+this.adapterID, this.width + 'x' + this.height);
+Bid.prototype.setSendAllBidsKeys = function () {
+	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ID + '_' + this.adapterID, this.bidID);
+	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_STATUS + '_' + this.adapterID, this.getNetEcpm() > 0 ? 1 : 0);
+	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_ECPM + '_' + this.adapterID, this.getNetEcpm().toFixed(CONSTANTS.COMMON.BID_PRECISION));
+	this.setKeyValuePair(CONSTANTS.WRAPPER_TARGETING_KEYS.BID_SIZE + '_' + this.adapterID, this.width + 'x' + this.height);
 	if (this.native) {
 		var keyValues = this.keyValuePairs;
 		var globalThis = this;
-		UTIL.forEachOnObject(keyValues, function(key, value) {
+		UTIL.forEachOnObject(keyValues, function (key, value) {
 			if (key.indexOf("native") >= 0) {
 				globalThis.setKeyValuePair(key + "_" + globalThis.adapterID, value);
 			}
@@ -322,15 +322,15 @@ Bid.prototype.setSendAllBidsKeys = function(){
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setMi = function(mi){
+Bid.prototype.setMi = function (mi) {
 	this.mi = mi;
 	return this;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.getMi = function(partnerName){
-	if(UTIL.isUndefined(this.mi)) {
+Bid.prototype.getMi = function (partnerName) {
+	if (UTIL.isUndefined(this.mi)) {
 		this.mi = window.matchedimpressions && window.matchedimpressions[partnerName];
 	}
 	return this.mi;
@@ -338,67 +338,67 @@ Bid.prototype.getMi = function(partnerName){
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode) 
-Bid.prototype.setOriginalCpm = function(originalCpm){
+Bid.prototype.setOriginalCpm = function (originalCpm) {
 	this.originalCpm = window.parseFloat(originalCpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
 	return this;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.getOriginalCpm = function(){
+Bid.prototype.getOriginalCpm = function () {
 	return this.originalCpm;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setOriginalCurrency = function(originalCurrency){
+Bid.prototype.setOriginalCurrency = function (originalCurrency) {
 	this.originalCurrency = originalCurrency;
 	return this;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.getOriginalCurrency = function(){
+Bid.prototype.getOriginalCurrency = function () {
 	return this.originalCurrency;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setAnalyticsCpm = function(analyticsCpm, bidStatus){
+Bid.prototype.setAnalyticsCpm = function (analyticsCpm, bidStatus) {
 	this.analyticsGrossCpm = window.parseFloat(analyticsCpm.toFixed(CONSTANTS.COMMON.BID_PRECISION));
-	this.analyticsNetCpm = bidStatus == CONSTANTS.BID_STATUS.BID_REJECTED ? 0 : getNetECPM(this.analyticsGrossCpm,this.getAdapterID());
+	this.analyticsNetCpm = bidStatus == CONSTANTS.BID_STATUS.BID_REJECTED ? 0 : getNetECPM(this.analyticsGrossCpm, this.getAdapterID());
 	return this;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 // should be always removed; not in use at all
-Bid.prototype.getAnalyticsCpm = function(){
+Bid.prototype.getAnalyticsCpm = function () {
 	return this.analyticsGrossCpm;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.getNative = function(){
+Bid.prototype.getNative = function () {
 	return this.native;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setNative = function(native){
+Bid.prototype.setNative = function (native) {
 	this.native = native;
 	return this;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.getAdFormat = function(){
+Bid.prototype.getAdFormat = function () {
 	return this.adFormat;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setAdFormat = function(ad, format){
+Bid.prototype.setAdFormat = function (ad, format) {
 	this.adFormat = format || UTIL.getAdFormatFromBidAd(ad);
 	return this;
 };
@@ -406,27 +406,27 @@ Bid.prototype.setAdFormat = function(ad, format){
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 // should be always removed; not in use at all
-Bid.prototype.getRegexPattern = function(){
+Bid.prototype.getRegexPattern = function () {
 	return this.regexPattern;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
-Bid.prototype.setRegexPattern = function(pattern){
+Bid.prototype.setRegexPattern = function (pattern) {
 	this.regexPattern = pattern;
 	return this;
 };
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 // should be always removed; not in use at all
-Bid.prototype.getcacheUUID = function(){
+Bid.prototype.getcacheUUID = function () {
 	return this.cacheUUID;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setcacheUUID = function(cacheUUID){
+Bid.prototype.setcacheUUID = function (cacheUUID) {
 	this.cacheUUID = cacheUUID;
-	if(!this.adFormat){
+	if (!this.adFormat) {
 		this.adFormat = CONSTANTS.FORMAT_VALUES.VIDEO;
 	}
 	return this;
@@ -434,21 +434,21 @@ Bid.prototype.setcacheUUID = function(cacheUUID){
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.getsspID = function(){
+Bid.prototype.getsspID = function () {
 	return this.sspID;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setsspID = function(sspID){
+Bid.prototype.setsspID = function (sspID) {
 	this.sspID = sspID;
 	return this;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setRenderer = function(renderer){
-	if(!UTIL.isEmptyObject(renderer)){
+Bid.prototype.setRenderer = function (renderer) {
+	if (!UTIL.isEmptyObject(renderer)) {
 		this.renderer = renderer;
 	}
 	return this;
@@ -457,14 +457,14 @@ Bid.prototype.setRenderer = function(renderer){
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 // should be always removed; not in use at all
-Bid.prototype.getRenderer = function(){
+Bid.prototype.getRenderer = function () {
 	return this.renderer;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setVastCache = function(vastCache){
-	if(UTIL.isString(vastCache)){
+Bid.prototype.setVastCache = function (vastCache) {
+	if (UTIL.isString(vastCache)) {
 		this.vastCache = vastCache;
 	}
 	return this;
@@ -473,14 +473,14 @@ Bid.prototype.setVastCache = function(vastCache){
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 // should be always removed; not in use at all
-Bid.prototype.getVastCache = function(){
+Bid.prototype.getVastCache = function () {
 	return this.vastCache;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setVastUrl = function(vastUrl){
-	if(UTIL.isString(vastUrl)){
+Bid.prototype.setVastUrl = function (vastUrl) {
+	if (UTIL.isString(vastUrl)) {
 		this.vastUrl = vastUrl;
 	}
 	return this;
@@ -489,15 +489,15 @@ Bid.prototype.setVastUrl = function(vastUrl){
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 // should be always removed; not in use at all
-Bid.prototype.getVastUrl= function(){
+Bid.prototype.getVastUrl = function () {
 	return this.vastUrl;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 // should be always removed; not in use at all
-Bid.prototype.setVastXml = function(xml){
-	if(UTIL.isString(xml)){
+Bid.prototype.setVastXml = function (xml) {
+	if (UTIL.isString(xml)) {
 		this.vastXml = xml;
 	}
 	return this;
@@ -506,20 +506,20 @@ Bid.prototype.setVastXml = function(xml){
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
 // should be always removed; not in use at all
-Bid.prototype.getVastXml= function(){
+Bid.prototype.getVastXml = function () {
 	return this.vastXml;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.setPbBid = function(pbbid){
+Bid.prototype.setPbBid = function (pbbid) {
 	this.pbbid = pbbid;
 	return this;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-Bid.prototype.getPbBid= function(){
+Bid.prototype.getPbBid = function () {
 	return this.pbbid;
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
@@ -527,10 +527,10 @@ Bid.prototype.getPbBid= function(){
 // removeIf(removeLegacyAnalyticsRelatedCode)
 // This function is used to update the bid in case of video bid
 // this should only be called if bid is video so that there is no discrepancy in tracker and logger for bid Id
-Bid.prototype.updateBidId = function(slotID){
-	if(window.PWT.bidMap[slotID] && window.PWT.bidMap[slotID].adapters && Object.keys(window.PWT.bidMap[slotID].adapters).length>0){
+Bid.prototype.updateBidId = function (slotID) {
+	if (window.PWT.bidMap[slotID] && window.PWT.bidMap[slotID].adapters && Object.keys(window.PWT.bidMap[slotID].adapters).length > 0) {
 		var bidId = window.PWT.bidMap[slotID].adapters[this.adapterID].bids[Object.keys(window.PWT.bidMap[slotID].adapters[this.adapterID].bids)[0]].bidID;
-		if(bidId && this.adFormat == CONSTANTS.FORMAT_VALUES.VIDEO){
+		if (bidId && this.adFormat == CONSTANTS.FORMAT_VALUES.VIDEO) {
 			this.bidID = bidId;
 		}
 	}
@@ -547,7 +547,7 @@ module.exports.Bid = Bid;
 /* end-test-block */
 
 
-exports.createBid = function(adapterID, kgpv){
+exports.createBid = function (adapterID, kgpv) {
 	return new Bid(adapterID, kgpv);
 };
 
