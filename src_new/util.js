@@ -388,7 +388,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 					// keyConfig = keyLookupMap[generatedKey];
 					keyConfig = keyLookupMap[Object.keys(keyLookupMap).filter(function(key) {
 						return key.toLowerCase() === generatedKey.toLowerCase()
-					})];
+					})[0]];
 				}
 			}
 			// condition (!keyConfig && !isPubMaticAlias) will check if keyCofig is undefined and partner is not PubMatic alias then log message to console 
