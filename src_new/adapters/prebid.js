@@ -1031,8 +1031,8 @@ function setPrebidConfig(){
 
 		window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 
-		refThis.getFloorsConfiguration(prebidConfig)
-		
+		refThis.getFloorsConfiguration(prebidConfig);
+		refThis.checkConfigLevelFloor(prebidConfig);
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
@@ -1117,6 +1117,27 @@ function gets2sConfig(prebidConfig){
 }
 
 exports.gets2sConfig = gets2sConfig;
+
+function hasFloorsSchema(config, prebidConfig) {
+	for (var key in config) {
+	  if (config.hasOwnProperty(key)) {
+		if (key === 'floors' || (typeof config[key] === 'object' && hasFloorsSchema(config[key], prebidConfig))) {
+			return prebidConfig['floors'] = {};
+		}
+	  }
+	}
+	return false;
+}
+exports.hasFloorsSchema = hasFloorsSchema;
+
+function checkConfigLevelFloor(prebidConfig){
+	if(!prebidConfig.hasOwnProperty('floors')) {
+		if(CONF.slotConfig && CONF.slotConfig.config) {
+			refThis.hasFloorsSchema(CONF.slotConfig.config, prebidConfig);
+		}
+	}
+}
+exports.checkConfigLevelFloor = checkConfigLevelFloor;
 
 function getFloorsConfiguration(prebidConfig){
 	if(CONFIG.isFloorPriceModuleEnabled() == true && CONFIG.getFloorSource() !== CONSTANTS.COMMON.EXTERNAL_FLOOR_WO_CONFIG){
@@ -1373,6 +1394,30 @@ function initPbjsConfig(){
 }
 exports.initPbjsConfig = initPbjsConfig;
 
+function checkIfRegexMatches(val) {
+	var floorSchema;
+	if(CONF.slotConfig.regex) {
+		Object.keys(CONF.slotConfig.config).forEach(function(key){
+			if(key !== 'default' && val.match(new RegExp(key, "i"))) {
+				floorSchema = CONF.slotConfig.config[key]['floors'];
+			}
+		})
+	}
+	return floorSchema;
+}
+
+function updateAdUnitsArrayWithFloor(adUnitsArray) {
+	if(CONF.slotConfig && CONF.slotConfig.configPattern) {
+		var pattern = CONF.slotConfig.configPattern;
+		var adUnitMatchProperty = pattern.toLocaleLowerCase().includes('div') ? 'code' : 'adUnitId';
+		adUnitsArray.forEach(function(adUnit){
+			var adUnitValue = adUnit[adUnitMatchProperty];
+			adUnit['floors'] = (CONF.slotConfig.config[adUnitValue] && CONF.slotConfig.config[adUnitValue]['floors']) || checkIfRegexMatches(adUnitValue) || CONF.slotConfig.config['default']['floors'];
+		})
+	}
+}
+exports.updateAdUnitsArrayWithFloor = updateAdUnitsArrayWithFloor;
+
 function fetchBids(activeSlots){
 
 	var impressionID = util.generateUUID();
@@ -1397,7 +1442,7 @@ function fetchBids(activeSlots){
 
 	// todo: this is the function that basically puts bidder params in all adUnits, expose it separately
 	var adUnitsArray = refThis.generateAdUnitsArray(activeSlots, impressionID);	
-
+	refThis.updateAdUnitsArrayWithFloor(adUnitsArray);
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window[pbNameSpace]){
 
