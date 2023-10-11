@@ -690,7 +690,12 @@ exports.findWinningBidIfRequired_Refresh = findWinningBidIfRequired_Refresh;
 
 function postRederingChores(divID, dmSlot){
     // googleSlot.getSizes() returns applicable sizes as per sizemapping if we pass current available view-port width and height
-    util.createVLogInfoPanel(divID, refThis.slotsMap[dmSlot].getSizes(window.innerWidth, window.innerHeight));
+    const slot = refThis.slotsMap[dmSlot];
+    if(slot) {
+        util.createVLogInfoPanel(divID, slot.getSizes(window.innerWidth, window.innerHeight));
+    } else {
+        util.log("Could not find slot in postRederingChores");
+    }
     util.realignVLogInfoPanel(divID);
     bidManager.executeAnalyticsPixel();
 }
@@ -704,11 +709,15 @@ function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFun
     util.log(arg);
     var yesCallRefreshFunction = false;
     util.forEachOnArray(qualifyingSlotNames, function(index, dmSlot) {
-        var divID = refThis.slotsMap[dmSlot].getDivID();
-        yesCallRefreshFunction = refThis.findWinningBidIfRequired_Refresh(dmSlot, divID, yesCallRefreshFunction);
-        window.setTimeout(function() {
-            refThis.postRederingChores(divID, dmSlot);
-        }, 2000);
+        var divID = refThis.slotsMap[dmSlot] && refThis.slotsMap[dmSlot].getDivID();
+        if(divID) {
+            yesCallRefreshFunction = refThis.findWinningBidIfRequired_Refresh(dmSlot, divID, yesCallRefreshFunction);
+            window.setTimeout(function() {
+                refThis.postRederingChores(divID, dmSlot);
+            }, 2000);
+        } else {
+            util.log("Could not find divID");
+        }
     });
     this.callOriginalRefeshFunction(yesCallRefreshFunction, theObject, originalFunction, arg);
 }
