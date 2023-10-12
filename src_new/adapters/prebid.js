@@ -1398,8 +1398,8 @@ function checkIfRegexMatches(val) {
 	var floorSchema;
 	if(CONF.slotConfig.regex) {
 		Object.keys(CONF.slotConfig.config).forEach(function(key){
-			if(key !== 'default' && val.match(new RegExp(key, "i"))) {
-				floorSchema = CONF.slotConfig.config[key]['floors'];
+			if(key !== "default" && val.match(new RegExp(key, "i"))) {
+				floorSchema = CONF.slotConfig.config[key]["floors"];
 			}
 		})
 	}
@@ -1409,10 +1409,11 @@ function checkIfRegexMatches(val) {
 function updateAdUnitsArrayWithFloor(adUnitsArray) {
 	if(CONF.slotConfig && CONF.slotConfig.configPattern) {
 		var pattern = CONF.slotConfig.configPattern;
-		var adUnitMatchProperty = pattern.toLocaleLowerCase().includes('div') ? 'code' : 'adUnitId';
+		var adUnitMatchProperty = pattern.toLocaleLowerCase().includes("div") ? "code" : "adUnitId";
 		adUnitsArray.forEach(function(adUnit){
 			var adUnitValue = adUnit[adUnitMatchProperty];
-			adUnit['floors'] = (CONF.slotConfig.config[adUnitValue] && CONF.slotConfig.config[adUnitValue]['floors']) || checkIfRegexMatches(adUnitValue) || CONF.slotConfig.config['default']['floors'];
+			adUnit["floors"] = (CONF.slotConfig.config[adUnitValue] && CONF.slotConfig.config[adUnitValue]["floors"]) || checkIfRegexMatches(adUnitValue) || (CONF.slotConfig.config["default"] && CONF.slotConfig.config["default"]["floors"]);
+			util.log("Updated adUnits with floor schema" + JSON.stringify(adUnit));
 		})
 	}
 }
@@ -1441,7 +1442,7 @@ function fetchBids(activeSlots){
     });	
 
 	// todo: this is the function that basically puts bidder params in all adUnits, expose it separately
-	var adUnitsArray = refThis.generateAdUnitsArray(activeSlots, impressionID);	
+	var adUnitsArray = refThis.generateAdUnitsArray(activeSlots, impressionID);
 	refThis.updateAdUnitsArrayWithFloor(adUnitsArray);
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window[pbNameSpace]){

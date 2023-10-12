@@ -1510,6 +1510,102 @@ describe('ADAPTER: Prebid', function() {
         });
     });    
 
+	describe('#updateAdUnitsArrayWithFloor', function() {
+		var activeSlots = null;
+        var impressionID = null;
+
+        beforeEach(function(done) {
+			sinon.spy(UTIL, 'log');
+            activeSlots = [
+				{
+					"code": "Div1",
+					"name": "Div1",
+					"status": 1,
+					"divID": "Div1",
+					"adUnitID": "/43743431/DMDemo",
+					"adUnitIndex": 0,
+					"sizes": [
+						[
+							728,
+							90
+						],
+						[
+							300,
+							250
+						]
+					],
+					"keyValues": {
+						"a": [
+							"1"
+						],
+						"b": [
+							"2"
+						],
+						"c": [
+							"3"
+						],
+						"d": [
+							"a",
+							"b",
+							"c"
+						]
+					},
+					"arguments": [],
+					"pubAdServerObject": {},
+					"displayFunctionCalled": false,
+					"refreshFunctionCalled": false
+				}
+			];
+            impressionID = 123123123;
+            done();
+        });
+
+        afterEach(function(done) {
+			delete CONF.slotConfig.config["Div1"]["floors"];
+			UTIL.log.restore();
+            activeSlots = null;
+            impressionID = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            PREBID.fetchBids.should.be.a('function');
+            done();
+        });
+
+		it('should add floor data to adUnit from matched config',function(done){
+            CONF.slotConfig.config["Div1"]["floors"] = {
+				"currency": 'USD',
+				"schema": {
+					"fields": [ 'gptSlot']
+				},
+				"values": {
+					"/43743431/DMDemo": 15,
+					"/43743431/DMDemo1": 25
+				}
+			}
+            PREBID.updateAdUnitsArrayWithFloor(activeSlots);
+            UTIL.log.calledWith("Updated adUnits with floor schema");
+            done();
+        })
+
+		it('should add floor data to adUnit from default if no matched config present',function(done){
+            CONF.slotConfig.config["default"] = {
+				"currency": 'USD',
+				"schema": {
+					"fields": [ 'gptSlot']
+				},
+				"values": {
+					"/43743431/DMDemo": 15,
+					"/43743431/DMDemo1": 25
+				}
+			}
+            PREBID.updateAdUnitsArrayWithFloor(activeSlots);
+            UTIL.log.calledWith("Updated adUnits with floor schema");
+            done();
+        })
+	})
+
     describe('checkAndModifySizeOfKGPVIfRequired',function(){
         var bid= {};
         var responseId;
