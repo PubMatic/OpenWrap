@@ -290,18 +290,20 @@ gulp.task('bundle-pwt-keys', function() {
                 {
                 match: /"%%TG_KEYS%%"/g,
                 replacement: {
-                            "BIDDER": "hb_bidder",
-                            "AD_ID": "hb_adid",
-                            "PRICE_BUCKET": "hb_pb",
-                            "SIZE": "hb_size",
-                            "DEAL": "hb_deal",
-                            "SOURCE": "hb_source",
-                            "FORMAT": "hb_format",
-                            "UUID": "hb_uuid",
-                            "CACHE_ID": "hb_cache_id",
-                            "CACHE_HOST": "hb_cache_host",
-                            "ADOMAIN" : "hb_adomain",
-                            "ACAT": "hb_acat",
+                    "BIDDER": "hb_bidder",
+                    "AD_ID": "hb_adid",
+                    "PRICE_BUCKET": "hb_pb",
+                    "SIZE": "hb_size",
+                    "DEAL": "hb_deal",
+                    "SOURCE": "hb_source",
+                    "FORMAT": "hb_format",
+                    "UUID": "hb_uuid",
+                    "CACHE_ID": "hb_cache_id",
+                    "CACHE_HOST": "hb_cache_host",
+                    "ADOMAIN": "hb_adomain",
+                    "ACAT": "hb_acat",
+                    "CRID": "hb_crid",
+                    "DSP": "hb_dsp"
                     }
                 }
             ]
