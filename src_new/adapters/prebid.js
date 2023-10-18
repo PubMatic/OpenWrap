@@ -1399,12 +1399,19 @@ function checkIfRegexMatches(val) {
 	if(CONF.slotConfig.regex) {
 		Object.keys(CONF.slotConfig.config).forEach(function(key){
 			if(key !== "default" && val.match(new RegExp(key, "i"))) {
-				floorSchema = CONF.slotConfig.config[key]["floors"];
+				floorSchema = getConfigFloors(CONF.slotConfig.config, key);
 			}
 		})
 	}
 	return floorSchema;
 }
+exports.checkIfRegexMatches = checkIfRegexMatches;
+
+function getConfigFloors (config, key) {
+	return config[key] && (config[key]["floors"] || config[key]["FLOORS"]);
+};
+exports.getConfigFloors = getConfigFloors;
+
 
 function updateAdUnitsArrayWithFloor(adUnitsArray) {
 	if(CONF.slotConfig && CONF.slotConfig.configPattern) {
@@ -1412,7 +1419,8 @@ function updateAdUnitsArrayWithFloor(adUnitsArray) {
 		var adUnitMatchProperty = pattern.toLocaleLowerCase().includes("div") ? "code" : "adUnitId";
 		adUnitsArray.forEach(function(adUnit){
 			var adUnitValue = adUnit[adUnitMatchProperty];
-			adUnit["floors"] = (CONF.slotConfig.config[adUnitValue] && CONF.slotConfig.config[adUnitValue]["floors"]) || checkIfRegexMatches(adUnitValue) || (CONF.slotConfig.config["default"] && CONF.slotConfig.config["default"]["floors"]);
+			const adUnitFloors = getConfigFloors(CONF.slotConfig.config, adUnitValue) || checkIfRegexMatches(adUnitValue) || getConfigFloors(CONF.slotConfig.config, "default");
+			adUnit["floors"] = adUnitFloors;
 			util.log("Updated adUnits with floor schema" + JSON.stringify(adUnit));
 		})
 	}

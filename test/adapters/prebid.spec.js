@@ -1510,6 +1510,66 @@ describe('ADAPTER: Prebid', function() {
         });
     });    
 
+	describe('#checkIfRegexMatches', function() {
+        it('is a function', function(done) {
+            PREBID.checkIfRegexMatches.should.be.a('function');
+            done();
+        });
+
+		it('should return floorSchema if regex matches adunit',function(done){
+			CONF.slotConfig.regex = true;
+            CONF.slotConfig.config["div*"] = {};
+			CONF.slotConfig.config["div*"]["floors"] = {
+				"currency": 'USD',
+				"schema": {
+					"fields": [ 'gptSlot']
+				},
+				"values": {
+					"/43743431/DMDemo": 15,
+					"/43743431/DMDemo1": 25
+				}
+			}
+            var floorSchema = PREBID.checkIfRegexMatches("div1");
+			floorSchema.should.be.equal(CONF.slotConfig.config["div*"]["floors"]);
+			delete CONF.slotConfig.config["div*"]["floors"];
+			CONF.slotConfig.regex = false;
+            done();
+        })
+
+		it('should return undefined if regex is not present',function(done){
+			expect(PREBID.checkIfRegexMatches("div1")).to.be.undefined;
+            done();
+        })
+	});
+
+	describe('#getConfigFloors', function() {
+
+        it('is a function', function(done) {
+            PREBID.getConfigFloors.should.be.a('function');
+            done();
+        });
+
+		it('should not return floor schema for default slot configuration',function(done){
+			expect(PREBID.getConfigFloors(CONF.slotConfig.config, "Div1")).to.be.undefined;
+            done();
+        });
+
+		it('should return floor schema when floor is present in slot configuration',function(done){
+			CONF.slotConfig.config["Div1"]["floors"] = {
+				"currency": 'USD',
+				"schema": {
+					"fields": [ 'gptSlot']
+				},
+				"values": {
+					"/43743431/DMDemo": 15,
+					"/43743431/DMDemo1": 25
+				}
+			}
+			expect(PREBID.getConfigFloors(CONF.slotConfig.config, "Div1")).to.deep.equal(CONF.slotConfig.config["Div1"]["floors"]);
+            done();
+        });
+	});
+
 	describe('#updateAdUnitsArrayWithFloor', function() {
 		var activeSlots = null;
         var impressionID = null;
@@ -1604,7 +1664,7 @@ describe('ADAPTER: Prebid', function() {
             UTIL.log.calledWith("Updated adUnits with floor schema");
             done();
         })
-	})
+	});
 
     describe('checkAndModifySizeOfKGPVIfRequired',function(){
         var bid= {};
