@@ -2758,6 +2758,14 @@ describe('UTIL', function() {
             done();
         });
 
+        it('should return ortb2Imp if present with the div',function(done){
+            slotConfiguration.config["DIV_1"].ortb2Imp = { "ext": { "ae" : 1}}
+            var expectedResult = { "ext" : { "ae" : 1}};
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).ortb2Imp;
+            expect(result).to.be.deep.equal(expectedResult);
+            done();
+        });
+
         it('should not return renderer if not present with the div',function(done){
             currentSlot.getDivID.restore();
             sinon.stub(currentSlot, "getDivID").returns("DIV_2");
