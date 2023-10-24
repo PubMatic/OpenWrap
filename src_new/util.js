@@ -1262,6 +1262,9 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					adUnitConfig['mediaTypeObject'] = mediaTypeObject
 					return adUnitConfig;      
 				}
+				if(config.floors){
+					adUnitConfig['floors'] = config.floors;
+				}
 			}
 			else{
 				refThis.log("Config not found for adSlot: " +  JSON.stringify(currentSlot));

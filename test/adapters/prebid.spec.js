@@ -846,6 +846,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(CONFIG, "getProfileID").returns("profId");
             sinon.stub(CONFIG, "getProfileDisplayVersionID").returns("verId");
             sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(0);
+			sinon.stub(UTIL, "getAdUnitConfig").returns({ "ortb2Imp": {"ext": { "ae": 1}}, "mediaTypeObject": {}, "floors": {}});
             PREBID.isSingleImpressionSettingEnabled = 0;            
             kgpConsistsWidthAndHeight = true;
             window.PWT = {
@@ -868,6 +869,7 @@ describe('ADAPTER: Prebid', function() {
             currentSlot.getAdUnitIndex.restore();
 
             CONFIG.getProfileID.restore();
+			UTIL.getAdUnitConfig.restore();
             CONFIG.getProfileDisplayVersionID.restore();
             CONFIG.isSingleImpressionSettingEnabled.restore();
 
@@ -884,6 +886,12 @@ describe('ADAPTER: Prebid', function() {
 		it('should have created bid object by composing from passed in params', function(done) {
             PREBID.generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             UTIL.forEachOnArray.called.should.be.false;
+            done();
+        });
+
+		it('should have floors if getAdUnitConfig return floors object', function(done) {
+            PREBID.generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            expect(window.PWT.adUnits["DIV_1"]["floors"]).to.be.an.object;
             done();
         });
 
@@ -1509,162 +1517,6 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
     });    
-
-	describe('#checkIfRegexMatches', function() {
-        it('is a function', function(done) {
-            PREBID.checkIfRegexMatches.should.be.a('function');
-            done();
-        });
-
-		it('should return floorSchema if regex matches adunit',function(done){
-			CONF.slotConfig.regex = true;
-            CONF.slotConfig.config["div*"] = {};
-			CONF.slotConfig.config["div*"]["floors"] = {
-				"currency": 'USD',
-				"schema": {
-					"fields": [ 'gptSlot']
-				},
-				"values": {
-					"/43743431/DMDemo": 15,
-					"/43743431/DMDemo1": 25
-				}
-			}
-            var floorSchema = PREBID.checkIfRegexMatches("div1");
-			floorSchema.should.be.equal(CONF.slotConfig.config["div*"]["floors"]);
-			delete CONF.slotConfig.config["div*"]["floors"];
-			CONF.slotConfig.regex = false;
-            done();
-        })
-
-		it('should return undefined if regex is not present',function(done){
-			expect(PREBID.checkIfRegexMatches("div1")).to.be.undefined;
-            done();
-        })
-	});
-
-	describe('#getConfigFloors', function() {
-
-        it('is a function', function(done) {
-            PREBID.getConfigFloors.should.be.a('function');
-            done();
-        });
-
-		it('should not return floor schema for default slot configuration',function(done){
-			expect(PREBID.getConfigFloors(CONF.slotConfig.config, "Div1")).to.be.undefined;
-            done();
-        });
-
-		it('should return floor schema when floor is present in slot configuration',function(done){
-			CONF.slotConfig.config["Div1"]["floors"] = {
-				"currency": 'USD',
-				"schema": {
-					"fields": [ 'gptSlot']
-				},
-				"values": {
-					"/43743431/DMDemo": 15,
-					"/43743431/DMDemo1": 25
-				}
-			}
-			expect(PREBID.getConfigFloors(CONF.slotConfig.config, "Div1")).to.deep.equal(CONF.slotConfig.config["Div1"]["floors"]);
-            done();
-        });
-	});
-
-	describe('#updateAdUnitsArrayWithFloor', function() {
-		var activeSlots = null;
-        var impressionID = null;
-
-        beforeEach(function(done) {
-			sinon.spy(UTIL, 'log');
-            activeSlots = [
-				{
-					"code": "Div1",
-					"name": "Div1",
-					"status": 1,
-					"divID": "Div1",
-					"adUnitID": "/43743431/DMDemo",
-					"adUnitIndex": 0,
-					"sizes": [
-						[
-							728,
-							90
-						],
-						[
-							300,
-							250
-						]
-					],
-					"keyValues": {
-						"a": [
-							"1"
-						],
-						"b": [
-							"2"
-						],
-						"c": [
-							"3"
-						],
-						"d": [
-							"a",
-							"b",
-							"c"
-						]
-					},
-					"arguments": [],
-					"pubAdServerObject": {},
-					"displayFunctionCalled": false,
-					"refreshFunctionCalled": false
-				}
-			];
-            impressionID = 123123123;
-            done();
-        });
-
-        afterEach(function(done) {
-			delete CONF.slotConfig.config["Div1"]["floors"];
-			UTIL.log.restore();
-            activeSlots = null;
-            impressionID = null;
-            done();
-        });
-
-        it('is a function', function(done) {
-            PREBID.fetchBids.should.be.a('function');
-            done();
-        });
-
-		it('should add floor data to adUnit from matched config',function(done){
-            CONF.slotConfig.config["Div1"]["floors"] = {
-				"currency": 'USD',
-				"schema": {
-					"fields": [ 'gptSlot']
-				},
-				"values": {
-					"/43743431/DMDemo": 15,
-					"/43743431/DMDemo1": 25
-				}
-			}
-            PREBID.updateAdUnitsArrayWithFloor(activeSlots);
-            UTIL.log.calledWith("Updated adUnits with floor schema");
-            done();
-        })
-
-		it('should add floor data to adUnit from default if no matched config present',function(done){
-            CONF.slotConfig.config["default"] = {
-				"currency": 'USD',
-				"schema": {
-					"fields": [ 'gptSlot']
-				},
-				"values": {
-					"/43743431/DMDemo": 15,
-					"/43743431/DMDemo1": 25
-				}
-			}
-            PREBID.updateAdUnitsArrayWithFloor(activeSlots);
-            UTIL.log.calledWith("Updated adUnits with floor schema");
-            done();
-        })
-	});
 
     describe('checkAndModifySizeOfKGPVIfRequired',function(){
         var bid= {};

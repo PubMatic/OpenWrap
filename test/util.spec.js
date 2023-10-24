@@ -2578,10 +2578,38 @@ describe('UTIL', function() {
             expect(result).to.be.deep.equal(expectedResult);
             done();
         });
+
+		it('should return adunit config with floors schema',function(done){
+			slotConfiguration.config["DIV_1"] = {
+				floors:{
+					"currency": 'USD',
+					"schema": {
+						"fields": [ 'gptSlot']
+					},
+					"values": {
+						"/43743431/DMDemo": 5,
+						"/43743431/DMDemo1": 25
+					}
+				}
+			}
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).floors;
+            expect(result).to.be.deep.equal({
+				"currency": 'USD',
+				"schema": {
+					"fields": [ 'gptSlot']
+				},
+				"values": {
+					"/43743431/DMDemo": 5,
+					"/43743431/DMDemo1": 25
+				}
+			});
+			delete slotConfiguration.config["DIV_1"]["floors"];
+            done();
+        });
         
         it('should return mediaTypeObject with Native only if for that kgpv banner is disabled',function(done){
             slotConfiguration["config"]["DIV_1"].banner.enabled= false;
-            var expectedResult =  { 
+            var expectedResult =  {
                 native: {
                     image: {
                         required: true,
