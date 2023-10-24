@@ -434,6 +434,9 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 		if(adUnitConfig.renderer){
 			adUnits[code]["renderer"]= adUnitConfig.renderer;
 		}
+		if (adUnitConfig.ortb2Imp) {
+			adUnits[code]["ortb2Imp"] = adUnitConfig.ortb2Imp;
+		}
 		window.PWT.adUnits = window.PWT.adUnits || {};
 		window.PWT.adUnits[code] = adUnits[code];
 	} else if(CONFIG.isSingleImpressionSettingEnabled()){

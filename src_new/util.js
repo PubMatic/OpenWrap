@@ -1257,6 +1257,9 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 				if(config.renderer && !refThis.isEmptyObject(config.renderer)){
 					adUnitConfig['renderer'] = config.renderer;
 				}
+				if(config.ortb2Imp && !refThis.isEmptyObject(config.ortb2Imp)){
+					adUnitConfig['ortb2Imp'] = config.ortb2Imp;
+				}
 				if(!isBanner ||  (config.banner && (refThis.isOwnProperty(config.banner, 'enabled') && !config.banner.enabled))){
 					refThis.mediaTypeConfig[divId] = mediaTypeObject;  
 					adUnitConfig['mediaTypeObject'] = mediaTypeObject
