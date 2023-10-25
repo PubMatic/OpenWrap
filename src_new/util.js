@@ -1188,6 +1188,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 			var isNative = true;
 			var isBanner = true;
 			var config = undefined;
+			var defaultFloor = undefined;
 			var divId = refThis.isFunction(currentSlot.getDivID) ? currentSlot.getDivID() : currentSlot.getSlotId().getDomId();
 
 			// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
@@ -1207,6 +1208,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					isVideo =false;
 				}
 				config = slotConfig["config"][CONSTANTS.COMMON.DEFAULT];
+				defaultFloor = config && config["floors"];
 				if(config.renderer && !refThis.isEmptyObject(config.renderer)){
 					adUnitConfig['renderer'] = config.renderer;
 				}
@@ -1262,8 +1264,8 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					adUnitConfig['mediaTypeObject'] = mediaTypeObject
 					return adUnitConfig;      
 				}
-				if(config.floors){
-					adUnitConfig['floors'] = config.floors;
+				if(config.floors || defaultFloor){
+					adUnitConfig['floors'] = config.floors || defaultFloor;
 				}
 			}
 			else{
