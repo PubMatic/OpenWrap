@@ -545,7 +545,9 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
             refThis.executeDisplay(CONFIG.getTimeout(), Object.keys(refThis.slotsMap), function() {
                util.forEachOnObject(refThis.slotsMap, function(key, slot) {
-                   refThis.findWinningBidIfRequired_Display(key, slot);
+                if(arg[0] === slot.divID){
+                    refThis.findWinningBidIfRequired_Display(key, slot);
+                }
                });
                refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
             });
