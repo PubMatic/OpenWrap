@@ -1136,6 +1136,13 @@ exports.ajaxRequest = function(url, callback, data, options) {
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+function addFloorConfigIfPresent(config, adUnitConfig, defaultFloor) {
+	if(config.floors || defaultFloor){
+		adUnitConfig['floors'] = config.floors || defaultFloor;
+	}	
+}
+exports.addFloorConfigIfPresent = addFloorConfigIfPresent;
+
 // Returns mediaTypes for adUnits which are sent to prebid
 exports.getAdUnitConfig = function(sizes, currentSlot){
 	function iskgpvpresent() {
@@ -1262,11 +1269,10 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 				if(!isBanner ||  (config.banner && (refThis.isOwnProperty(config.banner, 'enabled') && !config.banner.enabled))){
 					refThis.mediaTypeConfig[divId] = mediaTypeObject;  
 					adUnitConfig['mediaTypeObject'] = mediaTypeObject
+					refThis.addFloorConfigIfPresent(config, adUnitConfig, defaultFloor);
 					return adUnitConfig;      
 				}
-				if(config.floors || defaultFloor){
-					adUnitConfig['floors'] = config.floors || defaultFloor;
-				}
+				refThis.addFloorConfigIfPresent(config, adUnitConfig, defaultFloor);
 			}
 			else{
 				refThis.log("Config not found for adSlot: " +  JSON.stringify(currentSlot));
