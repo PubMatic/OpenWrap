@@ -407,7 +407,7 @@ function generateConfForGPT(arrayOfGPTSlots) {
 		
 		var floorConfig = util.getAdUnitConfig(sizes, googleSlot).floors;
 		if(floorConfig) {
-			gptConfArray[gptConfArray.length - 1]['floors'] = floorConfig;
+			gptConfArray[gptConfArray.length - 1]["floors"] = floorConfig;
 		}
 
 	});

@@ -1138,7 +1138,7 @@ exports.ajaxRequest = function(url, callback, data, options) {
 
 function addFloorConfigIfPresent(config, adUnitConfig, defaultFloor) {
 	if(config.floors || defaultFloor){
-		adUnitConfig['floors'] = config.floors || defaultFloor;
+		adUnitConfig["floors"] = config.floors || defaultFloor;
 	}	
 }
 exports.addFloorConfigIfPresent = addFloorConfigIfPresent;
