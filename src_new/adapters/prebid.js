@@ -875,9 +875,25 @@ exports.assignSchainConfigIfRequired = assignSchainConfigIfRequired;
 
 function configureBidderAliasesIfAvailable(){
 	if(util.isFunction(window[pbNameSpace].aliasBidder)){
+		// IF condition to be removed after testing
+		if(CONF.alias && Object.keys(CONF.alias).length === 3 && Object.keys(CONF.alias)[2] === "pulsePoint") {
+			CONF.alias = {
+				districtM: "districtm",
+				rubiconFastlane: {
+					name: "rubicon",
+					gvlid: "52",
+				},
+				pulsePoint: {
+					name:"pulsepoint",
+					gvlid: "81"
+				}
+			};
+		}
+		// IF Ends
+
 		CONFIG.forEachBidderAlias(function(alias){
-			window[pbNameSpace].aliasBidder(CONF.alias[alias], alias);
-		})
+			window[pbNameSpace].aliasBidder(CONF.alias[alias] && CONF.alias[alias].name ? CONF.alias[alias].name : CONF.alias[alias], alias, CONF.alias[alias] && CONF.alias[alias].gvlid ? {gvlid:CONF.alias[alias].gvlid}:{});
+		});
 	}
 	else{
 		util.logWarning("PreBid js aliasBidder method is not available");
@@ -1072,7 +1088,7 @@ function gets2sConfig(prebidConfig){
 	var bidderParams = {};
 	var s2sBidders = CONFIG.getServerEnabledAdaptars();
 	for(var key in CONF.alias) {
-		defaultAliases[key] = CONF.alias[key];
+		defaultAliases[key] = CONF.alias[key] && CONF.alias[key].name ? CONF.alias[key].name : CONF.alias[key];
 	}
 	var pubmaticAndAliases = CONFIG.getPubMaticAndAlias(s2sBidders);
 	if(pubmaticAndAliases.length) {
@@ -1144,6 +1160,7 @@ function checkForYahooSSPBidder(prebidConfig){
 	
 	if(!isYahooSSP) {
 		for(var bidder in CONF.alias) {
+			bidder = bidder.name ? bidder.name : bidder;
 			if(CONFIG.getAdapterNameForAlias(bidder) == CONSTANTS.YAHOOSSP) {
 				isYahooAlias = true;
 			}

@@ -400,7 +400,7 @@ exports.forEachBidderAlias = function (callback) {
 
 exports.getAdapterNameForAlias = function(aliasName){
 	if(config.alias && config.alias[aliasName]){
-		return config.alias[aliasName];
+		return config.alias[aliasName] && config.alias[aliasName].name ? config.alias[aliasName].name : config.alias[aliasName];
 	}
 	return aliasName;
 };
@@ -432,7 +432,7 @@ exports.getTimeoutForPBSRequest = function() {
 
 exports.getPubMaticAndAlias = function(s2sBidders) {
 	var pubMaticaliases = s2sBidders.filter(function(adapter) {
-		if(config.alias && config.alias[adapter] && config.alias[adapter].includes("pubmatic") || adapter.includes("pubmatic")) {
+		if(config.alias && config.alias[adapter] && ( config.alias[adapter].name ? config.alias[adapter].name.includes("pubmatic") : config.alias[adapter].includes("pubmatic") )|| adapter.includes("pubmatic")) {
 			return adapter;
 		}
 	});
