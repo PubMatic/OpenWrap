@@ -846,7 +846,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(CONFIG, "getProfileID").returns("profId");
             sinon.stub(CONFIG, "getProfileDisplayVersionID").returns("verId");
             sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(0);
-            sinon.stub(UTIL, "getAdUnitConfig").returns({ "ortb2Imp": {"ext": { "ae": 1}}, "mediaTypeObject": {}});
+			sinon.stub(UTIL, "getAdUnitConfig").returns({ "ortb2Imp": {"ext": { "ae": 1}}, "mediaTypeObject": {}, "floors": {}});
             PREBID.isSingleImpressionSettingEnabled = 0;            
             kgpConsistsWidthAndHeight = true;
             window.PWT = {
@@ -869,7 +869,7 @@ describe('ADAPTER: Prebid', function() {
             currentSlot.getAdUnitIndex.restore();
 
             CONFIG.getProfileID.restore();
-            UTIL.getAdUnitConfig.restore();
+			UTIL.getAdUnitConfig.restore();
             CONFIG.getProfileDisplayVersionID.restore();
             CONFIG.isSingleImpressionSettingEnabled.restore();
 
@@ -894,6 +894,12 @@ describe('ADAPTER: Prebid', function() {
             expect(window.PWT.adUnits["DIV_1"]["ortb2Imp"]).to.be.an.object;
             done();
         });
+		it('should have floors if getAdUnitConfig return floors object', function(done) {
+            PREBID.generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            expect(window.PWT.adUnits["DIV_1"]["floors"]).to.be.an.object;
+            done();
+        });
+
     });
 
     describe('#generatePbConf', function() {
