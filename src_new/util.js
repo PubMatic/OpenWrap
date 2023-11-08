@@ -1136,6 +1136,13 @@ exports.ajaxRequest = function(url, callback, data, options) {
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+function addFloorConfigIfPresent(config, adUnitConfig, defaultFloor) {
+	if(config.floors || defaultFloor){
+		adUnitConfig["floors"] = config.floors || defaultFloor;
+	}	
+}
+exports.addFloorConfigIfPresent = addFloorConfigIfPresent;
+
 // Returns mediaTypes for adUnits which are sent to prebid
 exports.getAdUnitConfig = function(sizes, currentSlot){
 	function iskgpvpresent() {
@@ -1188,6 +1195,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 			var isNative = true;
 			var isBanner = true;
 			var config = undefined;
+			var defaultFloor = undefined;
 			var divId = refThis.isFunction(currentSlot.getDivID) ? currentSlot.getDivID() : currentSlot.getSlotId().getDomId();
 
 			// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
@@ -1207,6 +1215,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					isVideo =false;
 				}
 				config = slotConfig["config"][CONSTANTS.COMMON.DEFAULT];
+				defaultFloor = config && config["floors"];
 				if(config.renderer && !refThis.isEmptyObject(config.renderer)){
 					adUnitConfig['renderer'] = config.renderer;
 				}
@@ -1257,11 +1266,16 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 				if(config.renderer && !refThis.isEmptyObject(config.renderer)){
 					adUnitConfig['renderer'] = config.renderer;
 				}
+				if(config.ortb2Imp && !refThis.isEmptyObject(config.ortb2Imp)){
+					adUnitConfig['ortb2Imp'] = config.ortb2Imp;
+				}
 				if(!isBanner ||  (config.banner && (refThis.isOwnProperty(config.banner, 'enabled') && !config.banner.enabled))){
 					refThis.mediaTypeConfig[divId] = mediaTypeObject;  
 					adUnitConfig['mediaTypeObject'] = mediaTypeObject
+					refThis.addFloorConfigIfPresent(config, adUnitConfig, defaultFloor);
 					return adUnitConfig;      
 				}
+				refThis.addFloorConfigIfPresent(config, adUnitConfig, defaultFloor);
 			}
 			else{
 				refThis.log("Config not found for adSlot: " +  JSON.stringify(currentSlot));
