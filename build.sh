@@ -100,7 +100,7 @@ if (task == CREATIVE_TASK) {
 		}*/
 
 
-		if(shell.exec("time gulp build-bundle --task=" + openwrapBuildTaskName + " --mode=" + argv.mode + " " + profileMode + " --prebidpath=" + prebidRepoPath).code !== 0) {
+		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode + " " + profileMode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: wrapper build task failed');
 			shell.exit(1);
 		}
