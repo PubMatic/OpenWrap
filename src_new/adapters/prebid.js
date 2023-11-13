@@ -881,22 +881,6 @@ exports.assignSchainConfigIfRequired = assignSchainConfigIfRequired;
 
 function configureBidderAliasesIfAvailable(){
 	if(util.isFunction(window[pbNameSpace].aliasBidder)){
-		// IF condition to be removed after testing
-		if(CONF.alias && Object.keys(CONF.alias).length === 3 && Object.keys(CONF.alias)[2] === "pulsePoint") {
-			CONF.alias = {
-				districtM: "districtm",
-				rubiconFastlane: {
-					name: "rubicon",
-					gvlid: "52",
-				},
-				pulsePoint: {
-					name:"pulsepoint",
-					gvlid: "81"
-				}
-			};
-		}
-		// IF Ends
-
 		CONFIG.forEachBidderAlias(function(alias){
 			window[pbNameSpace].aliasBidder(CONF.alias[alias] && CONF.alias[alias].name ? CONF.alias[alias].name : CONF.alias[alias], alias, CONF.alias[alias] && CONF.alias[alias].gvlid ? {gvlid:CONF.alias[alias].gvlid}:{});
 		});
