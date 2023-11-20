@@ -89,4 +89,9 @@ exports.getIHAnalyticsAdapterExpiry = function() {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IH_ANALYTICS_ADAPTER_EXPIRY]) || CONSTANTS.COMMON.IH_ANALYTICS_ADAPTER_DEFAULT_EXPIRY;
 };
 
+exports.isComplianceAnalyticsEnabled = function() {
+	var isEnabled = parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_COMPLIANCE_ANALYTICS]);
+	return isNaN(isEnabled) ? 1 : isEnabled;
+};
+
 exports.PBJS_NAMESPACE = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";

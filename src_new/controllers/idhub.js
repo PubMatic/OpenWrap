@@ -10,6 +10,7 @@ var refThis = this;
 var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 
 var isPubmaticIHAnalyticsEnabled = CONFIG.isPubMaticIHAnalyticsEnabled();
+var isComplianceAnalyticsEnabled = CONFIG.isComplianceAnalyticsEnabled();
 
 refThis.enablePubMaticIdentityAnalyticsIfRequired = function(){
 	window.IHPWT.ihAnalyticsAdapterExpiry = CONFIG.getIHAnalyticsAdapterExpiry();
@@ -75,7 +76,9 @@ refThis.setConfig = function(){
 		if (CONFIG.isUserIdModuleEnabled() && CONFIG.isIdentityOnly()) {
 			refThis.enablePubMaticIdentityAnalyticsIfRequired();
 		}
+		refThis.enableComplianceAnalyticsIfRequired();
 		util.isFunction(window[pbNameSpace].firePubMaticIHLoggerCall) && window[pbNameSpace].firePubMaticIHLoggerCall();
+		util.isFunction(window[pbNameSpace].fireComplianceLoggerCall) && window[pbNameSpace].fireComplianceLoggerCall();	
 		window[pbNameSpace].requestBids([]);
 	}
 };
@@ -124,3 +127,27 @@ exports.init = function(win) {
 	}
 };
 // endRemoveIf(removeIdHubOnlyRelatedCode)
+refThis.enableComplianceAnalyticsIfRequired = function() {
+	if(isComplianceAnalyticsEnabled && util.isFunction(window[pbNameSpace].enableAnalytics)){
+		window[pbNameSpace].enableAnalytics({
+			provider: "complianceAnalytics",
+			options: {
+				publisherId: CONFIG.getPublisherId(),
+				profileId: CONFIG.getProfileID(),
+				profileVersionId: CONFIG.getProfileDisplayVersionID(),
+				identityOnly: CONFIG.isUserIdModuleEnabled() ? CONFIG.isIdentityOnly() ? 2 : 1 : 0,
+				domain: util.getDomainFromURL(),
+				userIDModules: CONFIG.getIdentityPartners(),
+				cmpConfig: {
+					gdprEnabled: CONFIG.getGdpr(),
+					cmpApi: CONFIG.getCmpApi(),
+					gdprTO: CONFIG.getGdprTimeout(),
+					//actionTO: CONFIG.getActionTimeout(),
+					ccpaEnabled: CONFIG.getCCPA(),
+					ccpaCmpAPI: CONFIG.getCCPACmpApi(),
+					ccpaTO: CONFIG.getCCPATimeout()
+				}
+			}
+		});
+	}
+}

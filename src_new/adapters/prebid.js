@@ -31,6 +31,7 @@ var onAuctionEndEventAdded = false;
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
 var defaultAliases = CONSTANTS.DEFAULT_ALIASES;
+var isComplianceAnalyticsEnabled = CONFIG.isComplianceAnalyticsEnabled();
 
 /* start-test-block */
 exports.isSingleImpressionSettingEnabled = isSingleImpressionSettingEnabled;
@@ -433,12 +434,6 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 		}
 		if(adUnitConfig.renderer){
 			adUnits[code]["renderer"]= adUnitConfig.renderer;
-		}
-		if (adUnitConfig.ortb2Imp) {
-			adUnits[code]["ortb2Imp"] = adUnitConfig.ortb2Imp;
-		}	
-		if(adUnitConfig.floors){
-			adUnits[code]["floors"]= adUnitConfig.floors;
 		}
 		window.PWT.adUnits = window.PWT.adUnits || {};
 		window.PWT.adUnits[code] = adUnits[code];
@@ -1037,8 +1032,8 @@ function setPrebidConfig(){
 
 		window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 
-		refThis.getFloorsConfiguration(prebidConfig);
-		refThis.checkConfigLevelFloor(prebidConfig);
+		refThis.getFloorsConfiguration(prebidConfig)
+		
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
@@ -1056,7 +1051,8 @@ function setPrebidConfig(){
 		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 		//todo: stop supporting this hook let pubs use pbjs.requestBids hook
 		// do not set any config below this line as we are executing the hook above
-		
+	 	refThis.enableComplianceAnalyticsIfRequired();
+		util.isFunction(window[pbNameSpace].fireComplianceLoggerCall) && window[pbNameSpace].fireComplianceLoggerCall();	
 		window[pbNameSpace].setConfig(prebidConfig);
 	} else {
 		util.logWarning("PreBidJS setConfig method is not available");
@@ -1123,31 +1119,6 @@ function gets2sConfig(prebidConfig){
 }
 
 exports.gets2sConfig = gets2sConfig;
-
-function hasFloorsSchema(config, prebidConfig) {
-	for (var key in config) {
-	  if (config.hasOwnProperty(key)) {
-		if (key === 'floors' || (typeof config[key] === 'object' && hasFloorsSchema(config[key], prebidConfig))) {
-			return prebidConfig['floors'] = {
-				enforcement: {
-					enforceJS: CONFIG.getFloorType()
-				}
-			};
-		}
-	  }
-	}
-	return false;
-}
-exports.hasFloorsSchema = hasFloorsSchema;
-
-function checkConfigLevelFloor(prebidConfig){
-	if(!prebidConfig.hasOwnProperty('floors')) {
-		if(CONF.slotConfig && CONF.slotConfig.config) {
-			refThis.hasFloorsSchema(CONF.slotConfig.config, prebidConfig);
-		}
-	}
-}
-exports.checkConfigLevelFloor = checkConfigLevelFloor;
 
 function getFloorsConfiguration(prebidConfig){
 	if(CONFIG.isFloorPriceModuleEnabled() == true && CONFIG.getFloorSource() !== CONSTANTS.COMMON.EXTERNAL_FLOOR_WO_CONFIG){
@@ -1427,7 +1398,8 @@ function fetchBids(activeSlots){
     });	
 
 	// todo: this is the function that basically puts bidder params in all adUnits, expose it separately
-	var adUnitsArray = refThis.generateAdUnitsArray(activeSlots, impressionID);
+	var adUnitsArray = refThis.generateAdUnitsArray(activeSlots, impressionID);	
+
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window[pbNameSpace]){
 
@@ -1498,3 +1470,30 @@ function getBid(divID){
 }
 
 exports.getBid = getBid;
+
+function enableComplianceAnalyticsIfRequired() {
+	if(isComplianceAnalyticsEnabled && util.isFunction(window[pbNameSpace].enableAnalytics)){
+		window[pbNameSpace].enableAnalytics({
+			provider: "complianceAnalytics",
+			options: {
+				publisherId: CONFIG.getPublisherId(),
+				profileId: CONFIG.getProfileID(),
+				profileVersionId: CONFIG.getProfileDisplayVersionID(),
+				identityOnly: CONFIG.isUserIdModuleEnabled() ? CONFIG.isIdentityOnly() ? 2 : 1 : 0,
+				domain: util.getDomainFromURL(),
+				userIDModules: CONFIG.getIdentityPartners(),
+				cmpConfig: {
+					gdprEnabled: CONFIG.getGdpr(),
+					cmpApi: CONFIG.getCmpApi(),
+					gdprTO: CONFIG.getGdprTimeout(),
+					actionTO: COMMON_CONFIG.getGdprActionTimeout(),
+					ccpaEnabled: CONFIG.getCCPA(),
+					ccpaCmpAPI: CONFIG.getCCPACmpApi(),
+					ccpaTO: CONFIG.getCCPATimeout()
+				}
+			}
+		});
+	}
+}
+
+exports.enableComplianceAnalyticsIfRequired = enableComplianceAnalyticsIfRequired;
