@@ -14,10 +14,6 @@ console.log("argv ==>", argv);
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
 
-console.log("UV_THREADPOOL_SIZE ==>", process.env.UV_THREADPOOL_SIZE);
-process.env.UV_THREADPOOL_SIZE = 24;
-console.log("UV_THREADPOOL_SIZE ==>", process.env.UV_THREADPOOL_SIZE);
-
 gulp.task('update-adserver', async function() {
     console.log("In update-adserver isIdentityOnly = " + isIdentityOnly);
     if (isIdentityOnly) {
@@ -82,7 +78,7 @@ function getRemoveCodeConfig() {
 // What all processing needs to be done ?
 gulp.task('webpack', gulp.series('clean', function() {
     console.log("Executing webpack");
-    var connect = require('gulp-connect');
+    // var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
     var webpack = require('webpack-stream');
     var webpackConfig = require('./webpack.config.js');
@@ -101,7 +97,7 @@ gulp.task('webpack', gulp.series('clean', function() {
         .pipe(optimizejs())
         .pipe(jsFsCache.restore)
         .pipe(gulp.dest('build/dist'))
-        .pipe(connect.reload())
+        // .pipe(connect.reload())
     ;
 }));
 
