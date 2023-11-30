@@ -407,7 +407,7 @@ gulp.task('devbundle', gulp.series('devpack', function () {
         .pipe(gulp.dest('build'));
 }));
 
-gulp.task('bundle-prod', gulp.series('webpack', function () {
+gulp.task('bundle-prod', gulp.series(function () {
     console.log("Executing bundling");
     var concat = require('gulp-concat');
     //var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
