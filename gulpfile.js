@@ -78,7 +78,7 @@ function getRemoveCodeConfig() {
 // What all processing needs to be done ?
 gulp.task('webpack', gulp.series('clean', function() {
     console.log("Executing webpack");
-    // var connect = require('gulp-connect');
+    var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
     var webpack = require('webpack-stream');
     var webpackConfig = require('./webpack.config.js');
@@ -97,7 +97,7 @@ gulp.task('webpack', gulp.series('clean', function() {
         .pipe(optimizejs())
         .pipe(jsFsCache.restore)
         .pipe(gulp.dest('build/dist'))
-        // .pipe(connect.reload())
+        .pipe(connect.reload())
     ;
 }));
 
@@ -403,7 +403,7 @@ gulp.task('devbundle', gulp.series('devpack', function () {
         .pipe(gulp.dest('build'));
 }));
 
-gulp.task('bundle-prod', gulp.series(function () {
+gulp.task('bundle-prod', gulp.series('webpack', function () {
     console.log("Executing bundling");
     var concat = require('gulp-concat');
     //var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
