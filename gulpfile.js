@@ -14,6 +14,10 @@ console.log("argv ==>", argv);
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
 
+console.log("UV_THREADPOOL_SIZE ==>", process.env.UV_THREADPOOL_SIZE);
+process.env.UV_THREADPOOL_SIZE = 24;
+console.log("UV_THREADPOOL_SIZE ==>", process.env.UV_THREADPOOL_SIZE);
+
 gulp.task('update-adserver', async function() {
     console.log("In update-adserver isIdentityOnly = " + isIdentityOnly);
     if (isIdentityOnly) {
