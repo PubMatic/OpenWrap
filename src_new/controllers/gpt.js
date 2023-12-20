@@ -297,6 +297,8 @@ function applyCDSTargetingKeys() {
     });
 }      
 
+exports.applyCDSTargetingKeys = applyCDSTargetingKeys;
+
 function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     var data; 
 	if (isPrebidPubMaticAnalyticsEnabled){
@@ -334,7 +336,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
             refThis.defineWrapperTargetingKey(key);
         }
     });
-    applyCDSTargetingKeys();
+    refThis.applyCDSTargetingKeys();
 }
 
 /* start-test-block */
