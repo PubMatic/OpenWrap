@@ -1046,6 +1046,7 @@ function setPrebidConfig(){
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
 		refThis.assignPackagingInventoryConfig(prebidConfig);
+		refThis.readCustDimenData(prebidConfig);
 		// if usePBSAdapter is 1 then add s2sConfig
 		if(CONFIG.usePBSAdapter()) {
 			refThis.gets2sConfig(prebidConfig);
@@ -1197,6 +1198,13 @@ function assignPackagingInventoryConfig(prebidConfig) {
 }
 
 exports.assignPackagingInventoryConfig = assignPackagingInventoryConfig;
+
+function readCustDimenData(prebidConfig) {
+	const cdsData = util.isFunction(window.getCustomDimensionsDataFromPublisher) ? window.getCustomDimensionsDataFromPublisher() : null;
+	cdsData && (prebidConfig["cds"] = cdsData.cds);
+}
+
+exports.readCustDimenData = readCustDimenData;
 
 function getPbjsAdServerTargetingConfig(){
 	// Todo: Handle send-all bids feature enabled case
