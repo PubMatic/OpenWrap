@@ -293,7 +293,7 @@ function applyCDSTargetingKeys() {
       if((cdsData[key].sendtoGAM !== false) && window.googletag) {
         var val = cdsData[key].value;
         val = (!Array.isArray(val) && typeof val !== 'object' &&
-            typeof val !== 'function' && typeof value !== 'undefined') ? val : '';
+            typeof val !== 'function' && typeof val !== 'undefined') ? val : '';
         window.googletag.pubads().setTargeting(key, val);
       }
     });
