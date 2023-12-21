@@ -291,7 +291,9 @@ function applyCDSTargetingKeys() {
     var cdsData = pbConf.cds;
     cdsData && Object.keys(cdsData).map(function(key) {
       if((cdsData[key].sendtoGAM !== false) && window.googletag) {
-        const val = typeof cdsData[key].value === 'string' ? cdsData[key].value : '';
+        var val = cdsData[key].value;
+        val = (val && !Array.isArray(val) && typeof val !== 'object'
+          && typeof val !== 'function') ? val : '';
         window.googletag.pubads().setTargeting(key, val);
       }
     });
