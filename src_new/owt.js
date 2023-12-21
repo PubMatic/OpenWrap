@@ -154,8 +154,8 @@ function addCdsDataToGAM(cust_params) {
 	cdsData && Object.keys(cdsData).map(function(key) {
 	  if(cdsData[key].sendtoGAM !== false) {
 		var val = cdsData[key].value;
-		val = (val && !Array.isArray(val) && typeof val !== 'object'
-		  && typeof val !== 'function') ? val : '';
+		val = (!Array.isArray(val) && typeof val !== 'object' &&
+        	typeof val !== 'function' && typeof value !== 'undefined') ? val : '';
 		cust_params[key] = val;
 	  }
 	});
