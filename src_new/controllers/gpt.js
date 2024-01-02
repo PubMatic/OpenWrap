@@ -286,6 +286,21 @@ function defineWrapperTargetingKeys(object) { // TDD, i/o : done
 exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
+function applyCDSTargetingKeys() {
+    var pbConf = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig() || {};
+    var cdsData = pbConf.cds;
+    cdsData && Object.keys(cdsData).map(function(key) {
+      if((cdsData[key].sendtoGAM !== false) && window.googletag) {
+        var val = cdsData[key].value;
+        val = (!Array.isArray(val) && typeof val !== 'object' &&
+            typeof val !== 'function' && typeof val !== 'undefined') ? val : '';
+        window.googletag.pubads().setTargeting(key, val);
+      }
+    });
+}      
+
+exports.applyCDSTargetingKeys = applyCDSTargetingKeys;
+
 function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     var data; 
 	if (isPrebidPubMaticAnalyticsEnabled){
@@ -323,6 +338,7 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
             refThis.defineWrapperTargetingKey(key);
         }
     });
+    refThis.applyCDSTargetingKeys();
 }
 
 /* start-test-block */

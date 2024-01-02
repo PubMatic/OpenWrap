@@ -144,6 +144,24 @@ window.PWT.UpdateVastWithTracker = function(bid, vast){
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeInStreamRelatedCode)
+
+function getCDSData() {
+	var pbConf = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig();
+	return pbConf && pbConf.cds;
+}
+
+function addCdsDataToGAM(cust_params) {
+	var cdsData = getCDSData();
+	cdsData && Object.keys(cdsData).map(function(key) {
+	  if(cdsData[key].sendtoGAM !== false) {
+		var val = cdsData[key].value;
+		val = (!Array.isArray(val) && typeof val !== 'object' &&
+        	typeof val !== 'function' && typeof val !== 'undefined') ? val : '';
+		cust_params[key] = val;
+	  }
+	});
+}
+
 window.PWT.generateDFPURL= function(adUnit,cust_params){
 	var dfpurl = "";
 	if(!adUnit || !util.isObject(adUnit)) {
@@ -156,6 +174,7 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 	else{
 		util.logWarning("No bid found for given adUnit");
 	}
+	addCdsDataToGAM(cust_params);
 	var params = {
 		adUnit: adUnit,
 		params: {
