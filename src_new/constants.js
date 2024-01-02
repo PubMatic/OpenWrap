@@ -159,6 +159,9 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"CACHE_ID": "pwtcid",
 	"CACHE_URL": "pwtcurl",
 	"CACHE_PATH": "pwtcpath",
+	"ACAT": "pwtacat",
+	"CRID": "pwtcrid",
+	"DSP": "pwtdsp"
 };
 
 exports.IGNORE_PREBID_KEYS = {
