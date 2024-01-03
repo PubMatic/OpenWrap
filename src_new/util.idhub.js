@@ -644,7 +644,11 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 						case "customObject":
 							if (paramValue) {
 								if (key === "params.requestedAttributesOverrides") {
-									params[key] = {'uid2': (paramValue === "true" || paramValue === "1")}
+									try {
+										params[key] = JSON.parse(paramValue);	
+									} catch (e) {
+										refThis.logError("Error parsing requestedAttributesOverrides for partner ", partnerName);
+									}
 								}
 							}
 							break;
