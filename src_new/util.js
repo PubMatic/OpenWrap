@@ -2132,7 +2132,8 @@ exports.getGeoInfo = function() {
 	}
 }
 
-exports.getCDSTargetingData = function(obj = {}) {
+exports.getCDSTargetingData = function(obj) {
+	obj = obj || {};
 	var cdsData = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig('cds');
     cdsData && Object.keys(cdsData).map(function(key) {
       if((cdsData[key].sendtoGAM !== false)) {
