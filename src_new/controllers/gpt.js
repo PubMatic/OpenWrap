@@ -323,6 +323,10 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
             refThis.defineWrapperTargetingKey(key);
         }
     });
+    util.forEachOnObject(util.getCDSTargetingData(), function(key, value) {
+        window.googletag &&
+        window.googletag.pubads().setTargeting(key, value);
+    });
 }
 
 /* start-test-block */
