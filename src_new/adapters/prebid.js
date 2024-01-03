@@ -1306,7 +1306,22 @@ function getPbjsAdServerTargetingConfig(){
         	val: function(bidResponse){ // todo: empty value?
         		return "";
         	}
-        }
+        }, {
+			key: 'pwtacat',
+			val: function(bidResponse){
+				return (bidResponse.meta && bidResponse.meta.primaryCatId) ? bidResponse.meta.primaryCatId : '';
+			}
+		}, {
+			key: 'pwtdsp',
+			val: function(bidResponse){
+				return (bidResponse.meta && bidResponse.meta.networkId) ? bidResponse.meta.networkId : '';
+			}
+		}, {
+			key: 'pwtcrid',
+			val: function(bidResponse){
+				return bidResponse.creativeId  ? bidResponse.creativeId : '';
+			}
+		}
     ];
 }
 
