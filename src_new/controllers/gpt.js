@@ -287,8 +287,7 @@ exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
 function applyCDSTargetingKeys() {
-    var pbConf = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig() || {};
-    var cdsData = pbConf.cds;
+    var cdsData = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig('cds');
     cdsData && Object.keys(cdsData).map(function(key) {
       if((cdsData[key].sendtoGAM !== false) && window.googletag) {
         var val = cdsData[key].value;

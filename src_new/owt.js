@@ -146,8 +146,7 @@ window.PWT.UpdateVastWithTracker = function(bid, vast){
 // removeIf(removeInStreamRelatedCode)
 
 function getCDSData() {
-	var pbConf = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig();
-	return pbConf && pbConf.cds;
+	return window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig('cds');
 }
 
 function addCdsDataToGAM(cust_params) {
