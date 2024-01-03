@@ -144,6 +144,7 @@ window.PWT.UpdateVastWithTracker = function(bid, vast){
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeInStreamRelatedCode)
+
 window.PWT.generateDFPURL= function(adUnit,cust_params){
 	var dfpurl = "";
 	if(!adUnit || !util.isObject(adUnit)) {
@@ -156,6 +157,7 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 	else{
 		util.logWarning("No bid found for given adUnit");
 	}
+	util.getCDSTargetingData(cust_params);
 	var params = {
 		adUnit: adUnit,
 		params: {
