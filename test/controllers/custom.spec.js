@@ -446,6 +446,15 @@ describe("CONTROLLER: CUSTOM", function() {
 	});
 
 	describe("#customServerExposedAPI", function () {
+		beforeEach(function(done) {
+            window.owpbjs = {...window.owpbjs, ...{
+                getConfig: function(){
+                    return {};
+                }
+            }};
+			done();
+		});
+
 		it("is a function", function(done) {
 			CUSTOM.customServerExposedAPI.should.be.a("function");
 			done();
@@ -659,6 +668,15 @@ describe("CONTROLLER: CUSTOM", function() {
 	});
 
 	describe("#addKeyValuePairsToGPTSlots", function () {
+		beforeEach(function(done) {
+            window.owpbjs = {...window.owpbjs, ...{
+                getConfig: function(){
+                    return {};
+                }
+            }};
+			done();
+		});
+
 		it("is a function", function(done) {
 			CUSTOM.addKeyValuePairsToGPTSlots.should.be.a("function");
 			done();
