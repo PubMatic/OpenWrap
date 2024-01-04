@@ -1045,7 +1045,6 @@ function setPrebidConfig(){
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
-		refThis.assignPackagingInventoryConfig(prebidConfig);
 		refThis.readCustDimenData(prebidConfig);
 		// if usePBSAdapter is 1 then add s2sConfig
 		if(CONFIG.usePBSAdapter()) {
@@ -1189,15 +1188,6 @@ function checkForYahooSSPBidder(prebidConfig){
 }
 
 exports.checkForYahooSSPBidder = checkForYahooSSPBidder;
-
-
-function assignPackagingInventoryConfig(prebidConfig) {
-	prebidConfig["viewabilityScoreGeneration"] = {
-		enabled:  true
-	}
-}
-
-exports.assignPackagingInventoryConfig = assignPackagingInventoryConfig;
 
 function readCustDimenData(prebidConfig) {
 	const cdsData = util.isFunction(window.getCustomDimensionsDataFromPublisher) ? window.getCustomDimensionsDataFromPublisher() : null;
