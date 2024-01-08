@@ -457,3 +457,7 @@ exports.createMacros = function() {
 exports.getMarketplaceBidders = function(){
 	return config.pwt.marketplaceBidders ? config.pwt.marketplaceBidders.split(',') : false;
 }
+
+exports.shouldClearTargeting = function () {
+	return window.PWT.shouldClearTargeting !== undefined ? Boolean(window.PWT.shouldClearTargeting) : true;
+};
