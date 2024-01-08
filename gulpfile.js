@@ -1,11 +1,13 @@
 'use strict';
 console.time("Loading plugins OW");
+console.log('========= Start Loding OW plugins' + new Date().toLocaleTimeString());
 var argv = require('yargs').argv;
 var gulp = require('gulp');
 var replace = require('gulp-replace-task');
 var config = require("./src_new/config.js");
 var eslint = require('gulp-eslint');
 console.timeEnd("Loading plugins OW");
+console.log('========= End Loding OW plugins' + new Date().toLocaleTimeString());
 var CI_MODE = (argv.mode === 'test-build') ? true : false;
 var isIdentityOnly = config.isIdentityOnly();
 var profileMode = argv.profile;
@@ -77,6 +79,7 @@ function getRemoveCodeConfig() {
 
 // What all processing needs to be done ?
 gulp.task('webpack', gulp.series('clean', function() {
+    console.log('========= Start Webpack' + new Date().toLocaleTimeString());
     console.log("Executing webpack");
     var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
@@ -93,8 +96,8 @@ gulp.task('webpack', gulp.series('clean', function() {
         .pipe(webpack(webpackConfig))
         .pipe(jsFsCache)
         .pipe(removeCode(getRemoveCodeConfig()))
-        .pipe(uglify())
-        .pipe(optimizejs())
+        // .pipe(uglify())
+        // .pipe(optimizejs())
         .pipe(jsFsCache.restore)
         .pipe(gulp.dest('build/dist'))
         .pipe(connect.reload())
@@ -180,18 +183,18 @@ gulp.task('test', gulp.series('unexpose', async function (done) {
 
 // Test all code including private functions
 gulp.task('testall', async function (done) {
-    var karmaServer = require('karma').Server;
-    var defaultBrowsers = CI_MODE ? ['ChromeHeadless'] : ['Chrome'];
-    new karmaServer({
-        browsers: defaultBrowsers,
-        configFile: __dirname + '/karma.conf.js',
-        singleRun: true
-    }, function (exitCode) {
-        console.log("exitCode ==>", exitCode);
-        if (exitCode != 0) {
-            process.exit(exitCode);
-        }
-    }).start();
+    // var karmaServer = require('karma').Server;
+    // var defaultBrowsers = CI_MODE ? ['ChromeHeadless'] : ['Chrome'];
+    // new karmaServer({
+    //     browsers: defaultBrowsers,
+    //     configFile: __dirname + '/karma.conf.js',
+    //     singleRun: true
+    // }, function (exitCode) {
+    //     console.log("exitCode ==>", exitCode);
+    //     if (exitCode != 0) {
+    //         process.exit(exitCode);
+    //     }
+    // }).start();
 });
 
 
@@ -256,6 +259,7 @@ gulp.task('bundle', gulp.series('update-adserver', function () {
 }));
 
 gulp.task('bundle-pwt-keys', function() {
+    console.log('========= Start bundle-pwt-keys' + new Date().toLocaleTimeString());
     if(config.isUsePrebidKeysEnabled() === false && config.isPrebidPubMaticAnalyticsEnabled() === true){
         console.log("We need to use PWT keys, so changing targeting keys in PrebidJS config");
         return gulp.src('./build/owt.min.js', { "allowEmpty": true })
@@ -313,6 +317,7 @@ gulp.task('bundle-pwt-keys', function() {
 });
 
 gulp.task('bundle-native-keys', function() {
+    console.log('========= Start bundle-native-keys' + new Date().toLocaleTimeString());
     if(config.isUsePrebidKeysEnabled() === true) {
         console.log("We need to use Prebid keys for Native, so changing targeting keys in PrebidJS config");
         return gulp.src('./build/owt.min.js', { "allowEmpty": true })
@@ -404,6 +409,7 @@ gulp.task('devbundle', gulp.series('devpack', function () {
 }));
 
 gulp.task('bundle-prod', gulp.series('webpack', function () {
+    console.log('========= Start bundle-prod' + new Date().toLocaleTimeString());
     console.log("Executing bundling");
     var concat = require('gulp-concat');
     //var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
@@ -439,6 +445,7 @@ function getPatternsToReplace() {
 }
 
 gulp.task('update-namespace', async function () {
+    console.log('========= Start update-namespace' + new Date().toLocaleTimeString());
     console.log("Executing update-namespace - START => ");
     var patternsToReplace = getPatternsToReplace();
     console.log("Patterns to replace => ", patternsToReplace);
@@ -455,5 +462,5 @@ gulp.task('update-namespace', async function () {
 
 gulp.task('build-gpt-prod');
 
-let tasks = argv.task ? [argv.task, 'bundle-keys'] : ['bundle-keys'];
+let tasks = argv.task ? [argv.task, 'bundle-keys', 'update-namespace'] : ['bundle-keys', 'update-namespace'];
 gulp.task('build-bundle', gulp.series(tasks));

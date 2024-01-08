@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-console.time("--------- STARTED");
+console.time("========= STARTED");
 console.log("running from shell script");
 var shell = require('shelljs');
 var argv = require('yargs').argv;
@@ -73,13 +73,14 @@ if (task == CREATIVE_TASK) {
 				shell.exit(1);
 		}
 
-
+		console.log('========= Start prebid build' + new Date().toLocaleTimeString());
 		console.time("Executing Prebid Build");
 		if(shell.exec("time gulp " + prebidTaskName + " --mode=" + argv.mode).code !== 0) {
 			shell.echo('Error: buidlinng of project failed');
 		  	shell.exit(1);
 		}
 		console.timeEnd("Executing Prebid Build");
+		console.log('========= End prebid build' + new Date().toLocaleTimeString());
 		
 		shell.cd("../OpenWrap/");
 
@@ -100,15 +101,12 @@ if (task == CREATIVE_TASK) {
 		}*/
 
 
-		if(shell.exec("time gulp " + openwrapBuildTaskName + " --mode=" + argv.mode + " " + profileMode + " --prebidpath=" + prebidRepoPath).code !== 0) {
+		console.log('========= Start OW build' + new Date().toLocaleTimeString());
+		if(shell.exec("time gulp build-bundle --task=" + openwrapBuildTaskName + " --mode=" + argv.mode + " " + profileMode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 			shell.echo('Error: wrapper build task failed');
 			shell.exit(1);
 		}
-
-    if(shell.exec("time gulp update-namespace").code !== 0) {
-      shell.echo('Error: Changing custom namespace failed');
-      shell.exit(1);
-    }
+		console.log('========= End OW build' + new Date().toLocaleTimeString());
 }
 
-console.timeEnd("--------- STARTED");
+console.timeEnd("========= STARTED");
