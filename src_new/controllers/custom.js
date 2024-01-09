@@ -474,7 +474,7 @@ function removeKeyValuePairsFromGPTSlots(arrayOfGPTSlots) {
 			});
 		}
 		// now clear all targetings
-		if(util.isFunction(currentGoogleSlot.clearTargeting)){
+		if(util.isFunction(currentGoogleSlot.clearTargeting) && CONFIG.shouldClearTargeting()){
 			currentGoogleSlot.clearTargeting();
 		}
 		// now set all settings from backup

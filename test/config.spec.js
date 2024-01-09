@@ -2447,5 +2447,31 @@ describe('Config', function() {
           var result = CONFIG.getOverrideNamespace(configKey, "randomValue", returnValueInCaseMissingNamespace);
           expect(result).to.equal(defaultName);
         });
-    });          
+    });
+
+    describe('#shouldClearTargeting', function() {
+
+        it('is a function', function(done) {
+            CONFIG.shouldClearTargeting.should.be.a('function');
+            done();
+        });
+
+        it('should return the value false when explcitly false is set', function(done) {
+            window.PWT.shouldClearTargeting = false;
+            expect(CONFIG.shouldClearTargeting()).to.equal(false);
+            done();
+        });
+        
+        it('should return the value true when explcitly nothing is set', function(done) {
+            window.PWT.shouldClearTargeting = undefined;
+            expect(CONFIG.shouldClearTargeting()).to.equal(true);
+            done();
+        });
+
+        it('should return the value true when explcitly true is set', function(done) {
+            window.PWT.shouldClearTargeting = true;
+            expect(CONFIG.shouldClearTargeting()).to.equal(true);
+            done();
+        });
+    });
 });
