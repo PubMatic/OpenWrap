@@ -1195,6 +1195,11 @@ describe("CONTROLLER: GPT", function() {
 
         beforeEach(function(done) {
             divID = commonDivID;
+            window.owpbjs = {...window.owpbjs, ...{
+                getConfig: function(){
+                    return {};
+                }
+            }};
             winningBidStub = {
                 getBidID: function() {
                     return "getBidID";

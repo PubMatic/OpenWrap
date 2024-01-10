@@ -229,7 +229,9 @@ function removeDMTargetingFromSlot(key) { // TDD, i/o : done
             targetingMap[key] = currentGoogleSlot.getTargeting(key);
         });
         // now clear all targetings
-        currentGoogleSlot.clearTargeting();
+        if(CONFIG.shouldClearTargeting()){
+            currentGoogleSlot.clearTargeting();
+        }
         // now set all settings from backup
         util.forEachOnObject(targetingMap, function(key, value) {
             if (!util.isOwnProperty(refThis.wrapperTargetingKeys, key)) {
@@ -322,6 +324,10 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
             // adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
             refThis.defineWrapperTargetingKey(key);
         }
+    });
+    util.forEachOnObject(util.getCDSTargetingData(), function(key, value) {
+        window.googletag &&
+        window.googletag.pubads().setTargeting(key, value);
     });
 }
 
