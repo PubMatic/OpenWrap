@@ -446,6 +446,15 @@ describe("CONTROLLER: CUSTOM", function() {
 	});
 
 	describe("#customServerExposedAPI", function () {
+		beforeEach(function(done) {
+            window.owpbjs = {...window.owpbjs, ...{
+                getConfig: function(){
+                    return {};
+                }
+            }};
+			done();
+		});
+
 		it("is a function", function(done) {
 			CUSTOM.customServerExposedAPI.should.be.a("function");
 			done();
@@ -471,7 +480,7 @@ describe("CONTROLLER: CUSTOM", function() {
 		});
 
 		it("it should call addpter-manager", function(done){
-			sinon.stub(PREBID, 'fetchBids', function(){});
+			sinon.stub(PREBID, "fetchBids", function(){});
 			sinon.stub(CONFIG, "getTimeout");
 			CONFIG.getTimeout.returns(10);
 			var flag = false;
@@ -499,7 +508,7 @@ describe("CONTROLLER: CUSTOM", function() {
 
 		it("should call the callback postimeout if allBid status is false ecverytime",function(done){
 			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
-			sinon.stub(PREBID, 'fetchBids', function(){});
+			sinon.stub(PREBID, "fetchBids", function(){});
 			sinon.stub(CONFIG, "getTimeout");
 			CONFIG.getTimeout.returns(10);
 			BM.getAllPartnersBidStatuses.restore();
@@ -528,7 +537,7 @@ describe("CONTROLLER: CUSTOM", function() {
 		// Uncomment below test case when change from Phantom to ChromeHeadless
 		xit("should not call the callback before timeout if allBid status is false ecverytime",function(done){
 			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
-			sinon.stub(PREBID, 'fetchBids', function(){});
+			sinon.stub(PREBID, "fetchBids", function(){});
 			sinon.stub(CONFIG, "getTimeout");
 			CONFIG.getTimeout.returns(60);
 			BM.getAllPartnersBidStatuses.restore();
@@ -659,6 +668,15 @@ describe("CONTROLLER: CUSTOM", function() {
 	});
 
 	describe("#addKeyValuePairsToGPTSlots", function () {
+		beforeEach(function(done) {
+            window.owpbjs = {...window.owpbjs, ...{
+                getConfig: function(){
+                    return {};
+                }
+            }};
+			done();
+		});
+
 		it("is a function", function(done) {
 			CUSTOM.addKeyValuePairsToGPTSlots.should.be.a("function");
 			done();
@@ -771,14 +789,10 @@ describe("CONTROLLER: CUSTOM", function() {
 	});
 
 	describe("#removeKeyValuePairsFromGPTSlots", function () {
-		it("is a function", function(done) {
-			CUSTOM.removeKeyValuePairsFromGPTSlots.should.be.a("function");
-			done();
-		});
-
-		it("remove the wrappre targetings", function(done){
-
-			var currentGoogleSlotStub_1 = {
+		var currentGoogleSlotStub_1,currentGoogleSlotStub_2;
+		beforeEach(function(done) {
+            
+			currentGoogleSlotStub_1 = {
 				keyValuePairs: {
 					"k1": "v1",
 					"k2": "v2",
@@ -809,7 +823,7 @@ describe("CONTROLLER: CUSTOM", function() {
 				}
 			};
 
-			var currentGoogleSlotStub_2 = {
+			currentGoogleSlotStub_2 = {
 				keyValuePairs: {
 					"k11": "v11",
 					"k22": "v22",
@@ -843,6 +857,30 @@ describe("CONTROLLER: CUSTOM", function() {
 					return "setSizes";
 				}
 			};
+			done();
+		});
+		
+		afterEach(function(done) {
+			done();
+		});
+
+		it("is a function", function(done) {
+			CUSTOM.removeKeyValuePairsFromGPTSlots.should.be.a("function");
+			done();
+		});
+
+		it("not remove the wrapper targetings when shouldClearTargeting is false", function(done){
+			window.PWT.shouldClearTargeting = false;
+			(currentGoogleSlotStub_1.keyValuePairs["pwtsid"] === "1234").should.equal(true);
+			(currentGoogleSlotStub_2.keyValuePairs["pwtsid"] === "9876").should.equal(true);
+			CUSTOM.removeKeyValuePairsFromGPTSlots([currentGoogleSlotStub_1, currentGoogleSlotStub_2]);
+			(currentGoogleSlotStub_1.keyValuePairs["pwtsid"] === "1234").should.equal(true);
+			(currentGoogleSlotStub_2.keyValuePairs["pwtsid"] === "9876").should.equal(true);
+			done();
+		});
+
+		it("remove the wrapper targetings", function(done){
+			window.PWT.shouldClearTargeting = true;
 			(currentGoogleSlotStub_1.keyValuePairs["pwtsid"] === "1234").should.equal(true);
 			(currentGoogleSlotStub_2.keyValuePairs["pwtsid"] === "9876").should.equal(true);
 			CUSTOM.removeKeyValuePairsFromGPTSlots([currentGoogleSlotStub_1, currentGoogleSlotStub_2]);

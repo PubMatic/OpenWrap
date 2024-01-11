@@ -1045,7 +1045,7 @@ function setPrebidConfig(){
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
-		refThis.assignPackagingInventoryConfig(prebidConfig);
+		refThis.readCustDimenData(prebidConfig);
 		// if usePBSAdapter is 1 then add s2sConfig
 		if(CONFIG.usePBSAdapter()) {
 			refThis.gets2sConfig(prebidConfig);
@@ -1189,14 +1189,12 @@ function checkForYahooSSPBidder(prebidConfig){
 
 exports.checkForYahooSSPBidder = checkForYahooSSPBidder;
 
-
-function assignPackagingInventoryConfig(prebidConfig) {
-	prebidConfig["viewabilityScoreGeneration"] = {
-		enabled:  true
-	}
+function readCustDimenData(prebidConfig) {
+	const cdsData = util.isFunction(window.getCustomDimensionsDataFromPublisher) ? window.getCustomDimensionsDataFromPublisher() : null;
+	cdsData && (prebidConfig["cds"] = cdsData.cds);
 }
 
-exports.assignPackagingInventoryConfig = assignPackagingInventoryConfig;
+exports.readCustDimenData = readCustDimenData;
 
 function getPbjsAdServerTargetingConfig(){
 	// Todo: Handle send-all bids feature enabled case
@@ -1306,7 +1304,22 @@ function getPbjsAdServerTargetingConfig(){
         	val: function(bidResponse){ // todo: empty value?
         		return "";
         	}
-        }
+        }, {
+			key: 'pwtacat',
+			val: function(bidResponse){
+				return (bidResponse.meta && bidResponse.meta.primaryCatId) ? bidResponse.meta.primaryCatId : '';
+			}
+		}, {
+			key: 'pwtdsp',
+			val: function(bidResponse){
+				return (bidResponse.meta && bidResponse.meta.networkId) ? bidResponse.meta.networkId : '';
+			}
+		}, {
+			key: 'pwtcrid',
+			val: function(bidResponse){
+				return bidResponse.creativeId  ? bidResponse.creativeId : '';
+			}
+		}
     ];
 }
 
