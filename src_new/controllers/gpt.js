@@ -288,7 +288,7 @@ function defineWrapperTargetingKeys(object) { // TDD, i/o : done
 exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
-function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
+function findWinningBidAndApplyTargeting(divID, parentArgs) { // TDD, i/o : done
     var data; 
 	if (isPrebidPubMaticAnalyticsEnabled){
 		data = prebid.getBid(divID);
@@ -312,7 +312,9 @@ function findWinningBidAndApplyTargeting(divID) { // TDD, i/o : done
     
     // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
     // this hook is not needed in custom controller
-    util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);
+    if(parentArgs && parentArgs[0] == divID){
+        util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);    
+    }
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
         if (!CONFIG.getSendAllBidsStatus() && winningBid && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
@@ -490,10 +492,10 @@ function updateStatusAndCallOriginalFunction_Display(message, theObject, origina
 exports.updateStatusAndCallOriginalFunction_Display = updateStatusAndCallOriginalFunction_Display;
 /* end-test-block */
 
-function findWinningBidIfRequired_Display(key, slot) { // TDD, i/o : done
+function findWinningBidIfRequired_Display(key, slot, parentArgs) { // TDD, i/o : done
     var status = slot.getStatus();
     if (status != CONSTANTS.SLOT_STATUS.DISPLAYED && status != CONSTANTS.SLOT_STATUS.TARGETING_ADDED) {
-        refThis.findWinningBidAndApplyTargeting(key);
+        refThis.findWinningBidAndApplyTargeting(key, parentArgs);
     }
 }
 
@@ -551,7 +553,7 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
             refThis.executeDisplay(CONFIG.getTimeout(), Object.keys(refThis.slotsMap), function() {
                util.forEachOnObject(refThis.slotsMap, function(key, slot) {
-                   refThis.findWinningBidIfRequired_Display(key, slot);
+                   refThis.findWinningBidIfRequired_Display(key, slot, args);
                });
                refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
             });
