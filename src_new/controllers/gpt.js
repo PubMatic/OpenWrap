@@ -308,12 +308,11 @@ function findWinningBidAndApplyTargeting(divID, parentArgs) { // TDD, i/o : done
             refThis.slotsMap[divID].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
             bidManager.setStandardKeys(winningBid, keyValuePairs);
         };
-
     
     // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
     // this hook is not needed in custom controller
-    if(parentArgs && parentArgs[0] == divID){
-        util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);    
+    if(!parentArgs || (parentArgs && parentArgs[0] == divID)) {
+        util.handleHook(CONSTANTS.HOOKS.POST_AUCTION_KEY_VALUES, [keyValuePairs, googleDefinedSlot]);
     }
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
@@ -553,7 +552,7 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
             refThis.executeDisplay(CONFIG.getTimeout(), Object.keys(refThis.slotsMap), function() {
                util.forEachOnObject(refThis.slotsMap, function(key, slot) {
-                   refThis.findWinningBidIfRequired_Display(key, slot, args);
+                   refThis.findWinningBidIfRequired_Display(key, slot, arg);
                });
                refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
             });
