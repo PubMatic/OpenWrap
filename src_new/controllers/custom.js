@@ -449,6 +449,10 @@ function addKeyValuePairsToGPTSlots(arrayOfAdUnits) {
 				util.forEachOnObject(adUnit.bidData.kvp, function(key, value) {
 					googleSlot.setTargeting(key, [value]);
 				});
+				util.forEachOnObject(util.getCDSTargetingData(), function(key, value) {
+					window.googletag &&
+					window.googletag.pubads().setTargeting(key, value);
+				});
 			}			
 		} else {
 			util.error("GPT-Slot not found for divId: " + adUnit.divId);
@@ -470,7 +474,7 @@ function removeKeyValuePairsFromGPTSlots(arrayOfGPTSlots) {
 			});
 		}
 		// now clear all targetings
-		if(util.isFunction(currentGoogleSlot.clearTargeting)){
+		if(util.isFunction(currentGoogleSlot.clearTargeting) && CONFIG.shouldClearTargeting()){
 			currentGoogleSlot.clearTargeting();
 		}
 		// now set all settings from backup

@@ -19,6 +19,7 @@ window.PWT.refURL = window.PWT.refURL || metaInfo.refURL;
 window.PWT.isSafeFrame = window.PWT.isSafeFrame || false;
 window.PWT.safeFrameMessageListenerAdded = window.PWT.safeFrameMessageListenerAdded || false;
 window.PWT.isSyncAuction = window.PWT.isSyncAuction || false;
+window.PWT.shouldClearTargeting = window.PWT.shouldClearTargeting !== undefined ? Boolean(window.PWT.shouldClearTargeting) : true;
 // usingDifferentProfileVersion
 window.PWT.udpv = window.PWT.udpv || util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtv");
 
@@ -144,6 +145,7 @@ window.PWT.UpdateVastWithTracker = function(bid, vast){
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeInStreamRelatedCode)
+
 window.PWT.generateDFPURL= function(adUnit,cust_params){
 	var dfpurl = "";
 	if(!adUnit || !util.isObject(adUnit)) {
@@ -156,6 +158,7 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 	else{
 		util.logWarning("No bid found for given adUnit");
 	}
+	util.getCDSTargetingData(cust_params);
 	var params = {
 		adUnit: adUnit,
 		params: {
