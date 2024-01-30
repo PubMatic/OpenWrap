@@ -882,8 +882,8 @@ exports.assignSchainConfigIfRequired = assignSchainConfigIfRequired;
 function configureBidderAliasesIfAvailable(){
 	if(util.isFunction(window[pbNameSpace].aliasBidder)){
 		CONFIG.forEachBidderAlias(function(alias){
-			window[pbNameSpace].aliasBidder(CONF.alias[alias], alias);
-		})
+			window[pbNameSpace].aliasBidder(CONF.alias[alias] && CONF.alias[alias].name ? CONF.alias[alias].name : CONF.alias[alias], alias, CONF.alias[alias] && CONF.alias[alias].gvlid ? {gvlid:CONF.alias[alias].gvlid}:{});
+		});
 	}
 	else{
 		util.logWarning("PreBid js aliasBidder method is not available");
@@ -1078,7 +1078,7 @@ function gets2sConfig(prebidConfig){
 	var bidderParams = {};
 	var s2sBidders = CONFIG.getServerEnabledAdaptars();
 	for(var key in CONF.alias) {
-		defaultAliases[key] = CONF.alias[key];
+		defaultAliases[key] = CONF.alias[key] && CONF.alias[key].name ? CONF.alias[key].name : CONF.alias[key];
 	}
 	var pubmaticAndAliases = CONFIG.getPubMaticAndAlias(s2sBidders);
 	if(pubmaticAndAliases.length) {
@@ -1175,6 +1175,7 @@ function checkForYahooSSPBidder(prebidConfig){
 	
 	if(!isYahooSSP) {
 		for(var bidder in CONF.alias) {
+			bidder = bidder.name ? bidder.name : bidder;
 			if(CONFIG.getAdapterNameForAlias(bidder) == CONSTANTS.YAHOOSSP) {
 				isYahooAlias = true;
 			}
