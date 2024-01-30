@@ -4492,26 +4492,25 @@ describe('UTIL', function() {
             done();
         });
 
-        it('should set requestedAttributesOverrides value as true if value set in config is true', function(done) {
-            params = {"name": "liveIntentId","params.publisherId": "12432415","params.requestedAttributesOverrides": "true"};
+        it('should set requestedAttributesOverrides value correctly as a JSON object', function(done) {
+            params = {"name": "liveIntentId","params.publisherId": "12432415","params.requestedAttributesOverrides": {"uid2":false,"pubmatic":true}};
             var expectedResult = {
                 name: "liveIntentId",
                 "params.publisherId": "12432415",
-                "params.requestedAttributesOverrides": {"uid2": true}
+                "params.requestedAttributesOverrides": {"uid2": false, "pubmatic": true}
             };
             UTIL.applyDataTypeChangesIfApplicable(params);
             params.should.deep.equal(expectedResult);
+            
             done();
         });
 
-        it('should set requestedAttributesOverrides value as false if value set in config is false', function(done) {
-            params = {"name": "liveIntentId","params.publisherId": "12432415","params.requestedAttributesOverrides": "false"};
+        it('should not set requestedAttributesOverrides parameter if its received as blank object in config', function(done) {
+            params = {"name": "liveIntentId","params.publisherId": "12432415"};
             var expectedResult = {
                 name: "liveIntentId",
-                "params.publisherId": "12432415",
-                "params.requestedAttributesOverrides": {"uid2": false}
+                "params.publisherId": "12432415"
             };
-
             UTIL.applyDataTypeChangesIfApplicable(params);
             params.should.deep.equal(expectedResult);
             done();
