@@ -32,10 +32,6 @@ window.PWT.displayCreative = function(theDocument, bidID){
 	util.log("In displayCreative for: " + bidID);
 	if(isPrebidPubMaticAnalyticsEnabled){
 		window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
-	} else {
-		// removeIf(removeLegacyAnalyticsRelatedCode)
-		bidManager.displayCreative(theDocument, bidID);	
-		// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 	}
 };
 
@@ -45,10 +41,6 @@ window.PWT.displayPMPCreative = function(theDocument, values, priorityArray){
 	if(bidID){
 		if(isPrebidPubMaticAnalyticsEnabled){
 			window[CONSTANTS.COMMON.PREBID_NAMESPACE].renderAd(theDocument, bidID);
-		} else {
-			// removeIf(removeLegacyAnalyticsRelatedCode)
-			bidManager.displayCreative(theDocument, bidID);
-			// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 		}
 	}
 };
@@ -138,11 +130,6 @@ window.OWT.notifyExternalBiddingComplete = function(notifyId) {
 	});
 };
 
-// removeIf(removeLegacyAnalyticsRelatedCode)
-window.PWT.UpdateVastWithTracker = function(bid, vast){
-	return util.UpdateVastWithTracker(bid, vast);
-};
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeInStreamRelatedCode)
 

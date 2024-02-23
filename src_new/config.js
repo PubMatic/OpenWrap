@@ -12,15 +12,6 @@ exports.getPublisherId = function () {
 	return util.trim(config.pwt.pubid) || "0";
 };
 
-// removeIf(removeLegacyAnalyticsRelatedCode)
-exports.getMataDataPattern = function(){
-	if(util.isString(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN])){
-		return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.META_DATA_PATTERN];
-	}
-	return null;
-};
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
-
 exports.getSendAllBidsStatus = function () {
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SEND_ALL_BIDS]) || 0;
 };
@@ -62,24 +53,6 @@ exports.isServerSideAdapter = function (adapterID) {
 	return false;
 };
 
-// removeIf(removeLegacyAnalyticsRelatedCode)
-exports.getAdapterMaskBidsStatus = function(adapterID){
-	var adapterConfig = config.adapters;
-	var tempSettings = {
-		'audienceNetwork': 1
-	};
-
-	if (util.isOwnProperty(tempSettings, adapterID)) {
-		return tempSettings[adapterID];
-	}
-
-	if (util.isOwnProperty(adapterConfig[adapterID], CONSTANTS.CONFIG.MASK_BIDS)) {
-		return window.parseInt(adapterConfig[adapterID][CONSTANTS.CONFIG.MASK_BIDS]) || 0;
-	}
-	return 0;
-}
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
-
 // TODO: do we need this feature?
 exports.getBidPassThroughStatus = function(adapterID){
 	var adapterConfig = config.adapters;
@@ -96,18 +69,6 @@ exports.getProfileID = function () {
 exports.getProfileDisplayVersionID = function () {
 	return util.trim(config.pwt[CONSTANTS.CONFIG.PROFILE_VERSION_ID]) || "0";
 };
-
-// removeIf(removeLegacyAnalyticsRelatedCode)
-exports.getAnalyticsPixelURL = function(){
-	return config.pwt[CONSTANTS.CONFIG.LOGGER_URL] || false;
-};
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
-
-// removeIf(removeLegacyAnalyticsRelatedCode)
-exports.getMonetizationPixelURL = function(){
-	return config.pwt[CONSTANTS.CONFIG.TRACKER_URL] || false;
-};
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 exports.forEachAdapter = function (callback) {
 	util.forEachOnObject(config.adapters, callback);
@@ -151,8 +112,7 @@ exports.getOverrideNamespace = function(configKey, defaultName, returnValueInCas
 	} else {
 		return returnValueInCaseMissingNamespace;
 	}
-}
-
+};
 /* start-test-block */
 exports.addPrebidAdapter = addPrebidAdapter;
 /* end-test-block */

@@ -75,21 +75,6 @@ function defineWrapperTargetingKeys(object) {
 exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
-// removeIf(removeLegacyAnalyticsRelatedCode)
-function initSafeFrameListener(theWindow) {
-	if (!theWindow.PWT.safeFrameMessageListenerAdded) {
-		util.addMessageEventListenerForSafeFrame(theWindow);
-		theWindow.PWT.safeFrameMessageListenerAdded = true;
-	}
-}
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
-
-// removeIf(removeLegacyAnalyticsRelatedCode)
-/* start-test-block */
-exports.initSafeFrameListener = initSafeFrameListener;
-/* end-test-block */
-// endRemoveIf(removeLegacyAnalyticsRelatedCode)
-
 function validateAdUnitObject(anAdUnitObject) {
 	if (!util.isObject(anAdUnitObject)) {
 		util.logError("An AdUnitObject should be an object", anAdUnitObject);
@@ -169,21 +154,10 @@ function findWinningBidAndGenerateTargeting(divId) {
 	if(isPrebidPubMaticAnalyticsEnabled === true){
 		data = prebid.getBid(divId);
 		//todo: we might need to change some proprty names in wb (from PBJS)
-	} else {
-		// removeIf(removeLegacyAnalyticsRelatedCode)
-		data = bidManager.getBid(divId);
-		// endRemoveIf(removeLegacyAnalyticsRelatedCode)
-	}
+	} 
 	var winningBid = data.wb || null;
 	var keyValuePairs = data.kvp || null;
 	var ignoreTheseKeys = !usePrebidKeys ? CONSTANTS.IGNORE_PREBID_KEYS : {};
-
-	// removeIf(removeLegacyAnalyticsRelatedCode)
-	/* istanbul ignore else*/
-	if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {		
-		bidManager.setStandardKeys(winningBid, keyValuePairs);		
-	}
-	// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 	// attaching keyValuePairs from adapters
 	util.forEachOnObject(keyValuePairs, function(key) {
@@ -271,14 +245,6 @@ function origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction){
 		if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || Date.now() >= posTimeoutTime) {
 
 			clearInterval(intervalId);
-			// removeIf(removeLegacyAnalyticsRelatedCode)
-			if(isPrebidPubMaticAnalyticsEnabled === false){
-				// after some time call fire the analytics pixel
-				setTimeout(function() {
-					bidManager.executeAnalyticsPixel();
-				}, 2000);	
-			}
-			// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 			var winningBids = {}; // object:: { code : response bid or just key value pairs }
 			// we should loop on qualifyingSlotDivIds to avoid confusion if two parallel calls are fired to our PWT.requestBids 
@@ -497,9 +463,6 @@ exports.init = function(win) {
 	if (util.isObject(win)) {
 		refThis.setWindowReference(win);
 
-		// removeIf(removeLegacyAnalyticsRelatedCode)
-		refThis.initSafeFrameListener(win);
-		// endRemoveIf(removeLegacyAnalyticsRelatedCode)
 		prebid.initPbjsConfig();
 		win.PWT.requestBids = refThis.customServerExposedAPI;
 		win.PWT.generateConfForGPT = refThis.generateConfForGPT;
