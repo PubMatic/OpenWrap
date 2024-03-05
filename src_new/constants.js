@@ -46,6 +46,8 @@ exports.COMMON = {
 	"TEST_GROUP_DETAILS": "testConfigDetails",
 	"TEST_PWT": "test_pwt",
 	"PRICE_GRANULARITY" : "priceGranularity",
+	"PRICE_GRANULARITY_CUSTOM" : "custom",
+	"PRICE_GRANULARITY_BUCKETS" : "priceGranularityBuckets",
 	"GRANULARITY_MULTIPLIER" : "granularityMultiplier",
 	"TEST_PARTNER": "test_adapters",
 	"REDUCE_CODE_SIZE": "reduceCodeSize",
@@ -217,6 +219,7 @@ exports.MESSAGES = {
 	"M30": "AB Test Enabled With Config",
 	"M31": "AB Test Enabled With Partner Config",
 	"M32": "Invalid MediaConfig regex pattern : ",
+	"M33": "Price Buckets should be set for custom price granularity",
 	IDENTITY: {
 		M1: "Unable to get User Id from OpenIdentity",
 		M2: "Setting UserIds to EB ",

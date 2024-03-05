@@ -292,7 +292,24 @@ exports.isReduceCodeSizeFeatureEnabled = function(){
 };
 // endRemoveIf(removeAlways)
 exports.getPriceGranularity = function(){
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
+	var priceGranularity = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
+    
+	if (priceGranularity === CONSTANTS.COMMON.PRICE_GRANULARITY_CUSTOM) {
+		var bucketsValue = refThis.getPriceGranularityBuckets();
+		if(bucketsValue !== null) {
+            return bucketsValue;
+        } else {
+            util.logWarning(CONSTANTS.MESSAGES.M33);
+            return null;
+        }
+	} 
+	else {
+		return priceGranularity;
+	}
+};
+
+exports.getPriceGranularityBuckets = function(){
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS] || null;
 };
 
 exports.getGranularityMultiplier = function(){

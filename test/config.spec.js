@@ -2183,11 +2183,13 @@ describe('Config', function() {
     describe('#getPriceGranularity',function(){
         beforeEach(function(done){
             CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY]  = "high";
+            sinon.spy(UTIL, "logWarning");
             done();
         });
 
         afterEach(function(done){
-            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] ;
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY];
+            UTIL.logWarning.restore();
             done();
         })
 
@@ -2205,6 +2207,52 @@ describe('Config', function() {
         it('should return null if priceGranularity is not present',function(done){
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY];
             expect(CONFIG.getPriceGranularity()).to.equal(null);
+            done();
+        });
+
+        it('should return PriceGranularity Buckets if price granularity is custom', function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] = 'custom';
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS] = 'customBuckets';
+
+            expect(CONFIG.getPriceGranularity()).to.equal('customBuckets');
+            done();
+        });
+
+        it('should return null and log warning if Buckets are missing for custom price granularity', function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] = 'custom';
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS]
+            
+            expect(CONFIG.getPriceGranularity()).to.equal(null);
+            UTIL.logWarning.calledWith(CONSTANTS.MESSAGES.M33).should.be.true;
+            done();
+        });
+    });
+
+    describe('#getPriceGranularityBuckets',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS] = "customBuckets";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS];
+            done();
+        })
+
+        it('is a function', function(done) {
+            CONFIG.getPriceGranularityBuckets.should.be.a('function');
+            done();
+        });
+
+        it('should return the buckets by reading from config', function(done) {
+            var expectedResult = 'customBuckets';
+            CONFIG.getPriceGranularityBuckets().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return null if bucket is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS];
+            expect(CONFIG.getPriceGranularityBuckets()).to.equal(null);
             done();
         });
     });
