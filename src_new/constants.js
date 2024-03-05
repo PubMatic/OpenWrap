@@ -163,7 +163,8 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"CACHE_PATH": "pwtcpath",
 	"ACAT": "pwtacat",
 	"CRID": "pwtcrid",
-	"DSP": "pwtdsp"
+	"DSP": "pwtdsp",
+	"PRICE_BUCKET": "pwtpb"
 };
 
 exports.IGNORE_PREBID_KEYS = {
