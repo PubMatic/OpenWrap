@@ -1320,6 +1320,11 @@ function getPbjsAdServerTargetingConfig(){
 			val: function(bidResponse){
 				return bidResponse.creativeId  ? bidResponse.creativeId : '';
 			}
+		}, {
+			key: 'pwtpb',
+			val: function(bidResponse){
+				return bidResponse[CONSTANTS.PRICE_GRANULARITY_KEYS[owpbjs.readConfig('priceGranularity')]] || null;
+			}
 		}
     ];
 }
