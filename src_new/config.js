@@ -308,8 +308,16 @@ exports.getPriceGranularity = function(){
 	}
 };
 
-exports.getPriceGranularityBuckets = function(){
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS] || null;
+exports.getPriceGranularityBuckets = function () {
+	var pgBuckets = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS] || null;
+	if(pgBuckets === null)
+	return null;
+
+	// API would be providing us with ranges as keyword, we need to raplace it by buckets before processing
+	var transformedBuckets = {};
+	delete Object.assign(transformedBuckets, pgBuckets, {['buckets']: pgBuckets['ranges'] })['ranges'];
+  
+	return transformedBuckets;
 };
 
 exports.getGranularityMultiplier = function(){

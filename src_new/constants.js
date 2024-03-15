@@ -47,7 +47,7 @@ exports.COMMON = {
 	"TEST_PWT": "test_pwt",
 	"PRICE_GRANULARITY" : "priceGranularity",
 	"PRICE_GRANULARITY_CUSTOM" : "custom",
-	"PRICE_GRANULARITY_BUCKETS" : "priceGranularityBuckets",
+	"PRICE_GRANULARITY_BUCKETS" : "customPriceGranularityConfig",
 	"GRANULARITY_MULTIPLIER" : "granularityMultiplier",
 	"TEST_PARTNER": "test_adapters",
 	"REDUCE_CODE_SIZE": "reduceCodeSize",
