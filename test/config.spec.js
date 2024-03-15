@@ -2212,9 +2212,9 @@ describe('Config', function() {
 
         it('should return PriceGranularity Buckets if price granularity is custom', function(done){
             CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] = 'custom';
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS] = 'customBuckets';
-
-            expect(CONFIG.getPriceGranularity()).to.equal('customBuckets');
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS] = {'ranges':'customBuckets'};
+            var expectedResult = {'buckets':'customBuckets'};
+            expect(CONFIG.getPriceGranularity()).to.deep.equal(expectedResult);
             done();
         });
 
@@ -2230,7 +2230,7 @@ describe('Config', function() {
 
     describe('#getPriceGranularityBuckets',function(){
         beforeEach(function(done){
-            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS] = "customBuckets";
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS] = {'ranges':'customBuckets'};
             done();
         });
 
@@ -2245,7 +2245,7 @@ describe('Config', function() {
         });
 
         it('should return the buckets by reading from config', function(done) {
-            var expectedResult = 'customBuckets';
+            var expectedResult = {'buckets':'customBuckets'};
             CONFIG.getPriceGranularityBuckets().should.be.deep.equal(expectedResult);
             done();
         });
