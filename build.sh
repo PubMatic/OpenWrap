@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-console.time("--------- STARTED");
+console.time("--------- TIME");
 console.log("running from shell script");
 var shell = require('shelljs');
 var argv = require('yargs').argv;
@@ -105,10 +105,6 @@ if (task == CREATIVE_TASK) {
 			shell.exit(1);
 		}
 
-    if(shell.exec("time gulp update-namespace").code !== 0) {
-      shell.echo('Error: Changing custom namespace failed');
-      shell.exit(1);
-    }
 }
 
-console.timeEnd("--------- STARTED");
+console.timeEnd("--------- TIME");

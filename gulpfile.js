@@ -455,5 +455,5 @@ gulp.task('update-namespace', async function () {
 
 gulp.task('build-gpt-prod');
 
-let tasks = argv.task ? [argv.task, 'bundle-keys'] : ['bundle-keys'];
+let tasks = argv.task ? [argv.task, 'bundle-keys', 'update-namespace'] : ['bundle-keys', 'update-namespace'];
 gulp.task('build-bundle', gulp.series(tasks));
