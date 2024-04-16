@@ -3,16 +3,29 @@ console.time("Loading plugins OW");
 var argv = require('yargs').argv;
 var gulp = require('gulp');
 var replace = require('gulp-replace-task');
-var config = require("./src_new/config.js");
 var eslint = require('gulp-eslint');
+var connect = require('gulp-connect');
+var uglify = require('gulp-uglify');
+var webpack = require('webpack-stream');
+var optimizejs = require('gulp-optimize-js');
+var fsCache = require('gulp-fs-cache');
+var removeCode = require('gulp-remove-code');
+const fs = require('fs');
+
 console.timeEnd("Loading plugins OW");
 var CI_MODE = (argv.mode === 'test-build') ? true : false;
-var isIdentityOnly = config.isIdentityOnly();
 var profileMode = argv.profile;
 console.log("In openwrap gulp.sh profileMode = " + profileMode);
 console.log("argv ==>", argv);
 
 var prebidRepoPath = argv.prebidpath || "../Prebid.js/";
+
+var OWTdestPaths = {
+	IDHUB: "build/dist/ID",
+	DFP: "build/dist/dfp",
+	CUSTOM: "build/dist/custom",
+    AMP: "build/dist/dfp"
+};
 
 gulp.task('update-adserver', async function() {
     console.log("In update-adserver isIdentityOnly = " + isIdentityOnly);
@@ -33,7 +46,7 @@ gulp.task('update-adserver', async function() {
     }
 });
 
-gulp.task('clean', gulp.series('update-adserver', function() {
+gulp.task('clean', gulp.series(function() {
     var clean = require('gulp-clean');
     return gulp.src(['dist/**/*.js', 'build/'], {
             read: false,
@@ -42,7 +55,8 @@ gulp.task('clean', gulp.series('update-adserver', function() {
         .pipe(clean());
 }));
 
-function getRemoveCodeConfig() {
+function getRemoveCodeConfig(isIdentityOnly = false) {
+    var config = require("./src_new/config.js");
     // a controlled way to completely disable this feature
     if(config.isReduceCodeSizeFeatureEnabled() === false){
         return {};    
@@ -101,12 +115,120 @@ gulp.task('webpack', gulp.series('clean', function() {
     ;
 }));
 
+gulp.task('buildDFP', gulp.series(function() {
+    console.log("Executing buildDFP");
+    var _ = require('lodash');
+
+    var jsFsCache = fsCache('.tmp/jscache');
+    var webpackConfig = require('./webpack.config.js')('DFP');
+    var cloned = _.cloneDeep(webpackConfig);
+    cloned.devtool = false;
+
+    return gulp.src('src_new/owt.js', { allowEmpty: true })
+        .pipe(webpack(cloned))
+        .pipe(jsFsCache)
+        .pipe(removeCode(getRemoveCodeConfig()))
+        .pipe(uglify())
+        .pipe(optimizejs())
+        .pipe(jsFsCache.restore)
+        .pipe(gulp.dest(OWTdestPaths.DFP))
+        .pipe(connect.reload())
+    ;
+}));
+
+gulp.task('buildCustom', gulp.series(function() {
+    console.log("Executing buildCustom");
+    var _ = require('lodash');
+
+    var jsFsCache = fsCache('.tmp/jscache');
+    var webpackConfig = require('./webpack.config.js')('CUSTOM');
+    var cloned = _.cloneDeep(webpackConfig);
+    cloned.devtool = false;
+
+    return gulp.src('src_new/owt.js', { allowEmpty: true })
+        .pipe(webpack(cloned))
+        .pipe(jsFsCache)
+        .pipe(removeCode(getRemoveCodeConfig()))
+        .pipe(uglify())
+        .pipe(optimizejs())
+        .pipe(jsFsCache.restore)
+        .pipe(gulp.dest(OWTdestPaths.CUSTOM))
+        .pipe(connect.reload())
+    ;
+}));
+
+gulp.task('buildID', gulp.series(function() {
+    console.log("Executing buildID");
+    var _ = require('lodash');
+
+    var jsFsCache = fsCache('.tmp/jscache');
+    var webpackConfig = require('./webpack.config.js')('IDHUB');
+    var cloned = _.cloneDeep(webpackConfig);
+    cloned.devtool = false;
+
+    return gulp.src('src_new/idhub.js', { allowEmpty: true })
+        .pipe(webpack(cloned))
+        .pipe(jsFsCache)
+        .pipe(removeCode(getRemoveCodeConfig(true)))
+        .pipe(uglify())
+        .pipe(optimizejs())
+        .pipe(jsFsCache.restore)
+        .pipe(gulp.dest(OWTdestPaths.IDHUB))
+        .pipe(connect.reload())
+    ;
+}));
+
+gulp.task('buildOW', gulp.series('clean', 'buildDFP', 'buildCustom', 'buildID'));
+
+gulp.task('replaceMacroWithConfigurations', function() {
+    console.log("Replacing macro with configs");
+    const pwt = fs.readFileSync("src_new/pwt", 'utf8');
+    const testConfigDetails = fs.readFileSync("src_new/testConfigDetails", 'utf8');
+    const testpwt = fs.readFileSync("src_new/testpwt", 'utf8');
+    const adapters = fs.readFileSync("src_new/adapter", 'utf8');
+    const identityPartners = fs.readFileSync("src_new/identityPartners", 'utf8');
+    const slotConfig = fs.readFileSync("src_new/slotConfig", 'utf8');
+
+    console.log("-------- PWT ", pwt);
+    console.log("-------- PWT ", typeof pwt);
+    console.log("-------- PWT ", JSON.parse(pwt));
+
+    const owtPath = OWTdestPaths[argv.adserver || "DFP"];
+    console.log("owtPath ", owtPath);
+    return gulp.src(owtPath + "/owt.js", { "allowEmpty": true })
+    .pipe(replace({
+        patterns: [
+            {match: /"%%REPLACE_PWT%%"/g, replacement: pwt},
+            {match: /"%%REPLACE_TESTCONFIGDETAILS%%"/g, replacement: testConfigDetails},
+            {match: /"%%REPLACE_TEST_PWT%%"/g, replacement: testpwt},
+            {match: /"%%REPLACE_ADAPTERS%%"/g, replacement: adapters},
+            {match: /"%%REPLACE_IDENTITYPARTNERS%%"/g, replacement: identityPartners},
+            {match: /"%%REPLACE_SLOTCONFIG%%"/g, replacement: slotConfig}
+        ]
+    }))
+    .pipe(gulp.dest(owtPath));
+});
+
+gulp.task('replaceConfWithMacro', function() {
+    console.log("Replacing conf with macro");
+    const filePath = "src_new/macro.js";
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    return gulp.src("src_new/conf.js", { "allowEmpty": true })
+    .pipe(replace({
+        patterns: [{
+            match: /\/\*REPLACE_FROM_HERE_WITH_GULP\*\/([\s\S]*?)\/\*REPLACE_TILL_HERE_WITH_GULP\*\//g,
+            replacement: fileContent
+        }]
+    }))
+    .pipe(gulp.dest("src_new"));
+});
+
 // Run below task to create owt.js for creative
 gulp.task('webpack-creative', gulp.series('clean', function() {
     var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
     var webpack = require('webpack-stream');
-    var webpackConfig = require('./webpack.config.js');
+    var webpackConfig = require('./webpack.config.js')();
     var optimizejs = require('gulp-optimize-js');
     webpackConfig.devtool = false;
 
@@ -123,8 +245,10 @@ gulp.task('devpack', gulp.series('clean', function () {
     var connect = require('gulp-connect');
     var webpack = require('webpack-stream');
     var removeCode = require('gulp-remove-code');
+    //TODO read conf adserver and pass it to webpack config
     var webpackConfig = require('./webpack.config.js');
-
+    //TODO assign proper value of identityonly from conf
+    var isIdentityOnly = false;
     webpackConfig.devtool = 'source-map';
 
     return gulp.src(isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js', {"allowEmpty": true})
@@ -256,6 +380,7 @@ gulp.task('bundle', gulp.series('update-adserver', function () {
 }));
 
 gulp.task('bundle-pwt-keys', function() {
+    var config = require("./src_new/config.js");
     if(config.isUsePrebidKeysEnabled() === false && config.isPrebidPubMaticAnalyticsEnabled() === true){
         console.log("We need to use PWT keys, so changing targeting keys in PrebidJS config");
         return gulp.src('./build/owt.min.js', { "allowEmpty": true })
@@ -313,6 +438,7 @@ gulp.task('bundle-pwt-keys', function() {
 });
 
 gulp.task('bundle-native-keys', function() {
+    var config = require("./src_new/config.js");
     if(config.isUsePrebidKeysEnabled() === true) {
         console.log("We need to use Prebid keys for Native, so changing targeting keys in PrebidJS config");
         return gulp.src('./build/owt.min.js', { "allowEmpty": true })
@@ -392,7 +518,7 @@ gulp.task('bundle-creative', function () {
 
 
 // Task to build non-minified version of owt.js
-gulp.task('devbundle', gulp.series('devpack', function () {
+gulp.task('devbundle', gulp.series('devpack', function (isIdentityOnly = false) {
     console.log("Executing Dev Build");
     var concat = require('gulp-concat');
     //var prebidFileName = isIdentityOnly ? '/build/dev/prebidIdhub.js' : '/build/dev/prebid.js';
@@ -414,6 +540,15 @@ gulp.task('bundle-prod', gulp.series('webpack', function () {
         .pipe(gulp.dest('build'));
 }));
 
+gulp.task('mybundle-prod', gulp.series(function (isIdentityOnly = false) {
+    console.log("Executing bundling");
+    var concat = require('gulp-concat');
+    var prebidFileName = '/build/dist/prebid.js';
+    var footerFileName = isIdentityOnly ? './src_new/ih_footer.js' : './src_new/ow_footer.js';
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/custom/owt.js', footerFileName], { allowEmpty: true })
+        .pipe(concat('owt.min.js'))
+        .pipe(gulp.dest('build'));
+}));
 
 function addPattern(patterns, match, replacement) {
     if (replacement) {
@@ -425,6 +560,7 @@ function addPattern(patterns, match, replacement) {
 }
 
 function getPatternsToReplace() {
+    var config = require("./src_new/config.js");
     const { COMMON, CONFIG } = require('./src_new/constants.js');
     var patterns = [];
     if (isIdentityOnly) {
