@@ -234,6 +234,10 @@ exports.addHookOnFunction = function (theObject, useProto, functionName, newFunc
 
 exports.getUserIdConfiguration = function () {
 	var userIdConfs = [];
+	if (window._liModuleEnabled === false) {
+		refThis.logWarning("Removing Liveintent module from identity profile.");
+		CONSTANTS.EXCLUDE_PARTNER_LIST.push("liveIntentId");
+	}
 	window[pbNameSpace].onSSOLogin({});
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(), function (parterId, partnerValues) {
 		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
