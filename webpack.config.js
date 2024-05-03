@@ -4,7 +4,7 @@ var path = require('path');
 var argv = require('yargs').argv;
 
 var controllerPaths = {
-	IDHUB: "./controllers/idhub.js",
+	IDHUB: "./controllers/gpt.js",
 	DFP: "./controllers/gpt.js",
 	CUSTOM: "./controllers/custom.js"
 };

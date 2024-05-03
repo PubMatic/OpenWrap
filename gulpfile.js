@@ -15,6 +15,16 @@ const fs = require('fs');
 console.timeEnd("Loading plugins OW");
 var CI_MODE = (argv.mode === 'test-build') ? true : false;
 var profileMode = argv.profile;
+var isIdentityOnly = argv.isIdentityOnly || false;
+var adserver = argv.adserver || 'DFP';
+var isUsePrebidKeysEnabled = argv.isUsePrebidKeysEnabled || false;
+var pbGlobalVarNamespace = argv.pbGlobalVarNamespace;
+var owGlobalVarNamespace = argv.owGlobalVarNamespace;
+var reduceCodeSize = argv.reduceCodeSize || undefined;
+console.log("In openwrap gulp.sh adserver = " + adserver + " isIdentityOnly = " +
+    isIdentityOnly + " isUsePrebidKeysEnabled = " + isUsePrebidKeysEnabled +
+    " pbGlobalVarNamespace = " + pbGlobalVarNamespace + " owGlobalVarNamespace = " +
+    owGlobalVarNamespace);
 console.log("In openwrap gulp.sh profileMode = " + profileMode);
 console.log("argv ==>", argv);
 
@@ -46,7 +56,7 @@ gulp.task('update-adserver', async function() {
     }
 });
 
-gulp.task('clean', gulp.series(function() {
+gulp.task('clean', gulp.series('update-adserver', function() {
     var clean = require('gulp-clean');
     return gulp.src(['dist/**/*.js', 'build/'], {
             read: false,
@@ -55,10 +65,12 @@ gulp.task('clean', gulp.series(function() {
         .pipe(clean());
 }));
 
-function getRemoveCodeConfig(isIdentityOnly = false) {
-    var config = require("./src_new/config.js");
+// TODO check if this works or not
+function getRemoveCodeConfig() {
+    // var config = require("./src_new/config.js");
     // a controlled way to completely disable this feature
-    if(config.isReduceCodeSizeFeatureEnabled() === false){
+    if(reduceCodeSize == 1) {
+    // if(config.isReduceCodeSizeFeatureEnabled() === false){
         return {};    
     }
 
@@ -180,55 +192,55 @@ gulp.task('buildID', gulp.series(function() {
 
 gulp.task('buildOW', gulp.series('clean', 'buildDFP', 'buildCustom', 'buildID'));
 
-gulp.task('replaceMacroWithConfigurations', function() {
-    console.log("Replacing macro with configs");
-    const pwt = fs.readFileSync("src_new/pwt", 'utf8');
-    const testConfigDetails = fs.readFileSync("src_new/testConfigDetails", 'utf8');
-    const testpwt = fs.readFileSync("src_new/testpwt", 'utf8');
-    const adapters = fs.readFileSync("src_new/adapter", 'utf8');
-    const identityPartners = fs.readFileSync("src_new/identityPartners", 'utf8');
-    const slotConfig = fs.readFileSync("src_new/slotConfig", 'utf8');
+// gulp.task('replaceMacroWithConfigurations', function() {
+//     console.log("Replacing macro with configs");
+//     const pwt = fs.readFileSync("src_new/pwt", 'utf8');
+//     const testConfigDetails = fs.readFileSync("src_new/testConfigDetails", 'utf8');
+//     const testpwt = fs.readFileSync("src_new/testpwt", 'utf8');
+//     const adapters = fs.readFileSync("src_new/adapter", 'utf8');
+//     const identityPartners = fs.readFileSync("src_new/identityPartners", 'utf8');
+//     const slotConfig = fs.readFileSync("src_new/slotConfig", 'utf8');
 
-    console.log("-------- PWT ", pwt);
-    console.log("-------- PWT ", typeof pwt);
-    console.log("-------- PWT ", JSON.parse(pwt));
+//     console.log("-------- PWT ", pwt);
+//     console.log("-------- PWT ", typeof pwt);
+//     console.log("-------- PWT ", JSON.parse(pwt));
 
-    const owtPath = OWTdestPaths[argv.adserver || "DFP"];
-    console.log("owtPath ", owtPath);
-    return gulp.src(owtPath + "/owt.js", { "allowEmpty": true })
-    .pipe(replace({
-        patterns: [
-            {match: /"%%REPLACE_PWT%%"/g, replacement: pwt},
-            {match: /"%%REPLACE_TESTCONFIGDETAILS%%"/g, replacement: testConfigDetails},
-            {match: /"%%REPLACE_TEST_PWT%%"/g, replacement: testpwt},
-            {match: /"%%REPLACE_ADAPTERS%%"/g, replacement: adapters},
-            {match: /"%%REPLACE_IDENTITYPARTNERS%%"/g, replacement: identityPartners},
-            {match: /"%%REPLACE_SLOTCONFIG%%"/g, replacement: slotConfig}
-        ]
-    }))
-    .pipe(gulp.dest(owtPath));
-});
+//     const owtPath = OWTdestPaths[argv.adserver || "DFP"];
+//     console.log("owtPath ", owtPath);
+//     return gulp.src(owtPath + "/owt.js", { "allowEmpty": true })
+//     .pipe(replace({
+//         patterns: [
+//             {match: /"%%REPLACE_PWT%%"/g, replacement: pwt},
+//             {match: /"%%REPLACE_TESTCONFIGDETAILS%%"/g, replacement: testConfigDetails},
+//             {match: /"%%REPLACE_TEST_PWT%%"/g, replacement: testpwt},
+//             {match: /"%%REPLACE_ADAPTERS%%"/g, replacement: adapters},
+//             {match: /"%%REPLACE_IDENTITYPARTNERS%%"/g, replacement: identityPartners},
+//             {match: /"%%REPLACE_SLOTCONFIG%%"/g, replacement: slotConfig}
+//         ]
+//     }))
+//     .pipe(gulp.dest(owtPath));
+// });
 
-gulp.task('replaceConfWithMacro', function() {
-    console.log("Replacing conf with macro");
-    const filePath = "src_new/macro.js";
-    const fileContent = fs.readFileSync(filePath, 'utf8');
-    return gulp.src("src_new/conf.js", { "allowEmpty": true })
-    .pipe(replace({
-        patterns: [{
-            match: /\/\*REPLACE_FROM_HERE_WITH_GULP\*\/([\s\S]*?)\/\*REPLACE_TILL_HERE_WITH_GULP\*\//g,
-            replacement: fileContent
-        }]
-    }))
-    .pipe(gulp.dest("src_new"));
-});
+// gulp.task('replaceConfWithMacro', function() {
+//     console.log("Replacing conf with macro");
+//     const filePath = "src_new/macro.js";
+//     const fileContent = fs.readFileSync(filePath, 'utf8');
+//     return gulp.src("src_new/conf.js", { "allowEmpty": true })
+//     .pipe(replace({
+//         patterns: [{
+//             match: /\/\*REPLACE_FROM_HERE_WITH_GULP\*\/([\s\S]*?)\/\*REPLACE_TILL_HERE_WITH_GULP\*\//g,
+//             replacement: fileContent
+//         }]
+//     }))
+//     .pipe(gulp.dest("src_new"));
+// });
 
 // Run below task to create owt.js for creative
 gulp.task('webpack-creative', gulp.series('clean', function() {
     var connect = require('gulp-connect');
     var uglify = require('gulp-uglify');
     var webpack = require('webpack-stream');
-    var webpackConfig = require('./webpack.config.js')();
+    var webpackConfig = require('./webpack.config.js')(adserver);
     var optimizejs = require('gulp-optimize-js');
     webpackConfig.devtool = false;
 
@@ -245,10 +257,7 @@ gulp.task('devpack', gulp.series('clean', function () {
     var connect = require('gulp-connect');
     var webpack = require('webpack-stream');
     var removeCode = require('gulp-remove-code');
-    //TODO read conf adserver and pass it to webpack config
-    var webpackConfig = require('./webpack.config.js');
-    //TODO assign proper value of identityonly from conf
-    var isIdentityOnly = false;
+    var webpackConfig = require('./webpack.config.js')(adserver);
     webpackConfig.devtool = 'source-map';
 
     return gulp.src(isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js', {"allowEmpty": true})
@@ -380,8 +389,7 @@ gulp.task('bundle', gulp.series('update-adserver', function () {
 }));
 
 gulp.task('bundle-pwt-keys', function() {
-    var config = require("./src_new/config.js");
-    if(config.isUsePrebidKeysEnabled() === false && config.isPrebidPubMaticAnalyticsEnabled() === true){
+    if(isUsePrebidKeysEnabled === false){
         console.log("We need to use PWT keys, so changing targeting keys in PrebidJS config");
         return gulp.src('./build/owt.min.js', { "allowEmpty": true })
             .pipe(replace({
@@ -438,8 +446,7 @@ gulp.task('bundle-pwt-keys', function() {
 });
 
 gulp.task('bundle-native-keys', function() {
-    var config = require("./src_new/config.js");
-    if(config.isUsePrebidKeysEnabled() === true) {
+    if(isUsePrebidKeysEnabled === true) {
         console.log("We need to use Prebid keys for Native, so changing targeting keys in PrebidJS config");
         return gulp.src('./build/owt.min.js', { "allowEmpty": true })
         .pipe(replace({
@@ -518,7 +525,7 @@ gulp.task('bundle-creative', function () {
 
 
 // Task to build non-minified version of owt.js
-gulp.task('devbundle', gulp.series('devpack', function (isIdentityOnly = false) {
+gulp.task('devbundle', gulp.series('devpack', function () {
     console.log("Executing Dev Build");
     var concat = require('gulp-concat');
     //var prebidFileName = isIdentityOnly ? '/build/dev/prebidIdhub.js' : '/build/dev/prebid.js';
@@ -540,12 +547,13 @@ gulp.task('bundle-prod', gulp.series('webpack', function () {
         .pipe(gulp.dest('build'));
 }));
 
-gulp.task('mybundle-prod', gulp.series(function (isIdentityOnly = false) {
+gulp.task('mybundle-prod', gulp.series(function () {
     console.log("Executing bundling");
     var concat = require('gulp-concat');
     var prebidFileName = '/build/dist/prebid.js';
     var footerFileName = isIdentityOnly ? './src_new/ih_footer.js' : './src_new/ow_footer.js';
-    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/custom/owt.js', footerFileName], { allowEmpty: true })
+    var srcFile = OWTdestPaths[adserver] + '/owt.js';
+    return gulp.src([prebidRepoPath + prebidFileName, srcFile, footerFileName], { allowEmpty: true })
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 }));
@@ -559,17 +567,17 @@ function addPattern(patterns, match, replacement) {
     }
 }
 
-function getPatternsToReplace() {
+function getPatternsToReplace(isIdentityOnly = true) {
     var config = require("./src_new/config.js");
-    const { COMMON, CONFIG } = require('./src_new/constants.js');
+    const { COMMON } = require('./src_new/constants.js');
     var patterns = [];
     if (isIdentityOnly) {
-        addPattern(patterns, /ihowpbjs|owpbjs/g, config.getOverrideNamespace(CONFIG.PB_GLOBAL_VAR_NAMESPACE, COMMON.IH_NAMESPACE, COMMON.IH_NAMESPACE));
-        addPattern(patterns, /IHPWT/g, config.getOverrideNamespace(CONFIG.OW_GLOBAL_VAR_NAMESPACE, COMMON.IH_OW_NAMESPACE, null));
+        addPattern(patterns, /ihowpbjs|owpbjs/g, config.getOverrideNamespace(pbGlobalVarNamespace, COMMON.IH_NAMESPACE, COMMON.IH_NAMESPACE));
+        addPattern(patterns, /IHPWT/g, config.getOverrideNamespace(owGlobalVarNamespace, COMMON.IH_OW_NAMESPACE, null));
     } else {
         // Passing null as we don't want to replace the used value(i.e. PWT) with default value(i.e. PWT) as both are same,
-        addPattern(patterns, /owpbjs/g, config.getOverrideNamespace(CONFIG.PB_GLOBAL_VAR_NAMESPACE, COMMON.PREBID_NAMESPACE, null));
-        addPattern(patterns, /PWT/g, config.getOverrideNamespace(CONFIG.OW_GLOBAL_VAR_NAMESPACE, COMMON.OPENWRAP_NAMESPACE, null));
+        addPattern(patterns, /owpbjs/g, config.getOverrideNamespace(pbGlobalVarNamespace, COMMON.PREBID_NAMESPACE, null));
+        addPattern(patterns, /PWT/g, config.getOverrideNamespace(owGlobalVarNamespace, COMMON.OPENWRAP_NAMESPACE, null));
     }
     return patterns;
 }

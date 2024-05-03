@@ -1,5 +1,7 @@
 var controller = require("./controllers/idhub.js");
 var util = require("./util.idhub.js");
+var CONSTANTS = require("./constants.js");
+var conf = require("./conf.js");
 var metaInfo = util.getMetaInfo(window);
 window.IHPWT = window.IHPWT || {};
 window.IHPWT.bidMap = window.IHPWT.bidMap || {};
@@ -27,4 +29,7 @@ window.IHPWT.deepMerge = function(target,source,key){
 
 window.IHPWT.versionDetails =  util.getOWConfig();
 
-controller.init(window);
+window[CONSTANTS.COMMON.IH_NAMESPACE] &&
+window[CONSTANTS.COMMON.IH_NAMESPACE].getConfig('openWrap',
+	function(config) {conf.setOWConfig(config.openWrap); controller.init(window);}
+);

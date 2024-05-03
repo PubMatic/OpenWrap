@@ -1416,6 +1416,7 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 // removeIf(removeUserIdRelatedCode)
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
+	var pbNameSpace = parseInt(conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY) ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 	window[pbNameSpace].onSSOLogin({});
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
 		if (CONSTANTS.EXCLUDE_PARTNER_LIST.indexOf(parterId) < 0) {
@@ -1819,6 +1820,7 @@ exports.getLiverampParams = function(params) {
 	if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
 		params.params.cssSelectors = params.params.cssSelectors.split(",");
 	}
+	var pbNameSpace = parseInt(conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY) ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var detectionMechanism = params.params.detectionMechanism;
@@ -1866,6 +1868,7 @@ exports.getLiverampParams = function(params) {
 };
 
 exports.getEmailHashes = function(){
+	var pbNameSpace = parseInt(conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY) ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
@@ -1904,6 +1907,7 @@ exports.getPublinkLauncherParams = function(params) {
 	if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
 		params.params.cssSelectors = params.params.cssSelectors.split(",");
 	}
+	var pbNameSpace = parseInt(conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY) ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var detectionMechanism = params.params.detectionMechanism;
@@ -1955,6 +1959,7 @@ exports.initLiveRampAts = function (params) {
 exports.initZeoTapJs = function(params) {
 	function addZeoTapJs() {
 		var n = document, t = window;
+		var pbNameSpace = parseInt(conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY) ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 		var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 		var enableSSO = CONFIG.isSSOEnabled() || false;
 		var userIdentityObject = {};
@@ -2123,7 +2128,7 @@ exports.getGeoInfo = function() {
 	var LOCATION_INFO_VALIDITY =  172800000; // 2 * 24 * 60 * 60 * 1000 - 2 days
 	var geoDetectionURL = 'https://ut.pubmatic.com/geo?pubid=' +
 		conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID];
-
+	var pbNameSpace = parseInt(conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY) ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 	var info = window[pbNameSpace].getDataFromLocalStorage(PREFIX, LOCATION_INFO_VALIDITY);
 	if(info && JSON.parse(info).cc) {	// Got valid data
 		window.PWT.CC = JSON.parse(info);

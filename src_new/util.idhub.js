@@ -14,7 +14,7 @@ var typeFunction = "Function";
 var typeNumber = "Number";
 var toString = Object.prototype.toString;
 var refThis = this;
-var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
+// var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 refThis.idsAppendedToAdUnits = false;
 
 function isA(object, testForType) {
@@ -234,6 +234,7 @@ exports.addHookOnFunction = function (theObject, useProto, functionName, newFunc
 
 exports.getUserIdConfiguration = function () {
 	var userIdConfs = [];
+	var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 	window[pbNameSpace].onSSOLogin({});
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(), function (parterId, partnerValues) {
 		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
@@ -283,6 +284,7 @@ exports.getUserIdParams = function (params) {
 };
 
 exports.getUserIds = function () {
+	var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 	if (refThis.isFunction(window[pbNameSpace].getUserIds)) {
 		return window[pbNameSpace].getUserIds();
 	} else {
@@ -324,6 +326,7 @@ exports.forEachOnArray = function (theArray, callback) {
 };
 
 exports.getUserIdsAsEids = function () {
+	var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 	if (refThis.isFunction(window[pbNameSpace].getUserIdsAsEids)) {
 		return window[pbNameSpace].getUserIdsAsEids();
 	} else {
@@ -358,6 +361,7 @@ exports.getLiverampParams = function(params) {
 	if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
 		params.params.cssSelectors = params.params.cssSelectors.split(",");
 	}
+	var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var detectionMechanism = params.params.detectionMechanism;
@@ -425,6 +429,7 @@ exports.initLiveRampAts = function (params) {
 
 
 exports.getEmailHashes = function(){
+	var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var emailHash = enableSSO && userIdentity.emailHash ? userIdentity.emailHash : userIdentity.pubProvidedEmailHash ? userIdentity.pubProvidedEmailHash : undefined; 
@@ -487,6 +492,7 @@ exports.getPublinkLauncherParams = function(params) {
 	if (params.params.cssSelectors && params.params.cssSelectors.length > 0) {
 		params.params.cssSelectors = params.params.cssSelectors.split(",");
 	}
+	var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 	var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 	var enableSSO = CONFIG.isSSOEnabled() || false;
 	var detectionMechanism = params.params.detectionMechanism;
@@ -520,6 +526,7 @@ exports.getPublinkLauncherParams = function(params) {
 exports.initZeoTapJs = function(params) {
 	function addZeoTapJs() {
 		var n = document, t = window;
+		var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
 		var userIdentity = window[pbNameSpace].getUserIdentities() || {};
 		var enableSSO = CONFIG.isSSOEnabled() || false;
 		var userIdentityObject = {};

@@ -194,4 +194,7 @@ window.PWT.getAdapterNameForAlias = CONFIG.getAdapterNameForAlias;
 
 window.PWT.browserMapping = bidManager.getBrowser();
 
-controller.init(window);
+window[CONSTANTS.COMMON.PREBID_NAMESPACE] &&
+window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig('openWrap',
+	function(config) {conf.setOWConfig(config.openWrap); controller.init(window);}
+);
