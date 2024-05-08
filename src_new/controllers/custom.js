@@ -5,7 +5,7 @@ var bidManager = require("../bidManager.js");
 // var GDPR = require("../gdpr.js");
 var SLOT = require("../slot.js");
 var prebid = require("../adapters/prebid.js");
-var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
+// var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var usePrebidKeys = CONFIG.isUsePrebidKeysEnabled();
 
 //ToDo: add a functionality / API to remove extra added wrpper keys
@@ -166,7 +166,7 @@ exports.getAdSlotSizesArray = getAdSlotSizesArray;
 
 function findWinningBidAndGenerateTargeting(divId) {
 	var data;
-	if(isPrebidPubMaticAnalyticsEnabled === true){
+	if(CONFIG.isPrebidPubMaticAnalyticsEnabled() === true){
 		data = prebid.getBid(divId);
 		//todo: we might need to change some proprty names in wb (from PBJS)
 	} else {
@@ -180,7 +180,7 @@ function findWinningBidAndGenerateTargeting(divId) {
 
 	// removeIf(removeLegacyAnalyticsRelatedCode)
 	/* istanbul ignore else*/
-	if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {		
+	if (CONFIG.isPrebidPubMaticAnalyticsEnabled() === false && winningBid && winningBid.getNetEcpm() > 0) {		
 		bidManager.setStandardKeys(winningBid, keyValuePairs);		
 	}
 	// endRemoveIf(removeLegacyAnalyticsRelatedCode)
@@ -272,7 +272,7 @@ function origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction){
 
 			clearInterval(intervalId);
 			// removeIf(removeLegacyAnalyticsRelatedCode)
-			if(isPrebidPubMaticAnalyticsEnabled === false){
+			if(CONFIG.isPrebidPubMaticAnalyticsEnabled() === false){
 				// after some time call fire the analytics pixel
 				setTimeout(function() {
 					bidManager.executeAnalyticsPixel();

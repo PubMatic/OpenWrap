@@ -6,7 +6,7 @@ var bidManager = require("../bidManager.js");
 var SLOT = require("../slot.js");
 var prebid = require("../adapters/prebid.js");
 var usePrebidKeys = CONFIG.isUsePrebidKeysEnabled();
-var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
+// var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var IdHub = require("../controllers/idhub.js");
 
 var displayHookIsAdded = false;
@@ -290,7 +290,7 @@ exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 
 function findWinningBidAndApplyTargeting(divID, parentArgs) { // TDD, i/o : done
     var data; 
-	if (isPrebidPubMaticAnalyticsEnabled){
+	if (CONFIG.isPrebidPubMaticAnalyticsEnabled()){
 		data = prebid.getBid(divID);
 	} else {
         data = bidManager.getBid(divID);
@@ -304,7 +304,7 @@ function findWinningBidAndApplyTargeting(divID, parentArgs) { // TDD, i/o : done
     util.log(winningBid);
 
     /* istanbul ignore else*/
-        if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {
+        if (CONFIG.isPrebidPubMaticAnalyticsEnabled() === false && winningBid && winningBid.getNetEcpm() > 0) {
             refThis.slotsMap[divID].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
             bidManager.setStandardKeys(winningBid, keyValuePairs);
         };

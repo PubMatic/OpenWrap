@@ -11,7 +11,6 @@ console.log("ARGV ==>", argv);
 
 var prebidTaskName = "";
 var openwrapBuildTaskName = "";
-// var openwrapWebpackTaskName = "";
 var CREATIVE_TASK = "creative";
 var profileMode = "--profile="+(argv.profile == undefined ? "OW" : argv.profile);
 
@@ -30,7 +29,6 @@ if (task == CREATIVE_TASK) {
 			shell.exit(1);
 		}
 } else {
-
 		console.log("Switching To Build Task");
 		if (shell.cd(prebidRepoPath).code !== 0) {
 			shell.echo("Couldnt change the dir to Prebid repo");
@@ -38,7 +36,24 @@ if (task == CREATIVE_TASK) {
 		}
 		if (argv.mode){
 		 switch (argv.mode) {
-			 case "test-build":
+			case "pre-build":
+				console.log("Building OW code");
+				openwrapBuildTaskName = "buildOW";
+				break;
+			case "bundle-prebuilt":
+				console.log("Bundling pre-built OW code");
+				var isIdentityOnly = argv.i;
+				var reduceCodeSize = argv.r;
+				var adserver = argv.s;
+				var isUsePrebidKeysEnabled = argv.k;
+				var pbGlobalVarNamespace = argv.b;
+				var owGlobalVarNamespace = argv.o;
+				prebidTaskName = "bundle --modules=modules.json "+profileMode;
+				openwrapBuildTaskName = "bundle-prebuilt --i " + isIdentityOnly + " --r " +
+					reduceCodeSize + " --s " + adserver + " --k " + isUsePrebidKeysEnabled +
+					" --b " + pbGlobalVarNamespace + " --o " + owGlobalVarNamespace;
+				break;
+			case "test-build":
 				console.log("Executing test-build");
 				prebidTaskName = "build-bundle-dev --modules=modules.json "+profileMode;
 				openwrapBuildTaskName = "devbundle";
@@ -75,7 +90,7 @@ if (task == CREATIVE_TASK) {
 
 
 		console.time("Executing Prebid Build");
-		if(shell.exec("time gulp " + prebidTaskName + " --mode=" + argv.mode).code !== 0) {
+		if((prebidTaskName.length > 0) && shell.exec("time gulp " + prebidTaskName + " --mode=" + argv.mode).code !== 0) {
 			shell.echo('Error: buidlinng of project failed');
 		  	shell.exit(1);
 		}
@@ -105,10 +120,10 @@ if (task == CREATIVE_TASK) {
 			shell.exit(1);
 		}
 
-    if(shell.exec("time gulp update-namespace").code !== 0) {
-      shell.echo('Error: Changing custom namespace failed');
-      shell.exit(1);
-    }
+    	// if(shell.exec("time gulp update-namespace").code !== 0) {
+      	//	shell.echo('Error: Changing custom namespace failed');
+      	//	shell.exit(1);
+    	//  }
 }
 
 console.timeEnd("--------- STARTED");

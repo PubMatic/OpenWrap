@@ -28,7 +28,8 @@ exports.kgpvMap = kgpvMap;
 var refThis = this;
 var onEventAdded = false;
 var onAuctionEndEventAdded = false;
-var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
+// var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
+//TODO: priyanka check this
 var isSingleImpressionSettingEnabled = CONFIG.isSingleImpressionSettingEnabled();
 var defaultAliases = CONSTANTS.DEFAULT_ALIASES;
 
@@ -588,7 +589,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		slotParams[key] = value;
 	});
 	
-	if(isPrebidPubMaticAnalyticsEnabled){
+	if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
 		slotParams["kgpv"] = generatedKey; // TODO : Update this in case of video, change the size to 0x0 
 		slotParams["regexPattern"] = regexPattern;
 	}
@@ -763,7 +764,7 @@ function generatePbConf(adapterID, adapterConfig, activeSlots, adUnits, impressi
 		impressionID,
 		[],
 		activeSlots,
-		isPrebidPubMaticAnalyticsEnabled ? refThis.generatedKeyCallbackForPbAnalytics : refThis.generatedKeyCallback,
+		CONFIG.isPrebidPubMaticAnalyticsEnabled() ? refThis.generatedKeyCallbackForPbAnalytics : refThis.generatedKeyCallback,
 		// refThis.generatedKeyCallback,
 		// serverSideEabled: do not set default bids as we do not want to throttle them at client-side
 		true // !CONFIG.isServerSideAdapter(adapterID)
@@ -893,7 +894,7 @@ function configureBidderAliasesIfAvailable(){
 
 exports.configureBidderAliasesIfAvailable = configureBidderAliasesIfAvailable;
 function enablePrebidPubMaticAnalyticIfRequired(){
-	if(isPrebidPubMaticAnalyticsEnabled && util.isFunction(window[pbNameSpace].enableAnalytics)){
+	if(CONFIG.isPrebidPubMaticAnalyticsEnabled() && util.isFunction(window[pbNameSpace].enableAnalytics)){
 		window[pbNameSpace].enableAnalytics({
 			provider: "pubmatic",
 			options: {
@@ -1029,7 +1030,7 @@ function setPrebidConfig(){
 			prebidConfig["priceGranularity"] = CONFIG.getPriceGranularity();
 		}
 
-		if(isPrebidPubMaticAnalyticsEnabled === true){
+		if(CONFIG.isPrebidPubMaticAnalyticsEnabled() === true){
 			prebidConfig['instreamTracking'] = {
 				enabled: true
 			}
@@ -1327,7 +1328,7 @@ function getPbjsAdServerTargetingConfig(){
 exports.getPbjsAdServerTargetingConfig = getPbjsAdServerTargetingConfig;
 
 function setPbjsBidderSettingsIfRequired(){
-	if(isPrebidPubMaticAnalyticsEnabled === false){
+	if(CONFIG.isPrebidPubMaticAnalyticsEnabled() === false){
 		window[pbNameSpace].bidderSettings = {
 			'standard': {
 				'storageAllowed': CONF.pwt.localStorageAccess === "1" ? true : null
@@ -1460,7 +1461,7 @@ function fetchBids(activeSlots){
 				util.handleHook(CONSTANTS.HOOKS.PREBID_REQUEST_BIDS, [ adUnitsArray ]);
 				
 				// removeIf(removeLegacyAnalyticsRelatedCode)
-				if(isPrebidPubMaticAnalyticsEnabled === false){
+				if(CONFIG.isPrebidPubMaticAnalyticsEnabled() === false){
 					// we do not want this call when we have PrebidAnalytics enabled
 					refThis.addOnBidResponseHandler();
 					refThis.addOnBidRequestHandler();
@@ -1505,7 +1506,7 @@ function getBid(divID){
 		wb: wb,
 		kvp: window[pbNameSpace].getAdserverTargetingForAdUnitCode([divID]) || null
 	};
-	if(isPrebidPubMaticAnalyticsEnabled && outputObj.kvp['pwtdeal'] ){
+	if(CONFIG.isPrebidPubMaticAnalyticsEnabled() && outputObj.kvp['pwtdeal'] ){
 		delete outputObj.kvp['pwtdeal'];// Check for null object && usePrebidAnalyticsAdapter 
 	} 
 	return outputObj;

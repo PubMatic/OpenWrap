@@ -21,7 +21,7 @@ fi
 PLATFORM_DISPLAY="display"
 PLATFORM_AMP="amp"
 echo "$(date) This is Reading Params"
-while getopts ":p:m:t:w:x:" opt; do
+while getopts ":p:m:t:w:x:i:r:s:k:b:o:" opt; do
   case $opt in
     p) prebid_path="$OPTARG"
     ;;
@@ -32,6 +32,18 @@ while getopts ":p:m:t:w:x:" opt; do
     w) task="$OPTARG"
     ;;
     x) profile="$OPTARG"
+    ;;
+    i) isIdentityOnly="$OPTARG"
+    ;;
+		r) reduceCodeSize="$OPTARG"
+    ;;
+    s) adserver="$OPTARG"
+    ;;
+    k) isUsePrebidKeysEnabled="$OPTARG"
+    ;;
+    b) pbGlobalVarNamespace="$OPTARG"
+    ;;
+		o) owGlobalVarNamespace="$OPTARG"
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     ;;
@@ -94,7 +106,8 @@ prebidNpmInstall $prebid_path
 
 if [ "$platform" = "$PLATFORM_DISPLAY" ] || [ -z $platform ]
   then
-   time ./build.sh --prebidpath=$prebid_path --mode=$mode --profile=$profile
+   time ./build.sh --prebidpath=$prebid_path --mode=$mode --profile=$profile  --i=$isIdentityOnly --r=$reduceCodeSize --s=$adserver --k=$isUsePrebidKeysEnabled --b=$pbGlobalVarNamespace --o=$owGlobalVarNamespace
+
 
 elif [ "$platform" = "$PLATFORM_AMP" ]
    then
