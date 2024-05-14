@@ -402,6 +402,7 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 	code = currentSlot.getDivID();
 	sizes = currentSlot.getSizes();
 	adUnitId = currentSlot.getAdUnitID();
+	owAdUnitId = currentSlot.getAdUnitID();
 
 	/* istanbul ignore else */
 	var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
