@@ -331,6 +331,8 @@ exports.TIMEOUT_CONFIG = {
 
 exports.DEFAULT_ALIASES = {
 	adg: "adgeneration",
+	districtm: "appnexus",
+	districtmDMX: "dmx",
 	pubmatic2: "pubmatic"
 }
 exports.YAHOOSSP = "yahoossp";

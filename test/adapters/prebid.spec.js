@@ -1803,6 +1803,8 @@ describe('ADAPTER: Prebid', function() {
 		var expectedResult = {};
 		var defaultAliases = {
 			adg: "adgeneration",
+            districtm: "appnexus",
+			districtmDMX: "dmx",
 			pubmatic2: "pubmatic"
 		};
 		for(var key in CONF.alias) {
