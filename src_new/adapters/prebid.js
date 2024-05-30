@@ -1017,7 +1017,7 @@ function setPrebidConfig(){
 				url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH,
 				ignoreBidderCacheKey: true
 			},
-			bidderSequence: "random",					
+			bidderSequence: "fixed",					
 			disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
 			enableSendAllBids: CONFIG.getSendAllBidsStatus(),
 			targetingControls: {
