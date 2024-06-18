@@ -59,8 +59,7 @@ function prebidNpmInstall() {
   cd $1
 
 
-  PrebidJSNodeModules="${GLOBAL_PREBID_PKG_JSON_DIR_V8_50_0}/node_modules/"
-
+PrebidJSNodeModules="${GLOBAL_PREBID_PKG_JSON_DIR_V8_50_0}/node_modules/"
 
   symLinkForPrebidNodeModules=node_modules
   if [ -L $symLinkForPrebidNodeModules ]; then
