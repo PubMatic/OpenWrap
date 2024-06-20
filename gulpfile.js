@@ -250,7 +250,7 @@ gulp.task('change-prebid-keys', () => {
     // todo: add gulp-json-editor entry in package.json and in backend build job?
     var prebidConstantsPath = prebidRepoPath + '/src';
     var jeditor = require("gulp-json-editor");
-    return gulp.src(prebidConstantsPath + '/constants.json')
+    return gulp.src(prebidConstantsPath + '/constants.js')
         .pipe(jeditor(function(json) {
             json.TARGETING_KEYS.BIDDER = "pwtpid"; // hb_bidder
             json.TARGETING_KEYS.AD_ID = "pwtsid"; // hb_adid

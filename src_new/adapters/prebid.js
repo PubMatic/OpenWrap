@@ -402,7 +402,7 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 	divID = currentSlot.getDivID();
 	code = currentSlot.getDivID();
 	sizes = currentSlot.getSizes();
-	adUnitId = currentSlot.getAdUnitID();
+	owAdUnitId = currentSlot.getAdUnitID();
 
 	/* istanbul ignore else */
 	var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
@@ -417,7 +417,7 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 			code: code,
 			mediaTypes:{} ,
 			sizes: sizes,
-			adUnitId:adUnitId,
+			owAdUnitId: owAdUnitId,
 			bids: [],
 			divID : divID
 		};
