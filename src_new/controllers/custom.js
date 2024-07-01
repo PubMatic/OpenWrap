@@ -342,9 +342,9 @@ exports.customServerExposedAPI = customServerExposedAPI;
 
 function displayAllCreativesWithoutAdServer(adUnitsArray){
 	if(util.isArray(adUnitsArray)){
-		util.forEachOnArray(adUnitsArray,function(au){
-			refThis.displayCreativeWithoutAdServer(au)
-		})
+		util.forEachOnArray(adUnitsArray,function(index,au){
+			refThis.displayCreativeWithoutAdServer(au);
+		});
 	}
 	else{
 		util.logWarning(CONSTANTS.MESSAGES.M33 + " " + adUnitsArray);
