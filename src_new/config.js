@@ -5,7 +5,7 @@ var util = require("./util.js");
 
 var refThis = null;
 refThis = this;
-refThis[CONSTANTS.COMMON.OWVERSION] = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.OWVERSION];
+refThis[CONSTANTS.COMMON.OWVERSION] = "nightly"; //config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.OWVERSION];
 refThis[CONSTANTS.COMMON.PBVERSION] = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBVERSION];
 
 exports.getPublisherId = function () {
