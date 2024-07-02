@@ -420,7 +420,7 @@ gulp.task('update-namespace', async function () {
 gulp.task('bundle-prebuilt', gulp.series(function () {
     console.log("-------- Executing bundling");
     var concat = require('gulp-concat');
-    var prebidFileName = 'build/dist/prebid.js';
+    var prebidFileName = '/build/dist/prebid.js';
     var footerFileName = isIdentityOnly ? './src_new/ih_footer.js' : './src_new/ow_footer.js';
     var srcFile = OWTdestPaths[adserver] + '/owt.js';
     console.log("---------- concatenating " + (prebidRepoPath + prebidFileName) + ", "
