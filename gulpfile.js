@@ -444,13 +444,14 @@ function getPatternsToReplace() {
     const { COMMON } = require('./src_new/constants.js');
     var patterns = [];
     if (isIdentityOnly) {
-        console.log("------------------- GOT IT");
-        addPattern(patterns, /ihowpbjs|owpbjs/g, config.getOverrideNamespace(pbGlobalVarNamespace, COMMON.IH_NAMESPACE, COMMON.IH_NAMESPACE));
-        addPattern(patterns, /IHPWT/g, config.getOverrideNamespace(owGlobalVarNamespace, COMMON.IH_OW_NAMESPACE, null));
+        // In this case we ALWAYS want to replace namespace
+        addPattern(patterns, /ihowpbjs|owpbjs/g, pbGlobalVarNamespace);
+        // In this case we dont want to replace namespace if same as default, hence passing false
+        addPattern(patterns, /IHPWT/g, (owGlobalVarNamespace !== COMMON.IH_OW_NAMESPACE) && owGlobalVarNamespace);
     } else {
-        // Passing null as we don't want to replace the used value(i.e. PWT) with default value(i.e. PWT) as both are same,
-        addPattern(patterns, /owpbjs/g, config.getOverrideNamespace(pbGlobalVarNamespace, COMMON.PREBID_NAMESPACE, null));
-        addPattern(patterns, /PWT/g, config.getOverrideNamespace(owGlobalVarNamespace, COMMON.OPENWRAP_NAMESPACE, null));
+        // In this case we dont want to replace namespace if same as default, hence passing false
+        addPattern(patterns, /owpbjs/g, (pbGlobalVarNamespace !== COMMON.PREBID_NAMESPACE) && pbGlobalVarNamespace);
+        addPattern(patterns, /PWT/g, (owGlobalVarNamespace !== COMMON.OPENWRAP_NAMESPACE) && owGlobalVarNamespace);
     }
     return patterns;
 }
