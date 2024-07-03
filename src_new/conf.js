@@ -4,6 +4,10 @@ exports.test_pwt = undefined;
 exports.adapters = undefined;
 exports.identityPartners = undefined;
 exports.slotConfig = undefined;
+exports.alias = undefined;
+exports.test_adapters = undefined,
+exports.test_identityPartners = undefined;
+
 var refThis = this;
 
 exports.setOWConfig = function(owConfig) {
@@ -17,4 +21,7 @@ exports.setOWConfig = function(owConfig) {
   refThis.adapters = owConfig.adapters;
   refThis.identityPartners = owConfig.identityPartners;
   refThis.slotConfig = owConfig.slotConfig;
+  refThis.alias = owConfig.alias;
+  refThis.test_adapters = owConfig.test_adapters;
+  refThis.test_identityPartners = owConfig.test_identityPartners;
 };
