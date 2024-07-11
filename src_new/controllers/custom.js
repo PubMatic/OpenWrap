@@ -359,12 +359,17 @@ function displayCreativeWithoutAdServer(adUnit){
 	var adDiv = document.getElementById(adUnit.divId);
 	if(adDiv){
 		if(adUnit.bidData.kvp.pwtsid){
+			var oldIframe = document.getElementById("prebid_ads_iframe_" + adUnit.divId);
+			if(oldIframe){
+				oldIframe.remove();
+			}
 			var iframe = document.createElement("iframe");
 			iframe.scrolling = "no";
 			iframe.frameBorder = "0";
 			iframe.marginHeight = "0";
 			iframe.marginHeight = "0";
-			iframe.name = "prebid_ads_iframe_"+adUnit.divId;
+			iframe.name = "prebid_ads_iframe_" + adUnit.divId;
+			iframe.id = "prebid_ads_iframe_" + adUnit.divId;
 			iframe.title = "3rd party ad content";
 			iframe.sandbox.add(
 				"allow-forms",
