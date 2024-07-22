@@ -1,3 +1,4 @@
+import {filters} from './preloader.js';
 var util = require("./util.js");
 var controller = require("%%PATH_TO_CONTROLLER%%");
 var bidManager = require("./bidManager.js");
@@ -6,6 +7,7 @@ var CONFIG = require("./config.js");
 var ucTag = require("prebid-universal-creative");
 var conf = require("./conf.js");
 var metaInfo = util.getMetaInfo(window);
+console.log("###### filters = ", filters);
 window.PWT = window.PWT || {};
 window.PWT.bidMap = window.PWT.bidMap || {};
 window.PWT.bidIdMap = window.PWT.bidIdMap || {};

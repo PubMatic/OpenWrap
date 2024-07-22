@@ -213,6 +213,10 @@ exports.getIdentityPartners = function () {
 	return config[CONSTANTS.COMMON.IDENTITY_PARTNERS];
 };
 
+exports.setIdentityPartners = function (idp) {
+	return config[CONSTANTS.COMMON.IDENTITY_PARTNERS] = idp;
+};
+
 exports.isIdentityOnly = function () {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY);
 };
@@ -461,3 +465,19 @@ exports.getMarketplaceBidders = function(){
 exports.shouldClearTargeting = function () {
 	return window.PWT.shouldClearTargeting !== undefined ? Boolean(window.PWT.shouldClearTargeting) : true;
 };
+
+exports.shouldApplyFilters = function () {
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FILTERS] !== undefined;
+}
+
+exports.getFilters = function () {
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FILTERS];
+}
+
+exports.shouldApplyGeoFilter = function () {
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG['filters']['geoFilter']]);
+}
+
+exports.shouldApplyDomainFilter = function () {
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG['filters']['domainFilter']];
+}

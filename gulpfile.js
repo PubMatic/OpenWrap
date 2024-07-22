@@ -86,6 +86,7 @@ gulp.task('webpack', gulp.series('clean', function() {
     var fsCache = require('gulp-fs-cache');
     var removeCode = require('gulp-remove-code');
     var jsFsCache = fsCache('.tmp/jscache');
+   // var fileName = isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js';
     webpackConfig.devtool = false;
 
     return gulp.src(isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js', { allowEmpty: true })
@@ -244,13 +245,20 @@ gulp.task('change-prebid-keys', () => {
         .pipe(gulp.dest(prebidConstantsPath));
 });
 
+gulp.task('bundle-prebid', function () {
+    console.log("Executing NEW prebid build");
+    //var concat = require('gulp-concat');
+    var prebidFileName = '/build/dist/prebid.js';
+    return gulp.src(prebidRepoPath + prebidFileName, { allowEmpty: true })    
+        .pipe(gulp.dest('build'));
+});
+
 // Task to build minified version of owt.js
 gulp.task('bundle', gulp.series('update-adserver', function () {
-    console.log("Executing build");
+    console.log("Executing NEW build");
     var concat = require('gulp-concat');
     //var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
-    var prebidFileName = '/build/dist/prebid.js';
-    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js'], { allowEmpty: true })    
+    return gulp.src(['./build/dist/owt.js'], { allowEmpty: true })    
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 }));
@@ -403,13 +411,13 @@ gulp.task('devbundle', gulp.series('devpack', function () {
         .pipe(gulp.dest('build'));
 }));
 
-gulp.task('bundle-prod', gulp.series('webpack', function () {
-    console.log("Executing bundling");
+gulp.task('bundle-prod', gulp.series('webpack','bundle-prebid', function () {
+    console.log("Executing NEW bundling");
     var concat = require('gulp-concat');
     //var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
-    var prebidFileName = '/build/dist/prebid.js';
+    //var prebidFileName = '/build/dist/prebid.js';
     var footerFileName = isIdentityOnly ? './src_new/ih_footer.js' : './src_new/ow_footer.js';
-    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js', footerFileName], { allowEmpty: true })
+    return gulp.src(['./build/dist/owt.js', footerFileName], { allowEmpty: true })
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 }));

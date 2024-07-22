@@ -1706,6 +1706,12 @@ exports.getDomainFromURL = function(url){
 	return a.hostname;
 };
 
+exports.getFullDomainFromURL = function(url){
+	var a = window.document.createElement("a");
+	a.href = url;
+	return a.host;
+};
+
 // removeIf(removeLegacyAnalyticsRelatedCode)
 exports.replaceAuctionPrice = function(str, cpm) {
 	if (!str) return;

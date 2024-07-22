@@ -6,7 +6,7 @@ exports.pwt = {
 	pubid: "9999",
 	dataURL: "t.test-domain.com/logger?",
 	winURL: "t.test-domain.com/tracker?",
-	adserver: "CUSTOM",
+	"adserver": "IDHUB",
 	gdpr: "0",
 	cmpApi: "iab",
 	gdprTimeout: "10000",
@@ -14,9 +14,9 @@ exports.pwt = {
 	disableAjaxTimeout: true,
 	adServerCurrency: "INR",
 	singleImpression: "1",
-	identityEnabled: "0",
+	identityEnabled: "1",
 	identityConsumers: "EB,TAM,Prebid",
-	identityOnly: "0",
+	identityOnly: "1",
 	ccpa: "0",
 	ccpaCmpApi: "iab",
 	ccpaTimeout: "10000",
@@ -25,9 +25,22 @@ exports.pwt = {
 	abTestEnabled:"0",
 	pubAnalyticsAdapter: "0",
 	reduceCodeSize:1,
-	pbGlobalVarNamespace: "owpbjs",
-	owGlobalVarNamespace: "PWT",
-	localStorageAccess: "1" // Added new field for allow local storage feature 
+	pbGlobalVarNamespace: "ihowpbjs",
+	owGlobalVarNamespace: "IHPWT",
+	localStorageAccess: "1", // Added new field for allow local storage feature 
+	filters: {
+		domainFilter: {
+			"idpartners": {
+				"127.0.0.1:8081": ["hadronId"]
+			}
+		},
+		geoFilter: {
+			"EU": "1",
+			"US": "2",
+			"ROW": "3"
+		}
+	}
+
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
@@ -46,118 +59,27 @@ exports.adapters = {
 		throttle: "100",
 		publisherId: "156209",
 		kgp: "_W_x_H_@_W_x_H_:_AUI_"
-	},
-	audienceNetwork: {
-		rev_share: "0.0",
-		throttle: "100",
-		kgp: "_DIV_",
-		klm: {
-			"Div_1": {
-				placementId: "8801674"
-			},
-			"Div-2": {
-				placementId: "8801685"
-			}
-		}
-	},
-	sekindoUM: {
-		rev_share: "0.0",
-		throttle: "100",
-		kgp: "_DIV_",
-		klm: {
-			"Div_1": {
-				spaceId: 14071
-			},
-			"Div-2": {
-				spaceId: 14071
-			}
-		}
-	},
-	appnexus: {
-		rev_share: "0.0",
-		throttle: "100",
-		kgp: "_DIV_",
-		klm: {
-			"Div_1": {
-				placementId: "8801674",
-				"video.mimes": "",
-				"video.minduration": ""
-			},
-			"Div-2": {
-				placementId: "8801685"
-			}
-		}
-	},
-	pulsepoint: {
-		cp: "521732",
-		rev_share: "0.0",
-		throttle: "100",
-		kgp: "_DIV_",
-		klm: {
-			"Div_1": {
-				ct: "76835"
-			},
-			"Div-2": {
-				ct: "147007"
-			}
-		}
-	},
-	rubicon: {
-		accountId: "10998",
-		rev_share: "0.0",
-		timeout: "1000",
-		throttle: "100",
-		pt: 0,
-		serverSideEnabled: "0",
-		amp: 0,
-		video: 0,
-		"in-app": 0,
-		kgp_rx: "_AU_@_DIV_@_W_x_H_",
-		klm_rx: [{
-			rx: {
-				DIV: ".*",
-				AU: "^/43743431/DMDemo",
-				SIZE: "728x90"
-			},
-			rx_config: {
-				zoneId: "869224",
-				siteId: "178620",
-				floor: "0"
-			}
-		}]
 	}
 };
 
 exports.identityPartners = {
-	pubCommonId: {
-		name: "pubCommonId",
-		"storage.type": "cookie",
-		"storage.name": "_myPubCommonId",
-		"storage.expires": "1825"
-	},
-	identityLink: {
-		name: "identityLink",
-		"params.pid": "23",
-		"storage.type": "cookie",
-		"params.loadAts": "true", // or false// boolean default is false,
-		"params.placementID": "23",
-		"params.storageType": "localstorage",
-		"params.detectionType": "scrapeAndUrl",
-		"params.urlParameter": "eparam",
-		"params.cssSelectors": ["input[type=text]", "input[type=email]"],
-		"params.logging": "info",
-		"storage.name": "somenamevalue",
-		"storage.expires": "60"
-	},
-	criteo: {
-		name: "criteo",
-	},
-	unifiedId: {
-		name: "unifiedId",
-		"params.url": "https://match.adsrvr.org/track/rid?ttd_pid=PubMatic&fmt=json",
-		"storage.type": "cookie",
-		"storage.name": "_myUnifiedId",
-		"storage.expires": "1825"
+	id5Id: {
+            name: "id5Id",
+            "storage.type": "html5",
+            "storage.expires": "90",
+            "storage.name": "id5id",
+            "storage.refreshInSeconds": "28800",
+            "params.partner": "556",
+            "params.abTesting.enabled": 0,
+            "params.abTesting.controlGroupPct": 0,
+  	    rev_share: "0.0",
+            timeout: 0,
+            throttle: "100",
+            display: 0
+        },
+	hadronId: {
+	    name: "hadronId",
+	    "params.urlArg": "eparam"
 	}
 };
 

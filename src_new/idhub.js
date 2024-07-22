@@ -1,6 +1,8 @@
-var controller = require("./controllers/idhub.js");
+import {filters} from './preloader.js';
+
 var util = require("./util.idhub.js");
 var metaInfo = util.getMetaInfo(window);
+//console.log("###### filters = ", filters);
 window.IHPWT = window.IHPWT || {};
 window.IHPWT.bidMap = window.IHPWT.bidMap || {};
 window.IHPWT.bidIdMap = window.IHPWT.bidIdMap || {};
@@ -26,5 +28,3 @@ window.IHPWT.deepMerge = function(target,source,key){
 };
 
 window.IHPWT.versionDetails =  util.getOWConfig();
-
-controller.init(window);
