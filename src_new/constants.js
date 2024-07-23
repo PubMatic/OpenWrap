@@ -301,7 +301,7 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 			"value": "pubmatic-identity-hub"
 		},
 		{
-			"key": "params.externalModuleUrl",
+		"key": "params.externalModuleUrl",
 			"value": "https://cdn.id5-sync.com/api/1.0/id5PrebidModule.js"
 		}
 	],
