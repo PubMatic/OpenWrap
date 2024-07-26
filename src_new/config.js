@@ -299,7 +299,7 @@ exports.getPriceGranularity = function(){
 		if(bucketsValue !== null) {
             return bucketsValue;
         } else {
-            util.logWarning(CONSTANTS.MESSAGES.M33);
+            util.logWarning(CONSTANTS.MESSAGES.M36);
             return null;
         }
 	} 
