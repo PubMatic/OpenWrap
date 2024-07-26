@@ -2223,7 +2223,7 @@ describe('Config', function() {
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS]
             
             expect(CONFIG.getPriceGranularity()).to.equal(null);
-            UTIL.logWarning.calledWith(CONSTANTS.MESSAGES.M33).should.be.true;
+            UTIL.logWarning.calledWith(CONSTANTS.MESSAGES.M36).should.be.true;
             done();
         });
     });
