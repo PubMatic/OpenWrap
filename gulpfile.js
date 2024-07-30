@@ -411,13 +411,13 @@ gulp.task('devbundle', gulp.series('devpack', function () {
         .pipe(gulp.dest('build'));
 }));
 
-gulp.task('bundle-prod', gulp.series('webpack','bundle-prebid', function () {
+gulp.task('bundle-prod', gulp.series('webpack'/*,'bundle-prebid'*/, function () {
     console.log("Executing NEW bundling");
     var concat = require('gulp-concat');
     //var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
-    //var prebidFileName = '/build/dist/prebid.js';
+    var prebidFileName = '/build/dist/prebid.js';
     var footerFileName = isIdentityOnly ? './src_new/ih_footer.js' : './src_new/ow_footer.js';
-    return gulp.src(['./build/dist/owt.js', footerFileName], { allowEmpty: true })
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js', footerFileName], { allowEmpty: true })
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 }));
