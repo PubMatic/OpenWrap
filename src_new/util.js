@@ -2148,7 +2148,7 @@ exports.getGeoInfoNew = function() {
 	//var geoDetectionURL = 'https://ut.pubmatic.com/geo?pubid=' +
 	//	conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID];
 
-	var geos = ['gdpr','ccpa','gpp','row'];
+	var geos = ['GDPR','CCPA','GPP','ROW', 'CA', 'TX', 'NY', 'FL', 'IL'];
 	var randomValue = geos[Math.floor(Math.random() * geos.length)];
 	return {'geo': randomValue};
 }
