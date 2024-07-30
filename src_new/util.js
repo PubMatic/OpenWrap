@@ -2142,6 +2142,17 @@ exports.getGeoInfo = function() {
 	}
 }
 
+exports.getGeoInfoNew = function() {
+	//var PREFIX = 'UINFO';
+	//var LOCATION_INFO_VALIDITY =  172800000; // 2 * 24 * 60 * 60 * 1000 - 2 days
+	//var geoDetectionURL = 'https://ut.pubmatic.com/geo?pubid=' +
+	//	conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID];
+
+	var geos = ['gdpr','ccpa','gpp','row'];
+	var randomValue = geos[Math.floor(Math.random() * geos.length)];
+	return {'geo': randomValue};
+}
+
 exports.getCDSTargetingData = function(obj) {
 	obj = obj || {};
 	var cdsData = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig('cds');

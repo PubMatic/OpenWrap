@@ -196,4 +196,4 @@ window.PWT.getAdapterNameForAlias = CONFIG.getAdapterNameForAlias;
 
 window.PWT.browserMapping = bidManager.getBrowser();
 
-controller.init(window);
+//controller.init(window);

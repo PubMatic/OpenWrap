@@ -6,8 +6,8 @@ exports.pwt = {
 	pubid: "9999",
 	dataURL: "t.test-domain.com/logger?",
 	winURL: "t.test-domain.com/tracker?",
-	"adserver": "IDHUB",
-	gdpr: "0",
+	adserver: "CUSTOM",
+	gdpr: "1",
 	cmpApi: "iab",
 	gdprTimeout: "10000",
 	awc: "1",
@@ -16,28 +16,32 @@ exports.pwt = {
 	singleImpression: "1",
 	identityEnabled: "1",
 	identityConsumers: "EB,TAM,Prebid",
-	identityOnly: "1",
-	ccpa: "0",
+	identityOnly: "0",
+	ccpa: "1",
 	ccpaCmpApi: "iab",
 	ccpaTimeout: "10000",
+	gpp: "1",
+	gppTimeout: "1000",
 	pbv:"v4.33.0",
 	owv:"v21.4.0",
 	abTestEnabled:"0",
 	pubAnalyticsAdapter: "0",
 	reduceCodeSize:1,
-	pbGlobalVarNamespace: "ihowpbjs",
-	owGlobalVarNamespace: "IHPWT",
+	pbGlobalVarNamespace: "owpbjs",
+	owGlobalVarNamespace: "PWT",
 	localStorageAccess: "1", // Added new field for allow local storage feature 
 	filters: {
 		domainFilter: {
 			"idpartners": {
 				"127.0.0.1:8081": ["hadronId"]
-			}
+			},
+			bidders: {}
 		},
 		geoFilter: {
-			"EU": "1",
-			"US": "2",
-			"ROW": "3"
+			"gdpr": "1",
+			"ccpa": "2",
+			"gpp": "3",
+			"row": "4"
 		}
 	}
 

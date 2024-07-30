@@ -8,8 +8,9 @@
 var util = require("./util.js");
 var CONFIG = require("./config.js");
 
-function applyDomainFilterIfApplicable(filters) {
-    var domainFilters, domain, rules, configIdPartners, i;
+//function applyDomainFilterIfApplicable(filters) {
+    var filters = CONFIG.getFilters();
+    var domainFilters, domain, rules, configIdPartners, i, removeIdPartners = [];
     if (filters.domainFilter) {
         console.log("### applying domain filters");
         domainFilters = filters.domainFilter;
@@ -32,27 +33,48 @@ function applyDomainFilterIfApplicable(filters) {
         }
         CONFIG.setIdentityPartners(configIdPartners);
     }
-}
+    var response = util.getGeoInfoNew();
+    /* if (filters.geoFilter) {
+        console.log("### applying geo filters");
+        
+        switch(response.geo) {
+            case "gdpr":
+                console.log("### applying EU config");
+                CONFIG.removeConsentManagementCcpa();
+                CONFIG.removeConsentManagementGpp();
+                break;    
+            case "ccpa":
+                console.log("### applying US config");
+                CONFIG.removeConsentManagementGdpr();
+                CONFIG.removeConsentManagementGpp();
+                break;
+            default:
+            case "gpp":
+                console.log("### applying ROW config");
+                CONFIG.removeConsentManagementGdpr();
+                CONFIG.removeConsentManagementCcpa();
+                break;
+        }
+    }*/
 
-exports.filters = filters;
-
-function insertPrebidScript(data) {
     var prebidScript, cc, geoKey, controller;
     prebidScript = document.createElement('script');
-    cc = JSON.parse(data) && data.cc || 'ROW';
-    geoKey = filters.geoFilter[cc] || filters.geoFilter.ROW;
+    cc = response.geo || 'row';
+    geoKey = filters.geoFilter[cc];
 
     prebidScript.src = './prebid' + geoKey + '.js';
     prebidScript.type = 'text/javascript';
-
+    var currentScript = document.currentScript;
     currentScript.parentNode.insertBefore(prebidScript, currentScript.nextSibling);
-
+    
     console.log("prebid loaded, initialising IH/OW now");
     setTimeout(function() {
-        controller = require("./controllers/idhub.js");
+        controller = require("./controllers/gpt.js");
         controller.init(window);
-    }, 0);
-}
+    }, 500);
+//}
+
+exports.filters = filters;
 
 
 

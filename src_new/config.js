@@ -217,6 +217,18 @@ exports.setIdentityPartners = function (idp) {
 	return config[CONSTANTS.COMMON.IDENTITY_PARTNERS] = idp;
 };
 
+exports.removeConsentManagementGdpr = function(config) {
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_CONSENT] = "0";
+};
+
+exports.removeConsentManagementCcpa = function(config) {
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CCPA_CONSENT] = "0";
+};
+
+exports.removeConsentManagementGdpr = function(config) {
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CONSENT] = "0";
+};
+
 exports.isIdentityOnly = function () {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY);
 };
