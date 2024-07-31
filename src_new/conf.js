@@ -73,7 +73,8 @@ exports.pwt = {
                 }
             }
         }
-    }
+    },
+		dynamicTimeoutEnabled: "1"
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes

@@ -65,28 +65,31 @@ config.setIdentityPartners(identityPartners);
 config.setAdapters(adapters);
 
 // CONNECTION TYPE CODE STARTS
-var connectionTimeoutMap = {
-    'slow-2g': 1000,
-    '2g': 500,
-    '3g': 250
-};
+if (config.isDynamicTimeoutEnabled()) {
+    console.log('Dynamic timeout is Enabled');
 
-function getConnectionType() {
-    if ('connection' in navigator) {
-        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        const connectionType = connection.effectiveType;
-        return connectionType;
-    } else {
-        console.log('Network Information API is not supported by this browser.');
-        return null;
+    var connectionTimeoutMap = {
+        'slow-2g': 1000,
+        '2g': 500,
+        '3g': 250
+    };
+
+    function getConnectionType() {
+        if ('connection' in navigator) {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            const connectionType = connection.effectiveType;
+            return connectionType;
+        } else {
+            console.log('Network Information API is not supported by this browser.');
+            return null;
+        }
+    }
+    var connectionType = getConnectionType();
+    if (connectionTimeoutMap.hasOwnProperty(connectionType)) {
+        var timeoutToAdd = connectionTimeoutMap[connectionType];
+        var timeout = config.getTimeout() + timeoutToAdd;
+        console.log(`Timeout increased by ${timeoutToAdd} ms due to connection type: ${connectionType} and new timeout is ${timeout}`);
+        config.setTimeout(timeout);
     }
 }
-var connectionType = getConnectionType();
-if (connectionTimeoutMap.hasOwnProperty(connectionType)) {
-    var timeoutToAdd = connectionTimeoutMap[connectionType];
-    var timeout = config.getTimeout() + timeoutToAdd;
-    console.log(`Timeout increased by ${timeoutToAdd} ms due to connection type: ${connectionType} and new timeout is ${timeout}`);
-    config.setTimeout(timeout);
-}
-
 // CONNECTION TYPE CODE ENDS

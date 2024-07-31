@@ -29,6 +29,10 @@ exports.getTimeout = function () {
 	return window.parseInt(config.pwt.t) || 1000;
 };
 
+exports.isDynamicTimeoutEnabled = function () {
+	return window.parseInt(config.pwt.dynamicTimeoutEnabled) || 0;
+}
+
 exports.setTimeout = function (timeout) {
 	config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.TIMEOUT] = timeout;
 };
