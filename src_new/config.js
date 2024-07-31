@@ -213,6 +213,14 @@ exports.getIdentityPartners = function () {
 	return config[CONSTANTS.COMMON.IDENTITY_PARTNERS];
 };
 
+exports.getAdapters = function () {
+	return config[CONSTANTS.CONFIG.ADAPTERS];
+};
+
+exports.setAdapters = function (adapters) {
+	config[CONSTANTS.CONFIG.ADAPTERS] = adapters;
+};
+
 exports.setIdentityPartners = function (idp) {
 	return config[CONSTANTS.COMMON.IDENTITY_PARTNERS] = idp;
 };

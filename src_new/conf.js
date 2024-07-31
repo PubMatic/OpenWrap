@@ -31,20 +31,49 @@ exports.pwt = {
 	owGlobalVarNamespace: "PWT",
 	localStorageAccess: "1", // Added new field for allow local storage feature 
 	filters: {
-		domainFilter: {
-			"idpartners": {
-				"127.0.0.1:8081": ["hadronId"]
-			},
-			bidders: {}
-		},
-		geoFilter: {
-			"gdpr": "1",
-			"ccpa": "2",
-			"gpp": "3",
-			"row": "4"
-		}
-	}
-
+        'idpartners': {
+            'id5Id': {
+                geo: {
+                    allowList: ['CCPA'] // run only in US, block everywhere else
+                }
+            },
+            'merkleId': {
+               geo: {
+                    allowList: ['GDPR'] // run only in EU, block everywhere else
+               }
+            },
+            'zeotapIdPlus': {
+                geo: {
+                    allowList: ['CA', 'TX', 'NY', 'FL', 'IL'] // run only in these country codes, block everywhere else
+                }
+            },
+            'hadronId': {
+                domain: {
+                    blockList: ['127.0.0.1:8081'] // block on this domain
+                } 
+            }
+        },
+        'adapters': {
+            'pubmatic': {
+               geo: {
+                    blockList: ['GDPR']
+               }
+            },
+            'appnexus': {
+                geo: {
+                    allowList: ['CCPA']
+                }
+            },
+            'rubicon': {
+                geo: {
+                    allowList: ['GDPR']
+                },
+                domain: {
+                    blockList: ['127.0.0.1:8081'] // block on this domain
+                }
+            }
+        }
+    }
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
@@ -57,33 +86,94 @@ exports.testConfigDetails = {
 exports.test_pwt = {
 	"t": 5000
 };
-exports.adapters = {
+exports.adapters = 
+{
 	pubmatic: {
 		rev_share: "0.0",
 		throttle: "100",
 		publisherId: "156209",
 		kgp: "_W_x_H_@_W_x_H_:_AUI_"
+	},
+	appnexus: {
+		rev_share: "0.0",
+		throttle: "100",
+		kgp: "_DIV_",
+		klm: {
+			"Div_1": {
+				placementId: "8801674",
+				"video.mimes": "",
+				"video.minduration": ""
+			},
+			"Div-2": {
+				placementId: "8801685"
+			}
+		}
+	},
+	rubicon: {
+		accountId: "10998",
+		rev_share: "0.0",
+		timeout: "1000",
+		throttle: "100",
+		pt: 0,
+		serverSideEnabled: "0",
+		amp: 0,
+		video: 0,
+		"in-app": 0,
+		kgp_rx: "_AU_@_DIV_@_W_x_H_",
+		klm_rx: [{
+			rx: {
+				DIV: ".*",
+				AU: "^/43743431/DMDemo",
+				SIZE: "728x90"
+			},
+			rx_config: {
+				zoneId: "869224",
+				siteId: "178620",
+				floor: "0"
+			}
+		}]
 	}
 };
 
 exports.identityPartners = {
 	id5Id: {
-            name: "id5Id",
-            "storage.type": "html5",
-            "storage.expires": "90",
-            "storage.name": "id5id",
-            "storage.refreshInSeconds": "28800",
-            "params.partner": "556",
-            "params.abTesting.enabled": 0,
-            "params.abTesting.controlGroupPct": 0,
+		name: "id5Id",
+		"storage.type": "html5",
+		"storage.expires": "90",
+		"storage.name": "id5id",
+		"storage.refreshInSeconds": "28800",
+		"params.partner": "556",
+		"params.abTesting.enabled": 0,
+		"params.abTesting.controlGroupPct": 0,
   	    rev_share: "0.0",
-            timeout: 0,
-            throttle: "100",
-            display: 0
-        },
+		timeout: 0,
+		throttle: "100",
+		display: 0
+    },
+    zeotapIdPlus: {
+		name:"zeotapIdPlus",
+		"params.loadIDP":0,
+		partnerId:0,
+		rev_share:"0.0",
+		timeout:0,
+		throttle:"100",
+		display:0
+	},
 	hadronId: {
-	    name: "hadronId",
-	    "params.urlArg": "eparam"
+		name: "hadronId",
+		"params.url": "https://prebid.org/hadron_id/empty",
+		"params.urlArg": 0,
+		"params.partnerId": "1234",
+		display: 0,
+		rev_share: "0.0",
+		throttle: "100"
+	},
+	merkleId: {
+		name:"merkleId",
+		"params.sv_pubid":"5890",
+		"params.ssp_ids":"76,89",
+		"storage.name":"_svsid",
+		"storage.type":"cookie"
 	}
 };
 
