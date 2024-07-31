@@ -14,7 +14,7 @@ var adapters = config.getAdapters();
 
 
 function getGeoInfoNew () {
-	var geos = ['GDPR','CCPA','GPP','ROW', 'CA', 'TX', 'NY', 'FL', 'IL'];
+	var geos = ['GDPR','CCPA','GPP','ROW'];
 	var randomValue = geos[Math.floor(Math.random() * geos.length)];
      console.log("Random geo: " + randomValue);
 	return {'geo': randomValue};
@@ -27,14 +27,14 @@ function shouldDelete(partner, geo, domain, key) {
     if (geo) {
         if ((geo.allowList && !geo.allowList.includes(response.geo))
             || (geo.blockList && geo.blockList.includes(response.geo))) {
-            console.log('Deleting due to allowList mismatch: ', key);
+            console.log('Deleting ' + key + ' due to geo mismatch, AllowList: ' + geo.allowList + ' BlockList: ' + geo.blockList);
             return true;
         }
     }
     if (domain) {
         if ((domain.allowList && !domain.allowList.includes(currentDomain))
-            || (domain.blockList && domain.blockList.includes(currentDomain))) {
-            console.log('Deleting due to domain blockList match: ', key);
+            || (domain.blockList && domain.blockList.includes(currentDomain))) {        
+            console.log('Deleting ' + key + ' due to Domain mismatch, AllowList: ' + domain.allowList + ' BlockList: ' + domain.blockList);
             return true;
         }
         return false;
@@ -46,7 +46,7 @@ for (var key in filters.idpartners) {
     if (shouldDelete(idpartner, idpartner.geo, idpartner.domain, key)) {
         delete identityPartners[key];
     } else {
-        console.log("Allowed: " + key);
+        console.log("Allowed ID Partner: " + key);
     }
 }
 
@@ -55,7 +55,7 @@ for (var key in filters.adapters) {
     if (shouldDelete(adapter, adapter.geo, adapter.domain, key)) {
         delete adapters[key];
     } else {
-        console.log("Allowed: " + key);
+        console.log("Allowed Bidder " + key);
     }
 }
 
@@ -64,7 +64,6 @@ config.setIdentityPartners(identityPartners);
 
 // CONNECTION TYPE CODE STARTS
 if (config.isDynamicTimeoutEnabled()) {
-    console.log('Dynamic timeout is Enabled');
 
     var connectionTimeoutMap = {
         'slow-2g': 1000,
@@ -86,7 +85,7 @@ if (config.isDynamicTimeoutEnabled()) {
     if (connectionTimeoutMap.hasOwnProperty(connectionType)) {
         var timeoutToAdd = connectionTimeoutMap[connectionType];
         var timeout = config.getTimeout() + timeoutToAdd;
-        console.log("Timeout increased by " + timeoutToAdd + " ms due to connection type: " + connectionType +
+        console.log("Dynamic Timeout is Enabled: Timeout increased by " + timeoutToAdd + " ms due to connection type: " + connectionType +
         " and new timeout is " + timeout);
         config.setTimeout(timeout);
     }
@@ -137,6 +136,7 @@ if (config.getAutoMoveBidder()) {
                 if (bidderSettings[key].rc > thresholds.rc
                     && (bidderSettings[key].tc > thresholds.tc || bidderSettings[key].l > thresholds.l)) {
                     if (adapters[key]) {
+                        console.log("Server Side Enabled: Bidder Name: " + key + ":, due to " + bidderSettings);
                         adapters[key].serverSideEnabled = 1;
                     }
                 }
