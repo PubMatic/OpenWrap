@@ -104,7 +104,7 @@ if (config.getAutoMoveBidder()) {
             try {
                 // Parse the data as JSON (if it's a JSON string)
                 const parsedData = JSON.parse(data);
-                console.log("Data for key " + key + ":" + parsedData);
+                console.log("Data for key " + key + ":", parsedData);
                 return parsedData;
             } catch (e) {
                 // If parsing fails, return the raw string data
@@ -133,11 +133,11 @@ if (config.getAutoMoveBidder()) {
                 if(doNotMoveBidders.includes(key)) {
                     continue;
                 }
-                if (bidderSettings[key].rc > thresholds.rc
+                if (bidderSettings[key].rc >= thresholds.rc
                     && (bidderSettings[key].tc > thresholds.tc || bidderSettings[key].l > thresholds.l)) {
                     if (adapters[key]) {
                         console.log("Server Side Enabled: Bidder Name: " + key + ":, due to " + bidderSettings);
-                        adapters[key].serverSideEnabled = 1;
+                        adapters[key].serverSideEnabled = "1";
                     }
                 }
             }
