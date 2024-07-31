@@ -78,7 +78,7 @@ exports.pwt = {
 		 },
 		 'liveIntentId': {
 		   domain: {
-			 blockList: ['localhost'] // block on this domain
+			 blockList: ['127.0.0.1'] // block on this domain
 		   }
 		 }
 	   },
@@ -88,14 +88,14 @@ exports.pwt = {
 			 allowList: ['GDPR']
 		   },
 		   domain: {
-			 blockList: ['localhost'] // block on this domain
+			 blockList: ['127.0.0.1'] // block on this domain
 		   }
 		 }
 	   }
 	 },
 	 dynamicTimeoutEnabled: "1",
 	 autoMoveBidder: "1",
-	 doNotMoveBidders: ["appnexus", "pubmatic"]
+	 doNotMoveBidders: ["appnexus"]
    };
    
    // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes

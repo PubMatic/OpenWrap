@@ -16,7 +16,7 @@ var adapters = config.getAdapters();
 function getGeoInfoNew () {
 	var geos = ['GDPR','CCPA','GPP','ROW'];
 	var randomValue = geos[Math.floor(Math.random() * geos.length)];
-     console.log("Random geo: " + randomValue);
+     console.log("Preloader: Random geo: " + randomValue);
 	return {'geo': randomValue};
 }
 
@@ -27,14 +27,14 @@ function shouldDelete(partner, geo, domain, key) {
     if (geo) {
         if ((geo.allowList && !geo.allowList.includes(response.geo))
             || (geo.blockList && geo.blockList.includes(response.geo))) {
-            console.log('Deleting ' + key + ' due to geo mismatch, AllowList: ' + geo.allowList + ' BlockList: ' + geo.blockList);
+            console.log('Preloader: Deleting ' + key + ' due to geo mismatch, AllowList: ' + geo.allowList + ', BlockList: ' + geo.blockList);
             return true;
         }
     }
     if (domain) {
         if ((domain.allowList && !domain.allowList.includes(currentDomain))
             || (domain.blockList && domain.blockList.includes(currentDomain))) {        
-            console.log('Deleting ' + key + ' due to Domain mismatch, AllowList: ' + domain.allowList + ' BlockList: ' + domain.blockList);
+            console.log('Preloader: Deleting ' + key + ' due to Domain mismatch, AllowList: ' + domain.allowList + ', BlockList: ' + domain.blockList);
             return true;
         }
         return false;
@@ -46,7 +46,7 @@ for (var key in filters.idpartners) {
     if (shouldDelete(idpartner, idpartner.geo, idpartner.domain, key)) {
         delete identityPartners[key];
     } else {
-        console.log("Allowed ID Partner: " + key);
+        console.log("Preloader: Allowed ID Partner: " + key);
     }
 }
 
@@ -55,7 +55,7 @@ for (var key in filters.adapters) {
     if (shouldDelete(adapter, adapter.geo, adapter.domain, key)) {
         delete adapters[key];
     } else {
-        console.log("Allowed Bidder " + key);
+        console.log("Preloader: Allowed Bidder " + key);
     }
 }
 
@@ -77,7 +77,7 @@ if (config.isDynamicTimeoutEnabled()) {
             const connectionType = connection.effectiveType;
             return connectionType;
         } else {
-            console.log('Network Information API is not supported by this browser.');
+            console.log('Preloader: Network Information API is not supported by this browser.');
             return null;
         }
     }
@@ -85,7 +85,7 @@ if (config.isDynamicTimeoutEnabled()) {
     if (connectionTimeoutMap.hasOwnProperty(connectionType)) {
         var timeoutToAdd = connectionTimeoutMap[connectionType];
         var timeout = config.getTimeout() + timeoutToAdd;
-        console.log("Dynamic Timeout is Enabled: Timeout increased by " + timeoutToAdd + " ms due to connection type: " + connectionType +
+        console.log("Preloader: Dynamic Timeout is Enabled: Timeout increased by " + timeoutToAdd + " ms due to connection type: " + connectionType +
         " and new timeout is " + timeout);
         config.setTimeout(timeout);
     }
@@ -104,15 +104,15 @@ if (config.getAutoMoveBidder()) {
             try {
                 // Parse the data as JSON (if it's a JSON string)
                 const parsedData = JSON.parse(data);
-                console.log("Data for key " + key + ":" + parsedData);
+                console.log("Preloader: Data for key " + key + ":", parsedData);
                 return parsedData;
             } catch (e) {
                 // If parsing fails, return the raw string data
-                console.log("Data for key " + key + ":," + data);
+                console.log("Preloader: Data for key " + key + ":,", data);
                 return data;
             }
         } else {
-            console.log("No data found for key " + key);
+            console.log("Preloader: No data found for key " + key);
             return null;
         }
     }
@@ -136,8 +136,9 @@ if (config.getAutoMoveBidder()) {
                 if (bidderSettings[key].rc > thresholds.rc
                     && (bidderSettings[key].tc > thresholds.tc || bidderSettings[key].l > thresholds.l)) {
                     if (adapters[key]) {
-                        console.log("Server Side Enabled: Bidder Name: " + key + ":, due to " + bidderSettings);
+                        console.log("Preloader: Server Side Enabled: Bidder Name: " + key + ":, due to " + bidderSettings);
                         adapters[key].serverSideEnabled = 1;
+                        config.enablePBSAdapter();
                     }
                 }
             }
