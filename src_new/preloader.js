@@ -27,20 +27,20 @@ var currentDomain = window.location.hostname;
 
 function shouldDelete(partner, geo, domain) {
     if (geo) {
-        if (geo.allowList && !geo.allowList.includes(response.geo)) {
-            console.log('Deleting due to allowList mismatch: ',partner);
-            return true;
-        }
-        if (geo.blockList && geo.blockList.includes(response.geo)) {
-            console.log('Deleting due to allowList mismatch: ',partner);
+        if ((geo.allowList && !geo.allowList.includes(response.geo))
+            || (geo.blockList && geo.blockList.includes(response.geo))) {
+            console.log('Deleting due to allowList mismatch: ', partner);
             return true;
         }
     }
-    if (domain && domain.blockList && domain.blockList.includes(currentDomain)) {
-        console.log('Deleting due to domain blockList match: ',partner);
-        return true;
+    if (domain) {
+        if ((domain.allowList && !domain.allowList.includes(currentDomain))
+            || (domain.blockList && domain.blockList.includes(currentDomain))) {
+            console.log('Deleting due to domain blockList match: ', partner);
+            return true;
+        }
+        return false;
     }
-    return false;
 }
 
 for (var key in filters.idpartners) {
