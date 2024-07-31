@@ -12,8 +12,6 @@ var filters = config.getFilters();
 var identityPartners = config.getIdentityPartners();
 var adapters = config.getAdapters();
 
-// CHAT GPT CODE
-
 
 function getGeoInfoNew () {
 	var geos = ['GDPR','CCPA','GPP','ROW', 'CA', 'TX', 'NY', 'FL', 'IL'];
@@ -62,7 +60,7 @@ for (var key in filters.adapters) {
 }
 
 config.setIdentityPartners(identityPartners);
-config.setAdapters(adapters);
+
 
 // CONNECTION TYPE CODE STARTS
 if (config.isDynamicTimeoutEnabled()) {
@@ -93,8 +91,60 @@ if (config.isDynamicTimeoutEnabled()) {
     }
 }
 // CONNECTION TYPE CODE ENDS
-let win = window;
+
+// ServerSideEnabled UPDATE CODE STARTS
+// bidderSettings = {"pubmatic":{"rc":0,"tc":4,"l":10000}}
+if (config.getAutoMoveBidder()) {
+    function readFromLocalStorage(key) {
+        // Retrieve the data from localStorage using the provided key
+        const data = localStorage.getItem(key);
+
+        // Check if data exists for the given key
+        if (data !== null) {
+            try {
+                // Parse the data as JSON (if it's a JSON string)
+                const parsedData = JSON.parse(data);
+                console.log(`Data for key "${key}":`, parsedData);
+                return parsedData;
+            } catch (e) {
+                // If parsing fails, return the raw string data
+                console.log(`Data for key "${key}":`, data);
+                return data;
+            }
+        } else {
+            console.log(`No data found for key "${key}".`);
+            return null;
+        }
+    }
+
+    // Example usage: Read data from localStorage with the key 'userSettings'
+    const userSettings = readFromLocalStorage('bidderSettings');
+
+    if (userSettings) {
+        let thresholds = {
+            rc: 10,
+            tc: 4,
+            l: 10000
+        }
+
+        function filterObjectByValue(userSettings, thresholds) {
+            if (key in userSettings) {
+                if (userSettings[key].rc > thresholds.rc
+                    && (userSettings[key].tc > thresholds.tc || userSettings[key].l > thresholds.l)) {
+                    if (adapters[key]) {
+                        adapters[key].serverSideEnabled = 1;
+                    }
+                }
+            }
+        }
+
+        filterObjectByValue(userSettings, thresholds);
+    }
+}
+// ServerSideEnabled UPDATE CODE ENDS
+
 // CMP FIND CODE STARTS
+let win = window;
 function findCMP(apiName) {
     let f = win;
     let cmpFrame;
@@ -147,3 +197,5 @@ for (var key in cmpAPIs) {
     }
 }
 // CMP FIND CODE ENDS
+
+config.setAdapters(adapters);

@@ -513,3 +513,7 @@ exports.shouldApplyDomainFilter = function () {
 exports.setPwtConfig = function (key, value) {
 	config[CONSTANTS.CONFIG.COMMON][key] = value;
 }
+
+exports.getAutoMoveBidder = function () {
+	return window.parseInt(config[CONSTANTS.CONFIG.COMMON].autoMoveBidder) || 0;
+}
