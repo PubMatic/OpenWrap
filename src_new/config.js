@@ -517,3 +517,7 @@ exports.setPwtConfig = function (key, value) {
 exports.getAutoMoveBidder = function () {
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON].autoMoveBidder) || 0;
 }
+
+exports.getDoNotMoveBidders = function () {
+	return config[CONSTANTS.CONFIG.COMMON].doNotMoveBidders || [];
+}

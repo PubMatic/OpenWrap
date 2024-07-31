@@ -73,9 +73,10 @@ exports.pwt = {
                 }
             }
         }
-    },
-		dynamicTimeoutEnabled: "1",
-		autoMoveBidder: "1"
+  },
+	dynamicTimeoutEnabled: "1",
+	autoMoveBidder: "1",
+	doNotMoveBidders: ["appnexus", "pubmatic"],
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes

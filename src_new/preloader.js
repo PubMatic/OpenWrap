@@ -118,19 +118,23 @@ if (config.getAutoMoveBidder()) {
     }
 
     // Example usage: Read data from localStorage with the key 'userSettings'
-    const userSettings = readFromLocalStorage('bidderSettings');
+    const bidderSettings = readFromLocalStorage('bidderSettings');
 
-    if (userSettings) {
+    if (bidderSettings) {
         let thresholds = {
             rc: 10,
             tc: 4,
             l: 10000
-        }
+        };
+        let doNotMoveBidders = config.getDoNotMoveBidders();
 
-        function filterObjectByValue(userSettings, thresholds) {
-            if (key in userSettings) {
-                if (userSettings[key].rc > thresholds.rc
-                    && (userSettings[key].tc > thresholds.tc || userSettings[key].l > thresholds.l)) {
+        function filterObjectByValue(bidderSettings, thresholds) {
+            for (let key in bidderSettings) {                
+                if(doNotMoveBidders.includes(key)) {
+                    continue;
+                }
+                if (bidderSettings[key].rc > thresholds.rc
+                    && (bidderSettings[key].tc > thresholds.tc || bidderSettings[key].l > thresholds.l)) {
                     if (adapters[key]) {
                         adapters[key].serverSideEnabled = 1;
                     }
@@ -138,7 +142,7 @@ if (config.getAutoMoveBidder()) {
             }
         }
 
-        filterObjectByValue(userSettings, thresholds);
+        filterObjectByValue(bidderSettings, thresholds);
     }
 }
 // ServerSideEnabled UPDATE CODE ENDS
