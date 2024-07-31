@@ -29,6 +29,10 @@ exports.getTimeout = function () {
 	return window.parseInt(config.pwt.t) || 1000;
 };
 
+exports.setTimeout = function (timeout) {
+	config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.TIMEOUT] = timeout;
+};
+
 exports.getDisableAjaxTimeout = function () {
 	var pwt = config.pwt;
 	if (util.isOwnProperty(pwt, CONSTANTS.CONFIG.DISABLE_AJAX_TIMEOUT)) {
