@@ -478,6 +478,10 @@ exports.usePBSAdapter = function() {
 	return false;
 }
 
+exports.enablePBSAdapter = function() {
+	config.pwt.usePBSAdapter = "1";
+}
+
 exports.createMacros = function() {
 	return {
 		"[PLATFORM]": util.getDevicePlatform().toString(),

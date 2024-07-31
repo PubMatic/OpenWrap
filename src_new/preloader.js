@@ -133,7 +133,7 @@ if (config.getAutoMoveBidder()) {
                 if(doNotMoveBidders.includes(key)) {
                     continue;
                 }
-                if (bidderSettings[key].rc > thresholds.rc
+                if (bidderSettings[key].rc >= thresholds.rc
                     && (bidderSettings[key].tc > thresholds.tc || bidderSettings[key].l > thresholds.l)) {
                     if (adapters[key]) {
                         console.log("Preloader: Server Side Enabled: Bidder Name: " + key + ":, due to " + bidderSettings);
