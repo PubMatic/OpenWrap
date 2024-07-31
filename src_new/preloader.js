@@ -93,3 +93,57 @@ if (config.isDynamicTimeoutEnabled()) {
     }
 }
 // CONNECTION TYPE CODE ENDS
+let win = window;
+// CMP FIND CODE STARTS
+function findCMP(apiName) {
+    let f = win;
+    let cmpFrame;
+    let isCmpPresent = false;
+    while (f != null) {
+        try {
+            if (typeof f[apiName] === 'function') {
+                cmpFrame = f;
+                isCmpPresent = true;
+                break;
+            }
+        } catch (e) {
+        }
+
+        // need separate try/catch blocks due to the exception errors thrown when trying to check for a frame that doesn't exist in 3rd party env
+        try {
+            if (f.frames[`${apiName}Locator`]) {
+                cmpFrame = f;
+                isCmpPresent = true;
+                break;
+            }
+        } catch (e) {
+        }
+
+        if (f === win.top) break;
+        f = f.parent;
+    }
+    return isCmpPresent;
+};
+
+let cmpAPIs = {
+    '__tcfapi': false,
+    '__uspapi': false,
+    '__gpp': false
+};
+for (var key in cmpAPIs) {
+    cmpAPIs[key] = findCMP(key);
+    switch (key) {
+        case "__tcfapi":
+            config.setPwtConfig('gdpr', cmpAPIs[key] ? 1 : 0);
+            break;
+        case "__uspapi":    
+            config.setPwtConfig('ccpa', cmpAPIs[key] ? 1 : 0);
+            break;
+        case "__gpp":  
+            config.setPwtConfig('gpp', cmpAPIs[key] ? 1 : 0);
+            break;
+        default:
+            break;
+    }
+}
+// CMP FIND CODE ENDS

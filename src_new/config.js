@@ -509,3 +509,7 @@ exports.shouldApplyGeoFilter = function () {
 exports.shouldApplyDomainFilter = function () {
 	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG['filters']['domainFilter']];
 }
+
+exports.setPwtConfig = function (key, value) {
+	config[CONSTANTS.CONFIG.COMMON][key] = value;
+}
