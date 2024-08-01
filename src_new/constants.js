@@ -217,6 +217,9 @@ exports.MESSAGES = {
 	"M30": "AB Test Enabled With Config",
 	"M31": "AB Test Enabled With Partner Config",
 	"M32": "Invalid MediaConfig regex pattern : ",
+	"M33": "AdUnitsArray response should be an array.",
+	"M34": "Invalid HTML Element selected for ad rendering.",
+	"M35": "Winning bid not found for Div Id :",
 	IDENTITY: {
 		M1: "Unable to get User Id from OpenIdentity",
 		M2: "Setting UserIds to EB ",
