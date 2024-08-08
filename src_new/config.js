@@ -291,8 +291,12 @@ exports.isReduceCodeSizeFeatureEnabled = function(){
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.REDUCE_CODE_SIZE]) === 1;
 };
 // endRemoveIf(removeAlways)
+
+// Changes to handle custom PG scenario on CI
+// Remove below custom handling before giving master drop.
 exports.getPriceGranularity = function(){
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
+	var pg = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
+	return (pg == 'custom') ? 'medium' : pg;
 };
 
 exports.getGranularityMultiplier = function(){
