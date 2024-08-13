@@ -24,6 +24,8 @@ exports.COMMON = {
 	"BID_ID": "owbidid",
 	"AD_SERVER_CURRENCY": "adServerCurrency",
 	"SINGLE_IMPRESSION": "singleImpression",
+	"OPENWRAP_NAMESPACE": "PWT",
+	"IH_OW_NAMESPACE": "IHPWT",
 	"PREBID_NAMESPACE": "owpbjs",
 	"IH_NAMESPACE": "ihowpbjs",
 	"ENABLE_USER_ID": "identityEnabled",
@@ -116,6 +118,9 @@ exports.CONFIG = {
 	"DEFAULT_GPP_CONSENT": "0",
 	"DEFAULT_GPP_CMPAPI": "iab",
 	"DEFAULT_GPP_TIMEOUT": 10000,
+	"GDPR_ACTION_TIMEOUT": "gdprActionTimeout",
+	"PB_GLOBAL_VAR_NAMESPACE": "pbGlobalVarNamespace",
+	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace"
 };
 
 exports.METADATA_MACROS = {
@@ -160,6 +165,9 @@ exports.WRAPPER_TARGETING_KEYS = {
 	"CACHE_ID": "pwtcid",
 	"CACHE_URL": "pwtcurl",
 	"CACHE_PATH": "pwtcpath",
+	"ACAT": "pwtacat",
+	"CRID": "pwtcrid",
+	"DSP": "pwtdsp"
 };
 
 exports.IGNORE_PREBID_KEYS = {
@@ -215,6 +223,9 @@ exports.MESSAGES = {
 	"M30": "AB Test Enabled With Config",
 	"M31": "AB Test Enabled With Partner Config",
 	"M32": "Invalid MediaConfig regex pattern : ",
+	"M33": "AdUnitsArray response should be an array.",
+	"M34": "Invalid HTML Element selected for ad rendering.",
+	"M35": "Winning bid not found for Div Id :",
 	IDENTITY: {
 		M1: "Unable to get User Id from OpenIdentity",
 		M2: "Setting UserIds to EB ",
@@ -269,7 +280,9 @@ exports.SPECIAL_CASE_ID_PARTNERS = {
 		"params.syncTime": "number"
 	},
 	"id5Id": {
-		"params.partner": "number"
+		"params.partner": "number",
+		"storage.refreshInSeconds": "number",
+		"storage.expires": "number"
 	},
 	"parrableId": {
 		"params.timezoneFilter.allowedZones": "array"
@@ -292,6 +305,10 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 	"id5Id": [{
 			"key": "params.provider",
 			"value": "pubmatic-identity-hub"
+	},
+	{
+		"key": "params.externalModuleUrl",
+		"value": "https://cdn.id5-sync.com/api/1.0/id5PrebidModule.js"
 		}
 	],
 	"identityLink": [{
@@ -327,8 +344,6 @@ exports.TIMEOUT_CONFIG = {
 
 exports.DEFAULT_ALIASES = {
 	adg: "adgeneration",
-	districtm: "appnexus",
-	districtmDMX: "dmx",
 	pubmatic2: "pubmatic"
 }
 exports.YAHOOSSP = "yahoossp";

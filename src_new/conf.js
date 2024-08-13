@@ -27,7 +27,10 @@ exports.pwt = {
 	reduceCodeSize:1,
 	gpp: "0",
 	gppCmpApi: "iab",
-	gppTimeout: "10000"
+	gppTimeout: "10000",
+	pbGlobalVarNamespace: "owpbjs",
+	owGlobalVarNamespace: "PWT",
+	localStorageAccess: "1" // Added new field for allow local storage feature 
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes

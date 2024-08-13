@@ -1314,6 +1314,41 @@ describe('IDHUBUTIL', function() {
             expect(paramsForParrable["params.timezoneFilter.allowedZones"]).to.be.undefined
             done();
         });
+
+        it('should keep the param value unchanged and print a log message if datatype conversion is not possible',function(done){
+            params = {"name": "intentIqId","params.partner":"abc","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+            var expectedResult = {"name": "intentIqId","params.partner":"abc","storage.type":"cookie","storage.name":"intentIqId","storage.expires": "60"};
+
+            IDHUBUTIL.applyDataTypeChangesIfApplicable(params);
+            params.should.deep.equal(expectedResult);
+            IDHUBUTIL.logError.should.be.calledOnce;
+
+            done();
+        });
+
+        it('should set requestedAttributesOverrides value correctly as a JSON object', function(done) {
+            params = {"name": "liveIntentId","params.publisherId": "12432415","params.requestedAttributesOverrides": {"uid2":false,"pubmatic":true}};
+            var expectedResult = {
+                name: "liveIntentId",
+                "params.publisherId": "12432415",
+                "params.requestedAttributesOverrides": {"uid2": false, "pubmatic": true}
+            };
+            IDHUBUTIL.applyDataTypeChangesIfApplicable(params);
+            params.should.deep.equal(expectedResult);
+            
+            done();
+        });
+
+        it('should not set requestedAttributesOverrides parameter if its received as blank object in config', function(done) {
+            params = {"name": "liveIntentId","params.publisherId": "12432415"};
+            var expectedResult = {
+                name: "liveIntentId",
+                "params.publisherId": "12432415"
+            };
+            IDHUBUTIL.applyDataTypeChangesIfApplicable(params);
+            params.should.deep.equal(expectedResult);
+            done();
+        });
     });  
 
     describe('#applyCustomParamValuesfApplicable', function() {

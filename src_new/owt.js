@@ -5,7 +5,6 @@ var CONSTANTS = require("./constants.js");
 var CONFIG = require("./config.js");
 var ucTag = require("prebid-universal-creative");
 var conf = require("./conf.js");
-var prebid = require("./adapters/prebid.js");
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
 window.PWT.bidMap = window.PWT.bidMap || {};
@@ -20,6 +19,7 @@ window.PWT.refURL = window.PWT.refURL || metaInfo.refURL;
 window.PWT.isSafeFrame = window.PWT.isSafeFrame || false;
 window.PWT.safeFrameMessageListenerAdded = window.PWT.safeFrameMessageListenerAdded || false;
 window.PWT.isSyncAuction = window.PWT.isSyncAuction || false;
+window.PWT.shouldClearTargeting = window.PWT.shouldClearTargeting !== undefined ? Boolean(window.PWT.shouldClearTargeting) : true;
 // usingDifferentProfileVersion
 window.PWT.udpv = window.PWT.udpv || util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtv");
 
@@ -76,6 +76,7 @@ window.PWT.sfDisplayCreative = function(theDocument, bidID){
 window.PWT.sfDisplayPMPCreative = function(theDocument, values, priorityArray){
 	util.log("In sfDisplayPMPCreative for: " + values);
 	this.isSafeFrame = true;
+	ucTag = window.ucTag || {};
 	var bidID = util.getBididForPMP(values, priorityArray);
 	if(bidID){
 		if(CONFIG.isPrebidPubMaticAnalyticsEnabled()){
@@ -144,6 +145,7 @@ window.PWT.UpdateVastWithTracker = function(bid, vast){
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeInStreamRelatedCode)
+
 window.PWT.generateDFPURL= function(adUnit,cust_params){
 	var dfpurl = "";
 	if(!adUnit || !util.isObject(adUnit)) {
@@ -156,6 +158,7 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 	else{
 		util.logWarning("No bid found for given adUnit");
 	}
+	util.getCDSTargetingData(cust_params);
 	var params = {
 		adUnit: adUnit,
 		params: {
@@ -183,7 +186,7 @@ window.PWT.setAuctionTimeout = function(timeout){
 		util.log("updating aution timeout from: " + conf.pwt.t +" to: "+timeout);
 		conf.pwt.t = timeout;
 	}
-}
+};
 
 window.PWT.versionDetails =  util.getOWConfig();
 

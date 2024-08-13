@@ -388,7 +388,7 @@ function callHandlerFunctionForMapping(adapterID, adUnits, adapterConfig, impres
 					// keyConfig = keyLookupMap[generatedKey];
 					keyConfig = keyLookupMap[Object.keys(keyLookupMap).filter(function(key) {
 						return key.toLowerCase() === generatedKey.toLowerCase()
-					})];
+					})[0]];
 				}
 			}
 			// condition (!keyConfig && !isPubMaticAlias) will check if keyCofig is undefined and partner is not PubMatic alias then log message to console 
@@ -1136,6 +1136,13 @@ exports.ajaxRequest = function(url, callback, data, options) {
 };
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
+function addFloorConfigIfPresent(config, adUnitConfig, defaultFloor) {
+	if(config.floors || defaultFloor){
+		adUnitConfig["floors"] = config.floors || defaultFloor;
+	}	
+}
+exports.addFloorConfigIfPresent = addFloorConfigIfPresent;
+
 // Returns mediaTypes for adUnits which are sent to prebid
 exports.getAdUnitConfig = function(sizes, currentSlot){
 	function iskgpvpresent() {
@@ -1188,6 +1195,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 			var isNative = true;
 			var isBanner = true;
 			var config = undefined;
+			var defaultFloor = undefined;
 			var divId = refThis.isFunction(currentSlot.getDivID) ? currentSlot.getDivID() : currentSlot.getSlotId().getDomId();
 
 			// TODO: Have to write logic if required in near future to support multiple kgpvs, right now 
@@ -1207,6 +1215,7 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 					isVideo =false;
 				}
 				config = slotConfig["config"][CONSTANTS.COMMON.DEFAULT];
+				defaultFloor = config && config["floors"];
 				if(config.renderer && !refThis.isEmptyObject(config.renderer)){
 					adUnitConfig['renderer'] = config.renderer;
 				}
@@ -1257,11 +1266,16 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 				if(config.renderer && !refThis.isEmptyObject(config.renderer)){
 					adUnitConfig['renderer'] = config.renderer;
 				}
+				if(config.ortb2Imp && !refThis.isEmptyObject(config.ortb2Imp)){
+					adUnitConfig['ortb2Imp'] = config.ortb2Imp;
+				}
 				if(!isBanner ||  (config.banner && (refThis.isOwnProperty(config.banner, 'enabled') && !config.banner.enabled))){
 					refThis.mediaTypeConfig[divId] = mediaTypeObject;  
 					adUnitConfig['mediaTypeObject'] = mediaTypeObject
+					refThis.addFloorConfigIfPresent(config, adUnitConfig, defaultFloor);
 					return adUnitConfig;      
 				}
+				refThis.addFloorConfigIfPresent(config, adUnitConfig, defaultFloor);
 			}
 			else{
 				refThis.log("Config not found for adSlot: " +  JSON.stringify(currentSlot));
@@ -1402,7 +1416,6 @@ exports.getConfigFromRegex = function(klmsForPartner, generatedKey){
 // removeIf(removeUserIdRelatedCode)
 exports.getUserIdConfiguration = function(){
 	var userIdConfs = [];
-	window[pbNameSpace].onSSOLogin({});
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(),function(parterId, partnerValues){
 		if (CONSTANTS.EXCLUDE_PARTNER_LIST.indexOf(parterId) < 0) {
 			userIdConfs.push(refThis.getUserIdParams(partnerValues));
@@ -1642,6 +1655,7 @@ exports.generateMonetizationPixel = function(slotID, theBid){
 	pixelURL += "&kgpv=" + window.encodeURIComponent(kgpv);
 	pixelURL += "&piid=" + window.encodeURIComponent(sspID);
 	pixelURL += "&rf=" + window.encodeURIComponent(isRefreshed);
+	pixelURL += "&di=" + window.encodeURIComponent(theBid.getDealID() || "-1");
 
 	pixelURL += '&plt=' + window.encodeURIComponent(refThis.getDevicePlatform());
 	pixelURL += (refThis.isFunction(theBid.getWidth) && refThis.isFunction(theBid.getHeight)) ?
@@ -2067,7 +2081,11 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 						case "customObject":
 							if (paramValue) {
 								if (key === "params.requestedAttributesOverrides") {
-									params[key] = {'uid2': (paramValue === "true" || paramValue === "1")}
+									try {
+										params[key] = JSON.parse(paramValue);
+									} catch (e) {
+										refThis.logError("Error parsing requestedAttributesOverrides for partner ", partnerName);
+									}
 								}
 							}
 							break;
@@ -2097,4 +2115,36 @@ exports.getBrowserDetails = function() {
 }
 exports.getPltForFloor = function() {
 	return refThis.getDevicePlatform().toString();
+}
+
+exports.getGeoInfo = function() {
+	var PREFIX = 'UINFO';
+	var LOCATION_INFO_VALIDITY =  172800000; // 2 * 24 * 60 * 60 * 1000 - 2 days
+	var geoDetectionURL = 'https://ut.pubmatic.com/geo?pubid=' +
+		conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID];
+
+	var info = window[pbNameSpace].getDataFromLocalStorage(PREFIX, LOCATION_INFO_VALIDITY);
+	if(info && JSON.parse(info).cc) {	// Got valid data
+		window.PWT.CC = JSON.parse(info);
+	} else {
+		window[pbNameSpace].detectLocation(geoDetectionURL,
+		function(loc) {
+			window[pbNameSpace].setAndStringifyToLocalStorage(PREFIX, loc);
+			window.PWT.CC = loc;
+		});
+	}
+}
+
+exports.getCDSTargetingData = function(obj) {
+	obj = obj || {};
+	var cdsData = window[CONSTANTS.COMMON.PREBID_NAMESPACE].getConfig('cds');
+    cdsData && Object.keys(cdsData).map(function(key) {
+      if((cdsData[key].sendtoGAM !== false)) {
+        var val = cdsData[key].value;
+        val = (!Array.isArray(val) && typeof val !== 'object' &&
+            typeof val !== 'function' && typeof val !== 'undefined') ? val : '';
+        obj[key] = val;
+      }
+    });
+	return obj;
 }

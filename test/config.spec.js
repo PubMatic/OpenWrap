@@ -2412,6 +2412,7 @@ describe('Config', function() {
         });
     });
 
+
     describe('#Gpp', function() {
         beforeEach(function(done){
             if(!CONF[CONSTANTS.CONFIG.COMMON]) {
@@ -2475,6 +2476,69 @@ describe('Config', function() {
                 CONFIG.getGppTimeout().should.be.equal(CONSTANTS.CONFIG.DEFAULT_GPP_TIMEOUT);
                 done();
             });
+        });
+    });
+
+    describe('getOverrideNamespace', function() {
+        var configKey = 'pbGlobalVarNamespace';
+        var defaultName = 'custPbNamespace';
+        var returnValueInCaseMissingNamespace = 'returnValue';
+
+        beforeEach(function(done) {
+            CONF.pwt = {
+                pbGlobalVarNamespace: "custPbNamespace",
+            }
+            done();
+        });
+        afterEach(function(done) {
+            CONF.pwt = null;
+            done();
+        });
+
+        it('is a function', function(done) {
+            CONFIG.getOverrideNamespace.should.be.a('function');
+            done();
+        });
+      
+        it('should return returnValueInCaseMissingNamespace if configKey/pbNamespace is missing', function() {
+          var result = CONFIG.getOverrideNamespace("missingKeyName", defaultName, returnValueInCaseMissingNamespace);
+          expect(result).to.equal(returnValueInCaseMissingNamespace);
+        });
+      
+        it('should return returnValueInCaseMissingNamespace if pbNamespace is equal to defaultName', function() {
+          var result = CONFIG.getOverrideNamespace(configKey, defaultName, returnValueInCaseMissingNamespace);
+          expect(result).to.equal(returnValueInCaseMissingNamespace);
+        });
+      
+        it('should return pbNamespace if pbNamespace is not equal to defaultName', function() {
+          var result = CONFIG.getOverrideNamespace(configKey, "randomValue", returnValueInCaseMissingNamespace);
+          expect(result).to.equal(defaultName);
+        });
+    });
+
+    describe('#shouldClearTargeting', function() {
+
+        it('is a function', function(done) {
+            CONFIG.shouldClearTargeting.should.be.a('function');
+            done();
+        });
+
+        it('should return the value false when explcitly false is set', function(done) {
+            window.PWT.shouldClearTargeting = false;
+            expect(CONFIG.shouldClearTargeting()).to.equal(false);
+            done();
+        });
+        
+        it('should return the value true when explcitly nothing is set', function(done) {
+            window.PWT.shouldClearTargeting = undefined;
+            expect(CONFIG.shouldClearTargeting()).to.equal(true);
+            done();
+        });
+
+        it('should return the value true when explcitly true is set', function(done) {
+            window.PWT.shouldClearTargeting = true;
+            expect(CONFIG.shouldClearTargeting()).to.equal(true);
+            done();
         });
     });
 });

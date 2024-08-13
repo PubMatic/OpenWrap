@@ -234,7 +234,6 @@ exports.addHookOnFunction = function (theObject, useProto, functionName, newFunc
 
 exports.getUserIdConfiguration = function () {
 	var userIdConfs = [];
-	window[pbNameSpace].onSSOLogin({});
 	refThis.forEachOnObject(CONFIG.getIdentityPartners(), function (parterId, partnerValues) {
 		if (!CONSTANTS.EXCLUDE_PARTNER_LIST.includes(parterId)) {
 			userIdConfs.push(refThis.getUserIdParams(partnerValues));
@@ -644,7 +643,11 @@ exports.applyDataTypeChangesIfApplicable = function(params) {
 						case "customObject":
 							if (paramValue) {
 								if (key === "params.requestedAttributesOverrides") {
-									params[key] = {'uid2': (paramValue === "true" || paramValue === "1")}
+									try {
+										params[key] = JSON.parse(paramValue);
+									} catch (e) {
+										refThis.logError("Error parsing requestedAttributesOverrides for partner ", partnerName);
+									}
 								}
 							}
 							break;

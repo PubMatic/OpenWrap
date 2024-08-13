@@ -227,7 +227,7 @@ gulp.task('change-prebid-keys', () => {
     // todo: add gulp-json-editor entry in package.json and in backend build job?
     var prebidConstantsPath = prebidRepoPath + '/src';
     var jeditor = require("gulp-json-editor");
-    return gulp.src(prebidConstantsPath + '/constants.json')
+    return gulp.src(prebidConstantsPath + '/constants.js')
         .pipe(jeditor(function(json) {
             json.TARGETING_KEYS.BIDDER = "pwtpid"; // hb_bidder
             json.TARGETING_KEYS.AD_ID = "pwtsid"; // hb_adid
@@ -290,18 +290,20 @@ gulp.task('bundle-pwt-keys', function() {
                 {
                 match: /"%%TG_KEYS%%"/g,
                 replacement: {
-                            "BIDDER": "hb_bidder",
-                            "AD_ID": "hb_adid",
-                            "PRICE_BUCKET": "hb_pb",
-                            "SIZE": "hb_size",
-                            "DEAL": "hb_deal",
-                            "SOURCE": "hb_source",
-                            "FORMAT": "hb_format",
-                            "UUID": "hb_uuid",
-                            "CACHE_ID": "hb_cache_id",
-                            "CACHE_HOST": "hb_cache_host",
-                            "ADOMAIN" : "hb_adomain",
-                            "ACAT": "hb_acat",
+                    "BIDDER": "hb_bidder",
+                    "AD_ID": "hb_adid",
+                    "PRICE_BUCKET": "hb_pb",
+                    "SIZE": "hb_size",
+                    "DEAL": "hb_deal",
+                    "SOURCE": "hb_source",
+                    "FORMAT": "hb_format",
+                    "UUID": "hb_uuid",
+                    "CACHE_ID": "hb_cache_id",
+                    "CACHE_HOST": "hb_cache_host",
+                    "ADOMAIN": "hb_adomain",
+                    "ACAT": "hb_acat",
+                    "CRID": "hb_crid",
+                    "DSP": "hb_dsp"
                     }
                 }
             ]
@@ -395,7 +397,8 @@ gulp.task('devbundle', gulp.series('devpack', function () {
     var concat = require('gulp-concat');
     //var prebidFileName = isIdentityOnly ? '/build/dev/prebidIdhub.js' : '/build/dev/prebid.js';
     var prebidFileName = '/build/dev/prebid.js';
-    return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js'], { allowEmpty: true })
+    var footerFileName = isIdentityOnly ? './src_new/ih_footer.js' : './src_new/ow_footer.js';
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js', footerFileName], { allowEmpty: true })
         .pipe(concat('owt.js'))
         .pipe(gulp.dest('build'));
 }));
@@ -405,26 +408,49 @@ gulp.task('bundle-prod', gulp.series('webpack', function () {
     var concat = require('gulp-concat');
     //var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
     var prebidFileName = '/build/dist/prebid.js';
-    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js'], { allowEmpty: true })
+    var footerFileName = isIdentityOnly ? './src_new/ih_footer.js' : './src_new/ow_footer.js';
+    return gulp.src([prebidRepoPath + prebidFileName, './build/dist/owt.js', footerFileName], { allowEmpty: true })
         .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 }));
 
-gulp.task('update-namespace', function(){
-    console.log("In update-namespace isIdentityOnly = " + isIdentityOnly);
+
+function addPattern(patterns, match, replacement) {
+    if (replacement) {
+        patterns.push({
+            match: match,
+            replacement: replacement
+        });
+    }
+}
+
+function getPatternsToReplace() {
+    const { COMMON, CONFIG } = require('./src_new/constants.js');
+    var patterns = [];
+    if (isIdentityOnly) {
+        addPattern(patterns, /ihowpbjs|owpbjs/g, config.getOverrideNamespace(CONFIG.PB_GLOBAL_VAR_NAMESPACE, COMMON.IH_NAMESPACE, COMMON.IH_NAMESPACE));
+        addPattern(patterns, /IHPWT/g, config.getOverrideNamespace(CONFIG.OW_GLOBAL_VAR_NAMESPACE, COMMON.IH_OW_NAMESPACE, null));
+    } else {
+        // Passing null as we don't want to replace the used value(i.e. PWT) with default value(i.e. PWT) as both are same,
+        addPattern(patterns, /owpbjs/g, config.getOverrideNamespace(CONFIG.PB_GLOBAL_VAR_NAMESPACE, COMMON.PREBID_NAMESPACE, null));
+        addPattern(patterns, /PWT/g, config.getOverrideNamespace(CONFIG.OW_GLOBAL_VAR_NAMESPACE, COMMON.OPENWRAP_NAMESPACE, null));
+    }
+    return patterns;
+}
+
+gulp.task('update-namespace', async function () {
     console.log("Executing update-namespace - START => ");
-    //var prebidFileName = isIdentityOnly ? '/build/dist/prebidIdhub.js' : '/build/dist/prebid.js';
-    var prebidFileName = '/build/dist/prebid.js';
-    return gulp.src(prebidRepoPath + prebidFileName)
-    .pipe(replace({
-        patterns: [
-            {
-            match: /owpbjs/g,
-            replacement: 'ihowpbjs'
-            }
-        ]
-    }))
-    .pipe(gulp.dest(prebidRepoPath+'/build/dist/'));
+    var patternsToReplace = getPatternsToReplace();
+    console.log("Patterns to replace => ", patternsToReplace);
+    if (patternsToReplace.length > 0) {
+        return gulp.src('build/*.js')
+            .pipe(replace({
+                patterns: patternsToReplace
+            }))
+            .pipe(gulp.dest('build'));
+    } else {
+        console.log("default namespaces(owpbjs and PWT) are using.");
+    }
 });
 
 gulp.task('build-gpt-prod');

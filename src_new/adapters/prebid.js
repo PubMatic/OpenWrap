@@ -10,7 +10,9 @@ var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var CONF = require("../conf.js");
-var owIdhubCommon = require("../owIdhubCommon.js");
+
+var COMMON_CONFIG = require("../common.config.js");
+
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
@@ -401,7 +403,7 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 	divID = currentSlot.getDivID();
 	code = currentSlot.getDivID();
 	sizes = currentSlot.getSizes();
-	adUnitId = currentSlot.getAdUnitID();
+	owAdUnitId = currentSlot.getAdUnitID();
 
 	/* istanbul ignore else */
 	var adUnitConfig = util.getAdUnitConfig(sizes, currentSlot);
@@ -416,7 +418,7 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 			code: code,
 			mediaTypes:{} ,
 			sizes: sizes,
-			adUnitId:adUnitId,
+			owAdUnitId: owAdUnitId,
 			bids: [],
 			divID : divID
 		};
@@ -433,6 +435,12 @@ function generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, i
 		}
 		if(adUnitConfig.renderer){
 			adUnits[code]["renderer"]= adUnitConfig.renderer;
+		}
+		if (adUnitConfig.ortb2Imp) {
+			adUnits[code]["ortb2Imp"] = adUnitConfig.ortb2Imp;
+		}	
+		if(adUnitConfig.floors){
+			adUnits[code]["floors"]= adUnitConfig.floors;
 		}
 		window.PWT.adUnits = window.PWT.adUnits || {};
 		window.PWT.adUnits[code] = adUnits[code];
@@ -614,7 +622,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 	}
 	// for pubmaticServer partner we used to pass wiid when isPrebidPubMaticAnalyticsEnabled is false but now we do not 
 	// get pubmaticServer partner when usePBSAdapter flag is true so we will be adding wiid conditionally.
-	if(isPrebidPubMaticAnalyticsEnabled === false && CONFIG.usePBSAdapter()){
+	if(CONFIG.usePBSAdapter()){
 		slotParams["wiid"] = impressionID;
 		isWiidRequired = true;
 	}
@@ -631,9 +639,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["adUnitId"] = currentSlot.getAdUnitID();
 			slotParams["divId"] = currentSlot.getDivID();
 			slotParams["adSlot"] = generatedKey;
-			if(isPrebidPubMaticAnalyticsEnabled === false){
-				slotParams["wiid"] = impressionID;
-			}
+			slotParams["wiid"] = impressionID;
 			slotParams["profId"] = CONFIG.getProfileID();
 			/* istanbul ignore else*/
 			if(window.PWT.udpv){
@@ -646,9 +652,7 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 		case "pubmatic2":
 			slotParams["publisherId"] = adapterConfig["publisherId"];
 			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
-			if(isPrebidPubMaticAnalyticsEnabled === false){
-				slotParams["wiid"] = impressionID;
-			}
+			slotParams["wiid"] = impressionID;
 			slotParams["profId"] = (adapterID == "pubmatic2") || (adapterName == "pubmatic2")  ? adapterConfig["profileId"]: CONFIG.getProfileID();
 			/* istanbul ignore else*/
 			if((adapterID != "pubmatic2" && adapterName != "pubmatic2") && window.PWT.udpv){
@@ -831,6 +835,11 @@ function assignGdprConfigIfRequired(prebidConfig){
 			allowAuctionWithoutConsent: CONFIG.getAwc(), // Auction without consent
 			defaultGdprScope: true
 		};
+		var gdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout()
+		if (gdprActionTimeout) {
+			util.log("GDPR IS ENABLED, TIMEOUT: " + prebidConfig["consentManagement"]['gdpr']['timeout'] +", ACTION TIMEOUT: "+ gdprActionTimeout);
+			prebidConfig["consentManagement"]['gdpr']['actionTimeout'] = gdprActionTimeout;
+		}
 	}
 }
 
@@ -883,8 +892,8 @@ exports.assignSchainConfigIfRequired = assignSchainConfigIfRequired;
 function configureBidderAliasesIfAvailable(){
 	if(util.isFunction(window[pbNameSpace].aliasBidder)){
 		CONFIG.forEachBidderAlias(function(alias){
-			window[pbNameSpace].aliasBidder(CONF.alias[alias], alias);
-		})
+			window[pbNameSpace].aliasBidder(CONF.alias[alias] && CONF.alias[alias].name ? CONF.alias[alias].name : CONF.alias[alias], alias, CONF.alias[alias] && CONF.alias[alias].gvlid ? {gvlid:CONF.alias[alias].gvlid}:{});
+		});
 	}
 	else{
 		util.logWarning("PreBid js aliasBidder method is not available");
@@ -1038,8 +1047,8 @@ function setPrebidConfig(){
 
 		window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 
-		refThis.getFloorsConfiguration(prebidConfig)
-		
+		refThis.getFloorsConfiguration(prebidConfig);
+		refThis.checkConfigLevelFloor(prebidConfig);
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
@@ -1047,7 +1056,7 @@ function setPrebidConfig(){
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
-		refThis.assignPackagingInventoryConfig(prebidConfig);
+		refThis.readCustDimenData(prebidConfig);
 		// if usePBSAdapter is 1 then add s2sConfig
 		if(CONFIG.usePBSAdapter()) {
 			refThis.gets2sConfig(prebidConfig);
@@ -1080,7 +1089,7 @@ function gets2sConfig(prebidConfig){
 	var bidderParams = {};
 	var s2sBidders = CONFIG.getServerEnabledAdaptars();
 	for(var key in CONF.alias) {
-		defaultAliases[key] = CONF.alias[key];
+		defaultAliases[key] = CONF.alias[key] && CONF.alias[key].name ? CONF.alias[key].name : CONF.alias[key];
 	}
 	var pubmaticAndAliases = CONFIG.getPubMaticAndAlias(s2sBidders);
 	if(pubmaticAndAliases.length) {
@@ -1126,6 +1135,31 @@ function gets2sConfig(prebidConfig){
 
 exports.gets2sConfig = gets2sConfig;
 
+function hasFloorsSchema(config, prebidConfig) {
+	for (var key in config) {
+	  if (config.hasOwnProperty(key)) {
+		if (key === 'floors' || (typeof config[key] === 'object' && hasFloorsSchema(config[key], prebidConfig))) {
+			return prebidConfig['floors'] = {
+				enforcement: {
+					enforceJS: CONFIG.getFloorType()
+				}
+			};
+		}
+	  }
+	}
+	return false;
+}
+exports.hasFloorsSchema = hasFloorsSchema;
+
+function checkConfigLevelFloor(prebidConfig){
+	if(!prebidConfig.hasOwnProperty('floors')) {
+		if(CONF.slotConfig && CONF.slotConfig.config) {
+			refThis.hasFloorsSchema(CONF.slotConfig.config, prebidConfig);
+		}
+	}
+}
+exports.checkConfigLevelFloor = checkConfigLevelFloor;
+
 function getFloorsConfiguration(prebidConfig){
 	if(CONFIG.isFloorPriceModuleEnabled() == true && CONFIG.getFloorSource() !== CONSTANTS.COMMON.EXTERNAL_FLOOR_WO_CONFIG){
 		prebidConfig["floors"]={
@@ -1152,6 +1186,7 @@ function checkForYahooSSPBidder(prebidConfig){
 	
 	if(!isYahooSSP) {
 		for(var bidder in CONF.alias) {
+			bidder = bidder.name ? bidder.name : bidder;
 			if(CONFIG.getAdapterNameForAlias(bidder) == CONSTANTS.YAHOOSSP) {
 				isYahooAlias = true;
 			}
@@ -1166,14 +1201,12 @@ function checkForYahooSSPBidder(prebidConfig){
 
 exports.checkForYahooSSPBidder = checkForYahooSSPBidder;
 
-
-function assignPackagingInventoryConfig(prebidConfig) {
-	prebidConfig["viewabilityScoreGeneration"] = {
-		enabled:  true
-	}
+function readCustDimenData(prebidConfig) {
+	const cdsData = util.isFunction(window.getCustomDimensionsDataFromPublisher) ? window.getCustomDimensionsDataFromPublisher() : null;
+	cdsData && (prebidConfig["cds"] = cdsData.cds);
 }
 
-exports.assignPackagingInventoryConfig = assignPackagingInventoryConfig;
+exports.readCustDimenData = readCustDimenData;
 
 function getPbjsAdServerTargetingConfig(){
 	// Todo: Handle send-all bids feature enabled case
@@ -1283,7 +1316,22 @@ function getPbjsAdServerTargetingConfig(){
         	val: function(bidResponse){ // todo: empty value?
         		return "";
         	}
-        }
+        }, {
+			key: 'pwtacat',
+			val: function(bidResponse){
+				return (bidResponse.meta && bidResponse.meta.primaryCatId) ? bidResponse.meta.primaryCatId : '';
+			}
+		}, {
+			key: 'pwtdsp',
+			val: function(bidResponse){
+				return (bidResponse.meta && bidResponse.meta.networkId) ? bidResponse.meta.networkId : '';
+			}
+		}, {
+			key: 'pwtcrid',
+			val: function(bidResponse){
+				return bidResponse.creativeId  ? bidResponse.creativeId : '';
+			}
+		}
     ];
 }
 
@@ -1291,14 +1339,21 @@ exports.getPbjsAdServerTargetingConfig = getPbjsAdServerTargetingConfig;
 
 function setPbjsBidderSettingsIfRequired(){
 	if(isPrebidPubMaticAnalyticsEnabled === false){
+		window[pbNameSpace].bidderSettings = {
+			'standard': {
+				'storageAllowed': CONF.pwt.localStorageAccess === "1" ? true : null
+			}		
+		};
 		return;
 	}
-
+	var preBidderSetting = window[pbNameSpace].bidderSettings || {};
 	window[pbNameSpace].bidderSettings = {
 		'standard': {
 			'suppressEmptyKeys': true, // this boolean flag can be used to avoid sending those empty values to the ad server.
+			'storageAllowed': CONF.pwt.localStorageAccess === "1" ? true : null
 		}		
 	};
+
 
 	if(CONFIG.isUsePrebidKeysEnabled() === false){
 		window[pbNameSpace].bidderSettings['standard']['adserverTargeting'] = getPbjsAdServerTargetingConfig();
@@ -1317,8 +1372,17 @@ function setPbjsBidderSettingsIfRequired(){
 			window[pbNameSpace].bidderSettings[adapterID]['bidCpmAdjustment'] = function(bidCpm, bid){
 				return window.parseFloat((bidCpm * CONFIG.getAdapterRevShare(adapterID)).toFixed(CONSTANTS.COMMON.BID_PRECISION));
 			}
+			// Check if code snippets has storageAllowed set to particular partner
+			if(preBidderSetting[adapterID]) {
+				window[pbNameSpace].bidderSettings[adapterID]['storageAllowed'] = preBidderSetting[adapterID]['storageAllowed'];
+			}
 		}
 	});
+
+	// Check if code snippet modified storageAllowed with standard settings.
+	if(preBidderSetting['standard']) {
+		window[pbNameSpace].bidderSettings['standard']['storageAllowed'] = preBidderSetting['standard']['storageAllowed'];
+	}
 }
 
 exports.setPbjsBidderSettingsIfRequired = setPbjsBidderSettingsIfRequired;
@@ -1361,6 +1425,7 @@ function initPbjsConfig(){
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
 	refThis.setPbjsBidderSettingsIfRequired();
+	util.getGeoInfo();
 }
 exports.initPbjsConfig = initPbjsConfig;
 
@@ -1387,8 +1452,7 @@ function fetchBids(activeSlots){
     });	
 
 	// todo: this is the function that basically puts bidder params in all adUnits, expose it separately
-	var adUnitsArray = refThis.generateAdUnitsArray(activeSlots, impressionID);	
-
+	var adUnitsArray = refThis.generateAdUnitsArray(activeSlots, impressionID);
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window[pbNameSpace]){
 

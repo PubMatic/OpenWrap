@@ -144,6 +144,15 @@ exports.getAwc = function () {
 	return awc === "1";
 };
 
+exports.getOverrideNamespace = function(configKey, defaultName, returnValueInCaseMissingNamespace) {
+	var pbNamespace = config[CONSTANTS.CONFIG.COMMON][configKey];
+	if (pbNamespace) {
+		return pbNamespace === defaultName ? returnValueInCaseMissingNamespace : pbNamespace;
+	} else {
+		return returnValueInCaseMissingNamespace;
+	}
+}
+
 /* start-test-block */
 exports.addPrebidAdapter = addPrebidAdapter;
 /* end-test-block */
@@ -391,7 +400,7 @@ exports.forEachBidderAlias = function (callback) {
 
 exports.getAdapterNameForAlias = function(aliasName){
 	if(config.alias && config.alias[aliasName]){
-		return config.alias[aliasName];
+		return config.alias[aliasName] && config.alias[aliasName].name ? config.alias[aliasName].name : config.alias[aliasName];
 	}
 	return aliasName;
 };
@@ -423,7 +432,7 @@ exports.getTimeoutForPBSRequest = function() {
 
 exports.getPubMaticAndAlias = function(s2sBidders) {
 	var pubMaticaliases = s2sBidders.filter(function(adapter) {
-		if(config.alias && config.alias[adapter] && config.alias[adapter].includes("pubmatic") || adapter.includes("pubmatic")) {
+		if(config.alias && config.alias[adapter] && ( config.alias[adapter].name ? config.alias[adapter].name.includes("pubmatic") : config.alias[adapter].includes("pubmatic") )|| adapter.includes("pubmatic")) {
 			return adapter;
 		}
 	});
@@ -449,6 +458,7 @@ exports.getMarketplaceBidders = function(){
 	return config.pwt.marketplaceBidders ? config.pwt.marketplaceBidders.split(',') : false;
 }
 
+
 exports.getGppConsent = function () {
 	var gpp = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CONSENT] || CONSTANTS.CONFIG.DEFAULT_GPP_CONSENT;
 	return gpp === "1";
@@ -461,4 +471,9 @@ exports.getGppCmpApi = function () {
 exports.getGppTimeout = function () {
 	var gppTimeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_TIMEOUT];
 	return gppTimeout ? window.parseInt(gppTimeout) : CONSTANTS.CONFIG.DEFAULT_GPP_TIMEOUT;
+}
+
+exports.shouldClearTargeting = function () {
+	return window.PWT.shouldClearTargeting !== undefined ? Boolean(window.PWT.shouldClearTargeting) : true;
+
 };

@@ -846,6 +846,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(CONFIG, "getProfileID").returns("profId");
             sinon.stub(CONFIG, "getProfileDisplayVersionID").returns("verId");
             sinon.stub(CONFIG, "isSingleImpressionSettingEnabled").returns(0);
+			sinon.stub(UTIL, "getAdUnitConfig").returns({ "ortb2Imp": {"ext": { "ae": 1}}, "mediaTypeObject": {}, "floors": {}});
             PREBID.isSingleImpressionSettingEnabled = 0;            
             kgpConsistsWidthAndHeight = true;
             window.PWT = {
@@ -868,6 +869,7 @@ describe('ADAPTER: Prebid', function() {
             currentSlot.getAdUnitIndex.restore();
 
             CONFIG.getProfileID.restore();
+			UTIL.getAdUnitConfig.restore();
             CONFIG.getProfileDisplayVersionID.restore();
             CONFIG.isSingleImpressionSettingEnabled.restore();
 
@@ -884,6 +886,17 @@ describe('ADAPTER: Prebid', function() {
 		it('should have created bid object by composing from passed in params', function(done) {
             PREBID.generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
             UTIL.forEachOnArray.called.should.be.false;
+            done();
+        });
+
+        it('should have ortb2Imp if getAdUnitConfig return ortb2imp object', function(done) {
+            PREBID.generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            expect(window.PWT.adUnits["DIV_1"]["ortb2Imp"]).to.be.an.object;
+            done();
+        });
+		it('should have floors if getAdUnitConfig return floors object', function(done) {
+            PREBID.generatedKeyCallbackForPbAnalytics(adapterID, adUnits, adapterConfig, impressionID, generatedKey, kgpConsistsWidthAndHeight, currentSlot, keyConfig, currentWidth, currentHeight);
+            expect(window.PWT.adUnits["DIV_1"]["floors"]).to.be.an.object;
             done();
         });
 
@@ -1801,8 +1814,6 @@ describe('ADAPTER: Prebid', function() {
 		var expectedResult = {};
 		var defaultAliases = {
 			adg: "adgeneration",
-			districtm: "appnexus",
-			districtmDMX: "dmx",
 			pubmatic2: "pubmatic"
 		};
 		for(var key in CONF.alias) {
@@ -1878,24 +1889,6 @@ describe('ADAPTER: Prebid', function() {
             done();
         });
 	})
-
-	// Test cases for inventory packaging 
-	describe("assignPackagingInventoryConfig",function(){
-		var prebidConfig = {};
-		var expectedResult = {
-				enabled:  true
-		};
-		it("should be a functiion",function(done){
-			PREBID.assignPackagingInventoryConfig.should.be.a("function");
-			done();
-		});
-
-		it("should set s2sConfig properties",function(done){
-			PREBID.assignPackagingInventoryConfig(prebidConfig);
-			expect(prebidConfig.viewabilityScoreGeneration).to.be.deep.equal(expectedResult);
-			done();
-		});
-	});
 
     describe('#addOnBidRequestHandler',function(){
         beforeEach(function(done) {
@@ -2246,4 +2239,26 @@ describe('ADAPTER: Prebid', function() {
 		})
 	});
 
+	describe('setPbjsBidderSettingsIfRequired', function() {
+		beforeEach(function(done) {
+			window.owpbjs = {bidderSettings: {}};
+            done();
+        });
+
+        afterEach(function(done) {
+			delete window.owpbjs;
+            done();
+        });
+		it('should be a functiion',function(done){
+            PREBID.setPbjsBidderSettingsIfRequired.should.be.a('function');
+            done();
+        });
+		it('should have bidderSettings with default configuration', function(done) {
+			PREBID.setPbjsBidderSettingsIfRequired();
+			expect(window.owpbjs.bidderSettings).to.have.property('standard');
+			expect(window.owpbjs.bidderSettings.standard).to.have.property('storageAllowed');
+			expect(window.owpbjs.bidderSettings.standard.storageAllowed).to.equal(true);
+			done();
+		});
+	})
 });

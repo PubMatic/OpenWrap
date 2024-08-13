@@ -446,6 +446,15 @@ describe("CONTROLLER: CUSTOM", function() {
 	});
 
 	describe("#customServerExposedAPI", function () {
+		beforeEach(function(done) {
+            window.owpbjs = {...window.owpbjs, ...{
+                getConfig: function(){
+                    return {};
+                }
+            }};
+			done();
+		});
+
 		it("is a function", function(done) {
 			CUSTOM.customServerExposedAPI.should.be.a("function");
 			done();
@@ -471,7 +480,7 @@ describe("CONTROLLER: CUSTOM", function() {
 		});
 
 		it("it should call addpter-manager", function(done){
-			sinon.stub(PREBID, 'fetchBids', function(){});
+			sinon.stub(PREBID, "fetchBids", function(){});
 			sinon.stub(CONFIG, "getTimeout");
 			CONFIG.getTimeout.returns(10);
 			var flag = false;
@@ -499,7 +508,7 @@ describe("CONTROLLER: CUSTOM", function() {
 
 		it("should call the callback postimeout if allBid status is false ecverytime",function(done){
 			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
-			sinon.stub(PREBID, 'fetchBids', function(){});
+			sinon.stub(PREBID, "fetchBids", function(){});
 			sinon.stub(CONFIG, "getTimeout");
 			CONFIG.getTimeout.returns(10);
 			BM.getAllPartnersBidStatuses.restore();
@@ -528,7 +537,7 @@ describe("CONTROLLER: CUSTOM", function() {
 		// Uncomment below test case when change from Phantom to ChromeHeadless
 		xit("should not call the callback before timeout if allBid status is false ecverytime",function(done){
 			sinon.stub(BM,"getAllPartnersBidStatuses").returns(false);
-			sinon.stub(PREBID, 'fetchBids', function(){});
+			sinon.stub(PREBID, "fetchBids", function(){});
 			sinon.stub(CONFIG, "getTimeout");
 			CONFIG.getTimeout.returns(60);
 			BM.getAllPartnersBidStatuses.restore();
@@ -659,6 +668,15 @@ describe("CONTROLLER: CUSTOM", function() {
 	});
 
 	describe("#addKeyValuePairsToGPTSlots", function () {
+		beforeEach(function(done) {
+            window.owpbjs = {...window.owpbjs, ...{
+                getConfig: function(){
+                    return {};
+                }
+            }};
+			done();
+		});
+
 		it("is a function", function(done) {
 			CUSTOM.addKeyValuePairsToGPTSlots.should.be.a("function");
 			done();
@@ -771,14 +789,10 @@ describe("CONTROLLER: CUSTOM", function() {
 	});
 
 	describe("#removeKeyValuePairsFromGPTSlots", function () {
-		it("is a function", function(done) {
-			CUSTOM.removeKeyValuePairsFromGPTSlots.should.be.a("function");
-			done();
-		});
-
-		it("remove the wrappre targetings", function(done){
-
-			var currentGoogleSlotStub_1 = {
+		var currentGoogleSlotStub_1,currentGoogleSlotStub_2;
+		beforeEach(function(done) {
+            
+			currentGoogleSlotStub_1 = {
 				keyValuePairs: {
 					"k1": "v1",
 					"k2": "v2",
@@ -809,7 +823,7 @@ describe("CONTROLLER: CUSTOM", function() {
 				}
 			};
 
-			var currentGoogleSlotStub_2 = {
+			currentGoogleSlotStub_2 = {
 				keyValuePairs: {
 					"k11": "v11",
 					"k22": "v22",
@@ -843,6 +857,30 @@ describe("CONTROLLER: CUSTOM", function() {
 					return "setSizes";
 				}
 			};
+			done();
+		});
+		
+		afterEach(function(done) {
+			done();
+		});
+
+		it("is a function", function(done) {
+			CUSTOM.removeKeyValuePairsFromGPTSlots.should.be.a("function");
+			done();
+		});
+
+		it("not remove the wrapper targetings when shouldClearTargeting is false", function(done){
+			window.PWT.shouldClearTargeting = false;
+			(currentGoogleSlotStub_1.keyValuePairs["pwtsid"] === "1234").should.equal(true);
+			(currentGoogleSlotStub_2.keyValuePairs["pwtsid"] === "9876").should.equal(true);
+			CUSTOM.removeKeyValuePairsFromGPTSlots([currentGoogleSlotStub_1, currentGoogleSlotStub_2]);
+			(currentGoogleSlotStub_1.keyValuePairs["pwtsid"] === "1234").should.equal(true);
+			(currentGoogleSlotStub_2.keyValuePairs["pwtsid"] === "9876").should.equal(true);
+			done();
+		});
+
+		it("remove the wrapper targetings", function(done){
+			window.PWT.shouldClearTargeting = true;
 			(currentGoogleSlotStub_1.keyValuePairs["pwtsid"] === "1234").should.equal(true);
 			(currentGoogleSlotStub_2.keyValuePairs["pwtsid"] === "9876").should.equal(true);
 			CUSTOM.removeKeyValuePairsFromGPTSlots([currentGoogleSlotStub_1, currentGoogleSlotStub_2]);
@@ -861,7 +899,8 @@ describe("CONTROLLER: CUSTOM", function() {
 			sinon.spy(CUSTOM, "setWindowReference");
 			sinon.spy(CUSTOM, "defineWrapperTargetingKeys");
 			sinon.spy(CUSTOM, "initSafeFrameListener");
-			sinon.stub(PREBID, "realignPubmaticAdapters")
+			sinon.stub(PREBID, "realignPubmaticAdapters");
+			sinon.stub(UTIL, "getGeoInfo").returns({});
 			done();
 		});
 
@@ -871,6 +910,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			CUSTOM.defineWrapperTargetingKeys.restore();
 			CUSTOM.initSafeFrameListener.restore();
 			PREBID.realignPubmaticAdapters.restore();
+			UTIL.getGeoInfo.restore();
 			done();
 		});
 
@@ -901,6 +941,134 @@ describe("CONTROLLER: CUSTOM", function() {
 			UTIL.isObject.calledWith("NonObject").should.be.true;
 			CUSTOM.setWindowReference.called.should.be.false;
 			CUSTOM.defineWrapperTargetingKeys.called.should.be.false;
+			done();
+		});
+	});
+
+	describe("#displayAllCreativesWithoutAdServer", function () {
+		var adUnitsArray;
+		var isArrayStub;
+		beforeEach(function(done) {
+			adUnitsArray = [{"code":"Div1","divId":"Div1","adUnitId":"/43743431/DMDemo","adUnitIndex":"0","mediaTypes":{"banner":{"sizes":[[728,90],[300,250],[160,600]]}},"sizes":[[728,90],[300,250],[160,600]],"bidData":{"wb":{"adHtml":"<span class=\"PubAPIAd\"></span><img alt='here is your ad' src=\"https://via.placeholder.com/728x90.png\"></img><iframe width=\\\"0\\\" scrolling=\\\"no\\\" height=\\\"0\\\" frameborder=\\\"0\\\" style=\\\"position:absolute;top:-15000px;left:-15000px\\\" vspace=\\\"0\\\" hspace=\\\"0\\\" marginwidth=\\\"0\\\" marginheight=\\\"0\\\" allowtransparency=\\\"true\\\" name=\\\"pbeacon\\\"></iframe>","adapterID":"pubmatic","grossEcpm":19.52,"netEcpm":19.52,"height":90,"width":728},"kvp":{"pwtcrid":"test2","pwtdsp":"4","pwtacat":"known-acat","pwtverid":"1","pwtprofid":"4213","pwtpubid":"5890","pwtbst":"1","pwtplt":"display","pwtsz":"728x90","pwtecp":"19.52","pwtsid":"5595adfa45d3ee","pwtpid":"pubmatic","hb_buyid_pubmatic":"12"}}}]
+			isArrayStub = sinon.stub(UTIL, "isArray");
+			sinon.spy(UTIL, "logWarning");
+			sinon.spy(UTIL, 'forEachOnArray');
+			sinon.spy(CUSTOM, 'displayCreativeWithoutAdServer');
+			done();
+		});
+
+		afterEach(function(done) {
+			UTIL.isArray.restore();
+			UTIL.logWarning.restore();
+			UTIL.forEachOnArray.restore();
+			CUSTOM.displayCreativeWithoutAdServer.restore();
+			done();
+		});
+
+		it("is a function", function(done) {
+			CUSTOM.displayAllCreativesWithoutAdServer.should.be.a("function");
+			done();
+		});
+
+		it("should log warning if input is not an array", function(done){
+			isArrayStub.returns(false);
+			CUSTOM.displayAllCreativesWithoutAdServer(adUnitsArray);
+			UTIL.logWarning.calledOnce.should.be.true;
+			done();
+		});
+
+		it("should call displayCreativeWithoutAdServer function for each element in array", function(done){
+			isArrayStub.returns(true);
+			CUSTOM.displayAllCreativesWithoutAdServer(adUnitsArray);
+			UTIL.forEachOnArray.called.should.be.true;
+			CUSTOM.displayCreativeWithoutAdServer.called.should.be.true;
+			done();
+		});
+	});
+
+	describe("#displayCreativeWithoutAdServer", function () {
+		var adUnit;
+		beforeEach(function(done) {
+			adUnit = {
+				"code": "Div1",
+				"divId": "Div1",
+				"adUnitId": "/43743431/DMDemo",
+				"adUnitIndex": "0",
+				"mediaTypes": {
+				  "banner": {
+					"sizes": [[728,90],[300,250],[160,600]]
+				  }
+				},
+				"sizes": [[728,90],[300,250],[160,600]],
+				"bidData": {
+				  "wb": {
+					"adHtml": "<span class=\"PubAPIAd\"></span><img alt='here is your ad' src=\"https://via.placeholder.com/728x90.png\"></img><iframe width=\\\"0\\\" scrolling=\\\"no\\\" height=\\\"0\\\" frameborder=\\\"0\\\" style=\\\"position:absolute;top:-15000px;left:-15000px\\\" vspace=\\\"0\\\" hspace=\\\"0\\\" marginwidth=\\\"0\\\" marginheight=\\\"0\\\" allowtransparency=\\\"true\\\" name=\\\"pbeacon\\\"></iframe>",
+					"adapterID": "pubmatic",
+					"grossEcpm": 19.52,
+					"netEcpm": 19.52,
+					"height": 90,
+					"width": 728
+				  },
+				  "kvp": {
+					"pwtcrid": "test2",
+					"pwtdsp": "4",
+					"pwtacat": "known-acat",
+					"pwtverid": "1",
+					"pwtprofid": "4213",
+					"pwtpubid": "5890",
+					"pwtbst": "1",
+					"pwtplt": "display",
+					"pwtsz": "728x90",
+					"pwtecp": "19.52",
+					"pwtsid": "5595adfa45d3ee",
+					"pwtpid": "pubmatic",
+					"hb_buyid_pubmatic": "12"
+				  }
+				}
+			  };
+			sinon.spy(UTIL, "logWarning");
+			sinon.spy(UTIL, "logError");
+			sinon.spy(CUSTOM, 'displayCreativeWithoutAdServer');
+			sinon.stub(document, "getElementById").withArgs("Div1").returns({textContent: "s", appendChild: function(){}});
+			done();
+		});
+
+		afterEach(function(done) {
+			UTIL.logWarning.restore();
+			UTIL.logError.restore();
+			CUSTOM.displayCreativeWithoutAdServer.restore();
+			document.getElementById.restore();
+			done();
+		});
+
+		it("is a function", function(done) {
+			CUSTOM.displayCreativeWithoutAdServer.should.be.a("function");
+			done();
+		});
+
+		it("should log warning if div is not present", function(done){
+			adUnit.divId = "Div2";
+			CUSTOM.displayCreativeWithoutAdServer(adUnit);
+			UTIL.logWarning.calledOnce.should.be.true;
+			done();
+		});
+
+		xit("should call renderAd when winning bid is present", function(done){
+			window.owpbjs = {
+                renderAd: function(){
+                    return true;
+                }
+            };
+			CUSTOM.displayCreativeWithoutAdServer(adUnit);
+			window.owpbjs.renderAd.calledOnce.should.be.false;
+			window.owpbjs = undefined;
+			done();
+		});
+
+		xit("should log error when winning bid is not present", function(done){
+			delete adUnit.bidData.kvp.pwtsid;
+			CUSTOM.displayCreativeWithoutAdServer(adUnit);
+			UTIL.logError.calledOnce.should.be.true;
 			done();
 		});
 	});
