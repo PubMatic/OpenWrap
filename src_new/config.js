@@ -292,11 +292,8 @@ exports.isReduceCodeSizeFeatureEnabled = function(){
 };
 // endRemoveIf(removeAlways)
 
-// Changes to handle custom PG scenario on CI
-// Remove below custom handling before giving master drop.
 exports.getPriceGranularity = function(){
-	var pg = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
-	return (pg == 'custom') ? 'medium' : pg;
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
 };
 
 exports.getGranularityMultiplier = function(){
