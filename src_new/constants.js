@@ -112,6 +112,12 @@ exports.CONFIG = {
 	"TIMEOUT_ADJUSTMENT": 50,
 	"SSO_ENABLED": "ssoEnabled",
 	"FLOOR_SOURCE": "floorSource",
+	"GPP_CONSENT": "gpp",
+	"GPP_CMPAPI": "gppCmpApi",
+	"GPP_TIMEOUT": "gppTimeout",
+	"DEFAULT_GPP_CONSENT": "0",
+	"DEFAULT_GPP_CMPAPI": "iab",
+	"DEFAULT_GPP_TIMEOUT": 10000,
 	"GDPR_ACTION_TIMEOUT": "gdprActionTimeout",
 	"PB_GLOBAL_VAR_NAMESPACE": "pbGlobalVarNamespace",
 	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace"
