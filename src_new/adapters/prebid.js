@@ -861,7 +861,7 @@ exports.assignCcpaConfigIfRequired = assignCcpaConfigIfRequired;
 
 function assignGppConfigIfRequired(prebidConfig) {
 	if (CONFIG.getGppConsent()) {
-		prebidConfig = owIdhubCommon.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
+		prebidConfig = COMMON_CONFIG.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
 	}
 }
 

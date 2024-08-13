@@ -69,7 +69,7 @@ refThis.setConfig = function(){
 
 			// Set Gpp consent config
 			if (CONFIG.getGppConsent()) {
-				prebidConfig = owIdhubCommon.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
+				prebidConfig = COMMON_CONFIG.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
 			}
 
 			window.IHPWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
