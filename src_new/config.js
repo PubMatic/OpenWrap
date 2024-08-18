@@ -293,7 +293,9 @@ exports.isReduceCodeSizeFeatureEnabled = function(){
 // endRemoveIf(removeAlways)
 
 exports.getPriceGranularity = function(){
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
+	// return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
+	var pg = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
+	return (pg == 'custom') ? 'medium' : pg;
 };
 
 exports.getGranularityMultiplier = function(){
