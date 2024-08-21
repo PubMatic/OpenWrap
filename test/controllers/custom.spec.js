@@ -942,4 +942,132 @@ describe("CONTROLLER: CUSTOM", function() {
 			done();
 		});
 	});
+
+	describe("#displayAllCreativesWithoutAdServer", function () {
+		var adUnitsArray;
+		var isArrayStub;
+		beforeEach(function(done) {
+			adUnitsArray = [{"code":"Div1","divId":"Div1","adUnitId":"/43743431/DMDemo","adUnitIndex":"0","mediaTypes":{"banner":{"sizes":[[728,90],[300,250],[160,600]]}},"sizes":[[728,90],[300,250],[160,600]],"bidData":{"wb":{"adHtml":"<span class=\"PubAPIAd\"></span><img alt='here is your ad' src=\"https://via.placeholder.com/728x90.png\"></img><iframe width=\\\"0\\\" scrolling=\\\"no\\\" height=\\\"0\\\" frameborder=\\\"0\\\" style=\\\"position:absolute;top:-15000px;left:-15000px\\\" vspace=\\\"0\\\" hspace=\\\"0\\\" marginwidth=\\\"0\\\" marginheight=\\\"0\\\" allowtransparency=\\\"true\\\" name=\\\"pbeacon\\\"></iframe>","adapterID":"pubmatic","grossEcpm":19.52,"netEcpm":19.52,"height":90,"width":728},"kvp":{"pwtcrid":"test2","pwtdsp":"4","pwtacat":"known-acat","pwtverid":"1","pwtprofid":"4213","pwtpubid":"5890","pwtbst":"1","pwtplt":"display","pwtsz":"728x90","pwtecp":"19.52","pwtsid":"5595adfa45d3ee","pwtpid":"pubmatic","hb_buyid_pubmatic":"12"}}}]
+			isArrayStub = sinon.stub(UTIL, "isArray");
+			sinon.spy(UTIL, "logWarning");
+			sinon.spy(UTIL, 'forEachOnArray');
+			sinon.spy(CUSTOM, 'displayCreativeWithoutAdServer');
+			done();
+		});
+
+		afterEach(function(done) {
+			UTIL.isArray.restore();
+			UTIL.logWarning.restore();
+			UTIL.forEachOnArray.restore();
+			CUSTOM.displayCreativeWithoutAdServer.restore();
+			done();
+		});
+
+		it("is a function", function(done) {
+			CUSTOM.displayAllCreativesWithoutAdServer.should.be.a("function");
+			done();
+		});
+
+		it("should log warning if input is not an array", function(done){
+			isArrayStub.returns(false);
+			CUSTOM.displayAllCreativesWithoutAdServer(adUnitsArray);
+			UTIL.logWarning.calledOnce.should.be.true;
+			done();
+		});
+
+		it("should call displayCreativeWithoutAdServer function for each element in array", function(done){
+			isArrayStub.returns(true);
+			CUSTOM.displayAllCreativesWithoutAdServer(adUnitsArray);
+			UTIL.forEachOnArray.called.should.be.true;
+			CUSTOM.displayCreativeWithoutAdServer.called.should.be.true;
+			done();
+		});
+	});
+
+	describe("#displayCreativeWithoutAdServer", function () {
+		var adUnit;
+		beforeEach(function(done) {
+			adUnit = {
+				"code": "Div1",
+				"divId": "Div1",
+				"adUnitId": "/43743431/DMDemo",
+				"adUnitIndex": "0",
+				"mediaTypes": {
+				  "banner": {
+					"sizes": [[728,90],[300,250],[160,600]]
+				  }
+				},
+				"sizes": [[728,90],[300,250],[160,600]],
+				"bidData": {
+				  "wb": {
+					"adHtml": "<span class=\"PubAPIAd\"></span><img alt='here is your ad' src=\"https://via.placeholder.com/728x90.png\"></img><iframe width=\\\"0\\\" scrolling=\\\"no\\\" height=\\\"0\\\" frameborder=\\\"0\\\" style=\\\"position:absolute;top:-15000px;left:-15000px\\\" vspace=\\\"0\\\" hspace=\\\"0\\\" marginwidth=\\\"0\\\" marginheight=\\\"0\\\" allowtransparency=\\\"true\\\" name=\\\"pbeacon\\\"></iframe>",
+					"adapterID": "pubmatic",
+					"grossEcpm": 19.52,
+					"netEcpm": 19.52,
+					"height": 90,
+					"width": 728
+				  },
+				  "kvp": {
+					"pwtcrid": "test2",
+					"pwtdsp": "4",
+					"pwtacat": "known-acat",
+					"pwtverid": "1",
+					"pwtprofid": "4213",
+					"pwtpubid": "5890",
+					"pwtbst": "1",
+					"pwtplt": "display",
+					"pwtsz": "728x90",
+					"pwtecp": "19.52",
+					"pwtsid": "5595adfa45d3ee",
+					"pwtpid": "pubmatic",
+					"hb_buyid_pubmatic": "12"
+				  }
+				}
+			  };
+			sinon.spy(UTIL, "logWarning");
+			sinon.spy(UTIL, "logError");
+			sinon.spy(CUSTOM, 'displayCreativeWithoutAdServer');
+			sinon.stub(document, "getElementById").withArgs("Div1").returns({textContent: "s", appendChild: function(){}});
+			done();
+		});
+
+		afterEach(function(done) {
+			UTIL.logWarning.restore();
+			UTIL.logError.restore();
+			CUSTOM.displayCreativeWithoutAdServer.restore();
+			document.getElementById.restore();
+			done();
+		});
+
+		it("is a function", function(done) {
+			CUSTOM.displayCreativeWithoutAdServer.should.be.a("function");
+			done();
+		});
+
+		it("should log warning if div is not present", function(done){
+			adUnit.divId = "Div2";
+			CUSTOM.displayCreativeWithoutAdServer(adUnit);
+			UTIL.logWarning.calledOnce.should.be.true;
+			done();
+		});
+
+		xit("should call renderAd when winning bid is present", function(done){
+			window.owpbjs = {
+                renderAd: function(){
+                    return true;
+                }
+            };
+			CUSTOM.displayCreativeWithoutAdServer(adUnit);
+			window.owpbjs.renderAd.calledOnce.should.be.false;
+			window.owpbjs = undefined;
+			done();
+		});
+
+		xit("should log error when winning bid is not present", function(done){
+			delete adUnit.bidData.kvp.pwtsid;
+			CUSTOM.displayCreativeWithoutAdServer(adUnit);
+			UTIL.logError.calledOnce.should.be.true;
+			done();
+		});
+	});
 });
