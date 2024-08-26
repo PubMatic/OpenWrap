@@ -291,6 +291,7 @@ exports.isReduceCodeSizeFeatureEnabled = function(){
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.REDUCE_CODE_SIZE]) === 1;
 };
 // endRemoveIf(removeAlways)
+
 exports.getPriceGranularity = function(){
 	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
 };
