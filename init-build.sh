@@ -53,7 +53,7 @@ then
 fi
 
 
-OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR_V8_52_0}/node_modules/"
+OpenWrapNodeModules="${GLOBAL_OPENWRAP_PKG_JSON_DIR_V9_6_0}/node_modules/"
 
 
 function prebidNpmInstall() {
@@ -62,7 +62,7 @@ function prebidNpmInstall() {
 
 
 
-PrebidJSNodeModules="${GLOBAL_PREBID_PKG_JSON_DIR_V8_52_0}/node_modules/"
+PrebidJSNodeModules="${GLOBAL_PREBID_PKG_JSON_DIR_V9_6_0}/node_modules/"
 
 
   symLinkForPrebidNodeModules=node_modules
