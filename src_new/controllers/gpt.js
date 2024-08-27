@@ -320,7 +320,7 @@ function findWinningBidAndApplyTargeting(divID, parentArgs) { // TDD, i/o : done
 			delete keyValuePairs[key];
 		}
         /* istanbul ignore else*/
-        else if (!util.isOwnProperty(ignoreTheseKeys, key) && !util.isOwnProperty({"pwtpb":1}, key)) {
+        else if (!util.isOwnProperty(ignoreTheseKeys, key)) {
             googleDefinedSlot.setTargeting(key, value);
             // adding key in wrapperTargetingKeys as every key added by OpenWrap should be removed before calling refresh on slot
             refThis.defineWrapperTargetingKey(key);
