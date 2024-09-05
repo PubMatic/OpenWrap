@@ -2460,6 +2460,73 @@ describe('Config', function() {
         });
     });
 
+
+    describe('#Gpp', function() {
+        beforeEach(function(done){
+            if(!CONF[CONSTANTS.CONFIG.COMMON]) {
+                CONF[CONSTANTS.CONFIG.COMMON] = {};
+            }
+            done();
+        });
+
+        describe('#getGpp', function() {
+            it('is a function', function(done) {
+                CONFIG.getGppConsent.should.be.a('function');
+                done();
+            });
+
+            it('should return true, as it is set to "1"', function(done) {
+                CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CONSENT] = "1";
+                CONFIG.getGppConsent().should.be.true;
+                done();
+            });
+
+            it('should return default value for gpp which is '+(CONSTANTS.CONFIG.DEFAULT_GPP_CONSENT === "1")+', as it is NOT set', function(done) {
+                delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CONSENT];
+                CONFIG.getGppConsent().should.be.equal((CONSTANTS.CONFIG.DEFAULT_GPP_CONSENT === "1"));
+                done();
+            });
+        });
+
+        describe('#getGppCmpApi', function() {
+            it('is a function', function(done) {
+                CONFIG.getGppCmpApi.should.be.a('function');
+                done();
+            });
+
+            it('should return iab, as it is set to iab', function(done) {
+                CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CMPAPI] = 'iab';
+                CONFIG.getGppCmpApi().should.be.equal('iab');
+                done();
+            });
+
+            it('should return default cmp which is '+CONSTANTS.CONFIG.DEFAULT_GPP_CMPAPI+', as it is NOT set', function(done) {
+                delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CMPAPI];
+                CONFIG.getGppCmpApi().should.be.equal(CONSTANTS.CONFIG.DEFAULT_GPP_CMPAPI);
+                done();
+            });
+        });
+
+        describe('#getGppTimeout', function() {
+            it('is a function', function(done) {
+                CONFIG.getGppTimeout.should.be.a('function');
+                done();
+            });
+
+            it('should return 5000, as it is set to 5000', function(done) {
+                CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_TIMEOUT] = 5000;
+                CONFIG.getGppTimeout().should.be.equal(5000);
+                done();
+            });
+
+            it('should return default value for gpp timeout which is '+CONSTANTS.CONFIG.DEFAULT_GPP_TIMEOUT+', as it is NOT set', function(done) {
+                delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_TIMEOUT];
+                CONFIG.getGppTimeout().should.be.equal(CONSTANTS.CONFIG.DEFAULT_GPP_TIMEOUT);
+                done();
+            });
+        });
+    });
+
     describe('getOverrideNamespace', function() {
         var configKey = 'pbGlobalVarNamespace';
         var defaultName = 'custPbNamespace';
