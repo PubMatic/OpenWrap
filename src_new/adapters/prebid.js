@@ -653,17 +653,12 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["publisherId"] = adapterConfig["publisherId"];
 			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
 			slotParams["wiid"] = impressionID;
-			// slotParams["profId"] = (adapterID == "pubmatic2") || (adapterName == "pubmatic2")  ? adapterConfig["profileId"]: CONFIG.getProfileID();
 			slotParams["profId"] = (adapterID == "pubmatic2") || (adapterName == "pubmatic2")  ?
 				adapterConfig["profileId"]:
 					(adapterConfig["publisherId"] == CONFIG.getPublisherId() ?
 						CONFIG.getProfileID() : undefined);
 
 			/* istanbul ignore else*/
-			// if((adapterID != "pubmatic2" && adapterName != "pubmatic2") && window.PWT.udpv){
-			// 	slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
-			// }
-
 			if((adapterID != "pubmatic2" && adapterName != "pubmatic2") && window.PWT.udpv){
 				slotParams["verId"] = (adapterName == "pubmatic" && (adapterConfig["publisherId"] == CONFIG.getPublisherId()) ?
 					 CONFIG.getProfileDisplayVersionID() : undefined);
@@ -671,10 +666,6 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 
 		// If we will be using PrebidServerBidAdaptar add wrapper object with profile and version
 		if(CONFIG.usePBSAdapter() == true && CONFIG.isServerSideAdapter(adapterID)) {
-			// slotParams["wrapper"] = {
-			// 	profile: parseInt(CONF.pwt.pid),
-			// 	version: parseInt(CONF.pwt.pdvid)
-			// };
 			if(adapterName == "pubmatic" && (adapterConfig["publisherId"] == CONFIG.getPublisherId())) {
 				slotParams["wrapper"] = {
 					profile: parseInt(CONF.pwt.pid),
@@ -694,7 +685,6 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			// }
 			adUnits[ code ].bids.push({	bidder: adapterID, params: slotParams });
 			break;
-
 		case "pulsepoint":
 			util.forEachOnArray(sizes, function(index, size){
 				var slotParams = {};
