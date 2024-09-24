@@ -10,7 +10,9 @@ var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var CONF = require("../conf.js");
+
 var COMMON_CONFIG = require("../common.config.js");
+
 
 var parentAdapterID = CONSTANTS.COMMON.PARENT_ADAPTER_PREBID;
 
@@ -857,6 +859,14 @@ function assignCcpaConfigIfRequired(prebidConfig){
 
 exports.assignCcpaConfigIfRequired = assignCcpaConfigIfRequired;
 
+function assignGppConfigIfRequired(prebidConfig) {
+	if (CONFIG.getGppConsent()) {
+		prebidConfig = COMMON_CONFIG.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
+	}
+}
+
+exports.assignGppConfigIfRequired = assignGppConfigIfRequired;
+
 function assignCurrencyConfigIfRequired(prebidConfig){
 	if(CONFIG.getAdServerCurrency()){
 		// get AdServer currency from Config
@@ -1017,7 +1027,7 @@ function setPrebidConfig(){
 				url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH,
 				ignoreBidderCacheKey: true
 			},
-			bidderSequence: "random",					
+			bidderSequence: CONF.pwt.bidderOrderingEnabled === "1" ? "fixed" : "random",					
 			disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
 			enableSendAllBids: CONFIG.getSendAllBidsStatus(),
 			targetingControls: {
@@ -1042,6 +1052,7 @@ function setPrebidConfig(){
 		refThis.assignUserSyncConfig(prebidConfig);
 		refThis.assignGdprConfigIfRequired(prebidConfig);
 		refThis.assignCcpaConfigIfRequired(prebidConfig);
+		refThis.assignGppConfigIfRequired(prebidConfig);
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
@@ -1064,15 +1075,6 @@ function setPrebidConfig(){
 }
 
 exports.setPrebidConfig = setPrebidConfig;
-
-function realignPubmaticAdapters(){
-	if(CONF.adapters && CONF.adapters["pubmatic"]){
-		var pubmaticAdpater = {"pubmatic": CONF.adapters["pubmatic"]};
-		CONF.adapters = Object.assign(pubmaticAdpater, CONF.adapters);
-	}
-}
-
-exports.realignPubmaticAdapters = realignPubmaticAdapters;
 
 function gets2sConfig(prebidConfig){
 	var bidderParams = {};
@@ -1320,6 +1322,11 @@ function getPbjsAdServerTargetingConfig(){
 			val: function(bidResponse){
 				return bidResponse.creativeId  ? bidResponse.creativeId : '';
 			}
+		}, {
+			key: 'pwtpb',
+			val: function(bidResponse){
+				return bidResponse[CONSTANTS.PRICE_GRANULARITY_KEYS[owpbjs.readConfig('priceGranularity')]] || null;
+			}
 		}
     ];
 }
@@ -1409,7 +1416,6 @@ function initPbjsConfig(){
 		return;
 	}
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
-	refThis.realignPubmaticAdapters();
 	refThis.setPrebidConfig();
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();

@@ -293,7 +293,32 @@ exports.isReduceCodeSizeFeatureEnabled = function(){
 // endRemoveIf(removeAlways)
 
 exports.getPriceGranularity = function(){
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
+	var priceGranularity = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] || null;
+    
+	if (priceGranularity === CONSTANTS.COMMON.PRICE_GRANULARITY_CUSTOM) {
+		var bucketsValue = refThis.getPriceGranularityBuckets();
+		if(bucketsValue !== null) {
+            return bucketsValue;
+        } else {
+            util.logWarning(CONSTANTS.MESSAGES.M36);
+            return null;
+        }
+	} 
+	else {
+		return priceGranularity;
+	}
+};
+
+exports.getPriceGranularityBuckets = function () {
+	var pgBuckets = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS] || null;
+	if(pgBuckets === null)
+	return null;
+
+	// API would be providing us with ranges as keyword, we need to raplace it by buckets before processing
+	var transformedBuckets = {};
+	delete Object.assign(transformedBuckets, pgBuckets, {['buckets']: pgBuckets['ranges'] })['ranges'];
+  
+	return transformedBuckets;
 };
 
 exports.getGranularityMultiplier = function(){
@@ -459,6 +484,22 @@ exports.getMarketplaceBidders = function(){
 	return config.pwt.marketplaceBidders ? config.pwt.marketplaceBidders.split(',') : false;
 }
 
+
+exports.getGppConsent = function () {
+	var gpp = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CONSENT] || CONSTANTS.CONFIG.DEFAULT_GPP_CONSENT;
+	return gpp === "1";
+};
+
+exports.getGppCmpApi = function () {
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CMPAPI] || CONSTANTS.CONFIG.DEFAULT_GPP_CMPAPI;
+};
+
+exports.getGppTimeout = function () {
+	var gppTimeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_TIMEOUT];
+	return gppTimeout ? window.parseInt(gppTimeout) : CONSTANTS.CONFIG.DEFAULT_GPP_TIMEOUT;
+}
+
 exports.shouldClearTargeting = function () {
 	return window.PWT.shouldClearTargeting !== undefined ? Boolean(window.PWT.shouldClearTargeting) : true;
+
 };

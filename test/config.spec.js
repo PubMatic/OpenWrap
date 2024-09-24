@@ -2183,11 +2183,13 @@ describe('Config', function() {
     describe('#getPriceGranularity',function(){
         beforeEach(function(done){
             CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY]  = "high";
+            sinon.spy(UTIL, "logWarning");
             done();
         });
 
         afterEach(function(done){
-            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] ;
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY];
+            UTIL.logWarning.restore();
             done();
         })
 
@@ -2205,6 +2207,52 @@ describe('Config', function() {
         it('should return null if priceGranularity is not present',function(done){
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY];
             expect(CONFIG.getPriceGranularity()).to.equal(null);
+            done();
+        });
+
+        it('should return PriceGranularity Buckets if price granularity is custom', function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] = 'custom';
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS] = {'ranges':'customBuckets'};
+            var expectedResult = {'buckets':'customBuckets'};
+            expect(CONFIG.getPriceGranularity()).to.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return null and log warning if Buckets are missing for custom price granularity', function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY] = 'custom';
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS]
+            
+            expect(CONFIG.getPriceGranularity()).to.equal(null);
+            UTIL.logWarning.calledWith(CONSTANTS.MESSAGES.M36).should.be.true;
+            done();
+        });
+    });
+
+    describe('#getPriceGranularityBuckets',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS] = {'ranges':'customBuckets'};
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS];
+            done();
+        })
+
+        it('is a function', function(done) {
+            CONFIG.getPriceGranularityBuckets.should.be.a('function');
+            done();
+        });
+
+        it('should return the buckets by reading from config', function(done) {
+            var expectedResult = {'buckets':'customBuckets'};
+            CONFIG.getPriceGranularityBuckets().should.be.deep.equal(expectedResult);
+            done();
+        });
+
+        it('should return null if bucket is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PRICE_GRANULARITY_BUCKETS];
+            expect(CONFIG.getPriceGranularityBuckets()).to.equal(null);
             done();
         });
     });
@@ -2409,6 +2457,73 @@ describe('Config', function() {
             }
             expect(CONFIG.getMarketplaceBidders()).to.equal(false);
             done();
+        });
+    });
+
+
+    describe('#Gpp', function() {
+        beforeEach(function(done){
+            if(!CONF[CONSTANTS.CONFIG.COMMON]) {
+                CONF[CONSTANTS.CONFIG.COMMON] = {};
+            }
+            done();
+        });
+
+        describe('#getGpp', function() {
+            it('is a function', function(done) {
+                CONFIG.getGppConsent.should.be.a('function');
+                done();
+            });
+
+            it('should return true, as it is set to "1"', function(done) {
+                CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CONSENT] = "1";
+                CONFIG.getGppConsent().should.be.true;
+                done();
+            });
+
+            it('should return default value for gpp which is '+(CONSTANTS.CONFIG.DEFAULT_GPP_CONSENT === "1")+', as it is NOT set', function(done) {
+                delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CONSENT];
+                CONFIG.getGppConsent().should.be.equal((CONSTANTS.CONFIG.DEFAULT_GPP_CONSENT === "1"));
+                done();
+            });
+        });
+
+        describe('#getGppCmpApi', function() {
+            it('is a function', function(done) {
+                CONFIG.getGppCmpApi.should.be.a('function');
+                done();
+            });
+
+            it('should return iab, as it is set to iab', function(done) {
+                CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CMPAPI] = 'iab';
+                CONFIG.getGppCmpApi().should.be.equal('iab');
+                done();
+            });
+
+            it('should return default cmp which is '+CONSTANTS.CONFIG.DEFAULT_GPP_CMPAPI+', as it is NOT set', function(done) {
+                delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_CMPAPI];
+                CONFIG.getGppCmpApi().should.be.equal(CONSTANTS.CONFIG.DEFAULT_GPP_CMPAPI);
+                done();
+            });
+        });
+
+        describe('#getGppTimeout', function() {
+            it('is a function', function(done) {
+                CONFIG.getGppTimeout.should.be.a('function');
+                done();
+            });
+
+            it('should return 5000, as it is set to 5000', function(done) {
+                CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_TIMEOUT] = 5000;
+                CONFIG.getGppTimeout().should.be.equal(5000);
+                done();
+            });
+
+            it('should return default value for gpp timeout which is '+CONSTANTS.CONFIG.DEFAULT_GPP_TIMEOUT+', as it is NOT set', function(done) {
+                delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GPP_TIMEOUT];
+                CONFIG.getGppTimeout().should.be.equal(CONSTANTS.CONFIG.DEFAULT_GPP_TIMEOUT);
+                done();
+            });
         });
     });
 
