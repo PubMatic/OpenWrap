@@ -653,18 +653,26 @@ function pushAdapterParamsInAdunits(adapterID, generatedKey, impressionID, keyCo
 			slotParams["publisherId"] = adapterConfig["publisherId"];
 			slotParams["adSlot"] = slotParams["slotName"] || generatedKey;
 			slotParams["wiid"] = impressionID;
-			slotParams["profId"] = (adapterID == "pubmatic2") || (adapterName == "pubmatic2")  ? adapterConfig["profileId"]: CONFIG.getProfileID();
+			slotParams["profId"] = (adapterID == "pubmatic2") || (adapterName == "pubmatic2")  ?
+				adapterConfig["profileId"]:
+					(adapterConfig["publisherId"] == CONFIG.getPublisherId() ?
+						CONFIG.getProfileID() : undefined);
+
 			/* istanbul ignore else*/
 			if((adapterID != "pubmatic2" && adapterName != "pubmatic2") && window.PWT.udpv){
-				slotParams["verId"] = CONFIG.getProfileDisplayVersionID();
+				slotParams["verId"] = (adapterName == "pubmatic" && (adapterConfig["publisherId"] == CONFIG.getPublisherId()) ?
+					 CONFIG.getProfileDisplayVersionID() : undefined);
 			}
 
 		// If we will be using PrebidServerBidAdaptar add wrapper object with profile and version
 		if(CONFIG.usePBSAdapter() == true && CONFIG.isServerSideAdapter(adapterID)) {
-			slotParams["wrapper"] = {
-				profile: parseInt(CONF.pwt.pid),
-				version: parseInt(CONF.pwt.pdvid)
-			};
+			if(adapterName == "pubmatic" && (adapterConfig["publisherId"] == CONFIG.getPublisherId())) {
+				slotParams["wrapper"] = {
+					profile: parseInt(CONF.pwt.pid),
+					version: parseInt(CONF.pwt.pdvid)
+				};
+			}
+
 			// If mapping is regex then we should pass hashedKey to adSlot params earlier it was handled on s2s side.
 			if(slotParams["hashedKey"]) {
 				slotParams["adSlot"] = slotParams["hashedKey"];
@@ -1027,7 +1035,7 @@ function setPrebidConfig(){
 				url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH,
 				ignoreBidderCacheKey: true
 			},
-			bidderSequence: "random",					
+			bidderSequence: CONF.pwt.bidderOrderingEnabled === "1" ? "fixed" : "random",					
 			disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
 			enableSendAllBids: CONFIG.getSendAllBidsStatus(),
 			targetingControls: {
@@ -1075,15 +1083,6 @@ function setPrebidConfig(){
 }
 
 exports.setPrebidConfig = setPrebidConfig;
-
-function realignPubmaticAdapters(){
-	if(CONF.adapters && CONF.adapters["pubmatic"]){
-		var pubmaticAdpater = {"pubmatic": CONF.adapters["pubmatic"]};
-		CONF.adapters = Object.assign(pubmaticAdpater, CONF.adapters);
-	}
-}
-
-exports.realignPubmaticAdapters = realignPubmaticAdapters;
 
 function gets2sConfig(prebidConfig){
 	var bidderParams = {};
@@ -1331,6 +1330,11 @@ function getPbjsAdServerTargetingConfig(){
 			val: function(bidResponse){
 				return bidResponse.creativeId  ? bidResponse.creativeId : '';
 			}
+		}, {
+			key: 'pwtpb',
+			val: function(bidResponse){
+				return bidResponse[CONSTANTS.PRICE_GRANULARITY_KEYS[owpbjs.readConfig('priceGranularity')]] || null;
+			}
 		}
     ];
 }
@@ -1420,7 +1424,6 @@ function initPbjsConfig(){
 		return;
 	}
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
-	refThis.realignPubmaticAdapters();
 	refThis.setPrebidConfig();
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
