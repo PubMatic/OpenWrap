@@ -120,7 +120,8 @@ exports.CONFIG = {
 	"DEFAULT_GPP_TIMEOUT": 10000,
 	"GDPR_ACTION_TIMEOUT": "gdprActionTimeout",
 	"PB_GLOBAL_VAR_NAMESPACE": "pbGlobalVarNamespace",
-	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace"
+	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace",
+	"CONSENT_MANAGEMENT_ENABLED": "consentManagementEnabled",
 };
 
 exports.METADATA_MACROS = {
