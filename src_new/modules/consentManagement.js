@@ -2,11 +2,54 @@ var config = require("../conf.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.js");
 
-var CMP_APIS = ["__tcfapi", "__uspapi", "__gpp"];
-var PREFIX = 'UINFO';
-var LOCATION_INFO_VALIDITY = 172800000; // 2 * 24 * 60 * 60 * 1000 - 2 days
-var GEO_URL = 'https://ut.pubmatic.com/geo?pubid=';
+var cmpConsentManagementConf = {}
+
 window.PWT = window.PWT || {};
+var CMP_APIs = {
+  GDPR: {
+    apiName: "__tcfapi",
+    setConfig: setGDPRConfig
+  },
+  CCPA: {
+    apiName: "__uspapi",
+    setConfig: setCCPAConfig
+  },
+  GPP: {
+    apiName: "__gpp",
+    setConfig: setGPPConfig
+  }
+};
+
+function setGDPRConfig() {
+  cmpConsentManagementConf['gdpr'] = {
+    cmpApi: COMMON_CONFIG.getCmpApi(),
+    timeout: COMMON_CONFIG.getGdprTimeout(),
+    // allowAuctionWithoutConsent: COMMON_CONFIG.getAwc(), // Auction without consent IMP : Not required now
+    defaultGdprScope: true
+  };
+  var gdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout();
+  if (gdprActionTimeout) {
+    util.log("GDPR IS ENABLED, TIMEOUT: " + cmpConsentManagementConf['gdpr']['timeout'] +", ACTION TIMEOUT: "+ gdprActionTimeout);
+    cmpConsentManagementConf['gdpr']['actionTimeout'] = gdprActionTimeout;
+  }
+}
+function setCCPAConfig() {
+  cmpConsentManagementConf["usp"] = {
+    cmpApi: COMMON_CONFIG.getCCPACmpApi(),
+    timeout: COMMON_CONFIG.getCCPATimeout()
+  };
+}
+
+function setGPPConfig() {
+  cmpConsentManagementConf[key] = {
+    cmpApi: COMMON_CONFIG.getGPPCmpApi(),
+    timeout: COMMON_CONFIG.getGPPTimeout()
+  };
+}
+
+// var PREFIX = 'UINFO';
+// var LOCATION_INFO_VALIDITY = 172800000; // 2 * 24 * 60 * 60 * 1000 - 2 days
+// var GEO_URL = 'https://ut.pubmatic.com/geo?pubid=';
 
 // function getPbNameSpace() {
 //   return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY) ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
@@ -39,9 +82,10 @@ function getCMPsPresentOnPage() {
   var f = win;
   while (f != null) {
     try {
-      for (var i = 0; i < CMP_APIS.length; i++) {
-        if (!cmps[CMP_APIS[i]] && (typeof f[CMP_APIS[i]] === 'function' || f.frames[`${CMP_APIS[i]}Locator`])) {
-          cmps[CMP_APIS[i]] = 1;
+      for (var apiName of CMP_APIs) {
+        if (!cmps[apiName] && (typeof f[apiName] === 'function' || f.frames[`${apiName}Locator`])) {
+          cmps[apiName] = 1;
+          CMP_APIs[apiName].setConfig();
         }
       }
     } catch (e) {
@@ -53,8 +97,9 @@ function getCMPsPresentOnPage() {
   return cmps;
 }
 
-function prepareConsentManagementConfig(presentCmps) {
+function setConsentManagementConfigToPWT(config) {
   // This Will prepare Config and set it to the PWT.consentManagementConfig
+  window.PWT.consentManagementConfig = config; // Setting to PWT for visibility
 }
 
 
@@ -65,22 +110,23 @@ function getConsentManagementConfig(callback) {
     callback(window.PWT.consentManagementConfig);
   }
 
-  function anyCMPPresent(presentCMPs) {
-    return Object.keys(presentCMPs).length > 0;
+  function anyCMPPresent(cmpConsentManagementConf) {
+    return Object.keys(cmpConsentManagementConf).length > 0;
   }
 
   function fallbackExecution() {
     if (window.PWT.CC.compliance) { // This will set by the Util.getGeoInfo
       isConsentAlreadySet = true;
-      prepareConsentManagementConfig({ [window.PWT.CC.compliance]: 1 });
+      CMP_APIs[window.PWT.CC.compliance].setConfig();
+      setConsentManagementConfigToPWT(cmpConsentManagementConf);
     }
   }
 
   function checkForCMPs() {
-    var presentCMPs = getCMPsPresentOnPage();
-    if (anyCMPPresent(presentCMPs)) {
+    getCMPsPresentOnPage();
+    if (anyCMPPresent(cmpConsentManagementConf)) {
       isConsentAlreadySet = true;
-      prepareConsentManagementConfig(presentCMPs);
+      setConsentManagementConfigToPWT(cmpConsentManagementConf);
       executeCallback();
     }
   }
@@ -90,8 +136,10 @@ function getConsentManagementConfig(callback) {
 
   // Timeout added till the time we check for CMP is loaded or to be loaded
   var timeout = setTimeout(function () {
-    fallbackExecution();
-    executeCallback();
+    if(!isConsentAlreadySet) {
+      fallbackExecution();
+      executeCallback();
+    }
   }, 2000);
 
   var interval = setInterval(function () {
