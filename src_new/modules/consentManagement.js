@@ -1,4 +1,4 @@
-var config = require("../conf.js");
+var COMMON_CONFIG = require("../common.config.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.js");
 
@@ -6,44 +6,36 @@ var cmpConsentManagementConf = {}
 
 window.PWT = window.PWT || {};
 var CMP_APIs = {
-  GDPR: {
-    apiName: "__tcfapi",
-    setConfig: setGDPRConfig
-  },
-  CCPA: {
-    apiName: "__uspapi",
-    setConfig: setCCPAConfig
-  },
-  GPP: {
-    apiName: "__gpp",
-    setConfig: setGPPConfig
-  }
+  GDPR: { apiName: "__tcfapi", setConfig: setGDPRConfig },
+  CCPA: { apiName: "__uspapi", setConfig: setCCPAConfig },
+  GPP: { apiName: "__gpp", setConfig: setGPPConfig }
 };
 
 function setGDPRConfig() {
-  cmpConsentManagementConf['gdpr'] = {
-    cmpApi: COMMON_CONFIG.getCmpApi(),
-    timeout: COMMON_CONFIG.getGdprTimeout(),
+  cmpConsentManagementConf.gdpr = {
+    cmpApi: COMMON_CONFIG.getCmpApi(CONSTANTS.CONFIG.GDPR_CMPAPI),
+    timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.GDPR_TIMEOUT, CONSTANTS.CONFIG.DEFAULT_GDPR_TIMEOUT),
     // allowAuctionWithoutConsent: COMMON_CONFIG.getAwc(), // Auction without consent IMP : Not required now
     defaultGdprScope: true
   };
-  var gdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout();
+  var gdprActionTimeout = COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.GDPR_ACTION_TIMEOUT, 0);
   if (gdprActionTimeout) {
-    util.log("GDPR IS ENABLED, TIMEOUT: " + cmpConsentManagementConf['gdpr']['timeout'] +", ACTION TIMEOUT: "+ gdprActionTimeout);
-    cmpConsentManagementConf['gdpr']['actionTimeout'] = gdprActionTimeout;
+    util.log("GDPR IS ENABLED, TIMEOUT: " + cmpConsentManagementConf['gdpr']['timeout'] + ", ACTION TIMEOUT: " + gdprActionTimeout);
+    cmpConsentManagementConf.gdpr.actionTimeout = gdprActionTimeout;
   }
 }
+
 function setCCPAConfig() {
-  cmpConsentManagementConf["usp"] = {
-    cmpApi: COMMON_CONFIG.getCCPACmpApi(),
-    timeout: COMMON_CONFIG.getCCPATimeout()
+  cmpConsentManagementConf.usp = {
+    cmpApi: COMMON_CONFIG.getCmpApi(CONSTANTS.CONFIG.CCPA_CMPAPI),
+    timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.CCPA_TIMEOUT, CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT),
   };
 }
 
 function setGPPConfig() {
-  cmpConsentManagementConf[key] = {
-    cmpApi: COMMON_CONFIG.getGPPCmpApi(),
-    timeout: COMMON_CONFIG.getGPPTimeout()
+  cmpConsentManagementConf.gpp = {
+    cmpApi: COMMON_CONFIG.getCmpApi(CONSTANTS.CONFIG.GPP_CMPAPI),
+    timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.GPP_TIMEOUT, CONSTANTS.CONFIG.DEFAULT_GPP_TIMEOUT),
   };
 }
 
@@ -79,78 +71,74 @@ function setGPPConfig() {
 
 function getCMPsPresentOnPage() {
   var cmps = {};
-  var f = win;
-  while (f != null) {
+  var f = window;
+  while (f) {
     try {
-      for (var apiName of CMP_APIs) {
-        if (!cmps[apiName] && (typeof f[apiName] === 'function' || f.frames[`${apiName}Locator`])) {
-          cmps[apiName] = 1;
-          CMP_APIs[apiName].setConfig();
+      for (var name in CMP_APIs) {
+        if (!cmps[name] && (typeof f[CMP_APIs[name].apiName] === 'function' || f.frames[CMP_APIs[name].apiName + "Locator"])) {
+          cmps[name] = 1;
+          CMP_APIs[name].setConfig();
         }
       }
     } catch (e) {
     }
 
-    if (f === win.top) break;
+    if (f === window.top) break;
     f = f.parent;
   }
   return cmps;
 }
 
 function setConsentManagementConfigToPWT(config) {
-  // This Will prepare Config and set it to the PWT.consentManagementConfig
+  // This Will prepare Config and set it to the PWT.consentManagementConfig for logging purpose
   window.PWT.consentManagementConfig = config; // Setting to PWT for visibility
 }
 
+function setFallbackIfPresent() {
+  if (window.PWT.CC && window.PWT.CC.compliance) { // This will set by the Util.getGeoInfo
+    CMP_APIs[window.PWT.CC.compliance].setConfig();
+  }
+}
+
+function anyCMPPresent() {
+  return Object.keys(cmpConsentManagementConf).length > 0;
+}
 
 function getConsentManagementConfig(callback) {
-  var isConsentAlreadySet = false;
-  
-  function executeCallback() {
-    callback(window.PWT.consentManagementConfig);
-  }
-
-  function anyCMPPresent(cmpConsentManagementConf) {
-    return Object.keys(cmpConsentManagementConf).length > 0;
-  }
-
-  function fallbackExecution() {
-    if (window.PWT.CC.compliance) { // This will set by the Util.getGeoInfo
-      isConsentAlreadySet = true;
-      CMP_APIs[window.PWT.CC.compliance].setConfig();
-      setConsentManagementConfigToPWT(cmpConsentManagementConf);
-    }
-  }
-
-  function checkForCMPs() {
-    getCMPsPresentOnPage();
-    if (anyCMPPresent(cmpConsentManagementConf)) {
-      isConsentAlreadySet = true;
-      setConsentManagementConfigToPWT(cmpConsentManagementConf);
-      executeCallback();
-    }
-  }
-
+  var isCallbackExecuted = false;
   // Calling geo info to get the country code and compliance Information
   util.getGeoInfo();
 
-  // Timeout added till the time we check for CMP is loaded or to be loaded
-  var timeout = setTimeout(function () {
-    if(!isConsentAlreadySet) {
-      fallbackExecution();
-      executeCallback();
+  function executeCallback() {
+    if (!isCallbackExecuted) {
+      isCallbackExecuted = true;
+      setConsentManagementConfigToPWT(cmpConsentManagementConf);
+      callback(cmpConsentManagementConf);
     }
+  }
+
+  // Timeout added till the time we check for CMP is loaded or to be loaded
+  var timeoutId = setTimeout(function () {
+    setFallbackIfPresent();
+    executeCallback();
   }, 2000);
 
-  var interval = setInterval(function () {
-    if(isConsentAlreadySet) {
-      clearTimeout(timeout);
-      clearInterval(interval);
+  function checkCmpRecursively() {
+    if (isCallbackExecuted) {
+      clearTimeout(timeoutId);
+      return;
     }
-    checkForCMPs();
-  }, 50); // Check every 50ms (adjust as necessary)
-}
 
+    getCMPsPresentOnPage();
+    if (anyCMPPresent()) {
+      executeCallback();
+    } else {
+      setTimeout(checkCmpRecursively, 1000);
+    }
+  }
+  //CMP check recursively
+  checkCmpRecursively();
+}
 
 exports.getConsentManagementConfig = getConsentManagementConfig;
 
