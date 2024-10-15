@@ -1027,7 +1027,7 @@ function setPrebidConfig(){
 				url: CONSTANTS.CONFIG.CACHE_URL + CONSTANTS.CONFIG.CACHE_PATH,
 				ignoreBidderCacheKey: true
 			},
-			bidderSequence: "random",					
+			bidderSequence: CONF.pwt.bidderOrderingEnabled === "1" ? "fixed" : "random",					
 			disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
 			enableSendAllBids: CONFIG.getSendAllBidsStatus(),
 			targetingControls: {
@@ -1075,15 +1075,6 @@ function setPrebidConfig(){
 }
 
 exports.setPrebidConfig = setPrebidConfig;
-
-function realignPubmaticAdapters(){
-	if(CONF.adapters && CONF.adapters["pubmatic"]){
-		var pubmaticAdpater = {"pubmatic": CONF.adapters["pubmatic"]};
-		CONF.adapters = Object.assign(pubmaticAdpater, CONF.adapters);
-	}
-}
-
-exports.realignPubmaticAdapters = realignPubmaticAdapters;
 
 function gets2sConfig(prebidConfig){
 	var bidderParams = {};
@@ -1331,6 +1322,11 @@ function getPbjsAdServerTargetingConfig(){
 			val: function(bidResponse){
 				return bidResponse.creativeId  ? bidResponse.creativeId : '';
 			}
+		}, {
+			key: 'pwtpb',
+			val: function(bidResponse){
+				return bidResponse[CONSTANTS.PRICE_GRANULARITY_KEYS[owpbjs.readConfig('priceGranularity')]] || null;
+			}
 		}
     ];
 }
@@ -1420,7 +1416,6 @@ function initPbjsConfig(){
 		return;
 	}
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
-	refThis.realignPubmaticAdapters();
 	refThis.setPrebidConfig();
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
