@@ -10,6 +10,8 @@ var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var CONF = require("../conf.js");
+var consentManagement = require("../modules/consentManagement.js");
+var commonUtil = require("../common.util.js");
 
 var COMMON_CONFIG = require("../common.config.js");
 
@@ -1019,7 +1021,7 @@ function addOnBidRequestHandler(){
 exports.addOnBidRequestHandler = addOnBidRequestHandler;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
   
-function setPrebidConfig(){
+function setPrebidConfig() {
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 		var prebidConfig = {
 			debug: util.isDebugLogEnabled(),
@@ -1069,6 +1071,17 @@ function setPrebidConfig(){
 		// do not set any config below this line as we are executing the hook above
 		
 		window[pbNameSpace].setConfig(prebidConfig);
+
+		console.time("Compliance Config");
+		consentManagement.getConsentManagementConfig(function (config) {
+			console.log("Compliance Config", config);
+			console.timeEnd("Compliance Config");
+			if(Object.keys(config).length) {
+				prebidConfig.consentManagement = config;
+			}
+			window[pbNameSpace].setConfig(prebidConfig);
+		});
+		console.log("Other exeuction continue...");
 	} else {
 		util.logWarning("PreBidJS setConfig method is not available");
 	}
@@ -1425,11 +1438,23 @@ function initPbjsConfig(){
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
 	refThis.setPbjsBidderSettingsIfRequired();
-	util.getGeoInfo();
+	commonUtil.getGeoInfo();
 }
 exports.initPbjsConfig = initPbjsConfig;
 
-function fetchBids(activeSlots){
+function fetchBids(activeSlots) {
+// TODO: Halt execution till we found if consentManagement Config is set or not, once this flag found we will proceed with below execution
+	//		we can use a flag to check if consentManagement Config is set or not
+	setTimeout(function() {
+		var abc = window.PWT && window.PWT.bidMap && window.PWT.bidMap['abc'];
+		if (abc) {
+			// Your code here
+			executeAfterConsentManagementIsSet(activeSlots);
+		}
+	}, 1000);
+}
+
+function executeAfterConsentManagementIsSet(activeSlots){
 
 	var impressionID = util.generateUUID();
 	// todo: 
