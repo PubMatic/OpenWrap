@@ -1041,8 +1041,17 @@ function setPrebidConfig(){
 			targetingControls: {
 				alwaysIncludeDeals: true
 			},
-			testGroupId: parseInt(window.PWT.testGroupId || 0)
+			testGroupId: parseInt(window.PWT.testGroupId || 0),
+			useBidCache: CONF.pwt.useBidPooling === "1"
 		};
+
+		if(CONF.pwt.bidPoolingEnabled === "1") {
+			prebidConfig.useBidCache = true; 
+			prebidConfig.bidCacheFilterFunction = function(bid) {
+				return bid.mediaType !== 'video';
+			}
+		}
+
 		if(CONFIG.getPriceGranularity()){
 			prebidConfig["priceGranularity"] = CONFIG.getPriceGranularity();
 		}
