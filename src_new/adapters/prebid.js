@@ -1041,8 +1041,7 @@ function setPrebidConfig(){
 			targetingControls: {
 				alwaysIncludeDeals: true
 			},
-			testGroupId: parseInt(window.PWT.testGroupId || 0),
-			useBidCache: CONF.pwt.useBidPooling === "1"
+			testGroupId: parseInt(window.PWT.testGroupId || 0)
 		};
 
 		if(CONF.pwt.bidPoolingEnabled === "1") {
