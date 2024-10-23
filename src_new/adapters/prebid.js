@@ -1052,9 +1052,9 @@ function setPrebidConfig() {
 		refThis.getFloorsConfiguration(prebidConfig);
 		refThis.checkConfigLevelFloor(prebidConfig);
 		refThis.assignUserSyncConfig(prebidConfig);
-		refThis.assignGdprConfigIfRequired(prebidConfig);
-		refThis.assignCcpaConfigIfRequired(prebidConfig);
-		refThis.assignGppConfigIfRequired(prebidConfig);
+		//refThis.assignGdprConfigIfRequired(prebidConfig);
+		//refThis.assignCcpaConfigIfRequired(prebidConfig);
+		//refThis.assignGppConfigIfRequired(prebidConfig);
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
@@ -1072,14 +1072,20 @@ function setPrebidConfig() {
 		
 		window[pbNameSpace].setConfig(prebidConfig);
 
+		if(!COMMON_CONFIG.consentManagentEnabled()){
+			util.logWarning("ConsentMangement is not enabled, so do not enforcing any regulations");
+			return;
+		}
+
 		console.time("Compliance Config");
-		consentManagement.getConsentManagementConfig(function (config) {
-			console.log("Compliance Config", config);
+		consentManagement.getConsentManagementConfig(function (cmConfig) {
+			console.log("Compliance Config", cmConfig);
 			console.timeEnd("Compliance Config");
-			if(Object.keys(config).length) {
-				prebidConfig.consentManagement = config;
+			if(cmConfig && Object.keys(cmConfig).length) {
+				var consentManagementConf = {};
+				consentManagementConf.consentManagement = cmConfig;
+				window[pbNameSpace].setConfig(consentManagementConf);
 			}
-			window[pbNameSpace].setConfig(prebidConfig);
 		});
 		console.log("Other exeuction continue...");
 	} else {
@@ -1438,23 +1444,34 @@ function initPbjsConfig(){
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
 	refThis.setPbjsBidderSettingsIfRequired();
-	commonUtil.getGeoInfo();
+
+	// IF consent Management is enabled then do not fetch the geo info from here consentMangement.js module will do the same.
+	if(!COMMON_CONFIG.consentManagentEnabled()){
+		commonUtil.getGeoInfo();
+	}
 }
+
 exports.initPbjsConfig = initPbjsConfig;
 
 function fetchBids(activeSlots) {
 // TODO: Halt execution till we found if consentManagement Config is set or not, once this flag found we will proceed with below execution
 	//		we can use a flag to check if consentManagement Config is set or not
-	setTimeout(function() {
-		var abc = window.PWT && window.PWT.bidMap && window.PWT.bidMap['abc'];
-		if (abc) {
-			// Your code here
-			executeAfterConsentManagementIsSet(activeSlots);
+	if(!COMMON_CONFIG.consentManagentEnabled()){
+		fetchBidsAfterConfirmation(activeSlots);
+		return;
+	}
+
+	function checkIfConsentManagementIsSet() {
+		var checkTimeout = setTimeout(checkIfConsentManagementIsSet, 50);
+		if(window.PWT.cmConfig.cmProcessDone) {
+			clearTimeout(checkTimeout);
+			fetchBidsAfterConfirmation(activeSlots);
 		}
-	}, 1000);
+	}
+	checkIfConsentManagementIsSet();
 }
 
-function executeAfterConsentManagementIsSet(activeSlots){
+function fetchBidsAfterConfirmation(activeSlots){
 
 	var impressionID = util.generateUUID();
 	// todo: 

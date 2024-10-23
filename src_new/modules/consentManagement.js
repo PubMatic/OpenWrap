@@ -103,8 +103,8 @@ function getCMPsPresentOnPage() {
     try {
       for (var name in CMP_APIs) {
         if (!cmps[name] && (typeof f[CMP_APIs[name].apiName] === 'function' || f.frames[CMP_APIs[name].apiName + "Locator"])) {
-          cmps[name] = 1;
-          cmps[CMP_APIs[name][complianceName]] = CMP_APIs[name].getConfig();
+          //cmps[name] = 1;
+          cmps = Object.assign(cmps, CMP_APIs[name].getConfig());
         }
       }
     } catch (e) {
@@ -132,8 +132,8 @@ function getConsentManagementConfig(callback) {
   // Calling geo info to get the country, state level information and regulation to apply information. This will be stored under PWT.CC
   commonUtil.getGeoInfo();
 
-  function executeCallback(enforcingConsentBasisOn, config) {
-    window.PWT.cmConfig.enforcingConsentBasisOn = enforcingConsentBasisOn;
+  function executeCallback(enforcedConsentBasisOn, config) {
+    window.PWT.cmConfig.enforcedConsentBasisOn = enforcedConsentBasisOn;
     window.PWT.cmConfig.prebidCMConfig = config;
     if (!isCallbackExecuted) {
       isCallbackExecuted = true;

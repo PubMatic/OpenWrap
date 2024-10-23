@@ -3,6 +3,10 @@
 var config = require("./conf.js");
 var CONSTANTS = require("./constants.js");
 
+exports.consentManagentEnabled = function () {
+ return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CONSENT_MANAGEMENT_ENABLED] === "1";
+}
+
 exports.getCmpApi = function (cmpApi) {
 	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG[cmpApi]] || "iab";
 };

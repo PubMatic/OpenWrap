@@ -1,36 +1,51 @@
 exports.pwt = {
-	t: "3000",
-	pid: "46",
-	gcv: "11",
-	pdvid: "4",
-	pubid: "9999",
-	dataURL: "t.test-domain.com/logger?",
-	winURL: "t.test-domain.com/tracker?",
-	adserver: "CUSTOM",
-	gdpr: "0",
-	cmpApi: "iab",
-	gdprTimeout: "10000",
-	awc: "1",
-	disableAjaxTimeout: true,
-	adServerCurrency: "INR",
-	singleImpression: "1",
-	identityEnabled: "0",
-	identityConsumers: "EB,TAM,Prebid",
-	identityOnly: "0",
-	ccpa: "0",
-	ccpaCmpApi: "iab",
-	ccpaTimeout: "10000",
-	pbv:"v4.33.0",
-	owv:"v21.4.0",
-	abTestEnabled:"0",
-	pubAnalyticsAdapter: "0",
-	reduceCodeSize:1,
-	gpp: "0",
-	gppCmpApi: "iab",
-	gppTimeout: "10000",
-	pbGlobalVarNamespace: "owpbjs",
-	owGlobalVarNamespace: "PWT",
-	localStorageAccess: "1" // Added new field for allow local storage feature 
+	pid: "6066",
+  gcv: "142",
+  pdvid: "8",
+  pubid: "5890",
+  dataURL: "t.pubmatic.com/wl?",
+  winURL: "t.pubmatic.com/wt?",
+  owv: "native-psame-4",
+  pbv: "v4.25.0",
+  usePBSAdapter: "0",
+  reduceCodeSize: "1",
+  metaDataPattern: 0,
+  sendAllBids: "0",
+  adserver: "DFP",
+  gdpr: "0",
+  cmpApi: "iab",
+  gdprTimeout: 1000,
+  awc: 0,
+  platform: "display",
+  refreshInterval: 0,
+  priceGranularity: 0,
+  adServerCurrency: 0,
+  singleImpression: "1",
+  identityEnabled: "0",
+  identityConsumers: 0,
+  ccpa: "0",
+  ccpaCmpApi: 0,
+  ccpaTimeout: 0,
+  sChain: "0",
+  sChainObj: 0,
+  auTimeout: "10000",
+  t: "10000",
+  ssTimeout: 0,
+  prebidObjName: 0,
+  pubAnalyticsAdapter: "1",
+  usePBJSKeys: "0",
+  abTestEnabled: "0",
+  testGroupSize: 0,
+  testType: 0,
+  granularityMultiplier: 0,
+  gpp: "1",
+  gppCmpApi: "iab",
+  gppTimeout: 5000,
+  pbGlobalVarNamespace: "owpbjs",
+  owGlobalVarNamespace: "PWT",
+  localStorageAccess: "1", //  Added new field for allow local storage feature 
+	consentManagementEnabled: "1",
+	cmTimeout: "1000",
 };
 
 // singleImpression is used to enable feature of sending single impression for multiple size ad slot earlier there were multiple impression for multiple sizes
@@ -45,11 +60,19 @@ exports.test_pwt = {
 };
 exports.adapters = {
 	pubmatic: {
-		rev_share: "0.0",
-		throttle: "100",
-		publisherId: "156209",
-		kgp: "_W_x_H_@_W_x_H_:_AUI_"
-	},
+    publisherId: "5890",
+    kgp: "_AU_@_W_x_H_:_AUI_",
+    sk: "true",
+    rev_share: "0.0",
+    timeout: 0,
+    throttle: "100",
+    pt: 0,
+    serverSideEnabled: "0",
+    amp: 0,
+    video: 0,
+    "in-app": 0,
+    display: 0
+  },
 	audienceNetwork: {
 		rev_share: "0.0",
 		throttle: "100",
@@ -174,57 +197,57 @@ exports.identityPartners = {
 // 5. DIV1 -> Apply based on condtions (enabled,)
 // 6. DIV5 -> It will increase Latency 
 
-exports.slotConfig = {
-	"configPattern": "_DIV_",
-	"config": {
-		"Div1": {
-			"banner": {
-				"enabled": true
-			},
-			"native": {
-				"enabled": true,
-				"config": {
-					"image": {
-						"required": true,
-						"sizes": [150, 50]
-					},
-					"title": {
-						"required": true,
-						"len": 80
-					},
-					"sponsoredBy": {
-						"required": true
-					},
-					"body": {
-						"required": true
-					}
-				}
-			},
-			"video": {
-				"enabled": true,
-				"config": {
-					"context": "instream",
-					"connectiontype": [1, 2, 6],
-					"minduration": 10,
-					"maxduration": 50,
-					"battr": [
-						6,
-						7
-					],
-					"skip": 1,
-					"skipmin": 10,
-					"skipafter": 15
-				},
-				"partnerConfig": {
-					"pubmatic": {
-						"outstreamAU": "pubmatic-test"
-					}
-				}
-			},
+// exports.slotConfig = {
+// 	"configPattern": "_DIV_",
+// 	"config": {
+// 		"Div1": {
+// 			"banner": {
+// 				"enabled": true
+// 			},
+// 			"native": {
+// 				"enabled": true,
+// 				"config": {
+// 					"image": {
+// 						"required": true,
+// 						"sizes": [150, 50]
+// 					},
+// 					"title": {
+// 						"required": true,
+// 						"len": 80
+// 					},
+// 					"sponsoredBy": {
+// 						"required": true
+// 					},
+// 					"body": {
+// 						"required": true
+// 					}
+// 				}
+// 			},
+// 			"video": {
+// 				"enabled": true,
+// 				"config": {
+// 					"context": "instream",
+// 					"connectiontype": [1, 2, 6],
+// 					"minduration": 10,
+// 					"maxduration": 50,
+// 					"battr": [
+// 						6,
+// 						7
+// 					],
+// 					"skip": 1,
+// 					"skipmin": 10,
+// 					"skipafter": 15
+// 				},
+// 				"partnerConfig": {
+// 					"pubmatic": {
+// 						"outstreamAU": "pubmatic-test"
+// 					}
+// 				}
+// 			},
 
-		},
-		"AU2": {
-			"banner": {}
-		}
-	}
-};
+// 		},
+// 		"AU2": {
+// 			"banner": {}
+// 		}
+// 	}
+// };
