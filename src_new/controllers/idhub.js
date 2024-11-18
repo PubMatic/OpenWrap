@@ -78,6 +78,12 @@ refThis.setConfig = function(){
 			}
 			// Adding a hook for publishers to modify the Prebid Config we have generated
 			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
+
+			if(!COMMON_CONFIG.consentManagentEnabled()){
+				util.logWarning("ConsentMangement is not enabled, so do not enforcing any regulations");
+				window[pbNameSpace].setConfig(prebidConfig);
+				return;
+			}
 			consentManagement.getConsentManagementConfig(function (cmConfig) {
 				if(cmConfig && Object.keys(cmConfig).length) {
 					prebidConfig.consentManagement = cmConfig;
