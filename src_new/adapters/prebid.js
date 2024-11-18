@@ -1077,17 +1077,17 @@ function setPrebidConfig() {
 			return;
 		}
 
-		console.time("Compliance Config");
+		//console.time("Compliance Config");
 		consentManagement.getConsentManagementConfig(function (cmConfig) {
-			console.log("Compliance Config", cmConfig);
-			console.timeEnd("Compliance Config");
+			// console.log("Compliance Config", cmConfig);
+			// console.timeEnd("Compliance Config");
 			if(cmConfig && Object.keys(cmConfig).length) {
 				var consentManagementConf = {};
 				consentManagementConf.consentManagement = cmConfig;
 				window[pbNameSpace].setConfig(consentManagementConf);
 			}
 		});
-		console.log("Other exeuction continue...");
+		//console.log("Other exeuction continue...");
 	} else {
 		util.logWarning("PreBidJS setConfig method is not available");
 	}
@@ -1463,7 +1463,7 @@ function fetchBids(activeSlots) {
 
 	function checkIfConsentManagementIsSet() {
 		var checkTimeout = setTimeout(checkIfConsentManagementIsSet, 50);
-		if(window.PWT.cmConfig.cmProcessDone) {
+		if(window.PWT && window.PWT.cmConfig && window.PWT.cmConfig.cmProcessDone) {
 			clearTimeout(checkTimeout);
 			fetchBidsAfterConfirmation(activeSlots);
 		}
