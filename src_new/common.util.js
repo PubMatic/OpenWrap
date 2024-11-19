@@ -1,27 +1,38 @@
 var CONSTANTS = require("./constants.js");
 var conf = require("./conf.js");
 
-function getPbNameSpace() {
-  return parseInt(conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY)
-    ? CONSTANTS.COMMON.IH_NAMESPACE
-    : CONSTANTS.COMMON.PREBID_NAMESPACE;
+function getGloablPbObject() {
+	let pbNameSpace = conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PB_GLOBAL_VAR_NAMESPACE]
+		|| (conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] === "1" ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE);
+		return window[pbNameSpace] || {};
+}
+exports.getGloablPbObject = getGloablPbObject;
+
+function getGlobalOwObject() {
+	let owNameSpace =  conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.OW_GLOBAL_VAR_NAMESPACE]
+		|| (conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] === "1" ? CONSTANTS.COMMON.IH_OW_NAMESPACE : CONSTANTS.COMMON.OPENWRAP_NAMESPACE);
+		return window[owNameSpace] || {};
 }
 
-exports.getGeoInfo = function() {
+exports.getGlobalOwObject = getGlobalOwObject;
+
+function getGeoInfo() {
 	var PREFIX = 'UINFO';
 	var LOCATION_INFO_VALIDITY =  172800000; // 2 * 24 * 60 * 60 * 1000 - 2 days
 	// var geoDetectionURL = 'https://ut.pubmatic.com/geo?pubid=' +
 	var geoDetectionURL = 'https://hbopenbid.pubmatic.com/getgeo?pubid=' +
 		conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID];
 
-	var info = window[getPbNameSpace()].getDataFromLocalStorage(PREFIX, LOCATION_INFO_VALIDITY);
+	var info = getGloablPbObject().getDataFromLocalStorage(PREFIX, LOCATION_INFO_VALIDITY);
 	if(info && JSON.parse(info).cc) {	// Got valid data
-		window.PWT.CC = JSON.parse(info);
+		getGlobalOwObject().CC = JSON.parse(info);
 	} else {
-		window[getPbNameSpace()].detectLocation(geoDetectionURL,
+		getGloablPbObject().detectLocation(geoDetectionURL,
 		function(loc) {
-			window[getPbNameSpace()].setAndStringifyToLocalStorage(PREFIX, loc);
-			window.PWT.CC = loc;
+			getGloablPbObject().setAndStringifyToLocalStorage(PREFIX, loc);
+			getGlobalOwObject().CC = loc;
 		});
 	}
 }
+
+exports.getGeoInfo = getGeoInfo;

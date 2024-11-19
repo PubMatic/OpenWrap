@@ -8,8 +8,8 @@ var CONSENT_MANAGEMENT_SOURCE = {
   NONE: "NONE"
 };
 
-window.PWT = window.PWT || {}; 
-window.PWT.cmConfig = { 
+
+commonUtil.getGlobalOwObject().cmConfig = { 
   cmProcessDone: false, // This Flag will use to resume the CMP execution
   enforcedConsentBasisOn: CONSENT_MANAGEMENT_SOURCE.NONE, // This will be used to enforce the consent basis on Possible values: CMP, GEO, NONE
   // cmpSupport: {         // This will store the CMP support status which can be use for logging purpose
@@ -133,20 +133,20 @@ function getConsentManagementConfig(callback) {
   commonUtil.getGeoInfo();
 
   function executeCallback(enforcedConsentBasisOn, config) {
-    window.PWT.cmConfig.enforcedConsentBasisOn = enforcedConsentBasisOn;
-    window.PWT.cmConfig.prebidCMConfig = config;
+    commonUtil.getGlobalOwObject().cmConfig.enforcedConsentBasisOn = enforcedConsentBasisOn;
+    commonUtil.getGlobalOwObject().cmConfig.prebidCMConfig = config;
     if (!isCallbackExecuted) {
       isCallbackExecuted = true;
       callback(config);
-      window.PWT.cmConfig.cmProcessDone = true;
+      commonUtil.getGlobalOwObject().cmConfig.cmProcessDone = true;
     }
   }
 
   // Timeout added till the time we check for CMP is loaded or to be loaded
   var timeoutId = setTimeout(function () {
     // Once timed out, check for geo location has regulation to apply
-    if (window.PWT.CC && window.PWT.CC.compliance) { // This will set by the Util.getGeoInfo
-      executeCallback(CONSENT_MANAGEMENT_SOURCE.GEO, CMP_APIs[window.PWT.CC.compliance].getConfig());
+    if (commonUtil.getGlobalOwObject().CC && commonUtil.getGlobalOwObject().CC.compliance) { // This will set by the Util.getGeoInfo
+      executeCallback(CONSENT_MANAGEMENT_SOURCE.GEO, CMP_APIs[commonUtil.getGlobalOwObject().CC.compliance].getConfig());
     } else {
       executeCallback(CONSENT_MANAGEMENT_SOURCE.NONE, null);
     }

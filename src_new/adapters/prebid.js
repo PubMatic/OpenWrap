@@ -834,48 +834,48 @@ function assignUserSyncConfig(prebidConfig){
 
 exports.assignUserSyncConfig = assignUserSyncConfig;
 
-function assignGdprConfigIfRequired(prebidConfig){
-	if (CONFIG.getGdpr()) {
-		if(!prebidConfig["consentManagement"]){
-			prebidConfig["consentManagement"] = {};
-		}
-		prebidConfig["consentManagement"]['gdpr'] = {
-			cmpApi: CONFIG.getCmpApi(),
-			timeout: CONFIG.getGdprTimeout(),
-			allowAuctionWithoutConsent: CONFIG.getAwc(), // Auction without consent
-			defaultGdprScope: true
-		};
-		var gdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout()
-		if (gdprActionTimeout) {
-			util.log("GDPR IS ENABLED, TIMEOUT: " + prebidConfig["consentManagement"]['gdpr']['timeout'] +", ACTION TIMEOUT: "+ gdprActionTimeout);
-			prebidConfig["consentManagement"]['gdpr']['actionTimeout'] = gdprActionTimeout;
-		}
-	}
-}
+// function assignGdprConfigIfRequired(prebidConfig){
+// 	if (CONFIG.getGdpr()) {
+// 		if(!prebidConfig["consentManagement"]){
+// 			prebidConfig["consentManagement"] = {};
+// 		}
+// 		prebidConfig["consentManagement"]['gdpr'] = {
+// 			cmpApi: CONFIG.getCmpApi(),
+// 			timeout: CONFIG.getGdprTimeout(),
+// 			allowAuctionWithoutConsent: CONFIG.getAwc(), // Auction without consent
+// 			defaultGdprScope: true
+// 		};
+// 		var gdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout()
+// 		if (gdprActionTimeout) {
+// 			util.log("GDPR IS ENABLED, TIMEOUT: " + prebidConfig["consentManagement"]['gdpr']['timeout'] +", ACTION TIMEOUT: "+ gdprActionTimeout);
+// 			prebidConfig["consentManagement"]['gdpr']['actionTimeout'] = gdprActionTimeout;
+// 		}
+// 	}
+// }
 
-exports.assignGdprConfigIfRequired = assignGdprConfigIfRequired;
+// exports.assignGdprConfigIfRequired = assignGdprConfigIfRequired;
 
-function assignCcpaConfigIfRequired(prebidConfig){
-	if (CONFIG.getCCPA()) {
-		if(!prebidConfig["consentManagement"]){
-			prebidConfig["consentManagement"] = {};
-		}
-		prebidConfig["consentManagement"]["usp"] = {
-			cmpApi: CONFIG.getCCPACmpApi(),
-			timeout: CONFIG.getCCPATimeout(),
-		};
-	}
-}
+// function assignCcpaConfigIfRequired(prebidConfig){
+// 	if (CONFIG.getCCPA()) {
+// 		if(!prebidConfig["consentManagement"]){
+// 			prebidConfig["consentManagement"] = {};
+// 		}
+// 		prebidConfig["consentManagement"]["usp"] = {
+// 			cmpApi: CONFIG.getCCPACmpApi(),
+// 			timeout: CONFIG.getCCPATimeout(),
+// 		};
+// 	}
+// }
 
-exports.assignCcpaConfigIfRequired = assignCcpaConfigIfRequired;
+// exports.assignCcpaConfigIfRequired = assignCcpaConfigIfRequired;
 
-function assignGppConfigIfRequired(prebidConfig) {
-	if (CONFIG.getGppConsent()) {
-		prebidConfig = COMMON_CONFIG.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
-	}
-}
+// function assignGppConfigIfRequired(prebidConfig) {
+// 	if (CONFIG.getGppConsent()) {
+// 		prebidConfig = COMMON_CONFIG.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
+// 	}
+// }
 
-exports.assignGppConfigIfRequired = assignGppConfigIfRequired;
+// exports.assignGppConfigIfRequired = assignGppConfigIfRequired;
 
 function assignCurrencyConfigIfRequired(prebidConfig){
 	if(CONFIG.getAdServerCurrency()){
