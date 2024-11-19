@@ -8,7 +8,29 @@ var CONSENT_MANAGEMENT_SOURCE = {
   NONE: "NONE"
 };
 
-
+/** Example of cmConfig object
+  window.PWT = {
+    cmConfig: {
+      "cmProcessDone": true,
+      "enforcedConsentBasisOn": "GEO",
+      "prebidCMConfig": {
+          "gdpr": {
+              "cmpApi": "iab",
+              "timeout": 10000,
+              "defaultGdprScope": true
+          },
+          "usp": {
+              "cmpApi": "iab",
+              "timeout": 10000
+          },
+          "gpp": {
+              "cmpApi": "iab",
+              "timeout": 10000
+          }
+      }
+    }
+  }
+ */
 commonUtil.getGlobalOwObject().cmConfig = { 
   cmProcessDone: false, // This Flag will use to resume the CMP execution
   enforcedConsentBasisOn: CONSENT_MANAGEMENT_SOURCE.NONE, // This will be used to enforce the consent basis on Possible values: CMP, GEO, NONE
@@ -65,36 +87,6 @@ function getGPPConfig() {
   };
   return conf;
 }
-
-// var PREFIX = 'UINFO';
-// var LOCATION_INFO_VALIDITY = 172800000; // 2 * 24 * 60 * 60 * 1000 - 2 days
-// var GEO_URL = 'https://ut.pubmatic.com/geo?pubid=';
-
-// function getPbNameSpace() {
-//   return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY) ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
-// }
-
-// function consentManagementConfigEnabled() {
-//   return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CONSENT_MANAGEMENT_ENABLED] == "1";
-// }
-
-// function getGeoInfo(callback) {
-//   var pbNameSpace = getPbNameSpace();
-//   var geoDetectionURL = GEO_URL + config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID];
-//   var info = window[pbNameSpace].getDataFromLocalStorage(PREFIX, LOCATION_INFO_VALIDITY);
-//   if (info && JSON.parse(info).cc) {	// Got valid data
-//     callback(JSON.parse(info));
-//   } else {
-//     window[pbNameSpace].detectLocation(geoDetectionURL, function (loc) {
-//       window[pbNameSpace].setAndStringifyToLocalStorage(PREFIX, loc);
-//       callback(loc);
-//     });
-//   }
-// }
-
-// function setUserInfo(info) {
-//   window.PWT.CC = info;
-// }
 
 function getCMPsPresentOnPage() {
   var cmps = {};

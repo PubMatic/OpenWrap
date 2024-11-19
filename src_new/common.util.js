@@ -1,6 +1,7 @@
 var CONSTANTS = require("./constants.js");
 var conf = require("./conf.js");
 
+// This will return global Prebid object
 function getGloablPbObject() {
 	let pbNameSpace = conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PB_GLOBAL_VAR_NAMESPACE]
 		|| (conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] === "1" ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE);
@@ -8,6 +9,7 @@ function getGloablPbObject() {
 }
 exports.getGloablPbObject = getGloablPbObject;
 
+// This will return global OpenWrap object
 function getGlobalOwObject() {
 	let owNameSpace =  conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.OW_GLOBAL_VAR_NAMESPACE]
 		|| (conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] === "1" ? CONSTANTS.COMMON.IH_OW_NAMESPACE : CONSTANTS.COMMON.OPENWRAP_NAMESPACE);
@@ -16,6 +18,7 @@ function getGlobalOwObject() {
 
 exports.getGlobalOwObject = getGlobalOwObject;
 
+// This will return geo Info object but it has dependency on 'geoDetection' module from PrebidJs repo
 function getGeoInfo() {
 	var PREFIX = 'UINFO';
 	var LOCATION_INFO_VALIDITY =  172800000; // 2 * 24 * 60 * 60 * 1000 - 2 days
