@@ -1044,7 +1044,7 @@ function setPrebidConfig(){
 			testGroupId: parseInt(window.PWT.testGroupId || 0)
 		};
 
-		if(CONF.pwt.bidPoolingEnabled === "1") {
+		if(CONFIG.isBidPoolingEnabled()) {
 			prebidConfig.useBidCache = true; 
 			prebidConfig.bidCacheFilterFunction = function(bid) {
 				return bid.mediaType !== 'video';
