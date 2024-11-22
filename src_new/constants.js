@@ -58,7 +58,8 @@ exports.COMMON = {
 	"HARD_FLOOR": "hard",
 	"BID_POOLING": "Bid Pooling",
 	"USE_BID_CACHE": "useBidCache",
-	"BID_POOLING_ENABLED": "bidPoolingEnabled"
+	"BID_POOLING_ENABLED": "bidPoolingEnabled",
+	"ENABLED_BID_POOLING": "1"
 };
 
 exports.CONFIG = {

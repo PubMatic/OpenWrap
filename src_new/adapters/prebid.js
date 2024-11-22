@@ -1045,7 +1045,7 @@ function setPrebidConfig(){
 		};
 
 		if(CONFIG.isBidPoolingEnabled()) {
-			prebidConfig.useBidCache = true; 
+			prebidConfig[CONSTANTS.COMMON.USE_BID_CACHE] = true; 
 			prebidConfig.bidCacheFilterFunction = function(bid) {
 				return bid.mediaType !== 'video';
 			}
