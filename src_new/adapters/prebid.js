@@ -10,7 +10,7 @@ var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var CONF = require("../conf.js");
-var consentManagement = require("../modules/consentManagement.js");
+var consentConfigResolver = require("../modules/consentConfigResolver.js");
 var commonUtil = require("../common.util.js");
 
 var COMMON_CONFIG = require("../common.config.js");
@@ -1086,7 +1086,7 @@ function setPrebidConfig() {
 		}
 
 		//console.time("Compliance Config");
-		consentManagement.getConsentManagementConfig(function (cmConfig) {
+		consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
 			// console.log("Compliance Config", cmConfig);
 			// console.timeEnd("Compliance Config");
 			if(cmConfig && Object.keys(cmConfig).length) {
@@ -1465,6 +1465,7 @@ function fetchBids(activeSlots) {
 	}
 
 	function checkIfConsentManagementIsSet() {
+		//TODO: Confirm what will be timeout for keep checking of cmProcessDone?
 		var checkTimeout = setTimeout(checkIfConsentManagementIsSet, 50);
 		if(window.PWT && window.PWT.cmConfig && window.PWT.cmConfig.cmProcessDone) {
 			clearTimeout(checkTimeout);

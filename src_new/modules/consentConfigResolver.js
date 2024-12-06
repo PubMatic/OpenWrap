@@ -9,16 +9,49 @@ var CONSENT_MANAGEMENT_SOURCE = {
 };
 
 var READ_GEO_DATA_FROM = {
-  LOCALSTORAGE: "LOCALSTORAGE",
-  GEO_SERVICE: "GEO_SERVICE",
-  NOTFOUND: "NOTFOUND"
+  LOCALSTORAGE: "LS",
+  GEO_SERVICE: "GS",
+  NONE: "NONE"
 };
+
+var CMP_APIs = {
+  GDPR: { apiName: "__tcfapi", getConfig: getGDPRConfig, complianceName: "gdpr" },
+  USP: { apiName: "__uspapi", getConfig: getUSPConfig, complianceName: "usp" },
+  GPP: { apiName: "__gpp", getConfig: getGPPConfig, complianceName: "gpp" }
+};
+
+// Phase 1.5
+
+// let a = {
+//   cmd: {
+//     cmpp: 1,
+//     gst: 200,
+//     cc: "US",
+//     sc: "CA",
+//     cmps: [{
+//       vid: 15,
+//       s: 1,  // 1: GDPR, 2: USP, 3: GPP
+//       t: 1000,
+//     },
+//     {
+//       vid: 15,
+//       s: 2,
+//       t: 1000,
+//     },
+//     {
+//       vid: 15,
+//       s: 3,
+//       t: 1000,
+//     }]
+//   }
+// }
 
 /** Example of cmConfig object
   window.PWT = {
     cmConfig: {
       "cmProcessDone": true,            // This Flag will use to resume the CMP execution
       "enforcedConsentBasisOn": "GEO",  // This will be used to enforce the consent basis on Possible values: CMP, GEO, NONE
+      "readGeoDataFrom": "LS",// This will be used to identify whether geo info retrieved from Cache or from service: LOCALSTORAGE, GEO_SERVICE, NONE
       "metrics": {
         timeTakenByGeoService: 0,       // Time taken by the Geo service to find out what compliance to enforce
         timeTakenByCMP: 0,              // Time taken to find out the CMP's presence
@@ -43,19 +76,12 @@ var READ_GEO_DATA_FROM = {
   }
  */
 
-
-var CMP_APIs = {
-  GDPR: { apiName: "__tcfapi", getConfig: getGDPRConfig, complianceName: "gdpr" },
-  USP: { apiName: "__uspapi", getConfig: getUSPConfig, complianceName: "usp" },
-  GPP: { apiName: "__gpp", getConfig: getGPPConfig, complianceName: "gpp" }
-};
-
 function initializeCMConfig() {
    // Initializing the cmConfig object
   commonUtil.getGlobalOwObject().cmConfig = { 
     cmProcessDone: false, 
     enforcedConsentBasisOn: CONSENT_MANAGEMENT_SOURCE.NONE,
-    readGeoDataFrom: READ_GEO_DATA_FROM.NOTFOUND, 
+    readGeoDataFrom: READ_GEO_DATA_FROM.NONE, 
     metrics: {
       timeTakenByGeoService: null,       
       timeTakenByCMP: null,              
@@ -164,7 +190,8 @@ function getConsentManagementConfig(callback) {
     } else {
       executeCallback(CONSENT_MANAGEMENT_SOURCE.NONE, null);
     }
-  }, 2000);
+  }, 2000);  //TODO: Finalize the timeout ? user specified or we can decide? configurable?
+
 
   function checkCmpRecursively() {
     if (isCallbackExecuted) {
@@ -178,7 +205,7 @@ function getConsentManagementConfig(callback) {
       commonUtil.getGlobalOwObject().cmConfig.metrics.timeTakenByCMP = new Date().getTime() - cmpTime;
       executeCallback(CONSENT_MANAGEMENT_SOURCE.CMP, cmpsFound);
     } else {
-      setTimeout(checkCmpRecursively, 1000);
+      setTimeout(checkCmpRecursively, 100);
     }
   }
   //CMP check recursively

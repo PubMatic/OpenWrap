@@ -5,7 +5,7 @@
 var CONFIG = require("../config.idhub.js");
 var CONSTANTS = require("../constants.js");
 var util = require("../util.idhub.js");
-var consentManagement = require("../modules/consentManagement.js");
+var consentConfigResolver = require("../modules/consentConfigResolver.js");
 var COMMON_CONFIG = require("../common.config.js");
 
 var refThis = this;
@@ -84,7 +84,7 @@ refThis.setConfig = function(){
 				window[pbNameSpace].setConfig(prebidConfig);
 				return;
 			}
-			consentManagement.getConsentManagementConfig(function (cmConfig) {
+			consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
 				if(cmConfig && Object.keys(cmConfig).length) {
 					prebidConfig.consentManagement = cmConfig;
 					window[pbNameSpace].setConfig(prebidConfig);
