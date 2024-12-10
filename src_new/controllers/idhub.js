@@ -40,37 +40,37 @@ refThis.setConfig = function(){
 				}
 			};
 
-			// if (CONFIG.getGdpr()) {
-			// 	if(!prebidConfig["consentManagement"]){
-			// 		prebidConfig["consentManagement"] = {};
-			// 	}
-			// 	prebidConfig["consentManagement"]['gdpr'] = {
-			// 		cmpApi: CONFIG.getCmpApi(),
-			// 		timeout: CONFIG.getGdprTimeout(),
-			// 		allowAuctionWithoutConsent: CONFIG.getAwc(),
-			// 		defaultGdprScope: true
-			// 	};
-			// 	var gdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout()
-			// 	if (gdprActionTimeout) {
-			// 		util.log("GDPR IS ENABLED, TIMEOUT: " + prebidConfig["consentManagement"]['gdpr']['timeout'] +", ACTION TIMEOUT: "+ gdprActionTimeout);
-			// 		prebidConfig["consentManagement"]['gdpr']['actionTimeout'] = gdprActionTimeout;
-			// 	}
-			// }
+			if (CONFIG.getGdpr()) {
+				if(!prebidConfig["consentManagement"]){
+					prebidConfig["consentManagement"] = {};
+				}
+				prebidConfig["consentManagement"]['gdpr'] = {
+					cmpApi: CONFIG.getCmpApi(),
+					timeout: CONFIG.getGdprTimeout(),
+					allowAuctionWithoutConsent: CONFIG.getAwc(),
+					defaultGdprScope: true
+				};
+				var gdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout()
+				if (gdprActionTimeout) {
+					util.log("GDPR IS ENABLED, TIMEOUT: " + prebidConfig["consentManagement"]['gdpr']['timeout'] +", ACTION TIMEOUT: "+ gdprActionTimeout);
+					prebidConfig["consentManagement"]['gdpr']['actionTimeout'] = gdprActionTimeout;
+				}
+			}
 
-			// if (CONFIG.getCCPA()) {
-			// 	if(!prebidConfig["consentManagement"]){
-			// 		prebidConfig["consentManagement"] = {};
-			// 	}
-			// 	prebidConfig["consentManagement"]["usp"] = {
-			// 		cmpApi: CONFIG.getCCPACmpApi(),
-			// 		timeout: CONFIG.getCCPATimeout(),
-			// 	};
-			// }
+			if (CONFIG.getCCPA()) {
+				if(!prebidConfig["consentManagement"]){
+					prebidConfig["consentManagement"] = {};
+				}
+				prebidConfig["consentManagement"]["usp"] = {
+					cmpApi: CONFIG.getCCPACmpApi(),
+					timeout: CONFIG.getCCPATimeout(),
+				};
+			}
 
-			// // Set Gpp consent config
-			// if (CONFIG.getGppConsent()) {
-			// 	prebidConfig = COMMON_CONFIG.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
-			// }
+			// Set Gpp consent config
+			if (CONFIG.getGppConsent()) {
+				prebidConfig = COMMON_CONFIG.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
+			}
 
 			window.IHPWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 			if(CONFIG.isUserIdModuleEnabled()){
@@ -79,18 +79,7 @@ refThis.setConfig = function(){
 			// Adding a hook for publishers to modify the Prebid Config we have generated
 			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 
-			if(!COMMON_CONFIG.consentManagentEnabled()){
-				util.logWarning("ConsentMangement is not enabled, so do not enforcing any regulations");
-				window[pbNameSpace].setConfig(prebidConfig);
-				return;
-			}
-			consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
-				if(cmConfig && Object.keys(cmConfig).length) {
-					prebidConfig.consentManagement = cmConfig;
-					window[pbNameSpace].setConfig(prebidConfig);
-				}
-			});
-			//window[pbNameSpace].setConfig(prebidConfig);
+			window[pbNameSpace].setConfig(prebidConfig);
 		}
 		if (CONFIG.isUserIdModuleEnabled() && CONFIG.isIdentityOnly()) {
 			refThis.enablePubMaticIdentityAnalyticsIfRequired();

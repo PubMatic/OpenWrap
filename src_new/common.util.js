@@ -36,7 +36,7 @@ function getGeoInfo(readFrom, callback) {
 		getGloablPbObject().detectLocation(geoDetectionURL,
 		function(loc) {
 			if(loc) {
-				if(callback) callback(readFrom.GEO_SERVICE);
+				if(callback) callback(readFrom.GEO_SERVICE, loc);
 				getGloablPbObject().setAndStringifyToLocalStorage(PREFIX, loc);
 				getGlobalOwObject().CC = loc;
 			}
