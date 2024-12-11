@@ -1043,6 +1043,14 @@ function setPrebidConfig(){
 			},
 			testGroupId: parseInt(window.PWT.testGroupId || 0)
 		};
+
+		if(CONFIG.isBidPoolingEnabled()) {
+			prebidConfig[CONSTANTS.COMMON.USE_BID_CACHE] = true; 
+			prebidConfig.bidCacheFilterFunction = function(bid) {
+				return bid.mediaType !== 'video';
+			}
+		}
+
 		if(CONFIG.getPriceGranularity()){
 			prebidConfig["priceGranularity"] = CONFIG.getPriceGranularity();
 		}

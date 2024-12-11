@@ -55,7 +55,11 @@ exports.COMMON = {
 	"IH_ANALYTICS_ADAPTER_EXPIRY": "ihAnalyticsAdapterExpiry",
 	"IH_ANALYTICS_ADAPTER_DEFAULT_EXPIRY": 7,
 	"EXTERNAL_FLOOR_WO_CONFIG": "External Floor w/o Config",
-	"HARD_FLOOR": "hard"
+	"HARD_FLOOR": "hard",
+	"BID_POOLING": "Bid Pooling",
+	"USE_BID_CACHE": "useBidCache",
+	"BID_POOLING_ENABLED": "bidPoolingEnabled",
+	"ENABLED_BID_POOLING": "1"
 };
 
 exports.CONFIG = {

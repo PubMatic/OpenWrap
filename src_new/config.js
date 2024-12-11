@@ -324,6 +324,11 @@ exports.getPriceGranularityBuckets = function () {
 exports.getGranularityMultiplier = function(){
 	return parseFloat(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.GRANULARITY_MULTIPLIER]) || 1;
 };
+
+exports.isBidPoolingEnabled = function () {
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.BID_POOLING_ENABLED]) === 1;
+};
+
 exports.isAbTestEnabled = function () {
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED]) === 1;
 };
@@ -352,6 +357,7 @@ exports.updateABTestConfig = function () {
 		if (testGroupDetails && testGroupDetails.testGroupSize && randomNumberBelow100 < testGroupDetails.testGroupSize) {
 			refThis.updatePWTConfig();
 			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters);	
+			refThis.enableBidpoolingIfApplicable(testGroupDetails);
 			if(refThis.getTestIdentityPartners() && refThis.getIdentityPartners()){
 				if(Object.keys(refThis.getTestIdentityPartners()).length > 0 && Object.keys(refThis.getIdentityPartners()).length == 0){
 					util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(refThis.getTestIdentityPartners()));
@@ -368,6 +374,11 @@ exports.updateABTestConfig = function () {
 		}
 	}
 };
+
+exports.enableBidpoolingIfApplicable = function(testGroupDetails) {
+	testGroupDetails.testType == CONSTANTS.COMMON.BID_POOLING &&
+		(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.BID_POOLING_ENABLED] = CONSTANTS.COMMON.ENABLED_BID_POOLING);
+}
 
 exports.updatePWTConfig = function () {
 	var testConfig = refThis.getTestPWTConfig();
