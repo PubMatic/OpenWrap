@@ -1,9 +1,9 @@
-var commonUtil = require('../common.util.js');
+var { getGlobalOwObject } = require('../common.util.js');
 
 // Get a metrics object within PWT
 function getMetricsObject() {
-  commonUtil.getGlobalOwObject().metrics = commonUtil.getGlobalOwObject().metrics || {};
-  return commonUtil.getGlobalOwObject().metrics;
+  getGlobalOwObject().metrics = getGlobalOwObject().metrics || {};
+  return getGlobalOwObject().metrics;
 }
 
 // Function to set entry and exit times for a specific module and/or function
