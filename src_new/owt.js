@@ -7,6 +7,10 @@ var ucTag = require("prebid-universal-creative");
 var conf = require("./conf.js");
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
+
+window.PWT.cmConfig = window.PWT.cmConfig || {};
+window.PWT.cmConfig.cmpStartTime = new Date().getTime();
+
 window.PWT.bidMap = window.PWT.bidMap || {};
 window.PWT.bidIdMap = window.PWT.bidIdMap || {};
 window.PWT.adUnits = window.PWT.adUnits || {};
