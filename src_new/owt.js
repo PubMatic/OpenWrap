@@ -5,6 +5,7 @@ var CONSTANTS = require("./constants.js");
 var CONFIG = require("./config.js");
 var ucTag = require("prebid-universal-creative");
 var conf = require("./conf.js");
+var consentConfigResolver = require("./modules/consentConfigResolver.js");
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
 
@@ -197,5 +198,8 @@ window.PWT.versionDetails =  util.getOWConfig();
 window.PWT.getAdapterNameForAlias = CONFIG.getAdapterNameForAlias;
 
 window.PWT.browserMapping = bidManager.getBrowser();
+
+// Calling the consent management config resolver
+consentConfigResolver.getConsentManagementConfig();
 
 controller.init(window);

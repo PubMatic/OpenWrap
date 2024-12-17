@@ -166,5 +166,4 @@ function getConsentManagementConfig() {
 
 }
 
-getConsentManagementConfig();
-//exports.getConsentManagementConfig = getConsentManagementConfig;
+exports.getConsentManagementConfig = getConsentManagementConfig;

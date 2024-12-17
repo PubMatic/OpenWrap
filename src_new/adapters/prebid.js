@@ -1428,7 +1428,7 @@ function initPbjsConfig(){
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
 	refThis.setPbjsBidderSettingsIfRequired();
-	util.getGeoInfo();
+	// util.getGeoInfo();
 }
 exports.initPbjsConfig = initPbjsConfig;
 
