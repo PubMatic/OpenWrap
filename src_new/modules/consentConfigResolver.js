@@ -19,9 +19,9 @@ var READ_GEO_DATA_FROM = {
 };
 
 var CMP_APIs = {
-  GDPR: { apiName: "__tcfapi", getConfig: getGDPRConfig, complianceName: "gdpr", cmpCommandListner: pingReturnHandler, },
-  USP: { apiName: "__uspapi", getConfig: getUSPConfig, complianceName: "usp", cmpCommandListner: pingReturnHandler },
-  GPP: { apiName: "__gpp", getConfig: getGPPConfig, complianceName: "gpp", cmpCommandListner: pingReturnHandler }
+  GDPR: { apiName: "__tcfapi",  complianceName: "gdpr", cmpCommandListner: pingReturnHandler, },
+  USP: { apiName: "__uspapi",  complianceName: "usp", cmpCommandListner: pingReturnHandler },
+  GPP: { apiName: "__gpp",  complianceName: "gpp", cmpCommandListner: pingReturnHandler }
 };
 
 /** Example of cmConfig object

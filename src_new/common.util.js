@@ -24,8 +24,8 @@ exports.getGlobalOwObject = getGlobalOwObject;
 function getGeoInfo(readFrom, callback) {
 	var PREFIX = 'UINFO';
 	var LOCATION_INFO_VALIDITY =  172800000; // 2 * 24 * 60 * 60 * 1000 - 2 days
-	// var geoDetectionURL = 'https://ut.pubmatic.com/geo?pubid=' +
-	var geoDetectionURL = 'https://hbopenbid.pubmatic.com/getgeo?pubid=' +
+	// var geoDetectionURL pubma= 'https://ut.pubmatic.com/geo?pubid=' +
+	var geoDetectionURL = 'https://ut.pubmatic.com/geo?pubid=' +
 		conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID];
 
 	var info = getGloablPbObject().getDataFromLocalStorage(PREFIX, LOCATION_INFO_VALIDITY);
