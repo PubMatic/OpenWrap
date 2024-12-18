@@ -18,8 +18,16 @@ var READ_GEO_DATA_FROM = {
   NONE: "NONE"
 };
 
+var CMP_CHECK_TIMEOUT = 1500;
+
+function pingReturnHandler(pingReturnData, success) {
+  if (pingReturnData.cmpId) {
+    getCMConfigObject().cmpId = pingReturnData.cmpId;
+  }
+}
+
 var CMP_APIs = {
-  GDPR: { apiName: "__tcfapi",  complianceName: "gdpr", cmpCommandListner: pingReturnHandler, },
+  GDPR: { apiName: "__tcfapi",  complianceName: "gdpr", cmpCommandListner: pingReturnHandler },
   USP: { apiName: "__uspapi",  complianceName: "usp", cmpCommandListner: pingReturnHandler },
   GPP: { apiName: "__gpp",  complianceName: "gpp", cmpCommandListner: pingReturnHandler }
 };
@@ -83,9 +91,14 @@ function initializeCMConfig() {
   commonUtil.getGlobalOwObject().cmConfig =  Object.assign({}, cmConf, getCMConfigObject());
 }
 
-function pingReturnHandler(pingReturnData, success) {
-  if (pingReturnData.cmpId) {
-    getCMConfigObject().cmpId = pingReturnData.cmpId;
+function setCMPTime(timeExceeded) {
+  // If not present then only add it first time
+  if(!getCMConfigObject().metrics.timeTakenByCMP) {
+    if(timeExceeded) {
+      getCMConfigObject().metrics.timeTakenByCMP = CMP_CHECK_TIMEOUT;
+    } else {
+      getCMConfigObject().metrics.timeTakenByCMP = new Date().getTime() - getCMConfigObject().cmpStartTime;
+    }
   }
 }
 
@@ -98,21 +111,18 @@ function getCMPsPresentOnPage() {
         if ((typeof f[CMP_APIs[name].apiName] === 'function' || f.frames[CMP_APIs[name].apiName + "Locator"])) {
           // Going with latest GDPR version support i.e. 2
           getCMConfigObject().cmpPresent = 1;
-          // If not present then only add it first time
-          if(!getCMConfigObject().metrics.timeTakenByCMP) {
-            getCMConfigObject().metrics.timeTakenByCMP = new Date().getTime() - getCMConfigObject().cmpStartTime;
-          }
+          setCMPTime(false);
           switch (name) {
             case 'GDPR':
               getCMConfigObject().complianceSupport.push(COMPLIANCE_MAP.GDPR);
-              [CMP_APIs[name].apiName]('ping', 2, CMP_APIs[name].cmpCommandListner);
+              f[CMP_APIs[name].apiName]('ping', 2, CMP_APIs[name].cmpCommandListner);
               break;            
             case 'USP': 
               getCMConfigObject().complianceSupport.push(COMPLIANCE_MAP.USP);
               break;
             case 'GPP': 
               getCMConfigObject().complianceSupport.push(COMPLIANCE_MAP.GPP);
-              [CMP_APIs[name].apiName]('ping', CMP_APIs[name].cmpCommandListner);
+              f[CMP_APIs[name].apiName]('ping', CMP_APIs[name].cmpCommandListner);
               break;
             default:
               break;
@@ -143,17 +153,22 @@ function getGeoInfoWrapper() {
 
 function getConsentManagementConfig() {
   initializeCMConfig();
-  
   // Calling geo info to get the country, state level information and regulation to apply information. This will be stored under PWT.CC
   getGeoInfoWrapper();
 
+  var cmpTimeoutReached = false;
   // Timeout added till the time we check for CMP is loaded or to be loaded
   var timeoutId = setTimeout(function () {
+    cmpTimeoutReached = true;
     clearTimeout(timeoutId);
-  }, 1500);  // Cofnirmed as we have delay in 2000 ms in logger execution so we are waiting here for 1500 ms
+  }, CMP_CHECK_TIMEOUT);  // Cofnirmed as we have delay in 2000 ms in logger execution so we are waiting here for 1500 ms
 
 
   function checkCmpRecursively() {
+    if(cmpTimeoutReached) {
+      setCMPTime(true);
+      return;
+    }
     getCMPsPresentOnPage();
     if (getCMConfigObject().complianceSupport.length > 0) {
       clearTimeout(timeoutId);
@@ -163,7 +178,6 @@ function getConsentManagementConfig() {
   }
 
   checkCmpRecursively();
-
 }
 
 exports.getConsentManagementConfig = getConsentManagementConfig;
