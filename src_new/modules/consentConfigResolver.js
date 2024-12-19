@@ -67,6 +67,8 @@ function getCMConfigObject() {
   return commonUtil.getGlobalOwObject().cmConfig;
 }
 
+exports.getCMConfigObject = getCMConfigObject;
+
 function initializeCMConfig() {
    // Initializing the cmConfig object
   let cmConf = {
@@ -150,6 +152,8 @@ function getGeoInfoWrapper() {
     // commonUtil.getGlobalOwObject().cmConfig.readGeoDataFrom = readFrom;
   });
 }
+
+exports.getGeoInfoWrapper = getGeoInfoWrapper;
 
 function getConsentManagementConfig() {
   initializeCMConfig();

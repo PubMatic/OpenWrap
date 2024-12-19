@@ -2,13 +2,13 @@ var CONSTANTS = require("./constants.js");
 var conf = require("./conf.js");
 
 // This will return global Prebid object
-function getGloablPbObject() {
+function getGlobalPbObject() {
 	let pbNameSpace = conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PB_GLOBAL_VAR_NAMESPACE]
 		|| (conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] === "1" ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE);
 	window[pbNameSpace] = window[pbNameSpace] || {};
 	return window[pbNameSpace];
 }
-exports.getGloablPbObject = getGloablPbObject;
+exports.getGlobalPbObject = getGlobalPbObject;
 
 // This will return global OpenWrap object
 function getGlobalOwObject() {
@@ -28,16 +28,16 @@ function getGeoInfo(readFrom, callback) {
 	var geoDetectionURL = 'https://ut.pubmatic.com/geo?pubid=' +
 		conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID];
 
-	var info = getGloablPbObject().getDataFromLocalStorage(PREFIX, LOCATION_INFO_VALIDITY);
+	var info = getGlobalPbObject().getDataFromLocalStorage(PREFIX, LOCATION_INFO_VALIDITY);
 	if(info && JSON.parse(info).cc) {	// Got valid data
 		getGlobalOwObject().CC = JSON.parse(info);
 		if(callback) callback(readFrom.LOCALSTORAGE);
 	} else {
-		getGloablPbObject().detectLocation(geoDetectionURL,
-		function(loc) {
-			if(loc && loc.cc) {
+		getGlobalPbObject().detectLocation(geoDetectionURL,
+		function(loc, success) {
+			if(loc && success) {
 				if(callback) callback(readFrom.GEO_SERVICE, loc);
-				getGloablPbObject().setAndStringifyToLocalStorage(PREFIX, loc);
+				getGlobalPbObject().setAndStringifyToLocalStorage(PREFIX, loc);
 				getGlobalOwObject().CC = loc;
 			}
 		});
