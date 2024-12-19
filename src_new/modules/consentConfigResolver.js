@@ -146,7 +146,11 @@ function getCMPsPresentOnPage() {
 function getGeoInfoWrapper() {
   let startTime = new Date().getTime();
   commonUtil.getGeoInfo(READ_GEO_DATA_FROM, function(readFrom, uInfo) {
-    getCMConfigObject().metrics.timeTakenByGeoService = new Date().getTime() - startTime;
+    if(readFrom === READ_GEO_DATA_FROM.LOCALSTORAGE) {
+      getCMConfigObject().metrics.timeTakenByGeoService = 0;
+    } else {
+      getCMConfigObject().metrics.timeTakenByGeoService = new Date().getTime() - startTime;
+    }
     getCMConfigObject().geoInfo.cc = uInfo.cc;
     getCMConfigObject().geoInfo.sc = uInfo.sc;
     // commonUtil.getGlobalOwObject().cmConfig.readGeoDataFrom = readFrom;
