@@ -129,8 +129,6 @@ function getCMPsPresentOnPage() {
             default:
               break;
           }
-          //TODO: Confirm with Antoine do we want to break if we found
-          break;
         }
       }
     } catch (e) {
