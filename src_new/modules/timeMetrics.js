@@ -8,52 +8,39 @@ function getMetricsObject() {
 
 // Function to set entry and exit times for a specific module and/or function
 function setMetrics(options) {
-  if (options.moduleName) {
-    if (!getMetricsObject()[options.moduleName]) {
-      getMetricsObject()[options.moduleName] = {};
-    }
-    if (options.functionName) {
-      getMetricsObject()[options.moduleName][options.functionName] = {
+  if (options.keyName) {
+    if (!getMetricsObject()[options.keyName]) {
+      getMetricsObject()[options.keyName] = {
         entryTime: options.entryTime || null,
-        exitTime: options.exitTime || null
-      };
-    } else {
-      getMetricsObject()[options.moduleName] = {
-        entryTime: options.entryTime || null,
-        exitTime: options.exitTime || null
+        exitTime: options.exitTime || null,
+        duration: options.duration || null
       };
     }
-  } else if (options.functionName) {
-    getMetricsObject()[options.functionName] = {
-      entryTime: options.entryTime || null,
-      exitTime: options.exitTime || null
-    };
   }
 }
 
 // Function to get metrics for a specific module and/or function
-function getMetrics(moduleName, functionName) {
-  if (moduleName && functionName) {
-    return (getMetricsObject()[moduleName] && getMetricsObject()[moduleName][functionName]) || null;
-  } else if (moduleName) {
-    return getMetricsObject()[moduleName] || null;
-  } else if (functionName) {
-    return getMetricsObject()[functionName] || null;
+function getMetrics(keyName) {
+  if (keyName) {
+    return getMetricsObject()[keyName] || null;
   }
   return null;
 }
 
 // Function to record entry time
-exports.recordEntryTime = function(moduleName, functionName) {
+getGlobalOwObject().recordEntryTime = function(keyName) {
   var currentTime = new Date().getTime();
-  setMetrics({ moduleName: moduleName, functionName: functionName, entryTime: currentTime });
+  setMetrics({ keyName: keyName, entryTime: currentTime });
 }
 
 // Function to record exit time
-exports.recordExitTime = function(moduleName, functionName) {
+getGlobalOwObject().recordExitTime = function(keyName) {
   var currentTime = new Date().getTime();
-  var metrics = getMetrics(moduleName, functionName);
+  var metrics = getMetrics(keyName);
   if (metrics) {
     metrics.exitTime = currentTime;
+    metrics.duration = currentTime - metrics.entryTime;
   }
 }
+
+exports.init = function() {}
