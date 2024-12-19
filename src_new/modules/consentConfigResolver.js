@@ -85,7 +85,7 @@ function initializeCMConfig() {
       // timeout: 2000,                  
     },
     geoInfo: {
-      cc: undefined, // Country Code
+      cc: undefined, // Country Code Already being passed in the request
       sc: undefined, // State Code
     }
     //prebidCMConfig: {}
