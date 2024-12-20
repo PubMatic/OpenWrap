@@ -78,9 +78,9 @@ function initializeCMConfig() {
     // readGeoDataFrom: READ_GEO_DATA_FROM.NONE, 
     cmpPresent: 0, // ccmp - CMP present or not, default not present i.e. 0
     complianceSupport: [], // ccmps -  CMP supported,  1: GDPR, 2: USP, 3: GPP
-    cmpId: undefined, // ccmpId -  CMP ID: Standard Consent Management Platform ID
+    cmpId: 0, // ccmpId -  CMP ID: Standard Consent Management Platform ID, default - 0
     metrics: {
-      timeTakenByGeoService: undefined,       
+      timeTakenByGeoService: 1500, // default value as 1500 if service didn't respond or failed to respond       
       timeTakenByCMP: undefined,              
       // timeout: 2000,                  
     },
@@ -143,12 +143,8 @@ function getCMPsPresentOnPage() {
 
 function getGeoInfoWrapper() {
   let startTime = new Date().getTime();
-  commonUtil.getGeoInfo(READ_GEO_DATA_FROM, function(readFrom, uInfo) {
-    if(readFrom === READ_GEO_DATA_FROM.LOCALSTORAGE) {
-      getCMConfigObject().metrics.timeTakenByGeoService = 0;
-    } else {
-      getCMConfigObject().metrics.timeTakenByGeoService = new Date().getTime() - startTime;
-    }
+  commonUtil.getGeoInfo(READ_GEO_DATA_FROM, function(readFrom, uInfo) {    
+    getCMConfigObject().metrics.timeTakenByGeoService = new Date().getTime() - startTime;    
     getCMConfigObject().geoInfo.cc = uInfo.cc;
     getCMConfigObject().geoInfo.sc = uInfo.sc;
     // commonUtil.getGlobalOwObject().cmConfig.readGeoDataFrom = readFrom;
