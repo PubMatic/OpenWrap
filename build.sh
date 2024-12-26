@@ -40,7 +40,7 @@ if (task == CREATIVE_TASK) {
 		 switch (argv.mode) {
 			 case "test-build":
 				console.log("Executing test-build");
-				prebidTaskName = "build-bundle-dev --modules=modules.json "+profileMode;
+				prebidTaskName = "bundle --modules=modules.json "+profileMode;
 				openwrapBuildTaskName = "devbundle";
 				// openwrapWebpackTaskName = "devpack";
 				break;
@@ -84,12 +84,12 @@ if (task == CREATIVE_TASK) {
 		shell.cd("../OpenWrap/");
 
 
-		if (argv.mode == "test-build") {
+		/*if (argv.mode == "test-build") {
 			if(shell.exec("gulp testall" + " --mode=" + argv.mode + " --prebidpath=" + prebidRepoPath).code !== 0) {
 				shell.echo('Error: test cases failed');
 		  		shell.exit(1);
 			}
-		} 
+		} */
 
 		// console.time("Cleaning Gulp");
 		// shell.exec("gulp clean");

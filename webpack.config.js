@@ -10,6 +10,7 @@ var controllerPaths = {
 };
 
 module.exports = {
+    mode: argv.mode == "test-build" ? "development" : 'production',
     output: {
         filename: 'owt.js'
     },

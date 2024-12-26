@@ -399,7 +399,7 @@ gulp.task('devbundle', gulp.series('devpack', function () {
     var prebidFileName = '/build/dev/prebid.js';
     var footerFileName = isIdentityOnly ? './src_new/ih_footer.js' : './src_new/ow_footer.js';
     return gulp.src([prebidRepoPath + prebidFileName, './build/dev/owt.js', footerFileName], { allowEmpty: true })
-        .pipe(concat('owt.js'))
+        .pipe(concat('owt.min.js'))
         .pipe(gulp.dest('build'));
 }));
 
