@@ -47,4 +47,55 @@ describe('COMMON UTIL', function() {
             done();
         });
     });
+
+    describe('#shouldThrottle', function() {
+        beforeEach(function(done) {
+            sinon.stub(Math, 'random');
+            sinon.stub(Math, 'floor');
+            done();
+        });
+    
+        afterEach(function(done) {
+            Math.random.restore();
+            Math.floor.restore();
+            done();
+        });
+    
+        it('is a function', function(done) {
+            UTIL.shouldThrottle.should.be.a('function');
+            done();
+        });
+    
+        it('should return true when random value is greater than throttle rate', function(done) {
+            Math.random.returns(0.9);
+            Math.floor.returns(90);
+            UTIL.shouldThrottle(80).should.be.true;
+            done();
+        });
+    
+        it('should return false when random value is less than throttle rate', function(done) {
+            Math.random.returns(0.5);
+            Math.floor.returns(50);
+            UTIL.shouldThrottle(80).should.be.false;
+            done();
+        });
+    
+        it('should use default maxRandomValue when not provided', function(done) {
+            Math.random.returns(0.5);
+            Math.floor.returns(50);
+            UTIL.shouldThrottle(30);
+            Math.random.calledOnce.should.be.true;
+            Math.floor.calledWith(50).should.be.true;
+            done();
+        });
+    
+        it('should use provided maxRandomValue', function(done) {
+            Math.random.returns(0.5);
+            Math.floor.returns(25);
+            UTIL.shouldThrottle(30, 50);
+            Math.random.calledOnce.should.be.true;
+            Math.floor.calledWith(25).should.be.true;
+            done();
+        });
+    });
 });

@@ -2,7 +2,7 @@
 var consentConfigResolver = require('../../src_new/modules/consentConfigResolver.js');
 var commonUtil = require('../../src_new/common.util.js');
 
-describe('Consent Config Resolver', function() {
+describe('ConsentConfigResolver: ', function() {
   let sandbox;
   let pbNameSpace;
   
@@ -16,7 +16,7 @@ describe('Consent Config Resolver', function() {
     done();
   });
 
-  describe('getCMConfigObject', function() {
+  describe('#getCMConfigObject', function() {
     it('should return existing cmConfig if present', function(done) {
       window.PWT = {
         cmConfig: {
@@ -38,7 +38,7 @@ describe('Consent Config Resolver', function() {
     });
   });
 
-  describe('getConsentManagementConfig', function() {
+  describe('#getConsentManagementConfig', function() {
     let mockCmp;
 
     beforeEach(function(done) {
@@ -85,16 +85,6 @@ describe('Consent Config Resolver', function() {
         expect(keyExists).to.be.true;
         done();
       }, 100, done);
-    });
-
-    it('should handle CMP timeout', function(done) {
-      consentConfigResolver.getConsentManagementConfig();
-      
-      setTimeout(function(done) {        
-        let keyExists = 'timeTakenByCMP' in window.PWT.cmConfig.metrics;
-        expect(keyExists).to.be.true;
-        done();
-      }, 1700, done);
     });
   });
 });

@@ -5,12 +5,14 @@ var CONSTANTS = require("./constants.js");
 var CONFIG = require("./config.js");
 var ucTag = require("prebid-universal-creative");
 var conf = require("./conf.js");
+var timeMetrics = require("./modules/timeMetrics.js");
+var { getGlobalOwObject } = require("./common.util.js");
 var consentConfigResolver = require("./modules/consentConfigResolver.js");
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
 
-window.PWT.cmConfig = window.PWT.cmConfig || {};
-window.PWT.cmConfig.cmpStartTime = new Date().getTime();
+timeMetrics.init();
+timeMetrics.recordEntryTime(["CMP_CALLING_TIME", "TRANSLATOR_CALLING_TIME", "LOGGER_CALLING_TIME", "TRACKER_CALLING_TIME"]);
 
 window.PWT.bidMap = window.PWT.bidMap || {};
 window.PWT.bidIdMap = window.PWT.bidIdMap || {};
@@ -200,6 +202,6 @@ window.PWT.getAdapterNameForAlias = CONFIG.getAdapterNameForAlias;
 window.PWT.browserMapping = bidManager.getBrowser();
 
 // Calling the consent management config resolver
-consentConfigResolver.getConsentManagementConfig();
+consentConfigResolver.init();
 
 controller.init(window);
