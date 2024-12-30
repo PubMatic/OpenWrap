@@ -71,7 +71,7 @@ function setCMPTime(timeExceeded) {
 }
 
 function pingReturnHandler(pingReturnData, success) {
-  if (pingReturnData.cmpId) {
+  if (pingReturnData && pingReturnData.cmpId) {
     getCMConfigObject().cmpId = pingReturnData.cmpId;
   }
 }
