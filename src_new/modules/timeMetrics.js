@@ -6,6 +6,7 @@ var metrics = {};
 function getMetricsObject() {
   return metrics;
 }
+exports.getMetricsObject = getMetricsObject;
 getGlobalOwObject().getMetrics = getMetricsObject;
 
 // Function to set entry and exit times for a specific module and/or function
