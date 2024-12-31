@@ -1,10 +1,12 @@
 var { getGlobalOwObject } = require('../common.util.js');
 
+var metrics = {};
+
 // Get a metrics object within PWT
 function getMetricsObject() {
-  getGlobalOwObject().metrics = getGlobalOwObject().metrics || {};
-  return getGlobalOwObject().metrics;
+  return metrics;
 }
+getGlobalOwObject().getMetrics = getMetricsObject;
 
 // Function to set entry and exit times for a specific module and/or function
 function setMetrics(options) {

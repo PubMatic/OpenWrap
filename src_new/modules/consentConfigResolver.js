@@ -178,6 +178,8 @@ function init() {
   // Check if we need to procced for the getting all stats by checking runtime throttle (i.e. 5%)
   if (!shouldThrottle(throttleRate)) {
     getConsentManagementConfig();
+  } else {
+    getGeoInfoWrapper();
   }
 }
 exports.init = init;
