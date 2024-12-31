@@ -1,4 +1,5 @@
 var { getGeoInfo, getGlobalOwObject, shouldThrottle } = require("../common.util.js");
+const { isNumber } = require("../util.js");
 const { recordEntryTime, recordExitTime } = require("./timeMetrics.js");
 
 var CMP_CHECK_TIMEOUT = 1500;
@@ -41,9 +42,6 @@ exports.getCMConfigObject = getCMConfigObject;
  * Initializes the consent management configuration object.
  */
 function initializeCMConfig(allStatsAvailable, cmpPresent, complianceSupport, cmpId) {
-  // This filed will be useful for the QA automation to check if all the logger stats are available or not (based on random number it will change)
-  getGlobalOwObject().allConsentStatsAvailable = allStatsAvailable;
-
   let cmConf = {
     allStatsAvailable: allStatsAvailable,
     cmpPresent: cmpPresent, // ccmp - CMP present or not, default not present i.e. 0
@@ -174,8 +172,11 @@ exports.getConsentManagementConfig = getConsentManagementConfig;
 function init() {
   // Initialize the cmConfig object with undefined or null values
   initializeCMConfig(false);
+  // This filed will be useful for the QA automation to check if all the logger stats are available or not (based on random number it will change)
+  var throttleRate = getGlobalOwObject().throttleRate;
+  throttleRate = isNumber(throttleRate) ? throttleRate : 5;
   // Check if we need to procced for the getting all stats by checking runtime throttle (i.e. 5%)
-  if (!shouldThrottle(5)) {
+  if (!shouldThrottle(throttleRate)) {
     getConsentManagementConfig();
   }
 }
