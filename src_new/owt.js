@@ -6,7 +6,6 @@ var CONFIG = require("./config.js");
 var ucTag = require("prebid-universal-creative");
 var conf = require("./conf.js");
 var timeMetrics = require("./modules/timeMetrics.js");
-var { getGlobalOwObject } = require("./common.util.js");
 var consentConfigResolver = require("./modules/consentConfigResolver.js");
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};

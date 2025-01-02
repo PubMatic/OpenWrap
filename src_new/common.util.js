@@ -7,7 +7,7 @@ var conf = require("./conf.js");
  * @returns {Object} - The global Prebid object from the window namespace.
  */
 function getGlobalPbObject() {
-	let pbNameSpace = conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PB_GLOBAL_VAR_NAMESPACE]
+	var pbNameSpace = conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PB_GLOBAL_VAR_NAMESPACE]
 		|| (conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] === "1" ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE);
 
 	// Create the global Prebid object if it doesn't exist.
@@ -23,7 +23,7 @@ exports.getGlobalPbObject = getGlobalPbObject;
  * @returns {Object} - The global OpenWrap object from the window namespace.
  */
 function getGlobalOwObject() {
-	let owNameSpace = conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.OW_GLOBAL_VAR_NAMESPACE]
+	var owNameSpace = conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.OW_GLOBAL_VAR_NAMESPACE]
 		|| (conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] === "1"
 			? CONSTANTS.COMMON.IH_OW_NAMESPACE
 			: CONSTANTS.COMMON.OPENWRAP_NAMESPACE);
