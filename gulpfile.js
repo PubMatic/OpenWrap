@@ -86,6 +86,8 @@ gulp.task('webpack', gulp.series('clean', function() {
     var fsCache = require('gulp-fs-cache');
     var removeCode = require('gulp-remove-code');
     var jsFsCache = fsCache('.tmp/jscache');
+    var babel = require('gulp-babel');
+    var terser = require('gulp-terser');
     webpackConfig.devtool = false;
 
     return gulp.src(isIdentityOnly ? 'src_new/idhub.js' : 'src_new/owt.js', { allowEmpty: true })
@@ -93,7 +95,11 @@ gulp.task('webpack', gulp.series('clean', function() {
         .pipe(webpack(webpackConfig))
         .pipe(jsFsCache)
         .pipe(removeCode(getRemoveCodeConfig()))
-        .pipe(uglify())
+        .pipe(babel({
+            presets: ['@babel/env']
+          }))
+        .pipe(terser())
+        //.pipe(uglify())
         .pipe(optimizejs())
         .pipe(jsFsCache.restore)
         .pipe(gulp.dest('build/dist'))
@@ -108,11 +114,17 @@ gulp.task('webpack-creative', gulp.series('clean', function() {
     var webpack = require('webpack-stream');
     var webpackConfig = require('./webpack.config.js');
     var optimizejs = require('gulp-optimize-js');
+    var babel = require('gulp-babel');
+    var terser = require('gulp-terser');
     webpackConfig.devtool = false;
 
     return gulp.src('src_new/creative/owCreativeRenderer.js')
         .pipe(webpack(webpackConfig))
-        .pipe(uglify())
+        .pipe(babel({
+            presets: ['@babel/env']
+          }))
+        .pipe(terser())
+        //.pipe(uglify())
         .pipe(optimizejs())
         .pipe(gulp.dest('build/dist'))
         .pipe(connect.reload())

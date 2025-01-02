@@ -57,6 +57,7 @@
     "gulp-strip-comments": "^2.4.5",
     "gulp-util": "^3.0.0",
     "gulp-webserver": "^0.9.1",
+    "gulp-terser": "^1.4.1",
     "istanbul": "^0.3.2",
     "istanbul-instrumenter-loader": "^3.0.1",
     "jsdom": "^9.3.0",
