@@ -1,4 +1,4 @@
-var { getGlobalOwObject } = require('../common.util.js');
+var commonUtil = require('../common.util.js');
 
 var metrics = {};
 
@@ -7,7 +7,7 @@ function getMetricsObject() {
   return metrics;
 }
 exports.getMetricsObject = getMetricsObject;
-getGlobalOwObject().getMetrics = getMetricsObject;
+commonUtil.getGlobalOwObject().getMetrics = getMetricsObject;
 
 // Function to set entry and exit times for a specific module and/or function
 function setMetrics(options) {
@@ -42,7 +42,7 @@ function getDurationOf(keyName) {
   return null;
 };
 exports.getDurationOf = getDurationOf;
-getGlobalOwObject().getDurationOf = getDurationOf;
+commonUtil.getGlobalOwObject().getDurationOf = getDurationOf;
 
 
 // Function to record the entry time for one or multiple keys with defaultTotaltime
@@ -58,7 +58,7 @@ function recordEntryTime(keyNames, defaultTotalTime) {
   });
 }
 exports.recordEntryTime = recordEntryTime;
-getGlobalOwObject().recordEntryTime = recordEntryTime;
+commonUtil.getGlobalOwObject().recordEntryTime = recordEntryTime;
 
 // Function to record the exit time and total time for one or multiple keys
 function recordExitTime(keyNames, defaultTotalTime) {
@@ -76,7 +76,7 @@ function recordExitTime(keyNames, defaultTotalTime) {
   });
 }
 exports.recordExitTime = recordExitTime;
-getGlobalOwObject().recordExitTime = recordExitTime;
+commonUtil.getGlobalOwObject().recordExitTime = recordExitTime;
 
 // Initializing the module
 exports.init = function() {}
