@@ -173,10 +173,10 @@ function init() {
   // Initialize the cmConfig object with undefined or null values
   initializeCMConfig(false);
   // This filed will be useful for the QA automation to check if all the logger stats are available or not (based on random number it will change)
-  var throttleRate = commonUtil.getGlobalOwObject().throttleRate;
-  throttleRate = util.isNumber(throttleRate) ? throttleRate : 5;
+  var allowTrafficRate = commonUtil.getGlobalOwObject().allowTrafficRate;
+  allowTrafficRate = util.isNumber(allowTrafficRate) ? allowTrafficRate : 5;
   // Check if we need to procced for the getting all stats by checking runtime throttle (i.e. 5%)
-  if (!commonUtil.shouldThrottle(throttleRate)) {
+  if (!commonUtil.shouldThrottle(allowTrafficRate)) {
     getConsentManagementConfig();
   } else {
     getGeoInfoWrapper();
