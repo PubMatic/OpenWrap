@@ -38,14 +38,14 @@ exports.getGlobalOwObject = getGlobalOwObject;
 /**
  * Determines whether an action should be throttled based on a given percentage.
  *
- * @param {number} throttleRate - The percentage rate at which throttling is applied (0-100).
+ * @param {number} allowTrafficRate - The percentage rate at which throttling won't applied (0-100).
  * @param {number} maxRandomValue - The upper bound for generating a random number (default is 100).
  * @returns {boolean} - Returns true if the action should be throttled, false otherwise.
  */
-function shouldThrottle(throttleRate, maxRandomValue) {
+function shouldThrottle(allowTrafficRate, maxRandomValue) {
 	maxRandomValue = maxRandomValue || 100;
 	// Determine throttling based on the throttle rate and a random value
-	return Math.floor(Math.random() * maxRandomValue) > throttleRate;
+	return Math.floor(Math.random() * maxRandomValue) > allowTrafficRate;
 };
 exports.shouldThrottle = shouldThrottle;
 
