@@ -23,9 +23,9 @@ var READ_GEO_DATA_FROM = {
 };
 
 var CMP_APIs = {
-  GDPR: { apiName: "__tcfapi", complianceName: "gdpr", cmpCommandListner: pingReturnHandler },
-  USP: { apiName: "__uspapi", complianceName: "usp", cmpCommandListner: pingReturnHandler },
-  GPP: { apiName: "__gpp", complianceName: "gpp", cmpCommandListner: pingReturnHandler }
+  GDPR: { apiName: "__tcfapi", complianceName: "gdpr", cmpCommandListner: gdprHandler },
+  USP: { apiName: "__uspapi", complianceName: "usp"},
+  GPP: { apiName: "__gpp", complianceName: "gpp", cmpCommandListner: gppHandler }
 };
 
 /**
@@ -68,9 +68,15 @@ function setCMPTime(timeExceeded) {
   }
 }
 
-function pingReturnHandler(pingReturnData, success) {
+function gdprHandler(pingReturnData, success) {
   if (pingReturnData && pingReturnData.cmpId) {
     getCMConfigObject().cmpId = pingReturnData.cmpId;
+  }
+}
+
+function gppHandler(pingReturnData, success) {
+  if (pingReturnData && pingReturnData.pingData && pingReturnData.pingData.cmpId) {
+    getCMConfigObject().cmpId = pingReturnData.pingData.cmpId;
   }
 }
 
@@ -95,9 +101,9 @@ function getCMPsPresentOnPage() {
       cmConfig.complianceSupport.push(COMPLIANCE_MAP[name]);
 
       if (name === 'GDPR') {
-        frame[cmpApi.apiName]('ping', 2, cmpApi.cmpCommandListner);
+        frame[cmpApi.apiName]('addEventListener', 2, cmpApi.cmpCommandListner);
       } else if (name === 'GPP') {
-        frame[cmpApi.apiName]('ping', cmpApi.cmpCommandListner);
+        frame[cmpApi.apiName]('addEventListener', cmpApi.cmpCommandListner);
       }
     }
   }
