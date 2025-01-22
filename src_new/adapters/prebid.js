@@ -890,7 +890,7 @@ function assignCurrencyConfigIfRequired(prebidConfig){
 exports.assignCurrencyConfigIfRequired = assignCurrencyConfigIfRequired;
 
 function assignSchainConfigIfRequired(prebidConfig){
-	if(CONFIG.isSchainEnabled()){
+	if(CONFIG.isSchainEnabled() && CONFIG.getSchainObject()){
 		prebidConfig["schain"] = CONFIG.getSchainObject();
 	}
 }
