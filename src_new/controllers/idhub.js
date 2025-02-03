@@ -82,14 +82,14 @@ refThis.setConfig = function(){
 			if(!COMMON_CONFIG.consentManagentEnabled()){
 				util.logWarning("ConsentMangement is not enabled, so do not enforcing any regulations");
 				window[pbNameSpace].setConfig(prebidConfig);
-				return;
-			}
-			consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
-				if(cmConfig && Object.keys(cmConfig).length) {
-					prebidConfig.consentManagement = cmConfig;
+			} else {
+				consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
+					if(cmConfig && Object.keys(cmConfig).length) {
+						prebidConfig.consentManagement = cmConfig;					
+					}
 					window[pbNameSpace].setConfig(prebidConfig);
-				}
-			});
+				});
+			}
 			//window[pbNameSpace].setConfig(prebidConfig);
 		}
 		if (CONFIG.isUserIdModuleEnabled() && CONFIG.isIdentityOnly()) {
