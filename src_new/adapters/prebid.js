@@ -10,6 +10,8 @@ var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var CONF = require("../conf.js");
+var consentConfigResolver = require("../modules/consentConfigResolver.js");
+var commonUtil = require("../common.util.js");
 
 var COMMON_CONFIG = require("../common.config.js");
 
@@ -832,48 +834,48 @@ function assignUserSyncConfig(prebidConfig){
 
 exports.assignUserSyncConfig = assignUserSyncConfig;
 
-function assignGdprConfigIfRequired(prebidConfig){
-	if (CONFIG.getGdpr()) {
-		if(!prebidConfig["consentManagement"]){
-			prebidConfig["consentManagement"] = {};
-		}
-		prebidConfig["consentManagement"]['gdpr'] = {
-			cmpApi: CONFIG.getCmpApi(),
-			timeout: CONFIG.getGdprTimeout(),
-			allowAuctionWithoutConsent: CONFIG.getAwc(), // Auction without consent
-			defaultGdprScope: true
-		};
-		var gdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout()
-		if (gdprActionTimeout) {
-			util.log("GDPR IS ENABLED, TIMEOUT: " + prebidConfig["consentManagement"]['gdpr']['timeout'] +", ACTION TIMEOUT: "+ gdprActionTimeout);
-			prebidConfig["consentManagement"]['gdpr']['actionTimeout'] = gdprActionTimeout;
-		}
-	}
-}
+// function assignGdprConfigIfRequired(prebidConfig){
+// 	if (CONFIG.getGdpr()) {
+// 		if(!prebidConfig["consentManagement"]){
+// 			prebidConfig["consentManagement"] = {};
+// 		}
+// 		prebidConfig["consentManagement"]['gdpr'] = {
+// 			cmpApi: CONFIG.getCmpApi(),
+// 			timeout: CONFIG.getGdprTimeout(),
+// 			allowAuctionWithoutConsent: CONFIG.getAwc(), // Auction without consent
+// 			defaultGdprScope: true
+// 		};
+// 		var gdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout()
+// 		if (gdprActionTimeout) {
+// 			util.log("GDPR IS ENABLED, TIMEOUT: " + prebidConfig["consentManagement"]['gdpr']['timeout'] +", ACTION TIMEOUT: "+ gdprActionTimeout);
+// 			prebidConfig["consentManagement"]['gdpr']['actionTimeout'] = gdprActionTimeout;
+// 		}
+// 	}
+// }
 
-exports.assignGdprConfigIfRequired = assignGdprConfigIfRequired;
+// exports.assignGdprConfigIfRequired = assignGdprConfigIfRequired;
 
-function assignCcpaConfigIfRequired(prebidConfig){
-	if (CONFIG.getCCPA()) {
-		if(!prebidConfig["consentManagement"]){
-			prebidConfig["consentManagement"] = {};
-		}
-		prebidConfig["consentManagement"]["usp"] = {
-			cmpApi: CONFIG.getCCPACmpApi(),
-			timeout: CONFIG.getCCPATimeout(),
-		};
-	}
-}
+// function assignCcpaConfigIfRequired(prebidConfig){
+// 	if (CONFIG.getCCPA()) {
+// 		if(!prebidConfig["consentManagement"]){
+// 			prebidConfig["consentManagement"] = {};
+// 		}
+// 		prebidConfig["consentManagement"]["usp"] = {
+// 			cmpApi: CONFIG.getCCPACmpApi(),
+// 			timeout: CONFIG.getCCPATimeout(),
+// 		};
+// 	}
+// }
 
-exports.assignCcpaConfigIfRequired = assignCcpaConfigIfRequired;
+// exports.assignCcpaConfigIfRequired = assignCcpaConfigIfRequired;
 
-function assignGppConfigIfRequired(prebidConfig) {
-	if (CONFIG.getGppConsent()) {
-		prebidConfig = COMMON_CONFIG.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
-	}
-}
+// function assignGppConfigIfRequired(prebidConfig) {
+// 	if (CONFIG.getGppConsent()) {
+// 		prebidConfig = COMMON_CONFIG.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
+// 	}
+// }
 
-exports.assignGppConfigIfRequired = assignGppConfigIfRequired;
+// exports.assignGppConfigIfRequired = assignGppConfigIfRequired;
 
 function assignCurrencyConfigIfRequired(prebidConfig){
 	if(CONFIG.getAdServerCurrency()){
@@ -1027,7 +1029,7 @@ function addOnBidRequestHandler(){
 exports.addOnBidRequestHandler = addOnBidRequestHandler;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
   
-function setPrebidConfig(){
+function setPrebidConfig() {
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 		var prebidConfig = {
 			debug: util.isDebugLogEnabled(),
@@ -1066,9 +1068,9 @@ function setPrebidConfig(){
 		refThis.getFloorsConfiguration(prebidConfig);
 		refThis.checkConfigLevelFloor(prebidConfig);
 		refThis.assignUserSyncConfig(prebidConfig);
-		refThis.assignGdprConfigIfRequired(prebidConfig);
-		refThis.assignCcpaConfigIfRequired(prebidConfig);
-		refThis.assignGppConfigIfRequired(prebidConfig);
+		//refThis.assignGdprConfigIfRequired(prebidConfig);
+		//refThis.assignCcpaConfigIfRequired(prebidConfig);
+		//refThis.assignGppConfigIfRequired(prebidConfig);
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
@@ -1085,6 +1087,23 @@ function setPrebidConfig(){
 		// do not set any config below this line as we are executing the hook above
 		
 		window[pbNameSpace].setConfig(prebidConfig);
+
+		if(!COMMON_CONFIG.consentManagentEnabled()){
+			util.logWarning("ConsentMangement is not enabled, so do not enforcing any regulations");
+			return;
+		}
+
+		//console.time("Compliance Config");
+		consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
+			// console.log("Compliance Config", cmConfig);
+			// console.timeEnd("Compliance Config");
+			if(cmConfig && Object.keys(cmConfig).length) {
+				var consentManagementConf = {};
+				consentManagementConf.consentManagement = cmConfig;
+				window[pbNameSpace].setConfig(consentManagementConf);
+			}
+		});
+		//console.log("Other exeuction continue...");
 	} else {
 		util.logWarning("PreBidJS setConfig method is not available");
 	}
@@ -1436,11 +1455,35 @@ function initPbjsConfig(){
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
 	refThis.setPbjsBidderSettingsIfRequired();
-	// util.getGeoInfo();
+
+	// If consent Management is enabled then do not fetch the geo info from consentConfigResolver.js(here) module will do the same.
+	if(!COMMON_CONFIG.consentManagentEnabled()){
+		commonUtil.getGeoInfo();
+	}
 }
+
 exports.initPbjsConfig = initPbjsConfig;
 
-function fetchBids(activeSlots){
+function fetchBids(activeSlots) {
+// TODO: Halt execution till we found if consentManagement Config is set or not, once this flag found we will proceed with below execution
+	//		we can use a flag to check if consentManagement Config is set or not
+	if(!COMMON_CONFIG.consentManagentEnabled()){
+		fetchBidsAfterConfirmation(activeSlots);
+		return;
+	}
+
+	function checkIfConsentManagementIsSet() {
+		//TODO: Confirm what will be timeout for keep checking of cmProcessDone?
+		var checkTimeout = setTimeout(checkIfConsentManagementIsSet, 50);
+		if(window.PWT && window.PWT.cmConfig && window.PWT.cmConfig.cmProcessDone) {
+			clearTimeout(checkTimeout);
+			fetchBidsAfterConfirmation(activeSlots);
+		}
+	}
+	checkIfConsentManagementIsSet();
+}
+
+function fetchBidsAfterConfirmation(activeSlots){
 
 	var impressionID = util.generateUUID();
 	// todo: 

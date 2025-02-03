@@ -1,6 +1,9 @@
+
 var commonUtil = require("../common.util.js");
 var util = require("../util.js");
 var timeMetrics = require("./timeMetrics.js");
+var COMMON_CONFIG = require("../common.config.js");
+var CONSTANTS = require("../constants.js");
 
 var CMP_CHECK_TIMEOUT = 1500;
 
