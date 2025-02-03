@@ -46,19 +46,11 @@ exports.test_pwt = {
 };
 exports.adapters = {
 	pubmatic: {
-    publisherId: "5890",
-    kgp: "_AU_@_W_x_H_:_AUI_",
-    sk: "true",
-    rev_share: "0.0",
-    timeout: 0,
-    throttle: "100",
-    pt: 0,
-    serverSideEnabled: "0",
-    amp: 0,
-    video: 0,
-    "in-app": 0,
-    display: 0
-  },
+		rev_share: "0.0",
+		throttle: "100",
+		publisherId: "156209",
+		kgp: "_W_x_H_@_W_x_H_:_AUI_"
+	},
 	audienceNetwork: {
 		rev_share: "0.0",
 		throttle: "100",
@@ -183,57 +175,57 @@ exports.identityPartners = {
 // 5. DIV1 -> Apply based on condtions (enabled,)
 // 6. DIV5 -> It will increase Latency 
 
-// exports.slotConfig = {
-// 	"configPattern": "_DIV_",
-// 	"config": {
-// 		"Div1": {
-// 			"banner": {
-// 				"enabled": true
-// 			},
-// 			"native": {
-// 				"enabled": true,
-// 				"config": {
-// 					"image": {
-// 						"required": true,
-// 						"sizes": [150, 50]
-// 					},
-// 					"title": {
-// 						"required": true,
-// 						"len": 80
-// 					},
-// 					"sponsoredBy": {
-// 						"required": true
-// 					},
-// 					"body": {
-// 						"required": true
-// 					}
-// 				}
-// 			},
-// 			"video": {
-// 				"enabled": true,
-// 				"config": {
-// 					"context": "instream",
-// 					"connectiontype": [1, 2, 6],
-// 					"minduration": 10,
-// 					"maxduration": 50,
-// 					"battr": [
-// 						6,
-// 						7
-// 					],
-// 					"skip": 1,
-// 					"skipmin": 10,
-// 					"skipafter": 15
-// 				},
-// 				"partnerConfig": {
-// 					"pubmatic": {
-// 						"outstreamAU": "pubmatic-test"
-// 					}
-// 				}
-// 			},
+exports.slotConfig = {
+	"configPattern": "_DIV_",
+	"config": {
+		"Div1": {
+			"banner": {
+				"enabled": true
+			},
+			"native": {
+				"enabled": true,
+				"config": {
+					"image": {
+						"required": true,
+						"sizes": [150, 50]
+					},
+					"title": {
+						"required": true,
+						"len": 80
+					},
+					"sponsoredBy": {
+						"required": true
+					},
+					"body": {
+						"required": true
+					}
+				}
+			},
+			"video": {
+				"enabled": true,
+				"config": {
+					"context": "instream",
+					"connectiontype": [1, 2, 6],
+					"minduration": 10,
+					"maxduration": 50,
+					"battr": [
+						6,
+						7
+					],
+					"skip": 1,
+					"skipmin": 10,
+					"skipafter": 15
+				},
+				"partnerConfig": {
+					"pubmatic": {
+						"outstreamAU": "pubmatic-test"
+					}
+				}
+			},
 
-// 		},
-// 		"AU2": {
-// 			"banner": {}
-// 		}
-// 	}
-// };
+		},
+		"AU2": {
+			"banner": {}
+		}
+	}
+};

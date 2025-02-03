@@ -1,11 +1,22 @@
+
+var commonUtil = require("../common.util.js");
+var util = require("../util.js");
+var timeMetrics = require("./timeMetrics.js");
 var COMMON_CONFIG = require("../common.config.js");
 var CONSTANTS = require("../constants.js");
-var commonUtil = require("../common.util.js");
+
+var CMP_CHECK_TIMEOUT = 1500;
 
 var CONSENT_MANAGEMENT_SOURCE = {
   CMP: "CMP",
   GEO: "GEO",
   NONE: "NONE"
+};
+
+var COMPLIANCE_MAP = {
+  GDPR: 1,
+  USP: 2,
+  GPP: 3
 };
 
 var READ_GEO_DATA_FROM = {
@@ -15,205 +26,169 @@ var READ_GEO_DATA_FROM = {
 };
 
 var CMP_APIs = {
-  GDPR: { apiName: "__tcfapi", getConfig: getGDPRConfig, complianceName: "gdpr" },
-  USP: { apiName: "__uspapi", getConfig: getUSPConfig, complianceName: "usp" },
-  GPP: { apiName: "__gpp", getConfig: getGPPConfig, complianceName: "gpp" }
+  GDPR: { apiName: "__tcfapi", complianceName: "gdpr", cmpCommandListner: gdprHandler },
+  USP: { apiName: "__uspapi", complianceName: "usp"},
+  GPP: { apiName: "__gpp", complianceName: "gpp", cmpCommandListner: gppHandler }
 };
 
-// Phase 1.5
-
-// let a = {
-//   cmd: {
-//     cmpp: 1,
-//     gst: 200,
-//     cc: "US",
-//     sc: "CA",
-//     cmps: [{
-//       vid: 15,
-//       s: 1,  // 1: GDPR, 2: USP, 3: GPP
-//       t: 1000,
-//     },
-//     {
-//       vid: 15,
-//       s: 2,
-//       t: 1000,
-//     },
-//     {
-//       vid: 15,
-//       s: 3,
-//       t: 1000,
-//     }]
-//   }
-// }
-
-/** Example of cmConfig object
-  window.PWT = {
-    cmConfig: {
-      "cmProcessDone": true,            // This Flag will use to resume the CMP execution
-      "enforcedConsentBasisOn": "GEO",  // This will be used to enforce the consent basis on Possible values: CMP, GEO, NONE
-      "readGeoDataFrom": "LS",// This will be used to identify whether geo info retrieved from Cache or from service: LOCALSTORAGE, GEO_SERVICE, NONE
-      "metrics": {
-        timeTakenByGeoService: 0,       // Time taken by the Geo service to find out what compliance to enforce
-        timeTakenByCMP: 0,              // Time taken to find out the CMP's presence
-        timeout: 2000,                  // Given time, to find out what compliance to enforce
-      },
-      "prebidCMConfig": {               // This will be used to apply the consentManagement config to the Prebid instance
-          "gdpr": {
-              "cmpApi": "iab",
-              "timeout": 10000,
-              "defaultGdprScope": true
-          },
-          "usp": {
-              "cmpApi": "iab",
-              "timeout": 10000
-          },
-          "gpp": {
-              "cmpApi": "iab",
-              "timeout": 10000
-          }
-      }
-    }
-  }
+/**
+ * Get the consent management configuration object
+ * @returns Object : Consent management configuration object ie. window.PWT.cmConfig
  */
+function getCMConfigObject() {
+  commonUtil.getGlobalOwObject().cmConfig = commonUtil.getGlobalOwObject().cmConfig || {};
+  return commonUtil.getGlobalOwObject().cmConfig;
+}
+exports.getCMConfigObject = getCMConfigObject;
 
-function initializeCMConfig() {
-   // Initializing the cmConfig object
-  commonUtil.getGlobalOwObject().cmConfig = { 
-    cmProcessDone: false, 
-    enforcedConsentBasisOn: CONSENT_MANAGEMENT_SOURCE.NONE,
-    readGeoDataFrom: READ_GEO_DATA_FROM.NONE, 
-    metrics: {
-      timeTakenByGeoService: null,       
-      timeTakenByCMP: null,              
-      timeout: 2000,                  
-    },
-    prebidCMConfig: {}
+/**
+ * Initializes the consent management configuration object.
+ */
+function initializeCMConfig(allStatsAvailable, cmpPresent, complianceSupport, cmpId) {
+  var cmConf = {
+    allStatsAvailable: allStatsAvailable,
+    cmpPresent: cmpPresent, // ccmp - CMP present or not, default not present i.e. 0
+    complianceSupport: complianceSupport, // ccmps -  CMP supported,  1: GDPR, 2: USP, 3: GPP
+    cmpId: cmpId, // ccmpId -  CMP ID: Standard Consent Management Platform ID, default - 0
+    geoInfo: {
+      cc: undefined, // Country Code Already being passed in the request
+      sc: undefined, // State Code
+    }
   };
+  commonUtil.getGlobalOwObject().cmConfig = Object.assign({}, getCMConfigObject(), cmConf);
 }
 
-function getGDPRConfig() {
-  var conf = {};
-  conf.gdpr = {
-    cmpApi: COMMON_CONFIG.getCmpApi(CONSTANTS.CONFIG.GDPR_CMPAPI),
-    timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.GDPR_TIMEOUT, CONSTANTS.CONFIG.DEFAULT_GDPR_TIMEOUT),
-    // allowAuctionWithoutConsent: COMMON_CONFIG.getAwc(), // Auction without consent IMP : Not required now
-    defaultGdprScope: true
-  };
-  var gdprActionTimeout = COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.GDPR_ACTION_TIMEOUT, 0);
-  if (gdprActionTimeout) {
-    util.log("GDPR IS ENABLED, TIMEOUT: " + conf['gdpr']['timeout'] + ", ACTION TIMEOUT: " + gdprActionTimeout);
-    conf.gdpr.actionTimeout = gdprActionTimeout;
+/**
+ * Set the time taken by CMP to load
+ * @param {*} timeExceeded : If time exceeded then set the default timeout value
+ */
+function setCMPTime(timeExceeded) {
+  // If time taken by CMP is not set then set the default timeout value
+  if (!commonUtil.getGlobalOwObject().getDurationOf("CMP_CALLING_TIME")) {
+    timeExceeded
+      ? timeMetrics.recordExitTime("CMP_CALLING_TIME", CMP_CHECK_TIMEOUT)
+      : timeMetrics.recordExitTime("CMP_CALLING_TIME");
   }
-  return conf;
 }
 
-function getUSPConfig() {
-  var conf = {};
-  conf.usp = {
-    cmpApi: COMMON_CONFIG.getCmpApi(CONSTANTS.CONFIG.CCPA_CMPAPI),
-    timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.CCPA_TIMEOUT, CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT),
-  };
-  return conf;
+function gdprHandler(pingReturnData, success) {
+  if (pingReturnData && pingReturnData.cmpId) {
+    getCMConfigObject().cmpId = pingReturnData.cmpId;
+  }
 }
 
-function getGPPConfig() {
-  var conf = {};
-  conf.gpp = {
-    cmpApi: COMMON_CONFIG.getCmpApi(CONSTANTS.CONFIG.GPP_CMPAPI),
-    timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.GPP_TIMEOUT, CONSTANTS.CONFIG.DEFAULT_GPP_TIMEOUT),
-  };
-  return conf;
+function gppHandler(pingReturnData, success) {
+  if (pingReturnData && pingReturnData.pingData && pingReturnData.pingData.cmpId) {
+    getCMConfigObject().cmpId = pingReturnData.pingData.cmpId;
+  }
 }
 
+/**
+ * Get the CMPs present on the page
+ * 
+ * @returns Object : CMPs present on the page
+ */
 function getCMPsPresentOnPage() {
   var cmps = {};
-  var f = window;
-  while (f) {
+  var currentWindow = window;
+  var cmConfig = getCMConfigObject();
+
+  // Helper function to check for CMP presence and execute commands
+  function checkAndExecuteCMP(name, frame) {
+    var cmpApi = CMP_APIs[name];
+    var apiExists = typeof frame[cmpApi.apiName] === 'function' || frame.frames[cmpApi.apiName + "Locator"];
+    
+    if (apiExists) {
+      cmConfig.cmpPresent = 1;
+      setCMPTime(false);
+      cmConfig.complianceSupport.push(COMPLIANCE_MAP[name]);
+
+      if (name === 'GDPR') {
+        frame[cmpApi.apiName]('addEventListener', 2, cmpApi.cmpCommandListner);
+      } else if (name === 'GPP') {
+        frame[cmpApi.apiName]('addEventListener', cmpApi.cmpCommandListner);
+      }
+    }
+  }
+
+  // Iterate through window frames to find CMPs
+  while (currentWindow) {
     try {
       for (var name in CMP_APIs) {
-        if (!cmps[name] && (typeof f[CMP_APIs[name].apiName] === 'function' || f.frames[CMP_APIs[name].apiName + "Locator"])) {
-          //cmps[name] = 1;
-          cmps = Object.assign(cmps, CMP_APIs[name].getConfig());
-        }
+        checkAndExecuteCMP(name, currentWindow);
       }
-    } catch (e) {
-    }
+    } catch (e) {} // Handle errors silently
 
-    if (f === window.top) break;
-    f = f.parent;
+    if (currentWindow === window.top) break;
+    currentWindow = currentWindow.parent;
   }
+
   return cmps;
 }
 
-// function setConsentManagementConfigToPWT(config) {
-//   // This Will prepare Config and set it to the PWT.consentManagementConfig for logging purpose
-//   window.PWT.consentManagementConfig = config; // Setting to PWT for visibility
-// }
-
-
-function anyCMPPresent(cmpsFound) {
-  return Object.keys(cmpsFound).length > 0;
-}
-
-
+/**
+ * Get the geo information from the service
+ */
 function getGeoInfoWrapper() {
-  let startTime = new Date().getTime();
-  commonUtil.getGeoInfo(READ_GEO_DATA_FROM, function(readFrom) {
-    commonUtil.getGlobalOwObject().cmConfig.metrics.timeTakenByGeoService = new Date().getTime() - startTime;
-    commonUtil.getGlobalOwObject().cmConfig.readGeoDataFrom = readFrom;
+  timeMetrics.recordEntryTime("GEO_CALLING_TIME", 1500); // Setting default timeout of 1500 ms in case service fails or didn't respond
+  commonUtil.getGeoInfo(READ_GEO_DATA_FROM, function (readFrom, uInfo) {
+    timeMetrics.recordExitTime("GEO_CALLING_TIME");
+    getCMConfigObject().geoInfo.cc = uInfo.cc;
+    getCMConfigObject().geoInfo.sc = uInfo.sc;
   });
 }
+exports.getGeoInfoWrapper = getGeoInfoWrapper;
 
-function getConsentManagementConfig(callback) {
-  initializeCMConfig();
-  var isCallbackExecuted = false;
-  var cmpTime = 0;
-  
+/**
+ * Get the consent management configuration
+ */
+function getConsentManagementConfig() {
+  initializeCMConfig(true, 0, [], 0);
   // Calling geo info to get the country, state level information and regulation to apply information. This will be stored under PWT.CC
   getGeoInfoWrapper();
 
-  function executeCallback(enforcedConsentBasisOn, config) {
-    commonUtil.getGlobalOwObject().cmConfig.enforcedConsentBasisOn = enforcedConsentBasisOn;
-    commonUtil.getGlobalOwObject().cmConfig.prebidCMConfig = config;
-    if (!isCallbackExecuted) {
-      isCallbackExecuted = true;
-      callback(config);
-      commonUtil.getGlobalOwObject().cmConfig.cmProcessDone = true;
-    }
+  var cmpTimeoutReached = false;
+  var timeoutId;
+
+  // Handle CMP check timeout
+  function handleCMPCheckTimeout() {
+    cmpTimeoutReached = true;
+    clearTimeout(timeoutId);
+    setCMPTime(true);
   }
-
-  // Timeout added till the time we check for CMP is loaded or to be loaded
-  var timeoutId = setTimeout(function () {
-    // Once timed out, check for geo location has regulation to apply
-    if (commonUtil.getGlobalOwObject().CC && commonUtil.getGlobalOwObject().CC.compliance) { // This will set by the Util.getGeoInfo
-      executeCallback(CONSENT_MANAGEMENT_SOURCE.GEO, CMP_APIs[commonUtil.getGlobalOwObject().CC.compliance].getConfig());
-    } else {
-      executeCallback(CONSENT_MANAGEMENT_SOURCE.NONE, null);
-    }
-  }, 2000);  //TODO: Finalize the timeout ? user specified or we can decide? configurable?
-
+  // Set a timeout for checking CMP presence
+  timeoutId = setTimeout(handleCMPCheckTimeout, CMP_CHECK_TIMEOUT);
 
   function checkCmpRecursively() {
-    if (isCallbackExecuted) {
-      clearTimeout(timeoutId);
-      return;
-    }
+    try {
+      if (cmpTimeoutReached) return;
+      getCMPsPresentOnPage();
 
-    var cmpsFound = getCMPsPresentOnPage();
-    if (anyCMPPresent(cmpsFound)) {
+      getCMConfigObject().complianceSupport.length > 0
+        ? clearTimeout(timeoutId)
+        : setTimeout(checkCmpRecursively, 50);
+    } catch (error) {
       clearTimeout(timeoutId);
-      commonUtil.getGlobalOwObject().cmConfig.metrics.timeTakenByCMP = new Date().getTime() - cmpTime;
-      executeCallback(CONSENT_MANAGEMENT_SOURCE.CMP, cmpsFound);
-    } else {
-      setTimeout(checkCmpRecursively, 100);
     }
   }
-  //CMP check recursively
-  cmpTime = new Date().getTime();
   checkCmpRecursively();
 }
-
 exports.getConsentManagementConfig = getConsentManagementConfig;
 
-
-
+/**
+ * Initialize the consent management configuration
+ */
+function init() {
+  // Initialize the cmConfig object with undefined or null values
+  initializeCMConfig(false);
+  // This filed will be useful for the QA automation to check if all the logger stats are available or not (based on random number it will change)
+  var allowTrafficRate = commonUtil.getGlobalOwObject().allowTrafficRate;
+  allowTrafficRate = util.isNumber(allowTrafficRate) ? allowTrafficRate : 5;
+  // Check if we need to procced for the getting all stats by checking runtime throttle (i.e. 5%)
+  if (!commonUtil.shouldThrottle(allowTrafficRate)) {
+    getConsentManagementConfig();
+  } else {
+    getGeoInfoWrapper();
+  }
+}
+exports.init = init;

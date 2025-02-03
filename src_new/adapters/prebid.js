@@ -1045,6 +1045,14 @@ function setPrebidConfig() {
 			},
 			testGroupId: parseInt(window.PWT.testGroupId || 0)
 		};
+
+		if(CONFIG.isBidPoolingEnabled()) {
+			prebidConfig[CONSTANTS.COMMON.USE_BID_CACHE] = true; 
+			prebidConfig.bidCacheFilterFunction = function(bid) {
+				return bid.mediaType !== 'video';
+			}
+		}
+
 		if(CONFIG.getPriceGranularity()){
 			prebidConfig["priceGranularity"] = CONFIG.getPriceGranularity();
 		}
@@ -1448,7 +1456,7 @@ function initPbjsConfig(){
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
 	refThis.setPbjsBidderSettingsIfRequired();
 
-	// IF consent Management is enabled then do not fetch the geo info from here consentMangement.js module will do the same.
+	// If consent Management is enabled then do not fetch the geo info from consentConfigResolver.js(here) module will do the same.
 	if(!COMMON_CONFIG.consentManagentEnabled()){
 		commonUtil.getGeoInfo();
 	}
