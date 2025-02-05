@@ -30,17 +30,6 @@ var CMP_APIs = {
   GPP: { apiName: "__gpp", complianceName: "gpp", prepareConfig: configureGPP, cmpCommandListner: handleGPP }
 };
 
-/**
- * Get the consent management configuration object
- * @returns Object : Consent management configuration object ie. window.PWT.cmConfig
- */
-function getCMConfigObject() {
-  commonUtil.getGlobalOwObject().cmConfig = commonUtil.getGlobalOwObject().cmConfig || {};
-  return commonUtil.getGlobalOwObject().cmConfig;
-}
-exports.getCMConfigObject = getCMConfigObject;
-
-
 /** Example of cmConfig object
   window.PWT = {
     cmConfig: {
@@ -73,8 +62,13 @@ exports.getCMConfigObject = getCMConfigObject;
     }
   }
 */
-
-
+var cmConfig = {};
+// get cmConfig object by PWT.getConsentManagementConfig() function
+function getCMConfigObject() {
+  return cmConfig;
+}
+exports.getCMConfigObject = getCMConfigObject;
+commonUtil.getGlobalOwObject().getConsentManagementConfig = getCMConfigObject;
 
 /**
  * Initializes the consent management configuration object.
@@ -94,7 +88,7 @@ function initializeCMConfig(allStatsAvailable, cmpPresent, complianceSupport, cm
     },
     prebidCMConfig: {}
   };
-  commonUtil.getGlobalOwObject().cmConfig = Object.assign({}, getCMConfigObject(), initialConfig);
+  cmConfig = Object.assign({}, getCMConfigObject(), initialConfig);
 }
 
 /**
@@ -120,15 +114,21 @@ function handleGPP(pingReturnData, success) {
   }
 }
 
+function getCmpApiAndTimeout() {
+  return {
+    cmpApi: COMMON_CONFIG.getCmpApi(CONSTANTS.CONFIG.CONSENT_MANAGEMENT_CMPAPI),
+    timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.CONSENT_MANAGEMENT_TIMEOUT, 1000)
+  }
+}
+
 function configureGDPR() {
   var gdpr = {
-    cmpApi: COMMON_CONFIG.getCmpApi(CONSTANTS.CONFIG.GDPR_CMPAPI),
-    timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.GDPR_TIMEOUT, CONSTANTS.CONFIG.DEFAULT_GDPR_TIMEOUT),
     // allowAuctionWithoutConsent: COMMON_CONFIG.getAwc(), // Auction without consent IMP : Not required now
     defaultGdprScope: true
-  };
-  var gdprActionTimeout = COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.GDPR_ACTION_TIMEOUT, 0);
-  if (gdprActionTimeout) {
+  }
+  Object.assign(gdpr, getCmpApiAndTimeout());
+  var gdprActionTimeout = commonUtil.getGlobalOwObject().actionTimeout || undefined;
+  if (gdprActionTimeout && util.isNumber(gdprActionTimeout)) {
     util.log("GDPR IS ENABLED, TIMEOUT: " + gdpr.timeout + ", ACTION TIMEOUT: " + gdprActionTimeout);
     gdpr.actionTimeout = gdprActionTimeout;
   }
@@ -136,19 +136,11 @@ function configureGDPR() {
 }
 
 function configureUSP() {
-  var usp = {
-    cmpApi: COMMON_CONFIG.getCmpApi(CONSTANTS.CONFIG.CCPA_CMPAPI),
-    timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.CCPA_TIMEOUT, CONSTANTS.CONFIG.DEFAULT_CCPA_TIMEOUT),
-  };
-  getCMConfigObject().prebidCMConfig.usp = usp;
+  getCMConfigObject().prebidCMConfig.usp = getCmpApiAndTimeout();
 }
 
 function configureGPP() {
-  var gpp = {
-    cmpApi: COMMON_CONFIG.getCmpApi(CONSTANTS.CONFIG.GPP_CMPAPI),
-    timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.GPP_TIMEOUT, CONSTANTS.CONFIG.DEFAULT_GPP_TIMEOUT),
-  };
-  getCMConfigObject().prebidCMConfig.gpp = gpp;
+  getCMConfigObject().prebidCMConfig.gpp = getCmpApiAndTimeout();
 }
 
 /**
@@ -158,14 +150,13 @@ function configureGPP() {
  */
 function checkCMPsPresentOnPage() {
   var currentWindow = window;
-  var cmConfig = getCMConfigObject();
 
   function checkCMPInWindow(frame) {
-    for (var name in CMP_APIs) {
-      if(CMP_APIs.hasOwnProperty(name)) {
-        var cmpApi = CMP_APIs[name];
+    for (var key in CMP_APIs) {
+      if(CMP_APIs.hasOwnProperty(key)) {
+        var cmpApi = CMP_APIs[key];
         if(isCMPApiPresent(cmpApi, frame)) {
-          executeCMPCommands(cmpApi, name, frame);
+          prepareCMPDataAndConfig(cmpApi, key, frame);
         }
       }
       //checkAndExecuteCMP(name, currentWindow);
@@ -177,15 +168,16 @@ function checkCMPsPresentOnPage() {
   }
 
   // Helper function to check for CMP presence and execute commands
-  function executeCMPCommands(cmpApi, name, frame) {
-      if (name === 'GDPR') {
+  function prepareCMPDataAndConfig(cmpApi, key, frame) {
+      var cmConfig = getCMConfigObject();
+      cmConfig.complianceSupport.push(CONSENT_CONSTANTS.COMPLIANCE_MAP[key]);
+      if (key === 'GDPR') {
         frame[cmpApi.apiName]('addEventListener', 2, cmpApi.cmpCommandListner);
-      } else if (name === 'GPP') {
+      } else if (key === 'GPP') {
         frame[cmpApi.apiName]('addEventListener', cmpApi.cmpCommandListner);
       }
       cmConfig.cmpPresent = 1;
       setCMPTime(false);
-      cmConfig.complianceSupport.push(CONSENT_CONSTANTS.COMPLIANCE_MAP[name]);
       cmpApi.prepareConfig();
   }
 
@@ -204,10 +196,15 @@ function checkCMPsPresentOnPage() {
  * Get the geo information from the service
  */
 function getGeoInfoWrapper() {
+  function setGeoInfo(readFrom, geoInfo) {
+    var cmConfig = getCMConfigObject();
+    cmConfig.geoInfo.cc = geoInfo.cc;
+    cmConfig.geoInfo.sc = geoInfo.sc;
+    cmConfig.readGeoDataFrom = readFrom;
+  }
   timeMetrics.recordEntryTime("GEO_CALLING_TIME", 1500); // Setting default timeout of 1500 ms in case service fails or didn't respond
-  commonUtil.getGeoInfo(CONSENT_CONSTANTS.READ_GEO_DATA_FROM, function (readFrom, uInfo) {
-    getCMConfigObject().geoInfo.cc = uInfo.cc;
-    getCMConfigObject().geoInfo.sc = uInfo.sc;
+  commonUtil.getGeoInfo(CONSENT_CONSTANTS.READ_GEO_DATA_FROM, function (readFrom, geoInfo) {
+    setGeoInfo(readFrom, geoInfo);
     timeMetrics.recordExitTime("GEO_CALLING_TIME");
   });
 }
@@ -217,9 +214,11 @@ exports.getGeoInfoWrapper = getGeoInfoWrapper;
  * Get the consent management configuration
  */
 function getConsentManagementConfig() {
-  initializeCMConfig(true, 0, [], 0);
+  timeMetrics.recordEntryTime("CONSENT_MANAGEMENT");
   var isCallbackExecuted = false;
   var timeoutId;
+
+  initializeCMConfig(true, 0, [], 0);
   // Calling geo info to get the country, state level information and regulation to apply information. This will be stored under PWT.CC
   getGeoInfoWrapper();
 
@@ -228,14 +227,13 @@ function getConsentManagementConfig() {
     cmConfig.enforcedConsentBasisOn = enforcedConsentBasisOn;
     if (!isCallbackExecuted) {
       isCallbackExecuted = true;
+      timeMetrics.recordExitTime("CONSENT_MANAGEMENT");
       callback(cmConfig.prebidCMConfig);
       cmConfig.cmProcessDone = true;
     }
   }
 
-  // Handle CMP check timeout
-  function handleCMPCheckTimeout() {
-    isCallbackExecuted = true;
+  function proceedToFallbackExecution() {
     clearTimeout(timeoutId);
     setCMPTime(true);
     // Once timed out, check for geo location has regulation to apply
@@ -248,7 +246,7 @@ function getConsentManagementConfig() {
     }
   }
   // Set a timeout for checking CMP presence
-  timeoutId = setTimeout(handleCMPCheckTimeout, CONSENT_CONSTANTS.CMP_CHECK_TIMEOUT);
+  timeoutId = setTimeout(proceedToFallbackExecution, CONSENT_CONSTANTS.CMP_CHECK_TIMEOUT);
 
   function checkCmpRecursively() {
     try {

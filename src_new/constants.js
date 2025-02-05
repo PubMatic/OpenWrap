@@ -127,7 +127,9 @@ exports.CONFIG = {
 	"GDPR_ACTION_TIMEOUT": "gdprActionTimeout",
 	"PB_GLOBAL_VAR_NAMESPACE": "pbGlobalVarNamespace",
 	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace",
-	"CONSENT_MANAGEMENT_ENABLED": "consentManagementEnabled",
+	"CONSENT_MANAGEMENT_ENABLED": "cmEnabled",
+	"CONSENT_MANAGEMENT_CMPAPI": "cmCmpApi",
+	"CONSENT_MANAGEMENT_TIMEOUT": "cmTimeout"
 };
 
 exports.METADATA_MACROS = {

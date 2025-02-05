@@ -71,7 +71,7 @@ function getGeoInfo(readFrom, callback) {
 		// Set the global object with the country code from local storage
 		getGlobalOwObject().CC = JSON.parse(info);
 		// If a callback is provided, execute it with the source being local storage
-		if (callback) callback(readFrom.LOCALSTORAGE);
+		if (callback) callback(readFrom.LOCALSTORAGE, getGlobalOwObject().CC);
 	} else {
 		// If no valid data is found, use the geo-detection service to get the location
 		getGlobalPbObject().detectLocation(geoDetectionURL, function (loc, success) {
