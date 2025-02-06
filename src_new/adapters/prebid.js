@@ -1473,9 +1473,9 @@ function fetchBids(activeSlots) {
 	}
 
 	function checkIfConsentManagementIsSet() {
-		//TODO: Confirm what will be timeout for keep checking of cmProcessDone?
+		//TODO: Confirm what will be timeout for keep checking of checkProcessCompleted?
 		var checkTimeout = setTimeout(checkIfConsentManagementIsSet, 20);
-		if(window.PWT && window.PWT.cmConfig && window.PWT.cmConfig.cmProcessDone) {
+		if(window.PWT && window.PWT.cmConfig && window.PWT.cmConfig.checkProcessCompleted) {
 			clearTimeout(checkTimeout);
 			fetchBidsAfterConfirmation(activeSlots);
 		}

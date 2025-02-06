@@ -1,5 +1,6 @@
 var controller = require("./controllers/idhub.js");
 var util = require("./util.idhub.js");
+var timeMetrics = require("./modules/timeMetrics.js");
 var metaInfo = util.getMetaInfo(window);
 window.IHPWT = window.IHPWT || {};
 window.IHPWT.bidMap = window.IHPWT.bidMap || {};
@@ -13,6 +14,9 @@ window.IHPWT.isSafeFrame = window.IHPWT.isSafeFrame || false;
 window.IHPWT.safeFrameMessageListenerAdded = window.IHPWT.safeFrameMessageListenerAdded || false;
 // usingDifferentProfileVersion
 window.IHPWT.udpv = window.IHPWT.udpv || util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtv");
+
+timeMetrics.init();
+timeMetrics.recordEntryTime("CMP_CALLING_TIME");
 
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc") && util.enableVisualDebugLog();
