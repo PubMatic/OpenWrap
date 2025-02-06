@@ -1,6 +1,5 @@
 
 var commonUtil = require("../common.util.js");
-var util = require("../util.js");
 var timeMetrics = require("./timeMetrics.js");
 var COMMON_CONFIG = require("../common.config.js");
 var CONSTANTS = require("../constants.js");
@@ -152,8 +151,7 @@ function configureGDPR() {
   }
   Object.assign(gdpr, getCmpApiAndTimeout());
   var gdprActionTimeout = commonUtil.getGlobalOwObject().actionTimeout || undefined;
-  if (gdprActionTimeout && util.isNumber(gdprActionTimeout)) {
-    util.log("GDPR IS ENABLED, TIMEOUT: " + gdpr.timeout + ", ACTION TIMEOUT: " + gdprActionTimeout);
+  if (gdprActionTimeout && commonUtil.isNumber(gdprActionTimeout)) {
     gdpr.actionTimeout = gdprActionTimeout;
   }
   getCMConfigObject().prebidCMConfig.gdpr = gdpr;
@@ -258,7 +256,7 @@ function getConsentManagementConfig(callbackToSetConfig) {
   checkCmpRecursively();
 
   function getCMPCheckTimeout(){
-    return util.isNumber(commonUtil.getGlobalOwObject().cmpCheckTimeout)
+    return commonUtil.isNumber(commonUtil.getGlobalOwObject().cmpCheckTimeout)
       ? commonUtil.getGlobalOwObject().cmpCheckTimeout
       : CONSENT_CONSTANTS.DEFAULT_CMP_CHECK_TIMEOUT;
   }
@@ -276,13 +274,28 @@ function getConsentManagementConfig(callbackToSetConfig) {
   }
 
   function proceedToFallbackExecution() {
+    // Record CMP timing metrics
     setCMPTime(true);
-    // Once timed out, check for geo location has regulation to apply
+
+    var consent = null;
     var globalObj = commonUtil.getGlobalOwObject();
-    if (globalObj.CC && globalObj.CC.compliance) { // This will set by the Util.getGeoInfo
-      CMP_APIs[globalObj.CC.compliance].prepareConfig();
-      executeCallback(CONSENT_MANAGEMENT_SOURCE.GEO);
-    } else {
+    if (!globalObj || !globalObj.CC || !globalObj.CC.gc) {
+      executeCallback(CONSENT_MANAGEMENT_SOURCE.NONE);
+      return;
+    }
+
+    try {
+      // Get compliance type based on geo location
+      var compliance = commonUtil.getKeyByValue(CMP_APIs, globalObj.CC.gc);
+      if (compliance) {
+        // Configure consent based on geo location
+        CMP_APIs[compliance].prepareConfig();
+        executeCallback(CONSENT_MANAGEMENT_SOURCE.GEO);
+      } else {
+        executeCallback(CONSENT_MANAGEMENT_SOURCE.NONE);
+      }
+    } catch (error) {
+      // Fallback, in case of errors
       executeCallback(CONSENT_MANAGEMENT_SOURCE.NONE);
     }
   }

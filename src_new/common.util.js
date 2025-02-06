@@ -1,5 +1,18 @@
 var CONSTANTS = require("./constants.js");
 var conf = require("./conf.js");
+var toString = Object.prototype.toString;
+var refThis = this;
+
+
+function isA(object, testForType) {
+	return toString.call(object) === "[object " + testForType + "]";
+}
+exports.isA = isA;
+
+function isNumber(object) {
+	return refThis.isA(object, "Number");
+}
+exports.isNumber = isNumber;
 
 /**
  * Retrieves the global Prebid object, creating it if it doesn't exist. Example: owpbjs
@@ -90,3 +103,22 @@ function getGeoInfo(readFrom, callback) {
 	}
 }
 exports.getGeoInfo = getGeoInfo;
+
+/**
+ * Get a key value from an object based on the value.
+ * @param {*} obj 
+ * @param {*} value 
+ * @returns key name or else null
+ */
+function getKeyByValue(obj, value) {
+	for (var key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			if (obj[key] === value) {
+				return key;
+			}
+		}
+	}
+	return null; // Return null if value not found
+}
+exports.getKeyByValue = getKeyByValue;
+
