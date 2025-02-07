@@ -1285,7 +1285,8 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 		}
 	}
 	mediaTypeObject["banner"] = {
-		sizes: sizes
+		sizes: sizes,
+		pos: (config.banner && config.banner.config && config.banner.config.pos) || 0
 	};
 	refThis.mediaTypeConfig[divId] = mediaTypeObject;
 	adUnitConfig['mediaTypeObject'] = mediaTypeObject
