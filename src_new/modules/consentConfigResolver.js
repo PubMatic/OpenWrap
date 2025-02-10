@@ -35,7 +35,10 @@ var CMP_APIs = {
   window.PWT = {
     cmConfig: {
       "consentManagementEnabled": false, // This will be used to enable/disable the consent management
-      "allStatsAvailable": allStatsAvailable,
+      loggedDataBy: {                   // This indicates whether the data is logged by tracker or logger
+        tracker: false,
+        logger: false
+      },
       "checkProcessCompleted": true,            // This Flag will use to identify if finding compliance to aplly process is completed.
       "cmpPresent": cmpPresent, // ccmp - CMP present or not, default not present i.e. 0
       "complianceSupport": complianceSupport, // ccmps -  CMP supported,  1: GDPR, 2: USP, 3: GPP
@@ -74,13 +77,22 @@ function getCMConfigObject() {
 exports.getCMConfigObject = getCMConfigObject;
 commonUtil.getGlobalOwObject().getConsentManagementConfig = getCMConfigObject;
 
+function setLoggedDataBy(loggingFor) {
+  cmConfig.loggedDataBy[loggingFor] = true;
+}
+exports.setLoggedDataBy = setLoggedDataBy;
+commonUtil.getGlobalOwObject().setLoggedDataBy = setLoggedDataBy;
+
 /**
  * Initializes the consent management configuration object.
  */
 function initializeCMConfig(consentManagementEnabled) {
   var initialConfig = {
     consentManagementEnabled: consentManagementEnabled,
-    logData: false,
+    loggedDataBy: {
+      tracker: false,
+      logger: false
+    },
     checkProcessCompleted: false,
     cmpPresent: 0, 
     complianceSupport: [], 
