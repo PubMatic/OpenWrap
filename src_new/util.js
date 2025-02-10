@@ -1287,6 +1287,10 @@ exports.getAdUnitConfig = function(sizes, currentSlot){
 	mediaTypeObject["banner"] = {
 		sizes: sizes
 	};
+	var bannerConfig = (config && config.banner && config.banner.config) || {};
+    Object.keys(bannerConfig).map(function(configKey) {
+		mediaTypeObject["banner"][configKey] = bannerConfig[configKey];
+    });
 	refThis.mediaTypeConfig[divId] = mediaTypeObject;
 	adUnitConfig['mediaTypeObject'] = mediaTypeObject
 	return adUnitConfig;
