@@ -77,10 +77,10 @@ commonUtil.getGlobalOwObject().getConsentManagementConfig = getCMConfigObject;
 /**
  * Initializes the consent management configuration object.
  */
-function initializeCMConfig() {
+function initializeCMConfig(consentManagementEnabled) {
   var initialConfig = {
-    consentManagementEnabled: false,
-    allStatsAvailable: true,
+    consentManagementEnabled: consentManagementEnabled,
+    logData: false,
     checkProcessCompleted: false,
     cmpPresent: 0, 
     complianceSupport: [], 
@@ -248,7 +248,13 @@ function getConsentManagementConfig(callbackToSetConfig) {
   var isCallbackExecuted = false;
   var timeoutId;
 
-  initializeCMConfig();
+  if (!COMMON_CONFIG.consentManagentEnabled()) {
+    initializeCMConfig(false);
+    executeCallback(CONSENT_MANAGEMENT_SOURCE.NONE);
+    return;
+  }
+
+  initializeCMConfig(true);
   // Calling geo info to get the country, state level information and regulation to apply information. This will be stored under PWT.CC
   getGeoInfoWrapper();
   // Set a timeout for checking CMP presence
@@ -313,12 +319,3 @@ function getConsentManagementConfig(callbackToSetConfig) {
   }
 }
 exports.getConsentManagementConfig = getConsentManagementConfig;
-
-//TODO:
- //  ccme: Write a logic to set the ConsentManagementEnabled Flag
- //  Consider if consentManagementEnabled is false or true, what fields needs to log
-
-function init() {
- 
-}
-exports.init = init;

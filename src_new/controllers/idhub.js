@@ -79,17 +79,16 @@ refThis.setConfig = function(){
 			// Adding a hook for publishers to modify the Prebid Config we have generated
 			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 
-			if(!COMMON_CONFIG.consentManagentEnabled()){
-				util.logWarning("ConsentMangement is not enabled, so do not enforcing any regulations");
-				window[pbNameSpace].setConfig(prebidConfig);
-			} else {
-				consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
-					if(cmConfig && Object.keys(cmConfig).length) {
-						prebidConfig.consentManagement = cmConfig;					
-					}
+			consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
+				var cmEnabled = COMMON_CONFIG.consentManagentEnabled();
+				util.logWarning(`ConsentManagement: ${cmEnabled}, ${cmEnabled ? "setting" : "not setting"} the consentManagement config, ${cmConfig}`);
+				if(cmConfig && !util.isEmptyObject(cmConfig)) {
+					prebidConfig.consentManagement = cmConfig;
 					window[pbNameSpace].setConfig(prebidConfig);
-				});
-			}
+				} else { 
+					window[pbNameSpace].setConfig(prebidConfig);
+				}
+			});
 			//window[pbNameSpace].setConfig(prebidConfig);
 		}
 		if (CONFIG.isUserIdModuleEnabled() && CONFIG.isIdentityOnly()) {

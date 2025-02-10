@@ -1088,22 +1088,16 @@ function setPrebidConfig() {
 		
 		window[pbNameSpace].setConfig(prebidConfig);
 
-		if(!COMMON_CONFIG.consentManagentEnabled()){
-			util.logWarning("ConsentMangement is not enabled, so do not enforcing any regulations");
-			return;
-		}
-
-		//console.time("Compliance Config");
 		consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
-			// console.log("Compliance Config", cmConfig);
-			// console.timeEnd("Compliance Config");
-			if(cmConfig && Object.keys(cmConfig).length) {
+			var cmEnabled = COMMON_CONFIG.consentManagentEnabled();
+			util.logWarning(`ConsentManagement: ${cmEnabled}, ${cmEnabled ? "setting" : "not setting"} the consentManagement config, ${cmConfig}`);
+			if(cmConfig && !util.isEmptyObject(cmConfig)) {
 				var consentManagementConf = {};
 				consentManagementConf.consentManagement = cmConfig;
 				window[pbNameSpace].setConfig(consentManagementConf);
 			}
 		});
-		//console.log("Other exeuction continue...");
+		
 	} else {
 		util.logWarning("PreBidJS setConfig method is not available");
 	}
