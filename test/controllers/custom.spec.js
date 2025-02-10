@@ -646,7 +646,8 @@ describe("CONTROLLER: CUSTOM", function() {
 				adUnitIndex: "0",
 				mediaTypes: {
 					banner: {
-						sizes: [[728, 90]]
+						sizes: [[728, 90]],
+						pos: 0
 					}
 				},
 				sizes:[[728, 90]]
@@ -658,7 +659,8 @@ describe("CONTROLLER: CUSTOM", function() {
 				adUnitIndex: "0",
 				mediaTypes: {
 					banner: {
-						sizes: [[300, 250]]
+						sizes: [[300, 250]],
+						pos: 0
 					}
 				},
 				sizes: [[300, 250]]

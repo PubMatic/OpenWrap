@@ -2570,7 +2570,8 @@ describe('UTIL', function() {
                     }
                 },
                 banner: {
-                    sizes: sizes
+                    sizes: sizes,
+                    pos: 0
                 }
             }
             var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject
@@ -2635,7 +2636,8 @@ describe('UTIL', function() {
         it('should return only banner if not matching kgpv is found', function(done){
             var expectedResult =  { 
                 banner: {
-                    sizes: sizes
+                    sizes: sizes,
+                    pos: 0
                 }
             };
             commonDivID = "DIV_3";
@@ -2648,7 +2650,8 @@ describe('UTIL', function() {
             delete slotConfiguration["config"]["DIV_1"].native;
             var expectedResult =  { 
                 banner: {
-                    sizes: sizes
+                    sizes: sizes,
+                    pos: 0
                 }
             };
             var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject
@@ -2670,7 +2673,7 @@ describe('UTIL', function() {
         it('should return video, banner and native if all are enabled ',function(done){
             currentSlot.getDivID.restore();
             sinon.stub(currentSlot, "getDivID").returns("DIV_2");
-            var expectedResult = {"native":{"image":{"required":true,"sizes":[150,50]},"title":{"required":true,"len":80},"sponsoredBy":{"required":true},"body":{"required":true}},"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15},"banner":{"sizes":[[300,250]]}};
+            var expectedResult = {"native":{"image":{"required":true,"sizes":[150,50]},"title":{"required":true,"len":80},"sponsoredBy":{"required":true},"body":{"required":true}},"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15},"banner":{"sizes":[[300,250]], pos: 0}};
             var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal(expectedResult);
             done();
@@ -2690,7 +2693,7 @@ describe('UTIL', function() {
                     enabled:true
                 }
             };
-            var expectedResult = {"banner":{"sizes":[[300,250]]}};
+            var expectedResult = {"banner":{"sizes":[[300,250]], pos: 0}};
             var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             result.should.deep.equal(expectedResult);
             done();
@@ -2987,7 +2990,7 @@ describe('UTIL', function() {
             // DivId settings not registered in MediaConfiguration 
             sinon.stub(currentSlot, "getDivID").returns("DIV_2");
             commonDivID="DIV_2";
-            var expectedResult = {"native":{"image":{"required":true,"sizes":[150,50]},"title":{"required":true,"len":80},"sponsoredBy":{"required":true},"body":{"required":true}},"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15},"banner":{"sizes":[[300,250]]}};
+            var expectedResult = {"native":{"image":{"required":true,"sizes":[150,50]},"title":{"required":true,"len":80},"sponsoredBy":{"required":true},"body":{"required":true}},"video":{"context":"instream","connectiontype":[1,2,6],"minduration":10,"maxduration":50,"battr":[6,7],"skip":1,"skipmin":10,"skipafter":15},"banner":{"sizes":[[300,250]], pos: 0}};
             // initializing  regex key and respective expression
             slotConfiguration["regex"]=true;
             slotConfiguration["config"]["div_*"] = {
@@ -3012,7 +3015,7 @@ describe('UTIL', function() {
             // DivId settings not registered in MediaConfiguration 
             sinon.stub(currentSlot, "getDivID").returns("NOT_REGISTERED");
             commonDivID="NOT_REGISTERED";
-            var expectedResult = {"native":{"image":{"required":true,"sizes":[250,150]},"title":{"required":true,"len":180},"sponsoredBy":{"required":false},"body":{"required":false}},"video":{"context":"instream","connectiontype": [2, 6],"minduration": 100,"maxduration": 120,"battr": [  7],"skip": 1,"skipmin": 100,"skipafter": 150 },"banner":{"sizes":[[300,250]]}};
+            var expectedResult = {"native":{"image":{"required":true,"sizes":[250,150]},"title":{"required":true,"len":180},"sponsoredBy":{"required":false},"body":{"required":false}},"video":{"context":"instream","connectiontype": [2, 6],"minduration": 100,"maxduration": 120,"battr": [  7],"skip": 1,"skipmin": 100,"skipafter": 150 },"banner":{"sizes":[[300,250]], pos: 0}};
             // initializing  regex key and respective expression
             slotConfiguration["regex"]=true;
             slotConfiguration["config"]["div_*"] = {
@@ -3065,10 +3068,23 @@ describe('UTIL', function() {
             // DivId settings not registered in MediaConfiguration 
             sinon.stub(currentSlot, "getDivID").returns("NOT_REGISTERED");
             commonDivID="NOT_REGISTERED";
-            var expectedResult = {"banner":{"sizes":[[300,250]]}};
+            var expectedResult = {"banner":{"sizes":[[300,250]], pos: 0}};
             // initializing invalid regex key and respective expression
             slotConfiguration["regex"]=true;
             slotConfiguration["config"]["div_*"] = {"banner":{    enabled:false,},"native":{    enabled: false,},"video": {    "enabled": true,    "config": {"context":"instream","connectiontype": [1, 6],"minduration": 20,"maxduration": 80,"battr": [ 5, 6],"skipmin": 20,"skipafter": 5}}};
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
+            expect(result.should.deep.equal(expectedResult));
+            done();
+        });
+
+        it('should return proper pos value', function(done){
+            currentSlot.getDivID.restore();
+            // DivId settings not registered in MediaConfiguration 
+            sinon.stub(currentSlot, "getDivID").returns("div_pos");
+            commonDivID="div_pos";
+            var expectedResult = {"banner":{"sizes":[[300,250]], pos: 5}};
+            // initializing invalid regex key and respective expression
+            slotConfiguration.config = {default: {banner : {enabled:true, config:{pos: 5}}}};
             var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
             expect(result.should.deep.equal(expectedResult));
             done();
