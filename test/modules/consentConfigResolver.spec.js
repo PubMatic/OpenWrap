@@ -16,7 +16,7 @@ describe('ConsentConfigResolver: ', function() {
     done();
   });
 
-  describe('#getCMConfigObject', function() {
+  describe('#getConsentResolverConfig', function() {
     it('should return existing cmConfig if present', function(done) {
       window.PWT = {
         cmConfig: {

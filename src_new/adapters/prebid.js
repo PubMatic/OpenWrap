@@ -1090,7 +1090,7 @@ function setPrebidConfig() {
 
 		consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
 			var cmEnabled = COMMON_CONFIG.consentManagentEnabled();
-			util.logWarning(`ConsentManagement: ${cmEnabled}, ${cmEnabled ? "setting" : "not setting"} the consentManagement config, ${cmConfig}`);
+			util.logWarning(`ConsentManagement: ${cmEnabled}, ${cmEnabled ? "setting" : "not setting"} the consentManagement config, ${JSON.stringify(cmConfig)}`);
 			if(cmConfig && !util.isEmptyObject(cmConfig)) {
 				var consentManagementConf = {};
 				consentManagementConf.consentManagement = cmConfig;
@@ -1469,7 +1469,8 @@ function fetchBids(activeSlots) {
 	function checkIfConsentManagementIsSet() {
 		//TODO: Confirm what will be timeout for keep checking of processCompleted?
 		var checkTimeout = setTimeout(checkIfConsentManagementIsSet, 20);
-		if(window.PWT && window.PWT.cmConfig && window.PWT.cmConfig.processCompleted) {
+		var crConfig = consentConfigResolver.getConsentResolverConfig();
+		if(crConfig && crConfig.processCompleted) {
 			clearTimeout(checkTimeout);
 			fetchBidsAfterConfirmation(activeSlots);
 		}
