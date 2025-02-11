@@ -1097,7 +1097,7 @@ function setPrebidConfig() {
 				window[pbNameSpace].setConfig(consentManagementConf);
 			}
 		});
-		
+
 	} else {
 		util.logWarning("PreBidJS setConfig method is not available");
 	}
@@ -1467,9 +1467,9 @@ function fetchBids(activeSlots) {
 	}
 
 	function checkIfConsentManagementIsSet() {
-		//TODO: Confirm what will be timeout for keep checking of checkProcessCompleted?
+		//TODO: Confirm what will be timeout for keep checking of processCompleted?
 		var checkTimeout = setTimeout(checkIfConsentManagementIsSet, 20);
-		if(window.PWT && window.PWT.cmConfig && window.PWT.cmConfig.checkProcessCompleted) {
+		if(window.PWT && window.PWT.cmConfig && window.PWT.cmConfig.processCompleted) {
 			clearTimeout(checkTimeout);
 			fetchBidsAfterConfirmation(activeSlots);
 		}

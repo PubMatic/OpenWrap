@@ -6,7 +6,7 @@ var CONSTANTS = require("../constants.js");
 
 // Constants for consent management
 var CONSENT_CONSTANTS = {
-  DEFAULT_CMP_CHECK_TIMEOUT: 1000,
+  DEFAULT_CMP_CHECK_TIMEOUT: 500,
   CONSENT_MANAGEMENT_SOURCE: {
     CMP: "CMP",
     GEO: "GEO",
@@ -39,7 +39,7 @@ var CMP_APIs = {
         tracker: false,
         logger: false
       },
-      "checkProcessCompleted": true,            // This Flag will use to identify if finding compliance to aplly process is completed.
+      "processCompleted": true,            // This Flag will use to identify if finding compliance to aplly process is completed.
       "cmpPresent": cmpPresent, // ccmp - CMP present or not, default not present i.e. 0
       "complianceSupport": complianceSupport, // ccmps -  CMP supported,  1: GDPR, 2: USP, 3: GPP
       "cmpId": cmpId, // ccmpId -  CMP ID: Standard Consent Management Platform ID, default - 0
@@ -93,7 +93,7 @@ function initializeCMConfig(consentManagementEnabled) {
       tracker: false,
       logger: false
     },
-    checkProcessCompleted: false,
+    processCompleted: false,
     cmpPresent: 0, 
     complianceSupport: [], 
     cmpId: 0,
@@ -286,7 +286,7 @@ function getConsentManagementConfig(callbackToSetConfig) {
       timeMetrics.recordExitTime("CONSENT_MANAGEMENT_TIME");
       callbackToSetConfig(cmConfig.prebidCMConfig);
       var cmConfig = getCMConfigObject();
-      cmConfig.checkProcessCompleted = true;
+      cmConfig.processCompleted = true;
       cmConfig.enforcedConsentBasisOn = enforcedConsentBasisOn;
     }
   }
