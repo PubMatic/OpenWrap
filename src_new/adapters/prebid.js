@@ -1445,10 +1445,11 @@ function initPbjsConfig(){
 		return;
 	}
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
+	refThis.setPbjsBidderSettingsIfRequired();
 	refThis.setPrebidConfig();
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
-	refThis.setPbjsBidderSettingsIfRequired();
+	
 
 	// If consent Management is enabled then do not fetch the geo info from consentConfigResolver.js(here) module will do the same.
 	if(!COMMON_CONFIG.consentManagentEnabled()){
