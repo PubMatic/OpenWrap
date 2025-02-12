@@ -68,7 +68,24 @@ var CMP_APIs = {
     }
   }
 */
-var consentResolverConfig = {};
+// Initializes the consent management configuration object.
+
+var consentResolverConfig = {
+  consentManagementEnabled: false,
+  loggedDataBy: {},
+  processCompleted: false,
+  cmpPresent: 0, 
+  complianceSupport: [], 
+  cmpId: 0,
+  enforcedConsentBasisOn: CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE,
+  readGeoDataFrom: CONSENT_CONSTANTS.READ_GEO_DATA_FROM.NONE,
+  geoInfo: {
+    cc: undefined, 
+    sc: undefined, 
+  },
+  geoMatchWithCMP: 2, 
+  prebidCMConfig: {}
+};
 
 // Get consentResolverConfig object by PWT.getConsentManagementConfig() function
 function getConsentResolverConfig() {
@@ -100,29 +117,6 @@ function setLoggedDataBy(auctionId, loggingFor) {
 }
 exports.setLoggedDataBy = setLoggedDataBy;
 commonUtil.getGlobalOwObject().setLoggedDataBy = setLoggedDataBy;
-
-/**
- * Initializes the consent management configuration object.
- */
-function initializeCMConfig(consentManagementEnabled) {
-  var initialConfig = {
-    consentManagementEnabled: consentManagementEnabled,
-    loggedDataBy: {},
-    processCompleted: false,
-    cmpPresent: 0, 
-    complianceSupport: [], 
-    cmpId: 0,
-    enforcedConsentBasisOn: CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE,
-    readGeoDataFrom: CONSENT_CONSTANTS.READ_GEO_DATA_FROM.NONE,
-    geoInfo: {
-      cc: undefined, 
-      sc: undefined, 
-    },
-    geoMatchWithCMP: 2, 
-    prebidCMConfig: {}
-  };
-  consentResolverConfig = Object.assign({}, getConsentResolverConfig(), initialConfig);
-}
 
 /**
  * Set the time taken by CMP to load
@@ -279,13 +273,13 @@ function getConsentManagementConfig(callbackToSetConfig) {
   var isCallbackExecuted = false;
   var timeoutId;
 
-  if (!COMMON_CONFIG.consentManagentEnabled()) {
-    initializeCMConfig(false);
+  if (COMMON_CONFIG.consentManagentEnabled()) {
+    consentResolverConfig.consentManagementEnabled = true;
+  } else {
     executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
     return;
   }
 
-  initializeCMConfig(true);
   // Calling geo info to get the country, state level information and regulation to apply information. This will be stored under PWT.CC
   getGeoInfoWrapper();
   // Set a timeout for checking CMP presence
