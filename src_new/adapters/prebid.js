@@ -1440,7 +1440,7 @@ function initPbjsConfig(){
 }
 exports.initPbjsConfig = initPbjsConfig;
 
-function fetchBids(activeSlots){
+function fetchBids(activeSlots, callback){
 
 	var impressionID = util.generateUUID();
 	// todo: 
@@ -1498,6 +1498,9 @@ function fetchBids(activeSlots){
 							window[pbNameSpace].setPAAPIConfigForGPT();
 						};
 						refThis.pbjsBidsBackHandler(bidResponses, activeSlots);
+						if(util.isFunction(callback)){
+							callback(bidResponses);
+						}
 					},
 					timeout: CONFIG.getTimeout() - CONSTANTS.CONFIG.TIMEOUT_ADJUSTMENT
 				});
