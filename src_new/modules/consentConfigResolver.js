@@ -31,39 +31,39 @@ var CMP_APIs = {
   GPP: { apiName: "__gpp", complianceName: "gpp", prepareConfig: configureGPP, cmpCommandListner: handleGPP }
 };
 
-/** Example of cmConfig object
-  window.PWT = {
-    cmConfig: {
-      "consentManagementEnabled": false, // This will be used to enable/disable the consent management
-      loggedDataBy: {                   // This indicates whether the data is logged by tracker or logger
+/** Example of consentResolverConfig object
+  consentResolverConfig: {
+    "consentManagementEnabled": false, // This will be used to enable/disable the consent management
+    loggedDataBy: {                   // This indicates whether the data is logged by tracker or logger for first auction.
+      "auction-id" : {
         tracker: false,
         logger: false
+      }
+    },
+    "processCompleted": true,            // This Flag will use to identify if finding compliance to aplly process is completed.
+    "cmpPresent": cmpPresent, // ccmp - CMP present or not, default not present i.e. 0
+    "complianceSupport": complianceSupport, // ccmps -  CMP supported,  1: GDPR, 2: USP, 3: GPP
+    "cmpId": cmpId, // ccmpId -  CMP ID: Standard Consent Management Platform ID, default - 0
+    "enforcedConsentBasisOn": "GEO",  // This will be used to enforce the consent basis on Possible values: CMP, GEO, NONE
+    "readGeoDataFrom": "LS",// This will be used to identify whether geo info retrieved from Cache or from service: LOCALSTORAGE, GEO_SERVICE, NONE
+    "geoInfo": {
+      "cc": undefined, // Country Code Already being passed in the request
+      "sc": undefined, // State Code
+    },    
+    geoMatchWithCMP: 0, // This will be used to identify the geo match with CMP Possible values: 0 - Not Matched,1 - Matched, 2 - Not Concluded(default)  
+    "prebidCMConfig": {               // This will be used to apply the consentManagement config to the Prebid instance
+      "gdpr": {
+        "cmpApi": "iab",
+        "timeout": 10000,
+        "defaultGdprScope": true
       },
-      "processCompleted": true,            // This Flag will use to identify if finding compliance to aplly process is completed.
-      "cmpPresent": cmpPresent, // ccmp - CMP present or not, default not present i.e. 0
-      "complianceSupport": complianceSupport, // ccmps -  CMP supported,  1: GDPR, 2: USP, 3: GPP
-      "cmpId": cmpId, // ccmpId -  CMP ID: Standard Consent Management Platform ID, default - 0
-      "enforcedConsentBasisOn": "GEO",  // This will be used to enforce the consent basis on Possible values: CMP, GEO, NONE
-      "readGeoDataFrom": "LS",// This will be used to identify whether geo info retrieved from Cache or from service: LOCALSTORAGE, GEO_SERVICE, NONE
-      "geoInfo": {
-        "cc": undefined, // Country Code Already being passed in the request
-        "sc": undefined, // State Code
-      },    
-      geoMatchWithCMP: 0, // This will be used to identify the geo match with CMP Possible values: 0 - Not Matched,1 - Matched, 2 - Not Concluded(default)  
-      "prebidCMConfig": {               // This will be used to apply the consentManagement config to the Prebid instance
-        "gdpr": {
-          "cmpApi": "iab",
-          "timeout": 10000,
-          "defaultGdprScope": true
-        },
-        "usp": {
-          "cmpApi": "iab",
-          "timeout": 10000
-        },
-        "gpp": {
-          "cmpApi": "iab",
-          "timeout": 10000
-        }
+      "usp": {
+        "cmpApi": "iab",
+        "timeout": 10000
+      },
+      "gpp": {
+        "cmpApi": "iab",
+        "timeout": 10000
       }
     }
   }
@@ -77,8 +77,26 @@ function getConsentResolverConfig() {
 exports.getConsentResolverConfig = getConsentResolverConfig;
 commonUtil.getGlobalOwObject().getConsentResolverConfig = getConsentResolverConfig;
 
-function setLoggedDataBy(loggingFor) {
-  consentResolverConfig.loggedDataBy[loggingFor] = true;
+function setLoggedDataBy(auctionId, loggingFor) {
+  // If no consent management is enabled then return will not pass anything
+  if(!consentResolverConfig.consentManagementEnabled) {
+    return;
+  }
+
+  var loggedDataBy = consentResolverConfig.loggedDataBy;  
+  // Initialize first time at auction Init as we required auction ID
+  if(!commonUtil.isEmptyObject(loggedDataBy)) {
+    loggedDataBy[auctionId] = {
+      tracker: false,
+      logger: false
+    };
+    return;
+  }
+
+  // set if same auctionId is present.
+  if(loggedDataBy[auctionId]) {
+    loggedDataBy[auctionId][loggingFor] = true;
+  }
 }
 exports.setLoggedDataBy = setLoggedDataBy;
 commonUtil.getGlobalOwObject().setLoggedDataBy = setLoggedDataBy;
@@ -89,10 +107,7 @@ commonUtil.getGlobalOwObject().setLoggedDataBy = setLoggedDataBy;
 function initializeCMConfig(consentManagementEnabled) {
   var initialConfig = {
     consentManagementEnabled: consentManagementEnabled,
-    loggedDataBy: {
-      tracker: false,
-      logger: false
-    },
+    loggedDataBy: {},
     processCompleted: false,
     cmpPresent: 0, 
     complianceSupport: [], 
@@ -260,7 +275,7 @@ exports.getGeoInfoWrapper = getGeoInfoWrapper;
  * Get the consent management configuration
  */
 function getConsentManagementConfig(callbackToSetConfig) {
-  timeMetrics.recordEntryTime("CONSENT_MANAGEMENT_TIME");
+  timeMetrics.recordEntryTime("CONSENT_CONFIG_RESOLVER_TIME");
   var isCallbackExecuted = false;
   var timeoutId;
 
@@ -287,7 +302,7 @@ function getConsentManagementConfig(callbackToSetConfig) {
     if (!isCallbackExecuted) {
       clearTimeout(timeoutId);
       isCallbackExecuted = true;
-      timeMetrics.recordExitTime("CONSENT_MANAGEMENT_TIME");
+      timeMetrics.recordExitTime("CONSENT_CONFIG_RESOLVER_TIME");
       var crConfig = getConsentResolverConfig();
       callbackToSetConfig(crConfig.prebidCMConfig);
       crConfig.processCompleted = true;

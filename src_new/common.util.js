@@ -14,6 +14,15 @@ function isNumber(object) {
 }
 exports.isNumber = isNumber;
 
+function isObject (object){
+	return typeof object === "object" && object !== null;
+};
+
+isEmptyObject= function(object){
+	return isObject(object) && Object.keys(object).length === 0;
+};
+exports.isEmptyObject = isEmptyObject;
+
 /**
  * Retrieves the global Prebid object, creating it if it doesn't exist. Example: owpbjs
  *
