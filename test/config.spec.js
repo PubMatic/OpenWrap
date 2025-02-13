@@ -1049,9 +1049,9 @@ describe('Config', function() {
             done();
         });
 
-        it('should return empty object if config is not present',function(done){
+        it('should return undefined if schain config is not present',function(done){
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAINOBJECT];
-            CONFIG.getSchainObject().should.be.deep.equal({});
+            expect(CONFIG.getSchainObject()).to.equal(null);
             done();
         });
     });
