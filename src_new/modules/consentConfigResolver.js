@@ -31,92 +31,128 @@ var CMP_APIs = {
   GPP: { apiName: "__gpp", complianceName: "gpp", prepareConfig: configureGPP, cmpCommandListner: handleGPP }
 };
 
-/** Example of consentResolverConfig object
-  consentResolverConfig: {
-    "consentManagementEnabled": false, // This will be used to enable/disable the consent management
-    loggedDataBy: {                   // This indicates whether the data is logged by tracker or logger for first auction.
-      "auction-id" : {
-        tracker: false,
-        logger: false
-      }
-    },
-    "processCompleted": true,            // This Flag will use to identify if finding compliance to aplly process is completed.
-    "cmpPresent": cmpPresent, // ccmp - CMP present or not, default not present i.e. 0
-    "complianceSupport": complianceSupport, // ccmps -  CMP supported,  1: GDPR, 2: USP, 3: GPP
-    "cmpId": cmpId, // ccmpId -  CMP ID: Standard Consent Management Platform ID, default - 0
-    "enforcedConsentBasisOn": "GEO",  // This will be used to enforce the consent basis on Possible values: CMP, GEO, NONE
-    "readGeoDataFrom": "LS",// This will be used to identify whether geo info retrieved from Cache or from service: LOCALSTORAGE, GEO_SERVICE, NONE
-    "geoInfo": {
-      "cc": undefined, // Country Code Already being passed in the request
-      "sc": undefined, // State Code
-    },    
-    geoMatchWithCMP: 0, // This will be used to identify the geo match with CMP Possible values: 0 - Not Matched,1 - Matched, 2 - Not Concluded(default)  
-    "prebidCMConfig": {               // This will be used to apply the consentManagement config to the Prebid instance
-      "gdpr": {
-        "cmpApi": "iab",
-        "timeout": 10000,
-        "defaultGdprScope": true
+// Initializes the consent management configuration object.
+var ConsentResolverConfig = (function() {
+  var instance;
+
+  function createInstance() {
+    var conifg = {
+      consentManagementEnabled: false,  // This will be used to enable/disable the consent management
+      loggedDataBy: {                   // This indicates whether the data is logged by tracker or logger for first auction. 
+        // "auction-id" : {             // This property will be set at the time of auction init
+        //   tracker: false,
+        //   logger: false
+        // }
+      },                 
+      processCompleted: false,          // This Flag will use to identify if finding compliance to aplly process is completed.
+      cmpPresent: 0,                    // CMP present on the page or not 0 - Not Present, 1 - Present 
+      complianceSupport: [],            // CMP's compliance supported,  1: GDPR, 2: USP, 3: GPP
+      cmpId: 0,                         // CMP ID: Consent Management Platform Id, default - 0
+      enforcedConsentBasisOn: CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE,   // This will be used to enforce the consent basis on Possible values: CMP, GEO, NONE
+      readGeoDataFrom: CONSENT_CONSTANTS.READ_GEO_DATA_FROM.NONE,                 // This will be used to identify whether geo info retrieved from Cache or from service: LOCALSTORAGE, GEO_SERVICE, NONE
+      geoInfo: {                        // This will be used to store the geo information
+        cc: undefined,                  // Country Code Already being passed in the request     
+        sc: undefined,                  // State Code
+        gc: undefined,                  // Regulation to apply
+        gsId: undefined                 // GPP section ID
       },
-      "usp": {
-        "cmpApi": "iab",
-        "timeout": 10000
+      geoMatchWithCMP: 2,               // This will be used to identify the geo match with CMP Possible values: 0 - Not Matched,1 - Matched, 2 - Not Concluded(default)
+      prebidCMConfig: {}                // This will be used to apply the consentManagement config to the Prebid instance
+    };
+
+    return {  
+      getProcessCompleted: function() {
+        return conifg.processCompleted;
       },
-      "gpp": {
-        "cmpApi": "iab",
-        "timeout": 10000
+      getComplianceSupport: function() {
+        return conifg.complianceSupport;
+      },
+      getPrebidCMConfig: function() {
+        return conifg.prebidCMConfig;
+      },
+      setConsentManagementEnabled: function(consentManagementEnabled) {
+        conifg.consentManagementEnabled = consentManagementEnabled
+      },
+      setCmpPresent: function(cmpPresent) {
+        conifg.cmpPresent = cmpPresent || 0;
+      },
+      setCmpId: function(cmpId) {
+        conifg.cmpId = cmpId || 0;
+      },
+      setProcessCompleted: function(processCompleted) {
+        conifg.processCompleted = processCompleted;
+      },
+      setEnforcedConsentBasisOn: function(enforcedConsentBasisOn) { 
+        conifg.enforcedConsentBasisOn = enforcedConsentBasisOn;
+      },
+      setGeoMatchWithCMP: function() {
+        if(conifg.geoInfo.gc && conifg.complianceSupport.length > 0) { // Add this condition as to check if CMP is present and what compliance it support. So that we can compare
+          conifg.geoMatchWithCMP = conifg.complianceSupport.includes(conifg.geoInfo.gc) ? 1 : 0;
+        }
+      },
+      setGeoInfo: function(readFrom, geoInfo) {
+        conifg.geoInfo = geoInfo;
+        conifg.readGeoDataFrom = readFrom;
+        this.setGeoMatchWithCMP();
+      },
+      setPrebidCMConfig: function(key, config) {
+        conifg.prebidCMConfig[key] = config;
+      },
+      setComplianceSupport: function(compliance) {
+        conifg.complianceSupport.push(compliance);
+      },
+      setLoggedDataBy: function(auctionId, loggingFor) {
+        // If no consent management is enabled then return will not pass anything
+        if(!conifg.consentManagementEnabled) {
+          return;
+        }
+        // Initialize first time at auction Init as we required auction ID
+        if(commonUtil.isEmptyObject(conifg.loggedDataBy)) {
+          conifg.loggedDataBy[auctionId] = {
+            tracker: false,
+            logger: false
+          };
+          return;
+        }
+        // set if same auctionId is present.
+        if(conifg.loggedDataBy[auctionId]) {
+          conifg.loggedDataBy[auctionId][loggingFor] = true;
+        }
+      },
+      getProperties: function() {
+        return {
+          ccme : conifg.consentManagementEnabled ? 1 : 0,
+          ccmp : conifg.cmpPresent,
+          ccmps : conifg.complianceSupport,
+          ccmpid : conifg.cmpId,
+          csc: conifg.geoInfo.sc,
+          cecbo : conifg.enforcedConsentBasisOn,
+          crgdf : conifg.readGeoDataFrom,
+          cgm : conifg.geoMatchWithCMP,
+          cldb: conifg.loggedDataBy   
+        } 
       }
     }
   }
-*/
-// Initializes the consent management configuration object.
 
-var consentResolverConfig = {
-  consentManagementEnabled: false,
-  loggedDataBy: {},
-  processCompleted: false,
-  cmpPresent: 0, 
-  complianceSupport: [], 
-  cmpId: 0,
-  enforcedConsentBasisOn: CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE,
-  readGeoDataFrom: CONSENT_CONSTANTS.READ_GEO_DATA_FROM.NONE,
-  geoInfo: {
-    cc: undefined, 
-    sc: undefined, 
-  },
-  geoMatchWithCMP: 2, 
-  prebidCMConfig: {}
-};
+  return {
+    getInstance: function() {
+      if (!instance) {
+        instance = createInstance();
+      }
+      return instance;
+    }
+  };
+})();
+
+var crConfig = ConsentResolverConfig.getInstance();
 
 // Get consentResolverConfig object by PWT.getConsentManagementConfig() function
 function getConsentResolverConfig() {
-  return consentResolverConfig;
+  return crConfig;
 }
 exports.getConsentResolverConfig = getConsentResolverConfig;
 commonUtil.getGlobalOwObject().getConsentResolverConfig = getConsentResolverConfig;
-
-function setLoggedDataBy(auctionId, loggingFor) {
-  // If no consent management is enabled then return will not pass anything
-  if(!consentResolverConfig.consentManagementEnabled) {
-    return;
-  }
-
-  var loggedDataBy = consentResolverConfig.loggedDataBy;  
-  // Initialize first time at auction Init as we required auction ID
-  if(!commonUtil.isEmptyObject(loggedDataBy)) {
-    loggedDataBy[auctionId] = {
-      tracker: false,
-      logger: false
-    };
-    return;
-  }
-
-  // set if same auctionId is present.
-  if(loggedDataBy[auctionId]) {
-    loggedDataBy[auctionId][loggingFor] = true;
-  }
-}
-exports.setLoggedDataBy = setLoggedDataBy;
-commonUtil.getGlobalOwObject().setLoggedDataBy = setLoggedDataBy;
 
 /**
  * Set the time taken by CMP to load
@@ -135,9 +171,7 @@ function setCMPTime(timeExceeded) {
  * @param {boolean} success - Indicates if the command was successful
  */
 function handleGDPR(pingReturnData, success) {
-  if (pingReturnData && pingReturnData.cmpId) {
-    getConsentResolverConfig().cmpId = pingReturnData.cmpId;
-  }
+  crConfig.setCmpId(pingReturnData && pingReturnData.cmpId);
 }
 
 /**
@@ -146,9 +180,7 @@ function handleGDPR(pingReturnData, success) {
  * @param {boolean} success - Indicates if the command was successful
  */
 function handleGPP(pingReturnData, success) {
-  if (pingReturnData && pingReturnData.pingData && pingReturnData.pingData.cmpId) {
-    getConsentResolverConfig().cmpId = pingReturnData.pingData.cmpId;
-  }
+  crConfig.setCmpId(pingReturnData && pingReturnData.pingData && pingReturnData.pingData.cmpId);
 }
 
 /**
@@ -175,21 +207,21 @@ function configureGDPR() {
   if (gdprActionTimeout && commonUtil.isNumber(gdprActionTimeout)) {
     gdpr.actionTimeout = gdprActionTimeout;
   }
-  getConsentResolverConfig().prebidCMConfig.gdpr = gdpr;
+  crConfig.setPrebidCMConfig("gdpr", gdpr);
 }
 
 /**
  * Configure USP settings
  */
 function configureUSP() {
-  getConsentResolverConfig().prebidCMConfig.usp = getCmpApiAndTimeout();
+  crConfig.setPrebidCMConfig("usp", getCmpApiAndTimeout());
 }
 
 /**
  * Configure GPP settings
  */
 function configureGPP() {
-  getConsentResolverConfig().prebidCMConfig.gpp = getCmpApiAndTimeout();
+  crConfig.setPrebidCMConfig("gpp", getCmpApiAndTimeout());
 }
 
 /**
@@ -220,16 +252,15 @@ function checkCMPsPresentOnPage() {
 
   // Helper function to check for CMP presence and execute commands
   function prepareCMPDataAndConfig(cmpApi, key, frame) {
-      var crConfig = getConsentResolverConfig();
-      crConfig.complianceSupport.push(CONSENT_CONSTANTS.COMPLIANCE_MAP[key]);
-      if (key === 'GDPR') {
-        frame[cmpApi.apiName]('addEventListener', 2, cmpApi.cmpCommandListner);
-      } else if (key === 'GPP') {
-        frame[cmpApi.apiName]('addEventListener', cmpApi.cmpCommandListner);
-      }
-      crConfig.cmpPresent = 1;
-      setCMPTime(false);
-      cmpApi.prepareConfig();
+    crConfig.setComplianceSupport(CONSENT_CONSTANTS.COMPLIANCE_MAP[key]);
+    if (key === 'GDPR') {
+      frame[cmpApi.apiName]('addEventListener', 2, cmpApi.cmpCommandListner);
+    } else if (key === 'GPP') {
+      frame[cmpApi.apiName]('addEventListener', cmpApi.cmpCommandListner);
+    }
+    crConfig.setCmpPresent(1);
+    setCMPTime(false);
+    cmpApi.prepareConfig();
   }
 
   // Iterate through window frames to find CMPs
@@ -248,18 +279,8 @@ function checkCMPsPresentOnPage() {
  */
 function getGeoInfoWrapper() {
   timeMetrics.recordEntryTime("GEO_CALLING_TIME", 1500); // Setting default timeout of 1500 ms in case service fails or didn't respond
-  
-  function setGeoInfo(readFrom, geoInfo) {
-    var crConfig = getConsentResolverConfig();
-    crConfig.geoInfo.cc = geoInfo.cc;
-    crConfig.geoInfo.sc = geoInfo.sc;
-    crConfig.readGeoDataFrom = readFrom;
-    if(crConfig.complianceSupport.length > 0) { // Add this condition as to check if CMP is present and what compliance it support. So that we can compare
-      crConfig.geoMatchWithCMP = crConfig.complianceSupport.includes(geoInfo.gc) ? 1 : 0;
-    }
-  }  
   commonUtil.getGeoInfo(CONSENT_CONSTANTS.READ_GEO_DATA_FROM, function (readFrom, geoInfo) {
-    setGeoInfo(readFrom, geoInfo);
+    crConfig.setGeoInfo(readFrom, geoInfo);
     timeMetrics.recordExitTime("GEO_CALLING_TIME");
   });
 }
@@ -274,7 +295,7 @@ function getConsentManagementConfig(callbackToSetConfig) {
   var timeoutId;
 
   if (COMMON_CONFIG.consentManagentEnabled()) {
-    consentResolverConfig.consentManagementEnabled = true;
+    crConfig.setConsentManagementEnabled(true);
   } else {
     executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
     return;
@@ -297,10 +318,9 @@ function getConsentManagementConfig(callbackToSetConfig) {
       clearTimeout(timeoutId);
       isCallbackExecuted = true;
       timeMetrics.recordExitTime("CONSENT_CONFIG_RESOLVER_TIME");
-      var crConfig = getConsentResolverConfig();
-      callbackToSetConfig(crConfig.prebidCMConfig);
-      crConfig.processCompleted = true;
-      crConfig.enforcedConsentBasisOn = enforcedConsentBasisOn;
+      callbackToSetConfig(crConfig.getPrebidCMConfig());
+      crConfig.setProcessCompleted(true);
+      crConfig.setEnforcedConsentBasisOn(enforcedConsentBasisOn);
     }
   }
 
@@ -336,7 +356,8 @@ function getConsentManagementConfig(callbackToSetConfig) {
       return;
     }
     checkCMPsPresentOnPage();
-    if (getConsentResolverConfig().complianceSupport.length > 0) {
+    if (crConfig.getComplianceSupport().length > 0) {
+      crConfig.setGeoMatchWithCMP();
       executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.CMP);
     } else {
       setTimeout(checkCmpRecursively, 50);
