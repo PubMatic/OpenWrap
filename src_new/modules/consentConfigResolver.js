@@ -27,12 +27,12 @@ var CONSENT_CONSTANTS = {
 // CMP APIs configuration
 var CMP_APIs = {
   GDPR: { apiName: "__tcfapi", complianceName: "gdpr", prepareConfig: configureGDPR, cmpCommandListner: handleGDPR },
-  USP: { apiName: "__uspapi", complianceName: "usp", prepareConfig: configureUSP},
+  USP: { apiName: "__uspapi", complianceName: "usp", prepareConfig: configureUSP },
   GPP: { apiName: "__gpp", complianceName: "gpp", prepareConfig: configureGPP, cmpCommandListner: handleGPP }
 };
 
 // Initializes the consent management configuration object.
-var ConsentResolverConfig = (function() {
+var ConsentResolverConfig = (function () {
   var instance;
 
   function createInstance() {
@@ -54,67 +54,67 @@ var ConsentResolverConfig = (function() {
       prebidCMConfig: {}                // This will be used to apply the consentManagement config to the Prebid instance
     };
 
-    return {  
-      getConsentManagementEnabled: function() {
+    return {
+      getConsentManagementEnabled: function () {
         return conifg.consentManagementEnabled;
       },
-      getProcessCompleted: function() {
+      getProcessCompleted: function () {
         return conifg.processCompleted;
       },
-      getComplianceSupport: function() {
+      getComplianceSupport: function () {
         return conifg.complianceSupport;
       },
-      getPrebidCMConfig: function() {
+      getPrebidCMConfig: function () {
         return conifg.prebidCMConfig;
       },
-      setConsentManagementEnabled: function(consentManagementEnabled) {
+      setConsentManagementEnabled: function (consentManagementEnabled) {
         conifg.consentManagementEnabled = consentManagementEnabled
       },
-      setCmpPresent: function(cmpPresent) {
+      setCmpPresent: function (cmpPresent) {
         conifg.cmpPresent = cmpPresent || 0;
       },
-      setCmpId: function(cmpId) {
+      setCmpId: function (cmpId) {
         conifg.cmpId = cmpId || 0;
       },
-      setProcessCompleted: function(processCompleted) {
+      setProcessCompleted: function (processCompleted) {
         conifg.processCompleted = processCompleted;
       },
-      setEnforcedConsentBasisOn: function(enforcedConsentBasisOn) { 
+      setEnforcedConsentBasisOn: function (enforcedConsentBasisOn) {
         conifg.enforcedConsentBasisOn = enforcedConsentBasisOn;
       },
-      setGeoMatchWithCMP: function() {
-        if(conifg.geoInfo.gc && conifg.complianceSupport.length > 0) { // Add this condition as to check if CMP is present and what compliance it support. So that we can compare
+      setGeoMatchWithCMP: function () {
+        if (conifg.geoInfo.gc && conifg.complianceSupport.length > 0) { // Add this condition as to check if CMP is present and what compliance it support. So that we can compare
           conifg.geoMatchWithCMP = conifg.complianceSupport.includes(conifg.geoInfo.gc) ? 1 : 0;
         }
       },
-      setGeoInfo: function(readFrom, geoInfo) {
+      setGeoInfo: function (readFrom, geoInfo) {
         conifg.geoInfo = geoInfo;
         conifg.readGeoDataFrom = readFrom;
         this.setGeoMatchWithCMP();
       },
-      setPrebidCMConfig: function(key, config) {
+      setPrebidCMConfig: function (key, config) {
         conifg.prebidCMConfig[key] = config;
       },
-      setComplianceSupport: function(compliance) {
+      setComplianceSupport: function (compliance) {
         conifg.complianceSupport.push(compliance);
-      },      
-      getProperties: function() {
+      },
+      getProperties: function () {
         return {
-          ccme : conifg.consentManagementEnabled ? 1 : 0,
-          ccmp : conifg.cmpPresent,
-          ccmps : conifg.complianceSupport,
-          ccmpid : conifg.cmpId,
+          ccme: conifg.consentManagementEnabled ? 1 : 0,
+          ccmp: conifg.cmpPresent,
+          ccmps: conifg.complianceSupport,
+          ccmpid: conifg.cmpId,
           csc: conifg.geoInfo.sc,
-          cecbo : conifg.enforcedConsentBasisOn,
-          crgdf : conifg.readGeoDataFrom,
-          cgm : conifg.geoMatchWithCMP          
-        } 
+          cecbo: conifg.enforcedConsentBasisOn,
+          crgdf: conifg.readGeoDataFrom,
+          cgm: conifg.geoMatchWithCMP
+        }
       }
     }
   }
 
   return {
-    getInstance: function() {
+    getInstance: function () {
       if (!instance) {
         instance = createInstance();
       }
@@ -213,9 +213,9 @@ function checkCMPsPresentOnPage() {
   // Get the CMPs present on the page
   function checkCMPInWindow(frame) {
     for (var key in CMP_APIs) {
-      if(CMP_APIs.hasOwnProperty(key)) {
+      if (CMP_APIs.hasOwnProperty(key)) {
         var cmpApi = CMP_APIs[key];
-        if(isCMPApiPresent(cmpApi, frame)) {
+        if (isCMPApiPresent(cmpApi, frame)) {
           prepareCMPDataAndConfig(cmpApi, key, frame);
         }
       }
@@ -245,8 +245,7 @@ function checkCMPsPresentOnPage() {
   while (currentWindow) {
     try {
       checkCMPInWindow(currentWindow);
-    } catch (e) {} // Handle errors silently
-
+    } catch (e) { } // Handle errors silently
     if (currentWindow === window.top) break;
     currentWindow = currentWindow.parent;
   }
@@ -285,7 +284,7 @@ function getConsentManagementConfig(callbackToSetConfig) {
   timeoutId = setTimeout(proceedToFallbackExecution, getCMPCheckTimeout());
   checkCmpRecursively();
 
-  function getCMPCheckTimeout(){
+  function getCMPCheckTimeout() {
     return commonUtil.isNumber(commonUtil.getGlobalOwObject().cmpCheckTimeout)
       ? commonUtil.getGlobalOwObject().cmpCheckTimeout
       : CONSENT_CONSTANTS.DEFAULT_CMP_CHECK_TIMEOUT;
@@ -339,7 +338,7 @@ function getConsentManagementConfig(callbackToSetConfig) {
       executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.CMP);
     } else {
       setTimeout(checkCmpRecursively, 50);
-    }    
+    }
   }
 }
 exports.getConsentManagementConfig = getConsentManagementConfig;
