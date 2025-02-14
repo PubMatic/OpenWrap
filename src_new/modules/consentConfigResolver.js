@@ -296,8 +296,8 @@ function getConsentManagementConfig(callbackToSetConfig) {
       isCallbackExecuted = true;
       timeMetrics.recordExitTime("CONSENT_CONFIG_RESOLVER_TIME");
       callbackToSetConfig(crConfig.getPrebidCMConfig());
-      crConfig.setProcessCompleted(true);
       crConfig.setEnforcedConsentBasisOn(enforcedConsentBasisOn);
+      crConfig.setProcessCompleted(true);
     }
   }
 
@@ -314,7 +314,7 @@ function getConsentManagementConfig(callbackToSetConfig) {
 
     try {
       // Get compliance type based on geo location
-      var compliance = commonUtil.getKeyByValue(CMP_APIs, globalObj.CC.gc);
+      var compliance = commonUtil.getKeyByValue(CONSENT_CONSTANTS.COMPLIANCE_MAP, globalObj.CC.gc);
       if (compliance) {
         // Configure consent based on geo location
         CMP_APIs[compliance].prepareConfig();
