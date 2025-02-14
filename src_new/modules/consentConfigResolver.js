@@ -37,13 +37,7 @@ var ConsentResolverConfig = (function() {
 
   function createInstance() {
     var conifg = {
-      consentManagementEnabled: false,  // This will be used to enable/disable the consent management
-      loggedDataBy: {                   // This indicates whether the data is logged by tracker or logger for first auction. 
-        // "auction-id" : {             // This property will be set at the time of auction init
-        //   tracker: false,
-        //   logger: false
-        // }
-      },                 
+      consentManagementEnabled: false,  // This will be used to enable/disable the consent management                       
       processCompleted: false,          // This Flag will use to identify if finding compliance to aplly process is completed.
       cmpPresent: 0,                    // CMP present on the page or not 0 - Not Present, 1 - Present 
       complianceSupport: [],            // CMP's compliance supported,  1: GDPR, 2: USP, 3: GPP
@@ -61,6 +55,9 @@ var ConsentResolverConfig = (function() {
     };
 
     return {  
+      getConsentManagementEnabled: function() {
+        return conifg.consentManagementEnabled;
+      },
       getProcessCompleted: function() {
         return conifg.processCompleted;
       },
@@ -100,25 +97,7 @@ var ConsentResolverConfig = (function() {
       },
       setComplianceSupport: function(compliance) {
         conifg.complianceSupport.push(compliance);
-      },
-      setLoggedDataBy: function(auctionId, loggingFor) {
-        // If no consent management is enabled then return will not pass anything
-        if(!conifg.consentManagementEnabled) {
-          return;
-        }
-        // Initialize first time at auction Init as we required auction ID
-        if(commonUtil.isEmptyObject(conifg.loggedDataBy)) {
-          conifg.loggedDataBy[auctionId] = {
-            tracker: false,
-            logger: false
-          };
-          return;
-        }
-        // set if same auctionId is present.
-        if(conifg.loggedDataBy[auctionId]) {
-          conifg.loggedDataBy[auctionId][loggingFor] = true;
-        }
-      },
+      },      
       getProperties: function() {
         return {
           ccme : conifg.consentManagementEnabled ? 1 : 0,
@@ -128,8 +107,7 @@ var ConsentResolverConfig = (function() {
           csc: conifg.geoInfo.sc,
           cecbo : conifg.enforcedConsentBasisOn,
           crgdf : conifg.readGeoDataFrom,
-          cgm : conifg.geoMatchWithCMP,
-          cldb: conifg.loggedDataBy   
+          cgm : conifg.geoMatchWithCMP          
         } 
       }
     }
@@ -147,12 +125,12 @@ var ConsentResolverConfig = (function() {
 
 var crConfig = ConsentResolverConfig.getInstance();
 
-// Get consentResolverConfig object by PWT.getConsentManagementConfig() function
-function getConsentResolverConfig() {
+exports.getInstance = function () {
   return crConfig;
-}
-exports.getConsentResolverConfig = getConsentResolverConfig;
-commonUtil.getGlobalOwObject().getConsentResolverConfig = getConsentResolverConfig;
+};
+commonUtil.getGlobalOwObject().getConsentResolverConfig = function getConsentResolverConfig() {
+  return crConfig.getProperties();
+};
 
 /**
  * Set the time taken by CMP to load

@@ -1470,8 +1470,8 @@ function fetchBids(activeSlots) {
 	function checkIfConsentManagementIsSet() {
 		//TODO: Confirm what will be timeout for keep checking of processCompleted?
 		var checkTimeout = setTimeout(checkIfConsentManagementIsSet, 20);
-		var crConfig = consentConfigResolver.getConsentResolverConfig();
-		if(crConfig && crConfig.getProcessCompleted()) {
+		var crConfig = consentConfigResolver.getInstance();
+		if(crConfig && crConfig.getConsentManagementEnabled()) {
 			clearTimeout(checkTimeout);
 			fetchBidsAfterConfirmation(activeSlots);
 		}
