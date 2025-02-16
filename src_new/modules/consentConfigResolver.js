@@ -36,79 +36,86 @@ var ConsentResolverConfig = (function () {
   var instance;
 
   function createInstance() {
-    var conifg = {
-      consentManagementEnabled: false,  // This will be used to enable/disable the consent management                       
-      processCompleted: false,          // This Flag will use to identify if finding compliance to aplly process is completed.
-      cmpPresent: 0,                    // CMP present on the page or not 0 - Not Present, 1 - Present 
-      complianceSupport: [],            // CMP's compliance supported,  1: GDPR, 2: USP, 3: GPP
-      cmpId: 0,                         // CMP ID: Consent Management Platform Id, default - 0
-      enforcedConsentBasisOn: CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE,   // This will be used to enforce the consent basis on Possible values: CMP, GEO, NONE
-      readGeoDataFrom: CONSENT_CONSTANTS.READ_GEO_DATA_FROM.NONE,                 // This will be used to identify whether geo info retrieved from Cache or from service: LOCALSTORAGE, GEO_SERVICE, NONE
-      geoInfo: {                        // This will be used to store the geo information
-        cc: undefined,                  // Country Code Already being passed in the request     
-        sc: undefined,                  // State Code
-        gc: undefined,                  // Regulation to apply
-        gsId: undefined                 // GPP section ID
-      },
-      geoMatchWithCMP: 2,               // This will be used to identify the geo match with CMP Possible values: 0 - Not Matched,1 - Matched, 2 - Not Concluded(default)
-      prebidCMConfig: {}                // This will be used to apply the consentManagement config to the Prebid instance
-    };
+    function getConfig() {
+      return {
+        consentManagementEnabled: false,  // This will be used to enable/disable the consent management                       
+        processCompleted: false,          // This Flag will use to identify if finding compliance to aplly process is completed.
+        cmpPresent: 0,                    // CMP present on the page or not 0 - Not Present, 1 - Present 
+        complianceSupport: [],            // CMP's compliance supported,  1: GDPR, 2: USP, 3: GPP
+        cmpId: 0,                         // CMP ID: Consent Management Platform Id, default - 0
+        enforcedConsentBasisOn: CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE,   // This will be used to enforce the consent basis on Possible values: CMP, GEO, NONE
+        readGeoDataFrom: CONSENT_CONSTANTS.READ_GEO_DATA_FROM.NONE,                 // This will be used to identify whether geo info retrieved from Cache or from service: LOCALSTORAGE, GEO_SERVICE, NONE
+        geoInfo: {                        // This will be used to store the geo information
+          cc: undefined,                  // Country Code Already being passed in the request     
+          sc: undefined,                  // State Code
+          gc: undefined,                  // Regulation to apply
+          gsId: undefined                 // GPP section ID
+        },
+        geoMatchWithCMP: 2,               // This will be used to identify the geo match with CMP Possible values: 0 - Not Matched,1 - Matched, 2 - Not Concluded(default)
+        prebidCMConfig: {}                // This will be used to apply the consentManagement config to the Prebid instance
+      };
+    }
+
+    var config = getConfig();
 
     return {
       getConsentManagementEnabled: function () {
-        return conifg.consentManagementEnabled;
+        return config.consentManagementEnabled;
       },
       getProcessCompleted: function () {
-        return conifg.processCompleted;
+        return config.processCompleted;
       },
       getComplianceSupport: function () {
-        return conifg.complianceSupport;
+        return config.complianceSupport;
       },
       getPrebidCMConfig: function () {
-        return conifg.prebidCMConfig;
+        return config.prebidCMConfig;
       },
       setConsentManagementEnabled: function (consentManagementEnabled) {
-        conifg.consentManagementEnabled = consentManagementEnabled
+        config.consentManagementEnabled = consentManagementEnabled
       },
       setCmpPresent: function (cmpPresent) {
-        conifg.cmpPresent = cmpPresent || 0;
+        config.cmpPresent = cmpPresent || 0;
       },
       setCmpId: function (cmpId) {
-        conifg.cmpId = cmpId || 0;
+        config.cmpId = cmpId || 0;
       },
       setProcessCompleted: function (processCompleted) {
-        conifg.processCompleted = processCompleted;
+        config.processCompleted = processCompleted;
       },
       setEnforcedConsentBasisOn: function (enforcedConsentBasisOn) {
-        conifg.enforcedConsentBasisOn = enforcedConsentBasisOn;
+        config.enforcedConsentBasisOn = enforcedConsentBasisOn;
       },
       setGeoMatchWithCMP: function () {
-        if (conifg.geoInfo.gc && conifg.complianceSupport.length > 0) { // Add this condition as to check if CMP is present and what compliance it support. So that we can compare
-          conifg.geoMatchWithCMP = conifg.complianceSupport.includes(conifg.geoInfo.gc) ? 1 : 0;
+        if (config.geoInfo.gc && config.complianceSupport.length > 0) { // Add this condition as to check if CMP is present and what compliance it support. So that we can compare
+          config.geoMatchWithCMP = config.complianceSupport.includes(config.geoInfo.gc) ? 1 : 0;
         }
       },
       setGeoInfo: function (readFrom, geoInfo) {
-        conifg.geoInfo = geoInfo;
-        conifg.readGeoDataFrom = readFrom;
+        config.geoInfo = geoInfo;
+        config.readGeoDataFrom = readFrom;
         this.setGeoMatchWithCMP();
       },
-      setPrebidCMConfig: function (key, config) {
-        conifg.prebidCMConfig[key] = config;
+      setPrebidCMConfig: function (key, conf) {
+        config.prebidCMConfig[key] = conf;      
       },
       setComplianceSupport: function (compliance) {
-        conifg.complianceSupport.push(compliance);
+        config.complianceSupport.push(compliance);
       },
       getProperties: function () {
         return {
-          ccme: conifg.consentManagementEnabled ? 1 : 0,
-          ccmp: conifg.cmpPresent,
-          ccmps: conifg.complianceSupport,
-          ccmpid: conifg.cmpId,
-          csc: conifg.geoInfo.sc,
-          cecbo: conifg.enforcedConsentBasisOn,
-          crgdf: conifg.readGeoDataFrom,
-          cgm: conifg.geoMatchWithCMP
+          ccme: config.consentManagementEnabled ? 1 : 0,
+          ccmp: config.cmpPresent,
+          ccmps: config.complianceSupport,
+          ccmpid: config.cmpId,
+          csc: config.geoInfo.sc,
+          cecbo: config.enforcedConsentBasisOn,
+          crgdf: config.readGeoDataFrom,
+          cgm: config.geoMatchWithCMP          
         }
+      },
+      reset: function () {
+        config = getConfig(); // Reset the config object
       }
     }
   }
@@ -285,7 +292,7 @@ function getConsentManagementConfig(callbackToSetConfig) {
   checkCmpRecursively();
 
   function getCMPCheckTimeout() {
-    return commonUtil.isNumber(commonUtil.getGlobalOwObject().cmpCheckTimeout)
+    return (commonUtil.getGlobalOwObject() && commonUtil.isNumber(commonUtil.getGlobalOwObject().cmpCheckTimeout))
       ? commonUtil.getGlobalOwObject().cmpCheckTimeout
       : CONSENT_CONSTANTS.DEFAULT_CMP_CHECK_TIMEOUT;
   }
