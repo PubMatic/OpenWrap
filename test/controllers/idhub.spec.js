@@ -14,6 +14,7 @@ var pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONS
 var IDHUB = require("../../src_new/controllers/idhub.js");
 var UTIL = require("../../src_new/util.js");
 var CONFIG = require("../../src_new/config.js");
+var consentConfigResolver = require("../../src_new/modules/consentConfigResolver.js");
 
 describe("CONTROLLER: IDHUB", function() {
 	describe("#init", function() {
@@ -61,8 +62,15 @@ describe("CONTROLLER: IDHUB", function() {
 			window[pbNameSpace] = {
 				'setConfig': function(){},
 				'onSSOLogin': function onSSOLogin() {},
-				'requestBids': function(){},
+				'requestBids': function(){},				
 			}
+			var mockCMConfig = {};
+
+			var getConsentManagementConfigSpy = sinon.spy(function (callback) {
+				callback(mockCMConfig);
+			});
+
+			consentConfigResolver.getConsentManagementConfig = getConsentManagementConfigSpy;
 			done();
 		});
 

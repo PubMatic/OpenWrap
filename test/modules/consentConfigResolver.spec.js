@@ -293,9 +293,7 @@ describe('ConsentConfigResolver:', function() {
                 getDurationOf: function() {
                     return false;
                 }
-            });      
-            
-            console.log("Hurray");
+            });                  
             
             ConsentConfigResolver.getConsentManagementConfig(callback);            
             

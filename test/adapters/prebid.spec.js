@@ -12,6 +12,7 @@ var CONF = require("../../src_new/conf.js");
 var AM = require("../../src_new/adapterManager.js");
 var SLOT = require("../../src_new/slot.js").Slot;
 var PREBID = require("../../src_new/adapters/prebid.js");
+var commonUtil = require("../../src_new/common.util.js");
 
 var parentAdapterID = "prebid";
 var commonAdapterID = "pubmatic";
@@ -40,6 +41,21 @@ var isSingleImpressionSettingEnabled = 0;
 
 
 describe('ADAPTER: Prebid', function() {
+
+    beforeEach(function (done) {
+        var mockGeoData = {
+            cc: 'US',
+            sc: 'NY',
+            gc: 1
+        };
+
+        var geoInfoSpy = sinon.spy(function (source, callback) {
+            callback('LS', mockGeoData);
+        });
+
+        commonUtil.getGeoInfo = geoInfoSpy;
+        done();
+    });
 
     /* start-test-block */
     describe('#throttleAdapter', function() {
