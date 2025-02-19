@@ -1460,16 +1460,14 @@ function initPbjsConfig(){
 exports.initPbjsConfig = initPbjsConfig;
 
 function fetchBids(activeSlots) {
-// TODO: Halt execution till we found if consentManagement Config is set or not, once this flag found we will proceed with below execution
-	//		we can use a flag to check if consentManagement Config is set or not
+	// Halt execution till we found if consentManagement Config is set or not, once this flag found we will proceed with below execution
 	if(!COMMON_CONFIG.consentManagentEnabled()){
 		fetchBidsAfterConfirmation(activeSlots);
 		return;
 	}
 
 	function checkIfConsentProcessCompleted() {
-		//TODO: Confirm what will be timeout for keep checking of processCompleted?
-		var checkTimeout = setTimeout(checkIfConsentProcessCompleted, 20);
+		var checkTimeout = setTimeout(checkIfConsentProcessCompleted, 10);
 		var crConfig = consentConfigResolver.getInstance();
 		if(crConfig && crConfig.getProcessCompleted()) {
 			clearTimeout(checkTimeout);

@@ -15,15 +15,3 @@ exports.getTimeout = function (timeoutField, defaultTimeout) {
 	var timeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG[timeoutField]];
 	return timeout ? window.parseInt(timeout) : defaultTimeout;
 };
-
-exports.setConsentConfig = function (prebidConfig, key, cmpApi, timeout) {
-  prebidConfig = prebidConfig || {};
-  if (!prebidConfig["consentManagement"]) {
-    prebidConfig["consentManagement"] = {};
-  }
-  prebidConfig["consentManagement"][key] = {
-    cmpApi: cmpApi,
-    timeout: timeout
-  };
-  return prebidConfig;
-};

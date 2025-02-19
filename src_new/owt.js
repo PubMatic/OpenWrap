@@ -200,7 +200,4 @@ window.PWT.getAdapterNameForAlias = CONFIG.getAdapterNameForAlias;
 
 window.PWT.browserMapping = bidManager.getBrowser();
 
-// Calling the consent management config resolver
-//consentConfigResolver.init();
-
 controller.init(window);

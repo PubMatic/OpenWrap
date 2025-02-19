@@ -40,7 +40,7 @@ var ConsentResolverConfig = (function () {
       return {
         consentManagementEnabled: false,  // This will be used to enable/disable the consent management                       
         processCompleted: false,          // This Flag will use to identify if finding compliance to aplly process is completed.
-        cmpPresent: 0,                    // CMP present on the page or not 0 - Not Present, 1 - Present 
+        cmpPresent: false,                    // CMP present on the page or not false - Not Present, true - Present 
         complianceSupport: [],            // CMP's compliance supported,  1: GDPR, 2: USP, 3: GPP
         cmpId: 0,                         // CMP ID: Consent Management Platform Id, default - 0
         enforcedConsentBasisOn: CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE,   // This will be used to enforce the consent basis on Possible values: CMP, GEO, NONE
@@ -48,7 +48,7 @@ var ConsentResolverConfig = (function () {
         geoInfo: {                        // This will be used to store the geo information
           cc: undefined,                  // Country Code Already being passed in the request     
           sc: undefined,                  // State Code
-          gc: undefined,                  // Regulation to apply
+          gc: undefined,                  // Regulation to apply,  1: GDPR, 2: USP, 3: GPP
           gsId: undefined                 // GPP section ID
         },
         geoMatchWithCMP: 2,               // This will be used to identify the geo match with CMP Possible values: 0 - Not Matched,1 - Matched, 2 - Not Concluded(default)
@@ -58,7 +58,7 @@ var ConsentResolverConfig = (function () {
 
     var config = getConfig();
 
-    return {
+    return {    
       getConsentManagementEnabled: function () {
         return config.consentManagementEnabled;
       },
@@ -75,7 +75,7 @@ var ConsentResolverConfig = (function () {
         config.consentManagementEnabled = consentManagementEnabled
       },
       setCmpPresent: function (cmpPresent) {
-        config.cmpPresent = cmpPresent || 0;
+        config.cmpPresent = cmpPresent || false;
       },
       setCmpId: function (cmpId) {
         config.cmpId = cmpId || 0;
@@ -97,7 +97,7 @@ var ConsentResolverConfig = (function () {
         this.setGeoMatchWithCMP();
       },
       setPrebidCMConfig: function (key, conf) {
-        config.prebidCMConfig[key] = conf;      
+        config.prebidCMConfig[key] = conf;
       },
       setComplianceSupport: function (compliance) {
         config.complianceSupport.push(compliance);
@@ -105,13 +105,13 @@ var ConsentResolverConfig = (function () {
       getProperties: function () {
         return {
           ccme: config.consentManagementEnabled ? 1 : 0,
-          ccmp: config.cmpPresent,
+          ccmp: config.cmpPresent ? 1 : 0,
           ccmps: config.complianceSupport,
           ccmpid: config.cmpId,
           csc: config.geoInfo.sc,
           cecbo: config.enforcedConsentBasisOn,
           crgdf: config.readGeoDataFrom,
-          cgm: config.geoMatchWithCMP          
+          cgm: config.geoMatchWithCMP
         }
       },
       reset: function () {
@@ -186,7 +186,7 @@ function configureGDPR() {
   var gdpr = {
     // allowAuctionWithoutConsent: COMMON_CONFIG.getAwc(), // Auction without consent IMP : Not required now
     defaultGdprScope: true
-  }
+  };
   Object.assign(gdpr, getCmpApiAndTimeout());
   var gdprActionTimeout = commonUtil.getGlobalOwObject().actionTimeout || undefined;
   if (gdprActionTimeout && commonUtil.isNumber(gdprActionTimeout)) {
@@ -237,13 +237,14 @@ function checkCMPsPresentOnPage() {
 
   // Helper function to check for CMP presence and execute commands
   function prepareCMPDataAndConfig(cmpApi, key, frame) {
+    console.log("ConsentResolver: CMP found");
     crConfig.setComplianceSupport(CONSENT_CONSTANTS.COMPLIANCE_MAP[key]);
     if (key === 'GDPR') {
       frame[cmpApi.apiName]('addEventListener', 2, cmpApi.cmpCommandListner);
     } else if (key === 'GPP') {
       frame[cmpApi.apiName]('addEventListener', cmpApi.cmpCommandListner);
     }
-    crConfig.setCmpPresent(1);
+    crConfig.setCmpPresent(true);
     setCMPTime(false);
     cmpApi.prepareConfig();
   }
@@ -262,6 +263,7 @@ function checkCMPsPresentOnPage() {
  * Get the geo information from the service
  */
 function getGeoInfoWrapper() {
+  console.log("ConsentResolver: Starting geo info retrieval");
   timeMetrics.recordEntryTime("GEO_CALLING_TIME", 1500); // Setting default timeout of 1500 ms in case service fails or didn't respond
   commonUtil.getGeoInfo(CONSENT_CONSTANTS.READ_GEO_DATA_FROM, function (readFrom, geoInfo) {
     crConfig.setGeoInfo(readFrom, geoInfo);
@@ -270,32 +272,18 @@ function getGeoInfoWrapper() {
 }
 exports.getGeoInfoWrapper = getGeoInfoWrapper;
 
+function getCMPCheckTimeout() {
+  return (commonUtil.getGlobalOwObject() && commonUtil.isNumber(commonUtil.getGlobalOwObject().cmpCheckTimeout))
+    ? commonUtil.getGlobalOwObject().cmpCheckTimeout
+    : CONSENT_CONSTANTS.DEFAULT_CMP_CHECK_TIMEOUT;
+}
+
 /**
  * Get the consent management configuration
  */
 function getConsentManagementConfig(callbackToSetConfig) {
-  timeMetrics.recordEntryTime("CONSENT_CONFIG_RESOLVER_TIME");
   var isCallbackExecuted = false;
   var timeoutId;
-
-  if (COMMON_CONFIG.consentManagentEnabled()) {
-    crConfig.setConsentManagementEnabled(true);
-  } else {
-    executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
-    return;
-  }
-
-  // Calling geo info to get the country, state level information and regulation to apply information. This will be stored under PWT.CC
-  getGeoInfoWrapper();
-  // Set a timeout for checking CMP presence
-  timeoutId = setTimeout(proceedToFallbackExecution, getCMPCheckTimeout());
-  checkCmpRecursively();
-
-  function getCMPCheckTimeout() {
-    return (commonUtil.getGlobalOwObject() && commonUtil.isNumber(commonUtil.getGlobalOwObject().cmpCheckTimeout))
-      ? commonUtil.getGlobalOwObject().cmpCheckTimeout
-      : CONSENT_CONSTANTS.DEFAULT_CMP_CHECK_TIMEOUT;
-  }
 
   function executeCallback(enforcedConsentBasisOn) {
     if (!isCallbackExecuted) {
@@ -308,29 +296,25 @@ function getConsentManagementConfig(callbackToSetConfig) {
     }
   }
 
-  function proceedToFallbackExecution() {
-    // Record CMP timing metrics
-    setCMPTime(true);
+  function proceedToFallbackExecution() {    
+    console.log("ConsentResolver: Proceeding to fallback execution");
+    setCMPTime(true);           // Record CMP timing metrics
 
     var consent = null;
     var globalObj = commonUtil.getGlobalOwObject();
     if (!globalObj || !globalObj.CC || !globalObj.CC.gc) {
+      console.log("ConsentResolver: No global object or CC configuration found");
       executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
       return;
     }
-
-    try {
-      // Get compliance type based on geo location
-      var compliance = commonUtil.getKeyByValue(CONSENT_CONSTANTS.COMPLIANCE_MAP, globalObj.CC.gc);
-      if (compliance) {
-        // Configure consent based on geo location
-        CMP_APIs[compliance].prepareConfig();
-        executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.GEO);
-      } else {
-        executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
-      }
-    } catch (error) {
-      // Fallback, in case of errors
+    
+    // Get compliance type based on geo location
+    var compliance = commonUtil.getKeyByValue(CONSENT_CONSTANTS.COMPLIANCE_MAP, globalObj.CC.gc);
+    if (compliance) {           
+      CMP_APIs[compliance].prepareConfig();                 // Configure consent based on geo location
+      executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.GEO);
+    } else {
+      console.log("ConsentResolver: No gc configuration found");
       executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
     }
   }
@@ -346,6 +330,24 @@ function getConsentManagementConfig(callbackToSetConfig) {
     } else {
       setTimeout(checkCmpRecursively, 50);
     }
+  }
+
+  try {
+    console.log("ConsentResolver: Initializing configuration");
+    timeMetrics.recordEntryTime("CONSENT_CONFIG_RESOLVER_TIME");    
+
+    if (!COMMON_CONFIG.consentManagentEnabled()) {
+      executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
+      return;
+    }
+
+    crConfig.setConsentManagementEnabled(true);
+    getGeoInfoWrapper();  
+    timeoutId = setTimeout(proceedToFallbackExecution, getCMPCheckTimeout()); //timeout for checking CMP presence
+    checkCmpRecursively();
+  } catch (error) {
+    console.error("ConsentResolver: Error: ", error);
+    executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
   }
 }
 exports.getConsentManagementConfig = getConsentManagementConfig;
