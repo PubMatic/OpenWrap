@@ -243,7 +243,7 @@ exports.getCCPATimeout = function () {
 };
 
 exports.getSchainObject = function () {
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAINOBJECT] || {};
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAINOBJECT] || null;
 };
 
 exports.isSchainEnabled = function () {
