@@ -1477,7 +1477,7 @@ function fetchBids(activeSlots, callback) {
 	checkIfConsentProcessCompleted();
 }
 
-function fetchBidsAfterConfirmation(activeSlots){
+function fetchBidsAfterConfirmation(activeSlots, callback){
 
 	var impressionID = util.generateUUID();
 	// todo: 
