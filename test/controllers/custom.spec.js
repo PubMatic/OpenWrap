@@ -8,6 +8,7 @@ var BM = require("../../src_new/bidManager.js");
 var BID = require("../../src_new/bid.js");
 var CONSTANTS = require("../../src_new/constants.js");
 var PREBID = require("../../src_new/adapters/prebid.js");
+var COMMON_UTIL = require("../../src_new/common.util.js");
 
 describe("CONTROLLER: CUSTOM", function() {
 
@@ -899,7 +900,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			sinon.spy(CUSTOM, "setWindowReference");
 			sinon.spy(CUSTOM, "defineWrapperTargetingKeys");
 			sinon.spy(CUSTOM, "initSafeFrameListener");
-			sinon.stub(UTIL, "getGeoInfo").returns({});
+			sinon.stub(COMMON_UTIL, "getGeoInfo").returns({});
 			done();
 		});
 
@@ -908,7 +909,7 @@ describe("CONTROLLER: CUSTOM", function() {
 			CUSTOM.setWindowReference.restore();
 			CUSTOM.defineWrapperTargetingKeys.restore();
 			CUSTOM.initSafeFrameListener.restore();
-			UTIL.getGeoInfo.restore();
+			COMMON_UTIL.getGeoInfo.restore();
 			done();
 		});
 

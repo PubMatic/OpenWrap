@@ -13,6 +13,7 @@ var AM = require("../../src_new/adapterManager.js");
 var SLOT = require("../../src_new/slot.js").Slot;
 var PREBID = require("../../src_new/adapters/prebid.js");
 var commonUtil = require("../../src_new/common.util.js");
+var COMMON_CONFIG = require("../../src_new/common.config.js");
 
 var parentAdapterID = "prebid";
 var commonAdapterID = "pubmatic";
@@ -40,9 +41,9 @@ var isSingleImpressionSettingEnabled = 0;
 // };
 
 
-describe('ADAPTER: Prebid', function() {
-
+describe('ADAPTER: Prebid', function() {    
     beforeEach(function (done) {
+        sandbox = sinon.sandbox.create();
         var mockGeoData = {
             cc: 'US',
             sc: 'NY',
@@ -53,7 +54,7 @@ describe('ADAPTER: Prebid', function() {
             callback('LS', mockGeoData);
         });
 
-        commonUtil.getGeoInfo = geoInfoSpy;
+        commonUtil.getGeoInfo = geoInfoSpy;        
         done();
     });
 
@@ -1421,6 +1422,7 @@ describe('ADAPTER: Prebid', function() {
 
         it('should return if owpbjs namespace is not defined',function(done){
             delete window.owpbjs;
+            sandbox.stub(COMMON_CONFIG, 'consentManagentEnabled').returns(false); 
             PREBID.fetchBids(activeSlots);
             UTIL.logError.calledWith("PreBid js is not loaded").should.be.true;
             done();

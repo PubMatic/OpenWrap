@@ -145,7 +145,7 @@ commonUtil.getGlobalOwObject().getConsentResolverConfig = function getConsentRes
  */
 function setCMPTime(timeExceeded) {
   // If time taken by CMP is not set then set the default timeout value
-  if (!commonUtil.getGlobalOwObject().getDurationOf("CMP_CALLING_TIME")) {
+  if (!timeMetrics.getDurationOf("CMP_CALLING_TIME")) {
     timeMetrics.recordExitTime("CMP_CALLING_TIME", timeExceeded ? 1500 : null);
   }
 }

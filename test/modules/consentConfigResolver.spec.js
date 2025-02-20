@@ -179,12 +179,12 @@ describe('ConsentConfigResolver:', function() {
             
             ConsentConfigResolver.getConsentManagementConfig(function(){});
             
-            setTimeout(function() {
+            //setTimeout(function() {
                 expect(crConfig.getProperties().ccmp).to.equal(1);
                 expect(crConfig.getProperties().ccmpid).to.equal(123);
                 expect(crConfig.getComplianceSupport()).to.include(1);
                 done();
-            }, 100);
+            //}, 100);
         });
 
         it('should detect USP CMP', function(done) {
@@ -194,11 +194,11 @@ describe('ConsentConfigResolver:', function() {
             
             ConsentConfigResolver.getConsentManagementConfig(function(){});
             
-            setTimeout(function() {
+            //setTimeout(function() {
                 expect(crConfig.getProperties().ccmp).to.equal(1);
                 expect(crConfig.getComplianceSupport()).to.include(2);
                 done();
-            }, 100);
+            //}, 100);
         });
 
         it('should detect GPP CMP', function(done) {
@@ -208,12 +208,12 @@ describe('ConsentConfigResolver:', function() {
             
             ConsentConfigResolver.getConsentManagementConfig(function(){});
             
-            setTimeout(function() {
+            // setTimeout(function() {
                 expect(crConfig.getProperties().ccmp).to.equal(1);
                 expect(crConfig.getProperties().ccmpid).to.equal(456);
                 expect(crConfig.getComplianceSupport()).to.include(3);
                 done();
-            }, 100);
+            // }, 100);
         });
     });
 
