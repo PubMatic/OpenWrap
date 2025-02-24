@@ -9,6 +9,10 @@ function isA(object, testForType) {
 }
 exports.isA = isA;
 
+exports.isFunction = function (object) {
+	return refThis.isA(object, "Function");
+};
+
 function isNumber(object) {
 	return refThis.isA(object, "Number");
 }

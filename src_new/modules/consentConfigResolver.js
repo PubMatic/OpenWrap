@@ -52,18 +52,23 @@ var ConsentResolverConfig = (function () {
           gsId: undefined                 // GPP section ID
         },
         geoMatchWithCMP: 2,               // This will be used to identify the geo match with CMP Possible values: 0 - Not Matched,1 - Matched, 2 - Not Concluded(default)
-        prebidCMConfig: {}                // This will be used to apply the consentManagement config to the Prebid instance
+        prebidCMConfig: {},               // This will be used to apply the consentManagement config to the Prebid instance
+        callbackFn: undefined             // Function to be called after the process is completed
       };
     }
-
     var config = getConfig();
-
+    
     return {
       getConsentManagementEnabled: function () {
         return config.consentManagementEnabled;
       },
-      getProcessCompleted: function () {
-        return config.processCompleted;
+      getProcessCompleted: function (callbackFn) {
+        if(config.processCompleted) {
+          callbackFn();
+          return;
+        }
+        this.setCallbackFn(callbackFn);
+        //return config.processCompleted;
       },
       getComplianceSupport: function () {
         return config.complianceSupport;
@@ -76,12 +81,18 @@ var ConsentResolverConfig = (function () {
       },
       setCmpPresent: function (cmpPresent) {
         config.cmpPresent = cmpPresent || false;
+      },      
+      setProcessCompleted: function (processCompleted) {
+        config.processCompleted = processCompleted;
+        if(processCompleted && config.callbackFn && commonUtil.isFunction(config.callbackFn)) {
+          config.callbackFn();
+        }
+      },
+      setCallbackFn: function (callback) {
+        config.callbackFn = callback;
       },
       setCmpId: function (cmpId) {
         config.cmpId = cmpId || 0;
-      },
-      setProcessCompleted: function (processCompleted) {
-        config.processCompleted = processCompleted;
       },
       setEnforcedConsentBasisOn: function (enforcedConsentBasisOn) {
         config.enforcedConsentBasisOn = enforcedConsentBasisOn;
