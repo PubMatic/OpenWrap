@@ -1459,8 +1459,37 @@ function initPbjsConfig(){
 
 exports.initPbjsConfig = initPbjsConfig;
 
-function fetchBids(activeSlots, callback){
-
+function fetchBids(activeSlots, callback) {
+	function requestBidsPostConsentProcess() {
+		// Halt execution till we found if consentManagement Config is set or not, once this flag found we will proceed with below execution
+		if(!COMMON_CONFIG.consentManagentEnabled()){
+			proceedToRequestBids();
+			return;
+		}
+	
+		function proceedToRequestBids() {
+			executeRequestBids();
+		}
+	
+		consentConfigResolver.getInstance().getProcessCompleted(proceedToRequestBids);	
+	}
+	
+	function executeRequestBids() {
+		window[pbNameSpace].removeAdUnit();
+		window[pbNameSpace].addAdUnits(adUnitsArray);
+		window[pbNameSpace].requestBids({
+			bidsBackHandler: function (bidResponses) {
+				if (util.isFunction(window[pbNameSpace].setPAAPIConfigForGPT) && typeof window[pbNameSpace].setPAAPIConfigForGPT == "function") {
+					window[pbNameSpace].setPAAPIConfigForGPT();
+				};
+				refThis.pbjsBidsBackHandler(bidResponses, activeSlots);
+				if (util.isFunction(callback)) {
+					callback(bidResponses);
+				}
+			},
+			timeout: CONFIG.getTimeout() - CONSTANTS.CONFIG.TIMEOUT_ADJUSTMENT
+		});
+	}
 
 	var impressionID = util.generateUUID();
 	// todo: 
@@ -1484,45 +1513,6 @@ function fetchBids(activeSlots, callback){
 
 	// todo: this is the function that basically puts bidder params in all adUnits, expose it separately
 	var adUnitsArray = refThis.generateAdUnitsArray(activeSlots, impressionID);
-
-	function requestBidsPostConsentProcess() {
-		// Halt execution till we found if consentManagement Config is set or not, once this flag found we will proceed with below execution
-		if(!COMMON_CONFIG.consentManagentEnabled()){
-			proceedToRequestBids();
-			return;
-		}
-	
-		function proceedToRequestBids() {
-			executeRequestBids();
-		}
-	
-		// function checkIfConsentProcessCompleted() {		
-		// 	var checkTimeout = setTimeout(checkIfConsentProcessCompleted, 10);
-		var crConfig = consentConfigResolver.getInstance();
-		if(crConfig) {
-			crConfig.getProcessCompleted(proceedToRequestBids);
-		} else {
-			proceedToRequestBids();
-		}
-	}
-	
-	function executeRequestBids() {
-		window[pbNameSpace].removeAdUnit();
-		window[pbNameSpace].addAdUnits(adUnitsArray);
-		window[pbNameSpace].requestBids({
-			bidsBackHandler: function (bidResponses) {
-				if (util.isFunction(window[pbNameSpace].setPAAPIConfigForGPT) && typeof window[pbNameSpace].setPAAPIConfigForGPT == "function") {
-					window[pbNameSpace].setPAAPIConfigForGPT();
-				};
-				refThis.pbjsBidsBackHandler(bidResponses, activeSlots);
-				if (util.isFunction(callback)) {
-					callback(bidResponses);
-				}
-			},
-			timeout: CONFIG.getTimeout() - CONSTANTS.CONFIG.TIMEOUT_ADJUSTMENT
-		});
-	}
-
 	/* istanbul ignore else */
 	if(adUnitsArray.length > 0 && window[pbNameSpace]){
 

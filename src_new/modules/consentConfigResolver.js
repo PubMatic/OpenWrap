@@ -53,7 +53,7 @@ var ConsentResolverConfig = (function () {
         },
         geoMatchWithCMP: 2,               // This will be used to identify the geo match with CMP Possible values: 0 - Not Matched,1 - Matched, 2 - Not Concluded(default)
         prebidCMConfig: {},               // This will be used to apply the consentManagement config to the Prebid instance
-        callbackFn: undefined             // Function to be called after the process is completed
+        callbackFunctions: []             // Functions to be called after the process is completed
       };
     }
     var config = getConfig();
@@ -63,12 +63,12 @@ var ConsentResolverConfig = (function () {
         return config.consentManagementEnabled;
       },
       getProcessCompleted: function (callbackFn) {
-        if(config.processCompleted) {
+        if (config.processCompleted) {
           callbackFn();
           return;
         }
-        this.setCallbackFn(callbackFn);
-        //return config.processCompleted;
+        if (commonUtil.isFunction(callbackFn))
+          config.callbackFunctions.push(callbackFn);
       },
       getComplianceSupport: function () {
         return config.complianceSupport;
@@ -84,12 +84,16 @@ var ConsentResolverConfig = (function () {
       },      
       setProcessCompleted: function (processCompleted) {
         config.processCompleted = processCompleted;
-        if(processCompleted && config.callbackFn && commonUtil.isFunction(config.callbackFn)) {
-          config.callbackFn();
-        }
+        if(processCompleted) {
+          this.executeCallbackFunctions();
+        }        
       },
-      setCallbackFn: function (callback) {
-        config.callbackFn = callback;
+      executeCallbackFunctions: function () {
+        while (config.callbackFunctions.length > 0) {
+          var callbackFn = config.callbackFunctions.shift();
+          if (callbackFn)
+            callbackFn();
+        }
       },
       setCmpId: function (cmpId) {
         config.cmpId = cmpId || 0;
