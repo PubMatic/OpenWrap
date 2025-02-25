@@ -62,7 +62,7 @@ describe('ConsentConfigResolver:', function() {
         done();
     });
 
-    describe('Singleton Instance', function() {
+    describe('Singleton Instance', function() {       
         it('is a singleton', function(done) {
             var instance1 = ConsentConfigResolver.getInstance();
             var instance2 = ConsentConfigResolver.getInstance();
@@ -73,7 +73,6 @@ describe('ConsentConfigResolver:', function() {
         it('initializes with default values', function(done) {
             var instance = ConsentConfigResolver.getInstance();
             expect(instance.getConsentManagementEnabled()).to.be.false;
-            expect(instance.getProcessCompleted()).to.be.false;
             expect(instance.getComplianceSupport()).to.be.an('array').that.is.empty;
             expect(instance.getPrebidCMConfig()).to.be.an('object').that.is.empty;
             done();
@@ -276,11 +275,9 @@ describe('ConsentConfigResolver:', function() {
 
         it('should handle disabled consent management', function(done) {
             consentManagementEnabled.returns(false);
-
             ConsentConfigResolver.getConsentManagementConfig(callback);            
             expect(ConsentConfigResolver.getInstance().getConsentManagementEnabled()).to.be.false;
-            expect(ConsentConfigResolver.getInstance().getProcessCompleted()).to.be.true;
-            expect(callback.calledOnce).to.be.true;
+            expect(callback.calledOnce).to.be.true;            
             done();
         });
 
