@@ -1090,7 +1090,8 @@ function setPrebidConfig() {
 
 		consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
 			var cmEnabled = COMMON_CONFIG.consentManagentEnabled();
-			util.logWarning(`ConsentManagement: ${cmEnabled}, ${cmEnabled ? "setting" : "not setting"} the consentManagement config, ${JSON.stringify(cmConfig)}`);
+			var message =  cmEnabled ? "setting" : "not setting";
+			util.logWarning("ConsentManagement: " + cmEnabled, message + " the consentManagement config: " + cmConfig);
 			if(cmConfig && !util.isEmptyObject(cmConfig)) {
 				var consentManagementConf = {};
 				consentManagementConf.consentManagement = cmConfig;
