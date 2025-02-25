@@ -49,8 +49,8 @@ refThis.setConfig = function(){
 
 			consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
 				var cmEnabled = COMMON_CONFIG.consentManagentEnabled();
-				var message =  cmEnabled ? "setting" : "not setting";
-				util.logWarning("ConsentManagement: " + cmEnabled, message + "the consentManagement config: " + cmConfig);
+				var message =  cmEnabled ? "setting" : "not setting";				
+				util.log("ConsentManagement: " + cmEnabled + ", " + message + " the consentManagement config: " + JSON.stringify(cmConfig));
 				if(cmConfig && !util.isEmptyObject(cmConfig)) {
 					prebidConfig.consentManagement = cmConfig;
 					//window[pbNameSpace].setConfig(prebidConfig);
