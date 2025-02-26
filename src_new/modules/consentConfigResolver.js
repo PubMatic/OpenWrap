@@ -346,7 +346,9 @@ function getConsentManagementConfig(callbackToSetConfig) {
     }
   }
 
-  try {
+  // Not adding try-catch here, as if somthing goes wrong then we should stop the execution of PWT as its a current behaviour. 
+  // Because setting config to prebid should not fail in any case.
+  // try {
     console.log("Resolver: Initializing configuration");
     timeMetrics.recordEntryTime("CONSENT_CONFIG_RESOLVER_TIME");
 
@@ -359,9 +361,9 @@ function getConsentManagementConfig(callbackToSetConfig) {
     getGeoInfoWrapper();
     timeoutId = setTimeout(proceedToFallbackExecution, getCMPCheckTimeout()); //timeout for checking CMP presence
     checkCmpRecursively();
-  } catch (error) {
-    console.error("Resolver: Error: ", error);
-    executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
-  }
+  // } catch (error) {
+  //   console.error("Resolver: Error: ", error);
+  //   executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
+  // }
 }
 exports.getConsentManagementConfig = getConsentManagementConfig;
