@@ -347,7 +347,9 @@ function getConsentManagementConfig(callbackToSetConfig) {
   }
 
   // Not adding try-catch here, as if somthing goes wrong then we should stop the execution of PWT as its a current behaviour. 
-  // Because setting config to prebid should not fail in any case.
+  // Because setting config to prebid should not fail.
+  // If we handle error and do not set consent config & proceed ahead, 
+  // then we never able to find out the corner case and its not right even if something is failing in GDPR region & still we are processing for auction.
   // try {
     console.log("Resolver: Initializing configuration");
     timeMetrics.recordEntryTime("CONSENT_CONFIG_RESOLVER_TIME");
