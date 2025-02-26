@@ -6,7 +6,7 @@ var CONSTANTS = require("../constants.js");
 
 // Constants for consent management
 var CONSENT_CONSTANTS = {
-  DEFAULT_CMP_CHECK_TIMEOUT: 500,
+  DEFAULT_CMP_LOOK_UP_TIMEOUT: 500,
   CONSENT_MANAGEMENT_SOURCE: {
     CMP: "CMP",
     GEO: "GEO",
@@ -285,10 +285,10 @@ function getGeoInfoWrapper() {
 }
 exports.getGeoInfoWrapper = getGeoInfoWrapper;
 
-function getCMPCheckTimeout() {
-  return (commonUtil.getGlobalOwObject() && commonUtil.isNumber(commonUtil.getGlobalOwObject().cmpCheckTimeout))
-    ? commonUtil.getGlobalOwObject().cmpCheckTimeout
-    : CONSENT_CONSTANTS.DEFAULT_CMP_CHECK_TIMEOUT;
+function getCMPLookUpTimeout() {
+  return (commonUtil.getGlobalOwObject() && commonUtil.isNumber(commonUtil.getGlobalOwObject().cmpLookUpTimeout))
+    ? commonUtil.getGlobalOwObject().cmpLookUpTimeout
+    : CONSENT_CONSTANTS.DEFAULT_CMP_LOOK_UP_TIMEOUT;
 }
 
 /**
@@ -361,7 +361,7 @@ function getConsentManagementConfig(callbackToSetConfig) {
 
     crConfig.setConsentManagementEnabled(true);
     getGeoInfoWrapper();
-    timeoutId = setTimeout(proceedToFallbackExecution, getCMPCheckTimeout()); //timeout for checking CMP presence
+    timeoutId = setTimeout(proceedToFallbackExecution, getCMPLookUpTimeout()); //timeout for checking CMP presence
     checkCmpRecursively();
   // } catch (error) {
   //   console.error("Resolver: Error: ", error);

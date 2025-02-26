@@ -285,7 +285,7 @@ describe('ConsentConfigResolver:', function() {
             consentManagementEnabled.returns(true);
             commonUtil.isNumber.returns(true);
             getGlobalOwObject.returns({
-                cmpCheckTimeout: 50,
+                cmpLookUpTimeout: 50,
                 CC: { gc: 1 },
                 getDurationOf: function() {
                     return false;
