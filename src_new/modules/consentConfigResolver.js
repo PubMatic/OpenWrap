@@ -6,7 +6,7 @@ var CONSTANTS = require("../constants.js");
 
 // Constants for consent management
 var CONSENT_CONSTANTS = {
-  DEFAULT_CMP_LOOK_UP_TIMEOUT: 500,
+  DEFAULT_CMP_LOOK_UP_TIMEOUT: 1000,
   CONSENT_MANAGEMENT_SOURCE: {
     CMP: "CMP",
     GEO: "GEO",
@@ -264,10 +264,8 @@ function checkCMPsPresentOnPage() {
   }
 
   // Iterate through window frames to find CMPs
-  while (currentWindow) {
-    try {
-      checkCMPInWindow(currentWindow);
-    } catch (e) { } // Handle errors silently
+  while (currentWindow) {  
+    checkCMPInWindow(currentWindow);
     if (currentWindow === window.top) break;
     currentWindow = currentWindow.parent;
   }
@@ -310,13 +308,13 @@ function getConsentManagementConfig(callbackToSetConfig) {
   }
 
   function proceedToFallbackExecution() {
-    console.log("Resolver: Proceeding to fallback execution");
+    // console.log("Resolver: Proceeding to fallback execution");
     setCMPTime(true);           // Record CMP timing metrics
 
     var consent = null;
     var globalObj = commonUtil.getGlobalOwObject();
     if (!globalObj || !globalObj.CC || !globalObj.CC.gc) {
-      console.log("Resolver: No global object or CC configuration found");
+      // console.log("Resolver: No global object or CC configuration found");
       executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
       return;
     }
@@ -327,7 +325,7 @@ function getConsentManagementConfig(callbackToSetConfig) {
       CMP_APIs[compliance].prepareConfig();                 // Configure consent based on geo location
       executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.GEO);
     } else {
-      console.log("Resolver: No gc configuration found");
+      // console.log("Resolver: No gc configuration found");
       executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
     }
   }
@@ -338,7 +336,7 @@ function getConsentManagementConfig(callbackToSetConfig) {
     }
     checkCMPsPresentOnPage();
     if (crConfig.getComplianceSupport().length > 0) {
-      console.log("Resolver: CMP found");
+      // ("Resolver: CMP found");
       crConfig.setGeoMatchWithCMP();
       executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.CMP);
     } else {
@@ -350,22 +348,17 @@ function getConsentManagementConfig(callbackToSetConfig) {
   // Because setting config to prebid should not fail.
   // If we handle error and do not set consent config & proceed ahead, 
   // then we never able to find out the corner case and its not right even if something is failing in GDPR region & still we are processing for auction.
-  // try {
-    console.log("Resolver: Initializing configuration");
-    timeMetrics.recordEntryTime("CONSENT_CONFIG_RESOLVER_TIME");
+  // console.log("Resolver: Initializing configuration");
+  timeMetrics.recordEntryTime("CONSENT_CONFIG_RESOLVER_TIME");
 
-    if (!COMMON_CONFIG.consentManagentEnabled()) {
-      executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
-      return;
-    }
+  if (!COMMON_CONFIG.consentManagentEnabled()) {
+    executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
+    return;
+  }
 
-    crConfig.setConsentManagementEnabled(true);
-    getGeoInfoWrapper();
-    timeoutId = setTimeout(proceedToFallbackExecution, getCMPLookUpTimeout()); //timeout for checking CMP presence
-    checkCmpRecursively();
-  // } catch (error) {
-  //   console.error("Resolver: Error: ", error);
-  //   executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
-  // }
+  crConfig.setConsentManagementEnabled(true);
+  getGeoInfoWrapper();
+  timeoutId = setTimeout(proceedToFallbackExecution, getCMPLookUpTimeout()); //timeout for checking CMP presence
+  checkCmpRecursively();
 }
 exports.getConsentManagementConfig = getConsentManagementConfig;
