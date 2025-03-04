@@ -1067,7 +1067,7 @@ function setPrebidConfig() {
 
 		refThis.getFloorsConfiguration(prebidConfig);
 		refThis.checkConfigLevelFloor(prebidConfig);
-		refThis.assignUserSyncConfig(prebidConfig);
+		//refThis.assignUserSyncConfig(prebidConfig);
 		//refThis.assignGdprConfigIfRequired(prebidConfig);
 		//refThis.assignCcpaConfigIfRequired(prebidConfig);
 		//refThis.assignGppConfigIfRequired(prebidConfig);
@@ -1089,14 +1089,16 @@ function setPrebidConfig() {
 		window[pbNameSpace].setConfig(prebidConfig);
 
 		consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
+			var postConsentPrebidConfig = {};
+			refThis.assignUserSyncConfig(postConsentPrebidConfig);
 			var cmEnabled = COMMON_CONFIG.consentManagentEnabled();
 			var message =  cmEnabled ? "setting" : "not setting";			
 			util.log("ConsentManagement: " + cmEnabled + ", " + message + " the consentManagement config: " + JSON.stringify(cmConfig));
 			if(cmConfig && !util.isEmptyObject(cmConfig)) {
-				var consentManagementConf = {};
-				consentManagementConf.consentManagement = cmConfig;
-				window[pbNameSpace].setConfig(consentManagementConf);
+				// var consentManagementConf = {};
+				postConsentPrebidConfig.consentManagement = cmConfig;								
 			}
+			window[pbNameSpace].setConfig(postConsentPrebidConfig);
 		});
 
 	} else {
