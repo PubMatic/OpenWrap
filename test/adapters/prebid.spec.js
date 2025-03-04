@@ -2297,18 +2297,22 @@ describe('ADAPTER: Prebid', function() {
 		  
 		it('should set bidderSequence to random when dynamic bidder ordering is disabled', function(done) {
 			PREBID.setPrebidConfig();            
+            console.log("NS1: ", JSON.stringify(window.owpbjs.getConfig())); 
 			//expect(mockSetConfig.calledOnce).to.be.true;
 			//const configArg = mockSetConfig.getCall(0).args[0];            
-			expect(window["owpbjs"].getConfig()).to.have.property('bidderSequence', 'random');
+			//expect(window["owpbjs"].getConfig()).to.have.property('bidderSequence', 'random');
+            expect(window.owpbjs.getConfig()["bidderSequence"]).to.equal('random');
 			done();
 		});
 
 		it('should set bidderSequence to fixed when dynamic bidder ordering is enabled', function(done) {
 			CONF.pwt.bidderOrderingEnabled = '1';
-			PREBID.setPrebidConfig();                       
+			PREBID.setPrebidConfig();                      
+            console.log("NS2: ", JSON.stringify(window.owpbjs.getConfig())); 
 			// expect(mockSetConfig.calledOnce).to.be.true;
 			//const configArg = mockSetConfig.getCall(0).args[0];            
-			expect(window["owpbjs"].getConfig()).to.have.property('bidderSequence', 'fixed');
+			//expect(window["owpbjs"].getConfig()).to.have.property('bidderSequence', 'fixed');
+            expect(window.owpbjs.getConfig()["bidderSequence"]).to.equal('fixed');
 			done();
 		});
 	})
