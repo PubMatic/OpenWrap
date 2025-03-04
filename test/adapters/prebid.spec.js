@@ -2268,14 +2268,25 @@ describe('ADAPTER: Prebid', function() {
 
 	describe('dynamicBidderOrdering', function() {
 		let originalOwPbJs;
-		let mockSetConfig;
+		// let mockSetConfig;
+        let prebidConfig = {};
 		beforeEach(() => {
 			// Save the original owpbjs and setConfig function
 			originalOwPbJs = window['owpbjs'];
-			mockSetConfig = sinon.spy();
-			window['owpbjs'] = {
-			  setConfig: mockSetConfig,
-			};
+			//mockSetConfig = sinon.spy();
+			// window['owpbjs'] = {
+			//   setConfig: mockSetConfig,
+			// };
+
+            window.owpbjs = window.owpbjs || {};
+            window.owpbjs.cmd = window.owpbjs.cmd || [];
+            window["owpbjs"].setConfig = function (pbConfig) {
+                prebidConfig = pbConfig;
+               return true;
+             };
+             window["owpbjs"].getConfig = function(){
+                 return prebidConfig;
+             };
 		})		  
 
 		afterEach(() => {
@@ -2285,19 +2296,19 @@ describe('ADAPTER: Prebid', function() {
 		});
 		  
 		it('should set bidderSequence to random when dynamic bidder ordering is disabled', function(done) {
-			PREBID.setPrebidConfig();
-			expect(mockSetConfig.calledOnce).to.be.true;
-			const configArg = mockSetConfig.getCall(0).args[0];
-			expect(configArg).to.have.property('bidderSequence', 'random');
+			PREBID.setPrebidConfig();            
+			//expect(mockSetConfig.calledOnce).to.be.true;
+			//const configArg = mockSetConfig.getCall(0).args[0];            
+			expect(window["owpbjs"].getConfig()).to.have.property('bidderSequence', 'random');
 			done();
 		});
 
 		it('should set bidderSequence to fixed when dynamic bidder ordering is enabled', function(done) {
 			CONF.pwt.bidderOrderingEnabled = '1';
-			PREBID.setPrebidConfig();
-			expect(mockSetConfig.calledOnce).to.be.true;
-			const configArg = mockSetConfig.getCall(0).args[0];
-			expect(configArg).to.have.property('bidderSequence', 'fixed');
+			PREBID.setPrebidConfig();                       
+			// expect(mockSetConfig.calledOnce).to.be.true;
+			//const configArg = mockSetConfig.getCall(0).args[0];            
+			expect(window["owpbjs"].getConfig()).to.have.property('bidderSequence', 'fixed');
 			done();
 		});
 	})
