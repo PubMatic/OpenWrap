@@ -8,10 +8,10 @@ exports.consentManagentEnabled = function () {
 }
 
 exports.getCmpApi = function (cmpApi) {
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG[cmpApi]] || "iab";
+	return config[CONSTANTS.CONFIG.COMMON][cmpApi] || "iab";
 };
 
 exports.getTimeout = function (timeoutField, defaultTimeout) {
-	var timeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG[timeoutField]];
+	var timeout = config[CONSTANTS.CONFIG.COMMON][timeoutField];
 	return timeout ? window.parseInt(timeout) : defaultTimeout;
 };
