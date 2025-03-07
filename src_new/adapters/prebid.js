@@ -1177,10 +1177,10 @@ function getFloorsConfiguration(prebidConfig){
 			endpoint:{
 				url: CONFIG.getFloorJsonUrl()
 			},
-			additionalSchemaFields : {
-				browser : util.getBrowserDetails,
-				platform_id : util.getPltForFloor
-			}
+			// additionalSchemaFields : {
+			// 	browser : util.getBrowserDetails,
+			// 	platform_id : util.getPltForFloor
+			// }
 		}
 	}
 }
