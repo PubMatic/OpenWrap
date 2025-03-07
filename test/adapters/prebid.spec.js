@@ -1136,10 +1136,10 @@ describe('ADAPTER: Prebid', function() {
                 endpoint:{
                     url: "externalFloor.json"
                 },
-				additionalSchemaFields : {
-					browser : UTIL.getBrowserDetails,
-					platform_id : UTIL.getPltForFloor
-				}
+				// additionalSchemaFields : {
+				// 	browser : UTIL.getBrowserDetails,
+				// 	platform_id : UTIL.getPltForFloor
+				// }
             }
             function onSSOLogin() {};
             window.owpbjs = {
