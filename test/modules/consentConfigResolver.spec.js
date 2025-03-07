@@ -45,7 +45,7 @@ describe('ConsentConfigResolver:', function() {
         };
 
         var geoInfoSpy = sandbox.spy(function(source, callback) {
-          callback('LS', mockGeoData);
+          callback(1, mockGeoData);
         });
         
         commonUtil.getGeoInfo = geoInfoSpy; 
@@ -136,15 +136,15 @@ describe('ConsentConfigResolver:', function() {
                 gsId: 'test123'
             };
             
-            crConfig.setGeoInfo('LS', geoInfo);
+            crConfig.setGeoInfo(1, geoInfo);
             expect(crConfig.getProperties().csc).to.equal('CA');
-            expect(crConfig.getProperties().crgdf).to.equal('LS');
+            expect(crConfig.getProperties().crgdf).to.equal(1);
             done();
         });
 
         it('should handle geo match with CMP', function(done) {
             crConfig.setComplianceSupport(1); // GDPR
-            crConfig.setGeoInfo('LS', {
+            crConfig.setGeoInfo(1, {
                 cc: 'US',
                 sc: 'CA',
                 gc: 1
@@ -230,7 +230,7 @@ describe('ConsentConfigResolver:', function() {
             };
 
             var geoInfoSpy = sandbox.spy(function(source, callback) {
-              callback('LS', mockGeoData);
+              callback(1, mockGeoData);
             });
             
             commonUtil.getGeoInfo = geoInfoSpy;
@@ -247,7 +247,7 @@ describe('ConsentConfigResolver:', function() {
             ConsentConfigResolver.getGeoInfoWrapper();
                         
             expect(crConfig.getProperties().csc).to.equal('NY');
-            expect(crConfig.getProperties().crgdf).to.equal('LS');
+            expect(crConfig.getProperties().crgdf).to.equal(1);
             done();
         });
 

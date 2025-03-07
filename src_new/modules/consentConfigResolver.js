@@ -7,20 +7,20 @@ var CONSTANTS = require("../constants.js");
 // Constants for consent management
 var CONSENT_CONSTANTS = {
   DEFAULT_CMP_LOOK_UP_TIMEOUT: 1000,
-  CONSENT_MANAGEMENT_SOURCE: {
-    CMP: "CMP",
-    GEO: "GEO",
-    NONE: "NONE"
+  CONSENT_MANAGEMENT_SOURCE: {    // 1 -> CMP, 2 -> GEO, 0 -> NONE
+    CMP: 1, 
+    GEO: 2,
+    NONE: 0
   },
   COMPLIANCE_MAP: {
     GDPR: 1,
     USP: 2,
     GPP: 3
   },
-  READ_GEO_DATA_FROM: {
-    LOCALSTORAGE: "LS",
-    GEO_SERVICE: "GS",
-    NONE: "NONE"
+  READ_GEO_DATA_FROM: {          // 1 -> LOCALSTORAGE, 2 -> GEO_SERVICE, 0 -> NONE
+    LOCALSTORAGE: 1,
+    GEO_SERVICE: 2,
+    NONE: 0
   }
 }
 
@@ -43,8 +43,8 @@ var ConsentResolverConfig = (function () {
         cmpPresent: false,                    // CMP present on the page or not false - Not Present, true - Present 
         complianceSupport: [],            // CMP's compliance supported,  1: GDPR, 2: USP, 3: GPP
         cmpId: 0,                         // CMP ID: Consent Management Platform Id, default - 0
-        enforcedConsentBasisOn: CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE,   // This will be used to enforce the consent basis on Possible values: CMP, GEO, NONE
-        readGeoDataFrom: CONSENT_CONSTANTS.READ_GEO_DATA_FROM.NONE,                 // This will be used to identify whether geo info retrieved from Cache or from service: LOCALSTORAGE, GEO_SERVICE, NONE
+        enforcedConsentBasisOn: CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE,   // This will be used to enforce the consent basis on Possible values: 1 (CMP), 2 (GEO), 3 (NONE)
+        readGeoDataFrom: CONSENT_CONSTANTS.READ_GEO_DATA_FROM.NONE,                 // This will be used to identify the source of geo data read from Possible values: 1 (LOCALSTORAGE), 2 (GEO_SERVICE), 3 (NONE)
         geoInfo: {                        // This will be used to store the geo information
           cc: undefined,                  // Country Code Already being passed in the request     
           sc: undefined,                  // State Code
