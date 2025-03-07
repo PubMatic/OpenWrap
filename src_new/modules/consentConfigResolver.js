@@ -43,8 +43,8 @@ var ConsentResolverConfig = (function () {
         cmpPresent: false,                    // CMP present on the page or not false - Not Present, true - Present 
         complianceSupport: [],            // CMP's compliance supported,  1: GDPR, 2: USP, 3: GPP
         cmpId: 0,                         // CMP ID: Consent Management Platform Id, default - 0
-        enforcedConsentBasisOn: CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE,   // This will be used to enforce the consent basis on Possible values: 1 (CMP), 2 (GEO), 3 (NONE)
-        readGeoDataFrom: CONSENT_CONSTANTS.READ_GEO_DATA_FROM.NONE,                 // This will be used to identify the source of geo data read from Possible values: 1 (LOCALSTORAGE), 2 (GEO_SERVICE), 3 (NONE)
+        enforcedConsentBasisOn: CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE,   // This will be used to enforce the consent basis on Possible values: 1 (CMP), 2 (GEO), 0 (NONE)
+        readGeoDataFrom: CONSENT_CONSTANTS.READ_GEO_DATA_FROM.NONE,                 // This will be used to identify the source of geo data read from Possible values: 1 (LOCALSTORAGE), 2 (GEO_SERVICE), 0 (NONE)
         geoInfo: {                        // This will be used to store the geo information
           cc: undefined,                  // Country Code Already being passed in the request     
           sc: undefined,                  // State Code
