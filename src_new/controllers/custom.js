@@ -235,35 +235,84 @@ function origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction){
 	var qualifyingSlots = [];
 	var mapOfDivToCode = {};
 	var qualifyingSlotDivIds = [];
-	util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject) {
-		if (refThis.validateAdUnitObject(anAdUnitObject)) { // returns true for valid adUnit
-			var dmSlotName = anAdUnitObject.code;
-			var slot = SLOT.createSlot(dmSlotName);
-			window.PWT.adUnits = window.PWT.adUnits || {};
-			window.PWT.adUnits[dmSlotName] = anAdUnitObject;
-			// IMPORTANT:: bidManager stores all data at divId level but in custom controller, divId is not mandatory.
-			// so we woll set value of code to divId if divId is not present
-			// also we will pass array of divId to the bidManager.getAllPartnersBidStatuses API 
-			slot.setDivID(anAdUnitObject.divId || dmSlotName);
-			slot.setPubAdServerObject(anAdUnitObject);
-			slot.setAdUnitID(anAdUnitObject.adUnitId || "");
-			slot.setAdUnitIndex(anAdUnitObject.adUnitIndex || 0);
-			slot.setSizes(refThis.getAdSlotSizesArray(anAdUnitObject));
-			qualifyingSlots.push(slot);
-			mapOfDivToCode[slot.getDivID()] = slot.getName();
-			qualifyingSlotDivIds.push(slot.getDivID());
-			util.createVLogInfoPanel(slot.getDivID(), slot.getSizes());
-		}
+	util.forEachOnArray(arrayOfAdUnits, function (index, anAdUnitObject) {
+	  	if (refThis.validateAdUnitObject(anAdUnitObject)) {
+		// returns true for valid adUnit
+		var dmSlotName = anAdUnitObject.code;
+		var slot = SLOT.createSlot(dmSlotName);
+		window.PWT.adUnits = window.PWT.adUnits || {};
+		window.PWT.adUnits[dmSlotName] = anAdUnitObject;
+		// IMPORTANT:: bidManager stores all data at divId level but in custom controller, divId is not mandatory.
+		// so we woll set value of code to divId if divId is not present
+		// also we will pass array of divId to the bidManager.getAllPartnersBidStatuses API 
+		slot.setDivID(anAdUnitObject.divId || dmSlotName);
+		slot.setPubAdServerObject(anAdUnitObject);
+		slot.setAdUnitID(anAdUnitObject.adUnitId || "");
+		slot.setAdUnitIndex(anAdUnitObject.adUnitIndex || 0);
+		slot.setSizes(refThis.getAdSlotSizesArray(anAdUnitObject));
+		qualifyingSlots.push(slot);
+		mapOfDivToCode[slot.getDivID()] = slot.getName();
+		qualifyingSlotDivIds.push(slot.getDivID());
+		util.createVLogInfoPanel(slot.getDivID(), slot.getSizes());
+	  }
 	});
-
 	if (qualifyingSlots.length == 0) {
 		util.error("There are no qualifyingSlots, so not calling bidders.");
 		callbackFunction(arrayOfAdUnits);
 		return;
 	}
+  
+	function isElementInViewport(targetDiv) {
+		 var rect = targetDiv.getBoundingClientRect();
+		 var viewportHeight = window.innerHeight;
 
-	// new approach without adapter-managers
-	prebid.fetchBids(qualifyingSlots, function(){
+		 //TODO: add values for top as well
+		 var distanceFromBottomVH = ((rect.top - viewportHeight) / viewportHeight) * 100;
+
+		if(distanceFromBottomVH <= 400){
+		  return true;
+		}
+		else{
+		  return false;
+		}
+  }
+  
+  function throttle(func, limit) {
+	  var inThrottle;
+	  return function () {
+		  var args = arguments;
+		  var context = this;
+		  if (!inThrottle) {
+			  func.apply(context, args);
+			  inThrottle = true;
+			  setTimeout(() => (inThrottle = false), limit);
+		  }
+	  };
+  }
+  
+	function checkAndExecute() {
+		  qualifyingSlots = qualifyingSlots.filter(slot => {
+			  const element = document.getElementById(slot.divID);
+			  if (element && isElementInViewport(element)) {
+				  executeAuction([slot]);
+				  return false; // Remove from the list once executed
+			  }
+			  return true;
+		  });
+		  if (qualifyingSlots.length === 0) {
+			  window.removeEventListener("scroll", throttledScrollHandler);
+		  }
+	  }
+	  const throttledScrollHandler = throttle(checkAndExecute, 300);
+  
+	  // Initial check in case some elements are already in view
+	  checkAndExecute();
+  
+	  if (qualifyingSlots.length > 0) {
+		  window.addEventListener("scroll", throttledScrollHandler);
+	  }
+	function executeAuction(slots){
+	  prebid.fetchBids(slots, function () {
 		var winningBids = {}; // object:: { code : response bid or just key value pairs }
 		// we should loop on qualifyingSlotDivIds to avoid confusion if two parallel calls are fired to our PWT.requestBids 
 		util.forEachOnArray(qualifyingSlotDivIds, function(index, divId) {
@@ -280,10 +329,10 @@ function origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction){
 				anAdUnitObject.bidData = winningBids[anAdUnitObject.code];
 			}
 		});
-
 		callbackFunction(arrayOfAdUnits);
-	});
-}
+	  });
+	  }
+  }
 
 /* start-test-block */
 exports.origCustomServerExposedAPI = origCustomServerExposedAPI;
