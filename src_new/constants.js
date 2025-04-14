@@ -325,7 +325,25 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 	"identityLink": [{
 		"key": "storage.refreshInSeconds",
 		"value": "1800"
-	}]
+	}],
+	"pubmaticId": [
+		{
+			"key": "storage.name",
+			"value": "pubmaticId"
+		},
+		{
+			"key": "storage.type",
+			"value": "cookie&html5"
+		},
+		{
+			"key": "storage.expires",
+			"value": 30
+		},
+		{
+			"key": "storage.refreshInSeconds",
+			"value": 86400
+		}
+	]
 };
 
 exports.EXCLUDE_PARTNER_LIST = ['pubProvidedId'];
