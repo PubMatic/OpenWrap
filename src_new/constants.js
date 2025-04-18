@@ -59,7 +59,13 @@ exports.COMMON = {
 	"BID_POOLING": "Bid Pooling",
 	"USE_BID_CACHE": "useBidCache",
 	"BID_POOLING_ENABLED": "bidPoolingEnabled",
-	"ENABLED_BID_POOLING": "1"
+	"ENABLED_BID_POOLING": "1",
+	"DEFAULT_AUCTION_LAZY_LOADING_ENABLED":"0",
+	"DEFAULT_AUCTION_MARGIN_PERCENTAGE": "400",
+	"DEFAULT_GAM_LAZY_LOADING_ENABLED": "0",
+	"DEFAULT_FETCH_MARGIN_PERCENTAGE": "300",
+	"DEFAULT_RENDER_MARGIN_PERCENTAGE": "200",
+	"DEFAULT_MOBILE_SCALING_FOR_LAZY_LOADING": "2.0"
 };
 
 exports.CONFIG = {
@@ -126,7 +132,13 @@ exports.CONFIG = {
 	"DEFAULT_GPP_TIMEOUT": 10000,
 	"GDPR_ACTION_TIMEOUT": "gdprActionTimeout",
 	"PB_GLOBAL_VAR_NAMESPACE": "pbGlobalVarNamespace",
-	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace"
+	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace",
+	"AUCTION_LAZY_LOADING_ENABLED": "auctionLazyLoadingEnabled",
+	"AUCTION_MARGIN_PERCENTAGE": "auctionMarginPercentage",
+	"GAM_LAZY_LOADING_ENABLED": "gamLazyLoadingEnabled",
+	"FETCH_MARGIN_PERCENTAGE": "fetchMarginPercentage",
+	"RENDER_MARGIN_PERCENTAGE": "renderMarginPercentage",
+	"MOBILE_SCALING_FOR_LAZY_LOADING": "mobileScalingForLazyLoading"
 };
 
 exports.METADATA_MACROS = {

@@ -2152,3 +2152,32 @@ exports.getCDSTargetingData = function(obj) {
     });
 	return obj;
 }
+
+exports.isElementInViewport = function(targetDiv) {
+	var rect = targetDiv.getBoundingClientRect();
+    var viewportHeight = window.innerHeight;
+
+    //var distanceFromTopVH = (rect.top / viewportHeight) * 100;
+    var distanceFromBottomVH = ((rect.top - viewportHeight) / viewportHeight) * 100;
+
+   if(distanceFromBottomVH <= CONFIG.getAuctionMarginPercentage()){
+     refThis.log( targetDiv.id," is eligible for auction");
+     return true;
+   }
+   else{
+     return false;
+   }
+};
+
+exports.throttle = function(func, limit) {
+	let inThrottle;
+	return function () {
+		const args = arguments;
+		const context = this;
+		if (!inThrottle) {
+			func.apply(context, args);
+			inThrottle = true;
+			setTimeout(() => (inThrottle = false), limit);
+		}
+	};
+};

@@ -204,3 +204,13 @@ window.PWT.browserMapping = bidManager.getBrowser();
 consentConfigResolver.init();
 
 controller.init(window);
+
+if(CONFIG.isGamLazyLoadingEnabled()){
+    googletag.cmd.push(function () {
+        googletag.pubads().enableLazyLoad({
+            fetchMarginPercent: CONFIG.getFetchMarginPercentage(),
+            renderMarginPercent: CONFIG.getRenderMarginPercentage(),
+            mobileScaling: CONFIG.getMobileScalingForLazyLoading()
+        });
+    });
+}
