@@ -1085,6 +1085,10 @@ function setPrebidConfig(){
 		// do not set any config below this line as we are executing the hook above
 		
 		window[pbNameSpace].setConfig(prebidConfig);
+		var encryptedSignalSouceConfig = COMMON_CONFIG.getEncryptedSignalSourcesConfig();
+		if (encryptedSignalSouceConfig) {
+			window[pbNameSpace].mergeConfig(encryptedSignalSouceConfig);
+		}
 	} else {
 		util.logWarning("PreBidJS setConfig method is not available");
 	}
