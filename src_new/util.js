@@ -2170,14 +2170,16 @@ exports.isElementInViewport = function(targetDiv) {
 };
 
 exports.throttle = function(func, limit) {
-	let inThrottle;
+	var inThrottle;
 	return function () {
-		const args = arguments;
-		const context = this;
+		var args = arguments;
+		var context = this;
 		if (!inThrottle) {
 			func.apply(context, args);
 			inThrottle = true;
-			setTimeout(() => (inThrottle = false), limit);
+			setTimeout(function() {
+				inThrottle = false;
+			}, limit);
 		}
 	};
 };

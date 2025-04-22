@@ -262,30 +262,31 @@ function origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction){
 	}
 
 	function checkAndExecute() {
-		qualifyingSlots = qualifyingSlots.filter(slot => {
-		  const element = document.getElementById(slot.divID);
-		  if (element && util.isElementInViewport(element)) {
-			executeAuction([slot], [slot.divID]);
-			return false; // Remove from the list once executed
-		  }
-	
-		  return true;
+		qualifyingSlots = qualifyingSlots.filter(function(slot) {
+			var element = document.getElementById(slot.divID);
+			if (element && util.isElementInViewport(element)) {
+				executeAuction([slot], [slot.divID]);
+				return false; // Remove from the list once executed
+			}
+			
+			return true;
 		});
 		if (qualifyingSlots.length === 0) {
-		  window.removeEventListener("scroll", throttledScrollHandler);
+			window.removeEventListener("scroll", throttledScrollHandler);
 		}
-	  }
+	}
 	
-	  // Initial check in case some elements are already in view
-	  if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
+	// Initial check in case some elements are already in view
+	if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
 		var throttledScrollHandler = util.throttle(checkAndExecute, 300);
 		if (qualifyingSlots.length > 0) {
 			window.addEventListener("scroll", throttledScrollHandler);
 		}
 		checkAndExecute();
-	  } else {
-		executeAuction(qualifyingSlots,qualifyingSlotDivIds);
-	  }
+	} else {
+		executeAuction(qualifyingSlots, qualifyingSlotDivIds);
+	}
+	
 	function executeAuction(slots, slotDivIds) {
 		var newArrayOfAdUnits = arrayOfAdUnits.filter(function(adUnit) {
 			// Check if this adUnit's divId matches any slot in the slots array
@@ -294,26 +295,29 @@ function origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction){
 			});
 		});
 		
-		prebid.fetchBids(slots, function () {
+		prebid.fetchBids(slots, function() {
 			var winningBids = {}; // object:: { code : response bid or just key value pairs }
+			
 			// we should loop on qualifyingSlotDivIds to avoid confusion if two parallel calls are fired to our PWT.requestBids 
-			util.forEachOnArray(slotDivIds, function (index, divId) {
-			var code = mapOfDivToCode[divId];
-			winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId);
-			// we need to delay the realignment as we need to do it post creative rendering :)
-			// delaying by 1000ms as creative rendering may tke time
+			util.forEachOnArray(slotDivIds, function(index, divId) {
+				var code = mapOfDivToCode[divId];
+				winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId);
+				
+				// we need to delay the realignment as we need to do it post creative rendering :)
+				// delaying by 1000ms as creative rendering may take time
 				setTimeout(util.realignVLogInfoPanel, 1000, divId);
 			});
 	
 			// for each adUnit in arrayOfAdUnits find the winningBids, we need to return this updated arrayOfAdUnits
-			util.forEachOnArray(newArrayOfAdUnits, function (index, anAdUnitObject) {
+			util.forEachOnArray(newArrayOfAdUnits, function(index, anAdUnitObject) {
 				if (winningBids.hasOwnProperty(anAdUnitObject.code)) {
 					anAdUnitObject.bidData = winningBids[anAdUnitObject.code];
 				}
 			});
+			
 			callbackFunction(newArrayOfAdUnits);
 		});
-	  }
+	}
 }
 
 /* start-test-block */
