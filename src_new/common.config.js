@@ -22,7 +22,8 @@ exports.setConsentConfig = function (prebidConfig, key, cmpApi, timeout) {
 };
 
 exports.getEncryptedSignalSourcesConfig = function () {
-  if (!CONFIG.isUserIdModuleEnabled()) {
+  var idHubPartners = CONFIG.getIdentityPartners();
+  if (!CONFIG.isUserIdModuleEnabled() || !idHubPartners || !idHubPartners.pubmaticId) {
     return null;
   }
   return {
