@@ -602,7 +602,7 @@ exports.getMobileScalingForLazyLoading = function () {
 	}
 	
 	// Default value
-	return CONSTANTS.COMMON.DEFAULT_MOBILE_SCALING_FOR_LAZY_LOADING;
+	return parseFloat(CONSTANTS.COMMON.DEFAULT_MOBILE_SCALING_FOR_LAZY_LOADING);
 };
 
 exports.isSRAEnabled = function () {
