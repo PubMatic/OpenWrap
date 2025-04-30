@@ -2160,7 +2160,7 @@ exports.isElementInViewport = function(targetDiv) {
     //var distanceFromTopVH = (rect.top / viewportHeight) * 100;
     var distanceFromBottomVH = ((rect.top - viewportHeight) / viewportHeight) * 100;
 	var marginPercentage = isMobileDeviceForLazyLoading() ? parseFloat(CONFIG.getAuctionMarginPercentage()) * parseFloat(CONFIG.getMobileScalingForLazyLoading()) : parseFloat(CONFIG.getAuctionMarginPercentage());
-	if(distanceFromBottomVH <= marginPercentage){
+	if(Math.abs(distanceFromBottomVH) <= marginPercentage){
 		refThis.log( targetDiv.id," is eligible for auction");
 		return true;
 	}
