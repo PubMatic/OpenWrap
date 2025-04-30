@@ -515,96 +515,46 @@ exports.shouldClearTargeting = function () {
 
 };
 
+// Utility function to retrieve configuration values
+function getConfigValue(property, defaultValue, parseAsInteger) {
+    parseAsInteger = (typeof parseAsInteger === 'undefined') ? true : parseAsInteger; // Default to true if not supplied
+    var configValue = config[CONSTANTS.CONFIG.COMMON] && config[CONSTANTS.CONFIG.COMMON][property];
+    
+    if (configValue !== undefined) {
+        return parseAsInteger ? parseInt(configValue, 10) : parseFloat(configValue);
+    }
+
+    var pwtValue = PWT && PWT.LazyLoading && PWT.LazyLoading[property];
+    if (pwtValue !== undefined) {
+        return parseAsInteger ? parseInt(pwtValue, 10) : parseFloat(pwtValue);
+    }
+
+    return parseAsInteger ? parseInt(defaultValue, 10) : parseFloat(defaultValue);
+}
+
 exports.isAuctionLazyLoadingEnabled = function () {
-	// Check if value exists in config
-	if (config[CONSTANTS.CONFIG.COMMON] && config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AUCTION_LAZY_LOADING_ENABLED] !== undefined) {
-		return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AUCTION_LAZY_LOADING_ENABLED]) === 1;
-	}
-	
-	// Check if value exists in PWT.LazyLoading.auctionLazyLoadingEnabled
-	if (PWT && PWT.LazyLoading && PWT.LazyLoading.auctionLazyLoadingEnabled !== undefined) {
-		return parseInt(PWT.LazyLoading.auctionLazyLoadingEnabled) === 1;
-	}
-	
-	// Default value
-	return parseInt(CONSTANTS.COMMON.DEFAULT_AUCTION_LAZY_LOADING_ENABLED) === 1;
+    return getConfigValue(CONSTANTS.CONFIG.AUCTION_LAZY_LOADING_ENABLED, CONSTANTS.COMMON.DEFAULT_AUCTION_LAZY_LOADING_ENABLED) === 1;
 };
 
 exports.getAuctionMarginPercentage = function () {
-	// Check if value exists in config
-	if (config[CONSTANTS.CONFIG.COMMON] && config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AUCTION_MARGIN_PERCENTAGE] !== undefined) {
-		return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AUCTION_MARGIN_PERCENTAGE]);
-	}
-	
-	// Check if value exists in PWT.LazyLoading.auctionMarginPercentage
-	if (PWT && PWT.LazyLoading && PWT.LazyLoading.auctionMarginPercentage !== undefined) {
-		return parseInt(PWT.LazyLoading.auctionMarginPercentage);
-	}
-	
-	// Default value
-	return CONSTANTS.COMMON.DEFAULT_AUCTION_MARGIN_PERCENTAGE;
+    return getConfigValue(CONSTANTS.CONFIG.AUCTION_MARGIN_PERCENTAGE, CONSTANTS.COMMON.DEFAULT_AUCTION_MARGIN_PERCENTAGE);
 };
 
 exports.isGamLazyLoadingEnabled = function () {
-	// Check if value exists in config
-	if (config[CONSTANTS.CONFIG.COMMON] && config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GAM_LAZY_LOADING_ENABLED] !== undefined) {
-		return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GAM_LAZY_LOADING_ENABLED]) === 1;
-	}
-	
-	// Check if value exists in PWT.LazyLoading.gamLazyLoadingEnabled
-	if (PWT && PWT.LazyLoading && PWT.LazyLoading.gamLazyLoadingEnabled !== undefined) {
-		return parseInt(PWT.LazyLoading.gamLazyLoadingEnabled) === 1;
-	}
-	
-	// Default value
-	return parseInt(CONSTANTS.COMMON.DEFAULT_GAM_LAZY_LOADING_ENABLED) === 1;
+    return getConfigValue(CONSTANTS.CONFIG.GAM_LAZY_LOADING_ENABLED, CONSTANTS.COMMON.DEFAULT_GAM_LAZY_LOADING_ENABLED) === 1;
 };
 
 exports.getFetchMarginPercentage = function () {
-	// Check if value exists in config
-	if (config[CONSTANTS.CONFIG.COMMON] && config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FETCH_MARGIN_PERCENTAGE] !== undefined) {
-		return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FETCH_MARGIN_PERCENTAGE]);
-	}
-	
-	// Check if value exists in PWT.LazyLoading.fetchMarginPercentage
-	if (PWT && PWT.LazyLoading && PWT.LazyLoading.fetchMarginPercentage !== undefined) {
-		return parseInt(PWT.LazyLoading.fetchMarginPercentage);
-	}
-	
-	// Default value
-	return CONSTANTS.COMMON.DEFAULT_FETCH_MARGIN_PERCENTAGE;
+    return getConfigValue(CONSTANTS.CONFIG.FETCH_MARGIN_PERCENTAGE, CONSTANTS.COMMON.DEFAULT_FETCH_MARGIN_PERCENTAGE);
 };
 
 exports.getRenderMarginPercentage = function () {
-	// Check if value exists in config
-	if (config[CONSTANTS.CONFIG.COMMON] && config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.RENDER_MARGIN_PERCENTAGE] !== undefined) {
-		return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.RENDER_MARGIN_PERCENTAGE]);
-	}
-	
-	// Check if value exists in PWT.LazyLoading.renderMarginPercentage
-	if (PWT && PWT.LazyLoading && PWT.LazyLoading.renderMarginPercentage !== undefined) {
-		return parseInt(PWT.LazyLoading.renderMarginPercentage);
-	}
-	
-	// Default value
-	return CONSTANTS.COMMON.DEFAULT_RENDER_MARGIN_PERCENTAGE;
+    return getConfigValue(CONSTANTS.CONFIG.RENDER_MARGIN_PERCENTAGE, CONSTANTS.COMMON.DEFAULT_RENDER_MARGIN_PERCENTAGE);
 };
 
 exports.getMobileScalingForLazyLoading = function () {
-	// Check if value exists in config
-	if (config[CONSTANTS.CONFIG.COMMON] && config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.MOBILE_SCALING_FOR_LAZY_LOADING] !== undefined) {
-		return parseFloat(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.MOBILE_SCALING_FOR_LAZY_LOADING]);
-	}
-	
-	// Check if value exists in PWT.LazyLoading.mobileScalingForLazyLoading
-	if (PWT && PWT.LazyLoading && PWT.LazyLoading.mobileScalingForLazyLoading !== undefined) {
-		return parseFloat(PWT.LazyLoading.mobileScalingForLazyLoading);
-	}
-	
-	// Default value
-	return parseFloat(CONSTANTS.COMMON.DEFAULT_MOBILE_SCALING_FOR_LAZY_LOADING);
+    return getConfigValue(CONSTANTS.CONFIG.MOBILE_SCALING_FOR_LAZY_LOADING, CONSTANTS.COMMON.DEFAULT_MOBILE_SCALING_FOR_LAZY_LOADING, false);
 };
-
 exports.isSRAEnabled = function () {
 	return window.googletag && window.googletag.pubads && window.googletag.pubads().isSRA() || false;
 };
