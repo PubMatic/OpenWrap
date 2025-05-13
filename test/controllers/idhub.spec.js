@@ -62,6 +62,7 @@ describe("CONTROLLER: IDHUB", function() {
 				'setConfig': function(){},
 				'onSSOLogin': function onSSOLogin() {},
 				'requestBids': function(){},
+				'mergeConfig': function(){},
 			}
 			done();
 		});

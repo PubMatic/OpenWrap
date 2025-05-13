@@ -1,6 +1,7 @@
 var CONF = require("../src_new/conf.js");
 var CONSTANTS = require("../src_new/constants.js");
 var COMMON_CONFIG = require("../src_new/common.config.js");
+var CONFIG = require('../src_new/config.js');
 var expect = require("chai").expect;
 
 describe('COMMON CONFIG FILE', function () {  
@@ -73,5 +74,76 @@ describe('COMMON CONFIG FILE', function () {
             done();
         });
     });
-});
 
+    describe('getEncryptedSignalSourcesConfig function', function () {
+        it('should be a function', function (done) {
+            COMMON_CONFIG.getEncryptedSignalSourcesConfig.should.be.a('function');
+            done();
+        });
+
+        it('should return null when isUserIdModuleEnabled returns false', function (done) {
+            sinon.stub(CONFIG, 'isUserIdModuleEnabled').returns(false);
+            // No need to stub getIdentityPartners as the function should return early
+            expect(COMMON_CONFIG.getEncryptedSignalSourcesConfig()).to.be.null;
+            CONFIG.isUserIdModuleEnabled.restore();
+            done();
+        });
+
+        it('should return null when getIdentityPartners returns null or undefined', function (done) {
+            sinon.stub(CONFIG, 'isUserIdModuleEnabled').returns(true);
+            sinon.stub(CONFIG, 'getIdentityPartners').returns(null);
+            
+            expect(COMMON_CONFIG.getEncryptedSignalSourcesConfig()).to.be.null;
+            
+            CONFIG.isUserIdModuleEnabled.restore();
+            CONFIG.getIdentityPartners.restore();
+            done();
+        });
+
+        it('should return null when pubmaticId is not configured in identity partners', function (done) {
+            sinon.stub(CONFIG, 'isUserIdModuleEnabled').returns(true);
+            sinon.stub(CONFIG, 'getIdentityPartners').returns({
+                otherIdPartner: {}
+                // No pubmaticId here
+            });
+            
+            expect(COMMON_CONFIG.getEncryptedSignalSourcesConfig()).to.be.null;
+            
+            CONFIG.isUserIdModuleEnabled.restore();
+            CONFIG.getIdentityPartners.restore();
+            done();
+        });
+
+        it('should return encrypted signal sources config when all conditions are met', function (done) {
+            sinon.stub(CONFIG, 'isUserIdModuleEnabled').returns(true);
+            sinon.stub(CONFIG, 'getIdentityPartners').returns({
+                pubmaticId: {
+                    name: "pubmaticId",
+                    "storage.type": "html5"
+                }
+            });
+            
+            var expectedConfig = {
+                "userSync": {
+                    "encryptedSignalSources": {
+                        "sources": [
+                            {
+                                "source": [
+                                    "esp.pubmatic.com"
+                                ],
+                                "encrypt": false
+                            }
+                        ],
+                        "registerDelay": 3000
+                    }
+                }
+            };
+            
+            expect(COMMON_CONFIG.getEncryptedSignalSourcesConfig()).to.deep.equal(expectedConfig);
+            
+            CONFIG.isUserIdModuleEnabled.restore();
+            CONFIG.getIdentityPartners.restore();
+            done();
+        });
+    });
+});

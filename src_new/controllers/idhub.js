@@ -79,6 +79,10 @@ refThis.setConfig = function(){
 			// Adding a hook for publishers to modify the Prebid Config we have generated
 			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 			window[pbNameSpace].setConfig(prebidConfig);
+			var encryptedSignalSouceConfig = COMMON_CONFIG.getEncryptedSignalSourcesConfig();
+			if (encryptedSignalSouceConfig) {
+				window[pbNameSpace].mergeConfig(encryptedSignalSouceConfig);
+			}
 		}
 		if (CONFIG.isUserIdModuleEnabled() && CONFIG.isIdentityOnly()) {
 			refThis.enablePubMaticIdentityAnalyticsIfRequired();
