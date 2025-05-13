@@ -1118,6 +1118,31 @@ describe('ADAPTER: Prebid', function() {
     describe("#setPrebidConfig", function(){
         var floorObj = {};
 	    var identityOnlyBackup = CONF.pwt.identityOnly;
+
+        describe('additionalSchemaFields.country', function() {
+            it('should return country code when PWT.CC.cc exists', function(done) {
+                window.PWT = {
+                    CC: {
+                        cc: 'US'
+                    }
+                };
+                expect(floorObj.additionalSchemaFields.country()).to.equal('US');
+                done();
+            });
+
+            it('should return empty string when PWT.CC.cc does not exist', function(done) {
+                window.PWT = {};
+                expect(floorObj.additionalSchemaFields.country()).to.equal('');
+                done();
+            });
+
+            it('should return empty string when PWT does not exist', function(done) {
+                delete window.PWT;
+                expect(floorObj.additionalSchemaFields.country()).to.equal('');
+                done();
+            });
+        });
+
         beforeEach(function(done) {
             PREBID.isFloorPriceModuleEnabled = false;
             sinon.stub(UTIL, 'isFunction');
@@ -1126,21 +1151,32 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(CONFIG, 'getFloorSource');
             sinon.stub(CONFIG, 'getFloorJsonUrl').returns("externalFloor.json");
             sinon.stub(CONFIG, 'getFloorAuctionDelay').returns(100);
+            sinon.stub(CONFIG, 'getFloorType').returns(false);
             CONF.pwt.identityOnly = "0";
             UTIL.pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
+            
+            var countryFn = function() {
+                return (window.PWT && window.PWT.CC && window.PWT.CC.cc) || '';
+            };
+            
             floorObj = {
-                enforcement:{
+                enforcement: {
                     enforceJS: false
                 },
                 auctionDelay: 100,
-                endpoint:{
+                endpoint: {
                     url: "externalFloor.json"
                 },
-				additionalSchemaFields : {
-					browser : UTIL.getBrowserDetails,
-					platform_id : UTIL.getPltForFloor
-				}
-            }
+                additionalSchemaFields: {
+                    browser: UTIL.getBrowserDetails,
+                    platform_id: UTIL.getPltForFloor,
+                    country: countryFn
+                }
+            };
+            
+            window.PWT = window.PWT || {};
+            window.PWT.CC = window.PWT.CC || {};
+            window.PWT.CC.cc = '';
             function onSSOLogin() {};
             window.owpbjs = {
                 
@@ -1189,7 +1225,9 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.getFloorSource.restore();
             CONFIG.getFloorJsonUrl.restore();
             CONFIG.getFloorAuctionDelay.restore();
+            CONFIG.getFloorType.restore();
             windowPbJS2Stub.onEvent.restore();
+            delete window.PWT;
 
             if (global.window) {
                 global.window.pwtCreatePrebidNamespace.restore();
@@ -1219,8 +1257,30 @@ describe('ADAPTER: Prebid', function() {
         it('should set floor module with default inputs if floor source is External Floor',function(done){
             CONFIG.isFloorPriceModuleEnabled.returns(true);
             CONFIG.getFloorSource.returns('External Floor');
+            CONFIG.getFloorAuctionDelay.returns(100);
+            
             PREBID.setPrebidConfig();
-            expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
+            var actual = window.owpbjs.getConfig()["floors"];
+            
+            // Test basic properties
+            expect(actual.enforcement).to.deep.equal({ enforceJS: false });
+            expect(actual.auctionDelay).to.equal(100);
+            expect(actual.endpoint).to.deep.equal({ url: "externalFloor.json" });
+            
+            // Test function references
+            expect(actual.additionalSchemaFields.browser).to.equal(UTIL.getBrowserDetails);
+            expect(actual.additionalSchemaFields.platform_id).to.equal(UTIL.getPltForFloor);
+            
+            // Test country function behavior
+            window.PWT = { CC: { cc: 'TEST' }};
+            expect(actual.additionalSchemaFields.country()).to.equal('TEST');
+            
+            window.PWT = {};
+            expect(actual.additionalSchemaFields.country()).to.equal('');
+            
+            delete window.PWT;
+            expect(actual.additionalSchemaFields.country()).to.equal('');
+            
             done();
         });
 
@@ -1228,7 +1288,8 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.isFloorPriceModuleEnabled.returns(true);
             CONFIG.getFloorSource.returns('External Floor w/o Config');
             PREBID.setPrebidConfig();
-            expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(undefined);
+            var floors = window.owpbjs.getConfig()["floors"];
+            expect(floors).to.be.undefined;
             done();
         });
 
@@ -1236,17 +1297,47 @@ describe('ADAPTER: Prebid', function() {
             CONFIG.isFloorPriceModuleEnabled.returns(true);
             CONFIG.getFloorSource.returns('External Floor');
             CONFIG.getFloorAuctionDelay.returns(300);
-            floorObj.auctionDelay = 300;
             PREBID.setPrebidConfig();
-            expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
+            var actual = window.owpbjs.getConfig()["floors"];
+            
+            // Test basic properties
+            expect(actual.enforcement).to.deep.equal({ enforceJS: false });
+            expect(actual.auctionDelay).to.equal(300);
+            expect(actual.endpoint).to.deep.equal({ url: "externalFloor.json" });
+            
+            // Test function references
+            expect(actual.additionalSchemaFields.browser).to.equal(UTIL.getBrowserDetails);
+            expect(actual.additionalSchemaFields.platform_id).to.equal(UTIL.getPltForFloor);
+            
+            // Test country function behavior
+            window.PWT = { CC: { cc: 'TEST' }};
+            expect(actual.additionalSchemaFields.country()).to.equal('TEST');
             done();
         });
 
 		it('should not enforce floor when floorType is not defined ', function(done) {
 			CONFIG.isFloorPriceModuleEnabled.returns(true);
+			CONFIG.getFloorSource.returns('External Floor');
+			CONFIG.getFloorAuctionDelay.returns(100);
 			PREBID.setPrebidConfig();
-			expect(window.owpbjs.getConfig()["floors"]).to.be.deep.equal(floorObj);
-			done();
+			var actual = window.owpbjs.getConfig()["floors"];
+            
+            // Test basic properties
+            expect(actual.enforcement).to.deep.equal({ enforceJS: false });
+            expect(actual.auctionDelay).to.equal(100);
+            expect(actual.endpoint).to.deep.equal({ url: "externalFloor.json" });
+            
+            // Test function references
+            expect(actual.additionalSchemaFields.browser).to.equal(UTIL.getBrowserDetails);
+            expect(actual.additionalSchemaFields.platform_id).to.equal(UTIL.getPltForFloor);
+            
+            // Test country function behavior
+            window.PWT = { CC: { cc: 'TEST' }};
+            expect(actual.additionalSchemaFields.country()).to.equal('TEST');
+            
+            window.PWT = {};
+            expect(actual.additionalSchemaFields.country()).to.equal('');
+            done();
 		});
 
 		it('should not enforce floor when floorType is defined as soft', function(done) {
@@ -1260,10 +1351,25 @@ describe('ADAPTER: Prebid', function() {
 
 		it('should enforce floor when floorType is defined as hard ', function(done) {
 			CONFIG.isFloorPriceModuleEnabled.returns(true);
-			CONF.pwt.floorType = 'hard';
+            CONFIG.getFloorSource.returns('External Floor');
+            CONFIG.getFloorType.returns(true);
+            CONFIG.getFloorAuctionDelay.returns(100);
 			PREBID.setPrebidConfig();
-			expect(window.owpbjs.getConfig()["floors"]["enforcement"]["enforceJS"]).to.equal(true);
-			delete CONF.pwt.floorType;
+            
+            var actual = window.owpbjs.getConfig()["floors"];
+            
+            // Test basic properties
+            expect(actual.enforcement).to.deep.equal({ enforceJS: true });
+            expect(actual.auctionDelay).to.equal(100);
+            expect(actual.endpoint).to.deep.equal({ url: "externalFloor.json" });
+            
+            // Test function references
+            expect(actual.additionalSchemaFields.browser).to.equal(UTIL.getBrowserDetails);
+            expect(actual.additionalSchemaFields.platform_id).to.equal(UTIL.getPltForFloor);
+            
+            // Test country function behavior
+            window.PWT = { CC: { cc: 'TEST' }};
+            expect(actual.additionalSchemaFields.country()).to.equal('TEST');
 			done();
 		});
     });

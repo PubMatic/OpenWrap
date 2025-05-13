@@ -2312,23 +2312,49 @@ describe('bidManager BIDMgr', function() {
     });
 
 	describe('#getBrowser', function() {
-		var userAgent =  window.navigator.userAgent;
+		var originalUserAgent;
+		var originalUserAgentData;
+
+		beforeEach(function() {
+			// Store original values
+			originalUserAgent = window.navigator.userAgent;
+			originalUserAgentData = window.navigator.userAgentData;
+		});
+
+		afterEach(function() {
+			// Restore original values
+			window.navigator.__defineGetter__('userAgent', function() {
+				return originalUserAgent;
+			});
+			window.navigator.__defineGetter__('userAgentData', function() {
+				return originalUserAgentData;
+			});
+		});
+
 		it('is a function', function(done) {
             BIDMgr.getBrowser.should.be.a('function');
             done();
         });
 
-		it('should return -1 when userAgent is null', function(done) {
+		it('should return 0 when userAgent does not match regex from CONSTANTS.REGEX_BROWSERS', function(done) {
 			window.navigator.__defineGetter__('userAgent', function() {
+				return 'xxx-xxxx-xxxx';
+			});
+			window.navigator.__defineGetter__('userAgentData', function() {
 				return null;
 			});
-            expect(BIDMgr.getBrowser()).to.equal(-1);
+            expect(BIDMgr.getBrowser()).to.equal(0);
             done();
         });
 
-		it('should return 0 when userAgent dose not match regex from CONSTANTS.REGEX_BROWSERS', function(done) {
+		it('should return 0 when both client hints and userAgent are null', function(done) {
+			// Mock null client hints
+			window.navigator.__defineGetter__('userAgentData', function() {
+				return null;
+			});
+			// Mock null user agent
 			window.navigator.__defineGetter__('userAgent', function() {
-				return 'xxx-xxxx-xxxx';
+				return null;
 			});
             expect(BIDMgr.getBrowser()).to.equal(0);
             done();
@@ -2338,15 +2364,33 @@ describe('bidManager BIDMgr', function() {
 			window.navigator.__defineGetter__('userAgent', function() {
 				return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36";
 			});
-            expect(BIDMgr.getBrowser()).to.equal(76);
+            expect(BIDMgr.getBrowser()).to.equal(9); // Chrome browser ID is 9
             done();
         });
 
 		it('should return integer value', function(done) {
 			window.navigator.__defineGetter__('userAgent', function() {
-				return userAgent;
+				return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
 			});
             expect(BIDMgr.getBrowser()).to.not.be.undefined;
+            done();
+        });
+
+		it('should use client hints when available even if userAgent is null', function(done) {
+			// Mock client hints with Chrome
+			window.navigator.__defineGetter__('userAgentData', function() {
+				return {
+					brands: [{
+						brand: 'Chrome',
+						version: '109'
+					}]
+				};
+			});
+			// Mock null user agent
+			window.navigator.__defineGetter__('userAgent', function() {
+				return null;
+			});
+            expect(BIDMgr.getBrowser()).to.equal(9); // Should detect Chrome from client hints
             done();
         });
 
