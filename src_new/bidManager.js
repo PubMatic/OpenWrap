@@ -888,20 +888,35 @@ exports.setStandardKeys = function(winningBid, keyValuePairs){
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
 
 // removeIf(removeLegacyAnalyticsRelatedCode)
-exports.getBrowser = function() {
+exports.getBrowser = (function() {
 	var regExBrowsers = CONSTANTS.REGEX_BROWSERS;
-	var browserMapping = CONSTANTS.BROWSER_MAPPING;
 
-	var userAgent = navigator.userAgent;
-	var browserName = userAgent == null ? -1 : 0;
-	if(userAgent) {
-		for(var i = 0; i < regExBrowsers.length; i++) {
-			if(userAgent.match(regExBrowsers[i])) {
-				browserName = browserMapping[i];
-				break;
+	function matchBrowserPatterns(str) {
+		if (!str) {
+			return 0;
+		}
+		for (var i = 0; i < regExBrowsers.length; i++) {
+			if (regExBrowsers[i].regex.test(str)) {
+				return regExBrowsers[i].id;
 			}
 		}
+		return 0;
 	}
-	return browserName;
-}
+
+	return function getBrowser() {
+		var nav = (typeof window !== 'undefined' && window.navigator) || {};
+		var brands = nav.userAgentData && nav.userAgentData.brands;
+		
+		if (brands && brands.length) {
+			var brandString = brands.reduce(function(a, b) {
+				return a + (b.brand || '').toLowerCase() + ' ';
+			}, '').trim();
+			var result = matchBrowserPatterns(brandString);
+			if (result) return result;
+		}
+
+		var result = matchBrowserPatterns(nav.userAgent);
+		return result;
+	};
+}());
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)

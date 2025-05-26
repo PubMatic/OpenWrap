@@ -1195,7 +1195,10 @@ function getFloorsConfiguration(prebidConfig){
 			},
 			additionalSchemaFields : {
 				browser : util.getBrowserDetails,
-				platform_id : util.getPltForFloor
+				platform_id : util.getPltForFloor,
+				country: function() {
+					return (window.PWT && window.PWT.CC && window.PWT.CC.cc) || '';
+				}
 			}
 		}
 	}
