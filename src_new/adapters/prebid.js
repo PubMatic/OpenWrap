@@ -1040,6 +1040,7 @@ function setPrebidConfig() {
 			bidderSequence: CONF.pwt.bidderOrderingEnabled === "1" ? "fixed" : "random",					
 			disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
 			enableSendAllBids: CONFIG.getSendAllBidsStatus(),
+			enableTIDs: !!CONFIG.getTransactionIdStatus(),
 			targetingControls: {
 				alwaysIncludeDeals: true
 			},

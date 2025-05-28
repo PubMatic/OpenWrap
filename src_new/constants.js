@@ -129,7 +129,8 @@ exports.CONFIG = {
 	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace",
 	"CONSENT_MANAGEMENT_ENABLED": "cmEnabled",
 	"CONSENT_MANAGEMENT_CMPAPI": "cmCmpApi",
-	"CONSENT_MANAGEMENT_TIMEOUT": "cmTimeout"
+	"CONSENT_MANAGEMENT_TIMEOUT": "cmTimeout",
+	"TRANSACTION_ID": "transactionId"
 };
 
 exports.METADATA_MACROS = {
