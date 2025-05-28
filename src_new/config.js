@@ -518,3 +518,47 @@ exports.shouldClearTargeting = function () {
 	return window.PWT.shouldClearTargeting !== undefined ? Boolean(window.PWT.shouldClearTargeting) : true;
 
 };
+
+// Utility function to retrieve configuration values
+function getConfigValue(property, defaultValue, parseAsInteger) {
+    parseAsInteger = (typeof parseAsInteger === 'undefined') ? true : parseAsInteger; // Default to true if not supplied
+    var configValue = config[CONSTANTS.CONFIG.COMMON] && config[CONSTANTS.CONFIG.COMMON][property];
+    
+    if (configValue !== undefined) {
+        return parseAsInteger ? parseInt(configValue, 10) : parseFloat(configValue);
+    }
+
+    var pwtValue = PWT && PWT.LazyLoading && PWT.LazyLoading[property];
+    if (pwtValue !== undefined) {
+        return parseAsInteger ? parseInt(pwtValue, 10) : parseFloat(pwtValue);
+    }
+
+    return parseAsInteger ? parseInt(defaultValue, 10) : parseFloat(defaultValue);
+}
+
+exports.isAuctionLazyLoadingEnabled = function () {
+    return getConfigValue(CONSTANTS.CONFIG.AUCTION_LAZY_LOADING_ENABLED, CONSTANTS.COMMON.DEFAULT_AUCTION_LAZY_LOADING_ENABLED) === 1;
+};
+
+exports.getAuctionMarginPercentage = function () {
+    return getConfigValue(CONSTANTS.CONFIG.AUCTION_MARGIN_PERCENTAGE, CONSTANTS.COMMON.DEFAULT_AUCTION_MARGIN_PERCENTAGE);
+};
+
+exports.isGamLazyLoadingEnabled = function () {
+    return getConfigValue(CONSTANTS.CONFIG.GAM_LAZY_LOADING_ENABLED, CONSTANTS.COMMON.DEFAULT_GAM_LAZY_LOADING_ENABLED) === 1;
+};
+
+exports.getFetchMarginPercentage = function () {
+    return getConfigValue(CONSTANTS.CONFIG.FETCH_MARGIN_PERCENTAGE, CONSTANTS.COMMON.DEFAULT_FETCH_MARGIN_PERCENTAGE);
+};
+
+exports.getRenderMarginPercentage = function () {
+    return getConfigValue(CONSTANTS.CONFIG.RENDER_MARGIN_PERCENTAGE, CONSTANTS.COMMON.DEFAULT_RENDER_MARGIN_PERCENTAGE);
+};
+
+exports.getMobileScalingForLazyLoading = function () {
+    return getConfigValue(CONSTANTS.CONFIG.MOBILE_SCALING_FOR_LAZY_LOADING, CONSTANTS.COMMON.DEFAULT_MOBILE_SCALING_FOR_LAZY_LOADING, false);
+};
+exports.isSRAEnabled = function () {
+	return window.googletag && window.googletag.pubads && window.googletag.pubads().isSRA() || false;
+};
