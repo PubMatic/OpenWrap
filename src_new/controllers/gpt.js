@@ -8,6 +8,7 @@ var prebid = require("../adapters/prebid.js");
 var usePrebidKeys = CONFIG.isUsePrebidKeysEnabled();
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 var IdHub = require("../controllers/idhub.js");
+var consentConfigResolver = require('../modules/consentConfigResolver.js');
 
 var displayHookIsAdded = false;
 
@@ -523,16 +524,20 @@ exports.processDisplayCalledSlot = processDisplayCalledSlot;
 
 
 function executeDisplay(timeout, divIds, callback) {
-    var timeoutTicker = 0; // here we will calculate time elapsed
-    var timeoutIncrementer = 10; // in ms
-    var intervalId = window.setInterval(function() {
-        if ( ( util.getExternalBidderStatus(divIds) && bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds) ) || timeoutTicker >= timeout) {
-            window.clearInterval(intervalId);
-            util.resetExternalBidderStatus(divIds); //Quick fix to reset flag so that the notification flow happens only once per page load            
-            callback();
-        }
-        timeoutTicker += timeoutIncrementer;
-    }, timeoutIncrementer);
+    function executeDisplayPostConsentProcess() {
+        var timeoutTicker = 0; // here we will calculate time elapsed
+        var timeoutIncrementer = 10; // in ms        
+        var intervalId = window.setInterval(function () {
+            if ((util.getExternalBidderStatus(divIds) && bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, divIds))
+                || timeoutTicker >= timeout) {
+                window.clearInterval(intervalId);
+                util.resetExternalBidderStatus(divIds); //Quick fix to reset flag so that the notification flow happens only once per page load            
+                callback();
+            }
+            timeoutTicker += timeoutIncrementer;
+        }, timeoutIncrementer);
+    }
+    consentConfigResolver.getInstance().getProcessCompleted(executeDisplayPostConsentProcess);
 }
 
 /* start-test-block */

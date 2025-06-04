@@ -10,6 +10,8 @@ var BID = require("../bid.js");
 var util = require("../util.js");
 var bidManager = require("../bidManager.js");
 var CONF = require("../conf.js");
+var consentConfigResolver = require("../modules/consentConfigResolver.js");
+var commonUtil = require("../common.util.js");
 
 var COMMON_CONFIG = require("../common.config.js");
 
@@ -832,48 +834,48 @@ function assignUserSyncConfig(prebidConfig){
 
 exports.assignUserSyncConfig = assignUserSyncConfig;
 
-function assignGdprConfigIfRequired(prebidConfig){
-	if (CONFIG.getGdpr()) {
-		if(!prebidConfig["consentManagement"]){
-			prebidConfig["consentManagement"] = {};
-		}
-		prebidConfig["consentManagement"]['gdpr'] = {
-			cmpApi: CONFIG.getCmpApi(),
-			timeout: CONFIG.getGdprTimeout(),
-			allowAuctionWithoutConsent: CONFIG.getAwc(), // Auction without consent
-			defaultGdprScope: true
-		};
-		var gdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout()
-		if (gdprActionTimeout) {
-			util.log("GDPR IS ENABLED, TIMEOUT: " + prebidConfig["consentManagement"]['gdpr']['timeout'] +", ACTION TIMEOUT: "+ gdprActionTimeout);
-			prebidConfig["consentManagement"]['gdpr']['actionTimeout'] = gdprActionTimeout;
-		}
-	}
-}
+// function assignGdprConfigIfRequired(prebidConfig){
+// 	if (CONFIG.getGdpr()) {
+// 		if(!prebidConfig["consentManagement"]){
+// 			prebidConfig["consentManagement"] = {};
+// 		}
+// 		prebidConfig["consentManagement"]['gdpr'] = {
+// 			cmpApi: CONFIG.getCmpApi(),
+// 			timeout: CONFIG.getGdprTimeout(),
+// 			allowAuctionWithoutConsent: CONFIG.getAwc(), // Auction without consent
+// 			defaultGdprScope: true
+// 		};
+// 		var gdprActionTimeout = COMMON_CONFIG.getGdprActionTimeout()
+// 		if (gdprActionTimeout) {
+// 			util.log("GDPR IS ENABLED, TIMEOUT: " + prebidConfig["consentManagement"]['gdpr']['timeout'] +", ACTION TIMEOUT: "+ gdprActionTimeout);
+// 			prebidConfig["consentManagement"]['gdpr']['actionTimeout'] = gdprActionTimeout;
+// 		}
+// 	}
+// }
 
-exports.assignGdprConfigIfRequired = assignGdprConfigIfRequired;
+// exports.assignGdprConfigIfRequired = assignGdprConfigIfRequired;
 
-function assignCcpaConfigIfRequired(prebidConfig){
-	if (CONFIG.getCCPA()) {
-		if(!prebidConfig["consentManagement"]){
-			prebidConfig["consentManagement"] = {};
-		}
-		prebidConfig["consentManagement"]["usp"] = {
-			cmpApi: CONFIG.getCCPACmpApi(),
-			timeout: CONFIG.getCCPATimeout(),
-		};
-	}
-}
+// function assignCcpaConfigIfRequired(prebidConfig){
+// 	if (CONFIG.getCCPA()) {
+// 		if(!prebidConfig["consentManagement"]){
+// 			prebidConfig["consentManagement"] = {};
+// 		}
+// 		prebidConfig["consentManagement"]["usp"] = {
+// 			cmpApi: CONFIG.getCCPACmpApi(),
+// 			timeout: CONFIG.getCCPATimeout(),
+// 		};
+// 	}
+// }
 
-exports.assignCcpaConfigIfRequired = assignCcpaConfigIfRequired;
+// exports.assignCcpaConfigIfRequired = assignCcpaConfigIfRequired;
 
-function assignGppConfigIfRequired(prebidConfig) {
-	if (CONFIG.getGppConsent()) {
-		prebidConfig = COMMON_CONFIG.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
-	}
-}
+// function assignGppConfigIfRequired(prebidConfig) {
+// 	if (CONFIG.getGppConsent()) {
+// 		prebidConfig = COMMON_CONFIG.setConsentConfig(prebidConfig, "gpp", CONFIG.getGppCmpApi(), CONFIG.getGppTimeout());
+// 	}
+// }
 
-exports.assignGppConfigIfRequired = assignGppConfigIfRequired;
+// exports.assignGppConfigIfRequired = assignGppConfigIfRequired;
 
 function assignCurrencyConfigIfRequired(prebidConfig){
 	if(CONFIG.getAdServerCurrency()){
@@ -1027,7 +1029,7 @@ function addOnBidRequestHandler(){
 exports.addOnBidRequestHandler = addOnBidRequestHandler;
 // endRemoveIf(removeLegacyAnalyticsRelatedCode)
   
-function setPrebidConfig(){
+function setPrebidConfig() {
 	if(util.isFunction(window[pbNameSpace].setConfig) || typeof window[pbNameSpace].setConfig == "function") {
 		var prebidConfig = {
 			debug: util.isDebugLogEnabled(),
@@ -1038,6 +1040,7 @@ function setPrebidConfig(){
 			bidderSequence: CONF.pwt.bidderOrderingEnabled === "1" ? "fixed" : "random",					
 			disableAjaxTimeout: CONFIG.getDisableAjaxTimeout(),
 			enableSendAllBids: CONFIG.getSendAllBidsStatus(),
+			enableTIDs: !!CONFIG.getTransactionIdStatus(),
 			targetingControls: {
 				alwaysIncludeDeals: true
 			},
@@ -1065,10 +1068,10 @@ function setPrebidConfig(){
 
 		refThis.getFloorsConfiguration(prebidConfig);
 		refThis.checkConfigLevelFloor(prebidConfig);
-		refThis.assignUserSyncConfig(prebidConfig);
-		refThis.assignGdprConfigIfRequired(prebidConfig);
-		refThis.assignCcpaConfigIfRequired(prebidConfig);
-		refThis.assignGppConfigIfRequired(prebidConfig);
+		//refThis.assignUserSyncConfig(prebidConfig);
+		//refThis.assignGdprConfigIfRequired(prebidConfig);
+		//refThis.assignCcpaConfigIfRequired(prebidConfig);
+		//refThis.assignGppConfigIfRequired(prebidConfig);
 		refThis.assignCurrencyConfigIfRequired(prebidConfig);
 		refThis.assignSchainConfigIfRequired(prebidConfig);
 		refThis.assignSingleRequestConfigForBidders(prebidConfig);
@@ -1085,6 +1088,20 @@ function setPrebidConfig(){
 		// do not set any config below this line as we are executing the hook above
 		
 		window[pbNameSpace].setConfig(prebidConfig);
+
+		consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
+			var postConsentPrebidConfig = {};
+			refThis.assignUserSyncConfig(postConsentPrebidConfig);
+			var cmEnabled = COMMON_CONFIG.consentManagentEnabled();
+			var message =  cmEnabled ? "setting" : "not setting";			
+			util.log("ConsentManagement: " + cmEnabled + ", " + message + " the consentManagement config: " + JSON.stringify(cmConfig));
+			if(cmConfig && !util.isEmptyObject(cmConfig)) {
+				// var consentManagementConf = {};
+				postConsentPrebidConfig.consentManagement = cmConfig;								
+			}
+			window[pbNameSpace].setConfig(postConsentPrebidConfig);
+		});
+
 	} else {
 		util.logWarning("PreBidJS setConfig method is not available");
 	}
@@ -1435,15 +1452,51 @@ function initPbjsConfig(){
 		return;
 	}
 	window[pbNameSpace].logging = util.isDebugLogEnabled();
+	refThis.setPbjsBidderSettingsIfRequired();
 	refThis.setPrebidConfig();
 	refThis.configureBidderAliasesIfAvailable();
 	refThis.enablePrebidPubMaticAnalyticIfRequired();
-	refThis.setPbjsBidderSettingsIfRequired();
-	// util.getGeoInfo();
+	
+
+	// If consent Management is enabled then do not fetch the geo info from consentConfigResolver.js(here) module will do the same.
+	if(!COMMON_CONFIG.consentManagentEnabled()){
+		commonUtil.getGeoInfo();
+	}
 }
+
 exports.initPbjsConfig = initPbjsConfig;
 
-function fetchBids(activeSlots, callback){
+function fetchBids(activeSlots, callback) {
+	function requestBidsPostConsentProcess() {
+		// Halt execution till we found if consentManagement Config is set or not, once this flag found we will proceed with below execution
+		if(!COMMON_CONFIG.consentManagentEnabled()){
+			proceedToRequestBids();
+			return;
+		}
+	
+		function proceedToRequestBids() {
+			executeRequestBids();
+		}
+	
+		consentConfigResolver.getInstance().getProcessCompleted(proceedToRequestBids);	
+	}
+	
+	function executeRequestBids() {
+		window[pbNameSpace].removeAdUnit();
+		window[pbNameSpace].addAdUnits(adUnitsArray);
+		window[pbNameSpace].requestBids({
+			bidsBackHandler: function (bidResponses) {
+				if (util.isFunction(window[pbNameSpace].setPAAPIConfigForGPT) && typeof window[pbNameSpace].setPAAPIConfigForGPT == "function") {
+					window[pbNameSpace].setPAAPIConfigForGPT();
+				};
+				refThis.pbjsBidsBackHandler(bidResponses, activeSlots);
+				if (util.isFunction(callback)) {
+					callback(bidResponses);
+				}
+			},
+			timeout: CONFIG.getTimeout() - CONSTANTS.CONFIG.TIMEOUT_ADJUSTMENT
+		});
+	}
 
 	var impressionID = util.generateUUID();
 	// todo: 
@@ -1492,21 +1545,7 @@ function fetchBids(activeSlots, callback){
 					refThis.addOnAuctionEndHandler();
 				}
 				// endRemoveIf(removeLegacyAnalyticsRelatedCode)
-
-				window[pbNameSpace].removeAdUnit();
-				window[pbNameSpace].addAdUnits(adUnitsArray);
-				window[pbNameSpace].requestBids({
-					bidsBackHandler: function(bidResponses){
-						if(util.isFunction(window[pbNameSpace].setPAAPIConfigForGPT) && typeof window[pbNameSpace].setPAAPIConfigForGPT == "function"){
-							window[pbNameSpace].setPAAPIConfigForGPT();
-						};
-						refThis.pbjsBidsBackHandler(bidResponses, activeSlots);
-						if(util.isFunction(callback)){
-							callback(bidResponses);
-						}
-					},
-					timeout: CONFIG.getTimeout() - CONSTANTS.CONFIG.TIMEOUT_ADJUSTMENT
-				});
+				requestBidsPostConsentProcess();
 			} else {
 				util.log("PreBid js requestBids function is not available");
 				return;
