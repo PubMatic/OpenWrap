@@ -3,19 +3,15 @@
 var config = require("./conf.js");
 var CONSTANTS = require("./constants.js");
 
-exports.getGdprActionTimeout = function() {
-	var gdprActionTimeout = config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.GDPR_ACTION_TIMEOUT];
-	return gdprActionTimeout ? window.parseInt(gdprActionTimeout) : 0;
+exports.consentManagentEnabled = function () {
+ return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.CONSENT_MANAGEMENT_ENABLED] === "1";
+}
+
+exports.getCmpApi = function (cmpApi) {
+	return config[CONSTANTS.CONFIG.COMMON][cmpApi] || "iab";
 };
 
-exports.setConsentConfig = function (prebidConfig, key, cmpApi, timeout) {
-  prebidConfig = prebidConfig || {};
-  if (!prebidConfig["consentManagement"]) {
-    prebidConfig["consentManagement"] = {};
-  }
-  prebidConfig["consentManagement"][key] = {
-    cmpApi: cmpApi,
-    timeout: timeout
-  };
-  return prebidConfig;
+exports.getTimeout = function (timeoutField, defaultTimeout) {
+	var timeout = config[CONSTANTS.CONFIG.COMMON][timeoutField];
+	return timeout ? window.parseInt(timeout) : defaultTimeout;
 };

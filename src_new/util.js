@@ -2121,23 +2121,7 @@ exports.getPltForFloor = function() {
 	return refThis.getDevicePlatform().toString();
 }
 
-exports.getGeoInfo = function() {
-	var PREFIX = 'UINFO';
-	var LOCATION_INFO_VALIDITY =  172800000; // 2 * 24 * 60 * 60 * 1000 - 2 days
-	var geoDetectionURL = 'https://ut.pubmatic.com/geo?pubid=' +
-		conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.PUBLISHER_ID];
 
-	var info = window[pbNameSpace].getDataFromLocalStorage(PREFIX, LOCATION_INFO_VALIDITY);
-	if(info && JSON.parse(info).cc) {	// Got valid data
-		window.PWT.CC = JSON.parse(info);
-	} else {
-		window[pbNameSpace].detectLocation(geoDetectionURL,
-		function(loc) {
-			window[pbNameSpace].setAndStringifyToLocalStorage(PREFIX, loc);
-			window.PWT.CC = loc;
-		});
-	}
-}
 
 exports.getCDSTargetingData = function(obj) {
 	obj = obj || {};
@@ -2151,4 +2135,80 @@ exports.getCDSTargetingData = function(obj) {
       }
     });
 	return obj;
+}
+
+exports.isElementInViewport = function(targetDiv) {
+	var rect = targetDiv.getBoundingClientRect();
+    var viewportHeight = window.innerHeight;
+
+    //var distanceFromTopVH = (rect.top / viewportHeight) * 100;
+    var distanceFromBottomVH = ((rect.top - viewportHeight) / viewportHeight) * 100;
+	var marginPercentage = isMobileDeviceForLazyLoading() ? parseFloat(CONFIG.getAuctionMarginPercentage()) * parseFloat(CONFIG.getMobileScalingForLazyLoading()) : parseFloat(CONFIG.getAuctionMarginPercentage());
+	if(Math.abs(distanceFromBottomVH) <= marginPercentage){
+		refThis.log( targetDiv.id," is eligible for auction");
+		return true;
+	}
+	else{
+		return false;
+	}
+};
+
+exports.throttle = function(func, limit) {
+	var inThrottle;
+	return function () {
+		var args = arguments;
+		var context = this;
+		if (!inThrottle) {
+			func.apply(context, args);
+			inThrottle = true;
+			setTimeout(function() {
+				inThrottle = false;
+			}, limit);
+		}
+	};
+};
+
+function isMobileDeviceForLazyLoading() {
+	// Get the user agent string
+	const userAgent = navigator.userAgent || '';
+	
+	// Check if the browser provides modern capabilities detection
+	if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
+		return navigator.userAgentData.mobile;
+	}
+
+	// Fallback to user agent string detection
+	// First check if it's not a tablet, then check if it's a mobile device
+	return !isTabletDeviceForLazyLoading() && (
+		userAgent.indexOf('iPod') !== -1 ||
+		userAgent.indexOf('iPhone') !== -1 ||
+		userAgent.indexOf('Android') !== -1 ||
+		userAgent.indexOf('IEMobile') !== -1
+	);
+}
+  
+  /**
+   * Detects if the current device is a tablet
+   * @returns {boolean} true if the device is a tablet, false otherwise
+   */
+function isTabletDeviceForLazyLoading() {
+	// Get the user agent string
+	const userAgent = navigator.userAgent || '';
+
+	// Check if the browser provides modern capabilities detection
+	if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
+		// For modern browsers: if it has userAgentData but is not mobile, check if it's a known tablet
+		return !navigator.userAgentData.mobile && (
+		userAgent.indexOf('iPad') !== -1 ||
+		userAgent.indexOf('Android') !== -1 ||
+		userAgent.indexOf('Silk') !== -1
+		);
+	}
+
+	// Fallback to user agent string detection for tablets
+	return (
+		userAgent.indexOf('iPad') !== -1 ||
+		(userAgent.indexOf('Android') !== -1 && userAgent.indexOf('Mobile') === -1) ||
+		userAgent.indexOf('Silk') !== -1
+	);
 }
