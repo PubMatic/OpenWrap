@@ -54,7 +54,15 @@ describe('ADAPTER: Prebid', function() {
             callback('LS', mockGeoData);
         });
 
+        sinon.stub(COMMON_CONFIG, "consentManagentEnabled").returns(false);
+
         commonUtil.getGeoInfo = geoInfoSpy;        
+        done();
+    });
+
+    afterEach(function (done) {
+        sandbox.restore();
+        COMMON_CONFIG.consentManagentEnabled.restore();
         done();
     });
 
@@ -1168,7 +1176,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(CONFIG, 'getFloorSource');
             sinon.stub(CONFIG, 'getFloorJsonUrl').returns("externalFloor.json");
             sinon.stub(CONFIG, 'getFloorAuctionDelay').returns(100);
-            sinon.stub(CONFIG, 'getFloorType').returns(false);
+            sinon.stub(CONFIG, 'getFloorType').returns(false); 
             CONF.pwt.identityOnly = "0";
             UTIL.pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
             
@@ -1528,7 +1536,6 @@ describe('ADAPTER: Prebid', function() {
 
         it('should return if owpbjs namespace is not defined',function(done){
             delete window.owpbjs;
-            sandbox.stub(COMMON_CONFIG, 'consentManagentEnabled').returns(false); 
             PREBID.fetchBids(activeSlots);
             UTIL.logError.calledWith("PreBid js is not loaded").should.be.true;
             done();

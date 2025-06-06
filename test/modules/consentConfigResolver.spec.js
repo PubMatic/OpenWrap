@@ -168,6 +168,7 @@ describe('ConsentConfigResolver:', function() {
 
         afterEach(function(done) {
           crConfig.reset();
+          consentManagementEnabled.restore();
           done();
        });
 
@@ -270,6 +271,11 @@ describe('ConsentConfigResolver:', function() {
             consentManagementEnabled = sandbox.stub(COMMON_CONFIG, 'consentManagentEnabled');
             getGlobalOwObject = sandbox.stub(commonUtil, 'getGlobalOwObject');        
             getKeyByValue = sandbox.stub(commonUtil, 'getKeyByValue');
+            done();
+        });
+
+        afterEach(function(done) {
+            consentManagementEnabled.restore();           
             done();
         });
 
