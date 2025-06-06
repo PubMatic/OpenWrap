@@ -1068,7 +1068,7 @@ function setPrebidConfig() {
 
 		refThis.getFloorsConfiguration(prebidConfig);
 		refThis.checkConfigLevelFloor(prebidConfig);
-		//refThis.assignUserSyncConfig(prebidConfig);
+		refThis.assignUserSyncConfig(prebidConfig);
 		//refThis.assignGdprConfigIfRequired(prebidConfig);
 		//refThis.assignCcpaConfigIfRequired(prebidConfig);
 		//refThis.assignGppConfigIfRequired(prebidConfig);
@@ -1086,20 +1086,18 @@ function setPrebidConfig() {
 		util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 		//todo: stop supporting this hook let pubs use pbjs.requestBids hook
 		// do not set any config below this line as we are executing the hook above
-		
-		window[pbNameSpace].setConfig(prebidConfig);
+		// Some OW+ IH or IH pubs use this hook to add/remove identityPartner.
 
 		consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
-			var postConsentPrebidConfig = {};
-			refThis.assignUserSyncConfig(postConsentPrebidConfig);
 			var cmEnabled = COMMON_CONFIG.consentManagentEnabled();
 			var message =  cmEnabled ? "setting" : "not setting";			
 			util.log("ConsentManagement: " + cmEnabled + ", " + message + " the consentManagement config: " + JSON.stringify(cmConfig));
 			if(cmConfig && !util.isEmptyObject(cmConfig)) {
-				// var consentManagementConf = {};
-				postConsentPrebidConfig.consentManagement = cmConfig;								
+				prebidConfig.consentManagement = cmConfig;								
 			}
-			window[pbNameSpace].setConfig(postConsentPrebidConfig);
+			// Setting complete config to prebid after consent management config is set.
+			// As UserSync config required to be set with consent due to userSync modules do required the consent 
+			window[pbNameSpace].setConfig(prebidConfig);
 		});
 
 	} else {
