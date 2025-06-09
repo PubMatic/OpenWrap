@@ -614,14 +614,7 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
         else{
             // Todo : change structure to take out the anonymous function for better unit test cases
             return function() {
-                /* istanbul ignore next */
-                util.log("In display function, with arguments: ");
 
-            
-                /* istanbul ignore next */
-                util.log(arguments);
-                /* istanbul ignore next */
-                /* istanbul ignore if */
                 if (disableInitialLoadIsSet) {
                     util.log("DisableInitialLoad was called, Nothing to do");
                     return originalFunction.apply(theObject, arguments);
@@ -629,22 +622,23 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
 
                 if(!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
                     var targetSlotId = arguments[0];
+                   
                     function checkAndExecute() {
                         if(targetSlotId) {
                             var element = document.getElementById(targetSlotId);
                             if(element && util.isElementInViewport(element)) {
-                                runTask(targetSlotId);
+                                executeDisplay(targetSlotId);
                                 window.removeEventListener("scroll", throttledScrollHandler);
                             }
                         }
                     }
-                    const throttledScrollHandler = util.throttle(checkAndExecute, 300);
+                    var throttledScrollHandler = util.throttle(checkAndExecute, 300);
                     // Initial check in case some elements are already in view
                     checkAndExecute();
                     window.addEventListener("scroll", throttledScrollHandler);
                 } else {
                     // If lazy loading is not enabled, run task immediately
-                    runTask(arguments[0]);
+                    executeDisplay(arguments[0]);
                 }
             };
         }
@@ -652,9 +646,9 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
         util.log("display: originalFunction is not a function");
         return null;
     }
-    function runTask(id){
+    function executeDisplay(id){
      var slots = googletag.pubads().getSlots();
-     var specificSlot = slots.filter(slot => slot.getSlotElementId() === id);
+     var specificSlot = slots.filter(function(slot) { return slot.getSlotElementId() === id; });
      /* istanbul ignore next */
      refThis.updateSlotsMapFromGoogleSlots(specificSlot, arguments, true);
      /* istanbul ignore next */
