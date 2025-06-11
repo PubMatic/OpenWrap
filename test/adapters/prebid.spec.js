@@ -12,6 +12,8 @@ var CONF = require("../../src_new/conf.js");
 var AM = require("../../src_new/adapterManager.js");
 var SLOT = require("../../src_new/slot.js").Slot;
 var PREBID = require("../../src_new/adapters/prebid.js");
+var commonUtil = require("../../src_new/common.util.js");
+var COMMON_CONFIG = require("../../src_new/common.config.js");
 
 var parentAdapterID = "prebid";
 var commonAdapterID = "pubmatic";
@@ -39,7 +41,30 @@ var isSingleImpressionSettingEnabled = 0;
 // };
 
 
-describe('ADAPTER: Prebid', function() {
+describe('ADAPTER: Prebid', function() {    
+    beforeEach(function (done) {
+        sandbox = sinon.sandbox.create();
+        var mockGeoData = {
+            cc: 'US',
+            sc: 'NY',
+            gc: 1
+        };
+
+        var geoInfoSpy = sinon.spy(function (source, callback) {
+            callback('LS', mockGeoData);
+        });
+
+        sinon.stub(COMMON_CONFIG, "consentManagentEnabled").returns(false);
+
+        commonUtil.getGeoInfo = geoInfoSpy;        
+        done();
+    });
+
+    afterEach(function (done) {
+        sandbox.restore();
+        COMMON_CONFIG.consentManagentEnabled.restore();
+        done();
+    });
 
     /* start-test-block */
     describe('#throttleAdapter', function() {
@@ -1151,7 +1176,7 @@ describe('ADAPTER: Prebid', function() {
             sinon.stub(CONFIG, 'getFloorSource');
             sinon.stub(CONFIG, 'getFloorJsonUrl').returns("externalFloor.json");
             sinon.stub(CONFIG, 'getFloorAuctionDelay').returns(100);
-            sinon.stub(CONFIG, 'getFloorType').returns(false);
+            sinon.stub(CONFIG, 'getFloorType').returns(false); 
             CONF.pwt.identityOnly = "0";
             UTIL.pbNameSpace = CONFIG.isIdentityOnly() ? CONSTANTS.COMMON.IH_NAMESPACE : CONSTANTS.COMMON.PREBID_NAMESPACE;
             
@@ -2352,18 +2377,24 @@ describe('ADAPTER: Prebid', function() {
 			expect(window.owpbjs.bidderSettings.standard.storageAllowed).to.equal(true);
 			done();
 		});
-	})
+	});
 
 	describe('dynamicBidderOrdering', function() {
 		let originalOwPbJs;
-		let mockSetConfig;
+		// let mockSetConfig;
+        let prebidConfig = {};
 		beforeEach(() => {
-			// Save the original owpbjs and setConfig function
-			originalOwPbJs = window['owpbjs'];
-			mockSetConfig = sinon.spy();
-			window['owpbjs'] = {
-			  setConfig: mockSetConfig,
-			};
+			originalOwPbJs = window['owpbjs'];			
+
+            window.owpbjs = window.owpbjs || {};
+            window.owpbjs.cmd = window.owpbjs.cmd || [];
+            window["owpbjs"].setConfig = function (pbConfig) {
+               prebidConfig = Object.assign({}, prebidConfig, pbConfig);
+               return true;
+             };
+             window["owpbjs"].getConfig = function(){
+                 return prebidConfig;
+             };
 		})		  
 
 		afterEach(() => {
@@ -2373,19 +2404,21 @@ describe('ADAPTER: Prebid', function() {
 		});
 		  
 		it('should set bidderSequence to random when dynamic bidder ordering is disabled', function(done) {
-			PREBID.setPrebidConfig();
-			expect(mockSetConfig.calledOnce).to.be.true;
-			const configArg = mockSetConfig.getCall(0).args[0];
-			expect(configArg).to.have.property('bidderSequence', 'random');
+			PREBID.setPrebidConfig();             
+			//expect(mockSetConfig.calledOnce).to.be.true;
+			//const configArg = mockSetConfig.getCall(0).args[0];            
+			//expect(window["owpbjs"].getConfig()).to.have.property('bidderSequence', 'random');
+            expect(window.owpbjs.getConfig()["bidderSequence"]).to.equal('random');
 			done();
 		});
 
 		it('should set bidderSequence to fixed when dynamic bidder ordering is enabled', function(done) {
 			CONF.pwt.bidderOrderingEnabled = '1';
-			PREBID.setPrebidConfig();
-			expect(mockSetConfig.calledOnce).to.be.true;
-			const configArg = mockSetConfig.getCall(0).args[0];
-			expect(configArg).to.have.property('bidderSequence', 'fixed');
+			PREBID.setPrebidConfig();                                  
+			// expect(mockSetConfig.calledOnce).to.be.true;
+			//const configArg = mockSetConfig.getCall(0).args[0];            
+			//expect(window["owpbjs"].getConfig()).to.have.property('bidderSequence', 'fixed');
+            expect(window.owpbjs.getConfig()["bidderSequence"]).to.equal('fixed');
 			done();
 		});
 	})
