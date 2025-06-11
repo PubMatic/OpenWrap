@@ -797,20 +797,106 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
                 refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
                 /* istanbul ignore next */
                 var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(arguments, theObject);
-                /* istanbul ignore next */
-                refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
-                /* istanbul ignore next */
-                util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
-              
-                var arg = arguments;
-                refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
-                    refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
-                });        
+                
+                if(!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
+                    // Get the slots that need to be refreshed
+                    var slotsToRefresh = [];
+                    if (arguments[0] && util.isArray(arguments[0])) {
+                        slotsToRefresh = arguments[0];
+                    } else {
+                        slotsToRefresh = theObject.getSlots();
+                    }
+                    
+                    // Create a map of slot element IDs to track which slots are in viewport
+                    var slotElementIds = {};
+                    var slotsInViewportIds = [];
+                    
+                    // Get the element IDs for all slots
+                    util.forEachOnArray(slotsToRefresh, function(index, slot) {
+                        if (util.isFunction(slot.getSlotElementId)) {
+                            var elementId = slot.getSlotElementId();
+                            slotElementIds[elementId] = elementId; // Store just the ID
+                        }
+                    });
+                    
+                    function checkAndExecuteRefresh() {
+                        var allSlotsChecked = true;
+                        var anySlotsInViewport = false;
+                        
+                        // Check which slots are in viewport
+                        for (var elementId in slotElementIds) {
+                            if (slotElementIds.hasOwnProperty(elementId)) {
+                                var element = document.getElementById(elementId);
+                                if (element && util.isElementInViewport(element)) {
+                                    slotsInViewportIds.push(elementId);
+                                    anySlotsInViewport = true;
+                                    delete slotElementIds[elementId]; // Remove from tracking
+                                }
+                            }
+                        }
+                        
+                        // If there are slots in viewport, refresh them
+                        if (anySlotsInViewport) {
+                            // Filter qualifyingSlotNames to only include slots that are in viewport
+                            var slotsToRefresh = [];
+                            util.forEachOnArray(qualifyingSlotNames, function(index, slotName) {
+                                // Get the slot from slotsMap
+                                var slot = refThis.slotsMap[slotName];
+                                if (slot && util.isFunction(slot.getDivID)) {
+                                    var divId = slot.getDivID();
+                                    // Check if this slot's divId is in our viewport IDs
+                                    if (slotsInViewportIds.indexOf(divId) !== -1) {
+                                        slotsToRefresh.push(slotName);
+                                    }
+                                }
+                            });
+                            
+                            executeRefresh(slotsToRefresh);
+                        }
+                        
+                        // Check if we still have slots to track
+                        allSlotsChecked = Object.keys(slotElementIds).length === 0;
+                        
+                        // If all slots have been checked/refreshed, remove the event listeners
+                        if (allSlotsChecked) {
+                            window.removeEventListener("scroll", throttledScrollHandler);
+                            window.removeEventListener("resize", throttledScrollHandler);
+                        }
+                    }
+                    
+                    var throttledScrollHandler = util.throttle(checkAndExecuteRefresh, 300);
+                    
+                    // Initial check in case some elements are already in view
+                    checkAndExecuteRefresh();
+                    
+                    // Add scroll listener if we still have slots to track
+                    if (Object.keys(slotElementIds).length > 0) {
+                        window.addEventListener("scroll", throttledScrollHandler);
+                        // Also listen for resize events as they can change viewport visibility
+                        window.addEventListener("resize", throttledScrollHandler);
+                    }
+                } else {
+                    // If lazy loading is not enabled, run refresh for all slots
+                    executeRefresh(qualifyingSlotNames);
+                }
             };
         }
     } else {
         util.log("refresh: originalFunction is not a function");
         return null;
+    }
+    
+    function executeRefresh(slotNames) {
+        if (!util.isArray(slotNames) || slotNames.length === 0) {
+            util.log("No slots to refresh in viewport");
+            return;
+        }
+        
+        refThis.forQualifyingSlotNamesCallAdapters(slotNames, arguments, true);
+        var arg = arguments;
+        refThis.executeDisplay(CONFIG.getTimeout(), slotNames, function() {
+            refThis.postTimeoutRefreshExecution(slotNames, theObject, originalFunction, arg);
+        });
     }
 }
 
