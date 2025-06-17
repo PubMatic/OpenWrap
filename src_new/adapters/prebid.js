@@ -1089,7 +1089,7 @@ function setPrebidConfig() {
 		// Some OW+ IH or IH pubs use this hook to add/remove identityPartner.
 
 		consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
-			var cmEnabled = COMMON_CONFIG.consentManagentEnabled();
+			var cmEnabled = COMMON_CONFIG.consentManagementEnabled();
 			var message =  cmEnabled ? "setting" : "not setting";			
 			util.log("ConsentManagement: " + cmEnabled + ", " + message + " the consentManagement config: " + JSON.stringify(cmConfig));
 			if(cmConfig && !util.isEmptyObject(cmConfig)) {
@@ -1457,7 +1457,7 @@ function initPbjsConfig(){
 	
 
 	// If consent Management is enabled then do not fetch the geo info from consentConfigResolver.js(here) module will do the same.
-	if(!COMMON_CONFIG.consentManagentEnabled()){
+	if(!COMMON_CONFIG.consentManagementEnabled()){
 		commonUtil.getGeoInfo();
 	}
 }
@@ -1467,7 +1467,7 @@ exports.initPbjsConfig = initPbjsConfig;
 function fetchBids(activeSlots, callback) {
 	function requestBidsPostConsentProcess() {
 		// Halt execution till we found if consentManagement Config is set or not, once this flag found we will proceed with below execution
-		if(!COMMON_CONFIG.consentManagentEnabled()){
+		if(!COMMON_CONFIG.consentManagementEnabled()){
 			proceedToRequestBids();
 			return;
 		}

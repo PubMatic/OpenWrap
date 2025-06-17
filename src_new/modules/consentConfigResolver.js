@@ -3,12 +3,13 @@ var commonUtil = require("../common.util.js");
 var timeMetrics = require("./timeMetrics.js");
 var COMMON_CONFIG = require("../common.config.js");
 var CONSTANTS = require("../constants.js");
+var prebid = require("../adapters/prebid.js");
 
 // Constants for consent management
 var CONSENT_CONSTANTS = {
   DEFAULT_CMP_LOOK_UP_TIMEOUT: 1000,
   CONSENT_MANAGEMENT_SOURCE: {    // 1 -> CMP, 2 -> GEO, 0 -> NONE
-    CMP: 1, 
+    CMP: 1,
     GEO: 2,
     NONE: 0
   },
@@ -53,11 +54,18 @@ var ConsentResolverConfig = (function () {
         },
         geoMatchWithCMP: 2,               // This will be used to identify the geo match with CMP Possible values: 0 - Not Matched,1 - Matched, 2 - Not Concluded(default)
         prebidCMConfig: {},               // This will be used to apply the consentManagement config to the Prebid instance
-        callbackFunctions: []             // Functions to be called after the process is completed
+        callbackFunctions: [],            // Functions to be called after the process is completed
+        continuousCmpCheck: {
+          enabled: false,         // Continuous CMP checking enabled
+          auctionStarted: false,  // Auction started flag
+          timeout: 10000,         // Continuous CMP checking timeout
+          interval: 100,          // Continuous CMP checking interval
+          startTime: 0            // Continuous CMP checking start time
+        }
       };
     }
     var config = getConfig();
-    
+
     return {
       getConsentManagementEnabled: function () {
         return config.consentManagementEnabled;
@@ -81,12 +89,12 @@ var ConsentResolverConfig = (function () {
       },
       setCmpPresent: function (cmpPresent) {
         config.cmpPresent = cmpPresent || false;
-      },      
+      },
       setProcessCompleted: function (processCompleted) {
         config.processCompleted = processCompleted;
-        if(processCompleted) {
+        if (processCompleted) {
           this.executeCallbackFunctions();
-        }        
+        }
       },
       executeCallbackFunctions: function () {
         while (config.callbackFunctions.length > 0) {
@@ -111,11 +119,39 @@ var ConsentResolverConfig = (function () {
         config.readGeoDataFrom = readFrom;
         this.setGeoMatchWithCMP();
       },
+      resetPrebidCMConfig: function () {
+        config.prebidCMConfig = {};
+      },
       setPrebidCMConfig: function (key, conf) {
         config.prebidCMConfig[key] = conf;
       },
       setComplianceSupport: function (compliance) {
         config.complianceSupport.push(compliance);
+      },
+      // Add to the return object in createInstance
+      getContinuousCmpCheckEnabled: function () {
+        return config.continuousCmpCheck.enabled || false;
+      },
+      setContinuousCmpCheckEnabled: function (enabled) {
+        config.continuousCmpCheck.enabled = enabled;
+      },
+      getContinuousCmpCheckTimeout: function () {
+        return config.continuousCmpCheck.timeout || 10000; // Default 10 seconds
+      },
+      getContinuousCmpCheckInterval: function () {
+        return config.continuousCmpCheck.interval || 500; // Default 500ms
+      },
+      getContinuousCmpCheckStartTime: function () {
+        return config.continuousCmpCheck.startTime || 0;
+      },
+      setContinuousCmpCheckStartTime: function (time) {
+        config.continuousCmpCheck.startTime = time;
+      },
+      getContinuousCmpCheckAuctionStarted: function () {
+        return config.continuousCmpCheck.auctionStarted || false;
+      },
+      setContinuousCmpCheckAuctionStarted: function (auctionStarted) {
+        config.continuousCmpCheck.auctionStarted = auctionStarted;
       },
       getProperties: function () {
         return {
@@ -126,7 +162,12 @@ var ConsentResolverConfig = (function () {
           csc: config.geoInfo.sc,
           cecbo: config.enforcedConsentBasisOn,
           crgdf: config.readGeoDataFrom,
-          cgm: config.geoMatchWithCMP
+          cgm: config.geoMatchWithCMP,
+          cccce: config.continuousCmpCheck.enabled,
+          cccct: config.continuousCmpCheck.timeout,
+          cccci: config.continuousCmpCheck.interval,
+          ccccas: config.continuousCmpCheck.auctionStarted,
+          ccccst: config.continuousCmpCheck.startTime
         }
       },
       reset: function () {
@@ -251,7 +292,7 @@ function checkCMPsPresentOnPage() {
   }
 
   // Helper function to check for CMP presence and execute commands
-  function prepareCMPDataAndConfig(cmpApi, key, frame) {    
+  function prepareCMPDataAndConfig(cmpApi, key, frame) {
     crConfig.setComplianceSupport(CONSENT_CONSTANTS.COMPLIANCE_MAP[key]);
     if (key === 'GDPR') {
       frame[cmpApi.apiName]('addEventListener', 2, cmpApi.cmpCommandListner);
@@ -264,7 +305,7 @@ function checkCMPsPresentOnPage() {
   }
 
   // Iterate through window frames to find CMPs
-  while (currentWindow) {  
+  while (currentWindow) {
     checkCMPInWindow(currentWindow);
     if (currentWindow === window.top) break;
     currentWindow = currentWindow.parent;
@@ -287,6 +328,52 @@ function getCMPLookUpTimeout() {
   return (commonUtil.getGlobalOwObject() && commonUtil.isNumber(commonUtil.getGlobalOwObject().cmpLookUpTimeout))
     ? commonUtil.getGlobalOwObject().cmpLookUpTimeout
     : CONSENT_CONSTANTS.DEFAULT_CMP_LOOK_UP_TIMEOUT;
+}
+
+function continuousCmpCheck() {
+  // Check if continuous CMP checking is enabled and not timed out
+  var currentTime = Date.now();
+  var config = crConfig.getProperties();
+
+  // If CMP already found or continuous checking is disabled or timed out, return
+  if (config.ccmp === 1 ||
+    !crConfig.getContinuousCmpCheckEnabled() ||
+    (currentTime - crConfig.getContinuousCmpCheckStartTime() > crConfig.getContinuousCmpCheckTimeout())) {
+    return;
+  }
+
+  crConfig.resetPrebidCMConfig();
+  // Check for CMP presence
+  checkCMPsPresentOnPage();
+
+  // If CMP found, update configuration
+  if (crConfig.getComplianceSupport().length > 0) {
+    
+    // Update configuration to use CMP-based consent
+    crConfig.setGeoMatchWithCMP();
+    crConfig.setEnforcedConsentBasisOn(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.CMP);
+
+    // Update Prebid configuration with CMP-based settings
+    //TODO: Set consent management config to prebid object
+    callbackToSetConfig(crConfig.getPrebidCMConfig());
+
+    // Disable continuous checking since CMP is found
+    crConfig.setContinuousCmpCheckEnabled(false);
+  }
+}
+
+function addFetchBidsHook() { // add hook for fetchBids
+  // Add a hook to the fetchBids function
+  var originalFetchBids = prebid.fetchBids;
+  prebid.fetchBids = function (activeSlots, callback) {
+    // Check for CMP presence before proceeding with fetchBids
+    if(crConfig.getContinuousCmpCheckEnabled() && crConfig.getContinuousCmpCheckAuctionStarted()){
+      continuousCmpCheck();
+    }
+
+    // Call the original fetchBids function
+    return originalFetchBids.call(prebid, activeSlots, callback);
+  };
 }
 
 /**
@@ -324,10 +411,24 @@ function getConsentManagementConfig(callbackToSetConfig) {
     if (compliance) {
       CMP_APIs[compliance].prepareConfig();                 // Configure consent based on geo location
       executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.GEO);
+      setContinuousCmpCheck();
     } else {
       // console.log("Resolver: No gc configuration found");
       executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
     }
+  }
+
+  function setContinuousCmpCheck() {
+    // Enable continuous CMP checking
+    crConfig.setContinuousCmpCheckEnabled(true);
+    crConfig.setContinuousCmpCheckStartTime(Date.now());
+
+    commonUtil.getGlobalPbObject().onEvent("auctionInit", function () {
+      crConfig.setContinuousCmpCheckAuctionStarted(true);
+    });
+    // Add requestBids hook to check for CMP presence
+
+    addFetchBidsHook();
   }
 
   function checkCmpRecursively() {
@@ -351,7 +452,7 @@ function getConsentManagementConfig(callbackToSetConfig) {
   // console.log("Resolver: Initializing configuration");
   timeMetrics.recordEntryTime("CONSENT_CONFIG_RESOLVER_TIME");
 
-  if (!COMMON_CONFIG.consentManagentEnabled()) {
+  if (!COMMON_CONFIG.consentManagementEnabled()) {            
     executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.NONE);
     return;
   }
