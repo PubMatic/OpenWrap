@@ -710,7 +710,6 @@ function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue) { /
     return currentFlagValue;
 }
 
-
 /* start-test-block */
 exports.findWinningBidIfRequired_Refresh = findWinningBidIfRequired_Refresh;
 /* end-test-block */
@@ -791,15 +790,17 @@ exports.getQualifyingSlotNamesForRefresh = getQualifyingSlotNamesForRefresh;
         3. googletag.pubads().refresh();
         4. googletag.pubads().refresh(null, {changeCorrelator: false});
 */
-function newRefreshFuncton(theObject, originalFunction) {
+function newRefreshFuncton(theObject, originalFunction) {// TDD, i/o : done // Note : not covering the function currying atm , if need be will add istanbul ignore
+    // Initiating getUserConsentDataFromCMP method to get the updated consentData
+    // GDPR.getUserConsentDataFromCMP();
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
-        if (CONFIG.isIdentityOnly()) {
+        if(CONFIG.isIdentityOnly()){
             util.log("Identity Only Enabled. No Process Need. Calling Original Refresh function");
             return function () {
                 return originalFunction.apply(theObject, arguments);
             };
         } else {
-            return function () {
+            return function() {
                 util.log("In Refresh function");
 
                 if (disableInitialLoadIsSet) {
