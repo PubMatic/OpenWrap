@@ -701,32 +701,25 @@ exports.newAddHookOnGoogletagDisplay = newAddHookOnGoogletagDisplay;
 /* end-test-block */
 
 function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue) { // TDD, i/o : done
-    // For lazy loading, we need to ensure DFP calls are made
-    if (CONFIG.isAuctionLazyLoadingEnabled()) {
-        if (util.isOwnProperty(refThis.slotsMap, slotName)) {
-            // Always apply targeting for lazy load refresh
-            refThis.findWinningBidAndApplyTargeting(divID);
-            
-            if (refThis.slotsMap[slotName].isRefreshFunctionCalled() === true && 
-                refThis.slotsMap[slotName].getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED) {
-                refThis.updateStatusAfterRendering(divID, true);
-            }
-            
-            // Always return true for lazy load to ensure DFP calls are made
-            return true;
-        }
-    } else {
-        // Original behavior for non-lazy loading
-        if (util.isOwnProperty(refThis.slotsMap, slotName) && 
-            refThis.slotsMap[slotName].isRefreshFunctionCalled() === true && 
-            refThis.slotsMap[slotName].getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED) {
-            
-            refThis.findWinningBidAndApplyTargeting(divID);
-            refThis.updateStatusAfterRendering(divID, true);
-            return true;
-        }
+    if (!util.isOwnProperty(refThis.slotsMap, slotName)) {
+        return currentFlagValue;
     }
-    return currentFlagValue;
+    
+    const isLazyLoading = CONFIG.isAuctionLazyLoadingEnabled();
+    const slot = refThis.slotsMap[slotName];
+    const needsStatusUpdate = slot.isRefreshFunctionCalled() === true && 
+                              slot.getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED;
+    
+    // Apply targeting in both cases
+    refThis.findWinningBidAndApplyTargeting(divID);
+    
+    // Update status if needed
+    if (needsStatusUpdate) {
+        refThis.updateStatusAfterRendering(divID, true);
+    }
+    
+    // Return true for lazy loading or if conditions are met
+    return isLazyLoading || needsStatusUpdate;
 }
 
 /* start-test-block */
@@ -1081,7 +1074,7 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
     function executeRefresh(slotNames, args) {
         util.log("Executing refresh for slots: " + (slotNames ? slotNames.join(", ") : "none"));
         
-        // Make translator calls
+
         refThis.forQualifyingSlotNamesCallAdapters(slotNames, args, true);
         
         // Execute DFP calls after timeout
