@@ -700,27 +700,19 @@ function newAddHookOnGoogletagDisplay(localGoogletag) { // TDD, i/o : done
 exports.newAddHookOnGoogletagDisplay = newAddHookOnGoogletagDisplay;
 /* end-test-block */
 
-function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue) { // TDD, i/o : done
-    if (!util.isOwnProperty(refThis.slotsMap, slotName)) {
-        return currentFlagValue;
-    }
-    
-    const isLazyLoading = CONFIG.isAuctionLazyLoadingEnabled();
-    const slot = refThis.slotsMap[slotName];
-    const needsStatusUpdate = slot.isRefreshFunctionCalled() === true && 
-                              slot.getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED;
-    
-    // Apply targeting in both cases
-    refThis.findWinningBidAndApplyTargeting(divID);
-    
-    // Update status if needed
-    if (needsStatusUpdate) {
+function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue) {
+    if (
+        util.isOwnProperty(refThis.slotsMap, slotName) &&
+        refThis.slotsMap[slotName].isRefreshFunctionCalled() === true &&
+        refThis.slotsMap[slotName].getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED
+    ) {
+        refThis.findWinningBidAndApplyTargeting(divID);
         refThis.updateStatusAfterRendering(divID, true);
+        return true;
     }
-    
-    // Return true for lazy loading or if conditions are met
-    return isLazyLoading || needsStatusUpdate;
+    return currentFlagValue;
 }
+
 
 /* start-test-block */
 exports.findWinningBidIfRequired_Refresh = findWinningBidIfRequired_Refresh;
