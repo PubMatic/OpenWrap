@@ -1014,10 +1014,10 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
                     // Get the slots that need to be refreshed
                     var slotsToRefresh = arguments[0] && util.isArray(arguments[0]) ? arguments[0] : theObject.getSlots();
                     
-                    // Create a function to check and execute refresh for slots in viewport
                     function checkAndExecuteRefresh() {
                         var slotsInViewport = [];
                         var remainingSlots = [];
+                        var slotElementMap = {}; // Map to track slot element IDs to slot objects
                         
                         // Check which slots are in viewport
                         util.forEachOnArray(slotsToRefresh, function(index, slot) {
@@ -1027,6 +1027,7 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
                                 
                                 if (element && util.isElementInViewport(element)) {
                                     slotsInViewport.push(slot);
+                                    slotElementMap[elementId] = slot;
                                 } else if (element) {
                                     remainingSlots.push(slot);
                                 }
@@ -1035,6 +1036,10 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
                         
                         // If there are slots in viewport, refresh them
                         if (slotsInViewport.length > 0) {
+                            // Create a new arguments array with only the slots in viewport
+                            var viewportArgs = Array.prototype.slice.call(arguments);
+                            viewportArgs[0] = slotsInViewport;
+                            
                             // Create a filtered list of qualifying slot names that are in viewport
                             var slotsInViewportNames = [];
                             
@@ -1056,10 +1061,6 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
                                     }
                                 }
                             });
-                            
-                            // Create a new arguments array with only the slots in viewport
-                            var viewportArgs = Array.prototype.slice.call(arguments);
-                            viewportArgs[0] = slotsInViewport;
                             
                             // Execute refresh for slots in viewport
                             executeRefresh(slotsInViewportNames, viewportArgs);
@@ -1084,6 +1085,7 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
                     // Add scroll listener if we need to track more slots
                     if (slotsToRefresh.length > 0) {
                         window.addEventListener("scroll", throttledScrollHandler);
+                        window.addEventListener("resize", throttledScrollHandler);
                     }
                 } else {
                     // If lazy loading is not enabled or SRA is enabled, refresh all slots
