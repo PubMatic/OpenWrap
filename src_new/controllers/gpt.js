@@ -700,12 +700,9 @@ function newAddHookOnGoogletagDisplay(localGoogletag) { // TDD, i/o : done
 exports.newAddHookOnGoogletagDisplay = newAddHookOnGoogletagDisplay;
 /* end-test-block */
 
-function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue) {
-    if (
-        util.isOwnProperty(refThis.slotsMap, slotName) &&
-        refThis.slotsMap[slotName].isRefreshFunctionCalled() === true &&
-        refThis.slotsMap[slotName].getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED
-    ) {
+function findWinningBidIfRequired_Refresh(slotName, divID, currentFlagValue) { // TDD, i/o : done
+    if (util.isOwnProperty(refThis.slotsMap, slotName) && refThis.slotsMap[slotName].isRefreshFunctionCalled() === true && refThis.slotsMap[slotName].getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED) {
+
         refThis.findWinningBidAndApplyTargeting(divID);
         refThis.updateStatusAfterRendering(divID, true);
         return true;
@@ -735,9 +732,7 @@ exports.postRederingChores = postRederingChores;
 /* end-test-block */
 
 function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg) { // TDD, i/o : done
-    util.log("[DEPRECATED] postTimeoutRefreshExecution is now handled directly in executeRefresh");
-    util.log("This function is kept for backward compatibility");
-    
+    util.log("Executing post timeout events, arguments: ");
     util.log(arg);
     var yesCallRefreshFunction = false;
     util.forEachOnArray(qualifyingSlotNames, function(index, dmSlot) {
@@ -758,9 +753,7 @@ function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFun
 exports.postTimeoutRefreshExecution = postTimeoutRefreshExecution;
 /* end-test-block */
 
-function callOriginalRefeshFunction(shouldCallRefresh, theObject, originalFunction, arg) { 
- 
-    // For backward compatibility, we still handle direct calls to this function
+function callOriginalRefeshFunction(flag, theObject, originalFunction, arg) { // TDD, i/o : done
     if (flag === true) {
         util.log("Calling original refresh function post timeout");
         originalFunction.apply(theObject, arg);
