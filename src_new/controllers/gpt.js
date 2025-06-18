@@ -868,76 +868,88 @@ function newRefreshFuncton(theObject, originalFunction) {// TDD, i/o : done // N
     }
 
     function executeRefresh(slotNames, args) {
-        util.log("Executing refresh for slots: " + (slotNames ? slotNames.join(", ") : "none"));
+        // Early return if no slots to refresh
+        if (!slotNames || slotNames.length === 0) {
+            util.log("No slots to refresh");
+            return;
+        }
+        
+        util.log("Executing refresh for slots: " + slotNames.join(", "));
 
+        // Make adapter calls
         refThis.forQualifyingSlotNamesCallAdapters(slotNames, args, true);
 
-        function processRefresh() {
-            var isLazyLoading = CONFIG.isAuctionLazyLoadingEnabled();
-            var yesCallRefreshFunction = isLazyLoading;
-            var googleSlotMap = {};
-            var slotsForDfp = [];
-
-            if (args[0] && util.isArray(args[0])) {
-                util.forEachOnArray(args[0], function (index, slot) {
-                    if (util.isFunction(slot.getSlotElementId)) {
-                        googleSlotMap[slot.getSlotElementId()] = slot;
-                    }
-                });
-            }
-
-            util.forEachOnArray(slotNames, function (index, dmSlot) {
-                var divID = refThis.slotsMap[dmSlot] && refThis.slotsMap[dmSlot].getDivID();
-                if (!divID) {
-                    util.log("Could not find divID for slot: " + dmSlot);
-                    return;
-                }
-
-                refThis.findWinningBidAndApplyTargeting(divID);
-
-                var slot = refThis.slotsMap[dmSlot];
-                var needsStatusUpdate = slot.isRefreshFunctionCalled() === true &&
-                    slot.getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED;
-
-                if (needsStatusUpdate) {
-                    refThis.updateStatusAfterRendering(divID, true);
-                }
-
-                if (!isLazyLoading) {
-                    yesCallRefreshFunction = yesCallRefreshFunction || needsStatusUpdate;
-                }
-
-                if (googleSlotMap[divID]) {
-                    slotsForDfp.push(googleSlotMap[divID]);
-                }
-
-                window.setTimeout(function () {
-                    refThis.postRederingChores(divID, dmSlot);
-                }, 2000);
-            });
-
-            var dfpArgs = Array.prototype.slice.call(args);
-            if (slotsForDfp.length > 0) {
-                dfpArgs[0] = slotsForDfp;
-            }
-
-            if (yesCallRefreshFunction) {
-                originalFunction.apply(theObject, dfpArgs);
-            } else {
-                util.log("AdSlot already rendered");
-            }
-        }
-
-        util.log("Initiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
+        // Set up timeout with interval for bid responses
+        var timeout = CONFIG.getTimeout();
+        util.log("Initiating Call to original refresh function with Timeout: " + timeout + " ms");
+        
         var timeoutTicker = 0;
         var timeoutIncrementer = 10;
         var intervalId = window.setInterval(function () {
             if ((util.getExternalBidderStatus(slotNames) &&
                 bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, slotNames)) ||
-                timeoutTicker >= CONFIG.getTimeout()) {
+                timeoutTicker >= timeout) {
+                
                 window.clearInterval(intervalId);
                 util.resetExternalBidderStatus(slotNames);
-                processRefresh();
+                
+                // Process the refresh after timeout
+                var isLazyLoading = CONFIG.isAuctionLazyLoadingEnabled();
+                var callRefresh = isLazyLoading;
+                var googleSlotMap = {};
+                var slotsForDfp = [];
+
+                // Build map of Google slots by element ID
+                if (args[0] && util.isArray(args[0])) {
+                    util.forEachOnArray(args[0], function (index, slot) {
+                        if (util.isFunction(slot.getSlotElementId)) {
+                            googleSlotMap[slot.getSlotElementId()] = slot;
+                        }
+                    });
+                }
+
+                // Process each slot
+                util.forEachOnArray(slotNames, function (index, dmSlot) {
+                    var divID = refThis.slotsMap[dmSlot] && refThis.slotsMap[dmSlot].getDivID();
+                    if (!divID) return;
+
+                    // Apply targeting
+                    refThis.findWinningBidAndApplyTargeting(divID);
+
+                    // Check if status update is needed
+                    var slot = refThis.slotsMap[dmSlot];
+                    var needsStatusUpdate = slot.isRefreshFunctionCalled() === true &&
+                        slot.getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED;
+
+                    // Update status if needed
+                    if (needsStatusUpdate) {
+                        refThis.updateStatusAfterRendering(divID, true);
+                        if (!isLazyLoading) callRefresh = true;
+                    }
+
+                    // Add to DFP slots if available
+                    if (googleSlotMap[divID]) {
+                        slotsForDfp.push(googleSlotMap[divID]);
+                    }
+
+                    // Schedule post rendering chores
+                    window.setTimeout(function () {
+                        refThis.postRederingChores(divID, dmSlot);
+                    }, 2000);
+                });
+
+                // Prepare arguments for DFP call
+                var dfpArgs = Array.prototype.slice.call(args);
+                if (slotsForDfp.length > 0) {
+                    dfpArgs[0] = slotsForDfp;
+                }
+
+                // Call original refresh if needed
+                if (callRefresh) {
+                    originalFunction.apply(theObject, dfpArgs);
+                } else {
+                    util.log("AdSlot already rendered");
+                }
             }
             timeoutTicker += timeoutIncrementer;
         }, timeoutIncrementer);
