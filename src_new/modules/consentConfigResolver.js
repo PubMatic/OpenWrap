@@ -8,6 +8,8 @@ var prebid = require("../adapters/prebid.js");
 // Constants for consent management
 var CONSENT_CONSTANTS = {
   DEFAULT_CMP_LOOK_UP_TIMEOUT: 1000,
+  CONTINUOUS_CMP_CHECK_TIMEOUT: 10000,
+  CONTINUOUS_CMP_CHECK_INTERVAL: 100,
   CONSENT_MANAGEMENT_SOURCE: {    // 1 -> CMP, 2 -> GEO, 0 -> NONE
     CMP: 1,
     GEO: 2,
@@ -27,9 +29,9 @@ var CONSENT_CONSTANTS = {
 
 // CMP APIs configuration
 var CMP_APIs = {
-  GDPR: { apiName: "__tcfapi", complianceName: "gdpr", prepareConfig: configureGDPR, cmpCommandListner: handleGDPR },
+  GDPR: { apiName: "__tcfapi", complianceName: "gdpr", prepareConfig: configureGDPR},
   USP: { apiName: "__uspapi", complianceName: "usp", prepareConfig: configureUSP },
-  GPP: { apiName: "__gpp", complianceName: "gpp", prepareConfig: configureGPP, cmpCommandListner: handleGPP }
+  GPP: { apiName: "__gpp", complianceName: "gpp", prepareConfig: configureGPP }
 };
 
 // Initializes the consent management configuration object.
@@ -58,8 +60,8 @@ var ConsentResolverConfig = (function () {
         continuousCmpCheck: {
           enabled: false,         // Continuous CMP checking enabled
           auctionStarted: false,  // Auction started flag
-          timeout: 10000,         // Continuous CMP checking timeout
-          interval: 100,          // Continuous CMP checking interval
+          timeout: CONSENT_CONSTANTS.CONTINUOUS_CMP_CHECK_TIMEOUT,         // Continuous CMP checking timeout
+          interval: CONSENT_CONSTANTS.CONTINUOUS_CMP_CHECK_INTERVAL,          // Continuous CMP checking interval
           startTime: 0            // Continuous CMP checking start time
         }
       };
@@ -195,34 +197,6 @@ commonUtil.getGlobalOwObject().getConsentResolverConfig = function getConsentRes
   return crConfig.getProperties();
 };
 
-/**
- * Set the time taken by CMP to load
- * @param {*} timeExceeded : If time exceeded then set the default timeout value
- */
-function setCMPTime(timeExceeded) {
-  // If time taken by CMP is not set then set the default timeout value
-  if (!timeMetrics.getDurationOf("CMP_CALLING_TIME")) {
-    timeMetrics.recordExitTime("CMP_CALLING_TIME", timeExceeded ? 1500 : null);
-  }
-}
-
-/**
- * Handle GDPR commands
- * @param {Object} pingReturnData - Data returned from the CMP
- * @param {boolean} success - Indicates if the command was successful
- */
-function handleGDPR(pingReturnData, success) {
-  crConfig.setCmpId(pingReturnData && pingReturnData.cmpId);
-}
-
-/**
- * Handle GPP commands
- * @param {Object} pingReturnData - Data returned from the CMP
- * @param {boolean} success - Indicates if the command was successful
- */
-function handleGPP(pingReturnData, success) {
-  crConfig.setCmpId(pingReturnData && pingReturnData.pingData && pingReturnData.pingData.cmpId);
-}
 
 /**
  * Get CMP API and timeout configuration
@@ -270,8 +244,9 @@ function configureGPP() {
  * 
  * @returns Object : CMPs present on the page
  */
-function checkCMPsPresentOnPage() {
+function getCMPsPresentOnPage() {
   var currentWindow = window;
+  var detectedCmps = [];
 
   // Get the CMPs present on the page
   function checkCMPInWindow(frame) {
@@ -279,29 +254,52 @@ function checkCMPsPresentOnPage() {
       if (CMP_APIs.hasOwnProperty(key)) {
         var cmpApi = CMP_APIs[key];
         if (isCMPApiPresent(cmpApi, frame)) {
-          prepareCMPDataAndConfig(cmpApi, key, frame);
+          detectedCmps.push(cmpApi);
+          crConfig.setComplianceSupport(CONSENT_CONSTANTS.COMPLIANCE_MAP[key]);
+          if (key === 'GDPR') {
+            frame[cmpApi.apiName]('addEventListener', 2, handleGDPR);
+          } else if (key === 'GPP') {
+            frame[cmpApi.apiName]('addEventListener', handleGPP);
+          }
+          crConfig.setCmpPresent(true);
+          setCMPTime(false);
         }
       }
-      //checkAndExecuteCMP(name, currentWindow);
     }
+  }
+
+  /**
+   * Set the time taken by CMP to load
+   * @param {*} timeExceeded : If time exceeded then set the default timeout value
+   */
+  function setCMPTime(timeExceeded) {
+    // If time taken by CMP is not set then set the default timeout value
+    if (!timeMetrics.getDurationOf("CMP_CALLING_TIME")) {
+      timeMetrics.recordExitTime("CMP_CALLING_TIME", timeExceeded ? 1500 : null);
+    }
+  }
+
+  /**
+   * Handle GDPR commands
+   * @param {Object} pingReturnData - Data returned from the CMP
+   * @param {boolean} success - Indicates if the command was successful
+   */
+  function handleGDPR(pingReturnData, success) {
+    crConfig.setCmpId(pingReturnData && pingReturnData.cmpId);
+  }
+
+  /**
+   * Handle GPP commands
+   * @param {Object} pingReturnData - Data returned from the CMP
+   * @param {boolean} success - Indicates if the command was successful
+   */
+  function handleGPP(pingReturnData, success) {
+    crConfig.setCmpId(pingReturnData && pingReturnData.pingData && pingReturnData.pingData.cmpId);
   }
 
   // Check if CMP APIs are present in the given frame
   function isCMPApiPresent(cmpApi, frame) {
     return typeof frame[cmpApi.apiName] === 'function' || frame.frames[cmpApi.apiName + "Locator"];
-  }
-
-  // Helper function to check for CMP presence and execute commands
-  function prepareCMPDataAndConfig(cmpApi, key, frame) {
-    crConfig.setComplianceSupport(CONSENT_CONSTANTS.COMPLIANCE_MAP[key]);
-    if (key === 'GDPR') {
-      frame[cmpApi.apiName]('addEventListener', 2, cmpApi.cmpCommandListner);
-    } else if (key === 'GPP') {
-      frame[cmpApi.apiName]('addEventListener', cmpApi.cmpCommandListner);
-    }
-    crConfig.setCmpPresent(true);
-    setCMPTime(false);
-    cmpApi.prepareConfig();
   }
 
   // Iterate through window frames to find CMPs
@@ -310,6 +308,7 @@ function checkCMPsPresentOnPage() {
     if (currentWindow === window.top) break;
     currentWindow = currentWindow.parent;
   }
+  return detectedCmps;
 }
 
 /**
@@ -342,21 +341,21 @@ function continuousCmpCheck() {
     return;
   }
 
-  crConfig.resetPrebidCMConfig();
   // Check for CMP presence
-  checkCMPsPresentOnPage();
-
-  // If CMP found, update configuration
-  if (crConfig.getComplianceSupport().length > 0) {
-    
-    // Update configuration to use CMP-based consent
+  var detectedCmps = getCMPsPresentOnPage();
+  if (detectedCmps.length > 0) {
+    crConfig.resetPrebidCMConfig();
+    for (var i = 0; i < detectedCmps.length; i++) {
+      detectedCmps[i].prepareConfig();
+    }
+    // ("Resolver: CMP found");
     crConfig.setGeoMatchWithCMP();
     crConfig.setEnforcedConsentBasisOn(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.CMP);
-
     // Update Prebid configuration with CMP-based settings
-    //TODO: Set consent management config to prebid object
-    callbackToSetConfig(crConfig.getPrebidCMConfig());
-
+    // Set consent management config to prebid object
+    commonUtil.getGlobalPbObject().setConfig({
+      consentManagement: crConfig.getPrebidCMConfig()
+    });
     // Disable continuous checking since CMP is found
     crConfig.setContinuousCmpCheckEnabled(false);
   }
@@ -435,8 +434,11 @@ function getConsentManagementConfig(callbackToSetConfig) {
     if (isCallbackExecuted) {
       return;
     }
-    checkCMPsPresentOnPage();
-    if (crConfig.getComplianceSupport().length > 0) {
+    var detectedCmps = getCMPsPresentOnPage();
+    if (detectedCmps.length > 0) {
+      for (var i = 0; i < detectedCmps.length; i++) {
+        detectedCmps[i].prepareConfig();
+      }
       // ("Resolver: CMP found");
       crConfig.setGeoMatchWithCMP();
       executeCallback(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.CMP);
