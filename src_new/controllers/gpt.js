@@ -1013,77 +1013,56 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
                 if(!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
                     // Get the slots that need to be refreshed
                     var slotsToRefresh = arguments[0] && util.isArray(arguments[0]) ? arguments[0] : theObject.getSlots();
+                    var slotElementMap = {}; // Map to track slot elements by ID
+                    
+                    // Build a map of slots by element ID
+                    util.forEachOnArray(slotsToRefresh, function(index, slot) {
+                        if (util.isFunction(slot.getSlotElementId)) {
+                            slotElementMap[slot.getSlotElementId()] = slot;
+                        }
+                    });
                     
                     function checkAndExecuteRefresh() {
-                        var slotsInViewport = [];
-                        var remainingSlots = [];
-                        var slotElementMap = {}; // Map to track slot element IDs to slot objects
+                        var slotsToProcess = [];
+                        var remainingSlotIds = [];
                         
                         // Check which slots are in viewport
-                        util.forEachOnArray(slotsToRefresh, function(index, slot) {
-                            if (util.isFunction(slot.getSlotElementId)) {
-                                var elementId = slot.getSlotElementId();
+                        for (var elementId in slotElementMap) {
+                            if (slotElementMap.hasOwnProperty(elementId)) {
                                 var element = document.getElementById(elementId);
-                                
                                 if (element && util.isElementInViewport(element)) {
-                                    slotsInViewport.push(slot);
-                                    slotElementMap[elementId] = slot;
+                                    slotsToProcess.push(slotElementMap[elementId]);
+                                    delete slotElementMap[elementId]; // Remove from tracking
                                 } else if (element) {
-                                    remainingSlots.push(slot);
+                                    remainingSlotIds.push(elementId);
                                 }
                             }
-                        });
+                        }
                         
                         // If there are slots in viewport, refresh them
-                        if (slotsInViewport.length > 0) {
-                            // Create a new arguments array with only the slots in viewport
-                            var viewportArgs = Array.prototype.slice.call(arguments);
-                            viewportArgs[0] = slotsInViewport;
-                            
-                            // Create a filtered list of qualifying slot names that are in viewport
-                            var slotsInViewportNames = [];
-                            
-                            // Map Google slots to their element IDs for quick lookup
-                            var slotIdMap = {};
-                            util.forEachOnArray(slotsInViewport, function(index, slot) {
-                                if (util.isFunction(slot.getSlotElementId)) {
-                                    slotIdMap[slot.getSlotElementId()] = true;
-                                }
-                            });
-                            
-                            // Filter qualifying slot names to only include those in viewport
-                            util.forEachOnArray(qualifyingSlotNames, function(index, slotName) {
-                                var slot = refThis.slotsMap[slotName];
-                                if (slot && util.isFunction(slot.getDivID)) {
-                                    var divId = slot.getDivID();
-                                    if (slotIdMap[divId]) {
-                                        slotsInViewportNames.push(slotName);
-                                    }
-                                }
-                            });
+                        if (slotsToProcess.length > 0) {
+                            // Create new arguments with only slots in viewport
+                            var newArgs = Array.prototype.slice.call(arguments);
+                            newArgs[0] = slotsToProcess;
                             
                             // Execute refresh for slots in viewport
-                            executeRefresh(slotsInViewportNames, viewportArgs);
-                            
-                            // If no more slots to track, remove event listeners
-                            if (remainingSlots.length === 0) {
-                                window.removeEventListener("scroll", throttledScrollHandler);
-                                window.removeEventListener("resize", throttledScrollHandler);
-                            } else {
-                                // Update slotsToRefresh for next scroll check
-                                slotsToRefresh = remainingSlots;
-                            }
+                            executeRefresh(qualifyingSlotNames, newArgs);
+                        }
+                        
+                        // If no more slots to track, remove event listeners
+                        if (Object.keys(slotElementMap).length === 0) {
+                            window.removeEventListener("scroll", throttledScrollHandler);
+                            window.removeEventListener("resize", throttledScrollHandler);
                         }
                     }
                     
-                    // Create throttled scroll handler
                     var throttledScrollHandler = util.throttle(checkAndExecuteRefresh, 300);
                     
                     // Initial check in case some elements are already in view
                     checkAndExecuteRefresh();
                     
                     // Add scroll listener if we need to track more slots
-                    if (slotsToRefresh.length > 0) {
+                    if (Object.keys(slotElementMap).length > 0) {
                         window.addEventListener("scroll", throttledScrollHandler);
                         window.addEventListener("resize", throttledScrollHandler);
                     }
