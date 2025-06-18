@@ -1084,7 +1084,6 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
                     // Add scroll listener if we need to track more slots
                     if (slotsToRefresh.length > 0) {
                         window.addEventListener("scroll", throttledScrollHandler);
-                        window.addEventListener("resize", throttledScrollHandler);
                     }
                 } else {
                     // If lazy loading is not enabled or SRA is enabled, refresh all slots
