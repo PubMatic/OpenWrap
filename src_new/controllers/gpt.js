@@ -743,86 +743,25 @@ exports.postRederingChores = postRederingChores;
 /* end-test-block */
 
 function postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg) { // TDD, i/o : done
-    util.log("Executing post timeout events, arguments: ");
-    util.log(arg);
-    var yesCallRefreshFunction = false;
+    util.log("[DEPRECATED] postTimeoutRefreshExecution is now handled directly in executeRefresh");
+    util.log("This function is kept for backward compatibility");
     
-    // Get the googleSlotMap from arg if available
-    var googleSlotMap = arg.googleSlotMap || {};
+    // This function is now just a wrapper that calls callOriginalRefeshFunction
+    // All the logic has been consolidated in the executeRefresh function
     
-    // Prepare slots for DFP call
-    var slotsForDfp = [];
+    // For backward compatibility, we'll still handle any direct calls to this function
+    var isLazyLoading = CONFIG.isAuctionLazyLoadingEnabled();
+    var yesCallRefreshFunction = isLazyLoading; // Always true for lazy loading
     
-    // For lazy loading, we need to ensure we process all slots properly and DFP calls are made
-    if (CONFIG.isAuctionLazyLoadingEnabled()) {
-        // Always set yesCallRefreshFunction to true for lazy loading to ensure DFP calls
-        yesCallRefreshFunction = true;
-        
-        // In lazy loading, qualifyingSlotNames already contains only slots in viewport
-        util.forEachOnArray(qualifyingSlotNames, function(index, dmSlot) {
-            var divID = refThis.slotsMap[dmSlot] && refThis.slotsMap[dmSlot].getDivID();
-            if(divID) {
-                // Apply targeting and update status
-                refThis.findWinningBidAndApplyTargeting(divID);
-                
-                // Update status if needed
-                if (refThis.slotsMap[dmSlot].isRefreshFunctionCalled() === true && 
-                    refThis.slotsMap[dmSlot].getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED) {
-                    refThis.updateStatusAfterRendering(divID, true);
-                }
-                
-                // Get the Google slot object from our map
-                if (googleSlotMap[divID]) {
-                    slotsForDfp.push(googleSlotMap[divID]);
-                    util.log("Added slot " + divID + " to DFP refresh list");
-                } else {
-                    util.log("Warning: Could not find Google slot object for " + divID);
-                }
-                
-                // Schedule post rendering chores
-                window.setTimeout(function() {
-                    refThis.postRederingChores(divID, dmSlot);
-                }, 2000);
-            } else {
-                util.log("Could not find divID");
-            }
-        });
-        
-        // Create a new arg with the proper slots for DFP
-        if (slotsForDfp.length > 0) {
-            // Create a new arguments object with the proper slots
-            var newArg = [];
-            newArg.push(slotsForDfp); // First argument is the array of slots
-            
-            // Copy any additional arguments
-            if (arg.length > 1) {
-                for (var i = 1; i < arg.length; i++) {
-                    newArg.push(arg[i]);
-                }
-            }
-            
-            // Use the new arguments for DFP call
-            arg = newArg;
-            util.log("Created new arguments with " + slotsForDfp.length + " slots for DFP");
-        } else {
-            util.log("No valid slots found for DFP refresh");
-        }
-    } else {
-        // Original behavior for non-lazy loading
+    if (!isLazyLoading) {
+        // For non-lazy loading, check if any slots need refresh
         util.forEachOnArray(qualifyingSlotNames, function(index, dmSlot) {
             var divID = refThis.slotsMap[dmSlot] && refThis.slotsMap[dmSlot].getDivID();
             if(divID) {
                 yesCallRefreshFunction = refThis.findWinningBidIfRequired_Refresh(dmSlot, divID, yesCallRefreshFunction);
-                window.setTimeout(function() {
-                    refThis.postRederingChores(divID, dmSlot);
-                }, 2000);
-            } else {
-                util.log("Could not find divID");
             }
         });
     }
-    
-    util.log("Calling original refresh function with flag: " + yesCallRefreshFunction);
     
     // Call the original refresh function with the appropriate arguments
     this.callOriginalRefeshFunction(yesCallRefreshFunction, theObject, originalFunction, arg);
@@ -833,116 +772,81 @@ exports.postTimeoutRefreshExecution = postTimeoutRefreshExecution;
 /* end-test-block */
 
 function callOriginalRefeshFunction(shouldCallRefresh, theObject, originalFunction, arg) { 
+    util.log("callOriginalRefeshFunction called with shouldCallRefresh: " + shouldCallRefresh);
     
-    // For lazy loading, we need to ensure DFP calls are consistent
+    // For backward compatibility, we still handle direct calls to this function
     if (CONFIG.isAuctionLazyLoadingEnabled()) {
-        // Always set flag to true for lazy loading to ensure DFP calls are made
-        flag = true;
+        // In lazy loading mode, we filter slots to only include those in viewport
+        var slots = [];
+        var slotElementMap = {};
         
-        // Case 1: No specific slots provided (refresh all)
-        if (!arg[0]) {
-            util.log("Lazy loading refresh - no specific slots provided");
-            // Get all slots from googletag
-            var allGoogleSlots = [];
+        // Determine which slots to process
+        if (arg[0] && util.isArray(arg[0]) && arg[0].length > 0) {
+            // Specific slots provided
+            slots = arg[0];
+        } else if (theObject && util.isFunction(theObject.getSlots)) {
+            // No specific slots provided, get all slots
             try {
-                if (theObject && typeof theObject.getSlots === 'function') {
-                    allGoogleSlots = theObject.getSlots() || [];
-                    util.log("Got " + allGoogleSlots.length + " slots from googletag");
-                } else {
-                    util.log("Error: theObject does not have getSlots function");
-                }
+                slots = theObject.getSlots() || [];
             } catch(e) {
                 util.log("Error getting slots from googletag: " + e);
             }
-            
-            var slotsInViewport = [];
-            
-            // Filter to only include slots that are in viewport
-            util.forEachOnArray(allGoogleSlots, function(index, slot) {
-                try {
-                    if (slot && typeof slot.getSlotElementId === 'function') {
-                        var elementId = slot.getSlotElementId();
-                        var element = document.getElementById(elementId);
-                        
-                        // Only include slots that are in viewport
-                        if (element && util.isElementInViewport(element)) {
-                            slotsInViewport.push(slot);
-                        }
-                    } else {
-                        util.log("Warning: slot at index " + index + " does not have getSlotElementId function");
-                    }
-                } catch(e) {
-                    util.log("Error processing slot at index " + index + ": " + e);
-                }
-            });
-            
-            // Only call DFP if we have slots in viewport
-            if (slotsInViewport.length > 0) {
-                util.log("Calling DFP refresh for " + slotsInViewport.length + " slots in viewport");
-                // Create new arguments array with filtered slots
-                var newArgs = [slotsInViewport];
-                if (arg.length > 1) {
-                    for (var i = 1; i < arg.length; i++) {
-                        newArgs.push(arg[i]);
-                    }
-                }
-                originalFunction.apply(theObject, newArgs);
-            } else {
-                util.log("No slots in viewport to refresh for DFP");
-            }
-            return; // Exit early
         }
         
-        // Case 2: Specific slots provided
-        if (arg[0] && util.isArray(arg[0])) {
-            util.log("Lazy loading refresh - specific slots provided");
-            var allSlots = arg[0];
-            var slotsToRefresh = [];
+        // Function to check which slots are in viewport and call DFP
+        function checkAndCallDFP() {
+            var slotsInViewport = [];
             
-            // Filter to only include slots that are in viewport
-            util.forEachOnArray(allSlots, function(index, slot) {
-                try {
-                    if (slot && typeof slot.getSlotElementId === 'function') {
-                        var elementId = slot.getSlotElementId();
-                        var element = document.getElementById(elementId);
-                        
-                        // Only include slots that are in viewport
-                        if (element && util.isElementInViewport(element)) {
-                            slotsToRefresh.push(slot);
-                        }
-                    } else {
-                        util.log("Warning: specific slot at index " + index + " does not have getSlotElementId function");
-                    }
-                } catch(e) {
-                    util.log("Error processing specific slot at index " + index + ": " + e);
-                }
-            });
-            
-            // Only call DFP if we have slots in viewport
-            if (slotsToRefresh.length > 0) {
-                util.log("Calling DFP refresh for " + slotsToRefresh.length + " specific slots in viewport");
-                // Create new arguments array with filtered slots
-                var newArg = [];
-                for (var i = 0; i < arg.length; i++) {
-                    if (i === 0) {
-                        newArg.push(slotsToRefresh);
-                    } else {
-                        newArg.push(arg[i]);
+            // Check which slots are in viewport
+            for (var elementId in slotElementMap) {
+                if (slotElementMap.hasOwnProperty(elementId)) {
+                    var element = document.getElementById(elementId);
+                    if (element && util.isElementInViewport(element)) {
+                        slotsInViewport.push(slotElementMap[elementId]);
+                        delete slotElementMap[elementId]; // Remove from tracking
                     }
                 }
-                originalFunction.apply(theObject, newArg);
-            } else {
-                util.log("No specific slots in viewport to refresh for DFP");
             }
-            return; // Exit early
+            
+            // If there are slots in viewport, call DFP
+            if (slotsInViewport.length > 0) {
+                // Create new arguments array with filtered slots
+                var newArgs = Array.prototype.slice.call(arg);
+                newArgs[0] = slotsInViewport;
+                
+                util.log("Calling DFP refresh for " + slotsInViewport.length + " slots in viewport");
+                originalFunction.apply(theObject, newArgs);
+            }
+            
+            // If no more slots to track, remove event listeners
+            if (Object.keys(slotElementMap).length === 0) {
+                window.removeEventListener("scroll", throttledScrollHandler);
+            }
         }
-    }
-    
-    // Standard behavior for non-lazy loading or unhandled cases
-    if (shouldCallRefresh) {
-        originalFunction.apply(theObject, arg);
+        
+        // Build a map of slots by element ID
+        util.forEachOnArray(slots, function(index, slot) {
+            if (util.isFunction(slot.getSlotElementId)) {
+                slotElementMap[slot.getSlotElementId()] = slot;
+            }
+        });
+        
+        var throttledScrollHandler = util.throttle(checkAndCallDFP, 300);
+        
+        // Initial check in case some elements are already in view
+        checkAndCallDFP();
+        
+        // Add scroll listener if we need to track more slots
+        if (Object.keys(slotElementMap).length > 0) {
+            window.addEventListener("scroll", throttledScrollHandler);
+        }
     } else {
-        util.log("AdSlot already rendered");
+        // Standard behavior for non-lazy loading
+        if (shouldCallRefresh) {
+            originalFunction.apply(theObject, arg);
+        } else {
+            util.log("AdSlot already rendered");
+        }
     }
 }
 
@@ -1045,7 +949,6 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
                         // If no more slots to track, remove event listeners
                         if (Object.keys(slotElementMap).length === 0) {
                             window.removeEventListener("scroll", throttledScrollHandler);
-                            window.removeEventListener("resize", throttledScrollHandler);
                         }
                     }
                     
@@ -1070,19 +973,94 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
         return null;
     }
     
-    // Helper function to execute refresh for given slots
+    // Helper function to execute refresh for given slots - consolidated version
     function executeRefresh(slotNames, args) {
         util.log("Executing refresh for slots: " + (slotNames ? slotNames.join(", ") : "none"));
         
-
+        // Make translator calls
         refThis.forQualifyingSlotNamesCallAdapters(slotNames, args, true);
+        
+        // Consolidated refresh function that handles both timeout and post-processing
+        function processRefresh() {
+            var isLazyLoading = CONFIG.isAuctionLazyLoadingEnabled();
+            var yesCallRefreshFunction = isLazyLoading; // Always true for lazy loading
+            var googleSlotMap = {};
+            var slotsForDfp = [];
+            
+            // Build a map of Google slots by div ID for easier access
+            if (args[0] && util.isArray(args[0])) {
+                util.forEachOnArray(args[0], function(index, slot) {
+                    if (util.isFunction(slot.getSlotElementId)) {
+                        googleSlotMap[slot.getSlotElementId()] = slot;
+                    }
+                });
+            }
+            
+            // Process each qualifying slot
+            util.forEachOnArray(slotNames, function(index, dmSlot) {
+                var divID = refThis.slotsMap[dmSlot] && refThis.slotsMap[dmSlot].getDivID();
+                if (!divID) {
+                    util.log("Could not find divID for slot: " + dmSlot);
+                    return;
+                }
+                
+                // Apply targeting for all slots
+                refThis.findWinningBidAndApplyTargeting(divID);
+                
+                var slot = refThis.slotsMap[dmSlot];
+                var needsStatusUpdate = slot.isRefreshFunctionCalled() === true && 
+                                       slot.getStatus() !== CONSTANTS.SLOT_STATUS.DISPLAYED;
+                
+                // Update status if needed
+                if (needsStatusUpdate) {
+                    refThis.updateStatusAfterRendering(divID, true);
+                }
+                
+                // For non-lazy loading, track if we should call refresh
+                if (!isLazyLoading) {
+                    yesCallRefreshFunction = yesCallRefreshFunction || needsStatusUpdate;
+                }
+                
+                // Add slot to DFP refresh list if available
+                if (googleSlotMap[divID]) {
+                    slotsForDfp.push(googleSlotMap[divID]);
+                }
+                
+                // Schedule post rendering chores
+                window.setTimeout(function() {
+                    refThis.postRederingChores(divID, dmSlot);
+                }, 2000);
+            });
+            
+            // Prepare arguments for DFP call
+            var dfpArgs = Array.prototype.slice.call(args);
+            if (slotsForDfp.length > 0) {
+                dfpArgs[0] = slotsForDfp;
+            }
+            
+            // Call the original refresh function if needed
+            if (yesCallRefreshFunction) {
+                originalFunction.apply(theObject, dfpArgs);
+            } else {
+                util.log("AdSlot already rendered");
+            }
+        }
         
         // Execute DFP calls after timeout
         util.log("Initiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
-        refThis.executeDisplay(CONFIG.getTimeout(), slotNames, function() {
-            // Use the existing postTimeoutRefreshExecution function
-            refThis.postTimeoutRefreshExecution(slotNames, theObject, originalFunction, args);
-        });
+        var timeoutTicker = 0;
+        var timeoutIncrementer = 10; // in ms
+        var intervalId = window.setInterval(function() {
+            if ((util.getExternalBidderStatus(slotNames) && 
+                 bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, slotNames)) || 
+                timeoutTicker >= CONFIG.getTimeout()) {
+                
+                window.clearInterval(intervalId);
+                util.resetExternalBidderStatus(slotNames);
+                processRefresh();
+            }
+            timeoutTicker += timeoutIncrementer;
+        }, timeoutIncrementer);
     }
 }
 /* start-test-block */
