@@ -2172,6 +2172,312 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
+    describe('#newDisplayFunction with Lazy Loading', function() {
+        var theObject = null;
+        var originalFunction = null;
+        var mockWindow = null;
+        var mockDocument = null;
+        var mockElement = null;
+        var mockGoogletag = null;
+        var mockSlot = null;
+        var mockPubads = null;
+
+        beforeEach(function(done) {
+            mockElement = {
+                id: "test_div_id",
+                getBoundingClientRect: function() {
+                    return {
+                        top: 1000 // Position element below viewport initially
+                    };
+                }
+            };
+
+            mockDocument = {
+                getElementById: function() {
+                    return mockElement;
+                }
+            };
+
+            mockSlot = {
+                getSlotElementId: function() {
+                    return "test_div_id";
+                }
+            };
+
+            mockPubads = {
+                getSlots: function() {
+                    return [mockSlot];
+                }
+            };
+
+            mockGoogletag = {
+                pubads: function() {
+                    return mockPubads;
+                }
+            };
+
+            mockWindow = {
+                googletag: mockGoogletag,
+                document: mockDocument,
+                innerHeight: 800,
+                addEventListener: sinon.spy(),
+                removeEventListener: sinon.spy()
+            };
+
+            theObject = {};
+            originalFunction = sinon.spy();
+
+            sinon.stub(UTIL, "isObject").returns(true);
+            sinon.stub(UTIL, "isFunction").returns(true);
+            sinon.stub(UTIL, "isElementInViewport");
+            sinon.stub(UTIL, "throttle").callsFake(function(fn, delay) {
+                return fn; // Return the function without throttling for testing
+            });
+            sinon.stub(CONFIG, "isIdentityOnly").returns(false);
+            sinon.stub(CONFIG, "isSRAEnabled").returns(false);
+            sinon.stub(CONFIG, "isAuctionLazyLoadingEnabled").returns(true);
+            
+            sinon.stub(GPT, "updateSlotsMapFromGoogleSlots");
+            sinon.stub(GPT, "displayFunctionStatusHandler");
+            sinon.stub(GPT, "getStatusOfSlotForDivId");
+            sinon.stub(GPT, "forQualifyingSlotNamesCallAdapters");
+            
+            window.googletag = mockGoogletag;
+            window.PWT = {};
+            window.PWT.LazyLoading = window.PWT.LazyLoading || {};
+            window.PWT.LazyLoading = {
+                            auctionLazyLoadingEnabled: 1,
+                            auctionMarginPercentage: 400,
+                            fetchMarginPercentage: 300,
+                            renderMarginPercentage: 200,
+                            mobileScalingForLazyLoading: 2.0,
+                            gamLazyLoadingEnabled: 1
+                    };
+            
+            GPT.setWindowReference(mockWindow);
+            
+            done();
+        });
+
+        afterEach(function(done) {
+            UTIL.isObject.restore();
+            UTIL.isFunction.restore();
+            UTIL.isElementInViewport.restore();
+            UTIL.throttle.restore();
+            CONFIG.isIdentityOnly.restore();
+            CONFIG.isSRAEnabled.restore();
+            CONFIG.isAuctionLazyLoadingEnabled.restore();
+            
+            GPT.updateSlotsMapFromGoogleSlots.restore();
+            GPT.displayFunctionStatusHandler.restore();
+            GPT.getStatusOfSlotForDivId.restore();
+            GPT.forQualifyingSlotNamesCallAdapters.restore();
+            
+            theObject = null;
+            originalFunction = null;
+            mockWindow = null;
+            mockDocument = null;
+            mockElement = null;
+            mockGoogletag = null;
+            mockSlot = null;
+            mockPubads = null;
+            
+            done();
+        });
+
+        it("should add scroll event listener when lazy loading is enabled", function(done) {
+            var displayFunc = GPT.newDisplayFunction(theObject, originalFunction);
+            displayFunc("test_div_id");
+            
+            expect(mockWindow.addEventListener.calledOnce).to.be.true;
+            expect(mockWindow.addEventListener.calledWith("scroll")).to.be.true;
+            done();
+        });
+
+        it("should execute display immediately if element is in viewport", function(done) {
+            UTIL.isElementInViewport.returns(true);
+            
+            var displayFunc = GPT.newDisplayFunction(theObject, originalFunction);
+            displayFunc("test_div_id");
+            
+            expect(UTIL.isElementInViewport.calledOnce).to.be.true;
+            expect(mockWindow.removeEventListener.calledOnce).to.be.true;
+            expect(GPT.updateSlotsMapFromGoogleSlots.calledOnce).to.be.true;
+            done();
+        });
+
+        it("should not execute display if element is not in viewport", function(done) {
+            UTIL.isElementInViewport.returns(false);
+            
+            var displayFunc = GPT.newDisplayFunction(theObject, originalFunction);
+            displayFunc("test_div_id");
+            
+            expect(UTIL.isElementInViewport.calledOnce).to.be.true;
+            expect(mockWindow.removeEventListener.called).to.be.false;
+            expect(GPT.updateSlotsMapFromGoogleSlots.called).to.be.false;
+            done();
+        });
+
+        it("should not add scroll listener when lazy loading is disabled", function(done) {
+            CONFIG.isAuctionLazyLoadingEnabled.returns(false);
+            
+            var displayFunc = GPT.newDisplayFunction(theObject, originalFunction);
+            displayFunc("test_div_id");
+            
+            expect(mockWindow.addEventListener.called).to.be.false;
+            expect(UTIL.isElementInViewport.called).to.be.false;
+            expect(GPT.updateSlotsMapFromGoogleSlots.calledOnce).to.be.true;
+            done();
+        });
+
+        it("should execute display when SRA is enabled regardless of viewport", function(done) {
+            CONFIG.isSRAEnabled.returns(true);
+            
+            var displayFunc = GPT.newDisplayFunction(theObject, originalFunction);
+            displayFunc("test_div_id");
+            
+            expect(mockWindow.addEventListener.called).to.be.false;
+            expect(UTIL.isElementInViewport.called).to.be.false;
+            expect(GPT.updateSlotsMapFromGoogleSlots.calledOnce).to.be.true;
+            done();
+        });
+
+        it("should not proceed if element doesn't exist", function(done) {
+            mockDocument.getElementById = function() { return null; };
+            
+            var displayFunc = GPT.newDisplayFunction(theObject, originalFunction);
+            displayFunc("test_div_id");
+            
+            expect(UTIL.isElementInViewport.called).to.be.false;
+            expect(mockWindow.removeEventListener.called).to.be.false;
+            expect(GPT.updateSlotsMapFromGoogleSlots.called).to.be.false;
+            done();
+        });
+    });
+
+    describe('#util.isElementInViewport for lazy loading', function() {
+        var mockElement;
+        var originalWindow;
+
+        beforeEach(function(done) {
+            originalWindow = global.window;
+            
+            global.window = {
+                innerHeight: 800
+            };
+            
+            mockElement = {
+                id: "test_div_id",
+                getBoundingClientRect: sinon.stub()
+            };
+            
+            sinon.stub(CONFIG, "getAuctionMarginPercentage").returns("50");
+            sinon.stub(CONFIG, "getMobileScalingForLazyLoading").returns("1.5");
+            sinon.stub(UTIL, "log");
+            done();
+        });
+
+        afterEach(function(done) {
+            global.window = originalWindow;
+            CONFIG.getAuctionMarginPercentage.restore();
+            CONFIG.getMobileScalingForLazyLoading.restore();
+            UTIL.log.restore();
+            done();
+        });
+
+        it("should return true when element is within viewport margin", function(done) {
+            mockElement.getBoundingClientRect.returns({
+                top: 900 // Just below viewport
+            });
+            
+            var result = UTIL.isElementInViewport(mockElement);
+            expect(result).to.be.true;
+            expect(UTIL.log.called).to.be.true;
+            done();
+        });
+
+        it("should return false when element is far below viewport margin", function(done) {
+            mockElement.getBoundingClientRect.returns({
+                top: 2000 // Far below viewport
+            });
+            
+            var result = UTIL.isElementInViewport(mockElement);
+            expect(result).to.be.false;
+            expect(UTIL.log.called).to.be.false;
+            done();
+        });
+
+        it("should return true when element is already in viewport", function(done) {
+            mockElement.getBoundingClientRect.returns({
+                top: 500 // Inside viewport
+            });
+            
+            var result = UTIL.isElementInViewport(mockElement);
+            expect(result).to.be.true;
+            expect(UTIL.log.called).to.be.true;
+            done();
+        });
+    });
+
+    describe('#util.throttle for lazy loading', function() {
+        var clock;
+
+        beforeEach(function(done) {
+            clock = sinon.useFakeTimers();
+            done();
+        });
+
+        afterEach(function(done) {
+            clock.restore();
+            done();
+        });
+
+        it("should only execute the function once within the time limit", function(done) {
+            var callback = sinon.spy();
+            var throttledFn = UTIL.throttle(callback, 300);
+            
+            // Call multiple times
+            throttledFn();
+            throttledFn();
+            throttledFn();
+            
+            expect(callback.calledOnce).to.be.true;
+            
+            // Advance time
+            clock.tick(301);
+            
+            // Call again
+            throttledFn();
+            expect(callback.calledTwice).to.be.true;
+            
+            done();
+        });
+
+        it("should pass arguments to the throttled function", function(done) {
+            var callback = sinon.spy();
+            var throttledFn = UTIL.throttle(callback, 300);
+            
+            throttledFn("test", 123);
+            
+            expect(callback.calledWith("test", 123)).to.be.true;
+            done();
+        });
+
+        it("should maintain the correct context", function(done) {
+            var context = { value: "test" };
+            var callback = sinon.spy(function() {
+                return this.value;
+            });
+            
+            var throttledFn = UTIL.throttle(callback, 300);
+            
+            var result = throttledFn.call(context);
+            expect(callback.calledOn(context)).to.be.true;
+            
+            done();
+        });
+    });
+
     describe('#newAddHookOnGoogletagDisplay', function() {
         var localGoogletag = null;
 
