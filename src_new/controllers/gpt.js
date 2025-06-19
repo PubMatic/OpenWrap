@@ -858,7 +858,22 @@ function newRefreshFuncton(theObject, originalFunction) {// TDD, i/o : done // N
                         window.addEventListener("scroll", throttledHandler);
                     }
                 } else {
-                    executeRefresh(qualifyingSlotNames, arguments);
+                    /* istanbul ignore next */
+                    refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
+                    /* istanbul ignore next */
+                    var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(arguments, theObject);
+                    
+                    // Make individual adapter calls for each slot
+                    util.forEachOnArray(qualifyingSlotNames, function(index, slotName) {
+                        refThis.forQualifyingSlotNamesCallAdapters([slotName], arguments, true);
+                    });
+                    /* istanbul ignore next */
+                    util.log("Initiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
+                                  
+                    var arg = arguments;
+                    refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
+                        refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
+                    });
                 }
             };
         }
