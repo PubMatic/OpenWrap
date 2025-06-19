@@ -790,32 +790,26 @@ exports.getQualifyingSlotNamesForRefresh = getQualifyingSlotNamesForRefresh;
         3. googletag.pubads().refresh();
         4. googletag.pubads().refresh(null, {changeCorrelator: false});
 */
-function newRefreshFuncton(theObject, originalFunction) {// TDD, i/o : done // Note : not covering the function currying atm , if need be will add istanbul ignore
+function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // Note : not covering the function currying atm , if need be will add istanbul ignore
     // Initiating getUserConsentDataFromCMP method to get the updated consentData
     // GDPR.getUserConsentDataFromCMP();
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         if(CONFIG.isIdentityOnly()){
             util.log("Identity Only Enabled. No Process Need. Calling Original Refresh function");
-            return function () {
+            return function() {
                 return originalFunction.apply(theObject, arguments);
             };
-        } else {
+        } 
+        else {
             return function() {
                 util.log("In Refresh function");
 
-                if (disableInitialLoadIsSet) {
-                    util.log("DisableInitialLoad was called, Nothing to do");
-                    return originalFunction.apply(theObject, arguments);
-                }
-
                 refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
-
                 var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(arguments, theObject);
 
                 if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
                     var slotsToRefresh = arguments[0] && util.isArray(arguments[0]) ? arguments[0] : theObject.getSlots();
                     var slotElementMap = {};
-
                     util.forEachOnArray(slotsToRefresh, function (index, slot) {
                         if (util.isFunction(slot.getSlotElementId)) {
                             slotElementMap[slot.getSlotElementId()] = slot;
@@ -846,12 +840,10 @@ function newRefreshFuncton(theObject, originalFunction) {// TDD, i/o : done // N
                         if (Object.keys(remainingSlots).length === 0) {
                             window.removeEventListener("scroll", throttledHandler);
                         }
-
                         slotElementMap = remainingSlots;
                     }
 
                     var throttledHandler = util.throttle(checkAndExecuteRefresh, 300);
-
                     checkAndExecuteRefresh();
 
                     if (Object.keys(slotElementMap).length > 0) {
@@ -861,15 +853,13 @@ function newRefreshFuncton(theObject, originalFunction) {// TDD, i/o : done // N
                     /* istanbul ignore next */
                     refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
                     /* istanbul ignore next */
-                    var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(arguments, theObject);
-                    
+                    var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(arguments, theObject);                    
                     // Make individual adapter calls for each slot
                     util.forEachOnArray(qualifyingSlotNames, function(index, slotName) {
                         refThis.forQualifyingSlotNamesCallAdapters([slotName], arguments, true);
                     });
                     /* istanbul ignore next */
-                    util.log("Initiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
-                                  
+                    util.log("Initiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");                
                     var arg = arguments;
                     refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
                         refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
@@ -887,10 +877,8 @@ function newRefreshFuncton(theObject, originalFunction) {// TDD, i/o : done // N
         if (!slotNames || slotNames.length === 0) {
             util.log("No slots to refresh");
             return;
-        }
-        
+        } 
         util.log("Executing refresh for slots: " + slotNames.join(", "));
-
         // Make adapter calls
         refThis.forQualifyingSlotNamesCallAdapters(slotNames, args, true);
 
@@ -970,8 +958,6 @@ function newRefreshFuncton(theObject, originalFunction) {// TDD, i/o : done // N
         }, timeoutIncrementer);
     }
 }
-
-
 
 /* start-test-block */
 exports.newRefreshFuncton = newRefreshFuncton;
