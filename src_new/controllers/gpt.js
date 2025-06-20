@@ -603,56 +603,70 @@ exports.forQualifyingSlotNamesCallAdapters = forQualifyingSlotNamesCallAdapters;
 function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
     // Initiating getUserConsentDataFromCMP method to get the updated consentData
     // GDPR.getUserConsentDataFromCMP();
-
+  
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         if(CONFIG.isIdentityOnly()){
             util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " Original Display function");
             return function() {
-	            return originalFunction.apply(theObject, arguments);
+                return originalFunction.apply(theObject, arguments);
             }
-        }
+        } 
         else{
-        // Todo : change structure to take out the anonymous function for better unit test cases
+            // Todo : change structure to take out the anonymous function for better unit test cases
             return function() {
-                /* istanbul ignore next */
-                util.log("In display function, with arguments: ");
 
-            
-                /* istanbul ignore next */
-                util.log(arguments);
-                /* istanbul ignore next */
-                /* istanbul ignore if */
                 if (disableInitialLoadIsSet) {
                     util.log("DisableInitialLoad was called, Nothing to do");
                     return originalFunction.apply(theObject, arguments);
                 }
-                /* istanbul ignore next */
-                refThis.updateSlotsMapFromGoogleSlots(theObject.pubads().getSlots(), arguments, true);
 
-                /* istanbul ignore next */
-                refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
-                var statusObj = {};
-                statusObj[CONSTANTS.SLOT_STATUS.CREATED] = "";
-                /* istanbul ignore next */
-                // Todo: need to add reThis whilwe calling getSlotNamesByStatus
-                refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus(statusObj), arguments, false);
-                /* istanbul ignore next */
-                var divID = arguments[0];
-                /* istanbul ignore next */
-                setTimeout(function() {
-                    util.realignVLogInfoPanel(divID);
-                    bidManager.executeAnalyticsPixel();
-                }, 2000 + CONFIG.getTimeout());
-
-                //return originalFunction.apply(theObject, arguments);
+                if(!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
+                    var targetSlotId = arguments[0];
+                   
+                    function checkAndExecute() {
+                        if(targetSlotId) {
+                            var element = document.getElementById(targetSlotId);
+                            if(element && util.isElementInViewport(element)) {
+                                executeDisplay(targetSlotId);
+                                window.removeEventListener("scroll", throttledScrollHandler);
+                            }
+                        }
+                    }
+                    var throttledScrollHandler = util.throttle(checkAndExecute, 300);
+                    // Initial check in case some elements are already in view
+                    checkAndExecute();
+                    window.addEventListener("scroll", throttledScrollHandler);
+                } else {
+                    // If lazy loading is not enabled, run task immediately
+                    executeDisplay(arguments[0]);
+                }
             };
         }
     } else {
         util.log("display: originalFunction is not a function");
         return null;
     }
-}
-
+    function executeDisplay(id){
+     var slots = googletag.pubads().getSlots();
+     var specificSlot = slots.filter(function(slot) { return slot.getSlotElementId() === id; });
+     /* istanbul ignore next */
+     refThis.updateSlotsMapFromGoogleSlots(specificSlot, arguments, true);
+     /* istanbul ignore next */
+     refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
+     var statusObj = {};
+     statusObj[CONSTANTS.SLOT_STATUS.CREATED] = "";
+     /* istanbul ignore next */
+     // Todo: need to add reThis whilwe calling getSlotNamesByStatus
+     refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus(statusObj), arguments, false);
+     /* istanbul ignore next */
+     var divID = arguments[0];
+     /* istanbul ignore next */
+     setTimeout(function () {
+       util.realignVLogInfoPanel(divID);
+       bidManager.executeAnalyticsPixel();
+     }, 2000 + CONFIG.getTimeout());
+    }
+  }
 /* start-test-block */
 exports.newDisplayFunction  = newDisplayFunction;
 /* end-test-block */
