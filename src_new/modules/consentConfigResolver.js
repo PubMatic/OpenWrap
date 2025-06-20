@@ -197,6 +197,17 @@ commonUtil.getGlobalOwObject().getConsentResolverConfig = function getConsentRes
   return crConfig.getProperties();
 };
 
+/**
+   * Set the time taken by CMP to load
+   * @param {*} timeExceeded : If time exceeded then set the default timeout value
+   */
+function setCMPTime(timeExceeded) {
+  // If time taken by CMP is not set then set the default timeout value
+  if (!timeMetrics.getDurationOf("CMP_CALLING_TIME")) {
+    timeMetrics.recordExitTime("CMP_CALLING_TIME", timeExceeded ? 1500 : null);
+  }
+}
+
 
 /**
  * Get CMP API and timeout configuration
@@ -265,17 +276,6 @@ function getCMPsPresentOnPage() {
           setCMPTime(false);
         }
       }
-    }
-  }
-
-  /**
-   * Set the time taken by CMP to load
-   * @param {*} timeExceeded : If time exceeded then set the default timeout value
-   */
-  function setCMPTime(timeExceeded) {
-    // If time taken by CMP is not set then set the default timeout value
-    if (!timeMetrics.getDurationOf("CMP_CALLING_TIME")) {
-      timeMetrics.recordExitTime("CMP_CALLING_TIME", timeExceeded ? 1500 : null);
     }
   }
 
