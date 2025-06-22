@@ -790,42 +790,91 @@ exports.getQualifyingSlotNamesForRefresh = getQualifyingSlotNamesForRefresh;
         3. googletag.pubads().refresh();
         4. googletag.pubads().refresh(null, {changeCorrelator: false});
 */
-function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // Note : not covering the function currying atm , if need be will add istanbul ignore
+function newRefreshFuncton(theObject, originalFunction) {
     // Initiating getUserConsentDataFromCMP method to get the updated consentData
     // GDPR.getUserConsentDataFromCMP();
 
-    if (util.isObject(theObject) && util.isFunction(originalFunction)) {
-        if(CONFIG.isIdentityOnly()){
-            util.log("Identity Only Enabled. No Process Need. Calling Original Display function");
-            return function() {
-                return originalFunction.apply(theObject, arguments);
-            }
-        }
-        else{
-        // var refThis = this;
-            return function() {
-                /* istanbul ignore next */
-                util.log("In Refresh function");
-            
-                /* istanbul ignore next */
-                refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
-                /* istanbul ignore next */
-                var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(arguments, theObject);
-                /* istanbul ignore next */
-                refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
-                /* istanbul ignore next */
-                util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
-              
-                var arg = arguments;
-                refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
-                    refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
-                });        
-            };
-        }
-    } else {
+    if (!util.isObject(theObject) || !util.isFunction(originalFunction)) {
         util.log("refresh: originalFunction is not a function");
         return null;
     }
+    if (CONFIG.isIdentityOnly()) {
+        util.log("Identity Only Enabled. No Process Need. Calling Original Display function");
+        return function() {
+            return originalFunction.apply(theObject, arguments);
+        }
+    }
+
+    // Main refresh logic
+    return function() {
+        util.log("In Refresh function");
+        refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
+        var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(arguments, theObject);
+
+        // If lazyload is enabled and not SRA, do viewport-aware refresh
+        if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
+            // Partition slots into visible and pending
+            var visibleSlots = [], pendingSlots = [];
+            qualifyingSlotNames.forEach(function(slotName) {
+                var slotObj = refThis.slotsMap[slotName];
+                if (!slotObj) return;
+                var divId = slotObj.getDivID();
+                var el = document.getElementById(divId);
+                if (el && util.isElementInViewport(el)) {
+                    visibleSlots.push(slotName);
+                } else {
+                    pendingSlots.push(slotName);
+                }
+            });
+
+            // Helper: refresh a batch of slots
+            function refreshSlots(slotNames) {
+                if (!slotNames.length) return;
+                refThis.forQualifyingSlotNamesCallAdapters(slotNames, arguments, true);
+                refThis.executeDisplay(CONFIG.getTimeout(), slotNames, function() {
+                    refThis.postTimeoutRefreshExecution(slotNames, theObject, originalFunction, arguments);
+                });
+            }
+
+            // Refresh visible slots immediately
+            refreshSlots(visibleSlots);
+
+            // If there are offscreen slots, attach a single scroll handler
+            if (pendingSlots.length) {
+                var handler = util.throttle(function() {
+                    // Find all slots that became visible in this scroll event
+                    var batchVisible = [];
+                    var stillPending = [];
+                    for (var i = 0; i < pendingSlots.length; i++) {
+                        var slotName = pendingSlots[i];
+                        var slotObj = refThis.slotsMap[slotName];
+                        if (!slotObj) continue;
+                        var divId = slotObj.getDivID();
+                        var el = document.getElementById(divId);
+                        if (el && util.isElementInViewport(el)) {
+                            batchVisible.push(slotName);
+                        } else {
+                            stillPending.push(slotName);
+                        }
+                    }
+                    if (batchVisible.length > 0) {
+                        refreshSlots(batchVisible);
+                    }
+                    pendingSlots = stillPending;
+                    if (!pendingSlots.length) {
+                        window.removeEventListener("scroll", handler, true);
+                    }
+                }, 250);
+                window.addEventListener("scroll", handler, true);
+            }
+        } else {
+            // No lazyload: refresh all qualifying slots immediately
+            refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
+            refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
+                refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arguments);
+            });
+        }
+    };
 }
 
 /* start-test-block */
