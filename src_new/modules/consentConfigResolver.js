@@ -330,17 +330,6 @@ function getCMPLookUpTimeout() {
 }
 
 function continuousCmpCheck() {
-  // Check if continuous CMP checking is enabled and not timed out
-  var currentTime = Date.now();
-  var config = crConfig.getProperties();
-
-  // If CMP already found or continuous checking is disabled or timed out, return
-  if (config.ccmp === 1 ||
-    !crConfig.getContinuousCmpCheckEnabled() ||
-    (currentTime - crConfig.getContinuousCmpCheckStartTime() > crConfig.getContinuousCmpCheckTimeout())) {
-    return;
-  }
-
   // Check for CMP presence
   var detectedCmps = getCMPsPresentOnPage();
   if (detectedCmps.length > 0) {
@@ -365,9 +354,22 @@ function addFetchBidsHook() { // add hook for fetchBids
   // Add a hook to the fetchBids function
   var originalFetchBids = prebid.fetchBids;
   prebid.fetchBids = function (activeSlots, callback) {
+
+    // Check if continuous CMP checking is enabled and not timed out
+    var currentTime = Date.now();
+    var config = crConfig.getProperties();
+
     // Check for CMP presence before proceeding with fetchBids
-    if(crConfig.getContinuousCmpCheckEnabled() && crConfig.getContinuousCmpCheckAuctionStarted()){
-      continuousCmpCheck();
+    if (crConfig.getContinuousCmpCheckEnabled() && crConfig.getContinuousCmpCheckAuctionStarted()) {
+      // If CMP already found or continuous checking is disabled or timed out, return
+      if (config.ccmp === 0 && (currentTime - crConfig.getContinuousCmpCheckStartTime() < crConfig.getContinuousCmpCheckTimeout())) {
+        continuousCmpCheck();
+        timeMetrics.recordExitTime("CONSENT_CONFIG_RESOLVER_TIME");
+      } else {
+        prebid.fetchBids = originalFetchBids;
+        timeMetrics.recordExitTime("CONSENT_CONFIG_RESOLVER_TIME");
+        return;
+      } 
     }
 
     // Call the original fetchBids function
