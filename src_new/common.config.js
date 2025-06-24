@@ -15,3 +15,8 @@ exports.getTimeout = function (timeoutField, defaultTimeout) {
 	var timeout = config[CONSTANTS.CONFIG.COMMON][timeoutField];
 	return timeout ? window.parseInt(timeout) : defaultTimeout;
 };
+
+// needed
+exports.isUserIdModuleEnabled = function(){
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ENABLE_USER_ID] || CONSTANTS.CONFIG.DEFAULT_USER_ID_MODULE);
+};

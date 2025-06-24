@@ -8,8 +8,7 @@ var prebid = require("../adapters/prebid.js");
 // Constants for consent management
 var CONSENT_CONSTANTS = {
   DEFAULT_CMP_LOOK_UP_TIMEOUT: 1000,
-  CONTINUOUS_CMP_CHECK_TIMEOUT: 10000,
-  CONTINUOUS_CMP_CHECK_INTERVAL: 100,
+  CONTINUOUS_CMP_CHECK_TIMEOUT: 15000,
   CONSENT_MANAGEMENT_SOURCE: {    // 1 -> CMP, 2 -> GEO, 0 -> NONE
     CMP: 1,
     GEO: 2,
@@ -60,8 +59,7 @@ var ConsentResolverConfig = (function () {
         continuousCmpCheck: {
           enabled: false,         // Continuous CMP checking enabled
           auctionStarted: false,  // Auction started flag
-          timeout: CONSENT_CONSTANTS.CONTINUOUS_CMP_CHECK_TIMEOUT,         // Continuous CMP checking timeout
-          interval: CONSENT_CONSTANTS.CONTINUOUS_CMP_CHECK_INTERVAL,          // Continuous CMP checking interval
+          timeout: CONSENT_CONSTANTS.CONTINUOUS_CMP_CHECK_TIMEOUT,         // Continuous CMP checking timeout         
           startTime: 0            // Continuous CMP checking start time
         }
       };
@@ -139,10 +137,7 @@ var ConsentResolverConfig = (function () {
       },
       getContinuousCmpCheckTimeout: function () {
         return config.continuousCmpCheck.timeout || 10000; // Default 10 seconds
-      },
-      getContinuousCmpCheckInterval: function () {
-        return config.continuousCmpCheck.interval || 500; // Default 500ms
-      },
+      },      
       getContinuousCmpCheckStartTime: function () {
         return config.continuousCmpCheck.startTime || 0;
       },
@@ -342,9 +337,14 @@ function continuousCmpCheck() {
     crConfig.setEnforcedConsentBasisOn(CONSENT_CONSTANTS.CONSENT_MANAGEMENT_SOURCE.CMP);
     // Update Prebid configuration with CMP-based settings
     // Set consent management config to prebid object
+    // Set for auction
     commonUtil.getGlobalPbObject().setConfig({
       consentManagement: crConfig.getPrebidCMConfig()
     });
+    // Set for OW+IH, IH
+    if(COMMON_CONFIG.isUserIdModuleEnabled()) {
+      commonUtil.getGlobalPbObject().refreshUserIds();
+    }
     // Disable continuous checking since CMP is found
     crConfig.setContinuousCmpCheckEnabled(false);
   }
