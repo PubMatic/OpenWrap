@@ -20,3 +20,8 @@ exports.getTimeout = function (timeoutField, defaultTimeout) {
 exports.isUserIdModuleEnabled = function(){
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.ENABLE_USER_ID] || CONSTANTS.CONFIG.DEFAULT_USER_ID_MODULE);
 };
+exports.isIdentityOnly = function () {
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.IDENTITY_ONLY] || CONSTANTS.CONFIG.DEFAULT_IDENTITY_ONLY);
+};
+
+

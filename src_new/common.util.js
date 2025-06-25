@@ -60,6 +60,10 @@ function getGlobalOwObject() {
 }
 exports.getGlobalOwObject = getGlobalOwObject;
 
+exports.getIHPrebidNameSpace = function () {
+	return conf[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.PBJS_NAMESPACE] || "pbjs";
+};
+
 
 /**
  * Determines whether an action should be throttled based on a given percentage.
