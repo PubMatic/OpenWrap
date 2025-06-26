@@ -637,7 +637,6 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
                     checkAndExecute();
                     window.addEventListener("scroll", throttledScrollHandler);
                 } else {
-                    // If lazy loading is not enabled, run task immediately
                     executeDisplay(arguments[0]);
                 }
             };
@@ -647,8 +646,12 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
         return null;
     }
     function executeDisplay(id){
+
         var slots = googletag.pubads().getSlots();
-     var specificSlot = slots.filter(function(slot) { return slot.getSlotElementId() === id; });
+        var specificSlot = slots;
+        if(!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()){
+            specificSlot = slots.filter(function(slot) { return slot.getSlotElementId() === id; });
+        }
         /* istanbul ignore next */
         refThis.updateSlotsMapFromGoogleSlots(specificSlot, arguments, true);
         /* istanbul ignore next */
