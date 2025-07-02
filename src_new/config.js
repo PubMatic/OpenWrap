@@ -362,17 +362,17 @@ exports.updateABTestConfig = function () {
 			refThis.updatePWTConfig();
 			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters);	
 			refThis.enableBidpoolingIfApplicable(testGroupDetails);
-			// Handle identity partners for test group
-			var testIdentityPartners = refThis.getTestIdentityPartners();
-			var controlIdentityPartners = refThis.getIdentityPartners();
-			// Only modify identity partners if test configuration explicitly defines them
-			if(testIdentityPartners && Object.keys(testIdentityPartners).length > 0) {
-				// When test identity partners are explicitly configured
-				config.identityPartners = refThis.getTestIdentityPartners();
-				util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(config.identityPartners));
-			} else {
-				// When no test identity partners are defined, keep the same identity partners as control group
-				config.identityPartners = controlIdentityPartners || {};
+			if(refThis.getTestIdentityPartners() && refThis.getIdentityPartners() && testGroupDetails.testType == CONSTANTS.COMMON.ABTEST_IDENTITY_PROVIDERS){
+				if(Object.keys(refThis.getTestIdentityPartners()).length > 0 && Object.keys(refThis.getIdentityPartners()).length == 0){
+					util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(refThis.getTestIdentityPartners()));
+					config.identityPartners = refThis.getTestIdentityPartners();
+				} else if(Object.keys(refThis.getTestIdentityPartners()).length == 0 && Object.keys(refThis.getIdentityPartners()).length > 0){
+					util.log(CONSTANTS.MESSAGES.M31, JSON.stringify({}));
+					config.identityPartners = {};
+				}
+				else{
+					config.identityPartners = refThis.updatePartnerConfig(refThis.getTestIdentityPartners(), refThis.getIdentityPartners());			
+				}
 			}
 			window.PWT.testGroupId = 1;
 		}
