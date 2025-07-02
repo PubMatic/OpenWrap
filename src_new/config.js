@@ -368,7 +368,7 @@ exports.updateABTestConfig = function () {
 			// Only modify identity partners if test configuration explicitly defines them
 			if(testIdentityPartners && Object.keys(testIdentityPartners).length > 0) {
 				// When test identity partners are explicitly configured
-				config.identityPartners = refThis.updatePartnerConfig(testIdentityPartners, controlIdentityPartners);
+				config.identityPartners = refThis.getTestIdentityPartners();
 				util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(config.identityPartners));
 			} else {
 				// When no test identity partners are defined, keep the same identity partners as control group
