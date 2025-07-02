@@ -367,11 +367,11 @@ exports.updateABTestConfig = function () {
 			var controlIdentityPartners = refThis.getIdentityPartners();
 			// Only modify identity partners if test configuration explicitly defines them
 			if(testIdentityPartners && Object.keys(testIdentityPartners).length > 0) {
-				// If test identity partners are configured, use them
-				util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(testIdentityPartners));
-				config.identityPartners = testIdentityPartners;
+				// When test identity partners are explicitly configured
+				config.identityPartners = refThis.updatePartnerConfig(testIdentityPartners, controlIdentityPartners);
+				util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(config.identityPartners));
 			} else {
-				// keep the same identity partners as control group
+				// When no test identity partners are defined, keep the same identity partners as control group
 				config.identityPartners = controlIdentityPartners || {};
 			}
 			window.PWT.testGroupId = 1;
