@@ -1409,6 +1409,7 @@ describe('Config', function() {
             };
             CONF[CONSTANTS.COMMON.TEST_PWT]  = {};
             CONF[CONSTANTS.COMMON.TEST_IDENTITY_PARTNER]  =  result
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS].testType  =  CONSTANTS.COMMON.ABTEST_IDENTITY_PROVIDERS
             CONF[CONSTANTS.COMMON.IDENTITY_PARTNERS]  = {};
             CONFIG.updateABTestConfig()
             expect(CONFIG.getIdentityPartners()).to.deep.equal(result);
