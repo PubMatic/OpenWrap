@@ -1465,6 +1465,7 @@ function initPbjsConfig(){
 exports.initPbjsConfig = initPbjsConfig;
 
 function fetchBids(activeSlots, callback) {
+ 	setPrebidConfig();
 	function requestBidsPostConsentProcess() {
 		// Halt execution till we found if consentManagement Config is set or not, once this flag found we will proceed with below execution
 		if(!COMMON_CONFIG.consentManagementEnabled()){
