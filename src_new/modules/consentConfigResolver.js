@@ -34,44 +34,9 @@ var ConsentConstants = {
 };
 
 // ===========================================
-// Compliance API Configuration Module
-// ===========================================
-var ComplianceApiConfig = (function() {
-  // Private configuration
-  var apiConfig = {
-    GDPR: { 
-      apiName: "__tcfapi", 
-      complianceName: "gdpr", 
-      prepareConfig: null // Will be set after ComplianceHandler is defined
-    },
-    USP: { 
-      apiName: "__uspapi", 
-      complianceName: "usp", 
-      prepareConfig: null // Will be set after ComplianceHandler is defined
-    },
-    GPP: { 
-      apiName: "__gpp", 
-      complianceName: "gpp", 
-      prepareConfig: null // Will be set after ComplianceHandler is defined
-    }
-  };
-
-  return {
-    getApiConfig: function() {
-      return apiConfig;
-    },
-    setConfigHandlers: function(gdprHandler, uspHandler, gppHandler) {
-      apiConfig.GDPR.prepareConfig = gdprHandler;
-      apiConfig.USP.prepareConfig = uspHandler;
-      apiConfig.GPP.prepareConfig = gppHandler;
-    }
-  };
-})();
-
-// ===========================================
 // Configuration Manager Module
 // ===========================================
-var ConsentConfigManager = (function() {
+var ConsentConfigManager = (function () {
   var instance;
 
   function createInstance() {
@@ -95,7 +60,6 @@ var ConsentConfigManager = (function() {
         callbackFunctions: [],            // Functions to be called after the process is completed
         continuousCmpCheck: {
           enabled: false,         // Continuous CMP checking enabled
-          auctionStarted: false,  // Auction started flag
           timeout: ConsentConstants.CONTINUOUS_CMP_CHECK_TIMEOUT,         // Continuous CMP checking timeout         
           startTime: 0            // Continuous CMP checking start time
         }
@@ -104,10 +68,10 @@ var ConsentConfigManager = (function() {
     var config = getConfig();
 
     return {
-      getConsentManagementEnabled: function() {
+      getConsentManagementEnabled: function () {
         return config.consentManagementEnabled;
       },
-      getProcessCompleted: function(callbackFn) {
+      getProcessCompleted: function (callbackFn) {
         if (config.processCompleted) {
           callbackFn();
           return;
@@ -115,25 +79,25 @@ var ConsentConfigManager = (function() {
         if (commonUtil.isFunction(callbackFn))
           config.callbackFunctions.push(callbackFn);
       },
-      getComplianceSupport: function() {
+      getComplianceSupport: function () {
         return config.complianceSupport;
       },
-      getPrebidCMConfig: function() {
+      getPrebidCMConfig: function () {
         return config.prebidCMConfig;
       },
-      setConsentManagementEnabled: function(consentManagementEnabled) {
+      setConsentManagementEnabled: function (consentManagementEnabled) {
         config.consentManagementEnabled = consentManagementEnabled;
       },
-      setCmpPresent: function(cmpPresent) {
+      setCmpPresent: function (cmpPresent) {
         config.cmpPresent = cmpPresent;
       },
-      setProcessCompleted: function(processCompleted) {
+      setProcessCompleted: function (processCompleted) {
         config.processCompleted = processCompleted;
         if (processCompleted) {
           this.executeCallbackFunctions();
         }
       },
-      executeCallbackFunctions: function() {
+      executeCallbackFunctions: function () {
         while (config.callbackFunctions.length > 0) {
           var fn = config.callbackFunctions.shift();
           if (commonUtil.isFunction(fn)) {
@@ -141,10 +105,10 @@ var ConsentConfigManager = (function() {
           }
         }
       },
-      setCmpId: function(cmpId) {
+      setCmpId: function (cmpId) {
         config.cmpId = cmpId;
       },
-      setEnforcedConsentBasisOn: function(enforcedConsentBasisOn) {
+      setEnforcedConsentBasisOn: function (enforcedConsentBasisOn) {
         config.enforcedConsentBasisOn = enforcedConsentBasisOn;
       },
       setGeoMatchWithCMP: function () {
@@ -157,37 +121,33 @@ var ConsentConfigManager = (function() {
         config.readGeoDataFrom = readFrom;
         this.setGeoMatchWithCMP();
       },
-      resetPrebidCMConfig: function() {
+      resetPrebidCMConfig: function () {
         config.prebidCMConfig = {};
       },
-      setPrebidCMConfig: function(key, conf) {
+      setPrebidCMConfig: function (key, conf) {
         config.prebidCMConfig[key] = conf;
       },
-      setComplianceSupport: function(compliance) {
-        config.complianceSupport.push(compliance);
+      setComplianceSupport: function (compliance) {
+        if(!config.complianceSupport.includes(compliance)) {
+          config.complianceSupport.push(compliance);
+        }
       },
-      getContinuousCmpCheckEnabled: function() {
+      getContinuousCmpCheckEnabled: function () {
         return config.continuousCmpCheck.enabled;
       },
-      setContinuousCmpCheckEnabled: function(enabled) {
+      setContinuousCmpCheckEnabled: function (enabled) {
         config.continuousCmpCheck.enabled = enabled;
       },
-      getContinuousCmpCheckTimeout: function() {
+      getContinuousCmpCheckTimeout: function () {
         return config.continuousCmpCheck.timeout;
       },
-      getContinuousCmpCheckStartTime: function() {
+      getContinuousCmpCheckStartTime: function () {
         return config.continuousCmpCheck.startTime;
       },
-      setContinuousCmpCheckStartTime: function(time) {
+      setContinuousCmpCheckStartTime: function (time) {
         config.continuousCmpCheck.startTime = time;
       },
-      getContinuousCmpCheckAuctionStarted: function() {
-        return config.continuousCmpCheck.auctionStarted;
-      },
-      setContinuousCmpCheckAuctionStarted: function(auctionStarted) {
-        config.continuousCmpCheck.auctionStarted = auctionStarted;
-      },
-      getProperties: function() {
+      getProperties: function () {
         return {
           ccme: config.consentManagementEnabled ? 1 : 0,
           ccmp: config.cmpPresent ? 1 : 0,
@@ -199,18 +159,17 @@ var ConsentConfigManager = (function() {
           cgm: config.geoMatchWithCMP,
           cccce: config.continuousCmpCheck.enabled,
           cccct: config.continuousCmpCheck.timeout,
-          ccccas: config.continuousCmpCheck.auctionStarted,
           ccccst: config.continuousCmpCheck.startTime
         };
       },
-      reset: function() {
+      reset: function () {
         config = getConfig();
       }
     };
   }
 
   return {
-    getInstance: function() {
+    getInstance: function () {
       if (!instance) {
         instance = createInstance();
       }
@@ -221,38 +180,109 @@ var ConsentConfigManager = (function() {
 
 var crConfig = ConsentConfigManager.getInstance();
 
+
+// ===========================================
+// Compliance API Configuration Module
+// ===========================================
+var ComplianceApiConfig = (function () {
+  // Private configuration
+  var apiConfig = {
+    GDPR: {
+      apiName: "__tcfapi",
+      complianceName: "gdpr",
+      prepareConfig: null // Will be set after ComplianceHandler is defined
+    },
+    USP: {
+      apiName: "__uspapi",
+      complianceName: "usp",
+      prepareConfig: null // Will be set after ComplianceHandler is defined
+    },
+    GPP: {
+      apiName: "__gpp",
+      complianceName: "gpp",
+      prepareConfig: null // Will be set after ComplianceHandler is defined
+    }
+  };
+
+  return {
+    getApiConfig: function () {
+      return apiConfig;
+    },
+    setConfigHandlers: function (gdprHandler, uspHandler, gppHandler) {
+      apiConfig.GDPR.prepareConfig = gdprHandler;
+      apiConfig.USP.prepareConfig = uspHandler;
+      apiConfig.GPP.prepareConfig = gppHandler;
+    }
+  };
+})();
+
+// ===========================================
+// Compliance Handler Module
+// ===========================================
+var ComplianceHandler = (function () {
+  function configureGDPR() {
+    var gdprConfig = {
+      cmpApi: COMMON_CONFIG.getCmpApi(),
+      timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.CONSENT_MANAGEMENT_TIMEOUT, 1000),
+      defaultGdprScope: true,
+    };
+
+    var gdprActionTimeout = commonUtil.getGlobalOwObject().actionTimeout || undefined;
+    if (gdprActionTimeout && commonUtil.isNumber(gdprActionTimeout)) {
+      gdprConfig.actionTimeout = gdprActionTimeout;
+    }
+    crConfig.setPrebidCMConfig("gdpr", gdprConfig);
+  }
+
+  function configureUSP() {
+    var uspConfig = {
+      cmpApi: COMMON_CONFIG.getCmpApi(),
+      timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.CONSENT_MANAGEMENT_TIMEOUT, 1000)
+    };
+
+    crConfig.setPrebidCMConfig("usp", uspConfig);
+  }
+
+  function configureGPP() {
+    var gppConfig = {
+      cmpApi: COMMON_CONFIG.getCmpApi(),
+      timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.CONSENT_MANAGEMENT_TIMEOUT, 1000)
+    };
+
+    crConfig.setPrebidCMConfig("gpp", gppConfig);
+  }
+
+  // Set the compliance handlers in the ComplianceApiConfig
+  ComplianceApiConfig.setConfigHandlers(configureGDPR, configureUSP, configureGPP);
+})();
+
+
 // ===========================================
 // Geo Service Module
 // ===========================================
-var GeoService = (function() {
+var GeoService = (function () {
   function getGeoInfoWrapper() {
     timeMetrics.recordEntryTime("GEO_CALLING_TIME", 1500); // Setting default timeout of 1500 ms in case service fails or didn't respond
-    commonUtil.getGeoInfo(ConsentConstants.READ_GEO_DATA_FROM, function(readFrom, geoInfo) {
+    commonUtil.getGeoInfo(ConsentConstants.READ_GEO_DATA_FROM, function (readFrom, geoInfo) {
       crConfig.setGeoInfo(readFrom, geoInfo);
       timeMetrics.recordExitTime("GEO_CALLING_TIME");
     });
   }
 
-  function getCMPLookUpTimeout() {
-    return (commonUtil.getGlobalOwObject() && commonUtil.isNumber(commonUtil.getGlobalOwObject().cmpLookUpTimeout))
-      ? commonUtil.getGlobalOwObject().cmpLookUpTimeout
-      : ConsentConstants.DEFAULT_CMP_LOOK_UP_TIMEOUT;
-  }
-
   return {
-    getGeoInfoWrapper: getGeoInfoWrapper,
-    getCMPLookUpTimeout: getCMPLookUpTimeout
+    getGeoInfoWrapper: getGeoInfoWrapper
   };
 })();
 
 // ===========================================
 // CMP Detector Module
 // ===========================================
-var CmpDetector = (function() {
+var CmpDetector = (function () {
+
   function checkCMPInWindow(frame) {
     var cmpApis = ComplianceApiConfig.getApiConfig();
     var detectedCmps = [];
-    
+
     for (var compliance in cmpApis) {
       if (cmpApis.hasOwnProperty(compliance)) {
         var apiName = cmpApis[compliance].apiName;
@@ -268,33 +298,6 @@ var CmpDetector = (function() {
     return detectedCmps;
   }
 
-  function setConsentResolverConfig(detectedCmps) {
-    if (detectedCmps.length === 0) {
-      return;
-    }
-    // If GDPR CMP is detected, get CMP ID
-    for (var j = 0; j < detectedCmps.length; j++) {
-      HookManager.setCMPTime(false);
-      crConfig.setComplianceSupport(ConsentConstants.COMPLIANCE_MAP[detectedCmps[j].compliance]);
-      crConfig.setCmpPresent(true);
-      if (detectedCmps[j].compliance === "GDPR") {
-        detectedCmps[j].api("addEventListener", 2, handleGDPR);
-      } else if (detectedCmps[j].compliance === "GPP") {
-        detectedCmps[j].api("addEventListener", handleGPP);    
-      }
-    }
-  }
-
-  function handleGDPR(pingReturnData, success) {
-    if (success && pingReturnData && pingReturnData.cmpId) {
-      crConfig.setCmpId(pingReturnData.cmpId);
-    }
-  }
-
-  function handleGPP(pingReturnData, success) {
-    crConfig.setCmpId(pingReturnData && pingReturnData.pingData && pingReturnData.pingData.cmpId);
-  }
-  
   function getCMPsPresentOnPage() {
     var detectedCmps = [];
     var currentWindow = window;
@@ -302,7 +305,6 @@ var CmpDetector = (function() {
     // Iterate through window frames to find CMPs
     while (currentWindow) {
       detectedCmps = detectedCmps.concat(checkCMPInWindow(currentWindow));
-      setConsentResolverConfig(detectedCmps);
       if (currentWindow === window.top) break;
       currentWindow = currentWindow.parent;
     }
@@ -314,56 +316,115 @@ var CmpDetector = (function() {
   };
 })();
 
+
 // ===========================================
-// Compliance Handler Module
+// Consent Setter For Continuous CMP Check Module
 // ===========================================
-var ComplianceHandler = (function() {
-  function configureGDPR() {
-    var gdprConfig = {
-      cmpApi: COMMON_CONFIG.getCmpApi(),
-      timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.CONSENT_MANAGEMENT_TIMEOUT, 1000),
-      defaultGdprScope: true,
-    };
+var ConsentSetterForContinuousCMPCheck = (function () {
+  function setConsentManagementConfig() {
+    crConfig.setGeoMatchWithCMP();
+    crConfig.setEnforcedConsentBasisOn(ConsentConstants.CONSENT_MANAGEMENT_SOURCE.CMP);
 
-    var gdprActionTimeout = commonUtil.getGlobalOwObject().actionTimeout || undefined;
-    if (gdprActionTimeout && commonUtil.isNumber(gdprActionTimeout)) {
-      gdprConfig.actionTimeout = gdprActionTimeout;
-    }  
-    crConfig.setPrebidCMConfig("gdpr", gdprConfig);
+    // Update Prebid configuration with CMP-based settings
+    commonUtil.getGlobalPbObject().setConfig({
+      consentManagement: crConfig.getPrebidCMConfig()
+    });
+
+    // Set for OW+IH, IH
+    if (COMMON_CONFIG.isUserIdModuleEnabled()) {
+      commonUtil.getGlobalPbObject().refreshUserIds();
+    }
   }
 
-  function configureUSP() {
-    var uspConfig = {
-      cmpApi: COMMON_CONFIG.getCmpApi(),
-      timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.CONSENT_MANAGEMENT_TIMEOUT, 1000)
-    };
-    
-    crConfig.setPrebidCMConfig("usp", uspConfig);
+  function checkForCMPPresence() {
+    // Check for CMP presence
+    var detectedCmps = CmpDetector.getCMPsPresentOnPage();
+    if (detectedCmps.length > 0) {
+      ConsentResolver.setConsentResolverConfig(detectedCmps);
+      crConfig.resetPrebidCMConfig();
+      for (var i = 0; i < detectedCmps.length; i++) {
+        detectedCmps[i].prepareConfig();
+      }
+      return true;
+    }
+    return false;
   }
 
-  function configureGPP() {
-    var gppConfig = {
-      cmpApi: COMMON_CONFIG.getCmpApi(),
-      timeout: COMMON_CONFIG.getTimeout(CONSTANTS.CONFIG.CONSENT_MANAGEMENT_TIMEOUT, 1000)
-    };
-    
-    crConfig.setPrebidCMConfig("gpp", gppConfig);
+  function shouldContinueCheckingForCMP() {
+    var currentTime = Date.now();
+    var config = crConfig.getProperties();
+
+    if (config.ccmp || (currentTime - crConfig.getContinuousCmpCheckStartTime() > crConfig.getContinuousCmpCheckTimeout())) {
+      return false;
+    }
+    return true;
   }
 
-  // Set the compliance handlers in the ComplianceApiConfig
-  ComplianceApiConfig.setConfigHandlers(configureGDPR, configureUSP, configureGPP);
+  function handleForOW() {
+    // Add a hook to the fetchBids function
+    var originalFetchBids = prebid.fetchBids;
+
+    function resetFetchBids() {
+      prebid.fetchBids = originalFetchBids;
+    }
+
+    prebid.fetchBids = function (activeSlots, callback) {
+      // Check for CMP presence before proceeding with fetchBids
+      if (!shouldContinueCheckingForCMP()) {
+        resetFetchBids();
+      } else {
+        if(checkForCMPPresence()) {
+          resetFetchBids();
+          setConsentManagementConfig();
+        }
+      }
+      timeMetrics.recordExitTime("CONSENT_CONFIG_RESOLVER_TIME");
+      // Call the original fetchBids function
+      return originalFetchBids.call(prebid, activeSlots, callback);
+    };
+  }
+
+  function handleForIH() {
+    var eventHandlerId = 'continuousCmpCheckIHEventId';
+    function offEvent() {
+      commonUtil.getIHPrebidNameSpace().offEvent("auctionInit", handler, eventHandlerId);
+    }
+    function handler() {
+      if(!shouldContinueCheckingForCMP()){
+        offEvent();
+        timeMetrics.recordExitTime("CONSENT_CONFIG_RESOLVER_TIME");
+        return;
+      }
+      if(checkForCMPPresence()) {
+        offEvent();
+        setConsentManagementConfig();
+      }
+      timeMetrics.recordExitTime("CONSENT_CONFIG_RESOLVER_TIME");
+    }
+    commonUtil.getIHPrebidNameSpace().onEvent("auctionInit", handler, eventHandlerId);
+  }
+
+  function proceedToContinuousCmpCheck() {
+    // Enable continuous CMP checking
+    crConfig.setContinuousCmpCheckEnabled(true);
+    crConfig.setContinuousCmpCheckStartTime(Date.now());
+
+    if (COMMON_CONFIG.isIdentityOnly()) {
+      handleForIH();
+    } else {
+      handleForOW();
+    }
+  }
 
   return {
-    configureGDPR: configureGDPR,
-    configureUSP: configureUSP,
-    configureGPP: configureGPP
+    proceedToContinuousCmpCheck: proceedToContinuousCmpCheck
   };
 })();
 
 // ===========================================
-// Hook Manager Module
+// Consent Resolver Module (Main Orchestrator)
 // ===========================================
-var HookManager = (function() {
+var ConsentResolver = (function () {
   function setCMPTime(timeExceeded) {
     // If time taken by CMP is not set then set the default timeout value
     if (!timeMetrics.getDurationOf("CMP_CALLING_TIME")) {
@@ -371,73 +432,40 @@ var HookManager = (function() {
     }
   }
 
-  function continuousCmpCheck() {
-    // Check for CMP presence
-    var detectedCmps = CmpDetector.getCMPsPresentOnPage();
-    if (detectedCmps.length > 0) {
-      crConfig.resetPrebidCMConfig();
-      for (var i = 0; i < detectedCmps.length; i++) {
-        detectedCmps[i].prepareConfig();
-      }
-      crConfig.setGeoMatchWithCMP();
-      crConfig.setEnforcedConsentBasisOn(ConsentConstants.CONSENT_MANAGEMENT_SOURCE.CMP);
-      
-      // Update Prebid configuration with CMP-based settings
-      commonUtil.getGlobalPbObject().setConfig({
-        consentManagement: crConfig.getPrebidCMConfig()
-      });
-      
-      // Set for OW+IH, IH
-      if (COMMON_CONFIG.isUserIdModuleEnabled()) {
-        commonUtil.getGlobalPbObject().refreshUserIds();
-      }
-      
-      // Disable continuous checking since CMP is found
-      crConfig.setContinuousCmpCheckEnabled(false);
+  function getCMPLookUpTimeout() {
+    return (commonUtil.getGlobalOwObject() && commonUtil.isNumber(commonUtil.getGlobalOwObject().cmpLookUpTimeout))
+      ? commonUtil.getGlobalOwObject().cmpLookUpTimeout
+      : ConsentConstants.DEFAULT_CMP_LOOK_UP_TIMEOUT;
+  }
+
+  function handleGDPR(pingReturnData, success) {
+    if (success && pingReturnData && pingReturnData.cmpId) {
+      crConfig.setCmpId(pingReturnData.cmpId);
     }
   }
 
-  function addFetchBidsHook() {
-    // Add a hook to the fetchBids function
-    var originalFetchBids = prebid.fetchBids;
-    prebid.fetchBids = function(activeSlots, callback) {
-      // Check if continuous CMP checking is enabled and not timed out
-      var currentTime = Date.now();
-      var config = crConfig.getProperties();
-      
-      // Check for CMP presence before proceeding with fetchBids
-      if (crConfig.getContinuousCmpCheckEnabled() && crConfig.getContinuousCmpCheckAuctionStarted()) {
-        // If CMP already found or continuous checking is disabled or timed out, return
-        if (config.ccmp === 0 && (currentTime - crConfig.getContinuousCmpCheckStartTime() < crConfig.getContinuousCmpCheckTimeout())) {
-          continuousCmpCheck();
-          timeMetrics.recordExitTime("CONSENT_CONFIG_RESOLVER_TIME");
-        } else {
-          prebid.fetchBids = originalFetchBids;
-          timeMetrics.recordExitTime("CONSENT_CONFIG_RESOLVER_TIME");
-          return;
-        }
-      }
-      
-      // Call the original fetchBids function
-      return originalFetchBids.call(prebid, activeSlots, callback);
-    };
+  function handleGPP(pingReturnData, success) {
+    crConfig.setCmpId(pingReturnData && pingReturnData.pingData && pingReturnData.pingData.cmpId);
   }
 
-  return {
-    setCMPTime: setCMPTime,
-    continuousCmpCheck: continuousCmpCheck,
-    addFetchBidsHook: addFetchBidsHook
-  };
-})();
+  function setConsentResolverConfig(detectedCmps) {
+    // If GDPR CMP is detected, get CMP ID
+    for (var j = 0; j < detectedCmps.length; j++) {
+      setCMPTime(false);
+      crConfig.setComplianceSupport(ConsentConstants.COMPLIANCE_MAP[detectedCmps[j].compliance]);
+      crConfig.setCmpPresent(true);
+      if (detectedCmps[j].compliance === "GDPR") {
+        detectedCmps[j].api("addEventListener", 2, handleGDPR);
+      } else if (detectedCmps[j].compliance === "GPP") {
+        detectedCmps[j].api("addEventListener", handleGPP);
+      }
+    }
+  }
 
-// ===========================================
-// Consent Resolver Module (Main Orchestrator)
-// ===========================================
-var ConsentResolver = (function() {
   function getConsentManagementConfig(callbackToSetConfig) {
     var isCallbackExecuted = false;
     var timeoutId;
-    
+
     function executeCallback(enforcedConsentBasisOn) {
       if (!isCallbackExecuted) {
         clearTimeout(timeoutId);
@@ -448,80 +476,61 @@ var ConsentResolver = (function() {
         crConfig.setProcessCompleted(true);
       }
     }
-    
+
     function proceedToFallbackExecution() {
-      HookManager.setCMPTime(true); // Record CMP timing metrics
-      
+      setCMPTime(true); // Record CMP timing metrics
+
       var globalObj = commonUtil.getGlobalOwObject();
       if (!globalObj || !globalObj.CC || !globalObj.CC.gc) {
         executeCallback(ConsentConstants.CONSENT_MANAGEMENT_SOURCE.NONE);
         return;
       }
-      
+
       // Get compliance type based on geo location
       var compliance = commonUtil.getKeyByValue(ConsentConstants.COMPLIANCE_MAP, globalObj.CC.gc);
       if (compliance) {
         ComplianceApiConfig.getApiConfig()[compliance].prepareConfig(); // Configure consent based on geo location
+        ConsentSetterForContinuousCMPCheck.proceedToContinuousCmpCheck();
         executeCallback(ConsentConstants.CONSENT_MANAGEMENT_SOURCE.GEO);
-        setContinuousCmpCheck();
       } else {
         executeCallback(ConsentConstants.CONSENT_MANAGEMENT_SOURCE.NONE);
       }
     }
-    
-    function setContinuousCmpCheck() {
-      // Enable continuous CMP checking
-      crConfig.setContinuousCmpCheckEnabled(true);
-      crConfig.setContinuousCmpCheckStartTime(Date.now());
 
-      if (COMMON_CONFIG.isIdentityOnly()) {
-        commonUtil.getIHPrebidNameSpace().onEvent("auctionInit", function () {
-          crConfig.setContinuousCmpCheckAuctionStarted(true);
-        });
-      } else {
-        commonUtil.getGlobalPbObject().onEvent("auctionInit", function () {
-          crConfig.setContinuousCmpCheckAuctionStarted(true);
-        });
-      }
-
-      //TODO: How to handle in case of IH as its auction is not in our hand.
-      
-      // Add requestBids hook to check for CMP presence
-      HookManager.addFetchBidsHook();
-    }
-    
     function checkCmpRecursively() {
       if (isCallbackExecuted) {
         return;
       }
       var detectedCmps = CmpDetector.getCMPsPresentOnPage();
-      if (detectedCmps.length > 0) {
+      if (detectedCmps.length === 0) {
+        setTimeout(checkCmpRecursively, 50);
+      } else {
+        setConsentResolverConfig(detectedCmps);
         for (var i = 0; i < detectedCmps.length; i++) {
           detectedCmps[i].prepareConfig();
         }
         crConfig.setGeoMatchWithCMP();
         executeCallback(ConsentConstants.CONSENT_MANAGEMENT_SOURCE.CMP);
-      } else {
-        setTimeout(checkCmpRecursively, 50);
       }
     }
-    
+
     // Main execution flow
     timeMetrics.recordEntryTime("CONSENT_CONFIG_RESOLVER_TIME");
-    
+
     if (!COMMON_CONFIG.consentManagementEnabled()) {
       executeCallback(ConsentConstants.CONSENT_MANAGEMENT_SOURCE.NONE);
       return;
     }
-    
+
     crConfig.setConsentManagementEnabled(true);
     GeoService.getGeoInfoWrapper();
-    timeoutId = setTimeout(proceedToFallbackExecution, GeoService.getCMPLookUpTimeout()); // Timeout for checking CMP presence
+    timeoutId = setTimeout(proceedToFallbackExecution, getCMPLookUpTimeout()); // Timeout for checking CMP presence
     checkCmpRecursively();
   }
 
   return {
-    getConsentManagementConfig: getConsentManagementConfig
+    getConsentManagementConfig: getConsentManagementConfig,
+    setConsentResolverConfig: setConsentResolverConfig
   };
 })();
 
@@ -530,7 +539,7 @@ var ConsentResolver = (function() {
 // ===========================================
 exports.getConsentManagementConfig = ConsentResolver.getConsentManagementConfig;
 exports.getGeoInfoWrapper = GeoService.getGeoInfoWrapper;
-exports.getInstance = function() {
+exports.getInstance = function () {
   return crConfig;
 };
 commonUtil.getGlobalOwObject().getConsentResolverConfig = function getConsentResolverConfig() {
