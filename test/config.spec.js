@@ -1416,6 +1416,24 @@ describe('Config', function() {
             done();
         });
 
+        it('should not update identityPartners when test type is Partners', function(done){
+            var identityPartners = {
+                id5Id: {
+                    name: "id5Id",
+                    "storage.type": "html5",
+                    "storage.expires": "90",
+                    "storage.name": "id5id"
+                }
+            };
+            
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = 1;
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS].testType  =  "Partners"
+            CONF[CONSTANTS.COMMON.IDENTITY_PARTNERS] = identityPartners;
+            CONFIG.updateABTestConfig();
+            expect(CONFIG.getIdentityPartners()).to.deep.equal(identityPartners);
+            done();
+        });
+
         it('should not update the identityConfig to test config even if control identity is not present', function(done){
             CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS]  = {
                 "testGroupSize": 1
