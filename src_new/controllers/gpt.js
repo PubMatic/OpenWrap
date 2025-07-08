@@ -874,23 +874,38 @@ function newRefreshFunction(theObject, originalFunction) {
         return false;
       }
       var element = document.getElementById(id);
-      if (element && util.isElementInViewport(element)) {
+      
+      // Check if element is in any of the margin ranges (auction, fetch, render)
+      // The order of precedence is: auction > fetch > render
+      if (element) {
+        var isInAuctionRange = util.isElementInViewport(element);
+        var isInFetchRange = util.isElementInFetchRange(element);
+        var isInRenderRange = util.isElementInRenderRange(element);
+        
+        // If element is in auction or fetch range, execute auction
+        if (isInAuctionRange || isInFetchRange) {
+          parentArgs[0] = theObject.getSlots().filter(function (slot) {
+            return slot.getSlotElementId() === id;
+          });
 
-        parentArgs[0] = theObject.getSlots().filter(function (slot) {
-          return slot.getSlotElementId() === id;
-        });
-
-        parentArgs.length = 1;
-        executeAuction(parentArgs, theObject, originalFunction);
-  
-        // Remove the id from elligibleSlotsForLazyLoading
-        var idIndex = elligibleSlotsForLazyLoading.indexOf(id);
-        if (idIndex !== -1) {
-          elligibleSlotsForLazyLoading.splice(idIndex, 1);
+          parentArgs.length = 1;
+          executeAuction(parentArgs, theObject, originalFunction);
+    
+          // Remove the id from elligibleSlotsForLazyLoading
+          var idIndex = elligibleSlotsForLazyLoading.indexOf(id);
+          if (idIndex !== -1) {
+            elligibleSlotsForLazyLoading.splice(idIndex, 1);
+          }
+          // Only remove the scroll handler if all slots have been loaded
+          if (elligibleSlotsForLazyLoading.length === 0) {
+            window.removeEventListener("scroll", throttledScrollHandler);
+          }
         }
-        // Only remove the scroll handler if all slots have been loaded
-        if (elligibleSlotsForLazyLoading.length === 0) {
-          window.removeEventListener("scroll", throttledScrollHandler);
+        // For render range, we could implement specific render behavior here if needed
+        // Currently, we're just logging that the element is eligible for render
+        else if (isInRenderRange) {
+          util.log(id + " is in render range but not in auction or fetch range");
+          // Implement render-specific behavior if needed
         }
       }
     }

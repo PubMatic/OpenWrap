@@ -2153,6 +2153,36 @@ exports.isElementInViewport = function(targetDiv) {
 	}
 };
 
+exports.isElementInFetchRange = function(targetDiv) {
+	var rect = targetDiv.getBoundingClientRect();
+    var viewportHeight = window.innerHeight;
+
+    var distanceFromBottomVH = ((rect.top - viewportHeight) / viewportHeight) * 100;
+	var fetchMarginPercentage = isMobileDeviceForLazyLoading() ? parseFloat(CONFIG.getFetchMarginPercentage()) * parseFloat(CONFIG.getMobileScalingForLazyLoading()) : parseFloat(CONFIG.getFetchMarginPercentage());
+	if(Math.abs(distanceFromBottomVH) <= fetchMarginPercentage){
+		refThis.log( targetDiv.id," is eligible for fetch");
+		return true;
+	}
+	else{
+		return false;
+	}
+};
+
+exports.isElementInRenderRange = function(targetDiv) {
+	var rect = targetDiv.getBoundingClientRect();
+    var viewportHeight = window.innerHeight;
+
+    var distanceFromBottomVH = ((rect.top - viewportHeight) / viewportHeight) * 100;
+	var renderMarginPercentage = isMobileDeviceForLazyLoading() ? parseFloat(CONFIG.getRenderMarginPercentage()) * parseFloat(CONFIG.getMobileScalingForLazyLoading()) : parseFloat(CONFIG.getRenderMarginPercentage());
+	if(Math.abs(distanceFromBottomVH) <= renderMarginPercentage){
+		refThis.log( targetDiv.id," is eligible for render");
+		return true;
+	}
+	else{
+		return false;
+	}
+};
+
 exports.throttle = function(func, limit) {
 	var inThrottle;
 	return function () {
