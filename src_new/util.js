@@ -2141,11 +2141,23 @@ exports.isElementInViewport = function(targetDiv) {
 	var rect = targetDiv.getBoundingClientRect();
     var viewportHeight = window.innerHeight;
 
-    //var distanceFromTopVH = (rect.top / viewportHeight) * 100;
+    // Calculate distance from both top and bottom of viewport
+    var distanceFromTopVH = (rect.top / viewportHeight) * 100;
     var distanceFromBottomVH = ((rect.top - viewportHeight) / viewportHeight) * 100;
-	var marginPercentage = isMobileDeviceForLazyLoading() ? parseFloat(CONFIG.getAuctionMarginPercentage()) * parseFloat(CONFIG.getMobileScalingForLazyLoading()) : parseFloat(CONFIG.getAuctionMarginPercentage());
-	if(Math.abs(distanceFromBottomVH) <= marginPercentage){
-		refThis.log( targetDiv.id," is eligible for auction");
+    
+    // For elements above the viewport (negative top value), we need to consider the element's height
+    var elementHeightVH = (rect.height / viewportHeight) * 100;
+    
+	var marginPercentage = isMobileDeviceForLazyLoading() ? 
+        parseFloat(CONFIG.getAuctionMarginPercentage()) * parseFloat(CONFIG.getMobileScalingForLazyLoading()) : 
+        parseFloat(CONFIG.getAuctionMarginPercentage());
+    
+    // Check if element is within margin percentage from either top or bottom of viewport
+    // For elements above viewport: distanceFromTopVH will be negative, so we add elementHeightVH
+    // to ensure we're checking from the bottom of the element
+    if (Math.abs(distanceFromBottomVH) <= marginPercentage || 
+        (distanceFromTopVH < 0 && Math.abs(distanceFromTopVH) - elementHeightVH <= marginPercentage)) {
+		refThis.log(targetDiv.id, " is eligible for auction");
 		return true;
 	}
 	else{
@@ -2157,10 +2169,21 @@ exports.isElementInFetchRange = function(targetDiv) {
 	var rect = targetDiv.getBoundingClientRect();
     var viewportHeight = window.innerHeight;
 
+    // Calculate distance from both top and bottom of viewport
+    var distanceFromTopVH = (rect.top / viewportHeight) * 100;
     var distanceFromBottomVH = ((rect.top - viewportHeight) / viewportHeight) * 100;
-	var fetchMarginPercentage = isMobileDeviceForLazyLoading() ? parseFloat(CONFIG.getFetchMarginPercentage()) * parseFloat(CONFIG.getMobileScalingForLazyLoading()) : parseFloat(CONFIG.getFetchMarginPercentage());
-	if(Math.abs(distanceFromBottomVH) <= fetchMarginPercentage){
-		refThis.log( targetDiv.id," is eligible for fetch");
+    
+    // For elements above the viewport (negative top value), we need to consider the element's height
+    var elementHeightVH = (rect.height / viewportHeight) * 100;
+    
+	var fetchMarginPercentage = isMobileDeviceForLazyLoading() ? 
+        parseFloat(CONFIG.getFetchMarginPercentage()) * parseFloat(CONFIG.getMobileScalingForLazyLoading()) : 
+        parseFloat(CONFIG.getFetchMarginPercentage());
+    
+    // Check if element is within fetch margin percentage from either top or bottom of viewport
+    if (Math.abs(distanceFromBottomVH) <= fetchMarginPercentage || 
+        (distanceFromTopVH < 0 && Math.abs(distanceFromTopVH) - elementHeightVH <= fetchMarginPercentage)) {
+		refThis.log(targetDiv.id, " is eligible for fetch");
 		return true;
 	}
 	else{
@@ -2172,10 +2195,21 @@ exports.isElementInRenderRange = function(targetDiv) {
 	var rect = targetDiv.getBoundingClientRect();
     var viewportHeight = window.innerHeight;
 
+    // Calculate distance from both top and bottom of viewport
+    var distanceFromTopVH = (rect.top / viewportHeight) * 100;
     var distanceFromBottomVH = ((rect.top - viewportHeight) / viewportHeight) * 100;
-	var renderMarginPercentage = isMobileDeviceForLazyLoading() ? parseFloat(CONFIG.getRenderMarginPercentage()) * parseFloat(CONFIG.getMobileScalingForLazyLoading()) : parseFloat(CONFIG.getRenderMarginPercentage());
-	if(Math.abs(distanceFromBottomVH) <= renderMarginPercentage){
-		refThis.log( targetDiv.id," is eligible for render");
+    
+    // For elements above the viewport (negative top value), we need to consider the element's height
+    var elementHeightVH = (rect.height / viewportHeight) * 100;
+    
+	var renderMarginPercentage = isMobileDeviceForLazyLoading() ? 
+        parseFloat(CONFIG.getRenderMarginPercentage()) * parseFloat(CONFIG.getMobileScalingForLazyLoading()) : 
+        parseFloat(CONFIG.getRenderMarginPercentage());
+    
+    // Check if element is within render margin percentage from either top or bottom of viewport
+    if (Math.abs(distanceFromBottomVH) <= renderMarginPercentage || 
+        (distanceFromTopVH < 0 && Math.abs(distanceFromTopVH) - elementHeightVH <= renderMarginPercentage)) {
+		refThis.log(targetDiv.id, " is eligible for render");
 		return true;
 	}
 	else{
