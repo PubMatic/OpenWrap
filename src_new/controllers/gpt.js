@@ -810,8 +810,7 @@ function newRefreshFunction(theObject, originalFunction) {
         return function () {
           /* istanbul ignore next */
           util.log("In Refresh function");
-          util.log("LAZY_LOAD_DEBUG: Refresh called with arguments:", arguments[0] ? arguments[0].map(s => s.getSlotElementId()) : "all slots");
-          // Function to add unique slot IDs to elligibleSlotsForLazyLoading
+         // Function to add unique slot IDs to elligibleSlotsForLazyLoading
           function addUniqueSlotId(slotId) {
             if (elligibleSlotsForLazyLoading.indexOf(slotId) === -1) {
               elligibleSlotsForLazyLoading.push(slotId);
