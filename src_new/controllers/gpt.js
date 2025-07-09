@@ -810,6 +810,7 @@ function newRefreshFunction(theObject, originalFunction) {
         return function () {
           /* istanbul ignore next */
           util.log("In Refresh function");
+          util.log("LAZY_LOAD_DEBUG: Refresh called with arguments:", arguments[0] ? arguments[0].map(s => s.getSlotElementId()) : "all slots");
           // Function to add unique slot IDs to elligibleSlotsForLazyLoading
           function addUniqueSlotId(slotId) {
             if (elligibleSlotsForLazyLoading.indexOf(slotId) === -1) {
@@ -835,6 +836,7 @@ function newRefreshFunction(theObject, originalFunction) {
               addUniqueSlotId(slot.getSlotElementId());
             });
           }
+          util.log("LAZY_LOAD_DEBUG: Eligible slots for lazy loading:", elligibleSlotsForLazyLoading);
           if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
             var targetSlots = arguments[0];
             var parentArgs = arguments;
@@ -875,7 +877,6 @@ function newRefreshFunction(theObject, originalFunction) {
       }
       var element = document.getElementById(id);
       if (element && util.isElementInViewport(element)) {
-
         parentArgs[0] = theObject.getSlots().filter(function (slot) {
           return slot.getSlotElementId() === id;
         });
@@ -896,10 +897,17 @@ function newRefreshFunction(theObject, originalFunction) {
     }
     function executeAuction(parentArgs, theObject, originalFunction) {
       /* istanbul ignore next */
-      refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), parentArgs, false);
+      // For lazy loading, only update the specific slot that came into viewport
+      if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled() && parentArgs[0] && parentArgs[0].length === 1) {
+        // Only process the specific slot that came into viewport
+        refThis.updateSlotsMapFromGoogleSlots(parentArgs[0], parentArgs, false);
+      } else {
+        // For non-lazy loading or when all slots are being processed
+       refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), parentArgs, false);
+      }
       /* istanbul ignore next */
       var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(parentArgs, theObject);
-      /* istanbul ignore next */
+  /* istanbul ignore next */
       refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, parentArgs, true);
       /* istanbul ignore next */
       util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
