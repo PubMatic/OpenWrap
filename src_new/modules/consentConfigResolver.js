@@ -286,7 +286,7 @@ var CmpDetector = (function () {
     for (var compliance in cmpApis) {
       if (cmpApis.hasOwnProperty(compliance)) {
         var apiName = cmpApis[compliance].apiName;
-        if (typeof frame[apiName] === 'function' || frame.frames[apiName + "Locator"]) {
+        if (typeof frame[apiName] === 'function') {
           detectedCmps.push({
             compliance: compliance,
             api: frame[apiName],
