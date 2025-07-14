@@ -1347,8 +1347,6 @@ describe('ConsentConfigResolver:', function() {
             sandbox.stub(COMMON_CONFIG, 'isIdentityOnly');
             sandbox.stub(COMMON_CONFIG, 'isUserIdModuleEnabled');
             
-            prebid.fetchBids.returns(true);
-            
             done();
         });
 
