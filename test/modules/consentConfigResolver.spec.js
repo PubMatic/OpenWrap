@@ -1320,4 +1320,396 @@ describe('ConsentConfigResolver:', function() {
             done();
         });
     });
+
+    describe('ConsentSetterForContinuousCMPCheck', function() {
+        let crConfig;
+        let clock;
+
+        beforeEach(function(done) {
+            crConfig = ConsentConfigResolver.getInstance();
+            crConfig.reset(); // Ensure clean state
+            
+            // Use fake timers for Date.now() calls
+            clock = sinon.useFakeTimers();
+            
+            // Mock dependencies
+            sandbox.stub(commonUtil, 'getGlobalPbObject').returns({
+                setConfig: sandbox.stub(),
+                refreshUserIds: sandbox.stub()
+            });
+            
+            commonUtil.getGlobalOwObject.returns({});
+            sandbox.stub(commonUtil, 'getIHPrebidNameSpace').returns({
+                onEvent: sandbox.stub(),
+                offEvent: sandbox.stub()
+            });
+            
+            sandbox.stub(COMMON_CONFIG, 'isIdentityOnly');
+            sandbox.stub(COMMON_CONFIG, 'isUserIdModuleEnabled');
+            
+            prebid.fetchBids.returns(true);
+            
+            done();
+        });
+
+        afterEach(function(done) {
+            clock.restore();
+            done();
+        });
+
+        describe('#setConsentManagementConfig', function() {
+            beforeEach(function(done) {
+                done();
+            });
+
+            it('should set geo match with CMP and enforced consent basis', function(done) {
+                // Setup
+                sandbox.spy(crConfig, 'setGeoMatchWithCMP');
+                sandbox.spy(crConfig, 'setEnforcedConsentBasisOn');
+                
+                // Execute
+                ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').setConsentManagementConfig();
+                
+                // Verify
+                expect(crConfig.setGeoMatchWithCMP.calledOnce).to.be.true;
+                expect(crConfig.setEnforcedConsentBasisOn.calledOnce).to.be.true;
+                expect(crConfig.setEnforcedConsentBasisOn.calledWith(1)).to.be.true; // CMP source
+                done();
+            });
+
+            it('should update Prebid configuration with CMP settings', function(done) {
+                // Setup
+                const mockPrebidConfig = { gdpr: { test: 'value' } };
+                sandbox.stub(crConfig, 'getPrebidCMConfig').returns(mockPrebidConfig);
+                
+                // Execute
+                ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').setConsentManagementConfig();
+                
+                // Verify
+                expect(commonUtil.getGlobalPbObject().setConfig.calledOnce).to.be.true;
+                expect(commonUtil.getGlobalPbObject().setConfig.calledWith({
+                    consentManagement: mockPrebidConfig
+                })).to.be.true;
+                done();
+            });
+
+            it('should refresh user IDs if user ID module is enabled', function(done) {
+                // Setup
+                COMMON_CONFIG.isUserIdModuleEnabled.returns(true);
+                
+                // Execute
+                ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').setConsentManagementConfig();
+                
+                // Verify
+                expect(commonUtil.getGlobalPbObject().refreshUserIds.calledOnce).to.be.true;
+                done();
+            });
+
+            it('should not refresh user IDs if user ID module is disabled', function(done) {
+                // Setup
+                COMMON_CONFIG.isUserIdModuleEnabled.returns(false);
+                
+                // Execute
+                ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').setConsentManagementConfig();
+                
+                // Verify
+                expect(commonUtil.getGlobalPbObject().refreshUserIds.called).to.be.false;
+                done();
+            });
+        });
+
+        describe('#checkForCMPPresence', function() {
+            let mockDetectedCmps;
+            
+            beforeEach(function(done) {
+                mockDetectedCmps = [{
+                    compliance: 'GDPR',
+                    prepareConfig: sandbox.stub()
+                }];
+                
+                sandbox.stub(ConsentConfigResolver.__get__('CmpDetector'), 'getCMPsPresentOnPage')
+                    .returns(mockDetectedCmps);
+                
+                sandbox.stub(ConsentConfigResolver.__get__('ConsentResolver'), 'setConsentResolverConfig');
+                sandbox.spy(crConfig, 'resetPrebidCMConfig');
+                
+                done();
+            });
+
+            it('should return true when CMPs are detected', function(done) {
+                // Execute
+                const result = ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').checkForCMPPresence();
+                
+                // Verify
+                expect(result).to.be.true;
+                expect(ConsentConfigResolver.__get__('CmpDetector').getCMPsPresentOnPage.calledOnce).to.be.true;
+                expect(ConsentConfigResolver.__get__('ConsentResolver').setConsentResolverConfig.calledOnce).to.be.true;
+                expect(ConsentConfigResolver.__get__('ConsentResolver').setConsentResolverConfig.calledWith(mockDetectedCmps)).to.be.true;
+                expect(crConfig.resetPrebidCMConfig.calledOnce).to.be.true;
+                expect(mockDetectedCmps[0].prepareConfig.calledOnce).to.be.true;
+                done();
+            });
+
+            it('should return false when no CMPs are detected', function(done) {
+                // Setup
+                ConsentConfigResolver.__get__('CmpDetector').getCMPsPresentOnPage.returns([]);
+                
+                // Execute
+                const result = ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').checkForCMPPresence();
+                
+                // Verify
+                expect(result).to.be.false;
+                expect(ConsentConfigResolver.__get__('CmpDetector').getCMPsPresentOnPage.calledOnce).to.be.true;
+                expect(ConsentConfigResolver.__get__('ConsentResolver').setConsentResolverConfig.called).to.be.false;
+                expect(crConfig.resetPrebidCMConfig.called).to.be.false;
+                done();
+            });
+        });
+
+        describe('#shouldContinueCheckingForCMP', function() {
+            beforeEach(function(done) {
+                crConfig.setContinuousCmpCheckEnabled(true);
+                crConfig.setContinuousCmpCheckStartTime(Date.now());
+                done();
+            });
+
+            it('should return false if ccmp flag is set', function(done) {
+                // Setup
+                sandbox.stub(crConfig, 'getProperties').returns({ ccmp: true });
+                
+                // Execute
+                const result = ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').shouldContinueCheckingForCMP();
+                
+                // Verify
+                expect(result).to.be.false;
+                done();
+            });
+
+            it('should return false if timeout has elapsed', function(done) {
+                // Setup
+                sandbox.stub(crConfig, 'getProperties').returns({ ccmp: false });
+                sandbox.stub(crConfig, 'getContinuousCmpCheckTimeout').returns(5000);
+                
+                // Fast-forward time beyond timeout
+                clock.tick(6000);
+                
+                // Execute
+                const result = ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').shouldContinueCheckingForCMP();
+                
+                // Verify
+                expect(result).to.be.false;
+                done();
+            });
+
+            it('should return true if timeout has not elapsed and ccmp is false', function(done) {
+                // Setup
+                sandbox.stub(crConfig, 'getProperties').returns({ ccmp: false });
+                sandbox.stub(crConfig, 'getContinuousCmpCheckTimeout').returns(15000);
+                
+                // Fast-forward time but still within timeout
+                clock.tick(5000);
+                
+                // Execute
+                const result = ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').shouldContinueCheckingForCMP();
+                
+                // Verify
+                expect(result).to.be.true;
+                done();
+            });
+        });
+
+        describe('#handleForOW', function() {
+            let originalFetchBids;
+            
+            beforeEach(function(done) {
+                originalFetchBids = prebid.fetchBids;
+                done();
+            });
+
+            afterEach(function(done) {
+                prebid.fetchBids = originalFetchBids;
+                done();
+            });
+
+            it('should hook into fetchBids and restore original when check should not continue', function(done) {
+                // Setup
+                sandbox.stub(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck'), 'shouldContinueCheckingForCMP').returns(false);
+                
+                // Execute
+                ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').handleForOW();
+                
+                // Verify hook was installed
+                expect(prebid.fetchBids).to.not.equal(originalFetchBids);
+                
+                // Call the hooked function
+                const mockSlots = ['slot1', 'slot2'];
+                const mockCallback = sandbox.stub();
+                prebid.fetchBids(mockSlots, mockCallback);
+                
+                // Verify original function was restored and called
+                expect(prebid.fetchBids).to.equal(originalFetchBids);
+                expect(timeMetrics.recordExitTime.calledWith('CONSENT_CONFIG_RESOLVER_TIME')).to.be.true;
+                expect(mockCallback.calledOnce).to.be.true;
+                done();
+            });
+
+            it('should check for CMP presence and set config when CMP is found', function(done) {
+                // Setup
+                sandbox.stub(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck'), 'shouldContinueCheckingForCMP').returns(true);
+                sandbox.stub(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck'), 'checkForCMPPresence').returns(true);
+                sandbox.stub(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck'), 'setConsentManagementConfig');
+                
+                // Execute
+                ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').handleForOW();
+                
+                // Call the hooked function
+                prebid.fetchBids([], function() {});
+                
+                // Verify
+                expect(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').checkForCMPPresence.calledOnce).to.be.true;
+                expect(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').setConsentManagementConfig.calledOnce).to.be.true;
+                expect(prebid.fetchBids).to.equal(originalFetchBids); // Original function restored
+                done();
+            });
+
+            it('should not set config when CMP is not found', function(done) {
+                // Setup
+                sandbox.stub(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck'), 'shouldContinueCheckingForCMP').returns(true);
+                sandbox.stub(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck'), 'checkForCMPPresence').returns(false);
+                sandbox.stub(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck'), 'setConsentManagementConfig');
+                
+                // Execute
+                ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').handleForOW();
+                
+                // Call the hooked function
+                prebid.fetchBids([], function() {});
+                
+                // Verify
+                expect(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').checkForCMPPresence.calledOnce).to.be.true;
+                expect(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').setConsentManagementConfig.called).to.be.false;
+                expect(prebid.fetchBids).to.not.equal(originalFetchBids); // Original function not restored yet
+                done();
+            });
+        });
+
+        describe('#handleForIH', function() {
+            let mockIHPrebid;
+            let eventHandlerId = 'continuousCmpCheckIHEventId';
+            
+            beforeEach(function(done) {
+                mockIHPrebid = {
+                    onEvent: sandbox.stub(),
+                    offEvent: sandbox.stub()
+                };
+                commonUtil.getIHPrebidNameSpace.returns(mockIHPrebid);
+                done();
+            });
+
+            it('should register event handler for auctionInit', function(done) {
+                // Execute
+                ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').handleForIH();
+                
+                // Verify
+                expect(mockIHPrebid.onEvent.calledOnce).to.be.true;
+                expect(mockIHPrebid.onEvent.args[0][0]).to.equal('auctionInit');
+                expect(typeof mockIHPrebid.onEvent.args[0][1]).to.equal('function');
+                expect(mockIHPrebid.onEvent.args[0][2]).to.equal(eventHandlerId);
+                done();
+            });
+
+            it('should remove event handler when check should not continue', function(done) {
+                // Setup
+                sandbox.stub(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck'), 'shouldContinueCheckingForCMP').returns(false);
+                
+                // Execute
+                ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').handleForIH();
+                
+                // Get the handler function
+                const handler = mockIHPrebid.onEvent.args[0][1];
+                
+                // Call the handler
+                handler();
+                
+                // Verify
+                expect(mockIHPrebid.offEvent.calledOnce).to.be.true;
+                expect(mockIHPrebid.offEvent.calledWith('auctionInit', handler, eventHandlerId)).to.be.true;
+                expect(timeMetrics.recordExitTime.calledWith('CONSENT_CONFIG_RESOLVER_TIME')).to.be.true;
+                done();
+            });
+
+            it('should check for CMP presence and set config when CMP is found', function(done) {
+                // Setup
+                sandbox.stub(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck'), 'shouldContinueCheckingForCMP').returns(true);
+                sandbox.stub(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck'), 'checkForCMPPresence').returns(true);
+                sandbox.stub(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck'), 'setConsentManagementConfig');
+                
+                // Execute
+                ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').handleForIH();
+                
+                // Get the handler function
+                const handler = mockIHPrebid.onEvent.args[0][1];
+                
+                // Call the handler
+                handler();
+                
+                // Verify
+                expect(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').checkForCMPPresence.calledOnce).to.be.true;
+                expect(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').setConsentManagementConfig.calledOnce).to.be.true;
+                expect(mockIHPrebid.offEvent.calledOnce).to.be.true;
+                expect(timeMetrics.recordExitTime.calledWith('CONSENT_CONFIG_RESOLVER_TIME')).to.be.true;
+                done();
+            });
+        });
+
+        describe('#proceedToContinuousCmpCheck', function() {
+            beforeEach(function(done) {
+                sandbox.stub(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck'), 'handleForOW');
+                sandbox.stub(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck'), 'handleForIH');
+                done();
+            });
+
+            it('should enable continuous CMP checking and set start time', function(done) {
+                // Setup
+                sandbox.spy(crConfig, 'setContinuousCmpCheckEnabled');
+                sandbox.spy(crConfig, 'setContinuousCmpCheckStartTime');
+                
+                // Execute
+                ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').proceedToContinuousCmpCheck();
+                
+                // Verify
+                expect(crConfig.setContinuousCmpCheckEnabled.calledOnce).to.be.true;
+                expect(crConfig.setContinuousCmpCheckEnabled.calledWith(true)).to.be.true;
+                expect(crConfig.setContinuousCmpCheckStartTime.calledOnce).to.be.true;
+                done();
+            });
+
+            it('should call handleForIH when isIdentityOnly returns true', function(done) {
+                // Setup
+                COMMON_CONFIG.isIdentityOnly.returns(true);
+                
+                // Execute
+                ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').proceedToContinuousCmpCheck();
+                
+                // Verify
+                expect(COMMON_CONFIG.isIdentityOnly.calledOnce).to.be.true;
+                expect(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').handleForIH.calledOnce).to.be.true;
+                expect(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').handleForOW.called).to.be.false;
+                done();
+            });
+
+            it('should call handleForOW when isIdentityOnly returns false', function(done) {
+                // Setup
+                COMMON_CONFIG.isIdentityOnly.returns(false);
+                
+                // Execute
+                ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').proceedToContinuousCmpCheck();
+                
+                // Verify
+                expect(COMMON_CONFIG.isIdentityOnly.calledOnce).to.be.true;
+                expect(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').handleForOW.calledOnce).to.be.true;
+                expect(ConsentConfigResolver.__get__('ConsentSetterForContinuousCMPCheck').handleForIH.called).to.be.false;
+                done();
+            });
+        });
+    });
 });
