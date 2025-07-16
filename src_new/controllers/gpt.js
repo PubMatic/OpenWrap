@@ -34,6 +34,7 @@ var GPT_targetingMap = {};
 var windowReference = null;
 
 var refThis = this;
+var elligibleSlotsForLazyLoading = {};
 
 function setWindowReference(win) { // TDD, i/o: done
     if (util.isObject(win)) {
@@ -603,75 +604,81 @@ exports.forQualifyingSlotNamesCallAdapters = forQualifyingSlotNamesCallAdapters;
 function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
     // Initiating getUserConsentDataFromCMP method to get the updated consentData
     // GDPR.getUserConsentDataFromCMP();
-
+  
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
-        if(CONFIG.isIdentityOnly()){
-            util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " Original Display function");
-            return function() {
-                return originalFunction.apply(theObject, arguments);
+      if(CONFIG.isIdentityOnly()){
+        util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " Original Display function");
+        return function() {
+          return originalFunction.apply(theObject, arguments);
+        };
+      }else{
+        // Todo : change structure to take out the anonymous function for better unit test cases
+        return function() {
+          if (disableInitialLoadIsSet) {
+            util.log("DisableInitialLoad was called, Nothing to do");
+            return originalFunction.apply(theObject, arguments);
+          }
+          if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
+            var targetSlotId = arguments[0];
+           
+            function checkAndExecute() {
+             if (!elligibleSlotsForLazyLoading.hasOwnProperty(targetSlotId)) {
+               elligibleSlotsForLazyLoading[targetSlotId] = {
+                 isRequested: false
+               };
+             }
+              if (targetSlotId) {
+                var element = document.getElementById(targetSlotId);
+   
+                if (element && util.isElementInViewport(element)&& !elligibleSlotsForLazyLoading[targetSlotId].isRequested) {
+                  elligibleSlotsForLazyLoading[targetSlotId].isRequested = true;
+                  executeDisplay(targetSlotId);
+                  if(elligibleSlotsForLazyLoading[targetSlotId].isRequested){
+                    delete elligibleSlotsForLazyLoading[targetSlotId];
+                  }
+                  window.removeEventListener("scroll", throttledScrollHandler);
+                }
+              }
             }
-        }
-        else{
-            // Todo : change structure to take out the anonymous function for better unit test cases
-            return function() {
-
-                if (disableInitialLoadIsSet) {
-                    util.log("DisableInitialLoad was called, Nothing to do");
-                    return originalFunction.apply(theObject, arguments);
-                }
-
-                if(!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
-                    var targetSlotId = arguments[0];
-
-                    function checkAndExecute() {
-                        if(targetSlotId) {
-                            var element = document.getElementById(targetSlotId);
-                            if(element && util.isElementInViewport(element)) {
-                                executeDisplay(targetSlotId);
-                                window.removeEventListener("scroll", throttledScrollHandler);
-                            }
-                        }
-                    }
-                    var throttledScrollHandler = util.throttle(checkAndExecute, 300);
-                    // Initial check in case some elements are already in view
-                    checkAndExecute();
-                    window.addEventListener("scroll", throttledScrollHandler);
-                } else {
-                    executeDisplay(arguments[0]);
-                }
-            };
-        }
+            var throttledScrollHandler = util.throttle(checkAndExecute, 300);
+            // Initial check in case some elements are already in view
+            checkAndExecute();
+            window.addEventListener("scroll", throttledScrollHandler);
+          } else {
+            // If lazy loading is not enabled, run task immediately
+            executeDisplay(arguments[0]);
+          }
+        };
+      }
     } else {
-        util.log("display: originalFunction is not a function");
-        return null;
+      util.log("display: originalFunction is not a function");
+      return null;
     }
-    function executeDisplay(id){
-
-        var slots = googletag.pubads().getSlots();
-        var specificSlot = slots;
-        if(!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()){
-            specificSlot = slots.filter(function(slot) { return slot.getSlotElementId() === id; });
-        }
-        /* istanbul ignore next */
-        refThis.updateSlotsMapFromGoogleSlots(specificSlot, arguments, true);
-        /* istanbul ignore next */
-        refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
-        var statusObj = {};
-        statusObj[CONSTANTS.SLOT_STATUS.CREATED] = "";
-        /* istanbul ignore next */
-        // Todo: need to add reThis whilwe calling getSlotNamesByStatus
-        refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus(statusObj), arguments, false);
-        /* istanbul ignore next */
-        var divID = arguments[0];
-        /* istanbul ignore next */
-        setTimeout(function () {
-            util.realignVLogInfoPanel(divID);
-            bidManager.executeAnalyticsPixel();
-        }, 2000 + CONFIG.getTimeout());
+    function executeDisplay(id) {
+      var slots = googletag.pubads().getSlots();
+      var specificSlot = slots.filter(function (slot) {
+        return slot.getSlotElementId() === id;
+      });
+      /* istanbul ignore next */
+      refThis.updateSlotsMapFromGoogleSlots(specificSlot, arguments, true);
+      /* istanbul ignore next */
+      refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
+      var statusObj = {};
+      statusObj[CONSTANTS.SLOT_STATUS.CREATED] = "";
+      /* istanbul ignore next */
+      // Todo: need to add reThis whilwe calling getSlotNamesByStatus
+      refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus(statusObj), arguments, false);
+      /* istanbul ignore next */
+      var divID = arguments[0];
+      /* istanbul ignore next */
+      setTimeout(function () {
+        util.realignVLogInfoPanel(divID);
+        bidManager.executeAnalyticsPixel();
+      }, 2000 + CONFIG.getTimeout());
     }
-}
-/* start-test-block */
-exports.newDisplayFunction  = newDisplayFunction;
+  }
+  /* start-test-block */
+  exports.newDisplayFunction = newDisplayFunction;
 /* end-test-block */
 
 /*
@@ -793,12 +800,11 @@ exports.getQualifyingSlotNamesForRefresh = getQualifyingSlotNamesForRefresh;
         3. googletag.pubads().refresh();
         4. googletag.pubads().refresh(null, {changeCorrelator: false});
 */
-function newRefreshFunction(theObject, originalFunction) {
+function newRefreshFuncton(theObject, originalFunction) {
     // TDD, i/o : done // Note : not covering the function currying atm , if need be will add istanbul ignore
     // Initiating getUserConsentDataFromCMP method to get the updated consentData
     // GDPR.getUserConsentDataFromCMP();
     var throttledScrollHandler;
-    var elligibleSlotsForLazyLoading = [];
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
       if (CONFIG.isIdentityOnly()) {
         util.log("Identity Only Enabled. No Process Need. Calling Original Display function");
@@ -810,46 +816,63 @@ function newRefreshFunction(theObject, originalFunction) {
         return function () {
           /* istanbul ignore next */
           util.log("In Refresh function");
-         // Function to add unique slot IDs to elligibleSlotsForLazyLoading
-          function addUniqueSlotId(slotId) {
-            if (elligibleSlotsForLazyLoading.indexOf(slotId) === -1) {
-              elligibleSlotsForLazyLoading.push(slotId);
-            }
-          }
-          
-          // If specific slots are passed, use those; otherwise use all slots
-          if (!!arguments[0] && !!arguments[0][0]) {
-           
-            // Process specific slot(s) from arguments
-            if(arguments[0].length > 1){
-               util.forEachOnArray(arguments[0], function (index, slot) {
-                   addUniqueSlotId(slot.getSlotElementId());
-                 });
-            }else{
-                addUniqueSlotId(arguments[0][0].getSlotElementId());
-            }
-           
-          } else {
-            // Process all slots when no specific slots are provided
-            util.forEachOnArray(theObject.getSlots(), function (index, slot) {
-              addUniqueSlotId(slot.getSlotElementId());
-            });
-          }
-          util.log("LAZY_LOAD_DEBUG: Eligible slots for lazy loading:", elligibleSlotsForLazyLoading);
+
+            // --
+            if (!!arguments[0] && !!arguments[0][0]) {
+                // Process specific slot(s) from arguments
+                if (arguments[0].length > 1) {
+                  util.forEachOnArray(arguments[0], function (index, slot) {
+                    var slotId = slot.getSlotElementId();
+                    if (!elligibleSlotsForLazyLoading.hasOwnProperty(slotId)) {
+                        elligibleSlotsForLazyLoading[slotId] = {
+                          isRequested: false
+                        };
+                      }
+                  });
+                } else {
+                    if (!elligibleSlotsForLazyLoading.hasOwnProperty(arguments[0][0].getSlotElementId())) {
+                        elligibleSlotsForLazyLoading[arguments[0][0].getSlotElementId()] = {
+                          isRequested: false
+                        };
+                      }
+                }
+              } else {
+                // Process al
+                util.forEachOnArray(theObject.getSlots(), function (index, slot) {
+                    elligibleSlotsForLazyLoading[slot.getSlotElementId()] = {
+                        isRequested: false
+                      };
+                });
+              }
+            // --
+
+
+        //   if (!arguments[0]) {
+        //     util.forEachOnArray(theObject.getSlots(), function (index, slot) {
+        //       var slotId = slot.getSlotElementId();
+        //       // Only add unique entries to elligibleSlotsForLazyLoading
+        //       if (!elligibleSlotsForLazyLoading.hasOwnProperty(slotId)) {
+        //         elligibleSlotsForLazyLoading[slotId] = {
+        //           isRequested: false
+        //         };
+        //       }
+        //     });
+        //   } else {
+        //     var slotId = arguments[0][0].getSlotElementId();
+        //     // Only add unique entries to elligibleSlotsForLazyLoading
+        //     if (!elligibleSlotsForLazyLoading.hasOwnProperty(slotId)) {
+        //       elligibleSlotsForLazyLoading[slotId] = {
+        //         isRequested: false
+        //       };
+        //     }
+        //   }
           if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
-            var targetSlots = arguments[0];
+            var targetSlotId = arguments[0];
             var parentArgs = arguments;
             function checkAndExecute() {
-             
-              if (targetSlots) {
-               
-               addScrollEventForElement(targetSlots[0].getSlotElementId(), parentArgs, theObject, originalFunction);
-               if(targetSlots.length > 1){
-                   util.forEachOnArray(targetSlots, function (index, slot) {
-                       addScrollEventForElement(slot.getSlotElementId(), parentArgs, theObject, originalFunction);
-                     }); 
-               }
-               } else {
+              if (targetSlotId) {
+                addScrollEventForElement(targetSlotId[0].getSlotElementId(), parentArgs, theObject, originalFunction);
+              } else {
                 util.forEachOnArray(theObject.getSlots(), function (index, slot) {
                   addScrollEventForElement(slot.getSlotElementId(), parentArgs, theObject, originalFunction);
                 });
@@ -871,42 +894,33 @@ function newRefreshFunction(theObject, originalFunction) {
     }
     function addScrollEventForElement(id, parentArgs, theObject, originalFunction) {
       // Check if id exists in elligibleSlotsForLazyLoading, if absent return
-      if (elligibleSlotsForLazyLoading.indexOf(id) === -1) {
+      if (!elligibleSlotsForLazyLoading.hasOwnProperty(id)) {
         return false;
       }
       var element = document.getElementById(id);
-      if (element && util.isElementInViewport(element)) {
-        parentArgs[0] = theObject.getSlots().filter(function (slot) {
-          return slot.getSlotElementId() === id;
-        });
-
-        parentArgs.length = 1;
+      if (element && util.isElementInViewport(element)&& !elligibleSlotsForLazyLoading[id].isRequested) {
+        if (!parentArgs[0]) {
+          parentArgs[0] = theObject.getSlots().filter(function (slot) {
+            return slot.getSlotElementId() === id;
+          });
+          parentArgs.length = 1;
+        }
+        elligibleSlotsForLazyLoading[id].isRequested = true;
         executeAuction(parentArgs, theObject, originalFunction);
   
-        // Remove the id from elligibleSlotsForLazyLoading
-        var idIndex = elligibleSlotsForLazyLoading.indexOf(id);
-        if (idIndex !== -1) {
-          elligibleSlotsForLazyLoading.splice(idIndex, 1);
-        }
-        // Only remove the scroll handler if all slots have been loaded
-        if (elligibleSlotsForLazyLoading.length === 0) {
-          window.removeEventListener("scroll", throttledScrollHandler);
-        }
+        // Remove the id from elligibleSlotsForLazyLoading     
+        if(elligibleSlotsForLazyLoading[id].isRequested){
+            delete elligibleSlotsForLazyLoading[id];
+          }
+        window.removeEventListener("scroll", throttledScrollHandler);
       }
     }
     function executeAuction(parentArgs, theObject, originalFunction) {
       /* istanbul ignore next */
-      // For lazy loading, only update the specific slot that came into viewport
-      if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled() && parentArgs[0] && parentArgs[0].length === 1) {
-        // Only process the specific slot that came into viewport
-        refThis.updateSlotsMapFromGoogleSlots(parentArgs[0], parentArgs, false);
-      } else {
-        // For non-lazy loading or when all slots are being processed
-       refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), parentArgs, false);
-      }
+      refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), parentArgs, false);
       /* istanbul ignore next */
       var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(parentArgs, theObject);
-  /* istanbul ignore next */
+      /* istanbul ignore next */
       refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, parentArgs, true);
       /* istanbul ignore next */
       util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
@@ -916,8 +930,8 @@ function newRefreshFunction(theObject, originalFunction) {
       });
     }
   }
-/* start-test-block */
-exports.newRefreshFunction = newRefreshFunction;
+  /* start-test-block */
+  exports.newRefreshFuncton = newRefreshFuncton;
 /* end-test-block */
 
 function addHooks(win) { // TDD, i/o : done
@@ -934,7 +948,7 @@ function addHooks(win) { // TDD, i/o : done
         util.addHookOnFunction(localPubAdsObj, false, "disableInitialLoad", refThis.newDisableInitialLoadFunction);
         util.addHookOnFunction(localPubAdsObj, false, "enableSingleRequest", refThis.newEnableSingleRequestFunction);
         refThis.newAddHookOnGoogletagDisplay(localGoogletag);
-        util.addHookOnFunction(localPubAdsObj, false, "refresh", refThis.newRefreshFunction);
+        util.addHookOnFunction(localPubAdsObj, false, "refresh", refThis.newRefreshFuncton);
         util.addHookOnFunction(localPubAdsObj, false, "setTargeting", refThis.newSetTargetingFunction);
         util.addHookOnFunction(localGoogletag, false, "destroySlots", refThis.newDestroySlotsFunction);
         return true;
