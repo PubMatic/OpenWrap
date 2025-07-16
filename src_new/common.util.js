@@ -13,6 +13,10 @@ exports.isFunction = function (object) {
 	return refThis.isA(object, "Function");
 };
 
+function isString(object) {
+	return refThis.isA(object, "String");
+};
+
 function isNumber(object) {
 	return refThis.isA(object, "Number");
 }
@@ -22,10 +26,27 @@ function isObject (object){
 	return typeof object === "object" && object !== null;
 };
 
-isEmptyObject= function(object){
+function isEmptyObject(object){
 	return isObject(object) && Object.keys(object).length === 0;
 };
 exports.isEmptyObject = isEmptyObject;
+
+var constDebugInConsolePrependWith = "[OpenWrap] : ";
+var debugLogIsEnabled = false;
+
+exports.enableDebugLog = function () {
+	debugLogIsEnabled = true;
+};
+
+exports.log = function (data) {
+	if (debugLogIsEnabled && console && this.isFunction(console.log)) { // eslint-disable-line no-console
+		if (isString(data)) {
+			console.log((new Date()).getTime() + " : " + constDebugInConsolePrependWith + data); // eslint-disable-line no-console
+		} else {
+			console.log(data); // eslint-disable-line no-console
+		}
+	}
+};
 
 /**
  * Retrieves the global Prebid object, creating it if it doesn't exist. Example: owpbjs

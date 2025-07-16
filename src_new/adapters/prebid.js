@@ -1089,9 +1089,6 @@ function setPrebidConfig() {
 		// Some OW+ IH or IH pubs use this hook to add/remove identityPartner.
 
 		consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
-			var cmEnabled = COMMON_CONFIG.consentManagementEnabled();
-			var message =  cmEnabled ? "setting" : "not setting";			
-			util.log("ConsentManagement: " + cmEnabled + ", " + message + " the consentManagement config: " + JSON.stringify(cmConfig));
 			if(cmConfig && !util.isEmptyObject(cmConfig)) {
 				prebidConfig.consentManagement = cmConfig;								
 			}

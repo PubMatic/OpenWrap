@@ -180,7 +180,6 @@ var ConsentConfigManager = (function () {
 
 var crConfig = ConsentConfigManager.getInstance();
 
-
 // ===========================================
 // Compliance API Configuration Module
 // ===========================================
@@ -256,15 +255,16 @@ var ComplianceHandler = (function () {
   ComplianceApiConfig.setConfigHandlers(configureGDPR, configureUSP, configureGPP);
 })();
 
-
 // ===========================================
 // Geo Service Module
 // ===========================================
 var GeoService = (function () {
   function getGeoInfoWrapper() {
     timeMetrics.recordEntryTime("GEO_CALLING_TIME", 1500); // Setting default timeout of 1500 ms in case service fails or didn't respond
+    commonUtil.log("ConsentResolver: Fetching geo information");
     commonUtil.getGeoInfo(ConsentConstants.READ_GEO_DATA_FROM, function (readFrom, geoInfo) {
       crConfig.setGeoInfo(readFrom, geoInfo);
+      commonUtil.log("ConsentResolver: Geo info received - Source: " + readFrom + ", Country: " + (geoInfo.cc || "unknown"));
       timeMetrics.recordExitTime("GEO_CALLING_TIME");
     });
   }
@@ -287,6 +287,7 @@ var CmpDetector = (function () {
       if (cmpApis.hasOwnProperty(compliance)) {
         var apiName = cmpApis[compliance].apiName;
         if (typeof frame[apiName] === 'function') {
+          commonUtil.log("ConsentResolver: Detected " + compliance + " CMP with API: " + apiName);
           detectedCmps.push({
             compliance: compliance,
             api: frame[apiName],
@@ -316,7 +317,6 @@ var CmpDetector = (function () {
   };
 })();
 
-
 // ===========================================
 // Consent Setter For Continuous CMP Check Module
 // ===========================================
@@ -324,6 +324,7 @@ var ConsentSetterForContinuousCMPCheck = (function () {
   function setConsentManagementConfig() {
     crConfig.setGeoMatchWithCMP();
     crConfig.setEnforcedConsentBasisOn(ConsentConstants.CONSENT_MANAGEMENT_SOURCE.CMP);
+    commonUtil.log("ConsentResolver: Found CMP with continuous check. Setting consent management config with CMP source" + JSON.stringify(crConfig.getPrebidCMConfig()));
 
     // Update Prebid configuration with CMP-based settings
     commonUtil.getGlobalPbObject().setConfig({
@@ -332,6 +333,7 @@ var ConsentSetterForContinuousCMPCheck = (function () {
 
     // Set for OW+IH, IH
     if (COMMON_CONFIG.isUserIdModuleEnabled()) {
+      commonUtil.log("ConsentResolver: Refreshing user IDs due to consent update");
       commonUtil.getGlobalPbObject().refreshUserIds();
     }
   }
@@ -340,6 +342,7 @@ var ConsentSetterForContinuousCMPCheck = (function () {
     // Check for CMP presence
     var detectedCmps = CmpDetector.getCMPsPresentOnPage();
     if (detectedCmps.length > 0) {
+      commonUtil.log("ConsentResolver: CMP detected during continuous check, count: " + detectedCmps.length);
       ConsentResolver.setConsentResolverConfig(detectedCmps);
       crConfig.resetPrebidCMConfig();
       for (var i = 0; i < detectedCmps.length; i++) {
@@ -353,11 +356,33 @@ var ConsentSetterForContinuousCMPCheck = (function () {
   function shouldContinueCheckingForCMP() {
     var currentTime = Date.now();
     var config = crConfig.getProperties();
+    var timeElapsed = currentTime - crConfig.getContinuousCmpCheckStartTime();
+    var timeoutReached = timeElapsed > crConfig.getContinuousCmpCheckTimeout();
 
-    if (config.ccmp || (currentTime - crConfig.getContinuousCmpCheckStartTime() > crConfig.getContinuousCmpCheckTimeout())) {
+    if (config.ccmp) {
+      commonUtil.log("ConsentResolver: Stopping continuous CMP check - CMP already present");
+      return false;
+    } else if (timeoutReached) {
+      commonUtil.log("ConsentResolver: Stopping continuous CMP check - Timeout reached after " + timeElapsed + "ms");
       return false;
     }
+    commonUtil.log("ConsentResolver: Continuing CMP check");
     return true;
+  }
+
+  function proceedToContinuousCmpCheck() {
+    // Enable continuous CMP checking
+    crConfig.setContinuousCmpCheckEnabled(true);
+    crConfig.setContinuousCmpCheckStartTime(Date.now());
+    commonUtil.log("ConsentResolver: Starting continuous CMP check with timeout: " + crConfig.getContinuousCmpCheckTimeout() + "ms");
+
+    if (COMMON_CONFIG.isIdentityOnly()) {
+      commonUtil.log("ConsentResolver: Using Identity Hub continuous CMP check handler");
+      handleForIH();
+    } else {
+      commonUtil.log("ConsentResolver: Using OpenWrap continuous CMP check handler");
+      handleForOW();
+    }
   }
 
   function handleForOW() {
@@ -376,6 +401,8 @@ var ConsentSetterForContinuousCMPCheck = (function () {
         if(checkForCMPPresence()) {
           resetFetchBids();
           setConsentManagementConfig();
+        } else {
+          commonUtil.log("ConsentResolver: CMP still not detected during continuous check");
         }
       }
       timeMetrics.recordExitTime("CONSENT_CONFIG_RESOLVER_TIME");
@@ -402,18 +429,6 @@ var ConsentSetterForContinuousCMPCheck = (function () {
       timeMetrics.recordExitTime("CONSENT_CONFIG_RESOLVER_TIME");
     }
     commonUtil.getIHPrebidNameSpace().onEvent("auctionInit", handler, eventHandlerId);
-  }
-
-  function proceedToContinuousCmpCheck() {
-    // Enable continuous CMP checking
-    crConfig.setContinuousCmpCheckEnabled(true);
-    crConfig.setContinuousCmpCheckStartTime(Date.now());
-
-    if (COMMON_CONFIG.isIdentityOnly()) {
-      handleForIH();
-    } else {
-      handleForOW();
-    }
   }
 
   return {
@@ -450,6 +465,7 @@ var ConsentResolver = (function () {
 
   function setConsentResolverConfig(detectedCmps) {
     // If GDPR CMP is detected, get CMP ID
+    commonUtil.log("ConsentResolver: Setting consent config for " + detectedCmps.length + " detected CMPs");
     for (var j = 0; j < detectedCmps.length; j++) {
       setCMPTime(false);
       crConfig.setComplianceSupport(ConsentConstants.COMPLIANCE_MAP[detectedCmps[j].compliance]);
@@ -471,6 +487,10 @@ var ConsentResolver = (function () {
         clearTimeout(timeoutId);
         isCallbackExecuted = true;
         timeMetrics.recordExitTime("CONSENT_CONFIG_RESOLVER_TIME");
+        commonUtil.log("ConsentResolver: Executing callback with consent basis: " + 
+          (enforcedConsentBasisOn === ConsentConstants.CONSENT_MANAGEMENT_SOURCE.CMP ? "CMP" : 
+          (enforcedConsentBasisOn === ConsentConstants.CONSENT_MANAGEMENT_SOURCE.GEO ? "GEO" : "NONE")));
+        commonUtil.log("ConsentResolver: Setting consent management config: " + JSON.stringify(crConfig.getPrebidCMConfig()));
         callbackToSetConfig(crConfig.getPrebidCMConfig());
         crConfig.setEnforcedConsentBasisOn(enforcedConsentBasisOn);
         crConfig.setProcessCompleted(true);
@@ -479,9 +499,11 @@ var ConsentResolver = (function () {
 
     function proceedToFallbackExecution() {
       setCMPTime(true); // Record CMP timing metrics
+      commonUtil.log("ConsentResolver: CMP detection timed out, falling back to geo-based consent");
 
       var globalObj = commonUtil.getGlobalOwObject();
       if (!globalObj || !globalObj.CC || !globalObj.CC.gc) {
+        commonUtil.log("ConsentResolver: No geo compliance info available, disabling consent management");
         executeCallback(ConsentConstants.CONSENT_MANAGEMENT_SOURCE.NONE);
         return;
       }
@@ -489,10 +511,12 @@ var ConsentResolver = (function () {
       // Get compliance type based on geo location
       var compliance = commonUtil.getKeyByValue(ConsentConstants.COMPLIANCE_MAP, globalObj.CC.gc);
       if (compliance) {
+        commonUtil.log("ConsentResolver: Using geo-based compliance: " + compliance);
         ComplianceApiConfig.getApiConfig()[compliance].prepareConfig(); // Configure consent based on geo location
         ConsentSetterForContinuousCMPCheck.proceedToContinuousCmpCheck();
         executeCallback(ConsentConstants.CONSENT_MANAGEMENT_SOURCE.GEO);
       } else {
+        commonUtil.log("ConsentResolver: No compliance type found from geo data: " + globalObj.CC.gc);
         executeCallback(ConsentConstants.CONSENT_MANAGEMENT_SOURCE.NONE);
       }
     }
@@ -505,6 +529,7 @@ var ConsentResolver = (function () {
       if (detectedCmps.length === 0) {
         setTimeout(checkCmpRecursively, 50);
       } else {
+        commonUtil.log("ConsentResolver: CMP detected, count: " + detectedCmps.length);
         setConsentResolverConfig(detectedCmps);
         for (var i = 0; i < detectedCmps.length; i++) {
           detectedCmps[i].prepareConfig();
@@ -516,15 +541,19 @@ var ConsentResolver = (function () {
 
     // Main execution flow
     timeMetrics.recordEntryTime("CONSENT_CONFIG_RESOLVER_TIME");
+    commonUtil.log("ConsentResolver: Starting consent configuration resolution");
 
     if (!COMMON_CONFIG.consentManagementEnabled()) {
+      commonUtil.log("ConsentResolver: Consent management disabled in config");
       executeCallback(ConsentConstants.CONSENT_MANAGEMENT_SOURCE.NONE);
       return;
     }
 
     crConfig.setConsentManagementEnabled(true);
     GeoService.getGeoInfoWrapper();
-    timeoutId = setTimeout(proceedToFallbackExecution, getCMPLookUpTimeout()); // Timeout for checking CMP presence
+    var timeout = getCMPLookUpTimeout();
+    commonUtil.log("ConsentResolver: Looking for CMP with timeout: " + timeout + "ms");
+    timeoutId = setTimeout(proceedToFallbackExecution, timeout); // Timeout for checking CMP presence
     checkCmpRecursively();
   }
 

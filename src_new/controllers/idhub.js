@@ -47,17 +47,12 @@ refThis.setConfig = function(){
 			// Adding a hook for publishers to modify the Prebid Config we have generated
 			util.handleHook(CONSTANTS.HOOKS.PREBID_SET_CONFIG, [ prebidConfig ]);
 
-			consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
-				var cmEnabled = COMMON_CONFIG.consentManagementEnabled();
-				var message =  cmEnabled ? "setting" : "not setting";				
-				util.log("ConsentManagement: " + cmEnabled + ", " + message + " the consentManagement config: " + JSON.stringify(cmConfig));
+			consentConfigResolver.getConsentManagementConfig(function (cmConfig) {				
 				if(cmConfig && !util.isEmptyObject(cmConfig)) {
 					prebidConfig.consentManagement = cmConfig;
-					//window[pbNameSpace].setConfig(prebidConfig);
 				} 
 				window[pbNameSpace].setConfig(prebidConfig);				
 			});
-			//window[pbNameSpace].setConfig(prebidConfig);
 		}
 		if (CONFIG.isUserIdModuleEnabled() && CONFIG.isIdentityOnly()) {
 			refThis.enablePubMaticIdentityAnalyticsIfRequired();
