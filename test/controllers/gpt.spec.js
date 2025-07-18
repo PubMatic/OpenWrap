@@ -2600,7 +2600,7 @@ describe("CONTROLLER: GPT", function() {
         });
     });
 
-    describe('#newRefreshFunction', function() {
+    describe('#newRefreshFuncton', function() {
         var theObject = null;
 
         beforeEach(function(done) {
@@ -2642,12 +2642,12 @@ describe("CONTROLLER: GPT", function() {
 
 
         it('is a function', function(done) {
-            GPT.newRefreshFunction.should.be.a('function');
+            GPT.newRefreshFuncton.should.be.a('function');
             done();
         });
 
         it('should return null when impropper parameters passed', function(done) {
-            var result = GPT.newRefreshFunction(null, function() {
+            var result = GPT.newRefreshFuncton(null, function() {
                 console.log("inside function");
             });
             should.not.exist(result);
@@ -2659,7 +2659,7 @@ describe("CONTROLLER: GPT", function() {
         });
 
         it('should return a function when propper parameters are passed', function(done) {
-            GPT.newRefreshFunction(theObject, function() {
+            GPT.newRefreshFuncton(theObject, function() {
                 console.log("inside function");
             }).should.be.a('function');
             UTIL.isObject.called.should.be.true;
@@ -2672,7 +2672,7 @@ describe("CONTROLLER: GPT", function() {
 
         it('the returned function when called should call refersh functionality', function (done) {
             sinon.stub(CONFIG, "isIdentityOnly").returns(0);            
-            var returnedFn = GPT.newRefreshFunction(theObject, function() {
+            var returnedFn = GPT.newRefreshFuncton(theObject, function() {
                 console.log("inside function");
             });
             UTIL.isObject.calledOnce.should.be.true;
@@ -2779,7 +2779,7 @@ describe("CONTROLLER: GPT", function() {
             GPT.newAddHookOnGoogletagDisplay.calledOnce.should.equal(true);
             GPT.newAddHookOnGoogletagDisplay.calledWith(winObj.googletag).should.equal(true);
 
-            UTIL.addHookOnFunction.calledWith(winObj.googletag.pubads(), false, "refresh", GPT.newRefreshFunction).should.equal(true);
+            UTIL.addHookOnFunction.calledWith(winObj.googletag.pubads(), false, "refresh", GPT.newRefreshFuncton).should.equal(true);
             UTIL.addHookOnFunction.calledWith(winObj.googletag.pubads(), false, "setTargeting", GPT.newSetTargetingFunction).should.equal(true);
             UTIL.addHookOnFunction.calledWith(winObj.googletag, false, "destroySlots", GPT.newDestroySlotsFunction).should.equal(true);
 
