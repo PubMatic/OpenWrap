@@ -816,67 +816,53 @@ function newRefreshFuncton(theObject, originalFunction) {
         return function () {
           /* istanbul ignore next */
           util.log("In Refresh function");
-
-            // --
+          var targetSlots = arguments[0];
+            
             if (!!arguments[0] && !!arguments[0][0]) {
                 // Process specific slot(s) from arguments
                 if (arguments[0].length > 1) {
+                    targetSlots = arguments[0];
                   util.forEachOnArray(arguments[0], function (index, slot) {
                     var slotId = slot.getSlotElementId();
                     if (!elligibleSlotsForLazyLoading.hasOwnProperty(slotId)) {
-                        elligibleSlotsForLazyLoading[slotId] = {
-                          isRequested: false
-                        };
-                      }
+                      elligibleSlotsForLazyLoading[slotId] = {
+                        isRequested: false
+                      };
+                    }
                   });
                 } else {
-                    if (!elligibleSlotsForLazyLoading.hasOwnProperty(arguments[0][0].getSlotElementId())) {
-                        elligibleSlotsForLazyLoading[arguments[0][0].getSlotElementId()] = {
-                          isRequested: false
-                        };
-                      }
+                    targetSlots = arguments[0][0];
+                  var slotId = arguments[0][0].getSlotElementId();
+                  if (!elligibleSlotsForLazyLoading.hasOwnProperty(slotId)) {
+                    elligibleSlotsForLazyLoading[slotId] = {
+                      isRequested: false
+                    };
+                  }
                 }
               } else {
                 // Process al
+                targetSlots = theObject.getSlots();
                 util.forEachOnArray(theObject.getSlots(), function (index, slot) {
-                    elligibleSlotsForLazyLoading[slot.getSlotElementId()] = {
-                        isRequested: false
-                      };
+                  var slotId = slot.getSlotElementId();
+                  if (!elligibleSlotsForLazyLoading.hasOwnProperty(slotId)) {
+                    elligibleSlotsForLazyLoading[slotId] = {
+                      isRequested: false
+                    };
+                  }
                 });
               }
-            // --
-
-
-        //   if (!arguments[0]) {
-        //     util.forEachOnArray(theObject.getSlots(), function (index, slot) {
-        //       var slotId = slot.getSlotElementId();
-        //       // Only add unique entries to elligibleSlotsForLazyLoading
-        //       if (!elligibleSlotsForLazyLoading.hasOwnProperty(slotId)) {
-        //         elligibleSlotsForLazyLoading[slotId] = {
-        //           isRequested: false
-        //         };
-        //       }
-        //     });
-        //   } else {
-        //     var slotId = arguments[0][0].getSlotElementId();
-        //     // Only add unique entries to elligibleSlotsForLazyLoading
-        //     if (!elligibleSlotsForLazyLoading.hasOwnProperty(slotId)) {
-        //       elligibleSlotsForLazyLoading[slotId] = {
-        //         isRequested: false
-        //       };
-        //     }
-        //   }
+          
           if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
-            var targetSlotId = arguments[0];
+            
             var parentArgs = arguments;
             function checkAndExecute() {
-              if (targetSlotId) {
-                addScrollEventForElement(targetSlotId[0].getSlotElementId(), parentArgs, theObject, originalFunction);
-              } else {
-                util.forEachOnArray(theObject.getSlots(), function (index, slot) {
-                  addScrollEventForElement(slot.getSlotElementId(), parentArgs, theObject, originalFunction);
-                });
-              }
+                if(targetSlots.length > 0){
+                    util.forEachOnArray(targetSlots, function (index, slot) {
+                        addScrollEventForElement(slot.getSlotElementId(), parentArgs, theObject, originalFunction);
+                      });
+                }else{
+                    addScrollEventForElement(targetSlots.getSlotElementId(), parentArgs, theObject, originalFunction);
+                }
             }
             throttledScrollHandler = util.throttle(checkAndExecute, 300);
             // Initial check in case some elements are already in view
@@ -899,24 +885,26 @@ function newRefreshFuncton(theObject, originalFunction) {
       }
       var element = document.getElementById(id);
       if (element && util.isElementInViewport(element)&& !elligibleSlotsForLazyLoading[id].isRequested) {
-        if (!parentArgs[0]) {
           parentArgs[0] = theObject.getSlots().filter(function (slot) {
             return slot.getSlotElementId() === id;
           });
           parentArgs.length = 1;
-        }
+        
         elligibleSlotsForLazyLoading[id].isRequested = true;
         executeAuction(parentArgs, theObject, originalFunction);
   
         // Remove the id from elligibleSlotsForLazyLoading     
         if(elligibleSlotsForLazyLoading[id].isRequested){
             delete elligibleSlotsForLazyLoading[id];
-          }
-        window.removeEventListener("scroll", throttledScrollHandler);
+        }
+        if(Object.keys(elligibleSlotsForLazyLoading).length === 0){
+            window.removeEventListener("scroll", throttledScrollHandler);
+        }
       }
     }
     function executeAuction(parentArgs, theObject, originalFunction) {
       /* istanbul ignore next */
+        
       refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), parentArgs, false);
       /* istanbul ignore next */
       var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(parentArgs, theObject);
@@ -926,6 +914,7 @@ function newRefreshFuncton(theObject, originalFunction) {
       util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
       var arg = parentArgs;
       refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function () {
+        
         refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
       });
     }
