@@ -656,11 +656,18 @@ function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
     }
     function executeDisplay(id) {
       var slots = googletag.pubads().getSlots();
-      var specificSlot = slots.filter(function (slot) {
-        return slot.getSlotElementId() === id;
-      });
-      /* istanbul ignore next */
+      if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
+        var specificSlot = slots.filter(function (slot) {
+            return slot.getSlotElementId() === id;
+          });
+
       refThis.updateSlotsMapFromGoogleSlots(specificSlot, arguments, true);
+      }else{
+        
+      /* istanbul ignore next */
+      refThis.updateSlotsMapFromGoogleSlots(slots, arguments, true);
+      }
+     
       /* istanbul ignore next */
       refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
       var statusObj = {};
@@ -816,7 +823,9 @@ function newRefreshFuncton(theObject, originalFunction) {
         return function () {
           /* istanbul ignore next */
           util.log("In Refresh function");
-          var targetSlots = arguments[0];
+        
+          if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
+            var targetSlots = arguments[0];
             
             if (!!arguments[0] && !!arguments[0][0]) {
                 // Process specific slot(s) from arguments
@@ -852,8 +861,6 @@ function newRefreshFuncton(theObject, originalFunction) {
                 });
               }
           
-          if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
-            
             var parentArgs = arguments;
             function checkAndExecute() {
                 if(targetSlots.length > 0){
