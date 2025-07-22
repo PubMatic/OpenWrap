@@ -823,92 +823,14 @@ function newRefreshFuncton(theObject, originalFunction) {
         return function () {
           /* istanbul ignore next */
           util.log("In Refresh function");
-        
-          if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
-            var targetSlots = arguments[0];
-            
-            if (!!arguments[0] && !!arguments[0][0]) {
-                // Process specific slot(s) from arguments
-                if (arguments[0].length > 1) {
-                    targetSlots = arguments[0];
-                  util.forEachOnArray(arguments[0], function (index, slot) {
-                    var slotId = slot.getSlotElementId();
-                    if (!elligibleSlotsForLazyLoading.hasOwnProperty(slotId)) {
-                      elligibleSlotsForLazyLoading[slotId] = {
-                        isRequested: false
-                      };
-                    }
-                  });
-                } else {
-                    targetSlots = arguments[0][0];
-                  var slotId = arguments[0][0].getSlotElementId();
-                  if (!elligibleSlotsForLazyLoading.hasOwnProperty(slotId)) {
-                    elligibleSlotsForLazyLoading[slotId] = {
-                      isRequested: false
-                    };
-                  }
-                }
-              } else {
-                // Process al
-                targetSlots = theObject.getSlots();
-                util.forEachOnArray(theObject.getSlots(), function (index, slot) {
-                  var slotId = slot.getSlotElementId();
-                  if (!elligibleSlotsForLazyLoading.hasOwnProperty(slotId)) {
-                    elligibleSlotsForLazyLoading[slotId] = {
-                      isRequested: false
-                    };
-                  }
-                });
-              }
-          
-            var parentArgs = arguments;
-            function checkAndExecute() {
-                if(targetSlots.length > 0){
-                    util.forEachOnArray(targetSlots, function (index, slot) {
-                        addScrollEventForElement(slot.getSlotElementId(), parentArgs, theObject, originalFunction);
-                      });
-                }else{
-                    addScrollEventForElement(targetSlots.getSlotElementId(), parentArgs, theObject, originalFunction);
-                }
-            }
-            throttledScrollHandler = util.throttle(checkAndExecute, 300);
-            // Initial check in case some elements are already in view
-            checkAndExecute();
-            window.addEventListener("scroll", throttledScrollHandler);
-          } else {
-            // If lazy loading is not enabled, run task immediately
-            executeAuction(arguments, theObject, originalFunction);
-          }
+          executeAuction(arguments, theObject, originalFunction);
         };
       }
     } else {
       util.log("refresh: originalFunction is not a function");
       return null;
     }
-    function addScrollEventForElement(id, parentArgs, theObject, originalFunction) {
-      // Check if id exists in elligibleSlotsForLazyLoading, if absent return
-      if (!elligibleSlotsForLazyLoading.hasOwnProperty(id)) {
-        return false;
-      }
-      var element = document.getElementById(id);
-      if (element && util.isElementInViewport(element)&& !elligibleSlotsForLazyLoading[id].isRequested) {
-          parentArgs[0] = theObject.getSlots().filter(function (slot) {
-            return slot.getSlotElementId() === id;
-          });
-          parentArgs.length = 1;
-        
-        elligibleSlotsForLazyLoading[id].isRequested = true;
-        executeAuction(parentArgs, theObject, originalFunction);
   
-        // Remove the id from elligibleSlotsForLazyLoading     
-        if(elligibleSlotsForLazyLoading[id].isRequested){
-            delete elligibleSlotsForLazyLoading[id];
-        }
-        if(Object.keys(elligibleSlotsForLazyLoading).length === 0){
-            window.removeEventListener("scroll", throttledScrollHandler);
-        }
-      }
-    }
     function executeAuction(parentArgs, theObject, originalFunction) {
       /* istanbul ignore next */
         
