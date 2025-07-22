@@ -277,6 +277,10 @@ exports.getFloorType = function(){
 	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] && (config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS]).toLowerCase() === CONSTANTS.COMMON.HARD_FLOOR ? true : false;
 }
 
+exports.isYieldOptimizerEnabled = function(){
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.YIELD_OPTIMIZER_ENABLED]) === 1;
+}
+
 exports.isPrebidPubMaticAnalyticsEnabled = function () {
 	// note: not using window.parseInt as this function is also used in build.sh that runs in NodeJS environment
 	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.ENABLE_PB_PM_ANALYTICS]) === 1;

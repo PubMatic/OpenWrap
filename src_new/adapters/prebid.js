@@ -1066,7 +1066,8 @@ function setPrebidConfig() {
 
 		window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 
-		refThis.getFloorsConfiguration(prebidConfig);
+		// refThis.getFloorsConfiguration(prebidConfig);
+		refThis.getYieldOptimizerConfiguration(prebidConfig);
 		refThis.checkConfigLevelFloor(prebidConfig);
 		refThis.assignUserSyncConfig(prebidConfig);
 		//refThis.assignGdprConfigIfRequired(prebidConfig);
@@ -1204,6 +1205,24 @@ function getFloorsConfiguration(prebidConfig){
 }
 
 exports.getFloorsConfiguration = getFloorsConfiguration;
+
+function getYieldOptimizerConfiguration(prebidConfig){
+	if(CONFIG.isYieldOptimizerEnabled()) {
+		prebidConfig["realTimeData"] = {
+			auctionDelay: window.parseInt(CONFIG.getTimeout()) / 3,
+			dataProviders: [{
+			  name: "pubmatic",
+			  waitForIt: true,
+			  params: {
+				publisherId: CONFIG.getPublisherId(),
+				profileId: CONFIG.getProfileID(),
+			  }
+			}]
+		};
+	}	
+}
+
+exports.getYieldOptimizerConfiguration = getYieldOptimizerConfiguration;
 
 function checkForYahooSSPBidder(prebidConfig){
 	var isYahooAlias = false;
