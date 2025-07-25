@@ -823,7 +823,6 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
             return function() {
                 /* istanbul ignore next */
                 util.log("In Refresh function");
-
                 /* istanbul ignore next */
                 refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
                 /* istanbul ignore next */
@@ -832,7 +831,6 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
                 refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
                 /* istanbul ignore next */
                 util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
-
                 var arg = arguments;
                 refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
                     refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
