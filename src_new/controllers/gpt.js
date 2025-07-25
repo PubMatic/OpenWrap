@@ -807,49 +807,46 @@ exports.getQualifyingSlotNamesForRefresh = getQualifyingSlotNamesForRefresh;
         3. googletag.pubads().refresh();
         4. googletag.pubads().refresh(null, {changeCorrelator: false});
 */
-function newRefreshFuncton(theObject, originalFunction) {
-    // TDD, i/o : done // Note : not covering the function currying atm , if need be will add istanbul ignore
+function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // Note : not covering the function currying atm , if need be will add istanbul ignore
     // Initiating getUserConsentDataFromCMP method to get the updated consentData
     // GDPR.getUserConsentDataFromCMP();
-    var throttledScrollHandler;
+
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
-      if (CONFIG.isIdentityOnly()) {
-        util.log("Identity Only Enabled. No Process Need. Calling Original Display function");
-        return function () {
-          return originalFunction.apply(theObject, arguments);
-        };
-      } else {
+        if(CONFIG.isIdentityOnly()){
+            util.log("Identity Only Enabled. No Process Need. Calling Original Display function");
+            return function() {
+                return originalFunction.apply(theObject, arguments);
+            }
+        }
+        else{
         // var refThis = this;
-        return function () {
-          /* istanbul ignore next */
-          util.log("In Refresh function");
-          executeAuction(arguments, theObject, originalFunction);
-        };
-      }
+            return function() {
+                /* istanbul ignore next */
+                util.log("In Refresh function");
+
+                /* istanbul ignore next */
+                refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
+                /* istanbul ignore next */
+                var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(arguments, theObject);
+                /* istanbul ignore next */
+                refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
+                /* istanbul ignore next */
+                util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
+
+                var arg = arguments;
+                refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
+                    refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
+                });        
+            };
+        }
     } else {
-      util.log("refresh: originalFunction is not a function");
-      return null;
+        util.log("refresh: originalFunction is not a function");
+        return null;
     }
-  
-    function executeAuction(parentArgs, theObject, originalFunction) {
-      /* istanbul ignore next */
-        
-      refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), parentArgs, false);
-      /* istanbul ignore next */
-      var qualifyingSlotNames = getQualifyingSlotNamesForRefresh(parentArgs, theObject);
-      /* istanbul ignore next */
-      refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, parentArgs, true);
-      /* istanbul ignore next */
-      util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
-      var arg = parentArgs;
-      refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function () {
-        
-        refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
-      });
-    }
-  }
-  /* start-test-block */
-  exports.newRefreshFuncton = newRefreshFuncton;
+}
+
+/* start-test-block */
+exports.newRefreshFuncton = newRefreshFuncton;
 /* end-test-block */
 
 function addHooks(win) { // TDD, i/o : done
