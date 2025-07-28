@@ -1409,9 +1409,28 @@ describe('Config', function() {
             };
             CONF[CONSTANTS.COMMON.TEST_PWT]  = {};
             CONF[CONSTANTS.COMMON.TEST_IDENTITY_PARTNER]  =  result
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS].testType  =  CONSTANTS.COMMON.ABTEST_IDENTITY_PROVIDERS
             CONF[CONSTANTS.COMMON.IDENTITY_PARTNERS]  = {};
             CONFIG.updateABTestConfig()
             expect(CONFIG.getIdentityPartners()).to.deep.equal(result);
+            done();
+        });
+
+        it('should not update identityPartners when test type is Partners', function(done){
+            var identityPartners = {
+                id5Id: {
+                    name: "id5Id",
+                    "storage.type": "html5",
+                    "storage.expires": "90",
+                    "storage.name": "id5id"
+                }
+            };
+            
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = 1;
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS].testType  =  "Partners"
+            CONF[CONSTANTS.COMMON.IDENTITY_PARTNERS] = identityPartners;
+            CONFIG.updateABTestConfig();
+            expect(CONFIG.getIdentityPartners()).to.deep.equal(identityPartners);
             done();
         });
 
