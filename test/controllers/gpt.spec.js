@@ -2618,6 +2618,13 @@ describe("CONTROLLER: GPT", function() {
             window.OWT = {
                 externalBidderStatuses: {}
             };
+            window.googletag = {
+                pubads: function() {
+                    return {
+                        isSRA: function() { return false; }
+                    };
+                }
+            };
             done();
         });
 
