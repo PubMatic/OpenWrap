@@ -362,7 +362,7 @@ exports.updateABTestConfig = function () {
 			refThis.updatePWTConfig();
 			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters);	
 			refThis.enableBidpoolingIfApplicable(testGroupDetails);
-			if(refThis.getTestIdentityPartners() && refThis.getIdentityPartners()){
+			if(refThis.getTestIdentityPartners() && refThis.getIdentityPartners() && testGroupDetails.testType == CONSTANTS.COMMON.ABTEST_IDENTITY_PROVIDERS){
 				if(Object.keys(refThis.getTestIdentityPartners()).length > 0 && Object.keys(refThis.getIdentityPartners()).length == 0){
 					util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(refThis.getTestIdentityPartners()));
 					config.identityPartners = refThis.getTestIdentityPartners();
