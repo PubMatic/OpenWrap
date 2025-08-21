@@ -176,7 +176,7 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 	if(adUnit.bid){
 		params["bid"] = adUnit.bid;
 	}
-	dfpurl = window.owpbjs.adServers.dfp.buildVideoUrl(params);
+	dfpurl = window.owpbjs.adServers.gam.buildVideoUrl(params);
 	return dfpurl;
 };
 // endRemoveIf(removeInStreamRelatedCode)
