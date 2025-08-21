@@ -216,9 +216,35 @@ describe('ConsentConfigResolver:', function() {
                 usp: { test2: 'value2' }
             });
             
-            // Reset config
-            crConfig.resetPrebidCMConfig();
+            // Disable config
+            crConfig.disablePrebidCMConfig();
             expect(crConfig.getPrebidCMConfig()).to.be.an('object');
+            expect(crConfig.getPrebidCMConfig().gdpr.enabled).to.be.false;
+            expect(crConfig.getPrebidCMConfig().usp.enabled).to.be.false;
+            done();
+        });
+
+        it('should disable all Prebid CM configs with enabled: false flag', function(done) {
+            // Set multiple configs
+            crConfig.setPrebidCMConfig('gdpr', { test: 'value', timeout: 1000 });
+            crConfig.setPrebidCMConfig('usp', { test2: 'value2', cmpApi: 'iab' });
+            crConfig.setPrebidCMConfig('gpp', { test3: 'value3' });
+            
+            // Disable all configs
+            crConfig.disablePrebidCMConfig();
+            
+            // Verify all configs have enabled: false while preserving other properties
+            expect(crConfig.getPrebidCMConfig().gdpr.enabled).to.be.false;
+            expect(crConfig.getPrebidCMConfig().gdpr.test).to.equal('value');
+            expect(crConfig.getPrebidCMConfig().gdpr.timeout).to.equal(1000);
+            
+            expect(crConfig.getPrebidCMConfig().usp.enabled).to.be.false;
+            expect(crConfig.getPrebidCMConfig().usp.test2).to.equal('value2');
+            expect(crConfig.getPrebidCMConfig().usp.cmpApi).to.equal('iab');
+            
+            expect(crConfig.getPrebidCMConfig().gpp.enabled).to.be.false;
+            expect(crConfig.getPrebidCMConfig().gpp.test3).to.equal('value3');
+            
             done();
         });
 

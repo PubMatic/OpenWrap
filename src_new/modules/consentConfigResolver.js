@@ -121,8 +121,12 @@ var ConsentConfigManager = (function () {
         config.readGeoDataFrom = readFrom;
         this.setGeoMatchWithCMP();
       },
-      resetPrebidCMConfig: function () {
-        config.prebidCMConfig = {};
+      disablePrebidCMConfig: function () {
+        for (var key in config.prebidCMConfig) {
+          if (config.prebidCMConfig.hasOwnProperty(key)) {
+            config.prebidCMConfig[key].enabled = false;
+          }
+        }
       },
       setPrebidCMConfig: function (key, conf) {
         config.prebidCMConfig[key] = conf;
@@ -344,7 +348,7 @@ var ConsentSetterForContinuousCMPCheck = (function () {
     if (detectedCmps.length > 0) {
       commonUtil.log("ConsentResolver: CMP detected during continuous check, count: " + detectedCmps.length);
       ConsentResolver.setConsentResolverConfig(detectedCmps);
-      crConfig.resetPrebidCMConfig();
+      crConfig.disablePrebidCMConfig();
       for (var i = 0; i < detectedCmps.length; i++) {
         detectedCmps[i].prepareConfig();
       }
