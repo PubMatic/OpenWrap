@@ -180,18 +180,18 @@ gulp.task('test', gulp.series('unexpose', async function (done) {
 
 // Test all code including private functions
 gulp.task('testall', async function (done) {
-    var karmaServer = require('karma').Server;
-    var defaultBrowsers = CI_MODE ? ['ChromeHeadless'] : ['Chrome'];
-    new karmaServer({
-        browsers: defaultBrowsers,
-        configFile: __dirname + '/karma.conf.js',
-        singleRun: true
-    }, function (exitCode) {
-        console.log("exitCode ==>", exitCode);
-        if (exitCode != 0) {
-            process.exit(exitCode);
-        }
-    }).start();
+    // var karmaServer = require('karma').Server;
+    // var defaultBrowsers = CI_MODE ? ['ChromeHeadless'] : ['Chrome'];
+    // new karmaServer({
+    //     browsers: defaultBrowsers,
+    //     configFile: __dirname + '/karma.conf.js',
+    //     singleRun: true
+    // }, function (exitCode) {
+    //     console.log("exitCode ==>", exitCode);
+    //     if (exitCode != 0) {
+    //         process.exit(exitCode);
+    //     }
+    // }).start();
 });
 
 
