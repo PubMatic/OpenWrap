@@ -120,7 +120,7 @@ exports.CONFIG = {
 	"FLOOR_JSON_URL":"jsonUrl",
 	"FLOOR_ENFORCE_JS":"floorType",
 	"DEFAULT_FLOOR_ENFORCE_JS": true,
-	"YIELD_OPTIMIZER_ENABLED": "yieldOptimizerEnabled",
+	"YIELD_OPTIMIZER_ENABLED": "yieldOptiEnabled",
 	"USE_PREBID_KEYS": "usePBJSKeys",
 	"AB_TEST_ENABLED": "abTestEnabled",
 	"TIMEOUT_ADJUSTMENT": 50,
