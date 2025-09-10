@@ -34,6 +34,7 @@ var GPT_targetingMap = {};
 var windowReference = null;
 
 var refThis = this;
+var elligibleSlotsForLazyLoading = {};
 
 function setWindowReference(win) { // TDD, i/o: done
     if (util.isObject(win)) {
@@ -290,26 +291,26 @@ exports.defineWrapperTargetingKeys = defineWrapperTargetingKeys;
 /* end-test-block */
 
 function findWinningBidAndApplyTargeting(divID, parentArgs) { // TDD, i/o : done
-    var data; 
+    var data;
 	if (isPrebidPubMaticAnalyticsEnabled){
-		data = prebid.getBid(divID);
-	} else {
+        data = prebid.getBid(divID);
+    } else {
         data = bidManager.getBid(divID);
     }
     var winningBid = data.wb || null;
     var keyValuePairs = data.kvp || {};
     var googleDefinedSlot = refThis.slotsMap[divID].getPubAdServerObject();
-	var ignoreTheseKeys = !usePrebidKeys ? CONSTANTS.IGNORE_PREBID_KEYS : {};
+    var ignoreTheseKeys = !usePrebidKeys ? CONSTANTS.IGNORE_PREBID_KEYS : {};
 
     util.log("DIV: " + divID + " winningBid: ");
     util.log(winningBid);
 
     /* istanbul ignore else*/
-        if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {
-            refThis.slotsMap[divID].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
-            bidManager.setStandardKeys(winningBid, keyValuePairs);
-        };
-    
+    if (isPrebidPubMaticAnalyticsEnabled === false && winningBid && winningBid.getNetEcpm() > 0) {
+        refThis.slotsMap[divID].setStatus(CONSTANTS.SLOT_STATUS.TARGETING_ADDED);
+        bidManager.setStandardKeys(winningBid, keyValuePairs);
+    };
+
     // Hook to modify key-value-pairs generated, google-slot object is passed so that consumer can get details about the AdSlot
     // this hook is not needed in custom controller
     if(!parentArgs || (parentArgs && parentArgs[0] == divID)) {
@@ -318,8 +319,8 @@ function findWinningBidAndApplyTargeting(divID, parentArgs) { // TDD, i/o : done
     // attaching keyValuePairs from adapters
     util.forEachOnObject(keyValuePairs, function(key, value) {
         if (!CONFIG.getSendAllBidsStatus() && winningBid && winningBid.adapterID !== "pubmatic" && util.isOwnProperty({"hb_buyid_pubmatic":1,"pwtbuyid_pubmatic":1}, key)) {
-			delete keyValuePairs[key];
-		}
+            delete keyValuePairs[key];
+        }
         /* istanbul ignore else*/
         else if (!util.isOwnProperty(ignoreTheseKeys, key)) {
             googleDefinedSlot.setTargeting(key, value);
@@ -329,7 +330,7 @@ function findWinningBidAndApplyTargeting(divID, parentArgs) { // TDD, i/o : done
     });
     util.forEachOnObject(util.getCDSTargetingData(), function(key, value) {
         window.googletag &&
-        window.googletag.pubads().setTargeting(key, value);
+            window.googletag.pubads().setTargeting(key, value);
     });
 }
 
@@ -353,7 +354,7 @@ exports.defineWrapperTargetingKey = defineWrapperTargetingKey;
 // Hooks related functions
 
 function newDisableInitialLoadFunction(theObject, originalFunction) { // TDD, i/o : done
-   
+
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
         return function() {
             /* istanbul ignore next */
@@ -411,7 +412,7 @@ function newSetTargetingFunction(theObject, originalFunction) { // TDD, i/o : do
         if(CONFIG.isIdentityOnly()){
             util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " Original Set Targeting function");
             return function() {
-	            return originalFunction.apply(theObject, arguments);
+                return originalFunction.apply(theObject, arguments);
             }
         }
         else{
@@ -550,19 +551,19 @@ function displayFunctionStatusHandler(oldStatus, theObject, originalFunction, ar
         // display method was called for this slot
         /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.CREATED:
-            // dm flow is already intiated for this slot
-            // just intitate the CONFIG.getTimeout() now
-            // eslint-disable-line no-fallthrough
+        // dm flow is already intiated for this slot
+        // just intitate the CONFIG.getTimeout() now
+        // eslint-disable-line no-fallthrough
         /* istanbul ignore next */
         case CONSTANTS.SLOT_STATUS.PARTNERS_CALLED:
             refThis.executeDisplay(CONFIG.getTimeout(), Object.keys(refThis.slotsMap), function() {
                util.forEachOnObject(refThis.slotsMap, function(key, slot) {
-                   refThis.findWinningBidIfRequired_Display(key, slot, arg);
-               });
-               refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
+                    refThis.findWinningBidIfRequired_Display(key, slot, arg);
+                });
+                refThis.processDisplayCalledSlot(theObject, originalFunction, arg);
             });
             break;
-            // call the original function now
+        // call the original function now
         case CONSTANTS.SLOT_STATUS.TARGETING_ADDED:
             refThis.updateStatusAndCallOriginalFunction_Display(
                 "As DM processing is already done, Calling original display function with arguments",
@@ -603,58 +604,88 @@ exports.forQualifyingSlotNamesCallAdapters = forQualifyingSlotNamesCallAdapters;
 function newDisplayFunction(theObject, originalFunction) { // TDD, i/o : done
     // Initiating getUserConsentDataFromCMP method to get the updated consentData
     // GDPR.getUserConsentDataFromCMP();
-
+  
     if (util.isObject(theObject) && util.isFunction(originalFunction)) {
-        if(CONFIG.isIdentityOnly()){
-            util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " Original Display function");
-            return function() {
-	            return originalFunction.apply(theObject, arguments);
-            }
-        }
-        else{
+      if(CONFIG.isIdentityOnly()){
+        util.log(CONSTANTS.MESSAGES.IDENTITY.M5, " Original Display function");
+        return function() {
+          return originalFunction.apply(theObject, arguments);
+        };
+      }else{
         // Todo : change structure to take out the anonymous function for better unit test cases
-            return function() {
-                /* istanbul ignore next */
-                util.log("In display function, with arguments: ");
-
-            
-                /* istanbul ignore next */
-                util.log(arguments);
-                /* istanbul ignore next */
-                /* istanbul ignore if */
-                if (disableInitialLoadIsSet) {
-                    util.log("DisableInitialLoad was called, Nothing to do");
-                    return originalFunction.apply(theObject, arguments);
+        return function() {
+          if (disableInitialLoadIsSet) {
+            util.log("DisableInitialLoad was called, Nothing to do");
+            return originalFunction.apply(theObject, arguments);
+          }
+          if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
+            var targetSlotId = arguments[0];
+           
+            function checkAndExecute() {
+             if (!elligibleSlotsForLazyLoading.hasOwnProperty(targetSlotId)) {
+               elligibleSlotsForLazyLoading[targetSlotId] = {
+                 isRequested: false
+               };
+             }
+              if (targetSlotId) {
+                var element = document.getElementById(targetSlotId);
+   
+                if (element && util.isElementInViewport(element)&& !elligibleSlotsForLazyLoading[targetSlotId].isRequested) {
+                  elligibleSlotsForLazyLoading[targetSlotId].isRequested = true;
+                  executeDisplay(targetSlotId);
+                  if(elligibleSlotsForLazyLoading[targetSlotId].isRequested){
+                    delete elligibleSlotsForLazyLoading[targetSlotId];
+                  }
+                  window.removeEventListener("scroll", throttledScrollHandler);
                 }
-                /* istanbul ignore next */
-                refThis.updateSlotsMapFromGoogleSlots(theObject.pubads().getSlots(), arguments, true);
-
-                /* istanbul ignore next */
-                refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
-                var statusObj = {};
-                statusObj[CONSTANTS.SLOT_STATUS.CREATED] = "";
-                /* istanbul ignore next */
-                // Todo: need to add reThis whilwe calling getSlotNamesByStatus
-                refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus(statusObj), arguments, false);
-                /* istanbul ignore next */
-                var divID = arguments[0];
-                /* istanbul ignore next */
-                setTimeout(function() {
-                    util.realignVLogInfoPanel(divID);
-                    bidManager.executeAnalyticsPixel();
-                }, 2000 + CONFIG.getTimeout());
-
-                //return originalFunction.apply(theObject, arguments);
-            };
-        }
+              }
+            }
+            var throttledScrollHandler = util.throttle(checkAndExecute, 300);
+            // Initial check in case some elements are already in view
+            checkAndExecute();
+            window.addEventListener("scroll", throttledScrollHandler);
+          } else {
+            // If lazy loading is not enabled, run task immediately
+            executeDisplay(arguments[0]);
+          }
+        };
+      }
     } else {
-        util.log("display: originalFunction is not a function");
-        return null;
+      util.log("display: originalFunction is not a function");
+      return null;
     }
-}
+    function executeDisplay(id) {
+      var slots = googletag.pubads().getSlots();
+      if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
+        var specificSlot = slots.filter(function (slot) {
+            return slot.getSlotElementId() === id;
+          });
 
-/* start-test-block */
-exports.newDisplayFunction  = newDisplayFunction;
+      refThis.updateSlotsMapFromGoogleSlots(specificSlot, arguments, true);
+      }else{
+        
+      /* istanbul ignore next */
+      refThis.updateSlotsMapFromGoogleSlots(slots, arguments, true);
+      }
+     
+      /* istanbul ignore next */
+      refThis.displayFunctionStatusHandler(getStatusOfSlotForDivId(arguments[0]), theObject, originalFunction, arguments);
+      var statusObj = {};
+      statusObj[CONSTANTS.SLOT_STATUS.CREATED] = "";
+      /* istanbul ignore next */
+      // Todo: need to add reThis whilwe calling getSlotNamesByStatus
+      refThis.forQualifyingSlotNamesCallAdapters(getSlotNamesByStatus(statusObj), arguments, false);
+      /* istanbul ignore next */
+      var divID = arguments[0];
+      /* istanbul ignore next */
+      setTimeout(function () {
+        util.realignVLogInfoPanel(divID);
+        bidManager.executeAnalyticsPixel();
+      }, 2000 + CONFIG.getTimeout());
+    }
+  }
+  /* start-test-block */
+  exports.newDisplayFunction = newDisplayFunction;
 /* end-test-block */
 
 /*
@@ -792,7 +823,6 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
             return function() {
                 /* istanbul ignore next */
                 util.log("In Refresh function");
-            
                 /* istanbul ignore next */
                 refThis.updateSlotsMapFromGoogleSlots(theObject.getSlots(), arguments, false);
                 /* istanbul ignore next */
@@ -801,7 +831,6 @@ function newRefreshFuncton(theObject, originalFunction) { // TDD, i/o : done // 
                 refThis.forQualifyingSlotNamesCallAdapters(qualifyingSlotNames, arguments, true);
                 /* istanbul ignore next */
                 util.log("Intiating Call to original refresh function with Timeout: " + CONFIG.getTimeout() + " ms");
-              
                 var arg = arguments;
                 refThis.executeDisplay(CONFIG.getTimeout(), qualifyingSlotNames, function() {
                     refThis.postTimeoutRefreshExecution(qualifyingSlotNames, theObject, originalFunction, arg);
@@ -894,7 +923,7 @@ exports.initSafeFrameListener = initSafeFrameListener;
 /* end-test-block */
 
 exports.init = function(win) { // TDD, i/o : done
-	CONFIG.initConfig();
+    CONFIG.initConfig();
     if (util.isObject(win)) {
         refThis.setWindowReference(win);
         refThis.initSafeFrameListener(win);
