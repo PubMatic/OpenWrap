@@ -1197,6 +1197,9 @@ function getFloorsConfiguration(prebidConfig){
 				platform_id : util.getPltForFloor,
 				country: function() {
 					return (window.PWT && window.PWT.CC && window.PWT.CC.cc) || '';
+				},
+				bidder: function(request) {
+					return request && request.bidder;
 				}
 			}
 		}
