@@ -1216,6 +1216,7 @@ function getYieldOptimizerConfiguration(prebidConfig){
 			  params: {
 				publisherId: CONFIG.getPublisherId(),
 				profileId: CONFIG.getProfileID(),
+				versionId: CONFIG.getProfileDisplayVersionID()
 			  }
 			}]
 		};
