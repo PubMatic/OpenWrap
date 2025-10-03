@@ -1209,7 +1209,7 @@ exports.getFloorsConfiguration = getFloorsConfiguration;
 function getYieldOptimizerConfiguration(prebidConfig){
 	if(CONFIG.isYieldOptimizerEnabled()) {
 		prebidConfig["realTimeData"] = {
-			auctionDelay: window.parseInt(CONFIG.getTimeout()) / 3,
+			auctionDelay: (window.pwt && window.pwt.yieldOptAuctionDelay) || 250,
 			dataProviders: [{
 			  name: "pubmatic",
 			  waitForIt: true,

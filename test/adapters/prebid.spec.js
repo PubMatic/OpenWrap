@@ -461,7 +461,7 @@ describe('ADAPTER: Prebid', function() {
             PREBID.getYieldOptimizerConfiguration(prebidConfig);
 
             expect(prebidConfig.realTimeData).to.deep.equal({
-                auctionDelay: window.parseInt(900) / 3,
+                auctionDelay: 250,
                 dataProviders: [{
                     name: 'pubmatic',
                     waitForIt: true,
