@@ -1186,13 +1186,7 @@ exports.checkConfigLevelFloor = checkConfigLevelFloor;
 function getYieldOptimizerConfiguration(prebidConfig){
     if (CONFIG.isYieldOptimizerEnabled()) {
         var pb = window[pbNameSpace];
-        var pbConf = (pb && pb.getConfig) ? pb.getConfig() : null;
-        var rtdConfigured = pbConf && pbConf.realTimeData ? pbConf.realTimeData : null;
-
-        var dataProviders = [];
-        if (rtdConfigured && rtdConfigured.dataProviders) {
-            dataProviders = rtdConfigured.dataProviders;
-        }
+        var dataProviders = (window.pwt && window.pwt.rtdDataProviders) || [];
 
         dataProviders.push({
             name: "pubmatic",
@@ -1207,8 +1201,6 @@ function getYieldOptimizerConfiguration(prebidConfig){
         var delay = 300;
         if (window.pwt && window.pwt.yieldOptAuctionDelay) {
             delay = window.pwt.yieldOptAuctionDelay;
-        } else if (rtdConfigured && rtdConfigured.auctionDelay && (rtdConfigured.auctionDelay > delay)) {
-            delay = rtdConfigured.auctionDelay;
         }
 
         prebidConfig["realTimeData"] = {
