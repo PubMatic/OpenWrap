@@ -1066,6 +1066,8 @@ function setPrebidConfig() {
 
 		window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 
+		refThis.getYieldOptimizerConfiguration(prebidConfig);
+		refThis.checkConfigLevelFloor(prebidConfig);
 		refThis.assignUserSyncConfig(prebidConfig);
 		//refThis.assignGdprConfigIfRequired(prebidConfig);
 		//refThis.assignCcpaConfigIfRequired(prebidConfig);
@@ -1093,8 +1095,6 @@ function setPrebidConfig() {
 			if(cmConfig && !util.isEmptyObject(cmConfig)) {
 				prebidConfig.consentManagement = cmConfig;								
 			}
-			refThis.getYieldOptimizerConfiguration(prebidConfig);
-			refThis.checkConfigLevelFloor(prebidConfig);
 
 			// Setting complete config to prebid after consent management config is set.
 			// As UserSync config required to be set with consent due to userSync modules do required the consent 
@@ -1184,10 +1184,10 @@ function checkConfigLevelFloor(prebidConfig){
 exports.checkConfigLevelFloor = checkConfigLevelFloor;
 
 function getYieldOptimizerConfiguration(prebidConfig){
-    if (CONFIG.isYieldOptimizerEnabled()) {
-        var pb = window[pbNameSpace];
-        var dataProviders = (window.pwt && window.pwt.rtdDataProviders) || [];
+	var dataProviders = (window.pwt && window.pwt.rtdDataProviders) || [];
+	var delay = (window.pwt && window.pwt.yieldOptAuctionDelay) || 300;
 
+    if (CONFIG.isYieldOptimizerEnabled()) {
         dataProviders.push({
             name: "pubmatic",
             waitForIt: true,
@@ -1197,13 +1197,10 @@ function getYieldOptimizerConfiguration(prebidConfig){
                 versionId: CONFIG.getProfileDisplayVersionID()
             }
         });
+    }
 
-        var delay = 300;
-        if (window.pwt && window.pwt.yieldOptAuctionDelay) {
-            delay = window.pwt.yieldOptAuctionDelay;
-        }
-
-        prebidConfig["realTimeData"] = {
+    if (dataProviders.length > 0) {
+        prebidConfig.realTimeData = {
             auctionDelay: delay,
             dataProviders: dataProviders
         };
