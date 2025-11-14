@@ -1184,27 +1184,20 @@ function checkConfigLevelFloor(prebidConfig){
 exports.checkConfigLevelFloor = checkConfigLevelFloor;
 
 function getYieldOptimizerConfiguration(prebidConfig){
-	var dataProviders = (window.pwt && window.pwt.rtdDataProviders) || [];
-	var delay = (window.pwt && window.pwt.yieldOptAuctionDelay) || 300;
-
-    if (CONFIG.isYieldOptimizerEnabled()) {
-        dataProviders.push({
-            name: "pubmatic",
-            waitForIt: true,
-            params: {
-                publisherId: CONFIG.getPublisherId(),
-                profileId: CONFIG.getProfileID(),
-                versionId: CONFIG.getProfileDisplayVersionID()
-            }
-        });
-    }
-
-    if (dataProviders.length > 0) {
-        prebidConfig.realTimeData = {
-            auctionDelay: delay,
-            dataProviders: dataProviders
-        };
-    }
+	if(CONFIG.isYieldOptimizerEnabled()) {
+		prebidConfig.realTimeData = {
+			auctionDelay: 300,
+			dataProviders: [{
+				name: "pubmatic",
+				waitForIt: true,
+				params: {
+					publisherId: CONFIG.getPublisherId(),
+					profileId: CONFIG.getProfileID(),
+					versionId: CONFIG.getProfileDisplayVersionID()
+				}
+			}]
+		};
+	}
 }
 
 exports.getYieldOptimizerConfiguration = getYieldOptimizerConfiguration;
