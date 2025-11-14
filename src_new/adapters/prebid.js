@@ -1066,7 +1066,7 @@ function setPrebidConfig() {
 
 		window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 
-		refThis.getFloorsConfiguration(prebidConfig);
+		refThis.getYieldOptimizerConfiguration(prebidConfig);
 		refThis.checkConfigLevelFloor(prebidConfig);
 		refThis.assignUserSyncConfig(prebidConfig);
 		//refThis.assignGdprConfigIfRequired(prebidConfig);
@@ -1095,6 +1095,7 @@ function setPrebidConfig() {
 			if(cmConfig && !util.isEmptyObject(cmConfig)) {
 				prebidConfig.consentManagement = cmConfig;								
 			}
+
 			// Setting complete config to prebid after consent management config is set.
 			// As UserSync config required to be set with consent due to userSync modules do required the consent 
 			window[pbNameSpace].setConfig(prebidConfig);
@@ -1182,31 +1183,31 @@ function checkConfigLevelFloor(prebidConfig){
 }
 exports.checkConfigLevelFloor = checkConfigLevelFloor;
 
-function getFloorsConfiguration(prebidConfig){
-	if(CONFIG.isFloorPriceModuleEnabled() == true && CONFIG.getFloorSource() !== CONSTANTS.COMMON.EXTERNAL_FLOOR_WO_CONFIG){
-		prebidConfig["floors"]={
-			enforcement: {
-				enforceJS: CONFIG.getFloorType()
-			},
-			auctionDelay: CONFIG.getFloorAuctionDelay(),
-			endpoint:{
-				url: CONFIG.getFloorJsonUrl()
-			},
-			additionalSchemaFields : {
-				browser : util.getBrowserDetails,
-				platform_id : util.getPltForFloor,
-				country: function() {
-					return (window.PWT && window.PWT.CC && window.PWT.CC.cc) || '';
-				},
-				bidder: function(request) {
-					return request && request.bidder;
-				}
-			}
-		}
-	}
+function getYieldOptimizerConfiguration(prebidConfig){
+	var dataProviders = (window.pwt && window.pwt.rtdDataProviders) || [];
+	var delay = (window.pwt && window.pwt.yieldOptAuctionDelay) || 300;
+
+    if (CONFIG.isYieldOptimizerEnabled()) {
+        dataProviders.push({
+            name: "pubmatic",
+            waitForIt: true,
+            params: {
+                publisherId: CONFIG.getPublisherId(),
+                profileId: CONFIG.getProfileID(),
+                versionId: CONFIG.getProfileDisplayVersionID()
+            }
+        });
+    }
+
+    if (dataProviders.length > 0) {
+        prebidConfig.realTimeData = {
+            auctionDelay: delay,
+            dataProviders: dataProviders
+        };
+    }
 }
 
-exports.getFloorsConfiguration = getFloorsConfiguration;
+exports.getYieldOptimizerConfiguration = getYieldOptimizerConfiguration;
 
 function checkForYahooSSPBidder(prebidConfig){
 	var isYahooAlias = false;

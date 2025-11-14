@@ -1154,6 +1154,42 @@ describe('Config', function() {
         });
     });
 
+    describe('#isYieldOptimizerEnabled',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.YIELD_OPTIMIZER_ENABLED] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.YIELD_OPTIMIZER_ENABLED];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.isYieldOptimizerEnabled.should.be.a('function');
+            done();
+        });
+
+        it('should return true by reading from config', function(done) {
+            var expectedResult = true;
+            expect(CONFIG.isYieldOptimizerEnabled()).to.equal(expectedResult);
+            done();
+        });
+
+        it('should return false if isYieldOptimizerEnabled is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.YIELD_OPTIMIZER_ENABLED];
+            expect(CONFIG.isYieldOptimizerEnabled()).to.equal(false);
+            done();
+        });
+
+        it('should return false if isYieldOptimizerEnabled set to "0"', function(done) {
+            var expectedResult = false;
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.YIELD_OPTIMIZER_ENABLED] = "0";
+            CONFIG.isYieldOptimizerEnabled().should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
+
     describe('#getFloorAuctionDelay',function(){
         beforeEach(function(done){
             CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_AUCTION_DELAY] = "200";
