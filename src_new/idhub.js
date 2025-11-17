@@ -1,5 +1,6 @@
 var controller = require("./controllers/idhub.js");
 var util = require("./util.idhub.js");
+var commonUtil = require("./common.util.js");
 var timeMetrics = require("./modules/timeMetrics.js");
 var metaInfo = util.getMetaInfo(window);
 window.IHPWT = window.IHPWT || {};
@@ -19,7 +20,11 @@ timeMetrics.init();
 timeMetrics.recordEntryTime("CMP_CALLING_TIME");
 
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
-util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc") && util.enableVisualDebugLog();
+var enabledLog = util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc");
+if(enabledLog) {
+	util.enableVisualDebugLog();
+	commonUtil.enableDebugLog(); // This is required to enable debug logging for common.util.js which is use in case of Consent Config Resolver as its common for IH & OW.
+}
 
 window.IHPWT.getUserIds = function(){
 	return util.getUserIds();
