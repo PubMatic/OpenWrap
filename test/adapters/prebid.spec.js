@@ -54,7 +54,7 @@ describe('ADAPTER: Prebid', function() {
             callback('LS', mockGeoData);
         });
 
-        sinon.stub(COMMON_CONFIG, "consentManagentEnabled").returns(false);
+        sinon.stub(COMMON_CONFIG, "consentManagementEnabled").returns(false);
 
         commonUtil.getGeoInfo = geoInfoSpy;        
         done();
@@ -62,7 +62,7 @@ describe('ADAPTER: Prebid', function() {
 
     afterEach(function (done) {
         sandbox.restore();
-        COMMON_CONFIG.consentManagentEnabled.restore();
+        COMMON_CONFIG.consentManagementEnabled.restore();
         done();
     });
 
