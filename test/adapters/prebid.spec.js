@@ -54,7 +54,7 @@ describe('ADAPTER: Prebid', function() {
             callback('LS', mockGeoData);
         });
 
-        sinon.stub(COMMON_CONFIG, "consentManagentEnabled").returns(false);
+        sinon.stub(COMMON_CONFIG, "consentManagementEnabled").returns(false);
 
         commonUtil.getGeoInfo = geoInfoSpy;        
         done();
@@ -62,7 +62,7 @@ describe('ADAPTER: Prebid', function() {
 
     afterEach(function (done) {
         sandbox.restore();
-        COMMON_CONFIG.consentManagentEnabled.restore();
+        COMMON_CONFIG.consentManagementEnabled.restore();
         done();
     });
 
@@ -422,6 +422,7 @@ describe('ADAPTER: Prebid', function() {
 
         beforeEach(function(done){
             prebidConfig = {};
+            window.pwt = {};
             sinon.stub(CONFIG, 'isYieldOptimizerEnabled');
             sinon.stub(CONFIG, 'getTimeout');
             sinon.stub(CONFIG, 'getPublisherId');
@@ -447,13 +448,12 @@ describe('ADAPTER: Prebid', function() {
         it('should not set realTimeData when Yield Optimizer is disabled', function(done) {
             CONFIG.isYieldOptimizerEnabled.returns(false);
             PREBID.getYieldOptimizerConfiguration(prebidConfig);
-            expect(prebidConfig.realTimeData).to.equal(undefined);
+            expect(prebidConfig.realTimeData).to.be.undefined;
             done();
         });
 
         it('should set realTimeData with correct values when enabled', function(done) {
             CONFIG.isYieldOptimizerEnabled.returns(true);
-            CONFIG.getTimeout.returns(900);
             CONFIG.getPublisherId.returns('123');
             CONFIG.getProfileID.returns('pid');
             CONFIG.getProfileDisplayVersionID.returns('pvid');

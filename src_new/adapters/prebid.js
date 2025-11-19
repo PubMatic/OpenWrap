@@ -1066,6 +1066,8 @@ function setPrebidConfig() {
 
 		window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 
+		refThis.getYieldOptimizerConfiguration(prebidConfig);
+		refThis.checkConfigLevelFloor(prebidConfig);
 		refThis.assignUserSyncConfig(prebidConfig);
 		//refThis.assignGdprConfigIfRequired(prebidConfig);
 		//refThis.assignCcpaConfigIfRequired(prebidConfig);
@@ -1087,14 +1089,9 @@ function setPrebidConfig() {
 		// Some OW+ IH or IH pubs use this hook to add/remove identityPartner.
 
 		consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
-			var cmEnabled = COMMON_CONFIG.consentManagentEnabled();
-			var message =  cmEnabled ? "setting" : "not setting";			
-			util.log("ConsentManagement: " + cmEnabled + ", " + message + " the consentManagement config: " + JSON.stringify(cmConfig));
 			if(cmConfig && !util.isEmptyObject(cmConfig)) {
 				prebidConfig.consentManagement = cmConfig;								
 			}
-			refThis.getYieldOptimizerConfiguration(prebidConfig);
-			refThis.checkConfigLevelFloor(prebidConfig);
 
 			// Setting complete config to prebid after consent management config is set.
 			// As UserSync config required to be set with consent due to userSync modules do required the consent 
@@ -1184,30 +1181,20 @@ function checkConfigLevelFloor(prebidConfig){
 exports.checkConfigLevelFloor = checkConfigLevelFloor;
 
 function getYieldOptimizerConfiguration(prebidConfig){
-    if (CONFIG.isYieldOptimizerEnabled()) {
-        var pb = window[pbNameSpace];
-        var dataProviders = (window.pwt && window.pwt.rtdDataProviders) || [];
-
-        dataProviders.push({
-            name: "pubmatic",
-            waitForIt: true,
-            params: {
-                publisherId: CONFIG.getPublisherId(),
-                profileId: CONFIG.getProfileID(),
-                versionId: CONFIG.getProfileDisplayVersionID()
-            }
-        });
-
-        var delay = 300;
-        if (window.pwt && window.pwt.yieldOptAuctionDelay) {
-            delay = window.pwt.yieldOptAuctionDelay;
-        }
-
-        prebidConfig["realTimeData"] = {
-            auctionDelay: delay,
-            dataProviders: dataProviders
-        };
-    }
+	if(CONFIG.isYieldOptimizerEnabled()) {
+		prebidConfig.realTimeData = {
+			auctionDelay: 300,
+			dataProviders: [{
+				name: "pubmatic",
+				waitForIt: true,
+				params: {
+					publisherId: CONFIG.getPublisherId(),
+					profileId: CONFIG.getProfileID(),
+					versionId: CONFIG.getProfileDisplayVersionID()
+				}
+			}]
+		};
+	}
 }
 
 exports.getYieldOptimizerConfiguration = getYieldOptimizerConfiguration;
@@ -1464,7 +1451,7 @@ function initPbjsConfig(){
 	
 
 	// If consent Management is enabled then do not fetch the geo info from consentConfigResolver.js(here) module will do the same.
-	if(!COMMON_CONFIG.consentManagentEnabled()){
+	if(!COMMON_CONFIG.consentManagementEnabled()){
 		commonUtil.getGeoInfo();
 	}
 }
@@ -1474,7 +1461,7 @@ exports.initPbjsConfig = initPbjsConfig;
 function fetchBids(activeSlots, callback) {
 	function requestBidsPostConsentProcess() {
 		// Halt execution till we found if consentManagement Config is set or not, once this flag found we will proceed with below execution
-		if(!COMMON_CONFIG.consentManagentEnabled()){
+		if(!COMMON_CONFIG.consentManagementEnabled()){
 			proceedToRequestBids();
 			return;
 		}
