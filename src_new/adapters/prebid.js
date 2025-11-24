@@ -1066,7 +1066,7 @@ function setPrebidConfig() {
 
 		window.PWT.ssoEnabled = CONFIG.isSSOEnabled() || false;
 
-		refThis.getFloorsConfiguration(prebidConfig);
+		refThis.getYieldOptimizerConfiguration(prebidConfig);
 		refThis.checkConfigLevelFloor(prebidConfig);
 		refThis.assignUserSyncConfig(prebidConfig);
 		//refThis.assignGdprConfigIfRequired(prebidConfig);
@@ -1089,12 +1089,10 @@ function setPrebidConfig() {
 		// Some OW+ IH or IH pubs use this hook to add/remove identityPartner.
 
 		consentConfigResolver.getConsentManagementConfig(function (cmConfig) {
-			var cmEnabled = COMMON_CONFIG.consentManagentEnabled();
-			var message =  cmEnabled ? "setting" : "not setting";			
-			util.log("ConsentManagement: " + cmEnabled + ", " + message + " the consentManagement config: " + JSON.stringify(cmConfig));
 			if(cmConfig && !util.isEmptyObject(cmConfig)) {
 				prebidConfig.consentManagement = cmConfig;								
 			}
+
 			// Setting complete config to prebid after consent management config is set.
 			// As UserSync config required to be set with consent due to userSync modules do required the consent 
 			window[pbNameSpace].setConfig(prebidConfig);
@@ -1182,31 +1180,24 @@ function checkConfigLevelFloor(prebidConfig){
 }
 exports.checkConfigLevelFloor = checkConfigLevelFloor;
 
-function getFloorsConfiguration(prebidConfig){
-	if(CONFIG.isFloorPriceModuleEnabled() == true && CONFIG.getFloorSource() !== CONSTANTS.COMMON.EXTERNAL_FLOOR_WO_CONFIG){
-		prebidConfig["floors"]={
-			enforcement: {
-				enforceJS: CONFIG.getFloorType()
-			},
-			auctionDelay: CONFIG.getFloorAuctionDelay(),
-			endpoint:{
-				url: CONFIG.getFloorJsonUrl()
-			},
-			additionalSchemaFields : {
-				browser : util.getBrowserDetails,
-				platform_id : util.getPltForFloor,
-				country: function() {
-					return (window.PWT && window.PWT.CC && window.PWT.CC.cc) || '';
-				},
-				bidder: function(request) {
-					return request && request.bidder;
+function getYieldOptimizerConfiguration(prebidConfig){
+	if(CONFIG.isYieldOptimizerEnabled()) {
+		prebidConfig.realTimeData = {
+			auctionDelay: 300,
+			dataProviders: [{
+				name: "pubmatic",
+				waitForIt: true,
+				params: {
+					publisherId: CONFIG.getPublisherId(),
+					profileId: CONFIG.getProfileID(),
+					versionId: CONFIG.getProfileDisplayVersionID()
 				}
-			}
-		}
+			}]
+		};
 	}
 }
 
-exports.getFloorsConfiguration = getFloorsConfiguration;
+exports.getYieldOptimizerConfiguration = getYieldOptimizerConfiguration;
 
 function checkForYahooSSPBidder(prebidConfig){
 	var isYahooAlias = false;
@@ -1460,7 +1451,7 @@ function initPbjsConfig(){
 	
 
 	// If consent Management is enabled then do not fetch the geo info from consentConfigResolver.js(here) module will do the same.
-	if(!COMMON_CONFIG.consentManagentEnabled()){
+	if(!COMMON_CONFIG.consentManagementEnabled()){
 		commonUtil.getGeoInfo();
 	}
 }
@@ -1470,7 +1461,7 @@ exports.initPbjsConfig = initPbjsConfig;
 function fetchBids(activeSlots, callback) {
 	function requestBidsPostConsentProcess() {
 		// Halt execution till we found if consentManagement Config is set or not, once this flag found we will proceed with below execution
-		if(!COMMON_CONFIG.consentManagentEnabled()){
+		if(!COMMON_CONFIG.consentManagementEnabled()){
 			proceedToRequestBids();
 			return;
 		}
