@@ -276,7 +276,8 @@ gulp.task('bundle-pwt-keys', function() {
                         "UUID": "pwtuuid",
                         "CACHE_ID": "pwtcid",
                         "CACHE_HOST": "pwtcurl",
-                        "ADOMAIN" : "pwtadomain"
+                        "ADOMAIN" : "pwtadomain",
+                        "VERSION": 'pwtver'
                     }
                     }
                 ]
@@ -303,7 +304,8 @@ gulp.task('bundle-pwt-keys', function() {
                     "ADOMAIN": "hb_adomain",
                     "ACAT": "hb_acat",
                     "CRID": "hb_crid",
-                    "DSP": "hb_dsp"
+                    "DSP": "hb_dsp",
+                    "VERSION": 'hb_ver'
                     }
                 }
             ]
