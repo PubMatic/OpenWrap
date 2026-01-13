@@ -25,6 +25,10 @@ exports.getSendAllBidsStatus = function () {
 	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.SEND_ALL_BIDS]) || 0;
 };
 
+exports.getTransactionIdStatus = function () {
+	return window.parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.TRANSACTION_ID]) || 0;
+};
+
 exports.getTimeout = function () {
 	return window.parseInt(config.pwt.t) || 1000;
 };
@@ -243,7 +247,7 @@ exports.getCCPATimeout = function () {
 };
 
 exports.getSchainObject = function () {
-	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAINOBJECT] || {};
+	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAINOBJECT] || null;
 };
 
 exports.isSchainEnabled = function () {
@@ -271,6 +275,10 @@ exports.getFloorAuctionDelay = function(){
 // It will return the floorType specified in conf.js or else default is true
 exports.getFloorType = function(){
 	return config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS] && (config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_ENFORCE_JS]).toLowerCase() === CONSTANTS.COMMON.HARD_FLOOR ? true : false;
+}
+
+exports.isYieldOptimizerEnabled = function(){
+	return parseInt(config[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.YIELD_OPTIMIZER_ENABLED]) === 1;
 }
 
 exports.isPrebidPubMaticAnalyticsEnabled = function () {
@@ -358,7 +366,7 @@ exports.updateABTestConfig = function () {
 			refThis.updatePWTConfig();
 			config.adapters = refThis.updatePartnerConfig(refThis.getTestPartnerConfig(), config.adapters);	
 			refThis.enableBidpoolingIfApplicable(testGroupDetails);
-			if(refThis.getTestIdentityPartners() && refThis.getIdentityPartners()){
+			if(refThis.getTestIdentityPartners() && refThis.getIdentityPartners() && testGroupDetails.testType == CONSTANTS.COMMON.ABTEST_IDENTITY_PROVIDERS){
 				if(Object.keys(refThis.getTestIdentityPartners()).length > 0 && Object.keys(refThis.getIdentityPartners()).length == 0){
 					util.log(CONSTANTS.MESSAGES.M31, JSON.stringify(refThis.getTestIdentityPartners()));
 					config.identityPartners = refThis.getTestIdentityPartners();
@@ -513,4 +521,48 @@ exports.getGppTimeout = function () {
 exports.shouldClearTargeting = function () {
 	return window.PWT.shouldClearTargeting !== undefined ? Boolean(window.PWT.shouldClearTargeting) : true;
 
+};
+
+// Utility function to retrieve configuration values
+function getConfigValue(property, defaultValue, parseAsInteger) {
+    parseAsInteger = (typeof parseAsInteger === 'undefined') ? true : parseAsInteger; // Default to true if not supplied
+    var configValue = config[CONSTANTS.CONFIG.COMMON] && config[CONSTANTS.CONFIG.COMMON][property];
+    
+    if (configValue !== undefined) {
+        return parseAsInteger ? parseInt(configValue, 10) : parseFloat(configValue);
+    }
+
+    var pwtValue = PWT && PWT.LazyLoading && PWT.LazyLoading[property];
+    if (pwtValue !== undefined) {
+        return parseAsInteger ? parseInt(pwtValue, 10) : parseFloat(pwtValue);
+    }
+
+    return parseAsInteger ? parseInt(defaultValue, 10) : parseFloat(defaultValue);
+}
+
+exports.isAuctionLazyLoadingEnabled = function () {
+    return getConfigValue(CONSTANTS.CONFIG.AUCTION_LAZY_LOADING_ENABLED, CONSTANTS.COMMON.DEFAULT_AUCTION_LAZY_LOADING_ENABLED) === 1;
+};
+
+exports.getAuctionMarginPercentage = function () {
+    return getConfigValue(CONSTANTS.CONFIG.AUCTION_MARGIN_PERCENTAGE, CONSTANTS.COMMON.DEFAULT_AUCTION_MARGIN_PERCENTAGE);
+};
+
+exports.isGamLazyLoadingEnabled = function () {
+    return getConfigValue(CONSTANTS.CONFIG.GAM_LAZY_LOADING_ENABLED, CONSTANTS.COMMON.DEFAULT_GAM_LAZY_LOADING_ENABLED) === 1;
+};
+
+exports.getFetchMarginPercentage = function () {
+    return getConfigValue(CONSTANTS.CONFIG.FETCH_MARGIN_PERCENTAGE, CONSTANTS.COMMON.DEFAULT_FETCH_MARGIN_PERCENTAGE);
+};
+
+exports.getRenderMarginPercentage = function () {
+    return getConfigValue(CONSTANTS.CONFIG.RENDER_MARGIN_PERCENTAGE, CONSTANTS.COMMON.DEFAULT_RENDER_MARGIN_PERCENTAGE);
+};
+
+exports.getMobileScalingForLazyLoading = function () {
+    return getConfigValue(CONSTANTS.CONFIG.MOBILE_SCALING_FOR_LAZY_LOADING, CONSTANTS.COMMON.DEFAULT_MOBILE_SCALING_FOR_LAZY_LOADING, false);
+};
+exports.isSRAEnabled = function () {
+	return window.googletag && window.googletag.pubads && window.googletag.pubads().isSRA() || false;
 };

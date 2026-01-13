@@ -6,6 +6,7 @@ var CONFIG = require("./config.js");
 var ucTag = require("prebid-universal-creative");
 var conf = require("./conf.js");
 var timeMetrics = require("./modules/timeMetrics.js");
+var commonUtil = require("./common.util.js");
 var consentConfigResolver = require("./modules/consentConfigResolver.js");
 var metaInfo = util.getMetaInfo(window);
 window.PWT = window.PWT || {};
@@ -30,7 +31,11 @@ window.PWT.shouldClearTargeting = window.PWT.shouldClearTargeting !== undefined 
 window.PWT.udpv = window.PWT.udpv || util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtv");
 
 util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtc") && util.enableDebugLog();
-util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc") && util.enableVisualDebugLog();
+var enabledLog = util.findQueryParamInURL(metaInfo.isIframe ? metaInfo.refURL : metaInfo.pageURL, "pwtvc");
+if(enabledLog) {
+	util.enableVisualDebugLog();
+	commonUtil.enableDebugLog(); // This is required to enable debug logging for common.util.js which is use in case of Consent Config Resolver as its common for IH & OW.
+}
 
 var isPrebidPubMaticAnalyticsEnabled = CONFIG.isPrebidPubMaticAnalyticsEnabled();
 
@@ -176,7 +181,7 @@ window.PWT.generateDFPURL= function(adUnit,cust_params){
 	if(adUnit.bid){
 		params["bid"] = adUnit.bid;
 	}
-	dfpurl = window.owpbjs.adServers.dfp.buildVideoUrl(params);
+	dfpurl = window.owpbjs.adServers.gam.buildVideoUrl(params);
 	return dfpurl;
 };
 // endRemoveIf(removeInStreamRelatedCode)
@@ -200,7 +205,14 @@ window.PWT.getAdapterNameForAlias = CONFIG.getAdapterNameForAlias;
 
 window.PWT.browserMapping = bidManager.getBrowser();
 
-// Calling the consent management config resolver
-consentConfigResolver.init();
-
 controller.init(window);
+
+if(CONFIG.isGamLazyLoadingEnabled()){
+	googletag.cmd.push(function () {
+		googletag.pubads().enableLazyLoad({
+			fetchMarginPercent: CONFIG.getFetchMarginPercentage(),
+			renderMarginPercent: CONFIG.getRenderMarginPercentage(),
+			mobileScaling: CONFIG.getMobileScalingForLazyLoading()
+		});
+	});
+}

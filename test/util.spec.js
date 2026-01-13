@@ -3073,6 +3073,19 @@ describe('UTIL', function() {
             expect(result.should.deep.equal(expectedResult));
             done();
         });
+
+        it('should return proper pos value', function(done){
+            currentSlot.getDivID.restore();
+            // DivId settings not registered in MediaConfiguration 
+            sinon.stub(currentSlot, "getDivID").returns("div_pos");
+            commonDivID="div_pos";
+            var expectedResult = {"banner":{"sizes":[[300,250]], pos: 5}};
+            // initializing invalid regex key and respective expression
+            slotConfiguration.config = {default: {banner : {enabled:true, config:{pos: 5}}}};
+            var result = UTIL.getAdUnitConfig(sizes, currentSlot).mediaTypeObject;
+            expect(result.should.deep.equal(expectedResult));
+            done();
+        });
     });
 
     describe('#addEventListenerForClass', function() {

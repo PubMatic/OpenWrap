@@ -59,7 +59,14 @@ exports.COMMON = {
 	"BID_POOLING": "Bid Pooling",
 	"USE_BID_CACHE": "useBidCache",
 	"BID_POOLING_ENABLED": "bidPoolingEnabled",
-	"ENABLED_BID_POOLING": "1"
+	"ENABLED_BID_POOLING": "1",
+	"DEFAULT_AUCTION_LAZY_LOADING_ENABLED":"0",
+	"DEFAULT_AUCTION_MARGIN_PERCENTAGE": "400",
+	"DEFAULT_GAM_LAZY_LOADING_ENABLED": "0",
+	"DEFAULT_FETCH_MARGIN_PERCENTAGE": "300",
+	"DEFAULT_RENDER_MARGIN_PERCENTAGE": "200",
+	"DEFAULT_MOBILE_SCALING_FOR_LAZY_LOADING": "2.0",
+	"ABTEST_IDENTITY_PROVIDERS": "Identity Providers"
 };
 
 exports.CONFIG = {
@@ -113,6 +120,7 @@ exports.CONFIG = {
 	"FLOOR_JSON_URL":"jsonUrl",
 	"FLOOR_ENFORCE_JS":"floorType",
 	"DEFAULT_FLOOR_ENFORCE_JS": true,
+	"YIELD_OPTIMIZER_ENABLED": "yieldOptEnabled",
 	"USE_PREBID_KEYS": "usePBJSKeys",
 	"AB_TEST_ENABLED": "abTestEnabled",
 	"TIMEOUT_ADJUSTMENT": 50,
@@ -126,7 +134,17 @@ exports.CONFIG = {
 	"DEFAULT_GPP_TIMEOUT": 10000,
 	"GDPR_ACTION_TIMEOUT": "gdprActionTimeout",
 	"PB_GLOBAL_VAR_NAMESPACE": "pbGlobalVarNamespace",
-	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace"
+	"OW_GLOBAL_VAR_NAMESPACE": "owGlobalVarNamespace",
+	"CONSENT_MANAGEMENT_ENABLED": "cmEnabled",
+	"CONSENT_MANAGEMENT_CMPAPI": "cmCmpApi",
+	"CONSENT_MANAGEMENT_TIMEOUT": "cmTimeout",
+	"TRANSACTION_ID": "transactionId",
+	"AUCTION_LAZY_LOADING_ENABLED": "auctionLazyLoadingEnabled",
+	"AUCTION_MARGIN_PERCENTAGE": "auctionMarginPercentage",
+	"GAM_LAZY_LOADING_ENABLED": "gamLazyLoadingEnabled",
+	"FETCH_MARGIN_PERCENTAGE": "fetchMarginPercentage",
+	"RENDER_MARGIN_PERCENTAGE": "renderMarginPercentage",
+	"MOBILE_SCALING_FOR_LAZY_LOADING": "mobileScalingForLazyLoading"
 };
 
 exports.METADATA_MACROS = {
@@ -322,7 +340,25 @@ exports.ID_PARTNERS_CUSTOM_VALUES = {
 	"identityLink": [{
 		"key": "storage.refreshInSeconds",
 		"value": "1800"
-	}]
+	}],
+	"pubmaticId": [
+		{
+			"key": "storage.name",
+			"value": "pubmaticId"
+		},
+		{
+			"key": "storage.type",
+			"value": "cookie&html5"
+		},
+		{
+			"key": "storage.expires",
+			"value": 30
+		},
+		{
+			"key": "storage.refreshInSeconds",
+			"value": 86400
+		}
+	]
 };
 
 exports.EXCLUDE_PARTNER_LIST = ['pubProvidedId'];
@@ -356,22 +392,21 @@ exports.DEFAULT_ALIASES = {
 }
 exports.YAHOOSSP = "yahoossp";
 
-exports.REGEX_BROWSERS = [/\b(?:crmo|crios)\/([\w\.]+)/i,/edg(?:e|ios|a)?\/([\w\.]+)/i,/(opera mini)\/([-\w\.]+)/i,/(opera [mobiletab]{3,6})\b.+version\/([-\w\.]+)/i,/(opera)(?:.+version\/|[\/ ]+)([\w\.]+)/i,
-/opios[\/ ]+([\w\.]+)/i,/\bopr\/([\w\.]+)/i,/(kindle)\/([\w\.]+)/i,/(lunascape)[\/ ]?([\w\.]*)/i,/(maxthon)[\/ ]?([\w\.]*)/i,/(netfront)[\/ ]?([\w\.]*)/i,/(jasmine)[\/ ]?([\w\.]*)/i,/(blazer)[\/ ]?([\w\.]*)/i,
-/(avant |iemobile|slim)(?:browser)?[\/ ]?([\w\.]*)/i,/(ba?idubrowser)[\/ ]?([\w\.]+)/i,/(?:ms|\()(ie) ([\w\.]+)/i,/(flock)\/([-\w\.]+)/i,/(rockmelt)\/([-\w\.]+)/i,/(midori)\/([-\w\.]+)/i,/(epiphany)\/([-\w\.]+)/i,
-/(silk)\/([-\w\.]+)/i,/(skyfire)\/([-\w\.]+)/i,/(ovibrowser)\/([-\w\.]+)/i,/(bolt)\/([-\w\.]+)/i,/(iron)\/([-\w\.]+)/i,/(vivaldi)\/([-\w\.]+)/i,/(iridium)\/([-\w\.]+)/i,/(phantomjs)\/([-\w\.]+)/i,
-/(bowser)\/([-\w\.]+)/i,/(quark)\/([-\w\.]+)/i,/(qupzilla)\/([-\w\.]+)/i,/(falkon)\/([-\w\.]+)/i,/(rekonq)\/([-\w\.]+)/i,/(puffin)\/([-\w\.]+)/i,/(brave)\/([-\w\.]+)/i,/(whale)\/([-\w\.]+)/i,/(qqbrowserlite)\/([-\w\.]+)/i,
-/(qq)\/([-\w\.]+)/i,/(duckduckgo)\/([-\w\.]+)/i,/(weibo)__([\d\.]+)/i,/(?:\buc? ?browser|(?:juc.+)ucweb)[\/ ]?([\w\.]+)/i,/microm.+\bqbcore\/([\w\.]+)/i,/\bqbcore\/([\w\.]+).+microm/i,/micromessenger\/([\w\.]+)/i,
-/konqueror\/([\w\.]+)/i,/trident.+rv[: ]([\w\.]{1,9})\b.+like gecko/i,/yabrowser\/([\w\.]+)/i,/(avast|avg)\/([\w\.]+)/i,/\bfocus\/([\w\.]+)/i,/\bopt\/([\w\.]+)/i,/coc_coc\w+\/([\w\.]+)/i,/dolfin\/([\w\.]+)/i,
-/coast\/([\w\.]+)/i,/miuibrowser\/([\w\.]+)/i,/fxios\/([-\w\.]+)/i,/\bqihu|(qi?ho?o?|360)browser/i,/(oculus)browser\/([\w\.]+)/i,/(samsung)browser\/([\w\.]+)/i,/(sailfish)browser\/([\w\.]+)/i,/(huawei)browser\/([\w\.]+)/i,
-/(comodo_dragon)\/([\w\.]+)/i,/(electron)\/([\w\.]+) safari/i,/(tesla)(?: qtcarbrowser|\/(20\d\d\.[-\w\.]+))/i,/m?(qqbrowser|baiduboxapp|2345Explorer)[\/ ]?([\w\.]+)/i,/(metasr)[\/ ]?([\w\.]+)/i,/(lbbrowser)/i,/\[(linkedin)app\]/i,
-/((?:fban\/fbios|fb_iab\/fb4a)(?!.+fbav)|;fbav\/([\w\.]+);)/i,/safari (line)\/([\w\.]+)/i,/\b(line)\/([\w\.]+)\/iab/i,/(chromium|instagram)[\/ ]([-\w\.]+)/i,/\bgsa\/([\w\.]+) .*safari\//i,/headlesschrome(?:\/([\w\.]+)| )/i,
-/ wv\).+(chrome)\/([\w\.]+)/i,/droid.+ version\/([\w\.]+)\b.+(?:mobile safari|safari)/i,/(chrome|chromium|crios)\/v?([\w\.]+)/i,/(chrome|omniweb|arora|[tizenoka]{5} ?browser)\/v?([\w\.]+)/i,/version\/([\w\.\,]+) .*mobile\/\w+ (safari)/i,
-/version\/([\w(\.|\,)]+) .*(mobile ?safari|safari)/i,/webkit.+?(mobile ?safari|safari)(\/[\w\.]+)/i,/(navigator|netscape\d?)\/([-\w\.]+)/i,/mobile vr; rv:([\w\.]+)\).+firefox/i,/ekiohf.+(flow)\/([\w\.]+)/i,/(swiftfox)/i,
-/(icedragon|iceweasel|camino|chimera|fennec|maemo browser|minimo|conkeror|klar)[\/ ]?([\w\.\+]+)/i,/(seamonkey|k-meleon|icecat|iceape|firebird|phoenix|palemoon|basilisk|waterfox)\/([-\w\.]+)$/i,
-/(firefox)\/([\w\.]+)/i,/(mozilla)\/([\w\.]+) .+rv\:.+gecko\/\d+/i,/(polaris|lynx|dillo|icab|doris|amaya|w3m|netsurf|sleipnir|obigo|mosaic|(?:go|ice|up)[\. ]?browser)[-\/ ]?v?([\w\.]+)/i,/(links) \(([\w\.]+)/i];
-exports.BROWSER_MAPPING = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,42,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,
-	65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90];
+exports.REGEX_BROWSERS = [
+	{ regex: /\b(?:crios)\/([\w\.]+)/i, id: 1 }, // Chrome for iOS
+	{ regex: /(edg|edge)(?:e|ios|a)?(?:\/([\w\.]+))?/i, id: 2 }, // Edge
+	{ regex: /(opera|opr)(?:.+version\/|[\/ ]+)([\w\.]+)/i, id: 3 }, // Opera
+	{ regex: /(?:ms|\()(ie) ([\w\.]+)|(?:trident\/[\w\.]+)/i, id: 4 }, // Internet Explorer
+	{ regex: /fxios\/([-\w\.]+)/i, id: 5 }, // Firefox for iOS
+	{ regex: /((?:fban\/fbios|fb_iab\/fb4a)(?!.+fbav)|;fbav\/([\w\.]+);)/i, id: 6 }, // Facebook In-App Browser
+	{ regex: / wv\).+(chrome)\/([\w\.]+)/i, id: 7 }, // Chrome WebView
+	{ regex: /droid.+ version\/([\w\.]+)\b.+(?:mobile safari|safari)/i, id: 8 }, // Android Browser
+	{ regex: /(chrome|crios)(?:\/v?([\w\.]+))?\b/i, id: 9 }, // Chrome
+	{ regex: /version\/([\w\.\,]+) .*mobile\/\w+ (safari)/i, id: 10 }, // Safari Mobile
+	{ regex: /version\/([\w(\.|\,)]+) .*(mobile ?safari|safari)/i, id: 11 }, // Safari
+	{ regex: /(firefox)\/([\w\.]+)/i, id: 12 } // Firefox
+  ];
+
 
 exports.PRICE_GRANULARITY_KEYS = {
 	auto: "pbAg",

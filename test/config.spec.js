@@ -103,6 +103,32 @@ describe('Config', function() {
         });
     });
 
+    describe('#getTransactionIdStatus', function() {
+
+        it('is a function', function(done) {
+            CONFIG.getTransactionIdStatus.should.be.a('function');
+            done();
+        });
+
+        it('should return 1, as it is set to 1', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.TRANSACTION_ID] = "1";
+            CONFIG.getTransactionIdStatus().should.be.equal(1);
+            done();
+        });
+
+        it('should return 0, as it is NOT set', function(done) {
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.TRANSACTION_ID];
+            CONFIG.getTransactionIdStatus().should.be.equal(0);
+            done();
+        });
+
+        it('should return 0, as it is set to 0', function(done) {
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.TRANSACTION_ID] = 0;
+            CONFIG.getTransactionIdStatus().should.be.equal(0);
+            done();
+        });
+    });
+
     describe('#getTimeout', function() {
 
         beforeEach(function(done) {
@@ -1049,9 +1075,9 @@ describe('Config', function() {
             done();
         });
 
-        it('should return empty object if config is not present',function(done){
+        it('should return undefined if schain config is not present',function(done){
             delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.COMMON.SCHAINOBJECT];
-            CONFIG.getSchainObject().should.be.deep.equal({});
+            expect(CONFIG.getSchainObject()).to.equal(null);
             done();
         });
     });
@@ -1124,6 +1150,42 @@ describe('Config', function() {
             var expectedResult = false;
             CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.FLOOR_PRICE_MODULE_ENABLED] = "0";
             CONFIG.isFloorPriceModuleEnabled().should.be.deep.equal(expectedResult);
+            done();
+        });
+    });
+
+    describe('#isYieldOptimizerEnabled',function(){
+        beforeEach(function(done){
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.YIELD_OPTIMIZER_ENABLED] = "1";
+            done();
+        });
+
+        afterEach(function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.YIELD_OPTIMIZER_ENABLED];
+            done();
+        })
+        
+        it('is a function', function(done) {
+            CONFIG.isYieldOptimizerEnabled.should.be.a('function');
+            done();
+        });
+
+        it('should return true by reading from config', function(done) {
+            var expectedResult = true;
+            expect(CONFIG.isYieldOptimizerEnabled()).to.equal(expectedResult);
+            done();
+        });
+
+        it('should return false if isYieldOptimizerEnabled is not present',function(done){
+            delete CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.YIELD_OPTIMIZER_ENABLED];
+            expect(CONFIG.isYieldOptimizerEnabled()).to.equal(false);
+            done();
+        });
+
+        it('should return false if isYieldOptimizerEnabled set to "0"', function(done) {
+            var expectedResult = false;
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.YIELD_OPTIMIZER_ENABLED] = "0";
+            CONFIG.isYieldOptimizerEnabled().should.be.deep.equal(expectedResult);
             done();
         });
     });
@@ -1383,9 +1445,28 @@ describe('Config', function() {
             };
             CONF[CONSTANTS.COMMON.TEST_PWT]  = {};
             CONF[CONSTANTS.COMMON.TEST_IDENTITY_PARTNER]  =  result
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS].testType  =  CONSTANTS.COMMON.ABTEST_IDENTITY_PROVIDERS
             CONF[CONSTANTS.COMMON.IDENTITY_PARTNERS]  = {};
             CONFIG.updateABTestConfig()
             expect(CONFIG.getIdentityPartners()).to.deep.equal(result);
+            done();
+        });
+
+        it('should not update identityPartners when test type is Partners', function(done){
+            var identityPartners = {
+                id5Id: {
+                    name: "id5Id",
+                    "storage.type": "html5",
+                    "storage.expires": "90",
+                    "storage.name": "id5id"
+                }
+            };
+            
+            CONF[CONSTANTS.CONFIG.COMMON][CONSTANTS.CONFIG.AB_TEST_ENABLED] = 1;
+            CONF[CONSTANTS.COMMON.TEST_GROUP_DETAILS].testType  =  "Partners"
+            CONF[CONSTANTS.COMMON.IDENTITY_PARTNERS] = identityPartners;
+            CONFIG.updateABTestConfig();
+            expect(CONFIG.getIdentityPartners()).to.deep.equal(identityPartners);
             done();
         });
 

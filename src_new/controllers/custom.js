@@ -256,50 +256,68 @@ function origCustomServerExposedAPI(arrayOfAdUnits, callbackFunction){
 		}
 	});
 
-	if (qualifyingSlots.length == 0) {
-		util.error("There are no qualifyingSlots, so not calling bidders.");
+	if (arrayOfAdUnits.length === 0) {
 		callbackFunction(arrayOfAdUnits);
 		return;
 	}
 
-	// new approach without adapter-managers
-	prebid.fetchBids(qualifyingSlots);
-
-	var posTimeoutTime = Date.now() + CONFIG.getTimeout(); // post timeout condition
-	var intervalId = window.setInterval(function() {
-		// todo: can we move this code to a function?
-		if (bidManager.getAllPartnersBidStatuses(window.PWT.bidMap, qualifyingSlotDivIds) || Date.now() >= posTimeoutTime) {
-
-			clearInterval(intervalId);
-			// removeIf(removeLegacyAnalyticsRelatedCode)
-			if(isPrebidPubMaticAnalyticsEnabled === false){
-				// after some time call fire the analytics pixel
-				setTimeout(function() {
-					bidManager.executeAnalyticsPixel();
-				}, 2000);	
+	function checkAndExecute() {
+		qualifyingSlots = qualifyingSlots.filter(function(slot) {
+			var element = document.getElementById(slot.divID);
+			if (element && util.isElementInViewport(element)) {
+				executeAuction([slot], [slot.divID]);
+				return false; // Remove from the list once executed
 			}
-			// endRemoveIf(removeLegacyAnalyticsRelatedCode)
-
+			
+			return true;
+		});
+		if (qualifyingSlots.length === 0) {
+			window.removeEventListener("scroll", throttledScrollHandler);
+		}
+	}
+	
+	// Initial check in case some elements are already in view
+	if (!CONFIG.isSRAEnabled() && CONFIG.isAuctionLazyLoadingEnabled()) {
+		var throttledScrollHandler = util.throttle(checkAndExecute, 300);
+		if (qualifyingSlots.length > 0) {
+			window.addEventListener("scroll", throttledScrollHandler);
+		}
+		checkAndExecute();
+	} else {
+		executeAuction(qualifyingSlots, qualifyingSlotDivIds);
+	}
+	
+	function executeAuction(slots, slotDivIds) {
+		var newArrayOfAdUnits = arrayOfAdUnits.filter(function(adUnit) {
+			// Check if this adUnit's divId matches any slot in the slots array
+			return slots.some(function(slot) {
+				return slot.divID === adUnit.divId;
+			});
+		});
+		
+		prebid.fetchBids(slots, function() {
 			var winningBids = {}; // object:: { code : response bid or just key value pairs }
+			
 			// we should loop on qualifyingSlotDivIds to avoid confusion if two parallel calls are fired to our PWT.requestBids 
-			util.forEachOnArray(qualifyingSlotDivIds, function(index, divId) {
-				var code = mapOfDivToCode[divId];				
+			util.forEachOnArray(slotDivIds, function(index, divId) {
+				var code = mapOfDivToCode[divId];
 				winningBids[code] = refThis.findWinningBidAndGenerateTargeting(divId);
+				
 				// we need to delay the realignment as we need to do it post creative rendering :)
-				// delaying by 1000ms as creative rendering may tke time
+				// delaying by 1000ms as creative rendering may take time
 				setTimeout(util.realignVLogInfoPanel, 1000, divId);
 			});
-
+	
 			// for each adUnit in arrayOfAdUnits find the winningBids, we need to return this updated arrayOfAdUnits
-			util.forEachOnArray(arrayOfAdUnits, function(index, anAdUnitObject) {
+			util.forEachOnArray(newArrayOfAdUnits, function(index, anAdUnitObject) {
 				if (winningBids.hasOwnProperty(anAdUnitObject.code)) {
 					anAdUnitObject.bidData = winningBids[anAdUnitObject.code];
 				}
 			});
-
-			callbackFunction(arrayOfAdUnits);
-		}
-	}, 10); // check every 10 milliseconds if we have all bids or timeout has been happened.
+			
+			callbackFunction(newArrayOfAdUnits);
+		});
+	}
 }
 
 /* start-test-block */

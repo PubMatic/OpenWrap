@@ -10,6 +10,7 @@ var CONFIG = require("../../src_new/config.js");
 var BM = require("../../src_new/bidManager.js");
 var SLOT = require("../../src_new/slot.js");
 var PREBID = require("../../src_new/adapters/prebid.js");
+var COMMON_UTIL = require("../../src_new/common.util.js");
 
 var commonDivID = "DIV_1";
 
@@ -2617,6 +2618,13 @@ describe("CONTROLLER: GPT", function() {
             window.OWT = {
                 externalBidderStatuses: {}
             };
+            window.googletag = {
+                pubads: function() {
+                    return {
+                        isSRA: function() { return false; }
+                    };
+                }
+            };
             done();
         });
 
@@ -2965,7 +2973,7 @@ describe("CONTROLLER: GPT", function() {
             sinon.spy(GPT, "defineGPTVariables");
             sinon.spy(GPT, "addHooksIfPossible");
             sinon.spy(GPT, "initSafeFrameListener");
-			sinon.stub(UTIL, "getGeoInfo").returns({});
+			sinon.stub(COMMON_UTIL, "getGeoInfo").returns({});
             done();
         });
 
@@ -2976,7 +2984,7 @@ describe("CONTROLLER: GPT", function() {
             GPT.defineGPTVariables.restore();
             GPT.addHooksIfPossible.restore();
             GPT.initSafeFrameListener.restore();
-			UTIL.getGeoInfo.restore();
+			COMMON_UTIL.getGeoInfo.restore();
             done();
         });
 
